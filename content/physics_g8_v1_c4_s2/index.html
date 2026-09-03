@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>光的反射 · 可交互教材</title>
+<style>
+  :root{
+    --bg:#0e1526; --card:#16213a; --card2:#1c2a4a;
+    --ink:#f4f7ff; --ink2:#aeb9d4; --ink3:#7b88a8;
+    --gold:#ffd166; --cyan:#5ad7ff; --violet:#b48cff; --green:#5fe3a1; --red:#ff7d7d;
+    --r:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--ink); overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .stage{max-width:520px;margin:0 auto;padding:0 16px 40px;}
+  .brand{display:flex;align-items:center;gap:10px;padding:18px 4px 6px;}
+  .brand .dot{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--violet));display:grid;place-items:center;font-weight:800;color:#0e1526;font-size:18px;box-shadow:0 4px 14px rgba(90,215,255,.35);}
+  .brand .t{font-size:15px;font-weight:700;letter-spacing:.5px;}
+  .brand .s{font-size:11px;color:var(--ink3);}
+  h1{font-size:26px;line-height:1.3;margin:14px 4px 4px;font-weight:800;}
+  .sub{color:var(--ink2);font-size:14px;margin:0 4px 18px;line-height:1.7;}
+  .card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.05);}
+  .card h2{font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .chip{font-size:11px;padding:3px 9px;border-radius:99px;background:rgba(90,215,255,.15);color:var(--cyan);font-weight:600;}
+  #animWrap{position:relative;border-radius:14px;overflow:hidden;background:#0b1020;}
+  #animCv{display:block;width:100%;height:300px;}
+  .caption{
+    position:absolute;left:0;right:0;bottom:0;padding:28px 16px 14px;
+    background:linear-gradient(to top,rgba(8,12,26,.95),transparent);
+    font-size:16px;font-weight:600;line-height:1.55;min-height:80px;
+    display:flex;align-items:flex-end;
+  }
+  .caption .reveal{color:var(--gold);}
+  .animBtns{display:flex;gap:10px;margin-top:12px;}
+  .btn{
+    flex:1;border:none;border-radius:12px;padding:13px 0;font-size:15px;font-weight:700;
+    cursor:pointer;transition:transform .12s ease;color:#0e1526;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn.primary{background:linear-gradient(135deg,var(--cyan),#3fa9f5);box-shadow:0 6px 18px rgba(90,215,255,.3);}
+  .btn.ghost{background:var(--card2);color:var(--ink2);border:1px solid rgba(255,255,255,.08);}
+  .progress{height:4px;border-radius:99px;background:rgba(255,255,255,.08);margin-top:10px;overflow:hidden;}
+  .progress .bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));}
+  #labWrap{position:relative;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 130%,#132244,#0b1020);}
+  #labCv{display:block;width:100%;height:400px;touch-action:none;}
+  .readout{
+    position:absolute;top:12px;left:12px;background:rgba(14,21,38,.82);backdrop-filter:blur(6px);
+    border-radius:12px;padding:10px 14px;border:1px solid rgba(255,255,255,.08);
+  }
+  .readout .row{display:flex;gap:14px;font-size:13px;color:var(--ink2);align-items:center;}
+  .readout b{font-size:20px;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .readout .eq{color:var(--green);font-weight:700;}
+  .toggles{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .tg{
+    padding:9px 14px;border-radius:10px;background:var(--card2);color:var(--ink2);font-size:13px;
+    border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .15s;font-weight:600;
+  }
+  .tg.on{background:rgba(90,215,255,.18);color:var(--cyan);border-color:rgba(90,215,255,.5);}
+  .hint{font-size:12px;color:var(--ink3);margin-top:10px;line-height:1.6;}
+  .q .stem{font-size:15px;line-height:1.6;margin-bottom:12px;}
+  .opt{
+    display:block;width:100%;text-align:left;background:var(--card2);border:1px solid rgba(255,255,255,.08);
+    color:var(--ink);padding:13px 14px;border-radius:12px;font-size:14px;margin-bottom:8px;cursor:pointer;
+    transition:all .15s;line-height:1.5;
+  }
+  .opt:active{transform:scale(.99);}
+  .opt.right{background:rgba(95,227,161,.16);border-color:rgba(95,227,161,.6);color:var(--green);}
+  .opt.wrong{background:rgba(255,125,125,.14);border-color:rgba(255,125,125,.5);color:var(--red);}
+  .opt.dim{opacity:.45;}
+  .fb{font-size:13px;line-height:1.7;color:var(--ink2);overflow:hidden;max-height:0;transition:max-height .35s;}
+  .fb.show{max-height:260px;margin-top:6px;}
+  .fb b{color:var(--gold);}
+  .qnav{display:flex;align-items:center;justify-content:space-between;margin-top:14px;}
+  .qidx{font-size:13px;color:var(--ink3);}
+  .foot{text-align:center;color:var(--ink3);font-size:11px;margin-top:24px;line-height:1.8;}
+  .knowledge-canvas{display:block;width:100%;height:300px;background:#0b1020;border-radius:14px;}
+  .knowledge-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .knowledge-btns .tg{padding:9px 14px;border-radius:10px;background:var(--card2);color:var(--ink2);font-size:13px;border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .15s;font-weight:600;}
+  .knowledge-btns .tg.on{background:rgba(180,140,255,.18);color:var(--violet);border-color:rgba(180,140,255,.5);}
+  .summary-wrap{display:flex;flex-direction:column;gap:10px;}
+  .sum-card{background:var(--card2);border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,.06);transition:transform .15s;}
+  .sum-card h4{font-size:14px;color:var(--cyan);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+  .sum-card p{font-size:13px;color:var(--ink2);line-height:1.6;}
+  .arrow-line{display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:18px;padding:2px 0;}
+  @media(max-width:360px){
+    .readout .row{gap:10px;font-size:12px;}
+    .readout b{font-size:16px;}
+    .toggles .tg{font-size:12px;padding:8px 10px;}
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="brand">
+    <div class="dot">理</div>
+    <div><div class="t">可交互物理教材</div><div class="s">人教版 · 八年级上册 · 第四章 光现象</div></div>
+  </div>
+
+  <h1>第2节　光的反射</h1>
+  <p class="sub">为什么夜晚迎着月光走，亮的地方是水？这一节，我们用一个能动手拖的实验，把光的反射定律彻底弄明白。</p>
+
+  <div class="card">
+    <h2>悬念小剧场 <span class="chip">月光下的亮与暗</span></h2>
+    <div id="animWrap">
+      <canvas id="animCv"></canvas>
+      <div class="caption" id="cap"></div>
+    </div>
+    <div class="progress"><div class="bar" id="animBar"></div></div>
+    <div class="animBtns">
+      <button class="btn ghost" id="replayBtn">重新播放</button>
+      <button class="btn ghost" id="pauseBtn">⏸ 暂停</button>
+      <button class="btn primary" id="toLabBtn">进入动手实验 ↓</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>探究实验 <span class="chip">光的反射定律</span></h2>
+    <div id="labWrap">
+      <canvas id="labCv"></canvas>
+      <div class="readout">
+        <div class="row"><span>入射角 <b id="incVal">45</b>°</span><span>反射角 <b id="refVal">45</b>°</span><span class="eq">相等</span></div>
+      </div>
+    </div>
+    <div class="toggles">
+      <div class="tg on" id="tgSpray">💨 喷雾显光路</div>
+      <div class="tg" id="tgNormal">📏 显示法线</div>
+      <div class="tg" id="tgReverse">🔁 光路可逆</div>
+      <div class="tg" id="tgFold">📑 折叠光屏</div>
+    </div>
+    <p class="hint" id="labHint">👆 直接拖动激光笔的一端，改变入射光线的方向，观察反射角如何变化。反射角始终等于入射角。</p>
+  </div>
+
+  <div class="card">
+    <h2>知识点讲解 <span class="chip">动画演示</span></h2>
+    <canvas id="knowledgeCv" class="knowledge-canvas"></canvas>
+    <div class="knowledge-btns" id="knowledgeBtns">
+      <div class="tg on" data-mode="law">反射定律</div>
+      <div class="tg" data-mode="types">镜面与漫反射</div>
+      <div class="tg" data-mode="reversible">光路可逆</div>
+    </div>
+    <p class="hint" id="knowledgeHint">反射定律三要素：入射光线、法线、反射光线在同一平面内；入射光线和反射光线分居法线两侧；反射角等于入射角。</p>
+  </div>
+
+  <div class="card">
+    <h2>趁热打铁 <span class="chip">小练习</span></h2>
+    <div class="q" id="quiz"></div>
+    <div class="fb" id="fb"></div>
+    <div class="qnav">
+      <span class="qidx" id="qidx"></span>
+      <button class="btn ghost" style="flex:0 0 auto;padding:10px 20px" id="nextQ">下一题</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>本节小结 <span class="chip">思维导图</span></h2>
+    <div class="summary-wrap" id="summary">
+      <div class="sum-card"><h4>🌟 光的反射现象</h4><p>光遇到障碍物或界面时，一部分光被反射回原介质的现象。</p></div>
+      <div class="arrow-line">↓</div>
+      <div class="sum-card"><h4>📐 反射定律</h4><p>三线共面、两线分居、两角相等（反射角 = 入射角）。</p></div>
+      <div class="arrow-line">↓</div>
+      <div class="sum-card"><h4>🪞 镜面反射与漫反射</h4><p>光滑表面 → 镜面反射（如黑板反光、水面反光）；粗糙表面 → 漫反射（如课本、墙面能从各方向看见）。</p></div>
+      <div class="arrow-line">↓</div>
+      <div class="sum-card"><h4>🔁 光路可逆</h4><p>沿着原来的反射光线方向入射，会沿原来的入射光线方向反射出去。</p></div>
+    </div>
+  </div>
+
+  <div class="foot">可交互教材 · 效果原型 v2 · 光学章节首发演示 · 全部内容免费开放</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

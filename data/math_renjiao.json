@@ -1,0 +1,584 @@
+{
+  "subject": "数学",
+  "publisher": "人教版",
+  "edition": "2013年审定版（材料所据版本）",
+  "data_note": "源材料为2013版编排，2024新版教材章节顺序有调整，后续需人工复核",
+  "sources": [
+    "360文库37页文档（总经理抓取存档：assets/curriculum/raw_math_source.txt）"
+  ],
+  "grades": [
+    {
+      "grade": "七年级",
+      "volumes": [
+        {
+          "volume": "上册",
+          "chapters": [
+            {
+              "chapter": "第一章 有理数",
+              "sections": [
+                {
+                  "title": "1.1 正数和负数",
+                  "id": "math_g7_v1_c1_s1"
+                },
+                {
+                  "title": "1.2 有理数",
+                  "id": "math_g7_v1_c1_s2"
+                },
+                {
+                  "title": "1.3 有理数的加减法",
+                  "id": "math_g7_v1_c1_s3"
+                },
+                {
+                  "title": "1.4 有理数的乘除法",
+                  "id": "math_g7_v1_c1_s4"
+                },
+                {
+                  "title": "1.5 有理数的乘方",
+                  "id": "math_g7_v1_c1_s5"
+                }
+              ]
+            },
+            {
+              "chapter": "第二章 整式的加减",
+              "sections": [
+                {
+                  "title": "2.1 整式",
+                  "id": "math_g7_v1_c2_s1"
+                },
+                {
+                  "title": "2.2 整式的加减",
+                  "id": "math_g7_v1_c2_s2"
+                }
+              ]
+            },
+            {
+              "chapter": "第三章 一元一次方程",
+              "sections": [
+                {
+                  "title": "3.1 从算式到方程",
+                  "id": "math_g7_v1_c3_s1"
+                },
+                {
+                  "title": "3.2 解一元一次方程（一）——合并同类项与移项",
+                  "id": "math_g7_v1_c3_s2"
+                },
+                {
+                  "title": "3.3 解一元一次方程（二）——去括号与去分母",
+                  "id": "math_g7_v1_c3_s3"
+                },
+                {
+                  "title": "3.4 实际问题与一元一次方程",
+                  "id": "math_g7_v1_c3_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第四章 图形认识初步",
+              "sections": [
+                {
+                  "title": "4.1 多姿多彩的图形",
+                  "id": "math_g7_v1_c4_s1"
+                },
+                {
+                  "title": "4.2 直线、射线、线段",
+                  "id": "math_g7_v1_c4_s2"
+                },
+                {
+                  "title": "4.3 角",
+                  "id": "math_g7_v1_c4_s3"
+                },
+                {
+                  "title": "4.4 课题学习 设计制作长方体形状的包装纸盒",
+                  "id": "math_g7_v1_c4_s4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "volume": "下册",
+          "chapters": [
+            {
+              "chapter": "第五章 相交线与平行线",
+              "sections": [
+                {
+                  "title": "5.1 相交线",
+                  "id": "math_g7_v2_c5_s1"
+                },
+                {
+                  "title": "5.2 平行线",
+                  "id": "math_g7_v2_c5_s2"
+                },
+                {
+                  "title": "5.3 平行线的性质",
+                  "id": "math_g7_v2_c5_s3"
+                },
+                {
+                  "title": "5.4 平移",
+                  "id": "math_g7_v2_c5_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第六章 平面直角坐标系",
+              "sections": [
+                {
+                  "title": "6.1 平面直角坐标系",
+                  "id": "math_g7_v2_c6_s1"
+                },
+                {
+                  "title": "6.2 坐标方法的简单应用",
+                  "id": "math_g7_v2_c6_s2"
+                }
+              ]
+            },
+            {
+              "chapter": "第七章 三角形",
+              "sections": [
+                {
+                  "title": "7.1 与三角形有关的线段",
+                  "id": "math_g7_v2_c7_s1"
+                },
+                {
+                  "title": "7.2 与三角形有关的角",
+                  "id": "math_g7_v2_c7_s2"
+                },
+                {
+                  "title": "7.3 多边形及其内角和",
+                  "id": "math_g7_v2_c7_s3"
+                },
+                {
+                  "title": "7.4 镶嵌",
+                  "id": "math_g7_v2_c7_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第八章 二元一次方程组",
+              "sections": [
+                {
+                  "title": "8.1 二元一次方程组",
+                  "id": "math_g7_v2_c8_s1"
+                },
+                {
+                  "title": "8.2 消元",
+                  "id": "math_g7_v2_c8_s2"
+                },
+                {
+                  "title": "8.3 实际问题与二元一次方程组",
+                  "id": "math_g7_v2_c8_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第九章 不等式与不等式组",
+              "sections": [
+                {
+                  "title": "9.1 不等式",
+                  "id": "math_g7_v2_c9_s1"
+                },
+                {
+                  "title": "9.2 实际问题与一元一次不等式",
+                  "id": "math_g7_v2_c9_s2"
+                },
+                {
+                  "title": "9.3 一元一次不等式组",
+                  "id": "math_g7_v2_c9_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第十章 数据的收集、整理与描述",
+              "sections": [
+                {
+                  "title": "10.1 统计调查",
+                  "id": "math_g7_v2_c10_s1"
+                },
+                {
+                  "title": "10.2 直方图",
+                  "id": "math_g7_v2_c10_s2"
+                },
+                {
+                  "title": "10.3 课题学习 从数据谈节水",
+                  "id": "math_g7_v2_c10_s3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "grade": "八年级",
+      "volumes": [
+        {
+          "volume": "上册",
+          "chapters": [
+            {
+              "chapter": "第十一章 全等三角形",
+              "sections": [
+                {
+                  "title": "11.1 全等三角形",
+                  "id": "math_g8_v1_c11_s1"
+                },
+                {
+                  "title": "11.2 三角形全等的判定",
+                  "id": "math_g8_v1_c11_s2"
+                },
+                {
+                  "title": "11.3 角的平分线的性质",
+                  "id": "math_g8_v1_c11_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第十二章 轴对称",
+              "sections": [
+                {
+                  "title": "12.1 轴对称",
+                  "id": "math_g8_v1_c12_s1"
+                },
+                {
+                  "title": "12.2 轴对称变换",
+                  "id": "math_g8_v1_c12_s2"
+                },
+                {
+                  "title": "12.3 等腰三角形",
+                  "id": "math_g8_v1_c12_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第十三章 实数",
+              "sections": [
+                {
+                  "title": "13.1 平方根",
+                  "id": "math_g8_v1_c13_s1"
+                },
+                {
+                  "title": "13.2 立方根",
+                  "id": "math_g8_v1_c13_s2"
+                },
+                {
+                  "title": "13.3 实数",
+                  "id": "math_g8_v1_c13_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第十四章 一次函数",
+              "sections": [
+                {
+                  "title": "14.1 变量与函数",
+                  "id": "math_g8_v1_c14_s1"
+                },
+                {
+                  "title": "14.2 一次函数",
+                  "id": "math_g8_v1_c14_s2"
+                },
+                {
+                  "title": "14.3 用函数观点看方程（组）与不等式",
+                  "id": "math_g8_v1_c14_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第十五章 整式的乘除与因式分解",
+              "sections": [
+                {
+                  "title": "15.1 整式的乘法",
+                  "id": "math_g8_v1_c15_s1"
+                },
+                {
+                  "title": "15.2 乘法公式",
+                  "id": "math_g8_v1_c15_s2"
+                },
+                {
+                  "title": "15.3 整式的除法",
+                  "id": "math_g8_v1_c15_s3"
+                },
+                {
+                  "title": "15.4 因式分解",
+                  "id": "math_g8_v1_c15_s4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "volume": "下册",
+          "chapters": [
+            {
+              "chapter": "第十六章 分式",
+              "sections": [
+                {
+                  "title": "16.1 分式",
+                  "id": "math_g8_v2_c16_s1"
+                },
+                {
+                  "title": "16.2 分式的运算",
+                  "id": "math_g8_v2_c16_s2"
+                },
+                {
+                  "title": "16.3 分式方程",
+                  "id": "math_g8_v2_c16_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第十七章 反比例函数",
+              "sections": [
+                {
+                  "title": "17.1 反比例函数",
+                  "id": "math_g8_v2_c17_s1"
+                },
+                {
+                  "title": "17.2 实际问题与反比例函数",
+                  "id": "math_g8_v2_c17_s2"
+                }
+              ]
+            },
+            {
+              "chapter": "第十八章 勾股定理",
+              "sections": [
+                {
+                  "title": "18.1 勾股定理",
+                  "id": "math_g8_v2_c18_s1"
+                },
+                {
+                  "title": "18.2 勾股定理的逆定理",
+                  "id": "math_g8_v2_c18_s2"
+                }
+              ]
+            },
+            {
+              "chapter": "第十九章 四边形",
+              "sections": [
+                {
+                  "title": "19.1 平行四边形",
+                  "id": "math_g8_v2_c19_s1"
+                },
+                {
+                  "title": "19.2 特殊的平行四边形",
+                  "id": "math_g8_v2_c19_s2"
+                },
+                {
+                  "title": "19.3 梯形",
+                  "id": "math_g8_v2_c19_s3"
+                },
+                {
+                  "title": "19.4 重心",
+                  "id": "math_g8_v2_c19_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十章 数据的分析",
+              "sections": [
+                {
+                  "title": "20.1 数据的代表",
+                  "id": "math_g8_v2_c20_s1"
+                },
+                {
+                  "title": "20.2 数据的波动",
+                  "id": "math_g8_v2_c20_s2"
+                },
+                {
+                  "title": "20.3 课题学习 体质健康测试中的数据分析",
+                  "id": "math_g8_v2_c20_s3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "grade": "九年级",
+      "volumes": [
+        {
+          "volume": "上册",
+          "chapters": [
+            {
+              "chapter": "第二十一章 二次根式",
+              "sections": [
+                {
+                  "title": "21.1 二次根式",
+                  "id": "math_g9_v1_c21_s1"
+                },
+                {
+                  "title": "21.2 二次根式的乘除",
+                  "id": "math_g9_v1_c21_s2"
+                },
+                {
+                  "title": "21.3 二次根式的加减",
+                  "id": "math_g9_v1_c21_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十二章 一元二次方程",
+              "sections": [
+                {
+                  "title": "22.1 一元二次方程",
+                  "id": "math_g9_v1_c22_s1"
+                },
+                {
+                  "title": "22.2 降次——解一元二次方程",
+                  "id": "math_g9_v1_c22_s2"
+                },
+                {
+                  "title": "22.3 实际问题与一元二次方程",
+                  "id": "math_g9_v1_c22_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十三章 旋转",
+              "sections": [
+                {
+                  "title": "23.1 图形的旋转",
+                  "id": "math_g9_v1_c23_s1"
+                },
+                {
+                  "title": "23.2 中心对称",
+                  "id": "math_g9_v1_c23_s2"
+                },
+                {
+                  "title": "23.3 课题学习 图案设计",
+                  "id": "math_g9_v1_c23_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十四章 圆",
+              "sections": [
+                {
+                  "title": "24.1 圆",
+                  "id": "math_g9_v1_c24_s1"
+                },
+                {
+                  "title": "24.2 点和圆、直线和圆的位置关系",
+                  "id": "math_g9_v1_c24_s2"
+                },
+                {
+                  "title": "24.3 正多边形和圆",
+                  "id": "math_g9_v1_c24_s3"
+                },
+                {
+                  "title": "24.4 弧长和扇形面积",
+                  "id": "math_g9_v1_c24_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十五章 概率初步",
+              "sections": [
+                {
+                  "title": "25.1 随机事件与概率",
+                  "id": "math_g9_v1_c25_s1"
+                },
+                {
+                  "title": "25.2 用列举法求概率",
+                  "id": "math_g9_v1_c25_s2"
+                },
+                {
+                  "title": "25.3 用频率估计概率",
+                  "id": "math_g9_v1_c25_s3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "volume": "下册",
+          "chapters": [
+            {
+              "chapter": "第二十六章 二次函数",
+              "sections": [
+                {
+                  "title": "26.1 二次函数",
+                  "id": "math_g9_v2_c26_s1"
+                },
+                {
+                  "title": "26.2 用函数观点看一元二次方程",
+                  "id": "math_g9_v2_c26_s2"
+                },
+                {
+                  "title": "26.3 实际问题与二次函数",
+                  "id": "math_g9_v2_c26_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十七章 相似",
+              "sections": [
+                {
+                  "title": "27.1 图形的相似",
+                  "id": "math_g9_v2_c27_s1"
+                },
+                {
+                  "title": "27.2 相似三角形",
+                  "id": "math_g9_v2_c27_s2"
+                },
+                {
+                  "title": "27.3 位似",
+                  "id": "math_g9_v2_c27_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十八章 锐角三角函数",
+              "sections": [
+                {
+                  "title": "28.1 锐角三角函数",
+                  "id": "math_g9_v2_c28_s1"
+                },
+                {
+                  "title": "28.2 解直角三角形",
+                  "id": "math_g9_v2_c28_s2"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十九章 投影与视图",
+              "sections": [
+                {
+                  "title": "29.1 投影",
+                  "id": "math_g9_v2_c29_s1"
+                },
+                {
+                  "title": "29.2 三视图",
+                  "id": "math_g9_v2_c29_s2"
+                },
+                {
+                  "title": "29.3 课题学习 制作立体模型",
+                  "id": "math_g9_v2_c29_s3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "grade": "趣味挑战",
+      "volumes": [
+        {
+          "volume": "全一册",
+          "chapters": [
+            {
+              "chapter": "趣味挑战",
+              "sections": [
+                {
+                  "title": "鸡兔同笼",
+                  "id": "math_fun_chicken_rabbit"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

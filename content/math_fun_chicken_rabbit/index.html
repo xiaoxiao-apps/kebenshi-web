@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>鸡兔同笼 · 交互探索 v2</title>
+<style>
+:root{
+  --bg1:#FFF8E7;--bg2:#FFE9C7;--card:#fff;--ink:#3B2F23;--sub:#8A7A66;
+  --acc:#FF8C42;--acc2:#4A90D9;--ok:#2EB872;--bad:#E5534B;
+  --shadow:0 6px 20px rgba(120,80,20,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,"PingFang SC","Noto Sans SC",sans-serif;
+  background:linear-gradient(160deg,var(--bg1),var(--bg2));color:var(--ink);
+  min-height:100vh;padding:14px 14px 40px;user-select:none;-webkit-user-select:none}
+.wrap{max-width:440px;margin:0 auto}
+header{text-align:center;margin-bottom:12px}
+header h1{font-size:24px;letter-spacing:2px}
+header .sub{font-size:13px;color:var(--sub);margin-top:4px}
+.problem{background:linear-gradient(135deg,#FFD97A,#FFC85C);border-radius:18px;
+  padding:16px 16px 12px;box-shadow:var(--shadow);font-size:15px;line-height:1.7;
+  position:relative;margin-bottom:14px}
+.problem b{color:#B4560A}
+.problem .badge{position:absolute;top:-10px;left:14px;background:#B4560A;color:#fff;
+  font-size:11px;padding:3px 10px;border-radius:10px;letter-spacing:1px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{flex:1;text-align:center;padding:10px 0;border-radius:14px;font-size:15px;font-weight:600;
+  background:#fff;color:var(--sub);box-shadow:var(--shadow);cursor:pointer;transition:.2s}
+.tab.on{background:var(--acc);color:#fff}
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+.card h3{font-size:15px;margin-bottom:10px}
+.cage{background:linear-gradient(180deg,#EAF6E2 60%,#D8ECC8);border:2px dashed #B9D8A8;
+  border-radius:16px;min-height:120px;padding:10px 8px 6px;display:flex;flex-wrap:wrap;
+  gap:1px;justify-content:center;align-items:flex-end;transition:.3s;position:relative;overflow:hidden}
+.cage .grass{position:absolute;bottom:0;left:0;right:0;height:8px;
+  background:repeating-linear-gradient(90deg,#C5E3AE 0 6px,#D8ECC8 6px 12px)}
+.hero{display:flex;justify-content:center;align-items:flex-end;gap:18px;
+  background:linear-gradient(180deg,#EAF6E2 60%,#D8ECC8);border:2px dashed #B9D8A8;
+  border-radius:16px;padding:16px 10px 8px;min-height:180px;position:relative;overflow:hidden;margin-bottom:10px}
+.hero .bubble{position:absolute;top:10px;background:#fff;border:2px solid var(--acc2);
+  color:var(--acc2);font-size:12px;font-weight:700;padding:4px 10px;border-radius:12px;
+  opacity:0;transform:translateY(6px);transition:.4s;white-space:nowrap}
+.hero .bubble.show{opacity:1;transform:translateY(0)}
+.note{position:absolute;font-size:20px;animation:floatUp 1.6s ease-out forwards;pointer-events:none}
+@keyframes floatUp{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:1}100%{opacity:0;transform:translateY(-70px) rotate(15deg) scale(1.15)}}
+.whistle{position:absolute;top:12px;left:12px;font-size:28px;opacity:0;transition:.3s}
+.whistle.show{opacity:1;animation:shake .5s infinite}
+@keyframes shake{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+
+/* SVG 动物动画 */
+.av{display:inline-block;position:relative;transition:transform .3s}
+.av svg{display:block;overflow:visible}
+.av .legR,.av .legL,.av .legF,.av .legF2,.av .bodyG{transition:transform .9s cubic-bezier(.34,1.4,.5,1)}
+/* 鸡抬右腿：腿绕髋部折叠上抬 */
+.av.lift .legR{transform:rotate(-84deg)}
+.av.lift .legL{transform:translateY(0)}
+/* 兔子抬前腿：站起来，前腿收起 */
+.av.lift .legF,.av.lift .legF2{transform:rotate(-70deg)}
+.av.lift .bodyG{transform:translateY(-4px)}
+.av.lift{animation:bob .9s ease}
+@keyframes bob{0%{transform:translateY(0)}40%{transform:translateY(-5px)}100%{transform:translateY(0)}}
+.av.sit{opacity:.85}
+
+.sliderRow{margin:14px 0 2px}
+.sliderRow label{font-size:14px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:6px}
+input[type=range]{width:100%;height:34px;-webkit-appearance:none;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,#FFC85C,#FF8C42)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;
+  background:#fff;border:3px solid var(--acc);margin-top:-10px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.stats{display:flex;gap:8px;margin-top:12px}
+.stat{flex:1;background:#FFF6E3;border-radius:14px;padding:10px 6px;text-align:center}
+.stat .v{font-size:24px;font-weight:800;color:var(--acc);transition:.3s}
+.stat .v.blue{color:var(--acc2)}.stat .v.green{color:var(--ok)}
+.stat .k{font-size:11px;color:var(--sub);margin-top:2px}
+.feetBar{margin-top:12px}
+.feetBar .barBg{height:14px;background:#F0E6D2;border-radius:7px;overflow:hidden}
+.feetBar .barFill{height:100%;border-radius:7px;background:linear-gradient(90deg,#FF8C42,#E5534B);transition:width .3s}
+.feetBar .barLabel{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-top:4px}
+.formula{margin-top:12px;background:#F7F3EA;border-radius:12px;padding:10px 12px;font-size:14px;text-align:center;font-weight:600}
+.formula .hit{color:var(--ok)}
+.winBanner{display:none;text-align:center;background:linear-gradient(135deg,#2EB872,#57D99A);
+  color:#fff;border-radius:16px;padding:14px;margin-bottom:12px;font-size:16px;font-weight:700;animation:pop .4s}
+.winBanner.show{display:block}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.steps{display:flex;gap:8px;margin-bottom:12px}
+.stepBtn{flex:1;padding:12px 4px;border-radius:14px;background:#EEF4FB;color:var(--acc2);
+  font-size:13px;font-weight:700;text-align:center;cursor:pointer;transition:.2s}
+.stepBtn.on{background:var(--acc2);color:#fff}
+.narr{font-size:14px;line-height:1.8;background:#F0F6FD;border-radius:12px;padding:12px 14px;min-height:96px}
+.narr b{color:var(--acc2)}
+.nextBtn{display:block;width:100%;margin-top:12px;padding:13px 0;border:none;border-radius:14px;
+  background:linear-gradient(135deg,#4A90D9,#357ABD);color:#fff;font-size:16px;font-weight:800;
+  letter-spacing:2px;box-shadow:0 4px 14px rgba(74,144,217,.4);cursor:pointer}
+.nextBtn:disabled{opacity:.4}
+.quizQ{font-size:16px;font-weight:700;text-align:center;margin-bottom:12px}
+.answerRow{display:flex;gap:10px;margin-top:12px}
+.answerRow .field{flex:1;text-align:center}
+.answerRow input{width:100%;font-size:22px;text-align:center;padding:10px 0;border-radius:12px;
+  border:2px solid #E8DCC4;background:#FFFDF7;color:var(--ink);font-weight:800;outline:none}
+.answerRow input:focus{border-color:var(--acc)}
+.answerRow .fk{font-size:12px;color:var(--sub);margin-top:4px}
+.bigBtn{display:block;width:100%;margin-top:14px;padding:14px 0;border:none;border-radius:16px;
+  background:linear-gradient(135deg,#FF8C42,#FF6B35);color:#fff;font-size:17px;font-weight:800;
+  letter-spacing:2px;box-shadow:0 4px 14px rgba(255,120,50,.4);cursor:pointer}
+.quizMsg{text-align:center;font-size:14px;margin-top:10px;min-height:20px;font-weight:600}
+.streak{text-align:center;font-size:13px;color:var(--sub);margin-top:6px}
+footer{text-align:center;font-size:11px;color:#B9A88F;margin-top:18px;letter-spacing:1px}
+.confetti{position:fixed;top:-20px;font-size:20px;animation:fall linear forwards;pointer-events:none;z-index:99}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+/* SVG 腿部旋转基准：髋关节 */
+.av .legR,.av .legL,.av .legF,.av .legF2{transform-box:fill-box;transform-origin:50% 6%}
+.av .bodyG{transform-box:fill-box}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🐔 鸡兔同笼 🐰</h1>
+    <div class="sub">人教版数学 · 五年级上册 · 数学广角</div>
+  </header>
+
+  <div class="problem">
+    <span class="badge">出自《孙子算经》</span>
+    笼子里关着<b>鸡</b>和<b>兔</b>。从上面数有 <b>35 个头</b>，从下面数有 <b>94 只脚</b>。笼子里鸡和兔各有几只？
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" data-mode="lift" onclick="switchMode('lift')">🦵 抬腿法动画</div>
+    <div class="tab" data-mode="explore" onclick="switchMode('explore')">🔍 自己试</div>
+    <div class="tab" data-mode="quiz" onclick="switchMode('quiz')">🏆 挑战</div>
+  </div>
+
+  <!-- 模式一：抬腿法（主打，精致动画） -->
+  <div id="mode-lift">
+    <div class="card">
+      <div class="steps">
+        <div class="stepBtn on" id="sb0" onclick="setStep(0)">① 吹哨抬腿</div>
+        <div class="stepBtn" id="sb1" onclick="setStep(1)">② 数剩下的脚</div>
+        <div class="stepBtn" id="sb2" onclick="setStep(2)">③ 找出兔子</div>
+      </div>
+      <div class="hero" id="hero">
+        <div class="whistle" id="whistle">📣</div>
+        <div class="bubble" id="bubble1" style="left:20%">我们抬起 1 条腿！</div>
+        <div class="bubble" id="bubble2" style="right:12%">我们抬起 2 条前腿！</div>
+        <span id="heroChicken"></span>
+        <span id="heroRabbit"></span>
+      </div>
+      <div class="narr" id="narr"></div>
+      <div class="stats">
+        <div class="stat"><div class="v" id="lStand">94</div><div class="k">地上站着的脚</div></div>
+        <div class="stat"><div class="v blue" id="lLift">0</div><div class="k">抬起来的脚</div></div>
+        <div class="stat"><div class="v green" id="lAns">?</div><div class="k">兔子的数量</div></div>
+      </div>
+      <div class="formula" id="liftFormula">地上 94 只脚</div>
+      <button class="nextBtn" id="nextBtn" onclick="nextStep()">下一步 ▶</button>
+    </div>
+    <div class="card">
+      <h3>👀 笼子里的全部动物（跟着一起抬腿）</h3>
+      <div class="cage" id="cageLift"><div class="grass"></div></div>
+    </div>
+  </div>
+
+  <!-- 模式二：自由探索 -->
+  <div id="mode-explore" style="display:none">
+    <div class="winBanner" id="winBanner">🎉 对了！鸡 23 只，兔 12 只！</div>
+    <div class="card">
+      <h3>拖动滑块换动物，凑出 94 只脚</h3>
+      <div class="cage" id="cageExplore"><div class="grass"></div></div>
+      <div class="sliderRow">
+        <label><span>🐰 兔子数量</span><span id="rabbitLabel">17 只（其余是鸡）</span></label>
+        <input type="range" id="rabbitSlider" min="0" max="35" value="17" oninput="updateExplore()">
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="v" id="sChicken">18</div><div class="k">鸡（2只脚）</div></div>
+        <div class="stat"><div class="v blue" id="sRabbit">17</div><div class="k">兔（4只脚）</div></div>
+        <div class="stat"><div class="v green" id="sFeet">104</div><div class="k">脚 · 目标94</div></div>
+      </div>
+      <div class="feetBar">
+        <div class="barBg"><div class="barFill" id="feetFill" style="width:74%"></div></div>
+        <div class="barLabel"><span>0</span><span id="feetDiff" style="color:var(--bad)">多了 10 只脚</span><span>140</span></div>
+      </div>
+      <div class="formula" id="formula">18×2 + 17×4 = 104 ≠ 94</div>
+    </div>
+  </div>
+
+  <!-- 模式三：挑战 -->
+  <div id="mode-quiz" style="display:none">
+    <div class="card">
+      <div class="quizQ" id="quizQ"></div>
+      <div class="answerRow">
+        <div class="field"><input id="ansChicken" type="number" inputmode="numeric" placeholder="?"><div class="fk">鸡有几只</div></div>
+        <div class="field"><input id="ansRabbit" type="number" inputmode="numeric" placeholder="?"><div class="fk">兔有几只</div></div>
+      </div>
+      <button class="bigBtn" onclick="checkQuiz()">检查答案</button>
+      <div class="quizMsg" id="quizMsg"></div>
+      <div class="streak" id="streak">连对 0 题</div>
+    </div>
+  </div>
+
+  <footer>交互式教材 · 概念演示 v2</footer>
+</div>
+<script>
+const HEADS=35, FEET=94;
+/* ---------- SVG 手绘卡通动物 ---------- */
+function svgChicken(big){
+  const w=big?120:32;
+  return '<svg viewBox="0 0 64 72" width="'+w+'">'
+  +'<g class="legL"><path d="M25 46 L25 61" stroke="#E8912D" stroke-width="3.4" stroke-linecap="round" fill="none"/>'
+  +'<path d="M20 61 L30 61 M25 61 L21 66 M25 61 L28 66" stroke="#E8912D" stroke-width="2.6" stroke-linecap="round" fill="none"/></g>'
+  +'<g class="legR"><path d="M36 46 L36 61" stroke="#F5A623" stroke-width="3.4" stroke-linecap="round" fill="none"/>'
+  +'<path d="M31 61 L41 61 M36 61 L32 66 M36 61 L39 66" stroke="#F5A623" stroke-width="2.6" stroke-linecap="round" fill="none"/></g>'
+  +'<g class="bodyG">'
+  +'<path d="M14 32 Q5 30 7 22 Q13 25 16 29 Q11 24 14 19 Q18 25 19 30 Z" fill="#F2E8CF"/>'
+  +'<ellipse cx="30" cy="36" rx="17" ry="13.5" fill="#FFF6E0" stroke="#E8D9B8" stroke-width="1.4"/>'
+  +'<path d="M26 32 Q38 29 40 36 Q35 42 26 39 Z" fill="#F3E3BD"/>'
+  +'<circle cx="44" cy="19" r="9.5" fill="#FFF6E0" stroke="#E8D9B8" stroke-width="1.4"/>'
+  +'<path d="M40 10 Q41 4 43.5 8.5 Q44.5 3 46.5 8 Q48.5 4.5 48.5 10 Z" fill="#E5534B"/>'
+  +'<path d="M53 18 L60 20.5 L53 23 Z" fill="#F5A623"/>'
+  +'<circle cx="47.5" cy="17.5" r="1.7" fill="#3B2F23"/>'
+  +'<path d="M50 24 Q52 25.5 53.5 24.5" stroke="#E0A8A0" stroke-width="1.2" fill="none" stroke-linecap="round"/>'
+  +'</g></svg>';
+}
+function svgRabbit(big){
+  const w=big?120:32;
+  return '<svg viewBox="0 0 64 74" width="'+w+'">'
+  +'<g class="legB2"><path d="M20 48 L20 64" stroke="#C9BFB4" stroke-width="4" stroke-linecap="round" fill="none"/>'
+  +'<path d="M16 64 L25 64" stroke="#C9BFB4" stroke-width="2.6" stroke-linecap="round"/></g>'
+  +'<g class="legF2"><path d="M41 47 L41 63" stroke="#C9BFB4" stroke-width="3.4" stroke-linecap="round" fill="none"/>'
+  +'<path d="M37 63 L45 63" stroke="#C9BFB4" stroke-width="2.4" stroke-linecap="round"/></g>'
+  +'<g class="bodyG">'
+  +'<circle cx="11" cy="35" r="5.5" fill="#FFFFFF" stroke="#DDD5CC" stroke-width="1.2"/>'
+  +'<ellipse cx="28" cy="38" rx="18" ry="13" fill="#F3F0EC" stroke="#DDD5CC" stroke-width="1.4"/>'
+  +'<ellipse cx="46" cy="25" rx="8.5" ry="8" fill="#F8F6F3" stroke="#DDD5CC" stroke-width="1.4"/>'
+  +'<ellipse cx="42" cy="9" rx="3.4" ry="9" fill="#F8F6F3" stroke="#DDD5CC" stroke-width="1.2" transform="rotate(-14 42 9)"/>'
+  +'<ellipse cx="42.4" cy="10.5" rx="1.6" ry="6.5" fill="#F5C6C0" transform="rotate(-14 42.4 10.5)"/>'
+  +'<ellipse cx="49" cy="9.5" rx="3.4" ry="9" fill="#F8F6F3" stroke="#DDD5CC" stroke-width="1.2" transform="rotate(12 49 9.5)"/>'
+  +'<ellipse cx="48.8" cy="11" rx="1.6" ry="6.5" fill="#F5C6C0" transform="rotate(12 48.8 11)"/>'
+  +'<circle cx="49" cy="24" r="1.6" fill="#3B2F23"/>'
+  +'<path d="M53.5 27.5 L56 28.5 L53.5 29.8 Z" fill="#F0938B"/>'
+  +'<path d="M54 31 L58 30 M54 32 L58 33" stroke="#C9BFB4" stroke-width=".9" stroke-linecap="round"/>'
+  +'</g>'
+  +'<g class="legB"><path d="M24 48 L24 65" stroke="#B5A99B" stroke-width="4.4" stroke-linecap="round" fill="none"/>'
+  +'<path d="M19 65 L30 65" stroke="#B5A99B" stroke-width="2.8" stroke-linecap="round"/></g>'
+  +'<g class="legF"><path d="M45 47 L45 63" stroke="#DDD5CC" stroke-width="3.6" stroke-linecap="round" fill="none"/>'
+  +'<path d="M41 63 L49 63" stroke="#DDD5CC" stroke-width="2.5" stroke-linecap="round"/></g>'
+  +'</svg>';
+}
+function mkAnimal(type,lifted){
+  const s=document.createElement('span');
+  s.className='av'+(lifted?' lift':'');
+  s.innerHTML=(type==='c')?svgChicken(false):svgRabbit(false);
+  return s;
+}
+function renderCage(el,rabbits,total,lifted){
+  el.querySelectorAll('.av').forEach(a=>a.remove());
+  const ch=total-rabbits;
+  for(let i=0;i<ch;i++)el.appendChild(mkAnimal('c',lifted));
+  for(let i=0;i<rabbits;i++)el.appendChild(mkAnimal('r',lifted));
+}
+/* ---------- 抬腿法：分步动画 ---------- */
+let curStep=0;
+const narrs=[
+ '📣 <b>吹哨！</b>所有动物听口令：<b>抬起自己一半的腿</b>！<br>🐔 鸡有 2 条腿 → 抬起 1 条，只剩 <b>1 条腿站着</b>；<br>🐰 兔有 4 条腿 → 抬起 2 条前腿，只剩 <b>2 条后腿站着</b>。<br><b>点"下一步"继续 👇</b>',
+ '现在数地上的脚：原来 94 只，每只动物都抬起了一半，所以地上只剩 <b>94 ÷ 2 = 47 只脚</b>。<br>🐔 每只鸡地上 1 只脚，🐰 每只兔地上 2 只脚。',
+ '关键一步！35 个头 = 35 只动物。如果全是鸡，每只站 1 条腿，地上应该正好 <b>35 只脚</b>。<br>可地上有 47 只脚，多出 <b>47 − 35 = 12 只脚</b>。<br>谁多站了？只有<b>兔子</b>每只多站 1 条！所以多出来的脚数 = 兔子的数量：<b>兔 = 12 只，鸡 = 23 只</b> 🎉'
+];
+function setStep(i){
+  curStep=i;
+  document.querySelectorAll('.stepBtn').forEach((b,idx)=>b.classList.toggle('on',idx===i));
+  document.getElementById('narr').innerHTML=narrs[i];
+  const lifted=i>=1;
+  document.getElementById('heroChicken').innerHTML='<span class="av'+(lifted?' lift':'')+'">'+svgChicken(true)+'</span>';
+  document.getElementById('heroRabbit').innerHTML='<span class="av'+(lifted?' lift':'')+'">'+svgRabbit(true)+'</span>';
+  document.getElementById('bubble1').classList.toggle('show',i===0);
+  document.getElementById('bubble2').classList.toggle('show',i===0);
+  document.getElementById('whistle').classList.toggle('show',i===0);
+  renderCage(document.getElementById('cageLift'),12,HEADS,lifted);
+  if(i===1)playNotes();
+  const stand=i===0?94:47, liftN=i===0?0:47;
+  document.getElementById('lStand').textContent=stand;
+  document.getElementById('lLift').textContent=liftN;
+  document.getElementById('lAns').textContent=i===2?'12':'?';
+  const f=document.getElementById('liftFormula');
+  if(i===0)f.textContent='地上 94 只脚，每只动物抬一半';
+  else if(i===1)f.textContent='94 ÷ 2 = 47 只脚在地上';
+  else f.innerHTML='<span class="hit">兔 = 47 − 35 = 12 只，鸡 = 23 只 ✔</span>';
+  document.getElementById('nextBtn').disabled=(i===2);
+  if(i===2)confetti();
+}
+function nextStep(){ if(curStep<2) setStep(curStep+1); }
+function playNotes(){
+  const hero=document.getElementById('hero');
+  const emo=['👣','🔢','✨'];
+  for(let k=0;k<4;k++){
+    setTimeout(()=>{
+      const n=document.createElement('span');
+      n.className='note';n.textContent=emo[k%3];
+      n.style.left=(30+Math.random()*40)+'%';n.style.bottom='30px';
+      hero.appendChild(n);setTimeout(()=>n.remove(),1700);
+    },k*350);
+  }
+}
+/* ---------- 自由探索 ---------- */
+function updateExplore(){
+  const r=+document.getElementById('rabbitSlider').value;
+  const c=HEADS-r, feet=c*2+r*4;
+  document.getElementById('rabbitLabel').textContent=r+' 只（其余是鸡）';
+  document.getElementById('sChicken').textContent=c;
+  document.getElementById('sRabbit').textContent=r;
+  document.getElementById('sFeet').textContent=feet;
+  renderCage(document.getElementById('cageExplore'),r,HEADS,false);
+  document.getElementById('feetFill').style.width=Math.min(feet/140*100,100)+'%';
+  const diff=feet-FEET, dEl=document.getElementById('feetDiff');
+  if(diff===0){
+    dEl.textContent='正好 94 只！';dEl.style.color='var(--ok)';
+    document.getElementById('winBanner').classList.add('show');
+    document.getElementById('formula').innerHTML='<span class="hit">✓ '+c+'×2 + '+r+'×4 = 94 ✔</span>';
+    confetti();
+  }else{
+    document.getElementById('winBanner').classList.remove('show');
+    dEl.textContent=diff>0?'多了 '+diff+' 只脚':'少了 '+(-diff)+' 只脚';
+    dEl.style.color=diff>0?'var(--bad)':'var(--acc2)';
+    document.getElementById('formula').textContent=c+'×2 + '+r+'×4 = '+feet+' ≠ 94';
+  }
+}
+/* ---------- 挑战 ---------- */
+let qHeads=35,qFeet=94,qC=23,qR=12,streakN=0;
+function newQuiz(){
+  qR=2+Math.floor(Math.random()*13);qC=3+Math.floor(Math.random()*15);
+  qHeads=qC+qR;qFeet=qC*2+qR*4;
+  document.getElementById('quizQ').innerHTML='笼子里有 <b>'+qHeads+' 个头</b>、<b>'+qFeet+' 只脚</b>，鸡和兔各几只？';
+  document.getElementById('ansChicken').value='';
+  document.getElementById('ansRabbit').value='';
+  document.getElementById('quizMsg').textContent='';
+}
+function checkQuiz(){
+  const c=+document.getElementById('ansChicken').value,r=+document.getElementById('ansRabbit').value;
+  const msg=document.getElementById('quizMsg');
+  if(c===qC&&r===qR){
+    streakN++;msg.textContent='🎉 答对了！'+c+'×2 + '+r+'×4 = '+qFeet;msg.style.color='var(--ok)';
+    confetti();setTimeout(newQuiz,1600);
+  }else{
+    streakN=0;
+    const feet=c*2+r*4,heads=c+r;let hint='';
+    if(heads!==qHeads)hint='头数对不上：你凑了 '+heads+' 个头，要 '+qHeads+' 个。';
+    else if(feet>qFeet)hint='脚太多了（'+feet+'），把一只兔换成鸡试试。';
+    else hint='脚太少了（'+feet+'），把一只鸡换成兔试试。';
+    msg.textContent='❌ '+hint;msg.style.color='var(--bad)';
+  }
+  document.getElementById('streak').textContent='连对 '+streakN+' 题';
+}
+/* ---------- 通用 ---------- */
+function switchMode(m){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.mode===m));
+  ['lift','explore','quiz'].forEach(x=>document.getElementById('mode-'+x).style.display=(x===m?'block':'none'));
+}
+function confetti(){
+  const emo=['🎉','⭐','🐔','🐰','✨'];
+  for(let i=0;i<14;i++){
+    const s=document.createElement('span');s.className='confetti';
+    s.textContent=emo[Math.floor(Math.random()*emo.length)];
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDuration=(1.2+Math.random()*1.2)+'s';
+    document.body.appendChild(s);setTimeout(()=>s.remove(),2600);
+  }
+}
+setStep(0);updateExplore();newQuiz();
+</script>
+</body>
+</html>

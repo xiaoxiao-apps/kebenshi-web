@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>长度和时间的测量 · 可交互教材</title>
+<style>
+  :root{
+    --bg:#0e1526; --card:#16213a; --card2:#1c2a4a;
+    --ink:#f4f7ff; --ink2:#aeb9d4; --ink3:#7b88a8;
+    --gold:#ffd166; --cyan:#5ad7ff; --violet:#b48cff; --green:#5fe3a1; --red:#ff7d7d; --orange:#ff9a5e;
+    --r:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--ink); overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .stage{max-width:520px;margin:0 auto;padding:0 16px 40px;}
+  .brand{display:flex;align-items:center;gap:10px;padding:18px 4px 6px;}
+  .brand .dot{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--violet));display:grid;place-items:center;font-weight:800;color:#0e1526;font-size:18px;box-shadow:0 4px 14px rgba(90,215,255,.35);}
+  .brand .t{font-size:15px;font-weight:700;letter-spacing:.5px;}
+  .brand .s{font-size:11px;color:var(--ink3);}
+  h1{font-size:26px;line-height:1.3;margin:14px 4px 4px;font-weight:800;}
+  .sub{color:var(--ink2);font-size:14px;margin:0 4px 18px;line-height:1.7;}
+  .card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.05);}
+  .card h2{font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .chip{font-size:11px;padding:3px 9px;border-radius:99px;background:rgba(90,215,255,.15);color:var(--cyan);font-weight:600;}
+
+  #animWrap{position:relative;border-radius:14px;overflow:hidden;background:#0b1020;}
+  #animCv{display:block;width:100%;height:300px;}
+  .caption{position:absolute;left:0;right:0;bottom:0;padding:28px 16px 14px;background:linear-gradient(to top,rgba(8,12,26,.95),transparent);font-size:16px;font-weight:600;line-height:1.55;min-height:80px;display:flex;align-items:flex-end;}
+  .caption .reveal{color:var(--gold);}
+  .animBtns{display:flex;gap:10px;margin-top:12px;}
+  .btn{flex:1;border:none;border-radius:12px;padding:13px 0;font-size:15px;font-weight:700;cursor:pointer;transition:transform .12s ease;color:#0e1526;}
+  .btn:active{transform:scale(.97);}
+  .btn.primary{background:linear-gradient(135deg,var(--cyan),#3fa9f5);box-shadow:0 6px 18px rgba(90,215,255,.3);}
+  .btn.ghost{background:var(--card2);color:var(--ink2);border:1px solid rgba(255,255,255,.08);}
+  .progress{height:4px;border-radius:99px;background:rgba(255,255,255,.08);margin-top:10px;overflow:hidden;}
+  .progress .bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));}
+
+  .labBox{position:relative;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 130%,#132244,#0b1020);margin-bottom:14px;}
+  .labBox canvas{display:block;width:100%;height:360px;touch-action:none;}
+  .labTitle{font-size:14px;font-weight:700;color:var(--ink2);margin:0 4px 8px;display:flex;align-items:center;gap:6px;}
+  .labTitle::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cyan);}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .controls .btn{flex:0 0 auto;padding:10px 18px;font-size:14px;}
+  .inputLine{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap;}
+  .inputLine input, .inputLine select{
+    background:var(--card2);border:1px solid rgba(255,255,255,.08);color:var(--ink);padding:10px 14px;border-radius:10px;
+    font-size:15px;font-weight:700;outline:none;min-width:120px;
+  }
+  .inputLine input::placeholder{color:var(--ink3);}
+  .feedback{margin-top:10px;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.7;display:none;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:rgba(95,227,161,.12);border:1px solid rgba(95,227,161,.4);color:var(--green);}
+  .feedback.err{background:rgba(255,125,125,.12);border:1px solid rgba(255,125,125,.4);color:var(--red);}
+  .feedback.info{background:rgba(90,215,255,.12);border:1px solid rgba(90,215,255,.4);color:var(--cyan);}
+  .hint{font-size:12px;color:var(--ink3);margin-top:10px;line-height:1.6;}
+
+  .opt{display:block;width:100%;text-align:left;background:var(--card2);border:1px solid rgba(255,255,255,.08);color:var(--ink);padding:13px 14px;border-radius:12px;font-size:14px;margin-bottom:8px;cursor:pointer;transition:all .15s;line-height:1.5;}
+  .opt:active{transform:scale(.99);}
+  .opt.right{background:rgba(95,227,161,.16);border-color:rgba(95,227,161,.6);color:var(--green);}
+  .opt.wrong{background:rgba(255,125,125,.14);border-color:rgba(255,125,125,.5);color:var(--red);}
+  .opt.dim{opacity:.45;}
+  .fb{font-size:13px;line-height:1.7;color:var(--ink2);overflow:hidden;max-height:0;transition:max-height .35s;}
+  .fb.show{max-height:220px;margin-top:6px;}
+  .fb b{color:var(--gold);}
+  .qnav{display:flex;align-items:center;justify-content:space-between;margin-top:14px;}
+  .qidx{font-size:13px;color:var(--ink3);}
+
+  .lock{
+    background:linear-gradient(135deg,#1c2a4a,#221a3d);border-radius:var(--r);padding:20px;margin-top:6px;
+    border:1px solid rgba(180,140,255,.25);position:relative;overflow:hidden;
+  }
+  .lock .lk{position:absolute;top:14px;right:14px;font-size:11px;background:rgba(180,140,255,.2);color:var(--violet);padding:4px 10px;border-radius:99px;font-weight:700;}
+  .lock h3{font-size:16px;margin-bottom:8px;}
+  .lock p{font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:14px;}
+  .lock ul{list-style:none;margin-bottom:16px;}
+  .lock li{font-size:13px;color:var(--ink2);padding:5px 0;display:flex;gap:8px;align-items:center;}
+  .lock li::before{content:"✓";color:var(--green);font-weight:800;}
+  .lock .btn{width:100%;background:linear-gradient(135deg,var(--violet),#8a5cf6);color:#fff;box-shadow:0 8px 22px rgba(180,140,255,.35);}
+  .foot{text-align:center;color:var(--ink3);font-size:11px;margin-top:24px;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="brand">
+    <div class="dot">理</div>
+    <div><div class="t">可交互物理教材</div><div class="s">人教版 · 八年级上册 · 第一章 机械运动</div></div>
+  </div>
+
+  <h1>第1节　长度和时间的测量</h1>
+  <p class="sub">“差不多”到底有多长？没有测量，生活就会闹笑话。这一节，我们拿起刻度尺和停表，把“大约”变成“准确”。</p>
+
+  <div class="card">
+    <h2>悬念小剧场 <span class="chip">“差不多”惹的祸</span></h2>
+    <div id="animWrap">
+      <canvas id="animCv"></canvas>
+      <div class="caption" id="cap"></div>
+    </div>
+    <div class="progress"><div class="bar" id="animBar"></div></div>
+    <div class="animBtns">
+      <button class="btn ghost" id="replayBtn">↺ 重新播放</button>
+      <button class="btn ghost" id="pauseBtn">⏸ 暂停</button>
+      <button class="btn primary" id="toLabBtn">进入动手实验 ↓</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>互动实验区 <span class="chip">刻度尺与停表</span></h2>
+
+    <div class="labBox">
+      <div class="labTitle">刻度尺读数练习</div>
+      <canvas id="rulerCv"></canvas>
+      <div class="controls" style="padding:0 16px 16px;">
+        <div class="inputLine">
+          <select id="rulerUnit"><option value="cm">cm</option><option value="mm">mm</option></select>
+          <input id="rulerAns" type="text" placeholder="如 2.35" autocomplete="off">
+          <button class="btn primary" id="rulerCheck">提交答案</button>
+          <button class="btn ghost" id="rulerNext">换一题</button>
+        </div>
+        <div class="feedback" id="rulerFb"></div>
+        <p class="hint">👆 读数时先看量程和分度值，末端读齐整刻度后再估读到分度值的下一位；读数时视线要与刻度尺垂直。</p>
+      </div>
+    </div>
+
+    <div class="labBox">
+      <div class="labTitle">停表读数练习</div>
+      <canvas id="stopwatchCv"></canvas>
+      <div class="controls" style="padding:0 16px 16px;">
+        <div class="inputLine">
+          <input id="swMin" type="text" placeholder="分" autocomplete="off" style="min-width:70px;text-align:center;">
+          <span style="color:var(--ink3);font-weight:700;">分</span>
+          <input id="swSec" type="text" placeholder="秒" autocomplete="off" style="min-width:90px;text-align:center;">
+          <span style="color:var(--ink3);font-weight:700;">秒</span>
+          <button class="btn primary" id="swCheck">提交读数</button>
+        </div>
+        <div class="feedback" id="swFb"></div>
+        <p class="hint">👆 小表盘读分钟：指针过中线则大表盘读 30~60 s，没过中线则读 0~30 s。大表盘读秒要估读到 0.1 s。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>趁热打铁 <span class="chip">小练习</span></h2>
+    <div id="quiz"></div>
+    <div class="fb" id="fb"></div>
+    <div class="qnav">
+      <span class="qidx" id="qidx"></span>
+      <button class="btn ghost" style="flex:0 0 auto;padding:10px 20px" id="nextQ">下一题</button>
+    </div>
+  </div>
+
+  <div class="lock">
+    <span class="lk">完整版</span>
+    <h3>解锁本节完整内容</h3>
+    <p>免费试吃到这里。想真正掌握长度和时间的测量，还有这些在等你：</p>
+    <ul>
+      <li>长度单位换算与误差分析专题</li>
+      <li>12 道同步真题练习 + 逐题详解</li>
+      <li>难点视频：特殊测量方法</li>
+      <li>本节思维导图 + 学习进度同步</li>
+    </ul>
+    <button class="btn">开通会员 · 解锁全部章节</button>
+  </div>
+
+  <div class="foot">可交互教材 · 效果原型 v1 · 机械运动章节首发演示</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

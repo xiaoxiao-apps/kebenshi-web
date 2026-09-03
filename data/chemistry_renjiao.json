@@ -1,0 +1,116 @@
+{
+  "subject": "化学",
+  "publisher": "人教版",
+  "edition": "2012年教育部审定（新人教版）",
+  "grades": [
+    {
+      "grade": "九年级",
+      "volumes": [
+        {
+          "volume": "上册",
+          "chapters": [
+            {
+              "chapter": "第一单元 走进化学世界",
+              "sections": [
+                {"title": "课题1 物质的变化和性质", "id": "chemistry_g9_v1_c1_s1"},
+                {"title": "课题2 化学是一门以实验为基础的科学", "id": "chemistry_g9_v1_c1_s2"},
+                {"title": "课题3 走进化学实验室", "id": "chemistry_g9_v1_c1_s3"}
+              ]
+            },
+            {
+              "chapter": "第二单元 我们周围的空气",
+              "sections": [
+                {"title": "课题1 空气", "id": "chemistry_g9_v1_c2_s1"},
+                {"title": "课题2 氧气", "id": "chemistry_g9_v1_c2_s2"},
+                {"title": "课题3 制取氧气", "id": "chemistry_9a_unit2_chapter2_oxygen", "experimentId": "oxygen"}
+              ]
+            },
+            {
+              "chapter": "第三单元 物质构成的奥秘",
+              "sections": [
+                {"title": "课题1 分子和原子", "id": "chemistry_g9_v1_c3_s1"},
+                {"title": "课题2 原子的结构", "id": "chemistry_g9_v1_c3_s2"},
+                {"title": "课题3 元素", "id": "chemistry_g9_v1_c3_s3"}
+              ]
+            },
+            {
+              "chapter": "第四单元 自然界的水",
+              "sections": [
+                {"title": "课题1 爱护水资源", "id": "chemistry_g9_v1_c4_s1"},
+                {"title": "课题2 水的净化", "id": "chemistry_g9_v1_c4_s2"},
+                {"title": "课题3 水的组成", "id": "chemistry_g9_v1_c4_s3"},
+                {"title": "课题4 化学式与化合价", "id": "chemistry_g9_v1_c4_s4"}
+              ]
+            },
+            {
+              "chapter": "第五单元 化学方程式",
+              "sections": [
+                {"title": "课题1 质量守恒定律", "id": "chemistry_g9_v1_c5_s1"},
+                {"title": "课题2 如何正确书写化学方程式", "id": "chemistry_g9_v1_c5_s2"},
+                {"title": "课题3 利用化学方程式的简单计算", "id": "chemistry_g9_v1_c5_s3"}
+              ]
+            },
+            {
+              "chapter": "第六单元 碳和碳的氧化物",
+              "sections": [
+                {"title": "课题1 金刚石、石墨和C60", "id": "chemistry_g9_v1_c6_s1"},
+                {"title": "课题2 二氧化碳制取的研究", "id": "chemistry_g9_v1_c6_s2"},
+                {"title": "课题3 二氧化碳和一氧化碳", "id": "chemistry_g9_v1_c6_s3"}
+              ]
+            },
+            {
+              "chapter": "第七单元 燃料及其利用",
+              "sections": [
+                {"title": "课题1 燃烧和灭火", "id": "chemistry_g9_v1_c7_s1"},
+                {"title": "课题2 燃料的合理利用与开发", "id": "chemistry_g9_v1_c7_s2"}
+              ]
+            }
+          ]
+        },
+        {
+          "volume": "下册",
+          "chapters": [
+            {
+              "chapter": "第八单元 金属和金属材料",
+              "sections": [
+                {"title": "课题1 金属材料", "id": "chemistry_g9_v2_c8_s1"},
+                {"title": "课题2 金属的化学性质", "id": "chemistry_g9_v2_c8_s2"},
+                {"title": "课题3 金属资源的利用和保护", "id": "chemistry_g9_v2_c8_s3"}
+              ]
+            },
+            {
+              "chapter": "第九单元 溶液",
+              "sections": [
+                {"title": "课题1 溶液的形成", "id": "chemistry_g9_v2_c9_s1"},
+                {"title": "课题2 溶解度", "id": "chemistry_g9_v2_c9_s2"},
+                {"title": "课题3 溶质的质量分数", "id": "chemistry_g9_v2_c9_s3"}
+              ]
+            },
+            {
+              "chapter": "第十单元 酸和碱",
+              "sections": [
+                {"title": "课题1 常见的酸和碱", "id": "chemistry_g9_v2_c10_s1"},
+                {"title": "课题2 酸和碱的中和反应", "id": "chemistry_g9_v2_c10_s2"}
+              ]
+            },
+            {
+              "chapter": "第十一单元 盐 化肥",
+              "sections": [
+                {"title": "课题1 生活中常见的盐", "id": "chemistry_g9_v2_c11_s1"},
+                {"title": "课题2 化学肥料", "id": "chemistry_g9_v2_c11_s2"}
+              ]
+            },
+            {
+              "chapter": "第十二单元 化学与生活",
+              "sections": [
+                {"title": "课题1 人类重要的营养物质", "id": "chemistry_g9_v2_c12_s1"},
+                {"title": "课题2 化学元素与人体健康", "id": "chemistry_g9_v2_c12_s2"},
+                {"title": "课题3 有机合成材料", "id": "chemistry_g9_v2_c12_s3"}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

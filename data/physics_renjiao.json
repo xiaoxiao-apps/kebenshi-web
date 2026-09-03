@@ -1,0 +1,482 @@
+{
+  "subject": "物理",
+  "publisher": "人教版",
+  "edition": "教育部2012年审定（2011年修订）义务教育教科书",
+  "grades": [
+    {
+      "grade": "八年级",
+      "volumes": [
+        {
+          "volume": "上册",
+          "chapters": [
+            {
+              "chapter": "第一章 机械运动",
+              "sections": [
+                {
+                  "title": "第1节 长度和时间的测量",
+                  "id": "physics_g8_v1_c1_s1"
+                },
+                {
+                  "title": "第2节 运动的描述",
+                  "id": "physics_g8_v1_c1_s2"
+                },
+                {
+                  "title": "第3节 运动的快慢",
+                  "id": "physics_g8_v1_c1_s3"
+                },
+                {
+                  "title": "第4节 测量平均速度",
+                  "id": "physics_g8_v1_c1_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第二章 声现象",
+              "sections": [
+                {
+                  "title": "第1节 声音的产生与传播",
+                  "id": "physics_g8_v1_c2_s1"
+                },
+                {
+                  "title": "第2节 声音的特性",
+                  "id": "physics_g8_v1_c2_s2"
+                },
+                {
+                  "title": "第3节 声的利用",
+                  "id": "physics_g8_v1_c2_s3"
+                },
+                {
+                  "title": "第4节 噪声的危害和控制",
+                  "id": "physics_g8_v1_c2_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第三章 物态变化",
+              "sections": [
+                {
+                  "title": "第1节 温度",
+                  "id": "physics_g8_v1_c3_s1"
+                },
+                {
+                  "title": "第2节 熔化和凝固",
+                  "id": "physics_g8_v1_c3_s2"
+                },
+                {
+                  "title": "第3节 汽化和液化",
+                  "id": "physics_g8_v1_c3_s3"
+                },
+                {
+                  "title": "第4节 升华和凝华",
+                  "id": "physics_g8_v1_c3_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第四章 光现象",
+              "sections": [
+                {
+                  "title": "第1节 光的直线传播",
+                  "id": "physics_g8_v1_c4_s1"
+                },
+                {
+                  "title": "第2节 光的反射",
+                  "id": "physics_g8_v1_c4_s2"
+                },
+                {
+                  "title": "第3节 平面镜成像",
+                  "id": "physics_g8_v1_c4_s3"
+                },
+                {
+                  "title": "第4节 光的折射",
+                  "id": "physics_g8_v1_c4_s4"
+                },
+                {
+                  "title": "第5节 光的色散",
+                  "id": "physics_g8_v1_c4_s5"
+                }
+              ]
+            },
+            {
+              "chapter": "第五章 透镜及其应用",
+              "sections": [
+                {
+                  "title": "第1节 透镜",
+                  "id": "physics_g8_v1_c5_s1"
+                },
+                {
+                  "title": "第2节 生活中的透镜",
+                  "id": "physics_g8_v1_c5_s2"
+                },
+                {
+                  "title": "第3节 凸透镜成像的规律",
+                  "id": "physics_g8_v1_c5_s3"
+                },
+                {
+                  "title": "第4节 眼睛和眼镜",
+                  "id": "physics_g8_v1_c5_s4"
+                },
+                {
+                  "title": "第5节 显微镜和望远镜",
+                  "id": "physics_g8_v1_c5_s5"
+                }
+              ]
+            },
+            {
+              "chapter": "第六章 质量与密度",
+              "sections": [
+                {
+                  "title": "第1节 质量",
+                  "id": "physics_g8_v1_c6_s1"
+                },
+                {
+                  "title": "第2节 密度",
+                  "id": "physics_g8_v1_c6_s2"
+                },
+                {
+                  "title": "第3节 测量物质的密度",
+                  "id": "physics_g8_v1_c6_s3"
+                },
+                {
+                  "title": "第4节 密度与社会生活",
+                  "id": "physics_g8_v1_c6_s4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "volume": "下册",
+          "chapters": [
+            {
+              "chapter": "第七章 力",
+              "sections": [
+                {
+                  "title": "第1节 力",
+                  "id": "physics_g8_v2_c7_s1"
+                },
+                {
+                  "title": "第2节 弹力",
+                  "id": "physics_g8_v2_c7_s2"
+                },
+                {
+                  "title": "第3节 重力",
+                  "id": "physics_g8_v2_c7_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第八章 运动和力",
+              "sections": [
+                {
+                  "title": "第1节 牛顿第一定律",
+                  "id": "physics_g8_v2_c8_s1"
+                },
+                {
+                  "title": "第2节 二力平衡",
+                  "id": "physics_g8_v2_c8_s2"
+                },
+                {
+                  "title": "第3节 摩擦力",
+                  "id": "physics_g8_v2_c8_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第九章 压强",
+              "sections": [
+                {
+                  "title": "第1节 压强",
+                  "id": "physics_g8_v2_c9_s1"
+                },
+                {
+                  "title": "第2节 液体的压强",
+                  "id": "physics_g8_v2_c9_s2"
+                },
+                {
+                  "title": "第3节 大气压强",
+                  "id": "physics_g8_v2_c9_s3"
+                },
+                {
+                  "title": "第4节 流体压强与流速的关系",
+                  "id": "physics_g8_v2_c9_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第十章 浮力",
+              "sections": [
+                {
+                  "title": "第1节 浮力",
+                  "id": "physics_g8_v2_c10_s1"
+                },
+                {
+                  "title": "第2节 阿基米德原理",
+                  "id": "physics_g8_v2_c10_s2"
+                },
+                {
+                  "title": "第3节 物体的浮沉条件及应用",
+                  "id": "physics_g8_v2_c10_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第十一章 功和机械能",
+              "sections": [
+                {
+                  "title": "第1节 功",
+                  "id": "physics_g8_v2_c11_s1"
+                },
+                {
+                  "title": "第2节 功率",
+                  "id": "physics_g8_v2_c11_s2"
+                },
+                {
+                  "title": "第3节 动能和势能",
+                  "id": "physics_g8_v2_c11_s3"
+                },
+                {
+                  "title": "第4节 机械能及其转化",
+                  "id": "physics_g8_v2_c11_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第十二章 简单机械",
+              "sections": [
+                {
+                  "title": "第1节 杠杆",
+                  "id": "physics_g8_v2_c12_s1"
+                },
+                {
+                  "title": "第2节 滑轮",
+                  "id": "physics_g8_v2_c12_s2"
+                },
+                {
+                  "title": "第3节 机械效率",
+                  "id": "physics_g8_v2_c12_s3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "grade": "九年级",
+      "volumes": [
+        {
+          "volume": "全一册",
+          "chapters": [
+            {
+              "chapter": "第十三章 内能",
+              "sections": [
+                {
+                  "title": "第1节 分子热运动",
+                  "id": "physics_g9_v1_c13_s1"
+                },
+                {
+                  "title": "第2节 内能",
+                  "id": "physics_g9_v1_c13_s2"
+                },
+                {
+                  "title": "第3节 比热容",
+                  "id": "physics_g9_v1_c13_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第十四章 内能的利用",
+              "sections": [
+                {
+                  "title": "第1节 热机",
+                  "id": "physics_g9_v1_c14_s1"
+                },
+                {
+                  "title": "第2节 热机的效率",
+                  "id": "physics_g9_v1_c14_s2"
+                },
+                {
+                  "title": "第3节 能量的转化和守恒",
+                  "id": "physics_g9_v1_c14_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第十五章 电流和电路",
+              "sections": [
+                {
+                  "title": "第1节 两种电荷",
+                  "id": "physics_g9_v1_c15_s1"
+                },
+                {
+                  "title": "第2节 电流和电路",
+                  "id": "physics_g9_v1_c15_s2"
+                },
+                {
+                  "title": "第3节 串联和并联",
+                  "id": "physics_g9_v1_c15_s3"
+                },
+                {
+                  "title": "第4节 电流的测量",
+                  "id": "physics_g9_v1_c15_s4"
+                },
+                {
+                  "title": "第5节 串、并联电路中电流的规律",
+                  "id": "physics_g9_v1_c15_s5"
+                }
+              ]
+            },
+            {
+              "chapter": "第十六章 电压 电阻",
+              "sections": [
+                {
+                  "title": "第1节 电压",
+                  "id": "physics_g9_v1_c16_s1"
+                },
+                {
+                  "title": "第2节 串、并联电路中电压的规律",
+                  "id": "physics_g9_v1_c16_s2"
+                },
+                {
+                  "title": "第3节 电阻",
+                  "id": "physics_g9_v1_c16_s3"
+                },
+                {
+                  "title": "第4节 变阻器",
+                  "id": "physics_g9_v1_c16_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第十七章 欧姆定律",
+              "sections": [
+                {
+                  "title": "第1节 电流与电压和电阻的关系",
+                  "id": "physics_g9_v1_c17_s1"
+                },
+                {
+                  "title": "第2节 欧姆定律",
+                  "id": "physics_g9_v1_c17_s2"
+                },
+                {
+                  "title": "第3节 电阻的测量",
+                  "id": "physics_g9_v1_c17_s3"
+                },
+                {
+                  "title": "第4节 欧姆定律在串、并联电路中的应用",
+                  "id": "physics_g9_v1_c17_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第十八章 电功率",
+              "sections": [
+                {
+                  "title": "第1节 电能 电功",
+                  "id": "physics_g9_v1_c18_s1"
+                },
+                {
+                  "title": "第2节 电功率",
+                  "id": "physics_g9_v1_c18_s2"
+                },
+                {
+                  "title": "第3节 测量小灯泡的电功率",
+                  "id": "physics_g9_v1_c18_s3"
+                },
+                {
+                  "title": "第4节 焦耳定律",
+                  "id": "physics_g9_v1_c18_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第十九章 生活用电",
+              "sections": [
+                {
+                  "title": "第1节 家庭电路",
+                  "id": "physics_g9_v1_c19_s1"
+                },
+                {
+                  "title": "第2节 家庭电路中电流过大的原因",
+                  "id": "physics_g9_v1_c19_s2"
+                },
+                {
+                  "title": "第3节 安全用电",
+                  "id": "physics_g9_v1_c19_s3"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十章 电与磁",
+              "sections": [
+                {
+                  "title": "第1节 磁现象 磁场",
+                  "id": "physics_g9_v1_c20_s1"
+                },
+                {
+                  "title": "第2节 电生磁",
+                  "id": "physics_g9_v1_c20_s2"
+                },
+                {
+                  "title": "第3节 电磁铁 电磁继电器",
+                  "id": "physics_g9_v1_c20_s3"
+                },
+                {
+                  "title": "第4节 电动机",
+                  "id": "physics_g9_v1_c20_s4"
+                },
+                {
+                  "title": "第5节 磁生电",
+                  "id": "physics_g9_v1_c20_s5"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十一章 信息的传递",
+              "sections": [
+                {
+                  "title": "第1节 现代顺风耳——电话",
+                  "id": "physics_g9_v1_c21_s1"
+                },
+                {
+                  "title": "第2节 电磁波的海洋",
+                  "id": "physics_g9_v1_c21_s2"
+                },
+                {
+                  "title": "第3节 广播、电视和移动通信",
+                  "id": "physics_g9_v1_c21_s3"
+                },
+                {
+                  "title": "第4节 越来越宽的信息之路",
+                  "id": "physics_g9_v1_c21_s4"
+                }
+              ]
+            },
+            {
+              "chapter": "第二十二章 能源与可持续发展",
+              "sections": [
+                {
+                  "title": "第1节 能源",
+                  "id": "physics_g9_v1_c22_s1"
+                },
+                {
+                  "title": "第2节 核能",
+                  "id": "physics_g9_v1_c22_s2"
+                },
+                {
+                  "title": "第3节 太阳能",
+                  "id": "physics_g9_v1_c22_s3"
+                },
+                {
+                  "title": "第4节 能源与可持续发展",
+                  "id": "physics_g9_v1_c22_s4"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
