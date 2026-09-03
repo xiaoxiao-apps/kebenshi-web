@@ -116,8 +116,9 @@ function renderVolume(volume, gradeName){
     </div>`;
   }).join('');
 
+  const volumeLabel = volume && volume.volume ? volume.volume : '';
   app.innerHTML = `<button class="back" onclick="renderGrades(state.data)">‹ 返回${gradeName || '年级'}</button>
-    <div class="section-title">${subject} · ${gradeName} · ${volume.volume}</div>
+    <div class="section-title">${subject} · ${gradeName} · ${volumeLabel}</div>
     <div class="chapter-tree">${rows}</div>`;
 
   app.querySelectorAll('.section:not(.offline)').forEach(sec => {
