@@ -24,7 +24,18 @@ function roundRectPath(ctx, x, y, w, h, r){
   var cv = document.getElementById('animCv');
   var cap = document.getElementById('cap');
   var bar = document.getElementById('animBar');
-  var cssH = cv.clientHeight || 320;
+
+  /* 根据是否全屏决定 canvas 的 CSS 高度 */
+  function getCssH(){
+    var wrap = document.getElementById('fsWrap');
+    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if((wrap && wrap.classList.contains('pseudo-fullscreen')) || fsEl === wrap){
+      return window.innerHeight;
+    }
+    return window.innerWidth <= 768 ? 260 : 320;
+  }
+
+  var cssH = getCssH();
   var g = fitCanvas(cv, cssH);
   var t0 = null, raf = null, elapsed = 0, lastNow = 0, paused = false;
   var DUR = 36000;
@@ -221,9 +232,18 @@ function roundRectPath(ctx, x, y, w, h, r){
   });
 
   window.addEventListener('resize', function(){
-    cssH = cv.clientHeight || 320;
+    cssH = getCssH();
     g = fitCanvas(cv, cssH);
   });
+
+  // 全屏绑定（此前漏绑，导致点击全屏按钮无反应）
+  if(window.FullscreenHelper){
+    FullscreenHelper.bind(
+      document.getElementById('fsWrap'),
+      document.getElementById('fsBtn'),
+      function(){ cssH = getCssH(); g = fitCanvas(cv, cssH); }
+    );
+  }
 
   start();
 })();

@@ -171,15 +171,19 @@ function openContent(id){
     </div>
   `;
   document.body.appendChild(shell);
+  // 锁住外层页面滚动，避免外层+iframe 出现双滚动条
+  document.documentElement.style.overflow = 'hidden';
 
-  shell.querySelector('#tocBtn').addEventListener('click', () => {
+  const closeShell = () => {
+    document.documentElement.style.overflow = '';
     shell.remove();
-  });
+  };
+  shell.querySelector('#tocBtn').addEventListener('click', closeShell);
   shell.querySelector('#prevBtn').addEventListener('click', () => {
-    if (prev) { shell.remove(); openContent(prev.id); }
+    if (prev) { closeShell(); openContent(prev.id); }
   });
   shell.querySelector('#nextBtn').addEventListener('click', () => {
-    if (next) { shell.remove(); openContent(next.id); }
+    if (next) { closeShell(); openContent(next.id); }
   });
 }
 
