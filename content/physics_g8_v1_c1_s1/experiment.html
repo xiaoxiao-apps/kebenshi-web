@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>互动实验区 · 长度和时间的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  #rulerCv { height: 360px; }
+  #stopwatchCv { height: 360px; }
+  @media (max-width: 768px) {
+    #rulerCv { height: 300px; }
+    #stopwatchCv { height: 300px; }
+  }
+  .pseudo-fullscreen #rulerCv,
+  .pseudo-fullscreen #stopwatchCv { height: 100vh !important; }
+  .btn-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .btn-row .btn { flex: 1; min-width: 100px; }
+  @media (max-width: 768px) {
+    .btn-row { flex-direction: column; }
+    .btn-row .btn { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html">‹ 返回本节</a>
+
+  <div class="page-header">
+    <h1 class="page-title">🔬 互动实验区</h1>
+    <p class="page-subtitle">动手练一练：刻度尺估读要估到分度值的下一位，停表读数先看小表盘再看大表盘。</p>
+  </div>
+
+  <!-- 实验一：刻度尺读数 -->
+  <div class="card">
+    <h2>实验一：刻度尺读数 <span class="chip cyan">长度测量</span></h2>
+    <div class="lab-box">
+      <div class="lab-title">量程 0~8 cm、分度值 1 mm 的刻度尺测铅笔长度</div>
+      <div class="fullscreen-wrap" id="fsRulerWrap">
+        <button class="fullscreen-btn" id="fsRulerBtn" title="全屏">⛶</button>
+        <canvas id="rulerCv"></canvas>
+      </div>
+    </div>
+    <div class="input-line">
+      <input type="text" id="rulerAns" inputmode="decimal" placeholder="读数" autocomplete="off">
+      <select id="rulerUnit">
+        <option value="cm">cm</option>
+        <option value="mm">mm</option>
+      </select>
+      <button class="btn btn-primary" id="rulerCheck">✓ 检查读数</button>
+      <button class="btn btn-secondary" id="rulerNext">↺ 换一题</button>
+    </div>
+    <div class="feedback" id="rulerFb"></div>
+    <p class="hint">提示：注意估读到分度值的下一位（即 0.01 cm）；物体不一定从 0 刻度量起，长度 = 末端刻度 − 起始刻度。支持键盘回车提交。</p>
+  </div>
+
+  <!-- 实验二：停表读数 -->
+  <div class="card">
+    <h2>实验二：停表读数 <span class="chip brown">时间测量</span></h2>
+    <div class="lab-box">
+      <div class="lab-title">点画面里的"出题"按钮给停表设定读数，再写下你的答案</div>
+      <div class="fullscreen-wrap" id="fsSwWrap">
+        <button class="fullscreen-btn" id="fsSwBtn" title="全屏">⛶</button>
+        <canvas id="stopwatchCv"></canvas>
+      </div>
+    </div>
+    <div class="input-line">
+      <input type="text" id="swMin" inputmode="numeric" placeholder="分" autocomplete="off">
+      <input type="text" id="swSec" inputmode="decimal" placeholder="秒" autocomplete="off">
+      <button class="btn btn-primary" id="swCheck">✓ 检查读数</button>
+    </div>
+    <div class="feedback" id="swFb"></div>
+    <p class="hint">提示：小表盘（分钟盘）指针是否越过中线，决定大表盘读 0~30 s 还是 30~60 s。</p>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn btn-primary" href="quiz.html">进入小练习 →</a>
+  </div>
+</div>
+
+<script src="fullscreen.js"></script>
+<script src="experiment.js"></script>
+</body>
+</html>

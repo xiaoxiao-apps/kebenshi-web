@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>导入小剧场 · 长度和时间的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  #animWrap { height: 320px; }
+  #animCv { height: 320px; }
+  @media (max-width: 768px) {
+    #animWrap { height: 260px; }
+    #animCv { height: 260px; }
+  }
+  .pseudo-fullscreen #animWrap,
+  .pseudo-fullscreen #animCv { height: 100vh !important; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html">‹ 返回本节</a>
+
+  <div class="page-header">
+    <h1 class="page-title">🎬 导入小剧场</h1>
+    <p class="page-subtitle">"差不多"惹的祸 —— 看小明不测量的翻车经历</p>
+  </div>
+
+  <div class="card">
+    <h2>悬念小剧场 <span class="chip brown">动画演示</span></h2>
+    <div class="fullscreen-wrap" id="fsWrap">
+      <button class="fullscreen-btn" id="fsBtn" title="全屏">⛶</button>
+      <div id="animWrap" style="position:relative;border-radius:12px;overflow:hidden;background:#f3efe8;">
+        <canvas id="animCv"></canvas>
+        <div class="caption" id="cap"></div>
+      </div>
+    </div>
+    <div class="progress"><div class="bar" id="animBar"></div></div>
+    <div class="anim-btns">
+      <button class="btn btn-secondary" id="replayBtn">↺ 重新播放</button>
+      <button class="btn btn-secondary" id="pauseBtn">⏸ 暂停</button>
+      <button class="btn btn-primary" id="toExperimentBtn">进入动手实验 →</button>
+    </div>
+  </div>
+</div>
+
+<script src="fullscreen.js"></script>
+<script src="anim.js"></script>
+</body>
+</html>

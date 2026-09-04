@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>本节小结 · 长度和时间的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .mind { margin-top: 8px; }
+  .branch { background: var(--brown-bg); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+  .branch h3 { margin: 0 0 10px; color: var(--brown); font-size: 16px; }
+  .leaf { display: flex; align-items: flex-start; gap: 8px; background: #fff; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: 14px; line-height: 1.6; }
+  .leaf:last-child { margin-bottom: 0; }
+  .leaf .dot { color: var(--green); font-weight: 700; }
+  .warn { background: var(--red-bg); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; line-height: 1.8; font-size: 14px; }
+  .warn h3 { margin: 0 0 8px; color: var(--red); font-size: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html">‹ 返回本节</a>
+
+  <div class="page-header">
+    <h1 class="page-title">📋 本节小结</h1>
+    <p class="page-subtitle">一张导图回顾要点，把知识装进框架</p>
+  </div>
+
+  <div class="card">
+    <div class="mind">
+      <div class="branch">
+        <h3>📏 长度单位</h3>
+        <div class="leaf"><span class="dot">•</span><span>国际单位：<b>米（m）</b>；常用 km、dm、cm、mm、μm、nm</span></div>
+        <div class="leaf"><span class="dot">•</span><span>1 m = 1000 mm，1 mm = 1000 μm，1 μm = 1000 nm；m/dm/cm/mm 相邻进率为 10</span></div>
+      </div>
+
+      <div class="branch">
+        <h3>🔧 刻度尺使用五步：认、放、看、读、记</h3>
+        <div class="leaf"><span class="dot">•</span><span>认清量程与分度值；尺放正、紧贴被测物</span></div>
+        <div class="leaf"><span class="dot">•</span><span>视线与尺面垂直（防视差）；起点可不对齐 0 刻度（末端减起始）</span></div>
+        <div class="leaf"><span class="dot">•</span><span>读数 = 准确值 + <b>估读到分度值下一位</b>；结果必须带单位</span></div>
+      </div>
+
+      <div class="branch">
+        <h3>⏱ 停表读数</h3>
+        <div class="leaf"><span class="dot">•</span><span>小表盘读分钟（每格 0.5 min），大表盘读秒（一圈 30 s，每格 0.1 s）</span></div>
+        <div class="leaf"><span class="dot">•</span><span>读数 = 小表盘分钟数 + 大表盘秒数</span></div>
+      </div>
+
+      <div class="warn">
+        <h3>⚠️ 两大易错点</h3>
+        ① 估读：分度值 1 mm 的尺，2.35 cm 才对，2.3 cm 和 2.350 cm 都不行。<br>
+        ② 半分钟进位：小表盘指针过中线 → 大表盘读数要加 30 s（1 min 37.5 s ≠ 1 min 7.5 s）。
+      </div>
+    </div>
+  </div>
+
+  <div class="anim-btns">
+    <a class="btn btn-secondary" href="quiz.html">↩ 回小练习再练一遍</a>
+    <a class="btn btn-primary" href="index.html">返回本节导航</a>
+  </div>
+</div>
+</body>
+</html>

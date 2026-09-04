@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 长度和时间的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .unit-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .unit-pill { background: var(--brown-bg); color: var(--brown); border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 14px; }
+  .conv { font-size: 13px; color: var(--ink2); line-height: 1.8; margin: 8px 0 0; }
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 12px 0; }
+  .steps li { position: relative; padding: 10px 12px 10px 52px; margin-bottom: 10px; background: var(--green-bg); border-radius: 10px; line-height: 1.6; }
+  .steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .steps li b { color: var(--green); }
+  .tipbox { border-left: 4px solid var(--brown); background: var(--brown-bg); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; line-height: 1.7; }
+  .ruler-demo { background: #fff; border: 1px solid #e6dfd0; border-radius: 10px; padding: 16px; margin: 12px 0; overflow-x: auto; }
+  .stopwatch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  @media (max-width: 600px) { .stopwatch-grid { grid-template-columns: 1fr; } }
+  .dial-card { background: var(--brown-bg); border-radius: 10px; padding: 14px; line-height: 1.7; }
+  .dial-card h4 { margin: 0 0 6px; color: var(--brown); }
+  .key-formula { background: var(--green-bg); border-radius: 10px; padding: 12px 16px; font-weight: 700; color: var(--green); text-align: center; margin: 12px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html">‹ 返回本节</a>
+
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">长度单位、刻度尺使用、停表读数 —— 三大要点一次讲清</p>
+  </div>
+
+  <div class="card">
+    <h2>一、长度的单位 <span class="chip brown">基础概念</span></h2>
+    <p>国际单位制中，长度的基本单位是 <b>米（m）</b>。常用单位从小到大：</p>
+    <div class="unit-row">
+      <span class="unit-pill">nm 纳米</span>
+      <span class="unit-pill">μm 微米</span>
+      <span class="unit-pill">mm 毫米</span>
+      <span class="unit-pill">cm 厘米</span>
+      <span class="unit-pill">dm 分米</span>
+      <span class="unit-pill">m 米</span>
+      <span class="unit-pill">km 千米</span>
+    </div>
+    <p class="conv">
+      相邻大单位换算（km→m→dm→cm→mm）相邻进率 <b>10</b>（km→m 为 1000）；<br>
+      1 m = 1000 mm；1 mm = 1000 μm；1 μm = 1000 nm。<br>
+      记忆口诀：<b>千米到米乘一千，米到毫米乘一千，再往下都是乘十，只有三个"千"字记心间。</b>
+    </p>
+    <div class="tipbox">💡 感受参照：课桌高约 0.8 m；物理课本宽约 18 cm；头发丝直径约 70 μm；病毒大小约 100 nm。</div>
+  </div>
+
+  <div class="card">
+    <h2>二、刻度尺的使用 <span class="chip brown">核心考点</span></h2>
+    <p>使用刻度尺牢记"<b>认、放、看、读、记</b>"五步：</p>
+    <ol class="steps">
+      <li><b>认</b>：认清量程和分度值（分度值 = 相邻两刻度线代表的长度，如 1 mm）。</li>
+      <li><b>放</b>：刻度尺放正、紧贴被测物体；被测端不一定要对齐 0 刻度线，对齐整数刻度也可以，读数时用末端刻度减起始刻度。</li>
+      <li><b>看</b>：读数时视线要与尺面 <b>垂直</b>，正对刻度线，不能斜视（斜视会产生视差）。</li>
+      <li><b>读</b>：读出准确值，并 <b>估读到分度值的下一位</b>。如分度值 1 mm，要读到 0.1 mm（即 0.01 cm）。</li>
+      <li><b>记</b>：记录结果 = 数值 + 单位，缺单位的记录没有意义。</li>
+    </ol>
+    <div class="key-formula">物体长度 = 末端刻度 − 起始刻度，结果含一位估读值</div>
+    <div class="tipbox">⚠️ 易错：分度值 1 mm 的尺，读数 2.35 cm 正确；2.3 cm（没估读）和 2.350 cm（多了一位）都不对。</div>
+  </div>
+
+  <div class="card">
+    <h2>三、停表的读数 <span class="chip brown">易错点</span></h2>
+    <p>机械停表有两个表盘：</p>
+    <div class="stopwatch-grid">
+      <div class="dial-card">
+        <h4>⏱ 小表盘 = 分钟</h4>
+        每小格 0.5 min；指针指示整分钟数。
+      </div>
+      <div class="dial-card">
+        <h4>⏱ 大表盘 = 秒</h4>
+        一圈 30 s，每小格 0.1 s。
+      </div>
+    </div>
+    <div class="tipbox">
+      ⚠️ <b>半分钟进位陷阱</b>：小表盘指针若 <b>越过两分钟刻度的中线</b>，说明秒数已进入 30~60 s 段，此时大表盘读数要 <b>加 30 s</b>。例如小表盘在 1 与 2 之间且过中线、大表盘指 7.5，则读数为 <b>1 min 37.5 s</b>，而不是 1 min 7.5 s！
+    </div>
+  </div>
+
+  <div class="anim-btns">
+    <a class="btn btn-primary" href="experiment.html">进入互动实验区 →</a>
+  </div>
+</div>
+</body>
+</html>
