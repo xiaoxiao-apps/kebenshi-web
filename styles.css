@@ -73,10 +73,27 @@ body{
 }
 .grade-item:active{transform:scale(.985)}
 .grade-item .name{font-size:16px;font-weight:700;margin-bottom:6px}
-.grade-item .volumes{display:flex;gap:8px;flex-wrap:wrap}
+.grade-item .volumes{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
 .volume-pill{
   font-size:13px;padding:6px 12px;border-radius:99px;background:#eff6ff;color:#1d4ed8;
   font-weight:600;border:1px solid #dbeafe;
+}
+.volume-card{
+  display:inline-block;width:150px;cursor:pointer;transition:transform .12s ease;
+}
+.volume-card:active{transform:scale(.985)}
+.volume-card img{
+  width:100%;border-radius:10px;
+  box-shadow:0 4px 14px rgba(0,0,0,.18);
+  display:block;
+}
+.volume-card .vc-title{
+  text-align:center;font-weight:700;font-size:14px;margin-top:8px;
+}
+@media (max-width:600px){
+  .volume-card{
+    width:clamp(120px,40vw,170px);
+  }
 }
 
 .chapter-tree{display:flex;flex-direction:column;gap:16px}

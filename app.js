@@ -4,6 +4,10 @@ const SUBJECT_FILES = {
   '化学': 'data/chemistry_renjiao.json'
 };
 
+const VOLUME_COVERS = {
+  'physics_g8_v1': 'assets/covers/physics_g8_v1.png'
+};
+
 const SUBJECT_ICONS = {'物理': '🔬', '数学': '📐', '化学': '🧪'};
 const SUBJECT_DESC = {'物理': '八至九年级人教版物理互动实验', '数学': '七至九年级人教版数学互动探索', '化学': '九年级人教版化学互动实验'};
 
@@ -67,7 +71,16 @@ async function selectSubject(name){
 function renderGrades(data){
   const app = $('#app');
   const rows = data.grades.map((g, gi) => {
-    const volumes = g.volumes.map((v, vi) => `<span class="volume-pill" data-gi="${gi}" data-vi="${vi}">${v.volume}</span>`).join('');
+    const volumes = g.volumes.map((v, vi) => {
+      const cover = VOLUME_COVERS[v.id];
+      if (cover) {
+        return `<div class="volume-card" data-gi="${gi}" data-vi="${vi}">
+          <img src="${cover}" alt="${v.volume}">
+          <div class="vc-title">${v.volume}</div>
+        </div>`;
+      }
+      return `<span class="volume-pill" data-gi="${gi}" data-vi="${vi}">${v.volume}</span>`;
+    }).join('');
     return `<div class="grade-item" data-gi="${gi}">
       <div class="name">${g.grade}</div>
       <div class="volumes">${volumes}</div>
@@ -80,7 +93,7 @@ function renderGrades(data){
     </div>
     <div class="grade-list">${rows}</div>`;
 
-  app.querySelectorAll('.volume-pill').forEach(p => {
+  app.querySelectorAll('.volume-pill, .volume-card').forEach(p => {
     p.addEventListener('click', (e) => {
       e.stopPropagation();
       const gi = parseInt(p.dataset.gi);
