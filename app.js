@@ -93,7 +93,7 @@ function renderGrades(data){
       const cover = VOLUME_COVERS[v.id];
       if (cover) {
         return `<div class="volume-card" data-gi="${gi}" data-vi="${vi}">
-          <img src="${cover}" alt="${v.volume}">
+          <img src="${cover}" alt="${v.volume}" loading="lazy" decoding="async">
           <div class="vc-title">${v.volume}</div>
         </div>`;
       }
