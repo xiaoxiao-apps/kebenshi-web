@@ -5,7 +5,7 @@ const SUBJECT_FILES = {
 };
 
 const VOLUME_COVERS = {
-  'physics_g8_v1': 'assets/covers/physics_g8_v1.png'
+  'physics_g8_v1': 'assets/covers/physics_g8_v1.jpg'
 };
 
 const SUBJECT_ICONS = {'物理': '🔬', '数学': '📐', '化学': '🧪'};
