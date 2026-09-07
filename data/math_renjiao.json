@@ -8,6 +8,96 @@
   ],
   "grades": [
     {
+      "grade": "一年级",
+      "volumes": [
+        {
+          "id": "math_g1_v1",
+          "volume": "上册",
+          "chapters": []
+        },
+        {
+          "id": "math_g1_v2",
+          "volume": "下册",
+          "chapters": []
+        }
+      ]
+    },
+    {
+      "grade": "二年级",
+      "volumes": [
+        {
+          "id": "math_g2_v1",
+          "volume": "上册",
+          "chapters": []
+        },
+        {
+          "id": "math_g2_v2",
+          "volume": "下册",
+          "chapters": []
+        }
+      ]
+    },
+    {
+      "grade": "三年级",
+      "volumes": [
+        {
+          "id": "math_g3_v1",
+          "volume": "上册",
+          "chapters": []
+        },
+        {
+          "id": "math_g3_v2",
+          "volume": "下册",
+          "chapters": []
+        }
+      ]
+    },
+    {
+      "grade": "四年级",
+      "volumes": [
+        {
+          "id": "math_g4_v1",
+          "volume": "上册",
+          "chapters": []
+        },
+        {
+          "id": "math_g4_v2",
+          "volume": "下册",
+          "chapters": []
+        }
+      ]
+    },
+    {
+      "grade": "五年级",
+      "volumes": [
+        {
+          "id": "math_g5_v1",
+          "volume": "上册",
+          "chapters": []
+        },
+        {
+          "id": "math_g5_v2",
+          "volume": "下册",
+          "chapters": []
+        }
+      ]
+    },
+    {
+      "grade": "六年级",
+      "volumes": [
+        {
+          "id": "math_g6_v1",
+          "volume": "上册",
+          "chapters": []
+        },
+        {
+          "id": "math_g6_v2",
+          "volume": "下册",
+          "chapters": []
+        }
+      ]
+    },
+    {
       "grade": "七年级",
       "volumes": [
         {

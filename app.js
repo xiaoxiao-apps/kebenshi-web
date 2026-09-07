@@ -8,6 +8,15 @@ const VOLUME_COVERS = {
   'physics_g8_v1': 'assets/covers/physics_g8_v1.jpg',
   'physics_g8_v2': 'assets/covers/physics_g8_v2.jpg',
   'physics_g9_v1': 'assets/covers/physics_g9_v1.jpg',
+  'math_g1_v1': 'assets/covers/math_g1_v1.jpg',
+  'math_g1_v2': 'assets/covers/math_g1_v2.jpg',
+  'math_g2_v1': 'assets/covers/math_g2_v1.jpg',
+  'math_g2_v2': 'assets/covers/math_g2_v2.jpg',
+  'math_g3_v1': 'assets/covers/math_g3_v1.jpg',
+  'math_g3_v2': 'assets/covers/math_g3_v2.jpg',
+  'math_g4_v1': 'assets/covers/math_g4_v1.jpg',
+  'math_g5_v1': 'assets/covers/math_g5_v1.jpg',
+  'math_g6_v1': 'assets/covers/math_g6_v1.jpg',
   'math_g7_v1': 'assets/covers/math_g7_v1.jpg',
   'math_g7_v2': 'assets/covers/math_g7_v2.jpg',
   'math_g8_v1': 'assets/covers/math_g8_v1.jpg',
@@ -18,7 +27,7 @@ const VOLUME_COVERS = {
 };
 
 const SUBJECT_ICONS = {'物理': '🔬', '数学': '📐', '化学': '🧪'};
-const SUBJECT_DESC = {'物理': '八至九年级人教版物理互动实验', '数学': '七至九年级人教版数学互动探索', '化学': '九年级人教版化学互动实验'};
+const SUBJECT_DESC = {'物理': '八至九年级人教版物理互动实验', '数学': '一至九年级人教版数学互动探索', '化学': '九年级人教版化学互动实验'};
 
 const AVAILABLE = {
   'physics_g8_v1_c4_s2': { title: '光的反射', file: 'content/physics_g8_v1_c4_s2/index.html' },

@@ -1,0 +1,15 @@
+来源：国家中小学智慧教育平台（教育部官方 basic.smartedu.cn）电子教材库
+API: https://s-file-1.ykt.cbern.com.cn/zxx/ndrs/resources/tch_material/version/data_version.json -> part_100/101.json
+均为（根据2022年版课程标准修订）人教版小学数学，封面徽章"国家教材委员会专家委员会审核通过 2024"，已逐张视觉核验。
+math_g1_v1 一年级上册 c3e06fe4-c6b3-49cb-8727-4f8ff69bbfbc
+math_g1_v2 一年级下册 6bf8ae7e-d987-40b4-8fb3-bbb98fcb50b5
+math_g2_v1 二年级上册 8cfc5a2a-425c-4b9a-a97c-e78d4a4c1e3a
+math_g2_v2 二年级下册 c1897b18-b302-4e8d-9fd4-40915c4b05c2
+math_g3_v1 三年级上册 33c8d495-9862-4e19-aab9-61d2af08608a
+math_g3_v2 三年级下册 8666a8bd-a0e7-49aa-ba07-bf419ceead24
+math_g4_v1 四年级上册 654e3d1e-c995-4340-81c5-abd7881d835b
+math_g5_v1 五年级上册 d0d6252f-2233-4f66-9ac9-440638d56fec
+math_g6_v1 六年级上册 845136d4-e27b-4e7e-b9a9-00cadf4f9e20
+备注：四下(aa00ab9d)/五下(83339b94)/六下(8e650f4c) 官方库仅收录"教育部审定2022"旧版封面，按蔡总"一定要最新版"指示不采用，网页保持占位胶囊，待官方库更新2024新版后再补。
+抓取日期：2026-09-07
+版权备忘：教材封面著作权属人民教育出版社，当前仅内部原型展示，正式对外发布前需评估版权风险。
