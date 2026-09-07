@@ -14,6 +14,10 @@
   }
   .pseudo-fullscreen #animWrap,
   .pseudo-fullscreen #animCv { height: 100vh !important; }
+  /* 真全屏（Fullscreen API）时容器撑满 */
+  #fsWrap:fullscreen { height: 100vh; border-radius: 0; background: #f3efe8; }
+  #fsWrap:fullscreen #animWrap,
+  #fsWrap:fullscreen #animCv { height: 100vh !important; border-radius: 0; }
 </style>
 </head>
 <body>

@@ -108,9 +108,9 @@ body{
 }
 .content-frame{flex:1;width:100%;border:none}
 .content-nav{
-  position:fixed;bottom:0;left:0;right:0;background:var(--card);
+  flex-shrink:0;background:var(--card);
   border-top:1px solid var(--muted);padding:10px 16px calc(10px + env(safe-area-inset-bottom));
-  display:flex;gap:10px;justify-content:space-between;align-items:center;z-index:101;
+  display:flex;gap:10px;justify-content:space-between;align-items:center;
 }
 .content-nav button{
   flex:1;border:none;border-radius:12px;padding:12px 8px;font-size:15px;font-weight:700;
