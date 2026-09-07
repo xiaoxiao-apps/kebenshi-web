@@ -7,7 +7,14 @@ const SUBJECT_FILES = {
 const VOLUME_COVERS = {
   'physics_g8_v1': 'assets/covers/physics_g8_v1.jpg',
   'physics_g8_v2': 'assets/covers/physics_g8_v2.jpg',
-  'physics_g9_v1': 'assets/covers/physics_g9_v1.jpg'
+  'physics_g9_v1': 'assets/covers/physics_g9_v1.jpg',
+  'math_g7_v1': 'assets/covers/math_g7_v1.jpg',
+  'math_g7_v2': 'assets/covers/math_g7_v2.jpg',
+  'math_g8_v1': 'assets/covers/math_g8_v1.jpg',
+  'math_g8_v2': 'assets/covers/math_g8_v2.jpg',
+  'math_g9_v1': 'assets/covers/math_g9_v1.jpg',
+  'chemistry_g9_v1': 'assets/covers/chem_g9_v1.jpg',
+  'chemistry_g9_v2': 'assets/covers/chem_g9_v2.jpg'
 };
 
 const SUBJECT_ICONS = {'物理': '🔬', '数学': '📐', '化学': '🧪'};

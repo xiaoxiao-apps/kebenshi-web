@@ -7,6 +7,7 @@
       "grade": "九年级",
       "volumes": [
         {
+          "id": "chemistry_g9_v1",
           "volume": "上册",
           "chapters": [
             {
@@ -68,6 +69,7 @@
           ]
         },
         {
+          "id": "chemistry_g9_v2",
           "volume": "下册",
           "chapters": [
             {

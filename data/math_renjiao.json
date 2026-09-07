@@ -11,6 +11,7 @@
       "grade": "七年级",
       "volumes": [
         {
+          "id": "math_g7_v1",
           "volume": "上册",
           "chapters": [
             {
@@ -96,6 +97,7 @@
           ]
         },
         {
+          "id": "math_g7_v2",
           "volume": "下册",
           "chapters": [
             {
@@ -212,6 +214,7 @@
       "grade": "八年级",
       "volumes": [
         {
+          "id": "math_g8_v1",
           "volume": "上册",
           "chapters": [
             {
@@ -306,6 +309,7 @@
           ]
         },
         {
+          "id": "math_g8_v2",
           "volume": "下册",
           "chapters": [
             {
@@ -397,6 +401,7 @@
       "grade": "九年级",
       "volumes": [
         {
+          "id": "math_g9_v1",
           "volume": "上册",
           "chapters": [
             {
@@ -491,6 +496,7 @@
           ]
         },
         {
+          "id": "math_g9_v2",
           "volume": "下册",
           "chapters": [
             {
