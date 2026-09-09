@@ -11,6 +11,7 @@
   .opt:hover { border-color: var(--brown-light); background: var(--brown-bg); }
   .opt.correct { border-color: var(--green); background: var(--green-bg); font-weight: 700; }
   .opt.wrong { border-color: var(--red); background: var(--red-bg); }
+  .opt.selected { border-color: var(--brown); background: var(--brown-bg); }
   .opt:disabled { cursor: default; opacity: .85; }
   .feedback { display: none; margin-top: 14px; padding: 14px 16px; border-radius: 10px; line-height: 1.8; font-size: 14px; }
   .feedback.show { display: block; }
@@ -18,6 +19,9 @@
   .feedback.err { background: var(--red-bg); color: #a33; }
   .qidx { font-size: 13px; color: var(--ink2); margin-bottom: 8px; }
   .nav-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .multi-hint { font-size: 12px; color: var(--ink3); margin-bottom: 8px; }
+  .q9-fig { width: 100%; max-width: 480px; margin: 12px auto; }
+  .q9-fig svg { display: block; width: 100%; height: auto; }
 </style>
 </head>
 <body>
@@ -26,7 +30,7 @@
 
   <div class="page-header">
     <h1 class="page-title">✏️ 小练习</h1>
-    <p class="page-subtitle">趁热打铁，3 道经典题检验掌握程度</p>
+    <p class="page-subtitle">趁热打铁，9 道经典题检验掌握程度</p>
   </div>
 
   <div class="card">
@@ -66,6 +70,42 @@
       opts: ['1 min 7.5 s', '1 min 37.5 s', '2 min 37.5 s', '0 min 37.5 s'],
       ans: 1,
       fb: '小表盘读分钟：指针在 1 和 2 之间，取 1 min。因为指针过了中线，说明大表盘已进入 30~60 s 段，即 30 + 7.5 = 37.5 s。最终读数为 <b>1 min 37.5 s</b>。'
+    },
+    {
+      stem: '某同学测同一支铅笔长度，得到 4 个数据：18.52 cm、18.50 cm、18.90 cm、18.51 cm。下列处理正确的是（　　）',
+      opts: ['直接求平均为 18.61 cm', '剔除 18.90 cm 后再求平均', '保留所有数据，平均为 18.58 cm', '多次测量可以消除误差'],
+      ans: 1,
+      fb: '18.90 cm 与其余数据相差过大，是错误数据，应先剔除；再求 (18.52+18.50+18.51)/3 ≈ 18.51 cm。误差不可避免，多次测量只能减小误差，<b>不能消除误差</b>。'
+    },
+    {
+      stem: '“一日之计在于晨”，其中“一日”等于多少秒？（　　）',
+      opts: ['3600 s', '12 000 s', '24 000 s', '86 400 s'],
+      ans: 3,
+      fb: '1 日 = 24 h，1 h = 60 min = 3600 s，所以 1 日 = 24 × 3600 s = <b>86 400 s</b>。'
+    },
+    {
+      stem: '身高大约是脚长的几倍？（常识选择）',
+      opts: ['约 5 倍', '约 7 倍', '约 9 倍', '约 12 倍'],
+      ans: 1,
+      fb: '一般来说，人的身高大约是脚长的 7 倍左右。你可以用尺子量一量自己的身高和脚长验证一下。'
+    },
+    {
+      stem: '测量硬币的直径，下列哪些方法可行？（多选）',
+      opts: ['用刻度尺直接对准硬币直径读数', '用两个三角板夹住硬币，量两三角板间距', '用棉线绕硬币一周，量出周长再算直径', '把硬币在纸上滚一圈，量出痕迹长度再算直径'],
+      ans: [1, 2, 3],
+      fb: '<b>辅助法</b>（三角板夹硬币）可行；<b>化曲为直</b>测周长再算直径也可行；<b>滚圆法</b>也是常用方法。但直接用刻度尺对准圆心读直径容易不准，一般不采用。'
+    },
+    {
+      stem: '测量单摆周期时，为了减小误差，较好的做法是（　　）',
+      opts: ['只测 1 个周期', '测 30 个周期的总时间，再除以 30', '用力推小球让它摆快一点', '用肉眼估计一个周期'],
+      ans: 1,
+      fb: '采用<b>累积法</b>：测 30 个周期的总时间再除以 30，可以减小人眼判断起点/终点的误差。'
+    },
+    {
+      stem: '指出图中小明测量铅笔长度时的错误：<div class="q9-fig"><svg viewBox="0 0 420 180" xmlns="http://www.w3.org/2000/svg"><defs><marker id="eye" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><circle r="4" cx="5" cy="5" fill="#5a5a5a"/></marker></defs><!-- 刻度尺 --><rect x="50" y="50" width="320" height="44" fill="#fff" stroke="#2c2c2c" rx="3"/><g stroke="#2c2c2c" stroke-width="1"><line x1="50" y1="50" x2="50" y2="94"/><line x1="370" y1="50" x2="370" y2="94"/></g><g font-size="11" fill="#2c2c2c" text-anchor="middle" dominant-baseline="middle"><text x="50" y="108">0</text><text x="121.43" y="108">1</text><text x="192.86" y="108">2</text><text x="264.29" y="108">3</text><text x="335.71" y="108">4</text><text x="370" y="108">5 cm</text></g><g stroke="#2c2c2c" stroke-width="1"><line x1="50" y1="50" x2="50" y2="70"/><line x1="121.43" y1="50" x2="121.43" y2="70"/><line x1="192.86" y1="50" x2="192.86" y2="70"/><line x1="264.29" y1="50" x2="264.29" y2="70"/><line x1="335.71" y1="50" x2="335.71" y2="70"/></g><!-- 铅笔 --><rect x="40" y="108" width="280" height="20" fill="#e08e5e" rx="3"/><polygon points="320,108 340,118 320,128" fill="#d4a017"/><circle cx="40" cy="118" r="4" fill="#b8860b"/><text x="175" y="160" text-anchor="middle" font-size="12" fill="#5a5a5a">铅笔</text><!-- 视线 --><line x1="360" y1="20" x2="320" y2="105" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="5,4"/><text x="350" y1="15" text-anchor="end" font-size="12" fill="#c0392b" font-weight="700">视线</text></svg></div>', // 图片题
+      opts: ['铅笔左端没有对齐 0 刻度线', '刻度尺没有放正', '视线没有垂直于尺面', '读数时没写单位'],
+      ans: [0, 2],
+      fb: '图中有两个明显错误：① 铅笔左端没有对齐 0 刻度线（应把一端对齐零刻度线或某一整刻度）；② 视线斜着看，没有与尺面垂直。即使改正了这些错误，仍会有误差，因为误差不可避免。'
     }
   ];
 
@@ -80,11 +120,12 @@
 
   function render(){
     answered = false;
+    selected = [];
     fbEl.className = 'feedback'; fbEl.innerHTML = '';
     nextBtn.style.display = 'none';
     var q = questions[qi];
-    qidxEl.textContent = '第 ' + (qi + 1) + ' / ' + questions.length + ' 题';
-    stemEl.textContent = q.stem;
+    qidxEl.textContent = '第 ' + (qi + 1) + ' / ' + questions.length + ' 题' + (Array.isArray(q.ans) ? '（多选）' : '');
+    stemEl.innerHTML = q.stem;
     optsEl.innerHTML = '';
     q.opts.forEach(function(t, i){
       var b = document.createElement('button');
@@ -94,26 +135,32 @@
     });
   }
 
+  var selected = [];
+  function finishMulti(q){
+    answered = true;
+    var btns = optsEl.querySelectorAll('.opt');
+    btns.forEach(function(b, j){ b.disabled = true; if(q.ans.indexOf(j) >= 0) b.classList.add('correct'); });
+    var correct = q.ans.every(function(a){ return selected.indexOf(a) >= 0; }) && selected.length === q.ans.length;
+    if(correct){ score++; fbEl.className='feedback show ok'; fbEl.innerHTML='✅ 回答正确！' + q.fb; }
+    else { fbEl.className='feedback show err'; fbEl.innerHTML='❌ 再想想。' + q.fb; }
+    nextBtn.style.display = '';
+  }
   function onPick(btn, i){
     if(answered) return;
-    answered = true;
     var q = questions[qi];
+    var isMulti = Array.isArray(q.ans);
+    if(isMulti){
+      if(selected.indexOf(i) < 0){ selected.push(i); btn.classList.add('selected'); }
+      else { selected = selected.filter(function(x){ return x !== i; }); btn.classList.remove('selected'); }
+      if(selected.length === q.ans.length) finishMulti(q);
+      return;
+    }
+    answered = true;
     var btns = optsEl.querySelectorAll('.opt');
     btns.forEach(function(b, j){ b.disabled = true; if(j === q.ans) b.classList.add('correct'); });
-    if(i === q.ans){
-      score++;
-      fbEl.className = 'feedback show ok';
-      fbEl.innerHTML = '✅ 回答正确！' + q.fb;
-    } else {
-      btn.classList.add('wrong');
-      fbEl.className = 'feedback show err';
-      fbEl.innerHTML = '❌ 再想想。' + q.fb;
-    }
-    if(qi < questions.length - 1){
-      nextBtn.textContent = '下一题'; nextBtn.style.display = '';
-    } else {
-      nextBtn.textContent = '看成绩'; nextBtn.style.display = '';
-    }
+    if(i === q.ans){ score++; fbEl.className='feedback show ok'; fbEl.innerHTML='✅ 回答正确！' + q.fb; }
+    else { btn.classList.add('wrong'); fbEl.className='feedback show err'; fbEl.innerHTML='❌ 再想想。' + q.fb; }
+    nextBtn.style.display = '';
   }
 
   nextBtn.addEventListener('click', function(){

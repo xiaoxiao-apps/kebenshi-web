@@ -108,9 +108,9 @@ function getCssH(cv){
     // 文字说明
     ctx.save();
     ctx.fillStyle = '#2c2c2c'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText('量程：0 ~ 8 cm　　分度值：1 mm', margin, 28);
+    ctx.fillText('量程：0 ~ 8 cm　　分度值：1 mm', margin, 22);
     ctx.fillStyle = '#5a5a5a'; ctx.font = '13px sans-serif';
-    ctx.fillText('请读出物体的长度（注意估读到分度值下一位）', margin, 50);
+    ctx.fillText('请读出物体的长度（注意估读到分度值下一位）', margin, 46);
     ctx.restore();
   }
 
@@ -165,7 +165,7 @@ function getCssH(cv){
   var g = fitCanvas(cv, getCssH(cv));
   var running = false, startTime = 0, frozen = 0;
   var targetMin = 0, targetSec = 0, passedHalf = false;
-  var autoTimer = null;
+  var autoTimer = null, targetTotalSec = 0;
 
   function clearAutoTimer(){ if(autoTimer){ clearTimeout(autoTimer); autoTimer = null; } }
 
@@ -188,9 +188,10 @@ function getCssH(cv){
   function resetTarget(){
     clearAutoTimer();
     targetMin = Math.floor(1 + Math.random() * 2);
-    var secBase = Math.random() * 59.9;
-    targetSec = Math.round(secBase * 10) / 10;
+    // 秒吸附到 0.1 s 整数倍，范围 0.0~59.9 s，保证落在精确刻度上
+    targetSec = Math.round(Math.random() * 599) / 10;
     passedHalf = targetSec >= 30;
+    targetTotalSec = targetMin * 60 + targetSec;
     frozen = 0; running = false;
     document.getElementById('swMin').value = '';
     document.getElementById('swSec').value = '';
@@ -201,6 +202,12 @@ function getCssH(cv){
   }
 
   function totalSeconds(){ return running ? frozen + (performance.now() - startTime) / 1000 : frozen; }
+
+  function totalToDisplay(t){
+    // 真实秒表：秒针 0~30 s 一圈，>30s 仍是第二圈读数
+    var s = t % 60;
+    return s;
+  }
 
   function drawBtn(ctx, x, y, w2, h2, color, text){
     ctx.save();
@@ -231,47 +238,73 @@ function getCssH(cv){
     ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(cx, cy, r - 4, 0, 7); ctx.fill();
     ctx.restore();
 
-    // 大表盘刻度 0-60 s
+    // 大表盘：一圈 30 s，外圈黑字 2,4,...,30；内圈红字 31,33,...,59；分度值 0.1 s
     ctx.save();
-    ctx.fillStyle = '#2c2c2c'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    for(var i = 0; i <= 60; i += 5){
-      var ang = (i / 60) * 2 * Math.PI - Math.PI / 2;
-      var len = i % 10 === 0 ? 10 : 5;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for(var i = 0; i <= 30; i += 1){
+      var ang = (i / 30) * 2 * Math.PI - Math.PI / 2;
+      var isMajor = i % 5 === 0;
+      var tickLen = isMajor ? 10 : 5;
       var x1 = cx + Math.cos(ang) * (r - 10), y1 = cy + Math.sin(ang) * (r - 10);
-      var x2 = cx + Math.cos(ang) * (r - 10 - len), y2 = cy + Math.sin(ang) * (r - 10 - len);
-      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = '#5a5a5a'; ctx.lineWidth = 1.5; ctx.stroke();
-      if(i % 10 === 0){
-        ctx.fillText(String(i), cx + Math.cos(ang) * (r - 28), cy + Math.sin(ang) * (r - 28));
+      var x2 = cx + Math.cos(ang) * (r - 10 - tickLen), y2 = cy + Math.sin(ang) * (r - 10 - tickLen);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = '#5a5a5a'; ctx.lineWidth = isMajor ? 1.5 : 1; ctx.stroke();
+      // 外圈黑字 2,4,...,30
+      if(i % 2 === 0 && i > 0){
+        ctx.fillStyle = '#2c2c2c'; ctx.font = '11px sans-serif';
+        ctx.fillText(String(i), cx + Math.cos(ang) * (r - 26), cy + Math.sin(ang) * (r - 26));
       }
+    }
+    // 内圈红字 31,33,...,59
+    ctx.fillStyle = '#c0392b'; ctx.font = '10px sans-serif';
+    for(var rj = 31; rj <= 59; rj += 2){
+      var redAng = ((rj - 30) / 30) * 2 * Math.PI - Math.PI / 2;
+      ctx.fillText(String(rj), cx + Math.cos(redAng) * (r - 42), cy + Math.sin(redAng) * (r - 42));
     }
     ctx.restore();
 
-    // 小表盘（分钟盘）
-    var scx = cx, scy = cy - r * 0.42, sr = r * 0.28;
+    // 小表盘（分钟盘）：0~15 min，分度值 0.5 min
+    var scx = cx, scy = cy - r * 0.40, sr = r * 0.28;
     ctx.save();
     ctx.strokeStyle = '#b8860b'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(scx, scy, sr, 0, 7); ctx.stroke();
     ctx.fillStyle = '#f5f0e0'; ctx.beginPath(); ctx.arc(scx, scy, sr - 3, 0, 7); ctx.fill();
-    ctx.fillStyle = '#8b6914'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    for(var j = 0; j <= 3; j++){
-      var ang2 = (j / 3) * Math.PI - Math.PI / 2;
-      var sx = scx + Math.cos(ang2) * (sr - 8), sy = scy + Math.sin(ang2) * (sr - 8);
-      ctx.fillText(String(j), sx, sy);
+    ctx.fillStyle = '#8b6914'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    // 0.5 min 刻度线
+    for(var jm = 0; jm <= 30; jm += 1){
+      var mang = (jm / 30) * 2 * Math.PI - Math.PI / 2;
+      var mLen = (jm % 5 === 0) ? 8 : 4;
+      var mx1 = scx + Math.cos(mang) * (sr - 3), my1 = scy + Math.sin(mang) * (sr - 3);
+      var mx2 = scx + Math.cos(mang) * (sr - 3 - mLen), my2 = scy + Math.sin(mang) * (sr - 3 - mLen);
+      ctx.beginPath(); ctx.moveTo(mx1, my1); ctx.lineTo(mx2, my2); ctx.strokeStyle = '#8b6914'; ctx.lineWidth = (jm % 5 === 0) ? 1.5 : 1; ctx.stroke();
+    }
+    // 数字 0..15
+    for(var jn = 0; jn <= 15; jn++){
+      var ang2 = (jn / 15) * 2 * Math.PI - Math.PI / 2;
+      var sx = scx + Math.cos(ang2) * (sr - 14), sy = scy + Math.sin(ang2) * (sr - 14);
+      ctx.fillStyle = '#8b6914'; ctx.font = (jn % 5 === 0) ? 'bold 11px sans-serif' : '10px sans-serif';
+      ctx.fillText(String(jn), sx, sy);
     }
     // 小表盘中线（判断 30s 进位的关键）
-    ctx.strokeStyle = 'rgba(192,57,43,.6)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(192,57,43,.6)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(scx, scy); ctx.lineTo(scx + sr - 4, scy); ctx.stroke();
     ctx.setLineDash([]);
     ctx.restore();
 
     // 指针（大表盘秒针 + 小表盘分针）
-    var secAng = (s / 60) * 2 * Math.PI - Math.PI / 2;
-    var minAng = (min / 3) * Math.PI - Math.PI / 2 + (s / 60) * (Math.PI / 3);
+    var displayS = totalToDisplay(s);
+    var secAng = (displayS / 30) * 2 * Math.PI - Math.PI / 2;
+    var minAng = ((min % 15) / 15 + (s % 60) / (15 * 60)) * 2 * Math.PI - Math.PI / 2;
     ctx.save();
     ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(secAng) * (r - 22), cy + Math.sin(secAng) * (r - 22)); ctx.stroke();
     ctx.strokeStyle = '#8b6914'; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.moveTo(scx, scy); ctx.lineTo(scx + Math.cos(minAng) * (sr - 8), scy + Math.sin(minAng) * (sr - 8)); ctx.stroke();
+    ctx.restore();
+
+    // 盘面规格说明
+    ctx.save();
+    ctx.fillStyle = '#5a5a5a'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('大表盘：0~30 s（0.1 s/格）  小表盘：0~15 min（0.5 min/格）', cx, h - 82);
     ctx.restore();
 
     // 按钮（开始/停止、归零、出题）
@@ -315,13 +348,13 @@ function getCssH(cv){
     var s = parseFloat(document.getElementById('swSec').value);
     var fb = document.getElementById('swFb');
     if(Number.isNaN(m) || Number.isNaN(s)){ fb.className = 'feedback show info'; fb.innerHTML = '请先填写分和秒。'; return; }
-    var ok = Math.abs(m - targetMin) < 0.5 && Math.abs(s - targetSec) < 0.15;
+    var ok = (Math.round(m) === targetMin) && (Math.abs(s - targetSec) <= 0.11);
     if(ok){
       fb.className = 'feedback show ok';
       fb.innerHTML = '✅ 正确！停表读数为 <b>' + targetMin + ' 分 ' + targetSec.toFixed(1) + ' 秒</b>。';
     } else {
       fb.className = 'feedback show err';
-      fb.innerHTML = '❌ 正确读数是 <b>' + targetMin + ' 分 ' + targetSec.toFixed(1) + ' 秒</b>。小表盘指针' + (passedHalf ? '已过中线' : '未过中线') + '，所以大表盘读 ' + (passedHalf ? '30~60 s' : '0~30 s') + '。';
+      fb.innerHTML = '❌ 正确读数是 <b>' + targetMin + ' 分 ' + targetSec.toFixed(1) + ' 秒</b>。小表盘指针' + (passedHalf ? '已过中线' : '未过中线') + '，所以大表盘应读 ' + (passedHalf ? '红字 31~59 s（即黑字 +30 s）' : '黑字 0~30 s') + '。';
     }
   });
 

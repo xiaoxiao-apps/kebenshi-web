@@ -20,6 +20,30 @@
   .dial-card { background: var(--brown-bg); border-radius: 10px; padding: 14px; line-height: 1.7; }
   .dial-card h4 { margin: 0 0 6px; color: var(--brown); }
   .key-formula { background: var(--green-bg); border-radius: 10px; padding: 12px 16px; font-weight: 700; color: var(--green); text-align: center; margin: 12px 0; }
+  .mini-quiz { background: var(--green-bg); border-radius: 10px; padding: 14px 16px; margin-top: 14px; }
+  .mini-quiz h4 { margin: 0 0 8px; color: var(--green); }
+  .uq-row { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .uq-item { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: #fff; border-radius: 10px; padding: 10px 12px; }
+  .uq-item span { font-weight: 700; }
+  .uq-item input { width: 120px; text-align: center; }
+  .magnitude-tabs { display: flex; gap: 10px; margin: 12px 0; }
+  .tab-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; cursor: pointer; font-weight: 700; }
+  .tab-btn.active { background: var(--green); color: #fff; }
+  .mag-deck { min-height: 180px; }
+  .mag-card { background: var(--brown-bg); border-radius: 12px; padding: 24px 16px; text-align: center; }
+  .mag-card .val { font-size: 28px; font-weight: 800; color: var(--brown); margin: 10px 0; }
+  .mag-controls { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; }
+  .special-method { background: #fff; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+  .special-method h4 { margin: 0 0 6px; color: var(--green); }
+  .svg-box { background: var(--card2); border-radius: 10px; margin: 10px 0; }
+  .svg-box svg { display: block; width: 100%; height: auto; }
+  .conv-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  .conv-table th, .conv-table td { border: 1px solid #e6dfd0; padding: 8px 6px; text-align: center; }
+  .conv-table th { background: var(--brown-bg); color: var(--brown); }
+  .conv-table tr:nth-child(even){ background: #faf8f5; }
+  .illusion-card { background: var(--brown-bg); border-radius: 12px; padding: 16px; margin: 10px 0; }
+  .illusion-card svg { width: 100%; height: auto; max-width: 320px; display: block; margin: 0 auto; }
+  .illusion-card .stick { cursor: pointer; }
 </style>
 </head>
 <body>
@@ -29,6 +53,15 @@
   <div class="page-header">
     <h1 class="page-title">📖 知识讲解</h1>
     <p class="page-subtitle">长度单位、刻度尺使用、停表读数 —— 三大要点一次讲清</p>
+  </div>
+
+  <div class="card">
+    <h2>引入：感觉可靠吗？<span class="chip brown">视错觉</span></h2>
+    <p>图 1.1-1 中的两根红色小棒，哪一根更长？先看一看，点一点。</p>
+    <div id="illusionWrap" style="cursor:pointer;user-select:none;"></div>
+    <div id="illusionFb" class="feedback" style="display:none;"></div>
+    <button class="btn btn-primary" id="measureBtn" style="margin-top:12px;display:none;">📐 量一量</button>
+    <p class="conv">揭晓：其实两根小棒 <b>一样长</b>。我们的感觉有时不可靠，所以需要用尺进行<b>测量</b>。</p>
   </div>
 
   <div class="card">
@@ -43,12 +76,30 @@
       <span class="unit-pill">m 米</span>
       <span class="unit-pill">km 千米</span>
     </div>
+    <table class="conv-table">
+      <thead><tr><th>单位</th><th>与米（m）的关系</th><th>科学记数法</th></tr></thead>
+      <tbody>
+        <tr><td>千米（km）</td><td>1 km = 1 000 m</td><td>10³ m</td></tr>
+        <tr><td>米（m）</td><td>基本单位</td><td>1 m</td></tr>
+        <tr><td>分米（dm）</td><td>1 dm = 0.1 m</td><td>10⁻¹ m</td></tr>
+        <tr><td>厘米（cm）</td><td>1 cm = 0.01 m</td><td>10⁻² m</td></tr>
+        <tr><td>毫米（mm）</td><td>1 mm = 0.001 m</td><td>10⁻³ m</td></tr>
+        <tr><td>微米（μm）</td><td>1 μm = 0.000 001 m</td><td>10⁻⁶ m</td></tr>
+        <tr><td>纳米（nm）</td><td>1 nm = 0.000 000 001 m</td><td>10⁻⁹ m</td></tr>
+      </tbody>
+    </table>
     <p class="conv">
       相邻大单位换算（km→m→dm→cm→mm）相邻进率 <b>10</b>（km→m 为 1000）；<br>
       1 m = 1000 mm；1 mm = 1000 μm；1 μm = 1000 nm。<br>
       记忆口诀：<b>千米到米乘一千，米到毫米乘一千，再往下都是乘十，只有三个"千"字记心间。</b>
     </p>
-    <div class="tipbox">💡 感受参照：课桌高约 0.8 m；物理课本宽约 18 cm；头发丝直径约 70 μm；病毒大小约 100 nm。</div>
+    <div class="tipbox">💡 感受参照：课桌高约 0.75 m；成年人走两步约 1.5 m；物理课本宽约 18 cm；头发丝直径约 70 μm；病毒大小约 100 nm。</div>
+    <div id="unitQuiz" class="mini-quiz">
+      <h4>📝 单位换算填空</h4>
+      <p class="conv">根据上面的换算关系，填写结果（用科学记数法）：</p>
+      <div class="uq-row" id="uqRow"></div>
+      <div class="feedback" id="uqFb"></div>
+    </div>
   </div>
 
   <div class="card">
@@ -66,26 +117,201 @@
   </div>
 
   <div class="card">
-    <h2>三、停表的读数 <span class="chip brown">易错点</span></h2>
+    <h2>三、时间的测量 <span class="chip brown">基础概念</span></h2>
+    <p>国际单位制中，时间的基本单位是 <b>秒（s）</b>。常用单位还有 <b>小时（h）</b>、<b>分（min）</b>：</p>
+    <div class="key-formula">1 h = 60 min，1 min = 60 s，所以 1 h = 3600 s</div>
+    <p>计时工具的演变：古代有 <b>圭表、日晷、沙漏</b>；现代生活中常用钟、表；运动场和实验室里常用 <b>秒表</b>；随着科学发展，<b>铯原子钟</b> 的精度极高，上千万年的误差不超过 1 s。</p>
+  </div>
+
+  <div class="card">
+    <h2>四、停表的读数 <span class="chip brown">易错点</span></h2>
     <p>机械停表有两个表盘：</p>
     <div class="stopwatch-grid">
       <div class="dial-card">
         <h4>⏱ 小表盘 = 分钟</h4>
-        每小格 0.5 min；指针指示整分钟数。
+        一圈 15 min；数字 0~15；每小格 0.5 min。
       </div>
       <div class="dial-card">
         <h4>⏱ 大表盘 = 秒</h4>
-        一圈 30 s，每小格 0.1 s。
+        一圈 30 s；外圈黑字 2,4,…,30；内圈红字 31,33,…,59；每小格 0.1 s。
       </div>
     </div>
     <div class="tipbox">
-      ⚠️ <b>半分钟进位陷阱</b>：小表盘指针若 <b>越过两分钟刻度的中线</b>，说明秒数已进入 30~60 s 段，此时大表盘读数要 <b>加 30 s</b>。例如小表盘在 1 与 2 之间且过中线、大表盘指 7.5，则读数为 <b>1 min 37.5 s</b>，而不是 1 min 7.5 s！
+      ⚠️ <b>半分钟进位陷阱</b>：小表盘指针若 <b>越过两分钟刻度的中线</b>，说明秒数已进入 31~59 s 段，此时大表盘要读 <b>红字</b>（也就是黑字 +30 s）。例如小表盘在 1 与 2 之间且过中线、大表盘黑字指 7.5，则读数为 <b>1 min 37.5 s</b>，而不是 1 min 7.5 s！
     </div>
+  </div>
+
+  <div class="card">
+    <h2>五、误差 <span class="chip brown">重点难点</span></h2>
+    <p><b>误差</b>：测量值与真实值之间的差别。受仪器精度和测量方法的限制，误差 <b>不可避免</b>，但可以通过一定方法 <b>减小</b>。</p>
+    <p><b>减小误差的方法</b>：</p>
+    <ol class="steps">
+      <li><b>多次测量求平均值</b>：把明显错误的数据剔除后再求平均。</li>
+      <li><b>选用精密的测量工具</b>：如游标卡尺、螺旋测微器。</li>
+      <li><b>改进测量方法</b>：如用累积法测一张纸的厚度。</li>
+    </ol>
+    <div class="tipbox">
+      ⚠️ <b>误差 ≠ 错误</b>：误差是测量过程中不可避免的差别；错误是由于不遵守仪器使用规则、读数粗心等造成的，<b>可以避免，应当剔除</b>。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>六、特殊测量法 <span class="chip brown">方法技巧</span></h2>
+    <p>有些长度不方便直接用刻度尺测量时，可以用到下面这些方法：</p>
+    <div class="special-method">
+      <h4>🔹 累积法</h4>
+      <p>把多个相同的小量累积起来测量，再除以个数得到单个量。</p>
+      <div class="svg-box" id="svgAccum"></div>
+      <p class="conv">例如：测一张纸的厚度，可以测 100 张纸的总厚度再除以 100；测细铜丝的直径，可以密绕 n 圈，量出线圈长度 L，则直径 d = L / n。</p>
+    </div>
+    <div class="special-method">
+      <h4>🔹 辅助法（卡测法）</h4>
+      <p>借助三角板等辅助工具，把不方便直接测量的长度"平移"到刻度尺上。</p>
+      <div class="svg-box" id="svgAux"></div>
+      <p class="conv">例如：测硬币的直径，可以把硬币夹在两个三角板之间，读出两三角板直角边之间的距离就是直径。</p>
+    </div>
+    <div class="special-method">
+      <h4>🔹 化曲为直</h4>
+      <p>把曲线变成直线来测。</p>
+      <div class="svg-box" id="svgCurve"></div>
+      <p class="conv">例如：测地图上一条铁路线的长度，可以用棉线沿铁路线摆放，做好标记后拉直，再用尺子量出棉线长度。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>七、量级卡片 <span class="chip brown">量感</span></h2>
+    <p>对常见长度和时间有一个"量级"概念，能帮助我们快速判断结果的合理性。</p>
+    <div class="magnitude-tabs">
+      <button class="tab-btn active" data-tab="len">📏 一些长度</button>
+      <button class="tab-btn" data-tab="time">🕒 一些时间</button>
+    </div>
+    <div class="mag-deck" id="magDeck"></div>
+    <div class="mag-controls">
+      <button class="btn btn-secondary" id="magPrev">‹ 上一张</button>
+      <span id="magIdx">1 / 8</span>
+      <button class="btn btn-secondary" id="magNext">下一张 ›</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>八、科学世界：国际单位制 <span class="chip brown">拓展</span></h2>
+    <p>自古以来，世界各地使用的度量单位并不相同：我国过去用"尺"，欧美一些国家用"英尺"。同一件物品用不同单位表示，交流起来很不方便。</p>
+    <p>人们逐渐认识到，应当选择自然界中稳定、各国都能接受的事物作为标准。于是国际计量组织制定了<strong>国际单位制（SI）</strong>，推荐各国使用。在国际单位制中，长度的单位是米（m），时间的单位是秒（s）。</p>
+    <div class="tipbox"> 测量任何物理量，都是把待测量与公认的标准量进行比较，这个标准量就是单位。</div>
   </div>
 
   <div class="anim-btns">
     <a class="btn btn-primary" href="experiment.html">进入互动实验区 →</a>
   </div>
 </div>
+<script>
+(function(){
+  // 视错觉互动
+  var illusionWrap = document.getElementById('illusionWrap');
+  var illusionFb = document.getElementById('illusionFb');
+  var measureBtn = document.getElementById('measureBtn');
+  var illusionRevealed = false;
+  illusionWrap.innerHTML = '<div class="illusion-card"><svg viewBox="0 0 300 220" id="illusionSvg"><polygon points="150,20 280,60 280,240 150,200 20,240 20,60" fill="none" stroke="#8b6914" stroke-width="2"/><line id="stickTop" x1="120" y1="95" x2="180" y2="95" stroke="#c0392b" stroke-width="6" stroke-linecap="round" class="stick"/><line id="stickBot" x1="120" y1="155" x2="180" y2="155" stroke="#c0392b" stroke-width="6" stroke-linecap="round" class="stick"/><text x="150" y="35" text-anchor="middle" font-size="14" fill="#5a5a5a">哪根小棒更长？</text></svg></div>';
+  var topStick = document.getElementById('stickTop');
+  var botStick = document.getElementById('stickBot');
+  function reveal(answer){
+    if(illusionRevealed) return;
+    illusionRevealed = true;
+    illusionFb.style.display = 'block';
+    if(answer === 'same'){
+      illusionFb.className = 'feedback show ok';
+      illusionFb.innerHTML = '答对了！其实两根小棒一样长。';
+    } else {
+      illusionFb.className = 'feedback show info';
+      illusionFb.innerHTML = '很多人都猜错啦！其实两根小棒一样长。';
+    }
+    measureBtn.style.display = '';
+  }
+  topStick.addEventListener('click', function(){ reveal('top'); });
+  botStick.addEventListener('click', function(){ reveal('bot'); });
+  illusionWrap.querySelector('svg').addEventListener('click', function(){ if(!illusionRevealed) reveal('svg'); });
+  measureBtn.addEventListener('click', function(){
+    var svg = document.getElementById('illusionSvg');
+    var rect = svg.querySelector('rect');
+    if(!rect){
+      var g = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      g.setAttribute('x','110'); g.setAttribute('y','75'); g.setAttribute('width','80'); g.setAttribute('height','100');
+      g.setAttribute('fill','none'); g.setAttribute('stroke','#2980b9'); g.setAttribute('stroke-width','2');
+      g.setAttribute('stroke-dasharray','4,3');
+      svg.appendChild(g);
+      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x','150'); t.setAttribute('y','70'); t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size','12'); t.setAttribute('fill','#2980b9'); t.textContent = '长度相等';
+      svg.appendChild(t);
+    }
+    illusionFb.innerHTML += '<br>用尺量一量：两根小棒长度相等。';
+  });
+
+  // 单位换算填空
+  var uqItems = [
+    { q: '500 μm = ', a: '5e-4', unit: 'm', html: '5×10⁻⁴ m' },
+    { q: '0.07 mm = ', a: '7e-5', unit: 'm', html: '7×10⁻⁵ m' },
+    { q: '3.5 km = ', a: '3.5e3', unit: 'm', html: '3.5×10³ m' },
+    { q: '250 nm = ', a: '2.5e-7', unit: 'm', html: '2.5×10⁻⁷ m' }
+  ];
+  var uqRow = document.getElementById('uqRow');
+  uqItems.forEach(function(it, i){
+    var row = document.createElement('div'); row.className = 'uq-item';
+    row.innerHTML = '<span>' + it.q + '</span><input type="text" data-idx="' + i + '" placeholder="如 5e-4"><span>' + it.unit + '</span><button class="btn btn-primary uq-check" data-idx="' + i + '">检查</button>';
+    uqRow.appendChild(row);
+  });
+  var uqFb = document.getElementById('uqFb');
+  uqRow.addEventListener('click', function(e){
+    if(!e.target.classList.contains('uq-check')) return;
+    var i = +e.target.dataset.idx;
+    var inp = uqRow.querySelector('input[data-idx="' + i + '"]');
+    var v = parseFloat(inp.value.replace(/[\s]/g,'').replace('×','e').replace('x','e'));
+    var it = uqItems[i];
+    var ok = !isNaN(v) && Math.abs(v - parseFloat(it.a)) < 1e-12;
+    uqFb.className = 'feedback show ' + (ok ? 'ok' : 'err');
+    uqFb.innerHTML = (ok ? '✅ 正确！提示：先写出科学记数法，再转成十进制数。' : '❌ 正确答案是 ' + it.html + '。提示：先写出科学记数法，再转成十进制数。');
+  });
+
+  // 量级卡片
+  var magLen = [
+    { t: '链球菌半径', v: '(3~5)×10⁻⁷ m' },
+    { t: '人头发丝直径', v: '约 7×10⁻⁵ m' },
+    { t: '一张纸厚度', v: '约 10⁻⁴ m' },
+    { t: '我国铁路标准轨距', v: '1.435 m' },
+    { t: '珠穆朗玛峰海拔', v: '8 848.86 m' },
+    { t: '地球半径', v: '6.4×10⁶ m' },
+    { t: '太阳半径', v: '7.0×10⁸ m' },
+    { t: '日地平均距离', v: '1.5×10¹¹ m' }
+  ];
+  var magTime = [
+    { t: '最短激光脉冲', v: '约 10⁻¹⁷ s' },
+    { t: 'μ子寿命', v: '约 10⁻⁶ s' },
+    { t: '钟摆周期', v: '1 s' },
+    { t: '百米赛跑世界纪录', v: '9.58 s' },
+    { t: '地球自转周期', v: '8.6×10⁴ s' },
+    { t: '地球公转周期', v: '3.2×10⁷ s' },
+    { t: '地球年龄', v: '1.4×10¹⁷ s' },
+    { t: '宇宙年龄', v: '约 4×10¹⁷ s' }
+  ];
+  var currentMag = magLen, magIndex = 0, magTab = 'len';
+  var magDeck = document.getElementById('magDeck');
+  var magIdxEl = document.getElementById('magIdx');
+  function renderMag(){
+    var item = currentMag[magIndex];
+    magDeck.innerHTML = '<div class="mag-card"><div>' + item.t + '</div><div class="val">' + item.v + '</div></div>';
+    magIdxEl.textContent = (magIndex + 1) + ' / ' + currentMag.length;
+  }
+  document.getElementById('magPrev').addEventListener('click', function(){ magIndex = (magIndex - 1 + currentMag.length) % currentMag.length; renderMag(); });
+  document.getElementById('magNext').addEventListener('click', function(){ magIndex = (magIndex + 1) % currentMag.length; renderMag(); });
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.addEventListener('click', function(){ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); magTab = this.dataset.tab; currentMag = magTab === 'len' ? magLen : magTime; magIndex = 0; renderMag(); }); });
+  renderMag();
+
+  // 特殊测量法 SVG
+  function setSvg(id, svg){ var el = document.getElementById(id); if(el) el.innerHTML = svg; }
+  setSvg('svgAccum', '<svg viewBox="0 0 320 80"><rect x="20" y="50" width="280" height="20" fill="#e6dfd0" rx="3"/><text x="160" y="40" text-anchor="middle" font-size="13" fill="#5a5a5a">100张纸叠放 → 测总厚 → 除以100</text></svg>');
+  setSvg('svgAux', '<svg viewBox="0 0 320 120"><rect x="120" y="40" width="80" height="60" fill="none" stroke="#8b6914" stroke-width="2"/><polygon points="110,30 120,40 120,100 110,110" fill="#4a8c3f" opacity=".8"/><polygon points="210,30 200,40 200,100 210,110" fill="#4a8c3f" opacity=".8"/><line x1="110" y1="75" x2="210" y2="75" stroke="#c0392b" stroke-dasharray="4,3"/><text x="160" y="115" text-anchor="middle" font-size="13" fill="#5a5a5a">硬币直径 = 两三角板间距</text></svg>');
+  setSvg('svgCurve', '<svg viewBox="0 0 320 100"><path d="M20,70 C60,30 120,90 180,50 S280,30 300,60" fill="none" stroke="#c0392b" stroke-width="2"/><line x1="20" y1="80" x2="300" y2="80" stroke="#8b6914" stroke-width="2"/><text x="160" y="95" text-anchor="middle" font-size="13" fill="#5a5a5a">棉线沿曲线摆放后拉直测量</text></svg>');
+})();
+</script>
 </body>
 </html>
