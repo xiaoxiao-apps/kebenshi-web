@@ -14,6 +14,7 @@
   }
   .pseudo-fullscreen #rulerCv,
   .pseudo-fullscreen #stopwatchCv { height: 100vh !important; }
+  #exp-warmup, #exp-ruler, #exp-stopwatch, #exp-estimate, #exp-task { scroll-margin-top: 80px; }
   .btn-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
   .btn-row .btn { flex: 1; min-width: 100px; }
   @media (max-width: 768px) {
@@ -45,7 +46,7 @@
   </div>
 
   <!-- 热身实验：视错觉 -->
-  <div class="card">
+  <div class="card" id="exp-warmup">
     <h2>热身实验：视错觉 <span class="chip brown">感觉可靠吗？</span></h2>
     <p>图 1.1-1 中的两根红色小棒，哪一根更长？先看一看，点一点。</p>
     <div id="warmupIllusionWrap" style="cursor:pointer;user-select:none;"></div>
@@ -55,7 +56,7 @@
   </div>
 
   <!-- 实验一：刻度尺读数 -->
-  <div class="card">
+  <div class="card" id="exp-ruler">
     <h2>实验一：刻度尺读数 <span class="chip cyan">长度测量</span></h2>
     <div class="lab-box">
       <div class="lab-title">量程 0~8 cm、分度值 1 mm 的刻度尺测铅笔长度</div>
@@ -78,7 +79,7 @@
   </div>
 
   <!-- 实验二：停表读数 -->
-  <div class="card">
+  <div class="card" id="exp-stopwatch">
     <h2>实验二：停表读数 <span class="chip brown">时间测量</span></h2>
     <div class="lab-box">
       <div class="lab-title">点画面里的"出题"按钮给停表设定读数，再写下你的答案</div>
@@ -97,7 +98,7 @@
   </div>
 
   <!-- 实验三：身上的尺 -->
-  <div class="card">
+  <div class="card" id="exp-estimate">
     <h2>实验三：身上的尺 · 估测挑战 <span class="chip brown">估测</span></h2>
     <div class="body-ruler-refs">
       <div class="ref-card"><b>一拃</b><span>约 15 cm</span></div>
@@ -123,7 +124,7 @@
   </div>
 
   <!-- 实验四：实测任务单 -->
-  <div class="card">
+  <div class="card" id="exp-task">
     <h2>实验四：实测任务单 <span class="chip green">动手记录</span></h2>
     <p>请用刻度尺/秒表完成以下测量，把数据填入表中。多次测量可以减小<b>误差</b>。</p>
     <table class="task-table">
@@ -154,6 +155,16 @@
 
 <script src="fullscreen.js"></script>
 <script src="experiment.js"></script>
+<script>
+(function(){
+  if (location.hash) {
+    var el = document.querySelector(location.hash);
+    if (el && el.scrollIntoView) {
+      setTimeout(function(){ el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 0);
+    }
+  }
+})();
+</script>
 <script>
 (function(){
   // 视错觉热身互动

@@ -118,7 +118,6 @@ body {
 .nav-card .icon.explain { background: linear-gradient(135deg, #eef6ec, #d4ecd0); }
 .nav-card .icon.experiment { background: linear-gradient(135deg, #e8f4fd, #c8e3f7); }
 .nav-card .icon.quiz { background: linear-gradient(135deg, #fef3e2, #fde5b8); }
-.nav-card .icon.summary { background: linear-gradient(135deg, #f0eef8, #ddd8f0); }
 .nav-card .title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
 .nav-card .desc { font-size: 13px; color: var(--ink2); line-height: 1.5; }
 
