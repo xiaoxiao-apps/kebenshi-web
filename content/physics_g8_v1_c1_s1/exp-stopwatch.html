@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验二：停表读数 · 长度和时间的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  #stopwatchCv { height: 360px; }
+  @media (max-width: 768px) { #stopwatchCv { height: 300px; } }
+  .pseudo-fullscreen #stopwatchCv { height: 100vh !important; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">实验二：停表读数</h1>
+    <p class="page-subtitle">点画面里的“出题”按钮给停表设定读数，再写下你的答案。</p>
+  </div>
+  <div class="card">
+    <h2>实验二：停表读数 <span class="chip brown">时间测量</span></h2>
+    <div class="lab-box">
+      <div class="lab-title">点画面里的“出题”按钮给停表设定读数，再写下你的答案</div>
+      <div class="fullscreen-wrap" id="fsSwWrap">
+        <button class="fullscreen-btn" id="fsSwBtn" title="全屏">⛶</button>
+        <canvas id="stopwatchCv"></canvas>
+      </div>
+    </div>
+    <div class="input-line">
+      <input type="text" id="swMin" inputmode="numeric" placeholder="分" autocomplete="off">
+      <input type="text" id="swSec" inputmode="decimal" placeholder="秒" autocomplete="off">
+      <button class="btn btn-primary" id="swCheck">✓ 检查读数</button>
+    </div>
+    <div class="feedback" id="swFb"></div>
+    <p class="hint">提示：小表盘（分钟盘）指针是否越过中线，决定大表盘读 0~30 s 还是 30~60 s。</p>
+  </div>
+  <div class="btn-row" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+    <a class="btn btn-secondary" href="experiment.html">‹ 返回实验区</a>
+    </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-stopwatch.js"></script>
+</body>
+</html>

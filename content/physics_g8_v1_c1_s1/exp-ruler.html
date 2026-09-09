@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验一：刻度尺读数 · 长度和时间的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  #rulerCv { height: 360px; }
+  @media (max-width: 768px) { #rulerCv { height: 300px; } }
+  .pseudo-fullscreen #rulerCv { height: 100vh !important; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">实验一：刻度尺读数</h1>
+    <p class="page-subtitle">量程 0~8 cm、分度值 1 mm 的刻度尺测铅笔长度，注意估读到分度值的下一位。</p>
+  </div>
+  <div class="card">
+    <h2>实验一：刻度尺读数 <span class="chip cyan">长度测量</span></h2>
+    <div class="lab-box">
+      <div class="lab-title">量程 0~8 cm、分度值 1 mm 的刻度尺测铅笔长度</div>
+      <div class="fullscreen-wrap" id="fsRulerWrap">
+        <button class="fullscreen-btn" id="fsRulerBtn" title="全屏">⛶</button>
+        <canvas id="rulerCv"></canvas>
+      </div>
+    </div>
+    <div class="input-line">
+      <input type="text" id="rulerAns" inputmode="decimal" placeholder="读数" autocomplete="off">
+      <select id="rulerUnit">
+        <option value="cm">cm</option>
+        <option value="mm">mm</option>
+      </select>
+      <button class="btn btn-primary" id="rulerCheck">✓ 检查读数</button>
+      <button class="btn btn-secondary" id="rulerNext"> 换一题</button>
+    </div>
+    <div class="feedback" id="rulerFb"></div>
+    <p class="hint">提示：注意估读到分度值的下一位（即 0.01 cm）；物体不一定从 0 刻度量起，长度 = 末端刻度 − 起始刻度。支持键盘回车提交。</p>
+  </div>
+  <div class="btn-row" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+    <a class="btn btn-secondary" href="experiment.html">‹ 返回实验区</a>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-ruler.js"></script>
+</body>
+</html>

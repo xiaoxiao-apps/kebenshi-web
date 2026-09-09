@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验四：实测任务单 · 长度和时间的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .task-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+  .task-table th, .task-table td { border: 1px solid #e6dfd0; padding: 6px 4px; text-align: center; }
+  .task-table th { background: var(--green-bg); color: var(--green); }
+  .task-table .rec { width: 70px; min-width: 0; padding: 6px 4px; text-align: center; }
+  .task-table .avg { font-weight: 700; color: var(--brown); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">实验四：实测任务单</h1>
+    <p class="page-subtitle">动手记录数据，多次测量求平均，理解误差概念。</p>
+  </div>
+  <div class="card">
+    <h2>实验四：实测任务单 <span class="chip green">动手记录</span></h2>
+    <p>请用刻度尺/秒表完成以下测量，把数据填入表中。多次测量可以减小<b>误差</b>。</p>
+    <table class="task-table">
+      <thead><tr><th>测量对象</th><th>第1次</th><th>第2次</th><th>第3次</th><th>平均值</th></tr></thead>
+      <tbody>
+        <tr><td>课本长（cm）</td><td><input class="rec" data-row="bookL" data-col="0"></td><td><input class="rec" data-row="bookL" data-col="1"></td><td><input class="rec" data-row="bookL" data-col="2"></td><td class="avg" id="bookL_avg">—</td></tr>
+        <tr><td>课本宽（cm）</td><td><input class="rec" data-row="bookW" data-col="0"></td><td><input class="rec" data-row="bookW" data-col="1"></td><td><input class="rec" data-row="bookW" data-col="2"></td><td class="avg" id="bookW_avg">—</td></tr>
+        <tr><td>课本厚（mm）</td><td><input class="rec" data-row="bookT" data-col="0"></td><td><input class="rec" data-row="bookT" data-col="1"></td><td><input class="rec" data-row="bookT" data-col="2"></td><td class="avg" id="bookT_avg">—</td></tr>
+        <tr><td>作业本长（cm）</td><td><input class="rec" data-row="noteL" data-col="0"></td><td><input class="rec" data-row="noteL" data-col="1"></td><td><input class="rec" data-row="noteL" data-col="2"></td><td class="avg" id="noteL_avg">—</td></tr>
+        <tr><td>作业本宽（cm）</td><td><input class="rec" data-row="noteW" data-col="0"></td><td><input class="rec" data-row="noteW" data-col="1"></td><td><input class="rec" data-row="noteW" data-col="2"></td><td class="avg" id="noteW_avg">—</td></tr>
+        <tr><td>作业本厚（mm）</td><td><input class="rec" data-row="noteT" data-col="0"></td><td><input class="rec" data-row="noteT" data-col="1"></td><td><input class="rec" data-row="noteT" data-col="2"></td><td class="avg" id="noteT_avg">—</td></tr>
+      </tbody>
+    </table>
+    <p class="hint">提示：填写后表格会自动计算平均值。注意剔除明显错误的数据后再求平均。</p>
+    <table class="task-table">
+      <thead><tr><th>测量对象</th><th>第1次（s）</th><th>第2次（s）</th><th>第3次（s）</th><th>平均值</th></tr></thead>
+      <tbody>
+        <tr><td>脉搏跳动10次时间</td><td><input class="rec" data-row="pulse" data-col="0"></td><td><input class="rec" data-row="pulse" data-col="1"></td><td><input class="rec" data-row="pulse" data-col="2"></td><td class="avg" id="pulse_avg">—</td></tr>
+        <tr><td>正常行走一步时间</td><td><input class="rec" data-row="step" data-col="0"></td><td><input class="rec" data-row="step" data-col="1"></td><td><input class="rec" data-row="step" data-col="2"></td><td class="avg" id="step_avg">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="btn-row" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+    <a class="btn btn-secondary" href="experiment.html">‹ 返回实验区</a>
+  </div>
+</div>
+<script>
+(function(){
+  function computeAvg(row){
+    var vals = [];
+    document.querySelectorAll('.rec[data-row="' + row + '"]').forEach(function(inp){
+      var v = parseFloat(inp.value); if(!isNaN(v)) vals.push(v);
+    });
+    var out = document.getElementById(row + '_avg');
+    if(vals.length === 0){ out.textContent = '—'; return; }
+    var sum = vals.reduce(function(a,b){return a+b;}, 0);
+    out.textContent = (sum / vals.length).toFixed(1);
+  }
+  document.querySelectorAll('.rec').forEach(function(inp){
+    inp.addEventListener('input', function(){ computeAvg(inp.dataset.row); });
+  });
+})();
+</script>
+</body>
+</html>

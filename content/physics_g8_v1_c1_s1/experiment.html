@@ -5,259 +5,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>互动实验区 · 长度和时间的测量</title>
 <link rel="stylesheet" href="common.css">
-<style>
-  #rulerCv { height: 360px; }
-  #stopwatchCv { height: 360px; }
-  @media (max-width: 768px) {
-    #rulerCv { height: 300px; }
-    #stopwatchCv { height: 300px; }
-  }
-  .pseudo-fullscreen #rulerCv,
-  .pseudo-fullscreen #stopwatchCv { height: 100vh !important; }
-  #exp-warmup, #exp-ruler, #exp-stopwatch, #exp-estimate, #exp-task { scroll-margin-top: 80px; }
-  .btn-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-  .btn-row .btn { flex: 1; min-width: 100px; }
-  @media (max-width: 768px) {
-    .btn-row { flex-direction: column; }
-    .btn-row .btn { min-width: 0; }
-  }
-  .illusion-card { background: var(--brown-bg); border-radius: 12px; padding: 16px; margin: 10px 0; }
-  .illusion-card svg { width: 100%; height: auto; max-width: 320px; display: block; margin: 0 auto; }
-  .illusion-card .stick { cursor: pointer; }
-  .body-ruler-refs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
-  .ref-card { background: var(--brown-bg); border-radius: 10px; padding: 12px; text-align: center; }
-  .ref-card b { display: block; color: var(--brown); font-size: 15px; }
-  .ref-card span { font-size: 13px; color: var(--ink2); }
-  .est-question { font-size: 15px; margin: 8px 0 12px; }
-  .task-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
-  .task-table th, .task-table td { border: 1px solid #e6dfd0; padding: 6px 4px; text-align: center; }
-  .task-table th { background: var(--green-bg); color: var(--green); }
-  .task-table .rec { width: 70px; min-width: 0; padding: 6px 4px; text-align: center; }
-  .task-table .avg { font-weight: 700; color: var(--brown); }
-</style>
 </head>
 <body>
 <div class="container">
   <a class="back-btn" href="index.html">‹ 返回本节</a>
-
   <div class="page-header">
     <h1 class="page-title">🔬 互动实验区</h1>
-    <p class="page-subtitle">动手练一练：刻度尺估读要估到分度值的下一位，停表读数先看小表盘再看大表盘。</p>
+    <p class="page-subtitle">选一个实验，动手练一练：视错觉热身、刻度尺读数、停表读数、估测挑战和实测任务单。</p>
   </div>
-
-  <!-- 热身实验：视错觉 -->
-  <div class="card" id="exp-warmup">
-    <h2>热身实验：视错觉 <span class="chip brown">感觉可靠吗？</span></h2>
-    <p>图 1.1-1 中的两根红色小棒，哪一根更长？先看一看，点一点。</p>
-    <div id="warmupIllusionWrap" style="cursor:pointer;user-select:none;"></div>
-    <div id="warmupIllusionFb" class="feedback" style="display:none;"></div>
-    <button class="btn btn-primary" id="warmupMeasureBtn" style="margin-top:12px;display:none;">📐 量一量</button>
-    <p class="conv">揭晓：其实两根小棒 <b>一样长</b>。我们的感觉有时不可靠，所以需要用尺进行<b>测量</b>。</p>
-  </div>
-
-  <!-- 实验一：刻度尺读数 -->
-  <div class="card" id="exp-ruler">
-    <h2>实验一：刻度尺读数 <span class="chip cyan">长度测量</span></h2>
-    <div class="lab-box">
-      <div class="lab-title">量程 0~8 cm、分度值 1 mm 的刻度尺测铅笔长度</div>
-      <div class="fullscreen-wrap" id="fsRulerWrap">
-        <button class="fullscreen-btn" id="fsRulerBtn" title="全屏">⛶</button>
-        <canvas id="rulerCv"></canvas>
+  <div class="nav-grid">
+    <a class="nav-card" href="exp-warmup.html">
+      <div class="icon anim">👀</div>
+      <div>
+        <div class="title">热身实验：视错觉</div>
+        <div class="desc">感觉可靠吗？先看点图，再用“尺”验证。</div>
       </div>
-    </div>
-    <div class="input-line">
-      <input type="text" id="rulerAns" inputmode="decimal" placeholder="读数" autocomplete="off">
-      <select id="rulerUnit">
-        <option value="cm">cm</option>
-        <option value="mm">mm</option>
-      </select>
-      <button class="btn btn-primary" id="rulerCheck">✓ 检查读数</button>
-      <button class="btn btn-secondary" id="rulerNext">↺ 换一题</button>
-    </div>
-    <div class="feedback" id="rulerFb"></div>
-    <p class="hint">提示：注意估读到分度值的下一位（即 0.01 cm）；物体不一定从 0 刻度量起，长度 = 末端刻度 − 起始刻度。支持键盘回车提交。</p>
-  </div>
-
-  <!-- 实验二：停表读数 -->
-  <div class="card" id="exp-stopwatch">
-    <h2>实验二：停表读数 <span class="chip brown">时间测量</span></h2>
-    <div class="lab-box">
-      <div class="lab-title">点画面里的"出题"按钮给停表设定读数，再写下你的答案</div>
-      <div class="fullscreen-wrap" id="fsSwWrap">
-        <button class="fullscreen-btn" id="fsSwBtn" title="全屏">⛶</button>
-        <canvas id="stopwatchCv"></canvas>
+    </a>
+    <a class="nav-card" href="exp-ruler.html">
+      <div class="icon explain">📏</div>
+      <div>
+        <div class="title">实验一：刻度尺读数</div>
+        <div class="desc">量程、分度值与估读：物体长度 = 末端刻度 − 起始刻度。</div>
       </div>
-    </div>
-    <div class="input-line">
-      <input type="text" id="swMin" inputmode="numeric" placeholder="分" autocomplete="off">
-      <input type="text" id="swSec" inputmode="decimal" placeholder="秒" autocomplete="off">
-      <button class="btn btn-primary" id="swCheck">✓ 检查读数</button>
-    </div>
-    <div class="feedback" id="swFb"></div>
-    <p class="hint">提示：小表盘（分钟盘）指针是否越过中线，决定大表盘读 0~30 s 还是 30~60 s。</p>
-  </div>
-
-  <!-- 实验三：身上的尺 -->
-  <div class="card" id="exp-estimate">
-    <h2>实验三：身上的尺 · 估测挑战 <span class="chip brown">估测</span></h2>
-    <div class="body-ruler-refs">
-      <div class="ref-card"><b>一拃</b><span>约 15 cm</span></div>
-      <div class="ref-card"><b>一步</b><span>约 0.5~0.75 m</span></div>
-      <div class="ref-card"><b>一庹</b><span>约等于身高</span></div>
-      <div class="ref-card"><b>课桌高</b><span>约 0.75 m</span></div>
-    </div>
-    <div class="est-box" id="estBox">
-      <p class="est-question" id="estQuestion"></p>
-      <div class="input-line">
-        <input type="text" id="estInput" inputmode="decimal" placeholder="输入估测值">
-        <select id="estUnit">
-          <option value="m">m</option>
-          <option value="cm">cm</option>
-          <option value="mm">mm</option>
-          <option value="s">s</option>
-        </select>
-        <button class="btn btn-primary" id="estCheck">检查</button>
+    </a>
+    <a class="nav-card" href="exp-stopwatch.html">
+      <div class="icon experiment">⏱️</div>
+      <div>
+        <div class="title">实验二：停表读数</div>
+        <div class="desc">先看小表盘，再看大表盘，注意是否越过中线。</div>
       </div>
-      <div class="feedback" id="estFb"></div>
-      <button class="btn btn-secondary" id="estNext" style="margin-top:10px;display:none;">↺ 再来一题</button>
-    </div>
+    </a>
+    <a class="nav-card" href="exp-estimate.html">
+      <div class="icon quiz">🤚</div>
+      <div>
+        <div class="title">实验三：身上的尺 · 估测挑战</div>
+        <div class="desc">用身体尺和生活经验快速估测长度与时间。</div>
+      </div>
+    </a>
+    <a class="nav-card" href="exp-task.html">
+      <div class="icon anim">📝</div>
+      <div>
+        <div class="title">实验四：实测任务单</div>
+        <div class="desc">动手记录数据，多次测量求平均，理解误差。</div>
+      </div>
+    </a>
   </div>
-
-  <!-- 实验四：实测任务单 -->
-  <div class="card" id="exp-task">
-    <h2>实验四：实测任务单 <span class="chip green">动手记录</span></h2>
-    <p>请用刻度尺/秒表完成以下测量，把数据填入表中。多次测量可以减小<b>误差</b>。</p>
-    <table class="task-table">
-      <thead><tr><th>测量对象</th><th>第1次</th><th>第2次</th><th>第3次</th><th>平均值</th></tr></thead>
-      <tbody>
-        <tr><td>课本长（cm）</td><td><input class="rec" data-row="bookL" data-col="0"></td><td><input class="rec" data-row="bookL" data-col="1"></td><td><input class="rec" data-row="bookL" data-col="2"></td><td class="avg" id="bookL_avg">—</td></tr>
-        <tr><td>课本宽（cm）</td><td><input class="rec" data-row="bookW" data-col="0"></td><td><input class="rec" data-row="bookW" data-col="1"></td><td><input class="rec" data-row="bookW" data-col="2"></td><td class="avg" id="bookW_avg">—</td></tr>
-        <tr><td>课本厚（mm）</td><td><input class="rec" data-row="bookT" data-col="0"></td><td><input class="rec" data-row="bookT" data-col="1"></td><td><input class="rec" data-row="bookT" data-col="2"></td><td class="avg" id="bookT_avg">—</td></tr>
-        <tr><td>作业本长（cm）</td><td><input class="rec" data-row="noteL" data-col="0"></td><td><input class="rec" data-row="noteL" data-col="1"></td><td><input class="rec" data-row="noteL" data-col="2"></td><td class="avg" id="noteL_avg">—</td></tr>
-        <tr><td>作业本宽（cm）</td><td><input class="rec" data-row="noteW" data-col="0"></td><td><input class="rec" data-row="noteW" data-col="1"></td><td><input class="rec" data-row="noteW" data-col="2"></td><td class="avg" id="noteW_avg">—</td></tr>
-        <tr><td>作业本厚（mm）</td><td><input class="rec" data-row="noteT" data-col="0"></td><td><input class="rec" data-row="noteT" data-col="1"></td><td><input class="rec" data-row="noteT" data-col="2"></td><td class="avg" id="noteT_avg">—</td></tr>
-      </tbody>
-    </table>
-    <p class="hint">提示：填写后表格会自动计算平均值。注意剔除明显错误的数据后再求平均。</p>
-    <table class="task-table">
-      <thead><tr><th>测量对象</th><th>第1次（s）</th><th>第2次（s）</th><th>第3次（s）</th><th>平均值</th></tr></thead>
-      <tbody>
-        <tr><td>脉搏跳动10次时间</td><td><input class="rec" data-row="pulse" data-col="0"></td><td><input class="rec" data-row="pulse" data-col="1"></td><td><input class="rec" data-row="pulse" data-col="2"></td><td class="avg" id="pulse_avg">—</td></tr>
-        <tr><td>正常行走一步时间</td><td><input class="rec" data-row="step" data-col="0"></td><td><input class="rec" data-row="step" data-col="1"></td><td><input class="rec" data-row="step" data-col="2"></td><td class="avg" id="step_avg">—</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="btn-row">
+  <div class="btn-row" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
     <a class="btn btn-primary" href="quiz.html">进入小练习 →</a>
   </div>
 </div>
-
-<script src="fullscreen.js"></script>
-<script src="experiment.js"></script>
-<script>
-(function(){
-  if (location.hash) {
-    var el = document.querySelector(location.hash);
-    if (el && el.scrollIntoView) {
-      setTimeout(function(){ el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 0);
-    }
-  }
-})();
-</script>
-<script>
-(function(){
-  // 视错觉热身互动
-  var warmupWrap = document.getElementById('warmupIllusionWrap');
-  var warmupFb = document.getElementById('warmupIllusionFb');
-  var warmupMeasureBtn = document.getElementById('warmupMeasureBtn');
-  var warmupRevealed = false;
-  warmupWrap.innerHTML = '<div class="illusion-card"><svg viewBox="0 0 300 220" id="warmupIllusionSvg"><polygon points="150,20 280,60 280,240 150,200 20,240 20,60" fill="none" stroke="#8b6914" stroke-width="2"/><line id="warmupStickTop" x1="120" y1="95" x2="180" y2="95" stroke="#c0392b" stroke-width="6" stroke-linecap="round" class="stick"/><line id="warmupStickBot" x1="120" y1="155" x2="180" y2="155" stroke="#c0392b" stroke-width="6" stroke-linecap="round" class="stick"/><text x="150" y="35" text-anchor="middle" font-size="14" fill="#5a5a5a">哪根小棒更长？</text></svg></div>';
-  var warmupTop = document.getElementById('warmupStickTop');
-  var warmupBot = document.getElementById('warmupStickBot');
-  function warmupReveal(answer){
-    if(warmupRevealed) return;
-    warmupRevealed = true;
-    warmupFb.style.display = 'block';
-    if(answer === 'same'){
-      warmupFb.className = 'feedback show ok';
-      warmupFb.innerHTML = '答对了！其实两根小棒一样长。';
-    } else {
-      warmupFb.className = 'feedback show info';
-      warmupFb.innerHTML = '很多人都猜错啦！其实两根小棒一样长。';
-    }
-    warmupMeasureBtn.style.display = '';
-  }
-  warmupTop.addEventListener('click', function(){ warmupReveal('top'); });
-  warmupBot.addEventListener('click', function(){ warmupReveal('bot'); });
-  warmupWrap.querySelector('svg').addEventListener('click', function(){ if(!warmupRevealed) warmupReveal('svg'); });
-  warmupMeasureBtn.addEventListener('click', function(){
-    var svg = document.getElementById('warmupIllusionSvg');
-    if(!svg.querySelector('rect')){
-      var g = document.createElementNS('http://www.w3.org/2000/svg','rect');
-      g.setAttribute('x','110'); g.setAttribute('y','75'); g.setAttribute('width','80'); g.setAttribute('height','100');
-      g.setAttribute('fill','none'); g.setAttribute('stroke','#2980b9'); g.setAttribute('stroke-width','2');
-      g.setAttribute('stroke-dasharray','4,3');
-      svg.appendChild(g);
-      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
-      t.setAttribute('x','150'); t.setAttribute('y','70'); t.setAttribute('text-anchor','middle');
-      t.setAttribute('font-size','12'); t.setAttribute('fill','#2980b9'); t.textContent = '长度相等';
-      svg.appendChild(t);
-    }
-    warmupFb.innerHTML += '<br>用尺量一量：两根小棒长度相等。';
-  });
-
-  
-  var estQuestions = [
-    { q: '教室宽约多少米？', ref: 7.5, unit: 'm', refTxt: '约 7~8 m' },
-    { q: '黑板长约多少米？', ref: 4.0, unit: 'm', refTxt: '约 3.5~4 m' },
-    { q: '一层楼高约多少米？', ref: 3.3, unit: 'm', refTxt: '约 3 m' },
-    { q: '步行 100 m 大约需要多少秒？', ref: 90, unit: 's', refTxt: '约 80~100 s' },
-    { q: '课桌高约多少厘米？', ref: 75, unit: 'cm', refTxt: '约 75 cm' }
-  ];
-  var cur = estQuestions[0];
-  function setEst(){
-    cur = estQuestions[Math.floor(Math.random() * estQuestions.length)];
-    document.getElementById('estQuestion').innerHTML = '<b>估一估：</b>' + cur.q;
-    document.getElementById('estInput').value = '';
-    document.getElementById('estUnit').value = cur.unit;
-    document.getElementById('estFb').className = 'feedback';
-    document.getElementById('estNext').style.display = 'none';
-  }
-  document.getElementById('estCheck').addEventListener('click', function(){
-    var v = parseFloat(document.getElementById('estInput').value);
-    var u = document.getElementById('estUnit').value;
-    var fb = document.getElementById('estFb');
-    if(isNaN(v)){ fb.className='feedback show info'; fb.innerHTML='请输入一个数字。'; return; }
-    if(u === 'cm' && cur.unit === 'm') v /= 100;
-    if(u === 'mm' && cur.unit === 'm') v /= 1000;
-    if(u === 'm' && cur.unit === 'cm') v *= 100;
-    if(u === 'mm' && cur.unit === 'cm') v /= 10;
-    if(u === 'cm' && cur.unit === 'mm') v *= 10;
-    var err = Math.abs(v - cur.ref) / cur.ref * 100;
-    var ok = err <= 20;
-    fb.className = 'feedback show ' + (ok ? 'ok' : 'err');
-    fb.innerHTML = (ok ? '✅ 估得不错！' : '❌ 再想想。') + '参考值 ' + cur.refTxt + '。你的相对误差约 ' + err.toFixed(1) + '%。';
-    document.getElementById('estNext').style.display = '';
-  });
-  document.getElementById('estNext').addEventListener('click', setEst);
-  setEst();
-
-  // 实测任务单自动求平均
-  function computeAvg(row){
-    var vals = [];
-    document.querySelectorAll('.rec[data-row="' + row + '"]').forEach(function(inp){
-      var v = parseFloat(inp.value); if(!isNaN(v)) vals.push(v);
-    });
-    var out = document.getElementById(row + '_avg');
-    if(vals.length === 0){ out.textContent = '—'; return; }
-    var sum = vals.reduce(function(a,b){return a+b;}, 0);
-    out.textContent = (sum / vals.length).toFixed(1);
-  }
-  document.querySelectorAll('.rec').forEach(function(inp){
-    inp.addEventListener('input', function(){ computeAvg(inp.dataset.row); });
-  });
-})();
-</script>
 </body>
 </html>

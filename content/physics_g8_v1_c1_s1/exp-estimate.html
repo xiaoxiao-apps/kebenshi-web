@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验三：身上的尺 · 估测挑战 · 长度和时间的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .body-ruler-refs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
+  .ref-card { background: var(--brown-bg); border-radius: 10px; padding: 12px; text-align: center; }
+  .ref-card b { display: block; color: var(--brown); font-size: 15px; }
+  .ref-card span { font-size: 13px; color: var(--ink2); }
+  .est-question { font-size: 15px; margin: 8px 0 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">实验三：身上的尺 · 估测挑战</h1>
+    <p class="page-subtitle">用身体尺和生活经验快速估测长度和时间。</p>
+  </div>
+  <div class="card">
+    <h2>实验三：身上的尺 · 估测挑战 <span class="chip brown">估测</span></h2>
+    <div class="body-ruler-refs">
+      <div class="ref-card"><b>一拃</b><span>约 15 cm</span></div>
+      <div class="ref-card"><b>一步</b><span>约 0.5~0.75 m</span></div>
+      <div class="ref-card"><b>一庹</b><span>约等于身高</span></div>
+      <div class="ref-card"><b>课桌高</b><span>约 0.75 m</span></div>
+    </div>
+    <div class="est-box" id="estBox">
+      <p class="est-question" id="estQuestion"></p>
+      <div class="input-line">
+        <input type="text" id="estInput" inputmode="decimal" placeholder="输入估测值">
+        <select id="estUnit">
+          <option value="m">m</option>
+          <option value="cm">cm</option>
+          <option value="mm">mm</option>
+          <option value="s">s</option>
+        </select>
+        <button class="btn btn-primary" id="estCheck">检查</button>
+      </div>
+      <div class="feedback" id="estFb"></div>
+      <button class="btn btn-secondary" id="estNext" style="margin-top:10px;display:none;"> 再来一题</button>
+    </div>
+  </div>
+  <div class="btn-row" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+    <a class="btn btn-secondary" href="experiment.html">‹ 返回实验区</a>
+  </div>
+</div>
+<script>
+(function(){
+  var estQuestions = [
+    { q: '教室宽约多少米？', ref: 7.5, unit: 'm', refTxt: '约 7~8 m' },
+    { q: '黑板长约多少米？', ref: 4.0, unit: 'm', refTxt: '约 3.5~4 m' },
+    { q: '一层楼高约多少米？', ref: 3.3, unit: 'm', refTxt: '约 3 m' },
+    { q: '步行 100 m 大约需要多少秒？', ref: 90, unit: 's', refTxt: '约 80~100 s' },
+    { q: '课桌高约多少厘米？', ref: 75, unit: 'cm', refTxt: '约 75 cm' }
+  ];
+  var cur = estQuestions[0];
+  function setEst(){
+    cur = estQuestions[Math.floor(Math.random() * estQuestions.length)];
+    document.getElementById('estQuestion').innerHTML = '<b>估一估：</b>' + cur.q;
+    document.getElementById('estInput').value = '';
+    document.getElementById('estUnit').value = cur.unit;
+    document.getElementById('estFb').className = 'feedback';
+    document.getElementById('estNext').style.display = 'none';
+  }
+  document.getElementById('estCheck').addEventListener('click', function(){
+    var v = parseFloat(document.getElementById('estInput').value);
+    var u = document.getElementById('estUnit').value;
+    var fb = document.getElementById('estFb');
+    if(isNaN(v)){ fb.className='feedback show info'; fb.innerHTML='请输入一个数字。'; return; }
+    if(u === 'cm' && cur.unit === 'm') v /= 100;
+    if(u === 'mm' && cur.unit === 'm') v /= 1000;
+    if(u === 'm' && cur.unit === 'cm') v *= 100;
+    if(u === 'mm' && cur.unit === 'cm') v /= 10;
+    if(u === 'cm' && cur.unit === 'mm') v *= 10;
+    var err = Math.abs(v - cur.ref) / cur.ref * 100;
+    var ok = err <= 20;
+    fb.className = 'feedback show ' + (ok ? 'ok' : 'err');
+    fb.innerHTML = (ok ? '✅ 估得不错！' : '❌ 再想想。') + '参考值 ' + cur.refTxt + '。你的相对误差约 ' + err.toFixed(1) + '%。';
+    document.getElementById('estNext').style.display = '';
+  });
+  document.getElementById('estNext').addEventListener('click', setEst);
+  setEst();
+})();
+</script>
+</body>
+</html>
