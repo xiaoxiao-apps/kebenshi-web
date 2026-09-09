@@ -41,9 +41,6 @@
   .conv-table th, .conv-table td { border: 1px solid #e6dfd0; padding: 8px 6px; text-align: center; }
   .conv-table th { background: var(--brown-bg); color: var(--brown); }
   .conv-table tr:nth-child(even){ background: #faf8f5; }
-  .illusion-card { background: var(--brown-bg); border-radius: 12px; padding: 16px; margin: 10px 0; }
-  .illusion-card svg { width: 100%; height: auto; max-width: 320px; display: block; margin: 0 auto; }
-  .illusion-card .stick { cursor: pointer; }
 </style>
 </head>
 <body>
@@ -52,21 +49,12 @@
 
   <div class="page-header">
     <h1 class="page-title">📖 知识讲解</h1>
-    <p class="page-subtitle">长度单位、刻度尺使用、停表读数 —— 三大要点一次讲清</p>
-  </div>
-
-  <div class="card">
-    <h2>引入：感觉可靠吗？<span class="chip brown">视错觉</span></h2>
-    <p>图 1.1-1 中的两根红色小棒，哪一根更长？先看一看，点一点。</p>
-    <div id="illusionWrap" style="cursor:pointer;user-select:none;"></div>
-    <div id="illusionFb" class="feedback" style="display:none;"></div>
-    <button class="btn btn-primary" id="measureBtn" style="margin-top:12px;display:none;">📐 量一量</button>
-    <p class="conv">揭晓：其实两根小棒 <b>一样长</b>。我们的感觉有时不可靠，所以需要用尺进行<b>测量</b>。</p>
+    <p class="page-subtitle">重难点提炼 · 考点一眼看清</p>
   </div>
 
   <div class="card">
     <h2>一、长度的单位 <span class="chip brown">基础概念</span></h2>
-    <p>国际单位制中，长度的基本单位是 <b>米（m）</b>。常用单位从小到大：</p>
+    <p>国际单位制中，长度的基本单位是 <b>米（m）</b>。常用单位：</p>
     <div class="unit-row">
       <span class="unit-pill">nm 纳米</span>
       <span class="unit-pill">μm 微米</span>
@@ -76,24 +64,12 @@
       <span class="unit-pill">m 米</span>
       <span class="unit-pill">km 千米</span>
     </div>
-    <table class="conv-table">
-      <thead><tr><th>单位</th><th>与米（m）的关系</th><th>科学记数法</th></tr></thead>
-      <tbody>
-        <tr><td>千米（km）</td><td>1 km = 1 000 m</td><td>10³ m</td></tr>
-        <tr><td>米（m）</td><td>基本单位</td><td>1 m</td></tr>
-        <tr><td>分米（dm）</td><td>1 dm = 0.1 m</td><td>10⁻¹ m</td></tr>
-        <tr><td>厘米（cm）</td><td>1 cm = 0.01 m</td><td>10⁻² m</td></tr>
-        <tr><td>毫米（mm）</td><td>1 mm = 0.001 m</td><td>10⁻³ m</td></tr>
-        <tr><td>微米（μm）</td><td>1 μm = 0.000 001 m</td><td>10⁻⁶ m</td></tr>
-        <tr><td>纳米（nm）</td><td>1 nm = 0.000 000 001 m</td><td>10⁻⁹ m</td></tr>
-      </tbody>
-    </table>
+    <div class="key-formula">1 km = 1000 m；1 m = 10 dm = 100 cm = 1000 mm；1 mm = 1000 μm；1 μm = 1000 nm</div>
     <p class="conv">
-      相邻大单位换算（km→m→dm→cm→mm）相邻进率 <b>10</b>（km→m 为 1000）；<br>
-      1 m = 1000 mm；1 mm = 1000 μm；1 μm = 1000 nm。<br>
       记忆口诀：<b>千米到米乘一千，米到毫米乘一千，再往下都是乘十，只有三个"千"字记心间。</b>
     </p>
-    <div class="tipbox">💡 感受参照：课桌高约 0.75 m；成年人走两步约 1.5 m；物理课本宽约 18 cm；头发丝直径约 70 μm；病毒大小约 100 nm。</div>
+    <div class="tipbox">💡 参照：课桌高约 0.75 m；物理课本宽约 18 cm；头发丝直径约 70 μm。</div>
+    <p class="conv">为了世界范围统一标准，国际上制定了国际单位制（SI）。</p>
     <div id="unitQuiz" class="mini-quiz">
       <h4>📝 单位换算填空</h4>
       <p class="conv">根据上面的换算关系，填写结果（用科学记数法）：</p>
@@ -106,11 +82,11 @@
     <h2>二、刻度尺的使用 <span class="chip brown">核心考点</span></h2>
     <p>使用刻度尺牢记"<b>认、放、看、读、记</b>"五步：</p>
     <ol class="steps">
-      <li><b>认</b>：认清量程和分度值（分度值 = 相邻两刻度线代表的长度，如 1 mm）。</li>
-      <li><b>放</b>：刻度尺放正、紧贴被测物体；被测端不一定要对齐 0 刻度线，对齐整数刻度也可以，读数时用末端刻度减起始刻度。</li>
-      <li><b>看</b>：读数时视线要与尺面 <b>垂直</b>，正对刻度线，不能斜视（斜视会产生视差）。</li>
-      <li><b>读</b>：读出准确值，并 <b>估读到分度值的下一位</b>。如分度值 1 mm，要读到 0.1 mm（即 0.01 cm）。</li>
-      <li><b>记</b>：记录结果 = 数值 + 单位，缺单位的记录没有意义。</li>
+      <li><b>认</b>：认清量程和分度值。</li>
+      <li><b>放</b>：刻度尺放正、紧贴被测物体；被测端对齐 0 刻度或整数刻度。</li>
+      <li><b>看</b>：视线与尺面垂直，正对刻度线。</li>
+      <li><b>读</b>：读出准确值，<b>估读到分度值下一位</b>。</li>
+      <li><b>记</b>：记录结果 = 数值 + 单位。</li>
     </ol>
     <div class="key-formula">物体长度 = 末端刻度 − 起始刻度，结果含一位估读值</div>
     <div class="tipbox">⚠️ 易错：分度值 1 mm 的尺，读数 2.35 cm 正确；2.3 cm（没估读）和 2.350 cm（多了一位）都不对。</div>
@@ -118,9 +94,8 @@
 
   <div class="card">
     <h2>三、时间的测量 <span class="chip brown">基础概念</span></h2>
-    <p>国际单位制中，时间的基本单位是 <b>秒（s）</b>。常用单位还有 <b>小时（h）</b>、<b>分（min）</b>：</p>
-    <div class="key-formula">1 h = 60 min，1 min = 60 s，所以 1 h = 3600 s</div>
-    <p>计时工具的演变：古代有 <b>圭表、日晷、沙漏</b>；现代生活中常用钟、表；运动场和实验室里常用 <b>秒表</b>；随着科学发展，<b>铯原子钟</b> 的精度极高，上千万年的误差不超过 1 s。</p>
+    <div class="key-formula">1 h = 60 min = 3600 s</div>
+    <p>计时工具：古代圭表、日晷 → 现代钟表 → 实验室停表。</p>
   </div>
 
   <div class="card">
@@ -143,15 +118,14 @@
 
   <div class="card">
     <h2>五、误差 <span class="chip brown">重点难点</span></h2>
-    <p><b>误差</b>：测量值与真实值之间的差别。受仪器精度和测量方法的限制，误差 <b>不可避免</b>，但可以通过一定方法 <b>减小</b>。</p>
-    <p><b>减小误差的方法</b>：</p>
+    <p><b>误差</b>：测量值与真实值之间的差别。误差 <b>不可避免</b>，只能 <b>减小</b>。</p>
     <ol class="steps">
-      <li><b>多次测量求平均值</b>：把明显错误的数据剔除后再求平均。</li>
-      <li><b>选用精密的测量工具</b>：如游标卡尺、螺旋测微器。</li>
-      <li><b>改进测量方法</b>：如用累积法测一张纸的厚度。</li>
+      <li><b>多次测量求平均值</b>。</li>
+      <li><b>选用精密的测量工具</b>。</li>
+      <li><b>改进测量方法</b>。</li>
     </ol>
     <div class="tipbox">
-      ⚠️ <b>误差 ≠ 错误</b>：误差是测量过程中不可避免的差别；错误是由于不遵守仪器使用规则、读数粗心等造成的，<b>可以避免，应当剔除</b>。
+      ⚠️ <b>误差 ≠ 错误</b>：误差是测量过程中不可避免的差别；错误是使用不当造成的，<b>可以避免，应当剔除</b>。
     </div>
   </div>
 
@@ -160,21 +134,21 @@
     <p>有些长度不方便直接用刻度尺测量时，可以用到下面这些方法：</p>
     <div class="special-method">
       <h4>🔹 累积法</h4>
-      <p>把多个相同的小量累积起来测量，再除以个数得到单个量。</p>
+      <p>多个相同小量累积后测总量，再除以个数。</p>
       <div class="svg-box" id="svgAccum"></div>
-      <p class="conv">例如：测一张纸的厚度，可以测 100 张纸的总厚度再除以 100；测细铜丝的直径，可以密绕 n 圈，量出线圈长度 L，则直径 d = L / n。</p>
+      <p class="conv">例如：测 100 张纸总厚再除以 100 得一张纸厚。</p>
     </div>
     <div class="special-method">
       <h4>🔹 辅助法（卡测法）</h4>
-      <p>借助三角板等辅助工具，把不方便直接测量的长度"平移"到刻度尺上。</p>
+      <p>借助三角板等工具把不好测的长度平移到刻度尺上。</p>
       <div class="svg-box" id="svgAux"></div>
-      <p class="conv">例如：测硬币的直径，可以把硬币夹在两个三角板之间，读出两三角板直角边之间的距离就是直径。</p>
+      <p class="conv">例如：用两个三角板卡住硬币，读两直角边间距即直径。</p>
     </div>
     <div class="special-method">
       <h4>🔹 化曲为直</h4>
-      <p>把曲线变成直线来测。</p>
+      <p>把曲线变成直线再测。</p>
       <div class="svg-box" id="svgCurve"></div>
-      <p class="conv">例如：测地图上一条铁路线的长度，可以用棉线沿铁路线摆放，做好标记后拉直，再用尺子量出棉线长度。</p>
+      <p class="conv">例如：用棉线沿地图铁路线摆好，拉直后用尺量棉线。</p>
     </div>
   </div>
 
@@ -193,64 +167,15 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2>八、科学世界：国际单位制 <span class="chip brown">拓展</span></h2>
-    <p>自古以来，世界各地使用的度量单位并不相同：我国过去用"尺"，欧美一些国家用"英尺"。同一件物品用不同单位表示，交流起来很不方便。</p>
-    <p>人们逐渐认识到，应当选择自然界中稳定、各国都能接受的事物作为标准。于是国际计量组织制定了<strong>国际单位制（SI）</strong>，推荐各国使用。在国际单位制中，长度的单位是米（m），时间的单位是秒（s）。</p>
-    <div class="tipbox"> 测量任何物理量，都是把待测量与公认的标准量进行比较，这个标准量就是单位。</div>
-  </div>
-
   <div class="anim-btns">
     <a class="btn btn-primary" href="experiment.html">进入互动实验区 →</a>
   </div>
 </div>
 <script>
 (function(){
-  // 视错觉互动
-  var illusionWrap = document.getElementById('illusionWrap');
-  var illusionFb = document.getElementById('illusionFb');
-  var measureBtn = document.getElementById('measureBtn');
-  var illusionRevealed = false;
-  illusionWrap.innerHTML = '<div class="illusion-card"><svg viewBox="0 0 300 220" id="illusionSvg"><polygon points="150,20 280,60 280,240 150,200 20,240 20,60" fill="none" stroke="#8b6914" stroke-width="2"/><line id="stickTop" x1="120" y1="95" x2="180" y2="95" stroke="#c0392b" stroke-width="6" stroke-linecap="round" class="stick"/><line id="stickBot" x1="120" y1="155" x2="180" y2="155" stroke="#c0392b" stroke-width="6" stroke-linecap="round" class="stick"/><text x="150" y="35" text-anchor="middle" font-size="14" fill="#5a5a5a">哪根小棒更长？</text></svg></div>';
-  var topStick = document.getElementById('stickTop');
-  var botStick = document.getElementById('stickBot');
-  function reveal(answer){
-    if(illusionRevealed) return;
-    illusionRevealed = true;
-    illusionFb.style.display = 'block';
-    if(answer === 'same'){
-      illusionFb.className = 'feedback show ok';
-      illusionFb.innerHTML = '答对了！其实两根小棒一样长。';
-    } else {
-      illusionFb.className = 'feedback show info';
-      illusionFb.innerHTML = '很多人都猜错啦！其实两根小棒一样长。';
-    }
-    measureBtn.style.display = '';
-  }
-  topStick.addEventListener('click', function(){ reveal('top'); });
-  botStick.addEventListener('click', function(){ reveal('bot'); });
-  illusionWrap.querySelector('svg').addEventListener('click', function(){ if(!illusionRevealed) reveal('svg'); });
-  measureBtn.addEventListener('click', function(){
-    var svg = document.getElementById('illusionSvg');
-    var rect = svg.querySelector('rect');
-    if(!rect){
-      var g = document.createElementNS('http://www.w3.org/2000/svg','rect');
-      g.setAttribute('x','110'); g.setAttribute('y','75'); g.setAttribute('width','80'); g.setAttribute('height','100');
-      g.setAttribute('fill','none'); g.setAttribute('stroke','#2980b9'); g.setAttribute('stroke-width','2');
-      g.setAttribute('stroke-dasharray','4,3');
-      svg.appendChild(g);
-      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
-      t.setAttribute('x','150'); t.setAttribute('y','70'); t.setAttribute('text-anchor','middle');
-      t.setAttribute('font-size','12'); t.setAttribute('fill','#2980b9'); t.textContent = '长度相等';
-      svg.appendChild(t);
-    }
-    illusionFb.innerHTML += '<br>用尺量一量：两根小棒长度相等。';
-  });
-
   // 单位换算填空
   var uqItems = [
     { q: '500 μm = ', a: '5e-4', unit: 'm', html: '5×10⁻⁴ m' },
-    { q: '0.07 mm = ', a: '7e-5', unit: 'm', html: '7×10⁻⁵ m' },
     { q: '3.5 km = ', a: '3.5e3', unit: 'm', html: '3.5×10³ m' },
     { q: '250 nm = ', a: '2.5e-7', unit: 'm', html: '2.5×10⁻⁷ m' }
   ];

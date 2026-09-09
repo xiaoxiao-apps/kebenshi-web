@@ -20,6 +20,9 @@
     .btn-row { flex-direction: column; }
     .btn-row .btn { min-width: 0; }
   }
+  .illusion-card { background: var(--brown-bg); border-radius: 12px; padding: 16px; margin: 10px 0; }
+  .illusion-card svg { width: 100%; height: auto; max-width: 320px; display: block; margin: 0 auto; }
+  .illusion-card .stick { cursor: pointer; }
   .body-ruler-refs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
   .ref-card { background: var(--brown-bg); border-radius: 10px; padding: 12px; text-align: center; }
   .ref-card b { display: block; color: var(--brown); font-size: 15px; }
@@ -39,6 +42,16 @@
   <div class="page-header">
     <h1 class="page-title">🔬 互动实验区</h1>
     <p class="page-subtitle">动手练一练：刻度尺估读要估到分度值的下一位，停表读数先看小表盘再看大表盘。</p>
+  </div>
+
+  <!-- 热身实验：视错觉 -->
+  <div class="card">
+    <h2>热身实验：视错觉 <span class="chip brown">感觉可靠吗？</span></h2>
+    <p>图 1.1-1 中的两根红色小棒，哪一根更长？先看一看，点一点。</p>
+    <div id="warmupIllusionWrap" style="cursor:pointer;user-select:none;"></div>
+    <div id="warmupIllusionFb" class="feedback" style="display:none;"></div>
+    <button class="btn btn-primary" id="warmupMeasureBtn" style="margin-top:12px;display:none;">📐 量一量</button>
+    <p class="conv">揭晓：其实两根小棒 <b>一样长</b>。我们的感觉有时不可靠，所以需要用尺进行<b>测量</b>。</p>
   </div>
 
   <!-- 实验一：刻度尺读数 -->
@@ -143,6 +156,47 @@
 <script src="experiment.js"></script>
 <script>
 (function(){
+  // 视错觉热身互动
+  var warmupWrap = document.getElementById('warmupIllusionWrap');
+  var warmupFb = document.getElementById('warmupIllusionFb');
+  var warmupMeasureBtn = document.getElementById('warmupMeasureBtn');
+  var warmupRevealed = false;
+  warmupWrap.innerHTML = '<div class="illusion-card"><svg viewBox="0 0 300 220" id="warmupIllusionSvg"><polygon points="150,20 280,60 280,240 150,200 20,240 20,60" fill="none" stroke="#8b6914" stroke-width="2"/><line id="warmupStickTop" x1="120" y1="95" x2="180" y2="95" stroke="#c0392b" stroke-width="6" stroke-linecap="round" class="stick"/><line id="warmupStickBot" x1="120" y1="155" x2="180" y2="155" stroke="#c0392b" stroke-width="6" stroke-linecap="round" class="stick"/><text x="150" y="35" text-anchor="middle" font-size="14" fill="#5a5a5a">哪根小棒更长？</text></svg></div>';
+  var warmupTop = document.getElementById('warmupStickTop');
+  var warmupBot = document.getElementById('warmupStickBot');
+  function warmupReveal(answer){
+    if(warmupRevealed) return;
+    warmupRevealed = true;
+    warmupFb.style.display = 'block';
+    if(answer === 'same'){
+      warmupFb.className = 'feedback show ok';
+      warmupFb.innerHTML = '答对了！其实两根小棒一样长。';
+    } else {
+      warmupFb.className = 'feedback show info';
+      warmupFb.innerHTML = '很多人都猜错啦！其实两根小棒一样长。';
+    }
+    warmupMeasureBtn.style.display = '';
+  }
+  warmupTop.addEventListener('click', function(){ warmupReveal('top'); });
+  warmupBot.addEventListener('click', function(){ warmupReveal('bot'); });
+  warmupWrap.querySelector('svg').addEventListener('click', function(){ if(!warmupRevealed) warmupReveal('svg'); });
+  warmupMeasureBtn.addEventListener('click', function(){
+    var svg = document.getElementById('warmupIllusionSvg');
+    if(!svg.querySelector('rect')){
+      var g = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      g.setAttribute('x','110'); g.setAttribute('y','75'); g.setAttribute('width','80'); g.setAttribute('height','100');
+      g.setAttribute('fill','none'); g.setAttribute('stroke','#2980b9'); g.setAttribute('stroke-width','2');
+      g.setAttribute('stroke-dasharray','4,3');
+      svg.appendChild(g);
+      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x','150'); t.setAttribute('y','70'); t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size','12'); t.setAttribute('fill','#2980b9'); t.textContent = '长度相等';
+      svg.appendChild(t);
+    }
+    warmupFb.innerHTML += '<br>用尺量一量：两根小棒长度相等。';
+  });
+
+  
   var estQuestions = [
     { q: '教室宽约多少米？', ref: 7.5, unit: 'm', refTxt: '约 7~8 m' },
     { q: '黑板长约多少米？', ref: 4.0, unit: 'm', refTxt: '约 3.5~4 m' },
