@@ -162,7 +162,7 @@
     }
     ctx.restore();
 
-    var scx = cx, scy = cy - r * 0.40, sr = r * 0.22;
+    var scx = cx, scy = cy - r * 0.40, sr = r * 0.24;
     ctx.save();
     ctx.fillStyle = '#faf8f2'; ctx.beginPath(); ctx.arc(scx, scy, sr, 0, 7); ctx.fill();
     ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
@@ -175,16 +175,18 @@
       var mx2 = scx + Math.cos(mang) * (sr - ml), my2 = scy + Math.sin(mang) * (sr - ml);
       ctx.beginPath(); ctx.moveTo(mx1, my1); ctx.lineTo(mx2, my2);
       ctx.strokeStyle = isHalf ? '#c0392b' : '#333'; ctx.lineWidth = isHalf ? 1 : 1.5; ctx.stroke();
-      if(!isHalf){
-        var nval = j / 2;
-        ctx.save();
-        ctx.translate(scx + Math.cos(mang) * (sr * 0.64), scy + Math.sin(mang) * (sr * 0.64));
-        ctx.rotate(mang + Math.PI / 2);
-        ctx.fillStyle = '#333'; ctx.font = 'bold ' + Math.max(8, sr * 0.34) + 'px sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(String(nval === 0 ? 15 : nval), 0, 0);
-        ctx.restore();
-      }
+    }
+    var labels = [15, 2, 4, 6, 8, 10, 12, 14];
+    for(var li = 0; li < labels.length; li += 1){
+      var nval = labels[li];
+      var mang = (nval / 15) * 2 * Math.PI - Math.PI / 2;
+      ctx.save();
+      ctx.translate(scx + Math.cos(mang) * (sr * 0.64), scy + Math.sin(mang) * (sr * 0.64));
+      ctx.rotate(mang + Math.PI / 2);
+      ctx.fillStyle = '#333'; ctx.font = 'bold ' + (sr * 0.34) + 'px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(String(nval), 0, 0);
+      ctx.restore();
     }
     ctx.restore();
 
