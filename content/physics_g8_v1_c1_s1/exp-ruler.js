@@ -16,11 +16,23 @@
     return document.fullscreenElement === wrap || wrap.classList.contains('pseudo-fullscreen');
   }
 
+  // 全屏时把「量程两行字+铅笔+尺子」整块对准屏幕垂直中心；非全屏保持原布局
+  function layoutY(h){
+    if(!isFullscreen()) return { rulerY: h * 0.55, textY: 22 };
+    var top = cv.getBoundingClientRect().top || 0;
+    var center = window.innerHeight / 2 - top; // 屏幕中心换算到 canvas 坐标
+    var textY = center - 52;                   // 两行字(24+间距)+铅笔(尺上42)+尺36 的整块中心
+    var rulerY = center + 24;
+    if(textY < 10){ var d = 10 - textY; textY += d; rulerY += d; }
+    if(rulerY + 36 > h - 8){ var d2 = rulerY + 36 - (h - 8); rulerY -= d2; textY -= d2; }
+    return { rulerY: rulerY, textY: textY };
+  }
+
   function pencilBox(st, ppc, g2){
     var w = (g2 || {}).w || cv.width;
     var h = (g2 || {}).h || cv.height;
     var margin = 36;
-    var rulerY = isFullscreen() ? h * 0.52 : h * 0.55;
+    var rulerY = layoutY(h).rulerY;
     var rulerW = w - margin * 2;
     var leftX = margin;
     var pxPerCm = ppc || (rulerW / state.rangeCm);
@@ -71,7 +83,8 @@
     ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
 
     var margin = 36;
-    var rulerY = isFullscreen() ? h * 0.52 : h * 0.55;
+    var ly = layoutY(h);
+    var rulerY = ly.rulerY;
     var rulerW = w - margin * 2;
     var leftX = margin, rightX = w - margin;
     var pxPerCm = rulerW / st.rangeCm;
@@ -107,9 +120,9 @@
 
     ctx.save();
     ctx.fillStyle = '#2c2c2c'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText('量程：0 ~ ' + st.rangeCm + ' cm　　分度值：1 mm', margin, 22);
+    ctx.fillText('量程：0 ~ ' + st.rangeCm + ' cm　　分度值：1 mm', margin, ly.textY);
     ctx.fillStyle = '#5a5a5a'; ctx.font = '13px sans-serif';
-    ctx.fillText('请读出物体的长度（注意估读到分度值下一位）', margin, 46);
+    ctx.fillText('请读出物体的长度（注意估读到分度值下一位）', margin, ly.textY + 24);
     ctx.restore();
   }
 
