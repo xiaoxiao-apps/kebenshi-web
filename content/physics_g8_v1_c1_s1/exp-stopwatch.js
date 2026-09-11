@@ -274,3 +274,39 @@
     function(){ g = fitCanvas(cv, getCssH(cv)); }
   );
 })();
+
+(function(){
+  var quiz = document.getElementById('fsQuiz');
+  var wrap = document.getElementById('fsSwWrap');
+  var dragging = false, ox = 0, oy = 0;
+  function isFs(){ return wrap.classList.contains('pseudo-fullscreen') || document.fullscreenElement === wrap; }
+  function pt(e){ return e.touches && e.touches.length ? e.touches[0] : e; }
+  function down(e){
+    if(!isFs()) return;
+    var t = e.target;
+    if(t.tagName === 'INPUT' || t.tagName === 'BUTTON' || (t.closest && t.closest('button'))) return;
+    dragging = true;
+    var wr = wrap.getBoundingClientRect(), qr = quiz.getBoundingClientRect();
+    quiz.style.right = 'auto'; quiz.style.transform = 'none';
+    quiz.style.left = (qr.left - wr.left) + 'px'; quiz.style.top = (qr.top - wr.top) + 'px';
+    var p = pt(e); ox = p.clientX - qr.left; oy = p.clientY - qr.top;
+    e.preventDefault();
+  }
+  function move(e){
+    if(!dragging) return;
+    var p = pt(e);
+    var wr = wrap.getBoundingClientRect(), qr = quiz.getBoundingClientRect();
+    var x = p.clientX - ox - wr.left, y = p.clientY - oy - wr.top;
+    x = Math.max(0, Math.min(x, wr.width - qr.width));
+    y = Math.max(0, Math.min(y, wr.height - qr.height));
+    quiz.style.left = x + 'px'; quiz.style.top = y + 'px';
+    e.preventDefault();
+  }
+  function up(){ dragging = false; }
+  quiz.addEventListener('mousedown', down);
+  quiz.addEventListener('touchstart', down, {passive: false});
+  window.addEventListener('mousemove', move);
+  window.addEventListener('touchmove', move, {passive: false});
+  window.addEventListener('mouseup', up);
+  window.addEventListener('touchend', up);
+})();
