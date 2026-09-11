@@ -333,6 +333,20 @@ body {
   .container { max-width: 960px; }
 }
 
+/* ---- Fullscreen quiz panel ---- */
+.fs-quiz { display: block; }
+:fullscreen .fs-quiz, .pseudo-fullscreen .fs-quiz {
+  display: flex; flex-direction: column; gap: 10px;
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  width: 220px; padding: 14px; border-radius: 14px;
+  background: rgba(255,255,255,.92); box-shadow: 0 4px 18px rgba(0,0,0,.18);
+}
+:fullscreen .fs-quiz .input-line, .pseudo-fullscreen .fs-quiz .input-line {
+  flex-direction: column; margin-top: 0; gap: 8px;
+}
+:fullscreen .fs-quiz .input-line input, .pseudo-fullscreen .fs-quiz .input-line input { width: 100%; }
+:fullscreen .fs-quiz .btn, .pseudo-fullscreen .fs-quiz .btn { width: 100%; }
+
 /* ---- Print ---- */
 @media print {
   .back-btn, .fullscreen-btn, .nav-grid { display: none; }
