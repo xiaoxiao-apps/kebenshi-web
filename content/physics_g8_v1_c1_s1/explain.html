@@ -25,7 +25,8 @@
   .uq-row { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
   .uq-item { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: #fff; border-radius: 10px; padding: 10px 12px; }
   .uq-item span { font-weight: 700; }
-  .uq-item input { width: 140px; text-align: center; }
+  .uq-item .eq { font-weight: 700; }
+  .uq-item input { width: 110px; text-align: center; }
   .uq-item select { height: 32px; border-radius: 6px; border: 1px solid #ccc; padding: 0 6px; }
   .magnitude-tabs { display: flex; gap: 10px; margin: 12px 0; }
   .tab-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; cursor: pointer; font-weight: 700; }
@@ -68,10 +69,15 @@
     <div class="tipbox">💡 参照：课桌高约 0.75 m；物理课本宽约 18 cm；头发丝直径约 70 μm。</div>
     <p class="conv">为了世界范围统一标准，国际上制定了国际单位制（SI）。</p>
     <div id="unitQuiz" class="mini-quiz">
-      <h4>📝 单位换算填空</h4>
-      <p class="conv">选择目标单位，再填入换算结果：</p>
-      <div class="uq-row" id="uqRow"></div>
-      <div class="feedback" id="uqFb"></div>
+      <h4>📝 单位换算</h4>
+      <p class="conv">两边任选单位，在任意一边输入数值，另一边自动换算：</p>
+      <div class="uq-row" id="uqRow">
+        <div class="uq-item">
+          <input type="text" id="convL" value="1"><select id="convLu"></select>
+          <span class="eq">=</span>
+          <input type="text" id="convR"><select id="convRu"></select>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -171,35 +177,43 @@
 </div>
 <script>
 (function(){
-  // 单位换算填空
-  var uqItems = [
-    { q: '500 μm = ', opts: ['m', 'cm', 'mm', 'nm'], ans: { m: 5e-4, cm: 0.05, mm: 0.5, nm: 5e5 }, show: { m: '5×10⁻⁴ m', cm: '0.05 cm', mm: '0.5 mm', nm: '5×10⁵ nm' } },
-    { q: '3.5 km = ', opts: ['m', 'cm', 'mm'], ans: { m: 3.5e3, cm: 3.5e5, mm: 3.5e6 }, show: { m: '3.5×10³ m', cm: '3.5×10⁵ cm', mm: '3.5×10⁶ mm' } },
-    { q: '250 nm = ', opts: ['m', 'μm', 'mm'], ans: { m: 2.5e-7, 'μm': 0.25, mm: 2.5e-4 }, show: { m: '2.5×10⁻⁷ m', 'μm': '0.25 μm', mm: '2.5×10⁻⁴ mm' } }
-  ];
-  var uqRow = document.getElementById('uqRow');
-  uqItems.forEach(function(it, i){
-    var row = document.createElement('div'); row.className = 'uq-item';
-    var selOpts = it.opts.map(function(u, idx){ return '<option value="' + u + '"' + (idx === 0 ? ' selected' : '') + '>' + u + '</option>'; }).join('');
-    row.innerHTML = '<span>' + it.q + '</span><input type="text" data-idx="' + i + '" placeholder="如 0.0005 或 5e-4"><select data-idx="' + i + '">' + selOpts + '</select><button class="btn btn-primary uq-check" data-idx="' + i + '">检查</button>';
-    uqRow.appendChild(row);
-  });
-  var uqFb = document.getElementById('uqFb');
-  uqRow.addEventListener('click', function(e){
-    if(!e.target.classList.contains('uq-check')) return;
-    var i = +e.target.dataset.idx;
-    var row = uqRow.querySelectorAll('.uq-item')[i];
-    var inp = row.querySelector('input');
-    var sel = row.querySelector('select');
-    var unit = sel.value;
-    var raw = inp.value.replace(/[\s]/g, '').replace(/[×x]/g, 'e').replace(/[−]/g, '-');
-    var v = parseFloat(raw);
-    var it = uqItems[i];
-    var expected = it.ans[unit];
-    var ok = !isNaN(v) && expected !== undefined && Math.abs(v - expected) / Math.max(Math.abs(expected), 1e-12) < 1e-9;
-    uqFb.className = 'feedback show ' + (ok ? 'ok' : 'err');
-    uqFb.innerHTML = (ok ? '✅ 正确！' : '❌ 正确答案是 ' + it.show[unit] + '。');
-  });
+    // 单位换算实时换算器
+  // 自检: 1 m -> 100 cm; 500 μm -> 0.0005 m; 3.5 km -> 350000 cm
+  var units = { km: 1e3, m: 1, dm: 0.1, cm: 0.01, mm: 1e-3, 'μm': 1e-6, nm: 1e-9 };
+  var convL = document.getElementById('convL'), convR = document.getElementById('convR');
+  var convLu = document.getElementById('convLu'), convRu = document.getElementById('convRu');
+  function buildOpts() {
+    return Object.keys(units).map(function(u){ return '<option value="' + u + '">' + u + '</option>'; }).join('');
+  }
+  function fmt(v) {
+    var n = parseFloat(v.toPrecision(10));
+    var a = Math.abs(n);
+    if (!isFinite(n)) return n.toString();
+    if (n !== 0 && (a < 1e-4 || a >= 1e7)) {
+      return Number(n.toPrecision(6)).toString();
+    }
+    return n.toString();
+  }
+  function f(u) { return units[u] || 1; }
+  var lastSide = 'L';
+  function sync(from) {
+    if (from === 'L') {
+      var L = parseFloat(convL.value);
+      if (isNaN(L)) { convR.value = ''; return; }
+      convR.value = fmt(L * f(convLu.value) / f(convRu.value));
+    } else {
+      var R = parseFloat(convR.value);
+      if (isNaN(R)) { convL.value = ''; return; }
+      convL.value = fmt(R * f(convRu.value) / f(convLu.value));
+    }
+  }
+  convLu.innerHTML = buildOpts(); convRu.innerHTML = buildOpts();
+  convLu.value = 'm'; convRu.value = 'cm';
+  convL.addEventListener('input', function(){ lastSide = 'L'; sync('L'); });
+  convR.addEventListener('input', function(){ lastSide = 'R'; sync('R'); });
+  convLu.addEventListener('change', function(){ sync(lastSide); });
+  convRu.addEventListener('change', function(){ sync(lastSide); });
+  sync('L');
 
   // 量级卡片
   var magLen = [
@@ -244,7 +258,7 @@
       var c = i % 2 === 0 ? '#d9cfae' : '#c9b98a';
       lines += '<rect x="60" y="' + y + '" width="120" height="3" rx="1" fill="' + c + '"/>';
     }
-    return '<svg viewBox="0 0 320 110"><g id="paperStack">' + lines + '</g><line x1="240" y1="20" x2="240" y2="90" stroke="#5a5a5a" stroke-width="1.5" marker-start="url(#arrowUp)" marker-end="url(#arrowDown)"/><text x="250" y="58" font-size="12" fill="#5a5a5a">总厚度</text><text x="130" y="15" text-anchor="middle" font-size="14" font-weight="bold" fill="#5a5a5a">100 张纸叠放</text><text x="130" y="105" text-anchor="middle" font-size="13" fill="#5a5a5a">测总厚度 ÷ 100 = 一张纸厚度</text><defs><marker id="arrowUp" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,8 L5,2 L10,8" fill="none" stroke="#5a5a5a" stroke-width="1.5"/></marker><marker id="arrowDown" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,2 L5,8 L10,2" fill="none" stroke="#5a5a5a" stroke-width="1.5"/></marker></defs></svg>';
+    return '<svg viewBox="0 0 320 110"><g id="paperStack">' + lines + '</g><path d="M190,33 q7,0 7,7 L197,52 q0,7 7,7 q-7,0 -7,7 L197,78 q0,7 -7,7" fill="none" stroke="#5a5a5a" stroke-width="1.5"/><text x="208" y="63" font-size="12" fill="#5a5a5a">总厚度</text><text x="130" y="15" text-anchor="middle" font-size="14" font-weight="bold" fill="#5a5a5a">100 张 A4 纸叠放</text><text x="130" y="105" text-anchor="middle" font-size="13" fill="#5a5a5a">测总厚度 ÷ 100 = 一张纸厚度</text></svg>';
   }
   setSvg('svgAccum', buildAccumSvg());
   // 辅助法 SVG 自检说明（node --check 时仅语法检查，运行时由浏览器验证）:
