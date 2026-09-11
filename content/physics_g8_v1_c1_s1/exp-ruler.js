@@ -4,7 +4,7 @@
 (function(){
   var cv = document.getElementById('rulerCv');
   var g = fitCanvas(cv, getCssH(cv));
-  var state = { startCm: 1.0, lengthCm: 2.35, rangeCm: 8, unit: 'cm', feedback: '', correct: false };
+  var state = { startCm: 1.0, lengthCm: 2.35, rangeCm: 8, unit: 'cm', feedback: '', correct: false, quizMode: false };
   var drag = { active: false, body: false, tip: false, offsetCm: 0, pxPerCm: 0 };
 
   function cmToPx(cm, ppc){ return cm * (ppc || drag.pxPerCm); }
@@ -39,9 +39,12 @@
     document.getElementById('readoutStart').textContent = state.startCm.toFixed(2);
     document.getElementById('readoutEnd').textContent = (state.startCm + state.lengthCm).toFixed(2);
     document.getElementById('readoutLen').textContent = state.lengthCm.toFixed(2);
+    var lenCard = document.getElementById('readoutLenCard');
+    if (lenCard) lenCard.style.display = state.quizMode ? 'none' : '';
   }
 
   function generate(){
+    state.quizMode = true;
     var r = state.rangeCm;
     state.startCm = Math.round((1.0 + Math.random() * Math.max(0.1, r - 2.5)) * 10) / 10;
     var maxLen = r - state.startCm;
@@ -96,15 +99,6 @@
     var endX = startX + st.lengthCm * pxPerCm;
     var pencilY = rulerY - 24;
     drawPencil(ctx, startX, pencilY, endX, 18);
-
-    ctx.save();
-    ctx.strokeStyle = '#2980b9'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(startX, rulerY + 42); ctx.lineTo(startX, rulerY + 60); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(endX, rulerY + 42); ctx.lineTo(endX, rulerY + 60); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#2980b9'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('物体左端对齐 ' + st.startCm.toFixed(1) + ' cm', (startX + endX) / 2, rulerY + 72);
-    ctx.restore();
 
     ctx.save();
     ctx.fillStyle = '#2c2c2c'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'left';
@@ -348,6 +342,7 @@
     var hitBody = hitPencilBody(p.x, p.y, state, g);
     var hitTip = hitPencilTip(p.x, p.y, state, g);
     if(!hitBody && !hitTip) return;
+    if (state.quizMode) { state.quizMode = false; updateReadouts(); }
     drag.active = true;
     drag.body = hitBody && !hitTip;
     drag.tip = hitTip;

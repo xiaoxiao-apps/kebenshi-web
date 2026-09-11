@@ -35,7 +35,7 @@
         <div class="readout-bar" id="rulerReadoutBar">
           <div class="readout-card"><div class="readout-label">起始读数</div><div class="readout-value"><span id="readoutStart">0.00</span><span class="readout-unit">cm</span></div></div>
           <div class="readout-card"><div class="readout-label">末端读数</div><div class="readout-value"><span id="readoutEnd">0.00</span><span class="readout-unit">cm</span></div></div>
-          <div class="readout-card"><div class="readout-label">铅笔总长</div><div class="readout-value"><span id="readoutLen">0.00</span><span class="readout-unit">cm</span></div></div>
+          <div class="readout-card" id="readoutLenCard"><div class="readout-label">铅笔总长</div><div class="readout-value"><span id="readoutLen">0.00</span><span class="readout-unit">cm</span></div></div>
           <div class="readout-card" style="display:flex;align-items:center;gap:6px;justify-content:center;">
             <div class="readout-label" style="margin-bottom:0;">量程</div>
             <input type="number" id="rulerRange" min="2" max="30" step="1" value="8" style="width:48px;text-align:center;font-size:18px;font-weight:700;color:#2d3748;border:1px solid #e2e8f0;border-radius:6px;padding:2px 4px;outline:none;">
@@ -52,7 +52,7 @@
         <option value="mm">mm</option>
       </select>
       <button class="btn btn-primary" id="rulerCheck">✓ 检查读数</button>
-      <button class="btn btn-secondary" id="rulerNext"> 换一题</button>
+      <button class="btn btn-secondary" id="rulerNext">出题</button>
     </div>
     <div class="feedback" id="rulerFb"></div>
     <p class="hint">提示：注意估读到分度值的下一位（即 0.01 cm）；物体不一定从 0 刻度量起，长度 = 末端刻度 − 起始刻度。支持键盘回车提交。</p>
