@@ -46,7 +46,7 @@
     var fb = document.getElementById('swFb');
     fb.className = 'feedback'; fb.innerHTML = '';
     hasTarget = true;
-    autoTimer = setTimeout(runToTarget, 2000);
+    runToTarget();
   }
 
   function totalSeconds(){ return running ? frozen + (performance.now() - startTime) / 1000 : frozen; }
