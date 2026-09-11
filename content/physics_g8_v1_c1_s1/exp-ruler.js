@@ -4,7 +4,7 @@
 (function(){
   var cv = document.getElementById('rulerCv');
   var g = fitCanvas(cv, getCssH(cv));
-  var state = { startCm: 1.0, lengthCm: 2.35, unit: 'cm', feedback: '', correct: false };
+  var state = { startCm: 1.0, lengthCm: 2.35, rangeCm: 8, unit: 'cm', feedback: '', correct: false };
   var drag = { active: false, body: false, tip: false, offsetCm: 0, pxPerCm: 0 };
 
   function cmToPx(cm, ppc){ return cm * (ppc || drag.pxPerCm); }
@@ -18,7 +18,7 @@
     var rulerY = h * 0.55;
     var rulerW = w - margin * 2;
     var leftX = margin;
-    var pxPerCm = ppc || (rulerW / 8.0);
+    var pxPerCm = ppc || (rulerW / state.rangeCm);
     var startX = leftX + st.startCm * pxPerCm;
     var endX = startX + st.lengthCm * pxPerCm;
     return { x: startX - 4, y: rulerY - 26, w: endX - startX + 8, h: 32 };
@@ -42,9 +42,10 @@
   }
 
   function generate(){
-    state.startCm = Math.round((1.0 + Math.random() * 4.0) * 10) / 10;
-    var maxLen = 8.0 - state.startCm;
-    var lenBase = 1.50 + Math.random() * Math.min(2.80, maxLen - 1.50);
+    var r = state.rangeCm;
+    state.startCm = Math.round((1.0 + Math.random() * Math.max(0.1, r - 2.5)) * 10) / 10;
+    var maxLen = r - state.startCm;
+    var lenBase = 1.50 + Math.random() * Math.min(4.30, maxLen - 1.50);
     var mm = Math.round(lenBase * 100) / 100;
     state.lengthCm = mm;
     state.feedback = ''; state.correct = false;
@@ -65,22 +66,28 @@
     var rulerY = h * 0.55;
     var rulerW = w - margin * 2;
     var leftX = margin, rightX = w - margin;
-    var pxPerCm = rulerW / 8.0;
+    var pxPerCm = rulerW / st.rangeCm;
 
     ctx.save();
     ctx.fillStyle = '#ffffff'; roundRectPath(ctx, leftX, rulerY, rulerW, 36, 4); ctx.fill();
     ctx.strokeStyle = '#2c2c2c'; ctx.lineWidth = 1; ctx.strokeRect(leftX, rulerY, rulerW, 36);
     ctx.fillStyle = '#2c2c2c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    for(var cm = 0; cm <= 8; cm++){
+    var stepLabel = 1;
+    if (pxPerCm < 18) stepLabel = 2;
+    if (pxPerCm < 10) stepLabel = 5;
+    for(var cm = 0; cm <= st.rangeCm; cm++){
       var x = leftX + cm * pxPerCm;
       ctx.beginPath(); ctx.moveTo(x, rulerY); ctx.lineTo(x, rulerY + 18); ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.fillText(cm, x, rulerY + 27);
+      if (cm % stepLabel === 0) ctx.fillText(cm, x, rulerY + 27);
     }
-    for(var cm2 = 0; cm2 < 8; cm2++){
-      for(var mm = 1; mm < 10; mm++){
-        var xm = leftX + (cm2 + mm / 10) * pxPerCm;
-        var tickH = mm === 5 ? 12 : 7;
-        ctx.beginPath(); ctx.moveTo(xm, rulerY); ctx.lineTo(xm, rulerY + tickH); ctx.lineWidth = 1; ctx.stroke();
+    if (pxPerCm >= 10) {
+      for(var cm2 = 0; cm2 < st.rangeCm; cm2++){
+        for(var mm = 1; mm < 10; mm++){
+          if (st.rangeCm > 12 && pxPerCm < 24 && mm !== 5) continue;
+          var xm = leftX + (cm2 + mm / 10) * pxPerCm;
+          var tickH = mm === 5 ? 12 : 7;
+          ctx.beginPath(); ctx.moveTo(xm, rulerY); ctx.lineTo(xm, rulerY + tickH); ctx.lineWidth = 1; ctx.stroke();
+        }
       }
     }
     ctx.restore();
@@ -101,7 +108,7 @@
 
     ctx.save();
     ctx.fillStyle = '#2c2c2c'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText('量程：0 ~ 8 cm　　分度值：1 mm', margin, 22);
+    ctx.fillText('量程：0 ~ ' + st.rangeCm + ' cm　　分度值：1 mm', margin, 22);
     ctx.fillStyle = '#5a5a5a'; ctx.font = '13px sans-serif';
     ctx.fillText('请读出物体的长度（注意估读到分度值下一位）', margin, 46);
     ctx.restore();
@@ -266,9 +273,56 @@
     }
   }
 
+  function clampPencilToRange(){
+    var r = state.rangeCm;
+    if (state.startCm + state.lengthCm > r) {
+      if (state.lengthCm > r - 0.5) {
+        state.lengthCm = Math.max(0.5, Math.min(state.lengthCm, r - 0.01));
+        state.startCm = 0;
+        if (state.startCm + state.lengthCm > r) state.lengthCm = Math.max(0.5, r - state.startCm - 0.01);
+      } else {
+        state.startCm = r - state.lengthCm;
+      }
+    }
+    state.startCm = Math.max(0, Math.min(r - 0.5, state.startCm));
+  }
+
+  function applyRange(raw){
+    var el = document.getElementById('rulerRange');
+    var v = parseInt(raw, 10);
+    if (!Number.isFinite(v) || v < 2 || v > 30 || String(v) !== String(raw).trim()) {
+      el.classList.add('invalid');
+      return false;
+    }
+    el.classList.remove('invalid');
+    if (v === state.rangeCm) return false;
+    state.rangeCm = v;
+    clampPencilToRange();
+    draw(g, state);
+    updateReadouts();
+    var text = '量程 0~' + v + ' cm、分度值 1 mm 的刻度尺测铅笔长度';
+    var sub = document.getElementById('rulerSubtitle');
+    var lab = document.getElementById('rulerLabTitle');
+    if (sub) sub.textContent = text + '，注意估读到分度值的下一位。';
+    if (lab) lab.textContent = text;
+    return true;
+  }
+
+  function bindRangeInput(){
+    var el = document.getElementById('rulerRange');
+    var timer = null;
+    el.addEventListener('input', function(){
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function(){ applyRange(el.value); }, 500);
+    });
+    el.addEventListener('blur', function(){ applyRange(el.value); });
+    el.addEventListener('keydown', function(e){ if(e.key === 'Enter') applyRange(el.value); });
+  }
+
   document.getElementById('rulerCheck').addEventListener('click', check);
   document.getElementById('rulerNext').addEventListener('click', generate);
   document.getElementById('rulerAns').addEventListener('keydown', function(e){ if(e.key === 'Enter') check(); });
+  bindRangeInput();
   window.addEventListener('resize', function(){ g = fitCanvas(cv, getCssH(cv)); draw(g, state); updateReadouts(); });
   generate();
 
@@ -286,7 +340,7 @@
 
   function setCursor(name){ cv.style.cursor = name || ''; }
 
-  function getPxPerCm(){ return (g.w - 72) / 8.0; }
+  function getPxPerCm(){ return (g.w - 72) / state.rangeCm; }
 
   function onPointerDown(e){
     if(e.type === 'touchstart') e.preventDefault();
@@ -319,7 +373,7 @@
       var b = pencilBox(state, ppc, g);
       var leftX = b.x + 4;
       var rawLen = pxToCm(p.x - leftX, ppc);
-      var maxLen = 8.0 - state.startCm;
+      var maxLen = state.rangeCm - state.startCm;
       var newLen = Math.max(0.5, Math.min(maxLen, Math.round(rawLen * 100) / 100));
       if (Math.abs(newLen - state.lengthCm) > 0.0001) {
         state.lengthCm = newLen;
@@ -330,7 +384,7 @@
     }
     if(!drag.body) return;
     var rawStart = drag.startDragCm + pxToCm(p.x - drag.startX, drag.pxPerCm);
-    var newStart = Math.max(0.0, Math.min(8.0 - state.lengthCm, Math.round(rawStart * 100) / 100));
+    var newStart = Math.max(0.0, Math.min(state.rangeCm - state.lengthCm, Math.round(rawStart * 100) / 100));
     state.startCm = newStart;
     updateReadouts();
     draw(g, state);

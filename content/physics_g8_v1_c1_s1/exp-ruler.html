@@ -13,6 +13,8 @@
   .readout-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); padding: 10px 16px; min-width: 110px; text-align: center; }
   .readout-label { font-size: 12px; color: #718096; margin-bottom: 4px; }
   .readout-value { font-size: 18px; font-weight: 700; color: #2d3748; }
+  #rulerRange.invalid { border-color: #e53e3e !important; background: #fff5f5; }
+  @media (max-width: 480px) { #rulerRange { width: 40px; font-size: 16px; } }
   .readout-unit { font-size: 12px; font-weight: 400; color: #718096; margin-left: 3px; }
   @media (max-width: 480px) { .readout-bar { gap: 8px; } .readout-card { flex: 1 1 30%; min-width: 90px; padding: 8px 10px; } .readout-value { font-size: 16px; } }
 </style>
@@ -22,18 +24,23 @@
   <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
   <div class="page-header">
     <h1 class="page-title">实验一：刻度尺读数</h1>
-    <p class="page-subtitle">量程 0~8 cm、分度值 1 mm 的刻度尺测铅笔长度，注意估读到分度值的下一位。</p>
+    <p class="page-subtitle" id="rulerSubtitle">量程 0~8 cm、分度值 1 mm 的刻度尺测铅笔长度，注意估读到分度值的下一位。</p>
   </div>
   <div class="card">
     <h2>实验一：刻度尺读数 <span class="chip cyan">长度测量</span></h2>
     <div class="lab-box">
-      <div class="lab-title">量程 0~8 cm、分度值 1 mm 的刻度尺测铅笔长度</div>
+      <div class="lab-title" id="rulerLabTitle">量程 0~8 cm、分度值 1 mm 的刻度尺测铅笔长度</div>
       <div class="fullscreen-wrap" id="fsRulerWrap">
         <button class="fullscreen-btn" id="fsRulerBtn" title="全屏">⛶</button>
         <div class="readout-bar" id="rulerReadoutBar">
           <div class="readout-card"><div class="readout-label">起始读数</div><div class="readout-value"><span id="readoutStart">0.00</span><span class="readout-unit">cm</span></div></div>
           <div class="readout-card"><div class="readout-label">末端读数</div><div class="readout-value"><span id="readoutEnd">0.00</span><span class="readout-unit">cm</span></div></div>
           <div class="readout-card"><div class="readout-label">铅笔总长</div><div class="readout-value"><span id="readoutLen">0.00</span><span class="readout-unit">cm</span></div></div>
+          <div class="readout-card" style="display:flex;align-items:center;gap:6px;justify-content:center;">
+            <div class="readout-label" style="margin-bottom:0;">量程</div>
+            <input type="number" id="rulerRange" min="2" max="30" step="1" value="8" style="width:48px;text-align:center;font-size:18px;font-weight:700;color:#2d3748;border:1px solid #e2e8f0;border-radius:6px;padding:2px 4px;outline:none;">
+            <span style="font-size:12px;color:#718096;">cm</span>
+          </div>
         </div>
         <canvas id="rulerCv"></canvas>
       </div>
