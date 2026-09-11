@@ -362,13 +362,25 @@
   (function dragQuiz(){
     var quiz = document.getElementById('fsRulerQuiz');
     var wrap = document.getElementById('fsRulerWrap');
-    var dragging = false, ox = 0, oy = 0;
+    var dragging = false, ox = 0, oy = 0, forward = false;
     function isFs(){ return wrap.classList.contains('pseudo-fullscreen') || document.fullscreenElement === wrap; }
     function pt(e){ return e.touches && e.touches.length ? e.touches[0] : e; }
     function down(e){
       if(!isFs()) return;
       var t = e.target;
       if(t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'BUTTON' || (t.closest && t.closest('button'))) return;
+      // 触摸点落在铅笔上时面板让路：转发给铅笔处理（拖铅笔+退出出题模式），不拖面板
+      var pa = window.__rulerPencil;
+      if (pa) {
+        var p0 = pt(e);
+        var cr = cv.getBoundingClientRect();
+        if (pa.hit(p0.clientX - cr.left, p0.clientY - cr.top)) {
+          forward = true;
+          pa.down(e);
+          e.preventDefault();
+          return;
+        }
+      }
       dragging = true;
       var wr = wrap.getBoundingClientRect(), qr = quiz.getBoundingClientRect();
       quiz.style.right = 'auto'; quiz.style.transform = 'none';
@@ -377,6 +389,7 @@
       e.preventDefault();
     }
     function move(e){
+      if (forward) { var pa2 = window.__rulerPencil; if (pa2) pa2.move(e); e.preventDefault(); return; }
       if(!dragging) return;
       var p = pt(e);
       var wr = wrap.getBoundingClientRect(), qr = quiz.getBoundingClientRect();
@@ -386,7 +399,10 @@
       quiz.style.left = x + 'px'; quiz.style.top = y + 'px';
       e.preventDefault();
     }
-    function up(){ dragging = false; }
+    function up(e){
+      if (forward) { var pa3 = window.__rulerPencil; if (pa3) pa3.up(e); forward = false; return; }
+      dragging = false;
+    }
     quiz.addEventListener('mousedown', down);
     quiz.addEventListener('touchstart', down, {passive: false});
     window.addEventListener('mousemove', move);
@@ -469,4 +485,12 @@
   cv.addEventListener('touchmove', onPointerMove, { passive: false });
   cv.addEventListener('touchend', onPointerUp);
   cv.addEventListener('touchcancel', onPointerUp);
+
+  // 暴露铅笔命中+处理给全屏答题面板：面板盖住铅笔时触摸转发，保证铅笔永远可拖
+  window.__rulerPencil = {
+    hit: function(x, y){ return hitPencilBody(x, y, state, g) || hitPencilTip(x, y, state, g); },
+    down: onPointerDown,
+    move: onPointerMove,
+    up: onPointerUp
+  };
 })();
