@@ -10,6 +10,9 @@
   .card { background: var(--card-bg); }
   .question { font-size: 15px; color: var(--ink2); margin: 8px 0 12px; }
   .illusion-card svg { width: 100%; height: auto; display: block; margin: 0 auto; }
+  @media (min-width: 769px) {
+    .illusion-card svg { max-width: 420px; }
+  }
   .svg-wrap { background: #fff; border-radius: 10px; padding: 8px; margin: 8px 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.05); }
   .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
   .reveal-card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin: 16px 0; border-left: 4px solid var(--primary); }
@@ -68,6 +71,7 @@
     </div>
     <div id="ponzoFb" class="feedback" style="display:none; margin-top:12px;"></div>
     <button class="btn btn-primary" id="ponzoMeasureBtn" style="display:none; margin-top:12px;">📐 量一量</button>
+    <button class="btn btn-secondary" id="ponzoResetBtn" style="display:none; margin-top:12px;">🔄 重置</button>
     <div id="ponzoMeasureArea" class="measure-area"></div>
   </div>
 
@@ -129,6 +133,7 @@
     </div>
     <div id="cornerFb" class="feedback" style="display:none; margin-top:12px;"></div>
     <button class="btn btn-primary" id="cornerMeasureBtn" style="display:none; margin-top:12px;">📐 量一量</button>
+    <button class="btn btn-secondary" id="cornerResetBtn" style="display:none; margin-top:12px;">🔄 重置</button>
     <div id="cornerMeasureArea" class="measure-area"></div>
   </div>
 
@@ -152,6 +157,7 @@
     </div>
     <div id="mullerFb" class="feedback" style="display:none; margin-top:12px;"></div>
     <button class="btn btn-primary" id="mullerMeasureBtn" style="display:none; margin-top:12px;">📐 量一量</button>
+    <button class="btn btn-secondary" id="mullerResetBtn" style="display:none; margin-top:12px;">🔄 重置</button>
     <div id="mullerMeasureArea" class="measure-area"></div>
   </div>
 
@@ -169,10 +175,15 @@
 <script>
 (function(){
   function setup(idPrefix, afterReveal){
-    var btns = document.getElementById(idPrefix + "Btns").querySelectorAll("button");
+    var btnsWrap = document.getElementById(idPrefix + "Btns");
+    var btns = btnsWrap ? btnsWrap.querySelectorAll("button") : [];
     var fb = document.getElementById(idPrefix + "Fb");
     var measureBtn = document.getElementById(idPrefix + "MeasureBtn");
+    var resetBtn = document.getElementById(idPrefix + "ResetBtn");
+    var measureArea = document.getElementById(idPrefix + "MeasureArea");
+    var svg = document.getElementById(idPrefix + "Svg");
     var done = false;
+    function cloneId(){ return idPrefix + (idPrefix === "corner" ? "Near" : "Top") + "Clone"; }
     btns.forEach(function(btn){
       btn.addEventListener("click", function(){
         if(done) return; done = true;
@@ -182,17 +193,28 @@
         else { fb.className = "feedback show info"; fb.innerHTML = "很多人都猜错啦！其实它们一样长。"; }
         btns.forEach(function(b){ b.disabled = true; });
         measureBtn.style.display = "";
+        resetBtn.style.display = "";
       });
     });
     measureBtn.addEventListener("click", function(){
       measureBtn.style.display = "none";
       afterReveal();
     });
+    resetBtn.addEventListener("click", function(){
+      done = false;
+      btns.forEach(function(b){ b.disabled = false; });
+      fb.style.display = "none"; fb.innerHTML = "";
+      measureBtn.style.display = "none";
+      resetBtn.style.display = "none";
+      if(measureArea) measureArea.innerHTML = "";
+      var clone = document.getElementById(cloneId());
+      if(clone && svg){ try { svg.removeChild(clone); } catch(e){} }
+    });
   }
 
   setup("ponzo", function(){
-    if(document.getElementById("ponzoTopClone")) return;
     var area = document.getElementById("ponzoMeasureArea");
+    if(document.getElementById("ponzoTopClone")) return;
     var svg = document.getElementById("ponzoSvg");
     var top = document.getElementById("ponzoTop");
     var bot = document.getElementById("ponzoBot");
@@ -220,8 +242,8 @@
   });
 
   setup("corner", function(){
-    if(document.getElementById("cornerNearClone")) return;
     var area = document.getElementById("cornerMeasureArea");
+    if(document.getElementById("cornerNearClone")) return;
     var svg = document.getElementById("cornerSvg");
     var near = document.getElementById("cornerNear");
     var clone = near.cloneNode(true);
@@ -248,8 +270,8 @@
   });
 
   setup("muller", function(){
-    if(document.getElementById("mullerTopClone")) return;
     var area = document.getElementById("mullerMeasureArea");
+    if(document.getElementById("mullerTopClone")) return;
     var svg = document.getElementById("mullerSvg");
     var top = document.getElementById("mullerTop");
     var clone = top.cloneNode(true);
