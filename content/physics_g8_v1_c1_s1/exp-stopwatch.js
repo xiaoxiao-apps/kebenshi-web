@@ -116,14 +116,31 @@
 
     ctx.save();
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    for(var i = 0; i <= 30; i += 1){
+    var R0 = r * 0.96;
+    for(var k = 0; k <= 299; k += 1){
+      var tang = (k / 300) * 2 * Math.PI - Math.PI / 2;
+      var tx1 = cx + Math.cos(tang) * R0;
+      var ty1 = cy + Math.sin(tang) * R0;
+      var tx2 = cx + Math.cos(tang) * (R0 - r * 0.030);
+      var ty2 = cy + Math.sin(tang) * (R0 - r * 0.030);
+      ctx.beginPath(); ctx.moveTo(tx1, ty1); ctx.lineTo(tx2, ty2); ctx.strokeStyle = '#a8a8a8'; ctx.lineWidth = 0.75; ctx.stroke();
+    }
+    for(var i = 1; i <= 29; i += 2){
+      var mang = (i / 30) * 2 * Math.PI - Math.PI / 2;
+      var mx1 = cx + Math.cos(mang) * R0;
+      var my1 = cy + Math.sin(mang) * R0;
+      var mx2 = cx + Math.cos(mang) * (R0 - r * 0.055);
+      var my2 = cy + Math.sin(mang) * (R0 - r * 0.055);
+      ctx.beginPath(); ctx.moveTo(mx1, my1); ctx.lineTo(mx2, my2); ctx.strokeStyle = '#555555'; ctx.lineWidth = 1.2; ctx.stroke();
+    }
+    for(var i = 0; i <= 30; i += 2){
       var ang = (i / 30) * 2 * Math.PI - Math.PI / 2;
-      var isMajor = i % 5 === 0;
-      var tickLen = isMajor ? 10 : 5;
-      var x1 = cx + Math.cos(ang) * (r - 10), y1 = cy + Math.sin(ang) * (r - 10);
-      var x2 = cx + Math.cos(ang) * (r - 10 - tickLen), y2 = cy + Math.sin(ang) * (r - 10 - tickLen);
-      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = '#5a5a5a'; ctx.lineWidth = isMajor ? 1.5 : 1; ctx.stroke();
-      if(i % 2 === 0 && i > 0){
+      var x1 = cx + Math.cos(ang) * R0;
+      var y1 = cy + Math.sin(ang) * R0;
+      var x2 = cx + Math.cos(ang) * (R0 - r * 0.095);
+      var y2 = cy + Math.sin(ang) * (R0 - r * 0.095);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = '#333333'; ctx.lineWidth = 2; ctx.stroke();
+      if(i > 0){
         ctx.save();
         ctx.translate(cx + Math.cos(ang) * (r * 0.76), cy + Math.sin(ang) * (r * 0.76));
         ctx.rotate(ang + Math.PI / 2);
