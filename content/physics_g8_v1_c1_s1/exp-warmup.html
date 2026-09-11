@@ -15,8 +15,14 @@
   }
   .svg-wrap { background: #fff; border-radius: 10px; padding: 8px; margin: 8px 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.05); }
   .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-  .reveal-card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin: 16px 0; border-left: 4px solid var(--primary); }
+  .reveal-card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin: 16px 0; border-left: 4px solid var(--green); }
   .measure-area { margin-top: 12px; min-height: 20px; }
+  .tab-bar { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+  .tab-btn { background: var(--card2); color: var(--ink); border: 1px solid rgba(0,0,0,.08); }
+  .tab-btn:hover { background: #e8e2d8; }
+  .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .illusion-panel { display: none; }
+  .illusion-panel.active { display: block; }
 </style>
 </head>
 <body>
@@ -27,6 +33,13 @@
     <p class="page-subtitle">感觉总是可靠吗？先看图判断，再用“尺”验证。</p>
   </div>
 
+  <div class="tab-bar" id="illusionTabs">
+    <button class="btn tab-btn active" data-target="ponzo">错觉一</button>
+    <button class="btn tab-btn" data-target="corner">错觉二</button>
+    <button class="btn tab-btn" data-target="muller">错觉三</button>
+  </div>
+
+  <div class="illusion-panel active" data-panel="ponzo">
   <div class="card illusion-card" style="background:var(--brown-bg);">
     <h2>错觉一：铁轨透视错觉 <span class="chip brown">Ponzo 错觉</span></h2>
     <p class="question">图 1.1-1 中的两根黄色小棒，哪一根更长？</p>
@@ -74,7 +87,9 @@
     <button class="btn btn-secondary" id="ponzoResetBtn" style="display:none; margin-top:12px;">🔄 重置</button>
     <div id="ponzoMeasureArea" class="measure-area"></div>
   </div>
+  </div>
 
+  <div class="illusion-panel" data-panel="corner">
   <div class="card illusion-card" style="background:var(--brown-bg);">
     <h2>错觉二：墙角错觉 <span class="chip brown">角落错觉</span></h2>
     <p class="question">图中的两根橙色竖条，哪一根更长？</p>
@@ -136,7 +151,9 @@
     <button class="btn btn-secondary" id="cornerResetBtn" style="display:none; margin-top:12px;">🔄 重置</button>
     <div id="cornerMeasureArea" class="measure-area"></div>
   </div>
+  </div>
 
+  <div class="illusion-panel" data-panel="muller">
   <div class="card illusion-card" style="background:var(--brown-bg);">
     <h2>错觉三：缪勒-莱耶箭头错觉 <span class="chip brown">Müller-Lyer</span></h2>
     <p class="question">两条水平线，哪一根更长？</p>
@@ -160,6 +177,7 @@
     <button class="btn btn-secondary" id="mullerResetBtn" style="display:none; margin-top:12px;">🔄 重置</button>
     <div id="mullerMeasureArea" class="measure-area"></div>
   </div>
+  </div>
 
   <div class="reveal-card">
     <h3 style="margin-bottom:8px;">揭晓</h3>
@@ -167,9 +185,6 @@
     <p style="font-size:13px;color:var(--ink3);margin-top:8px;">点击各卡片中的“📐 量一量”，可亲眼看到两根小棒叠合。</p>
   </div>
 
-  <div class="btn-row" style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;">
-    <a class="btn btn-secondary" data-back href="experiment.html">‹ 返回实验区</a>
-  </div>
 </div>
 
 <script>
@@ -295,6 +310,20 @@
       if(top2){ top2.setAttribute("stroke", "#000"); top2.setAttribute("stroke-dasharray", "6,4"); }
     }, 1100);
   });
+
+  var tabs = document.getElementById("illusionTabs");
+  if(tabs){
+    tabs.addEventListener("click", function(e){
+      var btn = e.target.closest(".tab-btn");
+      if(!btn) return;
+      var target = btn.dataset.target;
+      document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("active"); });
+      document.querySelectorAll(".illusion-panel").forEach(function(p){ p.classList.remove("active"); });
+      btn.classList.add("active");
+      var panel = document.querySelector('.illusion-panel[data-panel="' + target + '"]');
+      if(panel) panel.classList.add("active");
+    });
+  }
 })();
 </script>
 <script src="exp-back.js"></script>
