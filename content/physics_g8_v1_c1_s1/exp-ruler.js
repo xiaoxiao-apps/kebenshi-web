@@ -32,7 +32,7 @@
   function hitPencilTip(x, y, st, g2){
     var b = pencilBox(st, null, g2);
     var tipX = b.x + b.w - 8;
-    return x >= tipX - 8 && x <= tipX + 12 && y >= b.y && y <= b.y + b.h;
+    return x >= tipX - 12 && x <= tipX + 12 && y >= b.y && y <= b.y + b.h;
   }
 
   function updateReadouts(){
@@ -110,15 +110,16 @@
   function drawPencil(ctx, startX, pencilY, endX, pencilH){
     var pencilW = endX - startX;
     var centerY = pencilY + pencilH / 2;
-    var eraserW = Math.max(10, pencilW * 0.08);
-    var ferruleW = Math.max(6, pencilW * 0.05);
-    var tipW = Math.max(18, pencilW * 0.12);
-    var bodyEndX = endX - tipW;
-    var bodyW = bodyEndX - (startX + eraserW + ferruleW);
-    if (bodyW < 4) {
-      tipW = Math.max(12, pencilW * 0.5);
-      bodyEndX = endX - tipW;
+    var eraserW = Math.max(8, Math.min(pencilW * 0.08, pencilW * 0.25));
+    var ferruleW = Math.max(5, Math.min(pencilW * 0.05, pencilW * 0.18));
+    var minTipW = Math.max(12, pencilW * 0.18);
+    var tipW = Math.max(minTipW, pencilW * 0.35);
+    if (tipW + eraserW + ferruleW > pencilW * 0.85) {
+      tipW = Math.max(10, pencilW * 0.3);
+      eraserW = Math.max(6, pencilW * 0.22);
+      ferruleW = Math.max(4, pencilW * 0.13);
     }
+    var bodyEndX = endX - tipW;
     var eraserX = startX;
     var ferruleX = startX + eraserW;
     var bodyStartX = ferruleX + ferruleW;
@@ -294,19 +295,37 @@
     var hitTip = hitPencilTip(p.x, p.y, state, g);
     if(!hitBody && !hitTip) return;
     drag.active = true;
-    drag.body = hitBody;
+    drag.body = hitBody && !hitTip;
     drag.tip = hitTip;
     drag.startX = p.x;
     drag.pxPerCm = getPxPerCm();
     drag.startDragCm = state.startCm;
-    setCursor('grabbing');
+    if(hitTip){ setCursor('ew-resize'); } else { setCursor('grabbing'); }
   }
 
   function onPointerMove(e){
     if(e.type === 'touchmove') e.preventDefault();
     var p = pointerPos(e);
     if(!drag.active){
-      setCursor(hitPencilBody(p.x, p.y, state, g) ? 'grab' : '');
+      var hBody = hitPencilBody(p.x, p.y, state, g);
+      var hTip = hitPencilTip(p.x, p.y, state, g);
+      if(hTip){ setCursor('ew-resize'); }
+      else if(hBody){ setCursor('grab'); }
+      else { setCursor(''); }
+      return;
+    }
+    if(drag.tip){
+      var ppc = drag.pxPerCm || getPxPerCm();
+      var b = pencilBox(state, ppc, g);
+      var leftX = b.x + 4;
+      var rawLen = pxToCm(p.x - leftX, ppc) - state.startCm;
+      var maxLen = 8.0 - state.startCm;
+      var newLen = Math.max(0.5, Math.min(maxLen, Math.round(rawLen * 100) / 100));
+      if (Math.abs(newLen - state.lengthCm) > 0.0001) {
+        state.lengthCm = newLen;
+        updateReadouts();
+        draw(g, state);
+      }
       return;
     }
     if(!drag.body) return;
@@ -319,8 +338,10 @@
 
   function onPointerUp(e){
     if(!drag.active) return;
+    var wasTip = drag.tip;
     drag.active = false; drag.body = false; drag.tip = false;
-    setCursor('');
+    if(wasTip){ setCursor(''); }
+    else { setCursor(''); }
   }
 
   cv.addEventListener('mousedown', onPointerDown);
