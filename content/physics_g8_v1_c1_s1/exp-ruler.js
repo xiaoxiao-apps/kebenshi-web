@@ -76,6 +76,31 @@
     draw(g, state);
     updateReadouts();
     setFb('', 'info');
+    avoidPanelOverPencil();
+  }
+
+  // 全屏时答题面板若盖住铅笔则自动移开（优先移到铅笔下方，不够放上方），保证铅笔永远摸得到
+  function avoidPanelOverPencil(){
+    var quiz = document.getElementById('fsRulerQuiz');
+    if (!quiz || !isFullscreen()) return;
+    if (getComputedStyle(quiz).display === 'none') return;
+    var b = pencilBox(state, null, g);
+    var cr = cv.getBoundingClientRect();
+    var wr = wrap.getBoundingClientRect();
+    var px1 = cr.left - wr.left + b.x - 6, px2 = cr.left - wr.left + b.x + b.w + 6;
+    var py1 = cr.top - wr.top + b.y - 6, py2 = cr.top - wr.top + b.y + b.h + 6;
+    var qr = quiz.getBoundingClientRect();
+    var qx1 = qr.left - wr.left, qx2 = qr.right - wr.left;
+    var qy1 = qr.top - wr.top, qy2 = qr.bottom - wr.top;
+    if (!(px1 < qx2 && px2 > qx1 && py1 < qy2 && py2 > qy1)) return;
+    var qh = qr.height;
+    var newTop = null;
+    if (py2 + 8 + qh <= wr.height - 8) newTop = py2 + 8;
+    else if (py1 - 8 - qh >= 8) newTop = py1 - 8 - qh;
+    if (newTop === null) return;
+    quiz.style.right = 'auto'; quiz.style.transform = 'none';
+    quiz.style.left = qx1 + 'px';
+    quiz.style.top = newTop + 'px';
   }
 
   function draw(g2, st){
@@ -350,13 +375,13 @@
   document.getElementById('rulerAns').addEventListener('keydown', function(e){ if(e.key === 'Enter') check(document.getElementById('rulerAns'), document.getElementById('rulerFb')); });
   document.getElementById('rulerAnsFs').addEventListener('keydown', function(e){ if(e.key === 'Enter') check(document.getElementById('rulerAnsFs'), document.getElementById('rulerFbFs')); });
   bindRangeInput();
-  window.addEventListener('resize', function(){ g = fitCanvas(cv, getCssH(cv, readoutBar)); draw(g, state); updateReadouts(); });
+  window.addEventListener('resize', function(){ g = fitCanvas(cv, getCssH(cv, readoutBar)); draw(g, state); updateReadouts(); avoidPanelOverPencil(); });
   generate();
 
   FullscreenHelper.bind(
     document.getElementById('fsRulerWrap'),
     document.getElementById('fsRulerBtn'),
-    function(){ g = fitCanvas(cv, getCssH(cv, readoutBar)); draw(g, state); }
+    function(){ g = fitCanvas(cv, getCssH(cv, readoutBar)); draw(g, state); avoidPanelOverPencil(); }
   );
 
   (function dragQuiz(){
