@@ -335,12 +335,12 @@ body {
 
 /* ---- Fullscreen quiz panel ---- */
 .fs-quiz { display: block; }
-#fsSwWrap:fullscreen { background: var(--bg); }
 :fullscreen .fs-quiz, .pseudo-fullscreen .fs-quiz {
   display: flex; flex-direction: column; gap: 10px;
   position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
   width: 220px; padding: 14px; border-radius: 14px;
-  background: transparent; cursor: grab;
+  background: rgba(255,255,255,.92); box-shadow: 0 4px 18px rgba(0,0,0,.18);
+  cursor: grab;
 }
 :fullscreen .fs-quiz .input-line, .pseudo-fullscreen .fs-quiz .input-line {
   flex-direction: column; margin-top: 0; gap: 8px;
