@@ -124,18 +124,28 @@
       var x2 = cx + Math.cos(ang) * (r - 10 - tickLen), y2 = cy + Math.sin(ang) * (r - 10 - tickLen);
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = '#5a5a5a'; ctx.lineWidth = isMajor ? 1.5 : 1; ctx.stroke();
       if(i % 2 === 0 && i > 0){
-        ctx.fillStyle = '#2c2c2c'; ctx.font = '11px sans-serif';
-        ctx.fillText(String(i), cx + Math.cos(ang) * (r - 26), cy + Math.sin(ang) * (r - 26));
+        ctx.save();
+        ctx.translate(cx + Math.cos(ang) * (r * 0.76), cy + Math.sin(ang) * (r * 0.76));
+        ctx.rotate(ang + Math.PI / 2);
+        ctx.fillStyle = '#2c2c2c'; ctx.font = 'bold ' + (r * 0.105) + 'px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(String(i), 0, 0);
+        ctx.restore();
       }
     }
-    ctx.fillStyle = '#c0392b'; ctx.font = '10px sans-serif';
     for(var rj = 31; rj <= 59; rj += 2){
       var redAng = ((rj - 30) / 30) * 2 * Math.PI - Math.PI / 2;
-      ctx.fillText(String(rj), cx + Math.cos(redAng) * (r - 42), cy + Math.sin(redAng) * (r - 42));
+      ctx.save();
+      ctx.translate(cx + Math.cos(redAng) * (r * 0.66), cy + Math.sin(redAng) * (r * 0.66));
+      ctx.rotate(redAng + Math.PI / 2);
+      ctx.fillStyle = '#c0392b'; ctx.font = 'bold ' + (r * 0.09) + 'px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(String(rj), 0, 0);
+      ctx.restore();
     }
     ctx.restore();
 
-    var scx = cx, scy = cy - r * 0.38, sr = r * 0.24;
+    var scx = cx, scy = cy - r * 0.40, sr = r * 0.22;
     ctx.save();
     ctx.fillStyle = '#faf8f2'; ctx.beginPath(); ctx.arc(scx, scy, sr, 0, 7); ctx.fill();
     ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
@@ -143,7 +153,7 @@
     for(var j = 0; j <= 30; j += 1){
       var isHalf = j % 2 === 1;
       var mang = (j / 30) * 2 * Math.PI - Math.PI / 2;
-      var ml = isHalf ? sr * 0.11 : sr * 0.20;
+      var ml = isHalf ? sr * 0.12 : sr * 0.22;
       var mx1 = scx + Math.cos(mang) * sr, my1 = scy + Math.sin(mang) * sr;
       var mx2 = scx + Math.cos(mang) * (sr - ml), my2 = scy + Math.sin(mang) * (sr - ml);
       ctx.beginPath(); ctx.moveTo(mx1, my1); ctx.lineTo(mx2, my2);
@@ -151,9 +161,9 @@
       if(!isHalf){
         var nval = j / 2;
         ctx.save();
-        ctx.translate(scx + Math.cos(mang) * (sr * 0.60), scy + Math.sin(mang) * (sr * 0.60));
+        ctx.translate(scx + Math.cos(mang) * (sr * 0.64), scy + Math.sin(mang) * (sr * 0.64));
         ctx.rotate(mang + Math.PI / 2);
-        ctx.fillStyle = '#1a1a1a'; ctx.font = 'bold ' + (sr * 0.40) + 'px sans-serif';
+        ctx.fillStyle = '#333'; ctx.font = 'bold ' + Math.max(8, sr * 0.34) + 'px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(String(nval === 0 ? 15 : nval), 0, 0);
         ctx.restore();
@@ -171,7 +181,7 @@
     ctx.lineTo(cx + Math.cos(secAng) * (r * 0.90), cy + Math.sin(secAng) * (r * 0.90));
     ctx.stroke();
     ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.moveTo(scx, scy); ctx.lineTo(scx + Math.cos(minAng) * (sr * 0.72), scy + Math.sin(minAng) * (sr * 0.72)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(scx, scy); ctx.lineTo(scx + Math.cos(minAng) * (sr * 0.70), scy + Math.sin(minAng) * (sr * 0.70)); ctx.stroke();
     ctx.restore();
 
     ctx.save();
@@ -181,8 +191,8 @@
     ctx.restore();
 
     ctx.save();
-    ctx.fillStyle = '#5a5a5a'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillText('大表盘：0~30 s（0.1 s/格）  小表盘：0~15 min（0.5 min/格）', cx, cy + r * 1.07 + 16);
+    ctx.fillStyle = '#5a5a5a'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText('大表盘：0~30 s（0.1 s/格）  小表盘：0~15 min（0.5 min/格）', 10, 16);
     ctx.restore();
 
     drawBtn(ctx, w * 0.22, h - 40, 88, 44, '#7bc46e', running ? '停止' : '开始');
