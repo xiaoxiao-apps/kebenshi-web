@@ -5,6 +5,35 @@
   var cv = document.getElementById('rulerCv');
   var g = fitCanvas(cv, getCssH(cv));
   var state = { startCm: 1.0, lengthCm: 2.35, unit: 'cm', feedback: '', correct: false };
+  var drag = { active: false, body: false, tip: false, offsetCm: 0, pxPerCm: 0 };
+
+  function cmToPx(cm, ppc){ return cm * (ppc || drag.pxPerCm); }
+  function pxToCm(px, ppc){ return px / (ppc || drag.pxPerCm); }
+
+  function pencilBox(st, ppc, g2){
+    var ctx = (g2 || {}).ctx || cv.getContext('2d');
+    var w = (g2 || {}).w || cv.width;
+    var h = (g2 || {}).h || cv.height;
+    var margin = 36;
+    var rulerY = h * 0.55;
+    var rulerW = w - margin * 2;
+    var leftX = margin;
+    var pxPerCm = ppc || (rulerW / 8.0);
+    var startX = leftX + st.startCm * pxPerCm;
+    var endX = startX + st.lengthCm * pxPerCm;
+    return { x: startX - 4, y: rulerY - 26, w: endX - startX + 8, h: 32 };
+  }
+
+  function hitPencilBody(x, y, st, g2){
+    var b = pencilBox(st, null, g2);
+    return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+  }
+
+  function hitPencilTip(x, y, st, g2){
+    var b = pencilBox(st, null, g2);
+    var tipX = b.x + b.w - 8;
+    return x >= tipX - 8 && x <= tipX + 12 && y >= b.y && y <= b.y + b.h;
+  }
 
   function updateReadouts(){
     document.getElementById('readoutStart').textContent = state.startCm.toFixed(2);
@@ -247,4 +276,58 @@
     document.getElementById('fsRulerBtn'),
     function(){ g = fitCanvas(cv, getCssH(cv)); draw(g, state); }
   );
+
+  function pointerPos(e){
+    var rect = cv.getBoundingClientRect();
+    var p = e.touches && e.touches.length ? e.touches[0] : e;
+    return { x: p.clientX - rect.left, y: p.clientY - rect.top };
+  }
+
+  function setCursor(name){ cv.style.cursor = name || ''; }
+
+  function getPxPerCm(){ return (g.w - 72) / 8.0; }
+
+  function onPointerDown(e){
+    if(e.type === 'touchstart') e.preventDefault();
+    var p = pointerPos(e);
+    var hitBody = hitPencilBody(p.x, p.y, state, g);
+    var hitTip = hitPencilTip(p.x, p.y, state, g);
+    if(!hitBody && !hitTip) return;
+    drag.active = true;
+    drag.body = hitBody;
+    drag.tip = hitTip;
+    drag.startX = p.x;
+    drag.pxPerCm = getPxPerCm();
+    drag.startDragCm = state.startCm;
+    setCursor('grabbing');
+  }
+
+  function onPointerMove(e){
+    if(e.type === 'touchmove') e.preventDefault();
+    var p = pointerPos(e);
+    if(!drag.active){
+      setCursor(hitPencilBody(p.x, p.y, state, g) ? 'grab' : '');
+      return;
+    }
+    if(!drag.body) return;
+    var rawStart = drag.startDragCm + pxToCm(p.x - drag.startX, drag.pxPerCm);
+    var newStart = Math.max(0.0, Math.min(8.0 - state.lengthCm, Math.round(rawStart * 100) / 100));
+    state.startCm = newStart;
+    updateReadouts();
+    draw(g, state);
+  }
+
+  function onPointerUp(e){
+    if(!drag.active) return;
+    drag.active = false; drag.body = false; drag.tip = false;
+    setCursor('');
+  }
+
+  cv.addEventListener('mousedown', onPointerDown);
+  cv.addEventListener('mousemove', onPointerMove);
+  window.addEventListener('mouseup', onPointerUp);
+  cv.addEventListener('touchstart', onPointerDown, { passive: false });
+  cv.addEventListener('touchmove', onPointerMove, { passive: false });
+  cv.addEventListener('touchend', onPointerUp);
+  cv.addEventListener('touchcancel', onPointerUp);
 })();
