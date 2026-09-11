@@ -25,7 +25,8 @@
   .uq-row { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
   .uq-item { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: #fff; border-radius: 10px; padding: 10px 12px; }
   .uq-item span { font-weight: 700; }
-  .uq-item input { width: 120px; text-align: center; }
+  .uq-item input { width: 140px; text-align: center; }
+  .uq-item select { height: 32px; border-radius: 6px; border: 1px solid #ccc; padding: 0 6px; }
   .magnitude-tabs { display: flex; gap: 10px; margin: 12px 0; }
   .tab-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; cursor: pointer; font-weight: 700; }
   .tab-btn.active { background: var(--green); color: #fff; }
@@ -60,7 +61,7 @@
       <span class="unit-pill">m 米</span>
       <span class="unit-pill">km 千米</span>
     </div>
-    <div class="key-formula">1 km = 1000 m；1 m = 10 dm = 100 cm = 1000 mm；1 mm = 1000 μm；1 μm = 1000 nm</div>
+    <div class="key-formula">1 km = 1000 m<br>1 m = 10 dm = 100 cm = 1000 mm<br>1 mm = 1000 μm<br>1 μm = 1000 nm</div>
     <p class="conv">
       记忆口诀：<b>千米到米乘一千，米到毫米乘一千，再往下都是乘十，只有三个"千"字记心间。</b>
     </p>
@@ -68,7 +69,7 @@
     <p class="conv">为了世界范围统一标准，国际上制定了国际单位制（SI）。</p>
     <div id="unitQuiz" class="mini-quiz">
       <h4>📝 单位换算填空</h4>
-      <p class="conv">根据上面的换算关系，填写结果（用科学记数法）：</p>
+      <p class="conv">选择目标单位，再填入换算结果：</p>
       <div class="uq-row" id="uqRow"></div>
       <div class="feedback" id="uqFb"></div>
     </div>
@@ -91,7 +92,7 @@
 
   <div class="card">
     <h2>三、时间的测量 <span class="chip brown">基础概念</span></h2>
-    <div class="key-formula">1 h = 60 min = 3600 s</div>
+    <div class="key-formula">1 时 = 60 分<br>1 分 = 60 秒<br>1 时 = 3600 秒</div>
     <p>计时工具：古代圭表、日晷 → 现代钟表 → 实验室停表。</p>
   </div>
 
@@ -166,34 +167,38 @@
     </div>
   </div>
 
-  <div class="anim-btns">
-    <a class="btn btn-primary" href="experiment.html">进入互动实验区 →</a>
-  </div>
+
 </div>
 <script>
 (function(){
   // 单位换算填空
   var uqItems = [
-    { q: '500 μm = ', a: '5e-4', unit: 'm', html: '5×10⁻⁴ m' },
-    { q: '3.5 km = ', a: '3.5e3', unit: 'm', html: '3.5×10³ m' },
-    { q: '250 nm = ', a: '2.5e-7', unit: 'm', html: '2.5×10⁻⁷ m' }
+    { q: '500 μm = ', opts: ['m', 'cm', 'mm', 'nm'], ans: { m: 5e-4, cm: 0.05, mm: 0.5, nm: 5e5 }, show: { m: '5×10⁻⁴ m', cm: '0.05 cm', mm: '0.5 mm', nm: '5×10⁵ nm' } },
+    { q: '3.5 km = ', opts: ['m', 'cm', 'mm'], ans: { m: 3.5e3, cm: 3.5e5, mm: 3.5e6 }, show: { m: '3.5×10³ m', cm: '3.5×10⁵ cm', mm: '3.5×10⁶ mm' } },
+    { q: '250 nm = ', opts: ['m', 'μm', 'mm'], ans: { m: 2.5e-7, 'μm': 0.25, mm: 2.5e-4 }, show: { m: '2.5×10⁻⁷ m', 'μm': '0.25 μm', mm: '2.5×10⁻⁴ mm' } }
   ];
   var uqRow = document.getElementById('uqRow');
   uqItems.forEach(function(it, i){
     var row = document.createElement('div'); row.className = 'uq-item';
-    row.innerHTML = '<span>' + it.q + '</span><input type="text" data-idx="' + i + '" placeholder="如 5e-4"><span>' + it.unit + '</span><button class="btn btn-primary uq-check" data-idx="' + i + '">检查</button>';
+    var selOpts = it.opts.map(function(u, idx){ return '<option value="' + u + '"' + (idx === 0 ? ' selected' : '') + '>' + u + '</option>'; }).join('');
+    row.innerHTML = '<span>' + it.q + '</span><input type="text" data-idx="' + i + '" placeholder="如 0.0005 或 5e-4"><select data-idx="' + i + '">' + selOpts + '</select><button class="btn btn-primary uq-check" data-idx="' + i + '">检查</button>';
     uqRow.appendChild(row);
   });
   var uqFb = document.getElementById('uqFb');
   uqRow.addEventListener('click', function(e){
     if(!e.target.classList.contains('uq-check')) return;
     var i = +e.target.dataset.idx;
-    var inp = uqRow.querySelector('input[data-idx="' + i + '"]');
-    var v = parseFloat(inp.value.replace(/[\s]/g,'').replace('×','e').replace('x','e'));
+    var row = uqRow.querySelectorAll('.uq-item')[i];
+    var inp = row.querySelector('input');
+    var sel = row.querySelector('select');
+    var unit = sel.value;
+    var raw = inp.value.replace(/[\s]/g, '').replace(/[×x]/g, 'e').replace(/[−]/g, '-');
+    var v = parseFloat(raw);
     var it = uqItems[i];
-    var ok = !isNaN(v) && Math.abs(v - parseFloat(it.a)) < 1e-12;
+    var expected = it.ans[unit];
+    var ok = !isNaN(v) && expected !== undefined && Math.abs(v - expected) / Math.max(Math.abs(expected), 1e-12) < 1e-9;
     uqFb.className = 'feedback show ' + (ok ? 'ok' : 'err');
-    uqFb.innerHTML = (ok ? '✅ 正确！提示：先写出科学记数法，再转成十进制数。' : '❌ 正确答案是 ' + it.html + '。提示：先写出科学记数法，再转成十进制数。');
+    uqFb.innerHTML = (ok ? '✅ 正确！' : '❌ 正确答案是 ' + it.show[unit] + '。');
   });
 
   // 量级卡片
@@ -232,8 +237,29 @@
 
   // 特殊测量法 SVG
   function setSvg(id, svg){ var el = document.getElementById(id); if(el) el.innerHTML = svg; }
-  setSvg('svgAccum', '<svg viewBox="0 0 320 80"><rect x="20" y="50" width="280" height="20" fill="#e6dfd0" rx="3"/><text x="160" y="40" text-anchor="middle" font-size="13" fill="#5a5a5a">100张纸叠放 → 测总厚 → 除以100</text></svg>');
-  setSvg('svgAux', '<svg viewBox="0 0 320 120"><rect x="120" y="40" width="80" height="60" fill="none" stroke="#8b6914" stroke-width="2"/><polygon points="110,30 120,40 120,100 110,110" fill="#4a8c3f" opacity=".8"/><polygon points="210,30 200,40 200,100 210,110" fill="#4a8c3f" opacity=".8"/><line x1="110" y1="75" x2="210" y2="75" stroke="#c0392b" stroke-dasharray="4,3"/><text x="160" y="115" text-anchor="middle" font-size="13" fill="#5a5a5a">硬币直径 = 两三角板间距</text></svg>');
+  function buildAccumSvg(){
+    var lines = '';
+    for(var i = 0; i < 12; i++){
+      var y = 35 + i * 4;
+      var c = i % 2 === 0 ? '#d9cfae' : '#c9b98a';
+      lines += '<rect x="60" y="' + y + '" width="120" height="3" rx="1" fill="' + c + '"/>';
+    }
+    return '<svg viewBox="0 0 320 110"><g id="paperStack">' + lines + '</g><line x1="240" y1="20" x2="240" y2="90" stroke="#5a5a5a" stroke-width="1.5" marker-start="url(#arrowUp)" marker-end="url(#arrowDown)"/><text x="250" y="58" font-size="12" fill="#5a5a5a">总厚度</text><text x="130" y="15" text-anchor="middle" font-size="14" font-weight="bold" fill="#5a5a5a">100 张纸叠放</text><text x="130" y="105" text-anchor="middle" font-size="13" fill="#5a5a5a">测总厚度 ÷ 100 = 一张纸厚度</text><defs><marker id="arrowUp" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,8 L5,2 L10,8" fill="none" stroke="#5a5a5a" stroke-width="1.5"/></marker><marker id="arrowDown" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,2 L5,8 L10,2" fill="none" stroke="#5a5a5a" stroke-width="1.5"/></marker></defs></svg>';
+  }
+  setSvg('svgAccum', buildAccumSvg());
+  // 辅助法 SVG 自检说明（node --check 时仅语法检查，运行时由浏览器验证）:
+  // 1. 左三角板 polygon 最大 x 必须 == 130；右三角板 polygon 最小 x 必须 == 190
+  // 2. keyframes to 为 translateX(0)
+  // 3. 虚线 y1==y2==80, x1=130, x2=190
+  var auxSvgHtml = '<svg viewBox="0 0 320 160"><style> .aux-left { animation: auxL 1.2s ease-in-out forwards; } .aux-right { animation: auxR 1.2s ease-in-out forwards; } .aux-label { opacity: 0; animation: auxShow 0.4s ease-in-out 1.3s forwards; } @keyframes auxL { from { transform: translateX(-40px); } to { transform: translateX(0); } } @keyframes auxR { from { transform: translateX(40px); } to { transform: translateX(0); } } @keyframes auxShow { from { opacity: 0; } to { opacity: 1; } } </style><g transform="translate(0,25)"><line x1="20" y1="120" x2="300" y2="120" stroke="#8b6914" stroke-width="2"/><g class="aux-left"><polygon points="130,120 130,50 80,120" fill="#4a8c3f" opacity="0.45" stroke="#2d5a2d" stroke-width="1.5"/><polygon points="130,120 130,92 106,120" fill="#fff" opacity="0.7"/></g><g class="aux-right"><polygon points="190,120 190,50 240,120" fill="#4a8c3f" opacity="0.45" stroke="#2d5a2d" stroke-width="1.5"/><polygon points="190,120 190,92 214,120" fill="#fff" opacity="0.7"/></g><circle cx="160" cy="80" r="30" fill="#d4af37" stroke="#8b6914" stroke-width="2"/><circle cx="160" cy="80" r="20" fill="none" stroke="#8b6914" stroke-width="1"/><text x="160" y="84" text-anchor="middle" font-size="10" fill="#5a4100" font-weight="bold">1元</text><line class="aux-label" x1="130" y1="80" x2="190" y2="80" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"/><text class="aux-label" x="160" y="20" text-anchor="middle" font-size="12" fill="#c0392b" font-weight="bold">硬币直径 = 两三角板间距离</text></g></svg>';
+  setSvg('svgAux', auxSvgHtml);
+  var auxWrap = document.getElementById('svgAux');
+  var replayBtn = document.createElement('button');
+  replayBtn.className = 'btn btn-secondary';
+  replayBtn.textContent = ' 重播';
+  replayBtn.style.marginTop = '8px';
+  replayBtn.onclick = function(){ setSvg('svgAux', auxSvgHtml); };
+  auxWrap.appendChild(replayBtn);
   setSvg('svgCurve', '<svg viewBox="0 0 320 100"><path d="M20,70 C60,30 120,90 180,50 S280,30 300,60" fill="none" stroke="#c0392b" stroke-width="2"/><line x1="20" y1="80" x2="300" y2="80" stroke="#8b6914" stroke-width="2"/><text x="160" y="95" text-anchor="middle" font-size="13" fill="#5a5a5a">棉线沿曲线摆放后拉直测量</text></svg>');
 })();
 </script>
