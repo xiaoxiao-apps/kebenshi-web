@@ -15,7 +15,8 @@
   }
   .svg-wrap { background: #fff; border-radius: 10px; padding: 8px; margin: 8px 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.05); }
   .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-  .reveal-card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin: 16px 0; border-left: 4px solid var(--green); }
+  .reveal-card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin: 16px 0; border-left: 4px solid var(--green); transition: opacity .4s; opacity: 0; }
+  .reveal-card.revealed { opacity: 1; }
   .measure-area { margin-top: 12px; min-height: 20px; }
   .tab-bar { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
   .tab-btn { background: var(--card2); color: var(--ink); border: 1px solid rgba(0,0,0,.08); }
@@ -179,7 +180,8 @@
   </div>
   </div>
 
-  <div class="reveal-card">
+  <!-- 答一张就弹会剧透其余两张，故三张全答后弹 -->
+  <div class="reveal-card" style="display:none;">
     <h3 style="margin-bottom:8px;">揭晓</h3>
     <p>其实每组图中的两根小棒都<b>一样长</b>。我们的感觉有时不可靠，所以需要用尺进行<b>测量</b>。</p>
     <p style="font-size:13px;color:var(--ink3);margin-top:8px;">点击各卡片中的“📐 量一量”，可亲眼看到两根小棒叠合。</p>
@@ -189,6 +191,7 @@
 
 <script>
 (function(){
+  var answeredCards = {};
   function setup(idPrefix, afterReveal){
     var btnsWrap = document.getElementById(idPrefix + "Btns");
     var btns = btnsWrap ? btnsWrap.querySelectorAll("button") : [];
@@ -202,6 +205,13 @@
     btns.forEach(function(btn){
       btn.addEventListener("click", function(){
         if(done) return; done = true;
+        if(!answeredCards[idPrefix]){
+          answeredCards[idPrefix] = true;
+          if(Object.keys(answeredCards).length === 3){
+            var revealCard = document.querySelector(".reveal-card");
+            if(revealCard){ revealCard.style.display = ""; revealCard.classList.add("revealed"); }
+          }
+        }
         var ans = btn.dataset.ans;
         fb.style.display = "block";
         if(ans === "same"){ fb.className = "feedback show ok"; fb.innerHTML = "答对了！其实它们一样长。"; }
@@ -217,6 +227,7 @@
     });
     resetBtn.addEventListener("click", function(){
       done = false;
+      // 揭晓卡一旦显示过，重置不再隐藏
       btns.forEach(function(b){ b.disabled = false; });
       fb.style.display = "none"; fb.innerHTML = "";
       measureBtn.style.display = "none";
