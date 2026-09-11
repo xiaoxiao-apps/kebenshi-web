@@ -68,7 +68,7 @@
   function insideBtn(px, py, x, y, w2, h2){ return px >= x - w2 / 2 && px <= x + w2 / 2 && py >= y - h2 / 2 && py <= y + h2 / 2; }
 
   function drawStopwatch(ctx, w, h){
-    var cx = w * 0.5, cy = h * 0.50, r = Math.min(w, h) * 0.34;
+    var cx = w * 0.5, cy = h * 0.52, r = Math.min(w, h) * 0.33;
     var sec = totalSeconds();
     var min = Math.floor(sec / 60);
     var s = sec % 60;
@@ -78,9 +78,40 @@
     ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
 
     ctx.save();
-    ctx.strokeStyle = '#8b6914'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
-    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(cx, cy, r - 4, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#a8b2ba'; ctx.lineWidth = r * 0.07;
+    ctx.beginPath(); ctx.arc(cx, cy - r * 1.30, r * 0.26, Math.PI, 0); ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = '#b8c2c8';
+    ctx.fillRect(cx - r * 0.09, cy - r * 1.24, r * 0.18, r * 0.26);
+    ctx.save();
+    ctx.strokeStyle = '#8a949c'; ctx.lineWidth = 1;
+    for(var kn = 0; kn < 4; kn += 1){
+      var kx = cx - r * 0.06 + kn * r * 0.04;
+      ctx.beginPath(); ctx.moveTo(kx, cy - r * 1.24); ctx.lineTo(kx, cy - r * 0.98); ctx.stroke();
+    }
+    ctx.restore();
+    ctx.fillStyle = '#b8c2c8';
+    ctx.fillRect(cx - r * 0.12, cy - r * 1.30, r * 0.24, r * 0.07);
+
+    ctx.save();
+    ctx.translate(cx - r * 0.78, cy - r * 0.78);
+    ctx.rotate(-Math.PI / 4);
+    ctx.fillStyle = '#b8c2c8';
+    ctx.fillRect(-r * 0.055, -r * 0.26, r * 0.11, r * 0.28);
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = '#9fadb6'; ctx.lineWidth = r * 0.09;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 1.07, 0, 7); ctx.stroke();
+    ctx.strokeStyle = '#c8d2d8'; ctx.lineWidth = r * 0.02;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 1.02, 0, 7); ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = '#f7f4ee'; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#d8d2c6'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.985, 0, 7); ctx.stroke();
     ctx.restore();
 
     ctx.save();
@@ -104,43 +135,54 @@
     }
     ctx.restore();
 
-    var scx = cx, scy = cy - r * 0.40, sr = r * 0.28;
+    var scx = cx, scy = cy - r * 0.38, sr = r * 0.24;
     ctx.save();
-    ctx.strokeStyle = '#b8860b'; ctx.lineWidth = 2;
+    ctx.fillStyle = '#faf8f2'; ctx.beginPath(); ctx.arc(scx, scy, sr, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(scx, scy, sr, 0, 7); ctx.stroke();
-    ctx.fillStyle = '#f5f0e0'; ctx.beginPath(); ctx.arc(scx, scy, sr - 3, 0, 7); ctx.fill();
-    ctx.fillStyle = '#8b6914'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    for(var jm = 0; jm <= 30; jm += 1){
-      var mang = (jm / 30) * 2 * Math.PI - Math.PI / 2;
-      var mLen = (jm % 5 === 0) ? 8 : 4;
-      var mx1 = scx + Math.cos(mang) * (sr - 3), my1 = scy + Math.sin(mang) * (sr - 3);
-      var mx2 = scx + Math.cos(mang) * (sr - 3 - mLen), my2 = scy + Math.sin(mang) * (sr - 3 - mLen);
-      ctx.beginPath(); ctx.moveTo(mx1, my1); ctx.lineTo(mx2, my2); ctx.strokeStyle = '#8b6914'; ctx.lineWidth = (jm % 5 === 0) ? 1.5 : 1; ctx.stroke();
+    for(var j = 0; j <= 30; j += 1){
+      var isHalf = j % 2 === 1;
+      var mang = (j / 30) * 2 * Math.PI - Math.PI / 2;
+      var ml = isHalf ? sr * 0.11 : sr * 0.20;
+      var mx1 = scx + Math.cos(mang) * sr, my1 = scy + Math.sin(mang) * sr;
+      var mx2 = scx + Math.cos(mang) * (sr - ml), my2 = scy + Math.sin(mang) * (sr - ml);
+      ctx.beginPath(); ctx.moveTo(mx1, my1); ctx.lineTo(mx2, my2);
+      ctx.strokeStyle = isHalf ? '#c0392b' : '#333'; ctx.lineWidth = isHalf ? 1 : 1.5; ctx.stroke();
+      if(!isHalf){
+        var nval = j / 2;
+        ctx.save();
+        ctx.translate(scx + Math.cos(mang) * (sr * 0.60), scy + Math.sin(mang) * (sr * 0.60));
+        ctx.rotate(mang + Math.PI / 2);
+        ctx.fillStyle = '#1a1a1a'; ctx.font = 'bold ' + (sr * 0.40) + 'px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(String(nval === 0 ? 15 : nval), 0, 0);
+        ctx.restore();
+      }
     }
-    for(var jn = 0; jn <= 15; jn++){
-      var ang2 = (jn / 15) * 2 * Math.PI - Math.PI / 2;
-      var sx = scx + Math.cos(ang2) * (sr - 14), sy = scy + Math.sin(ang2) * (sr - 14);
-      ctx.fillStyle = '#8b6914'; ctx.font = (jn % 5 === 0) ? 'bold 11px sans-serif' : '10px sans-serif';
-      ctx.fillText(String(jn), sx, sy);
-    }
-    ctx.strokeStyle = 'rgba(192,57,43,.6)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(scx, scy); ctx.lineTo(scx + sr - 4, scy); ctx.stroke();
-    ctx.setLineDash([]);
     ctx.restore();
 
     var displayS = totalToDisplay(s);
     var secAng = (displayS / 30) * 2 * Math.PI - Math.PI / 2;
     var minAng = ((min % 15) / 15 + (s % 60) / (15 * 60)) * 2 * Math.PI - Math.PI / 2;
     ctx.save();
-    ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(secAng) * (r - 22), cy + Math.sin(secAng) * (r - 22)); ctx.stroke();
-    ctx.strokeStyle = '#8b6914'; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.moveTo(scx, scy); ctx.lineTo(scx + Math.cos(minAng) * (sr - 8), scy + Math.sin(minAng) * (sr - 8)); ctx.stroke();
+    ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(secAng + Math.PI) * (r * 0.18), cy + Math.sin(secAng + Math.PI) * (r * 0.18));
+    ctx.lineTo(cx + Math.cos(secAng) * (r * 0.90), cy + Math.sin(secAng) * (r * 0.90));
+    ctx.stroke();
+    ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(scx, scy); ctx.lineTo(scx + Math.cos(minAng) * (sr * 0.72), scy + Math.sin(minAng) * (sr * 0.72)); ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath(); ctx.arc(scx, scy, sr * 0.10, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.05, 0, 7); ctx.fill();
     ctx.restore();
 
     ctx.save();
     ctx.fillStyle = '#5a5a5a'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillText('大表盘：0~30 s（0.1 s/格）  小表盘：0~15 min（0.5 min/格）', cx, h - 82);
+    ctx.fillText('大表盘：0~30 s（0.1 s/格）  小表盘：0~15 min（0.5 min/格）', cx, cy + r * 1.07 + 16);
     ctx.restore();
 
     drawBtn(ctx, w * 0.22, h - 40, 88, 44, '#7bc46e', running ? '停止' : '开始');
