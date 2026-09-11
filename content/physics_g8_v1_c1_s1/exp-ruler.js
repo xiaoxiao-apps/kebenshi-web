@@ -70,6 +70,9 @@
     state.lengthCm = mm;
     state.feedback = ''; state.correct = false;
     document.getElementById('rulerAns').value = '';
+    var fsAns = document.getElementById('rulerAnsFs');
+    if(fsAns) fsAns.value = '';
+    setFsFb(document.getElementById('rulerFbFs'), '', 'info');
     draw(g, state);
     updateReadouts();
     setFb('', 'info');
@@ -129,14 +132,12 @@
   function drawPencil(ctx, startX, pencilY, endX, pencilH){
     var pencilW = endX - startX;
     var centerY = pencilY + pencilH / 2;
-    var eraserW = Math.max(8, Math.min(pencilW * 0.08, pencilW * 0.25));
-    var ferruleW = Math.max(5, Math.min(pencilW * 0.05, pencilW * 0.18));
-    var minTipW = Math.max(12, pencilW * 0.18);
-    var tipW = Math.max(minTipW, pencilW * 0.35);
-    if (tipW + eraserW + ferruleW > pencilW * 0.85) {
-      tipW = Math.max(10, pencilW * 0.3);
-      eraserW = Math.max(6, pencilW * 0.22);
-      ferruleW = Math.max(4, pencilW * 0.13);
+    // 橡皮/金属箍/削尖笔头用固定物理尺寸，拉长时只伸笔身；过短时整体等比收缩
+    var eraserW = 14, ferruleW = 9, tipW = 26;
+    var fixedSum = eraserW + ferruleW + tipW;
+    if (fixedSum > pencilW * 0.8) {
+      var k = Math.max(0.35, (pencilW * 0.8) / fixedSum);
+      eraserW *= k; ferruleW *= k; tipW *= k;
     }
     var bodyEndX = endX - tipW;
     var eraserX = startX;
@@ -345,6 +346,7 @@
   document.getElementById('rulerCheck').addEventListener('click', function(){ check(document.getElementById('rulerAns'), document.getElementById('rulerFb')); });
   document.getElementById('rulerCheckFs').addEventListener('click', function(){ check(document.getElementById('rulerAnsFs'), document.getElementById('rulerFbFs')); });
   document.getElementById('rulerNext').addEventListener('click', generate);
+  document.getElementById('rulerNextFs').addEventListener('click', generate);
   document.getElementById('rulerAns').addEventListener('keydown', function(e){ if(e.key === 'Enter') check(document.getElementById('rulerAns'), document.getElementById('rulerFb')); });
   document.getElementById('rulerAnsFs').addEventListener('keydown', function(e){ if(e.key === 'Enter') check(document.getElementById('rulerAnsFs'), document.getElementById('rulerFbFs')); });
   bindRangeInput();
