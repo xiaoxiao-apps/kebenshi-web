@@ -176,14 +176,14 @@
       ctx.beginPath(); ctx.moveTo(mx1, my1); ctx.lineTo(mx2, my2);
       ctx.strokeStyle = isHalf ? '#c0392b' : '#333'; ctx.lineWidth = isHalf ? 1 : 1.5; ctx.stroke();
     }
-    var labels = [15, 2, 4, 6, 8, 10, 12];
+    var labels = [15, 3, 6, 9, 12];
     for(var li = 0; li < labels.length; li += 1){
       var nval = labels[li];
-      var mang = (nval / 15) * 2 * Math.PI - Math.PI / 2;
+      var mang = (li / labels.length) * 2 * Math.PI - Math.PI / 2;
       ctx.save();
-      ctx.translate(scx + Math.cos(mang) * (sr * 0.64), scy + Math.sin(mang) * (sr * 0.64));
+      ctx.translate(scx + Math.cos(mang) * (sr * 0.62), scy + Math.sin(mang) * (sr * 0.62));
       ctx.rotate(mang + Math.PI / 2);
-      ctx.fillStyle = '#333'; ctx.font = 'bold ' + (sr * 0.30) + 'px sans-serif';
+      ctx.fillStyle = '#333'; ctx.font = 'bold ' + (sr * 0.36) + 'px sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(String(nval), 0, 0);
       ctx.restore();
