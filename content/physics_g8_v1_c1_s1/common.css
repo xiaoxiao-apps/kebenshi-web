@@ -335,6 +335,9 @@ body {
 
 /* ---- Fullscreen quiz panel ---- */
 .fs-quiz { display: block; }
+/* 刻度尺页：答题面板仅全屏时显示（停表页 #fsQuiz 非全屏仍可见） */
+#fsRulerQuiz { display: none; }
+:fullscreen #fsRulerQuiz, .pseudo-fullscreen #fsRulerQuiz { display: flex; }
 :fullscreen .fs-quiz, .pseudo-fullscreen .fs-quiz {
   display: flex; flex-direction: column; gap: 10px;
   position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
@@ -347,6 +350,10 @@ body {
 }
 :fullscreen .fs-quiz .input-line input, .pseudo-fullscreen .fs-quiz .input-line input { width: 100%; }
 :fullscreen .fs-quiz .btn, .pseudo-fullscreen .fs-quiz .btn { width: 100%; }
+/* 窄屏全屏：面板置顶，避免遮住居中的尺子 */
+@media (max-width: 480px) {
+  :fullscreen .fs-quiz, .pseudo-fullscreen .fs-quiz { top: 104px; transform: none; }
+}
 
 /* ---- Print ---- */
 @media print {

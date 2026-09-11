@@ -18,11 +18,13 @@ function roundRectPath(ctx, x, y, w, h, r){
   ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
 
-function getCssH(cv){
+function getCssH(cv, bar){
   var wrap = cv.parentElement;
   var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
   if((wrap && wrap.classList.contains('pseudo-fullscreen')) || fsEl === wrap){
-    return window.innerHeight;
+    var h = window.innerHeight;
+    if(bar && bar.offsetHeight) h -= bar.offsetHeight;
+    return Math.max(h, 120);
   }
   return window.innerWidth <= 768 ? 300 : 360;
 }

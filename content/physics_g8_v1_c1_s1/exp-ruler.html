@@ -9,14 +9,15 @@
   #rulerCv { height: 360px; }
   @media (max-width: 768px) { #rulerCv { height: 300px; } }
   .pseudo-fullscreen #rulerCv { height: 100vh !important; }
-  .readout-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 14px; }
+  .readout-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 14px; padding-right: 48px; }
   .readout-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); padding: 10px 16px; min-width: 110px; text-align: center; }
   .readout-label { font-size: 12px; color: #718096; margin-bottom: 4px; }
   .readout-value { font-size: 18px; font-weight: 700; color: #2d3748; }
   #rulerRange.invalid { border-color: #e53e3e !important; background: #fff5f5; }
   @media (max-width: 480px) { #rulerRange { width: 40px; font-size: 16px; } }
   .readout-unit { font-size: 12px; font-weight: 400; color: #718096; margin-left: 3px; }
-  @media (max-width: 480px) { .readout-bar { gap: 8px; } .readout-card { flex: 1 1 30%; min-width: 90px; padding: 8px 10px; } .readout-value { font-size: 16px; } }
+  @media (max-width: 480px) { .readout-bar { gap: 8px; padding-right: 48px; } .readout-card { flex: 1 1 30%; min-width: 90px; padding: 8px 10px; } .readout-value { font-size: 16px; } }
+  #fsRulerWrap:fullscreen .readout-bar, #fsRulerWrap.pseudo-fullscreen .readout-bar { padding-top: max(14px, env(safe-area-inset-top)); padding-right: 54px; }
 </style>
 </head>
 <body>
@@ -43,6 +44,17 @@
           </div>
         </div>
         <canvas id="rulerCv"></canvas>
+        <div class="fs-quiz" id="fsRulerQuiz">
+          <div class="input-line">
+            <input type="text" id="rulerAnsFs" inputmode="decimal" placeholder="读数" autocomplete="off">
+            <select id="rulerUnitFs">
+              <option value="cm">cm</option>
+              <option value="mm">mm</option>
+            </select>
+            <button class="btn btn-primary" id="rulerCheckFs">✓ 检查读数</button>
+          </div>
+          <div class="feedback" id="rulerFbFs"></div>
+        </div>
       </div>
     </div>
     <div class="input-line">

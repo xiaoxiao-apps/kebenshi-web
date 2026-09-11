@@ -3,19 +3,24 @@
    ============================================================ */
 (function(){
   var cv = document.getElementById('rulerCv');
-  var g = fitCanvas(cv, getCssH(cv));
+  var readoutBar = document.getElementById('rulerReadoutBar');
+  var g = fitCanvas(cv, getCssH(cv, readoutBar));
   var state = { startCm: 1.0, lengthCm: 2.35, rangeCm: 8, unit: 'cm', feedback: '', correct: false, quizMode: false };
   var drag = { active: false, body: false, tip: false, offsetCm: 0, pxPerCm: 0 };
+  var wrap = document.getElementById('fsRulerWrap');
 
   function cmToPx(cm, ppc){ return cm * (ppc || drag.pxPerCm); }
   function pxToCm(px, ppc){ return px / (ppc || drag.pxPerCm); }
 
+  function isFullscreen(){
+    return document.fullscreenElement === wrap || wrap.classList.contains('pseudo-fullscreen');
+  }
+
   function pencilBox(st, ppc, g2){
-    var ctx = (g2 || {}).ctx || cv.getContext('2d');
     var w = (g2 || {}).w || cv.width;
     var h = (g2 || {}).h || cv.height;
     var margin = 36;
-    var rulerY = h * 0.55;
+    var rulerY = isFullscreen() ? h * 0.52 : h * 0.55;
     var rulerW = w - margin * 2;
     var leftX = margin;
     var pxPerCm = ppc || (rulerW / state.rangeCm);
@@ -66,7 +71,7 @@
     ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
 
     var margin = 36;
-    var rulerY = h * 0.55;
+    var rulerY = isFullscreen() ? h * 0.52 : h * 0.55;
     var rulerW = w - margin * 2;
     var leftX = margin, rightX = w - margin;
     var pxPerCm = rulerW / st.rangeCm;
@@ -248,22 +253,33 @@
     el.innerHTML = html;
   }
 
-  function check(){
-    var raw = document.getElementById('rulerAns').value.trim().replace(/[，]/g, ',');
-    if(!raw){ setFb('请先输入读数。', 'info'); return; }
-    if(raw.indexOf('/') >= 0){ setFb('请输入小数，如 2.35。', 'err'); return; }
+  function setFsFb(el, html, type){
+    if(!html){ el.className = 'feedback'; el.innerHTML = ''; return; }
+    el.className = 'feedback show ' + (type || 'info');
+    el.innerHTML = html;
+  }
+
+  function check(inputEl, fbEl){
+    var raw = inputEl.value.trim().replace(/[，]/g, ',');
+    if(!raw){ setFb('', 'info'); setFsFb(fbEl, '请先输入读数。', 'info'); return; }
+    if(raw.indexOf('/') >= 0){ setFb('', 'info'); setFsFb(fbEl, '请输入小数，如 2.35。', 'err'); return; }
     var num = parseFloat(raw);
-    if(Number.isNaN(num)){ setFb('请输入有效数字。', 'err'); return; }
-    var unit = document.getElementById('rulerUnit').value;
+    if(Number.isNaN(num)){ setFb('', 'info'); setFsFb(fbEl, '请输入有效数字。', 'err'); return; }
+    var unitEl = (inputEl.id === 'rulerAnsFs') ? document.getElementById('rulerUnitFs') : document.getElementById('rulerUnit');
+    var unit = unitEl ? unitEl.value : 'cm';
     var inputCm = num;
     if(unit === 'mm') inputCm = num / 10;
     var correctVal = state.lengthCm;
     var inRange = Math.abs(inputCm - correctVal) < 0.02;
+    var htmlOk = '✅ 正确！物体长度约为 <b>' + correctVal.toFixed(2) + ' cm</b>。<br>末端刻度 − 起始刻度 = ' + (state.startCm + state.lengthCm).toFixed(2) + ' − ' + state.startCm.toFixed(1) + ' = ' + correctVal.toFixed(2) + ' cm，估读到 0.01 cm。';
+    var htmlErr = '❌ 再想想。正确读数是 <b>' + correctVal.toFixed(2) + ' cm</b>。<br>末端刻度 − 起始刻度 = ' + (state.startCm + state.lengthCm).toFixed(2) + ' − ' + state.startCm.toFixed(1) + ' = ' + correctVal.toFixed(2) + ' cm，估读到 0.01 cm。';
     if(inRange){
       state.correct = true;
-      setFb('✅ 正确！物体长度约为 <b>' + correctVal.toFixed(2) + ' cm</b>。<br>末端刻度 − 起始刻度 = ' + (state.startCm + state.lengthCm).toFixed(2) + ' − ' + state.startCm.toFixed(1) + ' = ' + correctVal.toFixed(2) + ' cm，估读到 0.01 cm。', 'ok');
+      setFb(htmlOk, 'ok');
+      setFsFb(fbEl, htmlOk, 'ok');
     } else {
-      setFb('❌ 再想想。正确读数是 <b>' + correctVal.toFixed(2) + ' cm</b>。<br>末端刻度 − 起始刻度 = ' + (state.startCm + state.lengthCm).toFixed(2) + ' − ' + state.startCm.toFixed(1) + ' = ' + correctVal.toFixed(2) + ' cm，估读到 0.01 cm。', 'err');
+      setFb(htmlErr, 'err');
+      setFsFb(fbEl, htmlErr, 'err');
     }
   }
 
@@ -313,18 +329,56 @@
     el.addEventListener('keydown', function(e){ if(e.key === 'Enter') applyRange(el.value); });
   }
 
-  document.getElementById('rulerCheck').addEventListener('click', check);
+  document.getElementById('rulerCheck').addEventListener('click', function(){ check(document.getElementById('rulerAns'), document.getElementById('rulerFb')); });
+  document.getElementById('rulerCheckFs').addEventListener('click', function(){ check(document.getElementById('rulerAnsFs'), document.getElementById('rulerFbFs')); });
   document.getElementById('rulerNext').addEventListener('click', generate);
-  document.getElementById('rulerAns').addEventListener('keydown', function(e){ if(e.key === 'Enter') check(); });
+  document.getElementById('rulerAns').addEventListener('keydown', function(e){ if(e.key === 'Enter') check(document.getElementById('rulerAns'), document.getElementById('rulerFb')); });
+  document.getElementById('rulerAnsFs').addEventListener('keydown', function(e){ if(e.key === 'Enter') check(document.getElementById('rulerAnsFs'), document.getElementById('rulerFbFs')); });
   bindRangeInput();
-  window.addEventListener('resize', function(){ g = fitCanvas(cv, getCssH(cv)); draw(g, state); updateReadouts(); });
+  window.addEventListener('resize', function(){ g = fitCanvas(cv, getCssH(cv, readoutBar)); draw(g, state); updateReadouts(); });
   generate();
 
   FullscreenHelper.bind(
     document.getElementById('fsRulerWrap'),
     document.getElementById('fsRulerBtn'),
-    function(){ g = fitCanvas(cv, getCssH(cv)); draw(g, state); }
+    function(){ g = fitCanvas(cv, getCssH(cv, readoutBar)); draw(g, state); }
   );
+
+  (function dragQuiz(){
+    var quiz = document.getElementById('fsRulerQuiz');
+    var wrap = document.getElementById('fsRulerWrap');
+    var dragging = false, ox = 0, oy = 0;
+    function isFs(){ return wrap.classList.contains('pseudo-fullscreen') || document.fullscreenElement === wrap; }
+    function pt(e){ return e.touches && e.touches.length ? e.touches[0] : e; }
+    function down(e){
+      if(!isFs()) return;
+      var t = e.target;
+      if(t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'BUTTON' || (t.closest && t.closest('button'))) return;
+      dragging = true;
+      var wr = wrap.getBoundingClientRect(), qr = quiz.getBoundingClientRect();
+      quiz.style.right = 'auto'; quiz.style.transform = 'none';
+      quiz.style.left = (qr.left - wr.left) + 'px'; quiz.style.top = (qr.top - wr.top) + 'px';
+      var p = pt(e); ox = p.clientX - qr.left; oy = p.clientY - qr.top;
+      e.preventDefault();
+    }
+    function move(e){
+      if(!dragging) return;
+      var p = pt(e);
+      var wr = wrap.getBoundingClientRect(), qr = quiz.getBoundingClientRect();
+      var x = p.clientX - ox - wr.left, y = p.clientY - oy - wr.top;
+      x = Math.max(0, Math.min(x, wr.width - qr.width));
+      y = Math.max(0, Math.min(y, wr.height - qr.height));
+      quiz.style.left = x + 'px'; quiz.style.top = y + 'px';
+      e.preventDefault();
+    }
+    function up(){ dragging = false; }
+    quiz.addEventListener('mousedown', down);
+    quiz.addEventListener('touchstart', down, {passive: false});
+    window.addEventListener('mousemove', move);
+    window.addEventListener('touchmove', move, {passive: false});
+    window.addEventListener('mouseup', up);
+    window.addEventListener('touchend', up);
+  })();
 
   function pointerPos(e){
     var rect = cv.getBoundingClientRect();
