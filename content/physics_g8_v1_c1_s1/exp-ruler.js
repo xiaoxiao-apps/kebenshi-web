@@ -318,7 +318,7 @@
       var ppc = drag.pxPerCm || getPxPerCm();
       var b = pencilBox(state, ppc, g);
       var leftX = b.x + 4;
-      var rawLen = pxToCm(p.x - leftX, ppc) - state.startCm;
+      var rawLen = pxToCm(p.x - leftX, ppc);
       var maxLen = 8.0 - state.startCm;
       var newLen = Math.max(0.5, Math.min(maxLen, Math.round(rawLen * 100) / 100));
       if (Math.abs(newLen - state.lengthCm) > 0.0001) {
