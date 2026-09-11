@@ -72,7 +72,68 @@
   </div>
 
   <div class="card illusion-card" style="background:var(--brown-bg);">
-    <h2>错觉二：缪勒-莱耶箭头错觉 <span class="chip brown">Müller-Lyer</span></h2>
+    <h2>错觉二：墙角错觉 <span class="chip brown">角落错觉</span></h2>
+    <p class="question">图中的两根橙色竖条，哪一根更长？</p>
+    <div class="svg-wrap"><svg viewBox="0 0 320 320" id="cornerSvg">
+      <rect width="320" height="320" fill="#e8e8e8"/>
+      <defs>
+        <linearGradient id="gA" x1="90" y1="0" x2="15" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#d8d8d8"/>
+          <stop offset="100%" stop-color="#a8a8a8"/>
+        </linearGradient>
+        <linearGradient id="gB" x1="90" y1="0" x2="230" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#d8d8d8"/>
+          <stop offset="100%" stop-color="#909090"/>
+        </linearGradient>
+        <linearGradient id="gC" x1="230" y1="0" x2="305" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#909090"/>
+          <stop offset="100%" stop-color="#c8c8c8"/>
+        </linearGradient>
+      </defs>
+      <polygon points="15,92.5 90,10 90,310 15,227.5" fill="url(#gA)"/>
+      <polygon points="90,10 230,100 230,220 90,310" fill="url(#gB)"/>
+      <polygon points="230,100 305,46 305,274 230,220" fill="url(#gC)"/>
+      <g stroke="#8a8a8a" stroke-width="1.5" fill="none">
+        <polyline points="15,106 90,40 230,112 305,68.8"/>
+        <polyline points="15,124 90,80 230,128 305,99.2"/>
+        <polyline points="15,142 90,120 230,144 305,129.6"/>
+        <polyline points="15,178 90,200 230,176 305,190.4"/>
+        <polyline points="15,196 90,240 230,192 305,220.8"/>
+        <polyline points="15,214 90,280 230,208 305,251.2"/>
+      </g>
+      <g stroke="#9a9a9a" stroke-width="1">
+        <line x1="30" y1="76" x2="30" y2="244"/>
+        <line x1="48" y1="56" x2="48" y2="264"/>
+        <line x1="66" y1="36" x2="66" y2="284"/>
+        <line x1="80" y1="21" x2="80" y2="299"/>
+        <line x1="120" y1="29" x2="120" y2="291"/>
+        <line x1="160" y1="55" x2="160" y2="265"/>
+        <line x1="195" y1="78" x2="195" y2="242"/>
+        <line x1="218" y1="92" x2="218" y2="228"/>
+        <line x1="248" y1="87" x2="248" y2="233"/>
+        <line x1="266" y1="74" x2="266" y2="246"/>
+        <line x1="284" y1="61" x2="284" y2="259"/>
+        <line x1="298" y1="51" x2="298" y2="269"/>
+      </g>
+      <g stroke="#666666" stroke-width="2">
+        <line x1="90" y1="10" x2="90" y2="310"/>
+        <line x1="230" y1="100" x2="230" y2="220"/>
+      </g>
+      <line id="cornerNear" x1="90" y1="110" x2="90" y2="210" stroke="#e8720c" stroke-width="10" stroke-linecap="butt"/>
+      <line id="cornerFar" x1="230" y1="110" x2="230" y2="210" stroke="#e8720c" stroke-width="10" stroke-linecap="butt"/>
+    </svg></div>
+    <div class="btn-group" id="cornerBtns">
+      <button class="btn btn-secondary" data-ans="left">左边长</button>
+      <button class="btn btn-secondary" data-ans="right">右边长</button>
+      <button class="btn btn-secondary" data-ans="same">一样长</button>
+    </div>
+    <div id="cornerFb" class="feedback" style="display:none; margin-top:12px;"></div>
+    <button class="btn btn-primary" id="cornerMeasureBtn" style="display:none; margin-top:12px;">📐 量一量</button>
+    <div id="cornerMeasureArea" class="measure-area"></div>
+  </div>
+
+  <div class="card illusion-card" style="background:var(--brown-bg);">
+    <h2>错觉三：缪勒-莱耶箭头错觉 <span class="chip brown">Müller-Lyer</span></h2>
     <p class="question">两条水平线，哪一根更长？</p>
     <div class="svg-wrap"><svg viewBox="0 0 320 160" id="mullerSvg">
       <line id="mullerTop" x1="90" y1="55" x2="230" y2="55" stroke="#d32f2f" stroke-width="5" stroke-linecap="butt"/>
@@ -96,7 +157,7 @@
 
   <div class="reveal-card">
     <h3 style="margin-bottom:8px;">揭晓</h3>
-    <p>其实两根小棒<b>一样长</b>。我们的感觉有时不可靠，所以需要用尺进行<b>测量</b>。</p>
+    <p>其实每组图中的两根小棒都<b>一样长</b>。我们的感觉有时不可靠，所以需要用尺进行<b>测量</b>。</p>
     <p style="font-size:13px;color:var(--ink3);margin-top:8px;">点击各卡片中的“📐 量一量”，可亲眼看到两根小棒叠合。</p>
   </div>
 
@@ -155,6 +216,34 @@
       area.innerHTML = "<p style='color:#2980b9;margin-top:8px;'>✅ 两根黄色小棒完全重合，长度相等。</p>";
       var top2 = document.getElementById("ponzoTopClone");
       if(top2){ top2.setAttribute("stroke", "#000"); top2.setAttribute("stroke-dasharray", "6,4"); }
+    }, 1100);
+  });
+
+  setup("corner", function(){
+    if(document.getElementById("cornerNearClone")) return;
+    var area = document.getElementById("cornerMeasureArea");
+    var svg = document.getElementById("cornerSvg");
+    var near = document.getElementById("cornerNear");
+    var clone = near.cloneNode(true);
+    clone.setAttribute("id", "cornerNearClone");
+    clone.setAttribute("x1", near.getAttribute("x1"));
+    clone.setAttribute("x2", near.getAttribute("x2"));
+    svg.appendChild(clone);
+    var startX = parseFloat(near.getAttribute("x1"));
+    var endX = parseFloat(document.getElementById("cornerFar").getAttribute("x1"));
+    var startTime = null, duration = 1000;
+    function animateCorner(time){
+      if(!startTime) startTime = time;
+      var p = Math.min((time - startTime)/duration, 1);
+      var curX = startX + (endX - startX) * p;
+      clone.setAttribute("x1", curX); clone.setAttribute("x2", curX);
+      if(p < 1) requestAnimationFrame(animateCorner);
+    }
+    requestAnimationFrame(animateCorner);
+    setTimeout(function(){
+      area.innerHTML = "<p style='color:#2980b9;margin-top:8px;'>✅ 两根橙色竖条完全重合，长度相等。</p>";
+      var near2 = document.getElementById("cornerNearClone");
+      if(near2){ near2.setAttribute("stroke", "#000"); near2.setAttribute("stroke-dasharray", "6,4"); }
     }, 1100);
   });
 
