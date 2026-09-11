@@ -6,6 +6,12 @@
   var g = fitCanvas(cv, getCssH(cv));
   var state = { startCm: 1.0, lengthCm: 2.35, unit: 'cm', feedback: '', correct: false };
 
+  function updateReadouts(){
+    document.getElementById('readoutStart').textContent = state.startCm.toFixed(2);
+    document.getElementById('readoutEnd').textContent = (state.startCm + state.lengthCm).toFixed(2);
+    document.getElementById('readoutLen').textContent = state.lengthCm.toFixed(2);
+  }
+
   function generate(){
     state.startCm = Math.round((1.0 + Math.random() * 4.0) * 10) / 10;
     var maxLen = 8.0 - state.startCm;
@@ -15,6 +21,7 @@
     state.feedback = ''; state.correct = false;
     document.getElementById('rulerAns').value = '';
     draw(g, state);
+    updateReadouts();
     setFb('', 'info');
   }
 
@@ -232,7 +239,7 @@
   document.getElementById('rulerCheck').addEventListener('click', check);
   document.getElementById('rulerNext').addEventListener('click', generate);
   document.getElementById('rulerAns').addEventListener('keydown', function(e){ if(e.key === 'Enter') check(); });
-  window.addEventListener('resize', function(){ g = fitCanvas(cv, getCssH(cv)); draw(g, state); });
+  window.addEventListener('resize', function(){ g = fitCanvas(cv, getCssH(cv)); draw(g, state); updateReadouts(); });
   generate();
 
   FullscreenHelper.bind(
