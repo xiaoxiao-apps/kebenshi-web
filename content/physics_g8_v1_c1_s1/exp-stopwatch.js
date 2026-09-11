@@ -6,9 +6,18 @@
   var g = fitCanvas(cv, getCssH(cv));
   var running = false, startTime = 0, frozen = 0;
   var targetMin = 0, targetSec = 0, passedHalf = false;
-  var autoTimer = null, targetTotalSec = 0;
+  var autoTimer = null, targetTotalSec = 0, hasTarget = false;
 
   function clearAutoTimer(){ if(autoTimer){ clearTimeout(autoTimer); autoTimer = null; } }
+
+  function initZero(){
+    frozen = 0; running = false; clearAutoTimer();
+    targetMin = 0; targetSec = 0; passedHalf = false; targetTotalSec = 0; hasTarget = false;
+    document.getElementById('swMin').value = '';
+    document.getElementById('swSec').value = '';
+    var fb = document.getElementById('swFb');
+    fb.className = 'feedback'; fb.innerHTML = '';
+  }
 
   function runToTarget(){
     running = true; startTime = performance.now();
@@ -36,6 +45,7 @@
     document.getElementById('swSec').value = '';
     var fb = document.getElementById('swFb');
     fb.className = 'feedback'; fb.innerHTML = '';
+    hasTarget = true;
     autoTimer = setTimeout(runToTarget, 2000);
   }
 
@@ -157,8 +167,7 @@
       if(!running){ running = true; startTime = performance.now(); }
       else { running = false; frozen += (performance.now() - startTime) / 1000; }
     } else if(insideBtn(px, py, cv.clientWidth * 0.50, h - 40, 88, 44)){
-      clearAutoTimer();
-      running = false; frozen = 0;
+      initZero();
     } else if(insideBtn(px, py, cv.clientWidth * 0.78, h - 40, 88, 44)){
       resetTarget();
     }
@@ -169,6 +178,8 @@
   window.addEventListener('resize', function(){ g = fitCanvas(cv, getCssH(cv)); });
 
   document.getElementById('swCheck').addEventListener('click', function(){
+    var fb = document.getElementById('swFb');
+    if(!hasTarget){ fb.className = 'feedback show info'; fb.innerHTML = '请先点画面里的"出题"按钮。'; return; }
     var m = parseInt(document.getElementById('swMin').value, 10);
     var s = parseFloat(document.getElementById('swSec').value);
     var fb = document.getElementById('swFb');
@@ -183,7 +194,7 @@
     }
   });
 
-  resetTarget();
+  initZero();
   requestAnimationFrame(loop);
 
   FullscreenHelper.bind(
