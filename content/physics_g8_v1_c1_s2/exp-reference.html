@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：点谁谁是标准 · 参照物选择</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar {
+    background: var(--brown-bg); color: var(--brown);
+    border: 1px solid rgba(139,105,20,.15); border-radius: 10px;
+    padding: 10px 14px; font-size: 14px; line-height: 1.6;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: var(--brown-bg); }
+  .svg-scene { width: 100%; height: auto; display: block; cursor: pointer; }
+  .target-pills { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .pill {
+    border: none; border-radius: 99px; padding: 8px 16px; font-size: 14px; font-weight: 700;
+    cursor: pointer; background: var(--card2); color: var(--ink); transition: all .25s;
+  }
+  .pill.active { background: var(--cyan-bg); color: var(--cyan); box-shadow: 0 0 0 2px var(--cyan-hi); }
+  .conclusion {
+    margin-top: 12px; padding: 14px 16px; border-radius: 10px; background: #fff;
+    border: 1px solid rgba(0,0,0,.08); font-size: 15px; line-height: 1.7;
+    opacity: 0; transform: translateY(8px); transition: all .25s ease;
+  }
+  .conclusion.show { opacity: 1; transform: translateY(0); }
+  .conclusion .ref { color: var(--gold); font-weight: 800; }
+  .conclusion .tgt { color: var(--red); font-weight: 800; }
+  .task-area { margin-bottom: 12px; }
+  .task-title { font-size: 14px; color: var(--ink2); margin-bottom: 8px; }
+  .task-chip {
+    display: inline-block; font-size: 12px; padding: 4px 10px; border-radius: 99px;
+    background: var(--green-bg); color: var(--green); font-weight: 700; margin-right: 8px;
+  }
+  .task-chip.done { background: var(--cyan-bg); color: var(--cyan); }
+  .pulse { animation: pulse 1.2s infinite; }
+  @keyframes pulse {
+    0% { stroke-width: 3; stroke-opacity: 1; }
+    50% { stroke-width: 5; stroke-opacity: .5; }
+    100% { stroke-width: 3; stroke-opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">点谁谁是标准</h1>
+    <p class="page-subtitle">点击街景中的物体，把它设为参照物，观察目标物体的运动状态。</p>
+  </div>
+  <div class="card">
+    <h2>参照物选择 <span class="chip cyan">标准</span></h2>
+    <div class="hint-bar">💡 点击你想当作标准的物体；金色环表示参照物，青色环表示当前研究的目标。</div>
+    <div class="task-area">
+      <div class="task-title">任务进度</div>
+      <span id="task1" class="task-chip">任务1：让汽车显示为静止</span>
+      <span id="task2" class="task-chip">任务2：让树木动起来</span>
+    </div>
+    <div class="target-pills">
+      <span style="font-size:13px;color:var(--ink2);margin-right:6px;">研究目标：</span>
+      <button class="pill active" data-target="car">🚗 汽车</button>
+      <button class="pill" data-target="tree">🌳 树木</button>
+      <button class="pill" data-target="pedestrian">🚶 行人</button>
+    </div>
+    <div class="fullscreen-wrap" id="fsRefWrap">
+      <button class="fullscreen-btn" id="fsRefBtn" title="全屏">⛶</button>
+      <div class="scene-wrap" id="sceneWrap">
+        <svg class="svg-scene" viewBox="0 0 800 420" role="img" aria-label="街景参照物选择">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fff3d6"/>
+              <stop offset="100%" stop-color="#ffe8b3"/>
+            </linearGradient>
+            <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#d4eac4"/>
+              <stop offset="100%" stop-color="#c3deb0"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="800" height="420" fill="url(#sky)"/>
+          <g id="skyObjects">
+            <circle id="sun" cx="680" cy="70" r="36" fill="#f6d365" stroke="transparent" stroke-width="3" class="ref-candidate pulse"/>
+            <g id="cloud1" transform="translate(120,80)" opacity=".8">
+              <ellipse cx="0" cy="0" rx="35" ry="18" fill="#fff"/>
+              <ellipse cx="30" cy="5" rx="25" ry="15" fill="#fff"/>
+              <ellipse cx="-25" cy="7" rx="22" ry="13" fill="#fff"/>
+            </g>
+          </g>
+          <rect x="0" y="320" width="800" height="100" fill="url(#grass)"/>
+          <rect x="0" y="310" width="800" height="15" fill="#a89878"/>
+          <g id="house" class="ref-candidate" style="cursor:pointer">
+            <rect x="120" y="180" width="130" height="130" fill="#f0e6d6" stroke="#d4c5a8" stroke-width="2"/>
+            <path d="M110 180 L185 110 L260 180" fill="#d98a6a" stroke="#bf6b4c" stroke-width="2"/>
+            <rect x="150" y="230" width="34" height="50" fill="#8c7b62"/>
+            <rect x="195" y="200" width="40" height="35" fill="#a8d8ea"/>
+          </g>
+          <g id="tree" class="ref-candidate" style="cursor:pointer">
+            <rect x="390" y="240" width="16" height="80" fill="#8b6f4e"/>
+            <circle cx="398" cy="210" r="45" fill="#6ba84e" opacity=".95"/>
+            <circle cx="375" cy="235" r="32" fill="#5fa340" opacity=".95"/>
+            <circle cx="422" cy="232" r="34" fill="#6fa845" opacity=".95"/>
+          </g>
+          <g id="car" class="ref-candidate" style="cursor:pointer">
+            <rect x="520" y="260" width="140" height="50" rx="8" fill="#e66a5e"/>
+            <rect x="550" y="235" width="80" height="30" rx="6" fill="#f4d7d4"/>
+            <circle cx="555" cy="315" r="18" fill="#3a3a3a"/>
+            <circle cx="625" cy="315" r="18" fill="#3a3a3a"/>
+            <rect x="530" y="270" width="30" height="20" rx="4" fill="#fff" opacity=".8"/>
+          </g>
+          <g id="pedestrian" class="ref-candidate" style="cursor:pointer">
+            <circle cx="260" cy="282" r="10" fill="#f4c89b"/>
+            <line x1="260" y1="292" x2="260" y2="325" stroke="#4a4a4a" stroke-width="6" stroke-linecap="round"/>
+            <line x1="260" y1="305" x2="245" y2="320" stroke="#4a4a4a" stroke-width="5" stroke-linecap="round"/>
+            <line x1="260" y1="305" x2="275" y2="320" stroke="#4a4a4a" stroke-width="5" stroke-linecap="round"/>
+            <line x1="260" y1="325" x2="250" y2="350" stroke="#4a4a4a" stroke-width="5" stroke-linecap="round"/>
+            <line x1="260" y1="325" x2="270" y2="350" stroke="#4a4a4a" stroke-width="5" stroke-linecap="round"/>
+          </g>
+          <g id="driver" class="ref-candidate" style="cursor:pointer">
+            <circle cx="572" cy="252" r="7" fill="#f4c89b"/>
+            <rect x="565" y="259" width="14" height="12" rx="3" fill="#4a4a4a"/>
+          </g>
+          <circle id="refRing" cx="0" cy="0" r="0" fill="none" stroke="var(--gold)" stroke-width="4" opacity="0" pointer-events="none"/>
+          <circle id="tgtRing" cx="0" cy="0" r="0" fill="none" stroke="var(--cyan-hi)" stroke-width="4" opacity="0" pointer-events="none"/>
+        </svg>
+      </div>
+    </div>
+    <div class="conclusion" id="conclusion"></div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-back.js"></script>
+<script>
+(function(){
+  'use strict';
+  var state = { ref: null, target: 'car', tasks: [false, false] };
+  var targets = { car: '汽车', tree: '树木', pedestrian: '行人', house: '房屋', sun: '太阳', driver: '司机' };
+  var refEl = function(id){ return document.getElementById(id); };
+  var refRing = document.getElementById('refRing');
+  var tgtRing = document.getElementById('tgtRing');
+  var conclusion = document.getElementById('conclusion');
+  var wrap = document.getElementById('fsRefWrap');
+
+  function getCenter(el){
+    var box = el.getBBox ? el.getBBox() : el.getBoundingClientRect();
+    if(el.getBBox){
+      var ctm = el.getCTM();
+      if(ctm){ var p = svg.createSVGPoint(); p.x = box.x + box.width/2; p.y = box.y + box.height/2; var np = p.matrixTransform(ctm); return {x: np.x, y: np.y, r: Math.max(box.width, box.height)/2 + 8}; }
+    }
+    return {x: box.x + box.width/2, y: box.y + box.height/2, r: Math.max(box.width, box.height)/2 + 8};
+  }
+
+  function setRing(elRing, targetEl){
+    if(!targetEl) { elRing.setAttribute('opacity','0'); return; }
+    var c = getCenter(targetEl);
+    elRing.setAttribute('cx', c.x); elRing.setAttribute('cy', c.y); elRing.setAttribute('r', c.r);
+    elRing.setAttribute('opacity','1');
+  }
+
+  function updateConclusion(){
+    var refName = state.ref ? (targets[state.ref.id] || state.ref.id) : '';
+    var tgtName = targets[state.target];
+    var moving = isMoving(state.target, state.ref && state.ref.id);
+    var status = moving ? '运动' : '静止';
+    var change = moving ? '位置在变化' : '位置没变化';
+    conclusion.innerHTML = '以【<span class="ref">' + refName + '</span>】为参照物，<span class="tgt">' + tgtName + '</span>的' + change + ' → ' + status;
+    conclusion.classList.add('show');
+  }
+
+  var motionMap = {
+    car: { ground: false, tree: true, house: true, pedestrian: true, sun: true, driver: false },
+    tree: { ground: false, house: false, pedestrian: false, car: true, sun: true, driver: true },
+    pedestrian: { ground: false, tree: false, house: false, car: true, sun: true, driver: true }
+  };
+
+  function isMoving(target, refId){
+    if(target === refId) return false;
+    var map = motionMap[target];
+    if(!map) return true;
+    return map[refId] !== false;
+  }
+
+  function checkTasks(){
+    if(state.target === 'car' && state.ref && state.ref.id === 'driver' && !state.tasks[0]){
+      state.tasks[0] = true; document.getElementById('task1').classList.add('done'); document.getElementById('task1').textContent = '✓ 任务1完成';
+    }
+    if(state.target === 'tree' && state.ref && (state.ref.id === 'sun' || state.ref.id === 'car') && !state.tasks[1]){
+      state.tasks[1] = true; document.getElementById('task2').classList.add('done'); document.getElementById('task2').textContent = '✓ 任务2完成';
+    }
+  }
+
+  var svg = document.querySelector('.svg-scene');
+  svg.addEventListener('click', function(e){
+    var el = e.target;
+    while(el && el !== svg && !el.classList.contains('ref-candidate')) el = el.parentNode;
+    if(!el || el === svg) return;
+    state.ref = el;
+    setRing(refRing, el);
+    updateConclusion();
+    checkTasks();
+  });
+
+  document.querySelectorAll('.pill').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      state.target = btn.dataset.target;
+      var targetEl = document.getElementById(state.target);
+      setRing(tgtRing, targetEl);
+      if(state.ref) updateConclusion();
+    });
+  });
+
+  FullscreenHelper.bind(wrap, document.getElementById('fsRefBtn'));
+  setTimeout(function(){ setRing(tgtRing, document.getElementById('car')); }, 0);
+})();
+</script>
+</body>
+</html>

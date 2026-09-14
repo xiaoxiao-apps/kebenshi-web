@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：位置在变吗 · 什么是机械运动</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar {
+    background: var(--brown-bg); color: var(--brown);
+    border: 1px solid rgba(139,105,20,.15); border-radius: 10px;
+    padding: 10px 14px; font-size: 14px; line-height: 1.6;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .stage { position: relative; border-radius: 12px; overflow: hidden; background: #1d2438; transition: background .25s ease; }
+  .stage.day { background: #f7e8c0; }
+  .stage.leaf { background: #eef6ec; }
+  .stage canvas { display: block; width: 100%; }
+  .controls { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .tl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 2px;
+    opacity: 0; pointer-events: none; transform: translateY(6px); transition: all .25s ease; }
+  .tl-row.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .tl-row input[type=range] { flex: 1; accent-color: var(--gold); }
+  .tl-row .t-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 74px; text-align: right; }
+  .quiz-area { margin-top: 12px; display: none; gap: 10px; flex-wrap: wrap; }
+  .quiz-area.show { display: flex; animation: quizIn .25s ease; }
+  @keyframes quizIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .quiz-area .opt {
+    border: 2px solid #e6dfd0; border-radius: 99px; padding: 10px 20px; font-size: 15px; font-weight: 700;
+    cursor: pointer; background: #fff; color: var(--ink); transition: all .25s ease;
+  }
+  .quiz-area .opt.wrong { border-color: var(--red); color: var(--red); background: var(--red-bg); animation: shake .45s; }
+  .quiz-area .opt.right { border-color: var(--green-hi); color: var(--green); background: var(--green-bg); }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-7px); }
+    40% { transform: translateX(7px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+  .def-card {
+    margin-top: 14px; padding: 18px 20px; border-radius: 12px;
+    background: var(--brown-bg); border: 1px solid rgba(139,105,20,.25);
+    font-size: 16px; line-height: 1.9; color: var(--ink);
+    opacity: 0; transform: translateY(24px); pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .def-card.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .def-card b { color: var(--brown); }
+  .def-card .src { display: block; margin-top: 6px; font-size: 12.5px; color: var(--ink3); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">位置在变吗</h1>
+    <p class="page-subtitle">教材“问题”栏目：彗星、猎豹、蜗牛……人们根据什么判断这些物体是运动的？</p>
+  </div>
+  <div class="card">
+    <h2>什么是机械运动 <span class="chip brown">概念建构</span></h2>
+    <div class="hint-bar">💡 点下方按钮，依次观察三种运动，找出它们的共同点。</div>
+    <div class="fullscreen-wrap" id="fsMoWrap">
+      <button class="fullscreen-btn" id="fsMoBtn" title="全屏">⛶</button>
+      <div class="stage" id="stage">
+        <canvas id="moCv"></canvas>
+      </div>
+    </div>
+    <div class="tl-row" id="tlRow">
+      <input type="range" id="tlSlider" min="0" max="1000" value="1000" step="1" aria-label="回放时间轴">
+      <span class="t-label" id="tLabel"></span>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" id="mainBtn">▶ 观察彗星</button>
+    </div>
+    <div class="quiz-area" id="quizArea">
+      <button class="opt" data-ok="0">🎨 颜色鲜艳</button>
+      <button class="opt" data-ok="1">📍 位置在变化</button>
+      <button class="opt" data-ok="0">⚡ 速度很快</button>
+    </div>
+    <div class="def-card" id="defCard">
+      在物理学中，我们把<b>物体位置随时间的变化</b>叫作<b>机械运动</b>（mechanical motion）。
+      <span class="src">—— 教材第 17 页「一、机械运动」</span>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script>
+(function(){
+  'use strict';
+  var cv = document.getElementById('moCv');
+  var ctx = cv.getContext('2d');
+  var stage = document.getElementById('stage');
+  var mainBtn = document.getElementById('mainBtn');
+  var quizArea = document.getElementById('quizArea');
+  var defCard = document.getElementById('defCard');
+  var tlRow = document.getElementById('tlRow');
+  var slider = document.getElementById('tlSlider');
+  var tLabel = document.getElementById('tLabel');
+  var W = 640, H = 360;
+
+  var EX = [
+    { key: 'comet',   T: 4, label: '哈雷彗星 · 约76年造访一次', stageCls: '',      dot: '#ffe9a8' },
+    { key: 'cheetah', T: 3, label: '猎豹 · 在草原上飞奔',        stageCls: 'day',  dot: '#8b6914' },
+    { key: 'snail',   T: 5, label: '蜗牛 · 在叶子上缓慢爬行',    stageCls: 'leaf', dot: '#3f7a33' }
+  ];
+  var NDOTS = 9;   /* 等时间间隔打点数 */
+  var LABELS = ['▶ 观察彗星', '▶ 观察猎豹', '▶ 观察蜗牛', '🤔 它们的共同点？', '📖 看定义', '⟲ 重新观察'];
+  var step = 0;        /* 状态机 0~5，按钮文字即进度 */
+  var exIdx = -1;      /* 当前/最近一个实例 */
+  var mode = 'idle';   /* idle | playing | scrub */
+  var t = 0, lastFrame = 0;
+
+  function resize(){
+    var f = fitCanvas(cv, getCssH(cv));
+    ctx = f.ctx; W = f.w; H = parseFloat(cv.style.height) || f.h;
+    draw();
+  }
+
+  /* ===== 位置函数 p∈0..1 ===== */
+  function posOf(key, p){
+    if(key === 'comet'){
+      var cx = W * 0.5, cy = H * 0.52, a = W * 0.38, b = H * 0.30;
+      var ang = Math.PI * 0.85 + p * Math.PI * 1.7;
+      return { x: cx + a * Math.cos(ang), y: cy + b * Math.sin(ang) };
+    }
+    if(key === 'cheetah'){
+      return { x: -40 + p * (W * 0.86 + 40), y: H * 0.72 + Math.sin(p * 60) * 2.5 };
+    }
+    var x = W * 0.14 + p * W * 0.7;
+    return { x: x, y: H * 0.66 - (x - W * 0.5) * 0.06 };  /* 沿叶面中线 */
+  }
+
+  /* ===== 主绘制 ===== */
+  function draw(){
+    var ex = exIdx >= 0 ? EX[exIdx] : EX[0];
+    var p = exIdx >= 0 ? Math.min(1, t / ex.T) : 0;
+    ctx.clearRect(0, 0, W, H);
+    if(ex.key === 'comet') drawCometScene(p);
+    else if(ex.key === 'cheetah') drawCheetahScene(p);
+    else drawSnailScene(p);
+    if(exIdx >= 0) drawTrail(ex, p);
+    drawTag(ex);
+  }
+
+  function drawTag(ex){
+    ctx.save();
+    ctx.font = 'bold 13px sans-serif';
+    var w = ctx.measureText(ex.label).width + 26;
+    ctx.fillStyle = 'rgba(0,0,0,.38)';
+    roundRectPath(ctx, 12, 12, w, 28, 14); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText(ex.label, 25, 31);
+    ctx.restore();
+  }
+
+  /* ===== 拖尾：等时间间隔打点，当前点高亮 ===== */
+  function dot(x, y, color, hi){
+    ctx.save();
+    if(hi){
+      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.globalAlpha = .55;
+      ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(x, y, hi ? 5 : 3.5, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+  function drawTrail(ex, p){
+    var all = (mode !== 'playing');
+    var vis = [], i, f;
+    for(i = 0; i < NDOTS; i++){
+      f = (i + 1) / (NDOTS + 1);
+      if(all || f <= p) vis.push(i);
+    }
+    var hiI = -1, best = 1e9;
+    for(i = 0; i < vis.length; i++){
+      f = (vis[i] + 1) / (NDOTS + 1);
+      var d = Math.abs(f - p);
+      if(d < best){ best = d; hiI = vis[i]; }
+    }
+    for(i = 0; i < vis.length; i++){
+      f = (vis[i] + 1) / (NDOTS + 1);
+      var pos = posOf(ex.key, f);
+      dot(pos.x, pos.y, ex.dot, vis[i] === hiI);
+    }
+  }
+
+  /* ===== 状态机 ===== */
+  function setStageClass(cls){
+    stage.classList.remove('day', 'leaf');
+    if(cls) stage.classList.add(cls);
+  }
+  function setBtn(){
+    mainBtn.textContent = LABELS[step];
+    mainBtn.disabled = false;
+    mainBtn.style.display = '';
+  }
+  function startPlay(i){
+    exIdx = i; t = 0; mode = 'playing'; lastFrame = performance.now();
+    setStageClass(EX[i].stageCls);
+    tlRow.classList.remove('show');
+    mainBtn.textContent = '⏳ 观察中…';
+    mainBtn.disabled = true;
+  }
+  function endPlay(){
+    mode = 'scrub';
+    t = EX[exIdx].T;
+    syncSlider();
+    tlRow.classList.add('show');   /* 播完 → slider 变该实例回放轴 */
+    step += 1;
+    setBtn();
+  }
+  function resetAll(){
+    step = 0; exIdx = -1; mode = 'idle'; t = 0;
+    defCard.classList.remove('show');
+    quizArea.classList.remove('show');
+    tlRow.classList.remove('show');
+    setStageClass('');
+    setBtn();
+  }
+
+  mainBtn.addEventListener('click', function(){
+    if(step <= 2){ startPlay(step); }
+    else if(step === 3){ quizArea.classList.add('show'); mainBtn.style.display = 'none'; }
+    else if(step === 4){ defCard.classList.add('show'); step = 5; setBtn(); }
+    else if(step === 5){ resetAll(); }
+  });
+
+  quizArea.querySelectorAll('.opt').forEach(function(b){
+    b.addEventListener('click', function(){
+      if(b.dataset.ok === '1'){
+        b.classList.add('right');
+        setTimeout(function(){
+          b.classList.remove('right');
+          quizArea.classList.remove('show');
+          step = 4; setBtn();
+        }, 450);
+      } else {
+        b.classList.add('wrong');   /* 抖动+变红后自动复位 */
+        setTimeout(function(){ b.classList.remove('wrong'); }, 650);
+      }
+    });
+  });
+
+  /* ===== 时间轴回放 ===== */
+  function syncSlider(){
+    if(exIdx < 0) return;
+    slider.value = Math.round(t / EX[exIdx].T * 1000);
+    tLabel.textContent = 't = ' + t.toFixed(1) + ' s';
+  }
+  slider.addEventListener('input', function(){
+    if(mode !== 'scrub' || exIdx < 0) return;
+    t = slider.value / 1000 * EX[exIdx].T;
+    tLabel.textContent = 't = ' + t.toFixed(1) + ' s';
+  });
+
+  /* ===== 主循环 ===== */
+  function loop(now){
+    if(mode === 'playing'){
+      var dt = Math.min(0.05, (now - lastFrame) / 1000);
+      lastFrame = now;
+      t += dt;
+      if(t >= EX[exIdx].T){ endPlay(); }
+      else { syncSlider(); }
+    }
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  FullscreenHelper.bind(document.getElementById('fsMoWrap'), document.getElementById('fsMoBtn'), resize);
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(loop);
+
+  /* ===== 场景1：哈雷彗星（夜空 + 椭圆轨迹） ===== */
+  function drawCometScene(p){
+    var g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#141b2e'); g.addColorStop(1, '#2a3352');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    /* 星星（固定伪随机） */
+    ctx.fillStyle = 'rgba(255,255,255,.7)';
+    var i, sx, sy, sr;
+    for(i = 0; i < 34; i++){
+      sx = ((i * 977) % 1000) / 1000 * W;
+      sy = ((i * 613) % 1000) / 1000 * H;
+      sr = 0.6 + ((i * 37) % 3) * 0.5;
+      ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill();
+    }
+    /* 椭圆虚线轨迹 */
+    var cx = W * 0.5, cy = H * 0.52, a = W * 0.38, b = H * 0.30;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,233,168,.35)'; ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 7]);
+    ctx.beginPath(); ctx.ellipse(cx, cy, a, b, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    /* 太阳在椭圆焦点附近 */
+    ctx.fillStyle = '#f2c14e';
+    ctx.beginPath(); ctx.arc(cx - a * 0.32, cy, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.font = 'bold 11px sans-serif'; ctx.fillStyle = 'rgba(255,220,130,.9)';
+    ctx.textAlign = 'center'; ctx.fillText('太阳', cx - a * 0.32, cy + 28); ctx.textAlign = 'left';
+    /* 彗星 + 背向太阳的彗尾 */
+    if(p > 0){
+      var pos = posOf('comet', p);
+      var tx2 = pos.x - (cx - a * 0.32), ty2 = pos.y - cy;
+      var len = Math.sqrt(tx2 * tx2 + ty2 * ty2) || 1;
+      tx2 = tx2 / len; ty2 = ty2 / len;
+      var tg = ctx.createLinearGradient(pos.x, pos.y, pos.x + tx2 * 70, pos.y + ty2 * 70);
+      tg.addColorStop(0, 'rgba(160,220,255,.85)'); tg.addColorStop(1, 'rgba(160,220,255,0)');
+      ctx.save();
+      ctx.translate(pos.x, pos.y);
+      ctx.rotate(Math.atan2(ty2, tx2));
+      ctx.fillStyle = tg;
+      ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(70, -16); ctx.lineTo(70, 16); ctx.lineTo(0, 5); ctx.closePath();
+      ctx.restore();
+      ctx.save();
+      ctx.fillStyle = '#cfe8ff';
+      ctx.beginPath(); ctx.arc(pos.x, pos.y, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(pos.x - 1.5, pos.y - 1.5, 2.5, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  /* ===== 场景2：猎豹飞奔（暖色草原） ===== */
+  function drawCheetahScene(p){
+    var sky = ctx.createLinearGradient(0, 0, 0, H * 0.7);
+    sky.addColorStop(0, '#fdf3d8'); sky.addColorStop(1, '#f7dfa8');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#f2c14e';
+    ctx.beginPath(); ctx.arc(W - 70, 52, 26, 0, Math.PI * 2); ctx.fill();
+    var gy = H * 0.78;
+    ctx.fillStyle = '#d9b36c'; ctx.fillRect(0, gy, W, H - gy);
+    ctx.fillStyle = '#c79a52'; ctx.fillRect(0, gy, W, 5);
+    /* 远处树 */
+    ctx.fillStyle = '#a8781e'; ctx.fillRect(W * 0.12, gy - 46, 6, 46);
+    ctx.fillStyle = '#7c9a3e';
+    ctx.beginPath(); ctx.ellipse(W * 0.12 + 3, gy - 52, 34, 13, 0, 0, Math.PI * 2); ctx.fill();
+    /* 草丛点缀 */
+    ctx.strokeStyle = '#c8952e'; ctx.lineWidth = 2;
+    var i, wx2;
+    for(i = 0; i < 10; i++){
+      wx2 = ((i * 173) % 100) / 100 * W;
+      ctx.beginPath();
+      ctx.moveTo(wx2, gy + 14 + (i % 3) * 10);
+      ctx.lineTo(wx2 - 4, gy + 4 + (i % 3) * 10);
+      ctx.moveTo(wx2, gy + 14 + (i % 3) * 10);
+      ctx.lineTo(wx2 + 4, gy + 4 + (i % 3) * 10);
+      ctx.stroke();
+    }
+    /* 速度线 */
+    if(p > 0){
+      var cpos = posOf('cheetah', p);
+      ctx.strokeStyle = 'rgba(139,105,20,.3)'; ctx.lineWidth = 2;
+      for(i = 0; i < 3; i++){
+        ctx.beginPath();
+        ctx.moveTo(cpos.x - 40 - i * 18, cpos.y - 30 + i * 14);
+        ctx.lineTo(cpos.x - 70 - i * 22, cpos.y - 30 + i * 14);
+        ctx.stroke();
+      }
+      drawCheetah(cpos.x, cpos.y, p);
+    }
+  }
+  function drawCheetah(x, y, p){
+    var u = Math.max(0.8, W / 720);  /* 尺寸自适应 */
+    var run = Math.sin(p * 60);      /* 奔跑相位 */
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(u, u);
+    /* 尾 */
+    ctx.strokeStyle = '#c98a3d'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-34, -16); ctx.quadraticCurveTo(-52, -24 + run * 5, -62, -10 - run * 6); ctx.stroke();
+    /* 躯干 */
+    ctx.fillStyle = '#e0a52e';
+    roundRectPath(ctx, -36, -26, 60, 20, 9); ctx.fill();
+    /* 腿（奔跑摆动） */
+    ctx.strokeStyle = '#c98a3d'; ctx.lineWidth = 5;
+    var legs = [[-26, run * 14], [-14, -run * 12], [10, -run * 14], [20, run * 12]];
+    for(var i = 0; i < 4; i++){
+      ctx.beginPath();
+      ctx.moveTo(legs[i][0], -8);
+      ctx.quadraticCurveTo(legs[i][0] + legs[i][1] * 0.5, 2, legs[i][0] + legs[i][1], 10);
+      ctx.stroke();
+    }
+    /* 头 */
+    ctx.fillStyle = '#e0a52e';
+    ctx.beginPath(); ctx.arc(30, -26, 10, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#8b6914';
+    ctx.beginPath(); ctx.arc(36, -30, 2.5, 0, Math.PI * 2); ctx.fill();  /* 耳 */
+    ctx.beginPath(); ctx.arc(34, -28, 1.2, 0, Math.PI * 2); ctx.fill();  /* 眼 */
+    /* 猎豹斑点 */
+    ctx.fillStyle = '#8b6914';
+    var spots = [[-24,-20],[-10,-22],[4,-19],[-16,-13],[0,-13],[14,-15]];
+    for(var j = 0; j < spots.length; j++){
+      ctx.beginPath(); ctx.arc(spots[j][0], spots[j][1], 1.8, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  /* ===== 场景3：蜗牛缓爬（叶片特写） ===== */
+  function drawSnailScene(p){
+    var g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#f4faf0'); g.addColorStop(1, '#dff0d5');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    /* 大叶片 */
+    ctx.save();
+    ctx.fillStyle = '#8fc46a';
+    ctx.beginPath();
+    ctx.moveTo(-20, H * 0.8);
+    ctx.quadraticCurveTo(W * 0.5, H * 0.42, W + 20, H * 0.5);
+    ctx.quadraticCurveTo(W * 0.55, H * 0.92, -20, H * 0.8);
+    ctx.closePath(); ctx.fill();
+    /* 叶脉 */
+    ctx.strokeStyle = 'rgba(63,122,51,.55)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-10, H * 0.79);
+    ctx.quadraticCurveTo(W * 0.5, H * 0.63, W + 10, H * 0.52);
+    ctx.stroke();
+    var i;
+    for(i = 1; i <= 7; i++){
+      var vx = W * 0.1 * i, vy = H * 0.75 - i * H * 0.033;
+      ctx.beginPath();
+      ctx.moveTo(vx, vy);
+      ctx.quadraticCurveTo(vx + 8, vy - 14, vx + 22, vy - 20);
+      ctx.stroke();
+    }
+    ctx.restore();
+    /* 蜗牛 */
+    if(p > 0){
+      var spos = posOf('snail', p);
+      drawSnail(spos.x, spos.y, p);
+    }
+  }
+  function drawSnail(x, y, p){
+    var u = Math.max(0.9, W / 640);
+    var crawl = Math.sin(p * 14) * 1.5;  /* 缓慢蠕动 */
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(u, u);
+    /* 阴影 */
+    ctx.fillStyle = 'rgba(40,70,30,.18)';
+    ctx.beginPath(); ctx.ellipse(0, 10, 26, 5, 0, 0, Math.PI * 2); ctx.fill();
+    /* 腹足 */
+    ctx.fillStyle = '#5b4a32';
+    ctx.beginPath(); ctx.ellipse(crawl, 6, 24, 6, 0, 0, Math.PI * 2); ctx.fill();
+    /* 壳：棕色螺旋 */
+    ctx.fillStyle = '#a3641c';
+    ctx.beginPath(); ctx.arc(-4, -8, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#7c4a12'; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    var ang, r;
+    for(ang = 0; ang < Math.PI * 4; ang += 0.2){
+      r = 1.5 + ang * 1.7;
+      if(ang === 0) ctx.moveTo(-4 + r * Math.cos(ang), -8 + r * Math.sin(ang));
+      else ctx.lineTo(-4 + r * Math.cos(ang), -8 + r * Math.sin(ang));
+    }
+    ctx.stroke();
+    /* 头 + 眼柄 */
+    ctx.strokeStyle = '#5b4a32'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(16, 0); ctx.quadraticCurveTo(24, -6, 26 + crawl * 0.4, -16); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(16, 2); ctx.quadraticCurveTo(26, -2, 30 + crawl * 0.4, -12); ctx.stroke();
+    ctx.fillStyle = '#2c2c2c';
+    ctx.beginPath(); ctx.arc(26 + crawl * 0.4, -17, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(30 + crawl * 0.4, -13, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+})();
+</script>
+</body>
+</html>

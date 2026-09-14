@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>小练习 · 运动的描述</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .qnav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .qnav .qn { border: none; border-radius: 99px; padding: 7px 13px; font-size: 13px; font-weight: 700;
+    cursor: pointer; background: var(--card2); color: var(--ink2); transition: all .25s; }
+  .qnav .qn.active { background: var(--brown-bg); color: var(--brown); box-shadow: 0 0 0 2px var(--brown-light); }
+  .qnav .qn.done { background: var(--green-bg); color: var(--green); }
+  .qnav .qn.active.done { background: var(--green-bg); color: var(--green); box-shadow: 0 0 0 2px var(--green-hi); }
+  .qcard { display: none; }
+  .qcard.active { display: block; animation: fadeIn .25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .stem { font-size: 16px; line-height: 1.8; margin: 8px 0 16px; font-weight: 600; }
+  .src-tag { display: inline-block; font-size: 12px; font-weight: 700; color: var(--gold);
+    background: var(--brown-bg); border-radius: 99px; padding: 3px 10px; margin-bottom: 10px; }
+  .done-chip { display: inline-block; font-size: 13px; font-weight: 800; padding: 5px 14px; border-radius: 99px;
+    background: var(--card2); color: var(--ink3); transition: all .25s; }
+  .done-chip.lit { background: var(--green-hi); color: #fff; box-shadow: 0 2px 10px rgba(92,184,78,.4); }
+  /* ---- 题1 行李架 ---- */
+  .q1-stage { display: flex; align-items: center; justify-content: center; gap: 14px;
+    background: var(--card2); border-radius: 12px; padding: 18px 12px; margin-bottom: 14px; }
+  .q1-item { font-size: 44px; line-height: 1; }
+  .q1-badge { font-size: 18px; font-weight: 800; padding: 8px 18px; border-radius: 99px;
+    background: var(--card); color: var(--ink3); border: 2px solid rgba(0,0,0,.08); transition: all .25s; }
+  .q1-badge.still { background: var(--green-bg); color: var(--green); border-color: var(--green-hi); }
+  .q1-badge.moving { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+  .q1-badge.flip { animation: flip .3s ease; }
+  @keyframes flip { 0% { transform: rotateX(0); } 50% { transform: rotateX(90deg); } 100% { transform: rotateX(0); } }
+  .q1-rows { display: flex; flex-direction: column; gap: 10px; }
+  .q1-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: #fff; border: 2px solid #e6dfd0; border-radius: 10px; padding: 10px 14px; transition: all .25s; }
+  .q1-row .ref-pill { font-size: 14px; font-weight: 700; color: var(--ink); min-width: 88px; }
+  .q1-row .verdict { border: none; border-radius: 99px; padding: 7px 16px; font-size: 14px; font-weight: 700;
+    cursor: pointer; background: var(--card2); color: var(--ink2); transition: all .25s; }
+  .q1-row .verdict:hover { background: var(--brown-bg); color: var(--brown); }
+  .q1-row.ok { border-color: var(--green-hi); background: var(--green-bg); }
+  .q1-row.ok .verdict.picked { background: var(--green); color: #fff; }
+  .q1-row.shake { animation: shake .3s ease; border-color: var(--red); }
+  .q1-row .verdict.wrongpick { background: var(--red-bg); color: var(--red); }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .q1-mark { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--ink3); }
+  .q1-row.ok .q1-mark { color: var(--green); }
+  /* ---- 题2 社戏 ---- */
+  .scene-hint { display: flex; align-items: center; gap: 10px; background: var(--brown-bg); color: var(--brown);
+    border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 13.5px;
+    line-height: 1.6; margin-bottom: 14px; }
+  .cover-card { margin-top: 14px; border-radius: 12px; overflow: hidden; cursor: pointer;
+    border: 2px dashed var(--brown-light); background: var(--brown-bg); transition: all .25s; }
+  .cover-card .cover-face { padding: 22px 16px; text-align: center; font-size: 15px; font-weight: 700; color: var(--brown); }
+  .cover-card .answer { display: none; padding: 16px; background: #fff; font-size: 14px; line-height: 1.8; color: var(--ink); }
+  .cover-card.revealed { border-style: solid; border-color: var(--green-hi); cursor: default; }
+  .cover-card.revealed .cover-face { display: none; }
+  .cover-card.revealed .answer { display: block; animation: fadeIn .25s ease; }
+  .answer b { color: var(--brown); }
+  /* ---- 题3 空间站 ---- */
+  .q3-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #0b1530; margin-bottom: 12px; }
+  #stationCv { width: 100%; height: 300px; display: block; }
+  .q3-phase { position: absolute; top: 10px; left: 12px; font-size: 12.5px; font-weight: 700; color: #ffe8b3;
+    background: rgba(0,0,0,.45); border-radius: 99px; padding: 4px 12px; pointer-events: none; }
+  .q3-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .q3-pills .pill { border: none; border-radius: 99px; padding: 8px 14px; font-size: 13px; font-weight: 700;
+    cursor: pointer; background: var(--card2); color: var(--ink2); transition: all .25s; }
+  .q3-pills .pill.active { background: var(--cyan-bg); color: var(--cyan); box-shadow: 0 0 0 2px var(--cyan-hi); }
+  .q3-concl { padding: 12px 16px; border-radius: 10px; background: #fff; border: 1px solid rgba(0,0,0,.08);
+    font-size: 14.5px; line-height: 1.7; margin-bottom: 12px; transition: all .25s; }
+  .q3-concl .badge { display: inline-block; font-size: 13px; font-weight: 800; padding: 3px 12px; border-radius: 99px; margin-left: 6px; }
+  .badge.b-still { background: var(--green-bg); color: var(--green-hi); }
+  .badge.b-move { background: var(--red-bg); color: var(--red); }
+  .badge.b-wait { background: var(--card2); color: var(--ink3); }
+  .q3-slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .q3-slider-row input[type=range] { flex: 1; accent-color: var(--cyan-hi); }
+  .q3-slider-row .t-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 84px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html">‹ 返回本节</a>
+  <div class="page-header">
+    <h1 class="page-title">✏️ 练习与应用</h1>
+    <p class="page-subtitle">教材 4 题动手联动 + 3 道基础选择，一次一题，点着玩着就会了。</p>
+  </div>
+
+  <div class="qnav" id="qnav"></div>
+
+  <!-- ============ 题1 行李架上的物品（教材①） ============ -->
+  <div class="card qcard" id="qc1" data-q="1">
+    <span class="src-tag">教材 练习与应用 ①</span>
+    <div class="stem">列车在平直的轨道上行驶。若分别以火车头、车厢的座椅、树木、房屋为参照物，行李架上的物品相对于哪些参照物是静止的，相对于哪些参照物是运动的？<br><span style="font-size:13.5px;font-weight:400;color:var(--ink2);">👉 逐行点「静止」或「运动」做出判断，物品徽章会实时跟着变。</span></div>
+    <div class="q1-stage">
+      <span class="q1-item">🧳</span>
+      <span class="q1-badge" id="q1Badge">选一行试试</span>
+      <span class="done-chip" id="q1Done">完成</span>
+    </div>
+    <div class="q1-rows" id="q1Rows"></div>
+    <div class="hint" style="margin-top:12px;">提示：物品和列车一起前进。它跟谁的位置不变，就相对谁静止。</div>
+  </div>
+
+  <!-- ============ 题2 《社戏》连山（教材②） ============ -->
+  <div class="card qcard" id="qc2" data-q="2">
+    <span class="src-tag">教材 练习与应用 ②</span>
+    <div class="stem">鲁迅的《社戏》中有这样的描写：「淡黑的起伏的连山，仿佛是踊跃的铁的兽脊似的，都远远地向船尾跑去了……」其中「山……向船尾跑去了」所选的参照物是什么？</div>
+    <div class="scene-hint">🛶 情境提示：船在前进中……乘客坐在船里，看着两岸的连山「往后跑」。想一想：乘客觉得谁没有动？</div>
+    <div class="q3-pills" id="q2Pills"></div>
+    <div class="cover-card" id="q2Cover">
+      <div class="cover-face">👆 想好后点这里揭晓答案</div>
+      <div class="answer" id="q2Answer"></div>
+    </div>
+  </div>
+
+  <!-- ============ 题3 空间站对接（教材③） ============ -->
+  <div class="card qcard" id="qc3" data-q="3">
+    <span class="src-tag">教材 练习与应用 ③ · 图 1.2-5</span>
+    <div class="stem">中国空间站的梦天实验舱与天和核心舱成功对接，转位后形成空间站「T」字基本构型。拖动滑条重播对接过程，再逐个回答三个问题。</div>
+    <div class="q3-wrap" id="q3FsWrap">
+      <button class="fullscreen-btn" id="q3FsBtn" title="全屏">⛶</button>
+      <canvas id="stationCv"></canvas>
+      <div class="q3-phase" id="q3Phase">对接前 · 梦天靠近中</div>
+    </div>
+    <div class="q3-slider-row">
+      <input type="range" id="q3Slider" min="0" max="100" value="0" step="1" aria-label="对接过程时间轴">
+      <span class="t-label" id="q3TLabel">阶段 0%</span>
+    </div>
+    <div class="anim-btns" style="margin-top:0;margin-bottom:12px;">
+      <button class="btn btn-primary" id="q3Play">▶ 播放过程</button>
+      <button class="btn btn-secondary" id="q3Reset">⟲ 重置</button>
+    </div>
+    <div class="q3-pills" id="q3Pills"></div>
+    <div class="q3-concl" id="q3Concl"></div>
+    <div class="hint">提示：位置在变 → 运动；位置不变 → 静止。空间站整体在绕地球飞行，所以相对地面指挥中心……？</div>
+  </div>
+
+  <!-- ============ 题4 观光电梯（教材④） ============ -->
+  <div class="card qcard" id="qc4" data-q="4">
+    <span class="src-tag">教材 练习与应用 ④</span>
+    <div class="stem">当你乘坐观光电梯观察电梯外的建筑物时，你是如何判断观光电梯是在上行还是在下行的？请利用参照物的概念，说出你判断的根据。</div>
+    <div class="scene-hint">🏙️ 先自己想一想，把判断依据在脑子里说一遍，再揭晓参考答案对照。</div>
+    <div class="cover-card" id="q4Cover">
+      <div class="cover-face">👆 想好后点这里揭晓参考答案</div>
+      <div class="answer" id="q4Answer"></div>
+    </div>
+    <div class="anim-btns" style="margin-top:14px;">
+      <button class="btn btn-secondary" id="q4Got" style="display:none;">😊 我明白了（自评）</button>
+    </div>
+  </div>
+
+  <!-- ============ 基础选择题（5~7） ============ -->
+  <div class="card qcard" id="qcBasic" data-q="5">
+    <div class="qidx" id="bidx"></div>
+    <div class="stem" id="bstem"></div>
+    <div id="bopts"></div>
+    <div class="fb-text" id="bfb"></div>
+    <div class="anim-btns" id="bRow" style="display:none;">
+      <button class="btn btn-primary" id="bNext">下一题</button>
+    </div>
+  </div>
+
+  <div class="anim-btns" id="doneRow" style="display:none;">
+    <span style="color:var(--ink2);font-size:14px;" id="scoreTxt"></span>
+    <a class="btn btn-primary" href="index.html">🏠 返回本节导航</a>
+  </div>
+</div>
+
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script>
+(function(){
+  'use strict';
+  /* ========== 题目导航（各题独立卡片单显） ========== */
+  var navDefs = [
+    { id: 'qc1', label: '① 行李架' },
+    { id: 'qc2', label: '② 社戏连山' },
+    { id: 'qc3', label: '③ 空间站对接' },
+    { id: 'qc4', label: '④ 观光电梯' },
+    { id: 'qcBasic', label: '基础选择' }
+  ];
+  var qnav = document.getElementById('qnav');
+  var cards = {};
+  navDefs.forEach(function(d){ cards[d.id] = document.getElementById(d.id); });
+  var navBtns = {};
+  navDefs.forEach(function(d){
+    var b = document.createElement('button');
+    b.className = 'qn'; b.textContent = d.label;
+    b.addEventListener('click', function(){ showCard(d.id); });
+    qnav.appendChild(b); navBtns[d.id] = b;
+  });
+  function showCard(id){
+    navDefs.forEach(function(d){
+      cards[d.id].classList.toggle('active', d.id === id);
+      navBtns[d.id].classList.toggle('active', d.id === id);
+    });
+    /* 卡片从隐藏变可见后重新适配 canvas */
+    window.dispatchEvent(new Event('resize'));
+  }
+  function markDone(id){ if(!navBtns[id].classList.contains('done')){ navBtns[id].classList.add('done'); doneCount++; checkAllDone(); } }
+  var doneCount = 0;
+  function checkAllDone(){
+    if(doneCount >= navDefs.length) {
+      document.getElementById('doneRow').style.display = '';
+      document.getElementById('scoreTxt').textContent = '🎉 全部完成！教材 4 题联动 + 基础选择都过关了。';
+    }
+  }
+  showCard('qc1');
+
+  /* ========== 题1：行李架物品 × 四参照物 ========== */
+  var q1Refs = [
+    { name: '🚂 火车头', ans: 'still', why: '物品和火车头一起前进，位置不变 → 静止' },
+    { name: '💺 车厢座椅', ans: 'still', why: '物品随车厢一起动，和座椅位置不变 → 静止' },
+    { name: '🌳 树木', ans: 'moving', why: '列车驶过，物品和树木位置不断变化 → 运动' },
+    { name: '🏠 房屋', ans: 'moving', why: '列车驶过，物品和房屋位置不断变化 → 运动' }
+  ];
+  var q1Rows = document.getElementById('q1Rows');
+  var q1Badge = document.getElementById('q1Badge');
+  var q1DoneChip = document.getElementById('q1Done');
+  var q1State = q1Refs.map(function(){ return false; });
+  function setBadge(v){
+    q1Badge.classList.remove('flip');
+    void q1Badge.offsetWidth;
+    q1Badge.classList.add('flip');
+    q1Badge.classList.remove('still', 'moving');
+    q1Badge.classList.add(v);
+    q1Badge.textContent = v === 'still' ? '静止' : '运动';
+  }
+  q1Refs.forEach(function(r, i){
+    var row = document.createElement('div');
+    row.className = 'q1-row';
+    row.innerHTML = '<span class="ref-pill">以' + r.name + '为参照物</span>' +
+      '<button class="verdict">静止</button>' +
+      '<button class="verdict">运动</button>' +
+      '<span class="q1-mark">待判断</span>';
+    var btns = row.querySelectorAll('.verdict');
+    ['still', 'moving'].forEach(function(v, k){
+      btns[k].addEventListener('click', function(){
+        if(q1State[i]) return;
+        setBadge(v);
+        if(v === r.ans){
+          q1State[i] = true;
+          row.classList.add('ok');
+          btns[k].classList.add('picked');
+          row.querySelector('.q1-mark').textContent = '✓ ' + r.why;
+          btns.forEach(function(b){ b.disabled = true; });
+          if(q1State.every(Boolean)){
+            q1DoneChip.classList.add('lit'); q1DoneChip.textContent = '🎉 完成！';
+            markDone('qc1');
+          }
+        } else {
+          row.classList.add('shake');
+          setTimeout(function(){ row.classList.remove('shake'); }, 350);
+          row.querySelector('.q1-mark').textContent = '再想想，提示在下方';
+        }
+      });
+    });
+    q1Rows.appendChild(row);
+  });
+
+  /* ========== 题2：《社戏》连山 ========== */
+  var q2Opts = ['河岸', '船（和船上的乘客）', '岸边的房屋', '远处的连山'];
+  var q2Ans = 1;
+  var q2Picked = -1, q2Revealed = false;
+  var q2Pills = document.getElementById('q2Pills');
+  q2Opts.forEach(function(t, i){
+    var b = document.createElement('button');
+    b.className = 'pill'; b.textContent = t;
+    b.addEventListener('click', function(){
+      if(q2Revealed) return;
+      q2Picked = i;
+      q2Pills.querySelectorAll('.pill').forEach(function(p, j){ p.classList.toggle('active', j === i); });
+    });
+    q2Pills.appendChild(b);
+  });
+  var q2Cover = document.getElementById('q2Cover');
+  q2Cover.addEventListener('click', function(){
+    if(q2Revealed) return;
+    q2Revealed = true;
+    q2Cover.classList.add('revealed');
+    q2Pills.querySelectorAll('.pill').forEach(function(p, j){ p.disabled = true; p.classList.toggle('active', j === q2Ans); });
+    var verdict = q2Picked === q2Ans
+      ? '✅ 你选的<b>「船（和船上的乘客）」</b>完全正确！'
+      : '你刚才选了「' + (q2Picked >= 0 ? q2Opts[q2Picked] : '未选') + '」，再对照看看：';
+    document.getElementById('q2Answer').innerHTML = verdict +
+      '<br>参照物是 <b>船（或船上的人）</b>。船在前进中，乘客以船为标准、认为船不动，连山相对船的位置不断向后变化，所以说山「向船尾跑去了」。这正是运动和静止的<b>相对性</b>。';
+    markDone('qc2');
+  });
+
+  /* 暴露给后续脚本：导航/完成标记 */
+  window.__quizNav = { showCard: showCard, markDone: markDone };
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+  var nav = window.__quizNav;
+  /* ========== 题3：空间站对接联动小工具 ========== */
+  var cv = document.getElementById('stationCv');
+  var ctx = cv.getContext('2d');
+  var W = 0, H = 0;
+  var slider = document.getElementById('q3Slider');
+  var tLabel = document.getElementById('q3TLabel');
+  var phaseEl = document.getElementById('q3Phase');
+  var playBtn = document.getElementById('q3Play');
+  var resetBtn = document.getElementById('q3Reset');
+  var raf = null, playing = false;
+
+  function resize(){
+    var dpr = Math.min(window.devicePixelRatio || 1, 3);
+    W = cv.clientWidth || cv.parentElement.clientWidth;
+    H = 300;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    cv.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+
+  /* t: 0~1。阶段A(0~0.5) 梦天从右侧靠近；阶段B(0.5~0.7) 对接；阶段C(0.7~1) 转位成T字 */
+  function layout(t){
+    var cx = W * 0.34, cy = H * 0.5;
+    /* 天和核心舱固定在左侧 */
+    var core = { x: cx, y: cy, w: 150, h: 44, ang: 0 };
+    /* 梦天实验舱：从右远处移动到核心舱右侧，再上移形成T字 */
+    var mx, my, mang = 0, mw = 130, mh = 40;
+    if(t < 0.5){
+      var p = t / 0.5; /* 0→1 靠近 */
+      mx = W * 0.98 - (W * 0.98 - (cx + core.w/2 + mw/2 + 4)) * easeInOut(p);
+      my = cy;
+    } else if(t < 0.7){
+      mx = cx + core.w/2 + mw/2 + 4; my = cy; /* 已对接，水平一字 */
+    } else {
+      var q = easeInOut((t - 0.7) / 0.3); /* 转位：梦天从右端旋转到核心舱正下方，成T字 */
+      var x0 = cx + core.w/2 + mw/2 + 4, x1 = cx;
+      var y0 = cy, y1 = cy + core.h/2 + mw/2 - 8;
+      mx = x0 + (x1 - x0) * q;
+      my = y0 + (y1 - y0) * q;
+      mang = q * Math.PI / 2;
+    }
+    return { core: core, meng: { x: mx, y: my, w: mw, h: mh, ang: mang }, t: t };
+  }
+  function easeInOut(x){ return x < 0.5 ? 2*x*x : 1 - Math.pow(-2*x+2,2)/2; }
+
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+    /* 深空背景 + 地球弧线 */
+    var g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#0b1530'); g.addColorStop(1, '#16264a');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    /* 星星 */
+    ctx.fillStyle = 'rgba(255,255,255,.6)';
+    for(var i = 0; i < 40; i++){
+      var sx = (i * 97) % W, sy = (i * 53) % (H*0.7);
+      ctx.fillRect(sx, sy, 1.6, 1.6);
+    }
+    /* 地球弧线（底部） */
+    ctx.save();
+    ctx.beginPath(); ctx.arc(W*0.5, H + 220, 280, 0, Math.PI*2);
+    var eg = ctx.createLinearGradient(0, H-40, 0, H);
+    eg.addColorStop(0, 'rgba(63,167,232,.35)'); eg.addColorStop(1, 'rgba(41,128,185,.15)');
+    ctx.fillStyle = eg; ctx.fill();
+    ctx.restore();
+
+    var L = layout(currentT);
+    drawModule(L.core, '#d8d2c4', '#b0a894', '天和核心舱');
+    drawModule(L.meng, '#f0c96a', '#c99b2f', '梦天实验舱');
+  }
+  function drawModule(m, fill, edge, label){
+    ctx.save();
+    ctx.translate(m.x, m.y); ctx.rotate(m.ang);
+    roundRectPath(ctx, -m.w/2, -m.h/2, m.w, m.h, 6);
+    ctx.fillStyle = fill; ctx.fill();
+    ctx.strokeStyle = edge; ctx.lineWidth = 2; ctx.stroke();
+    /* 太阳能板 */
+    ctx.fillStyle = 'rgba(41,128,185,.75)';
+    ctx.fillRect(-m.w/2 + 8, -m.h/2 - 14, m.w - 16, 8);
+    ctx.fillRect(-m.w/2 + 8, m.h/2 + 6, m.w - 16, 8);
+    ctx.fillStyle = '#3a3a3a';
+    ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(label, 0, 0);
+    ctx.restore();
+  }
+
+  var currentT = 0;
+  function setT(t){
+    currentT = Math.max(0, Math.min(1, t));
+    slider.value = Math.round(currentT * 100);
+    tLabel.textContent = '阶段 ' + Math.round(currentT * 100) + '%';
+    var phase = currentT < 0.5 ? '对接前 · 梦天靠近中' : (currentT < 0.7 ? '对接中 · 两舱相接' : '转位后 · “T”字构型');
+    phaseEl.textContent = phase;
+    updateConcl();
+    draw();
+  }
+
+  /* 三个问题 pill：结论结合当前阶段实时呈现（拖动 slider 徽章/文案实时变） */
+  var q3Questions = [
+    { label: '① 对接前（靠近过程中），以天和为参照物，梦天？',
+      eval: function(t){
+        if(t < 0.5) return { move: true, txt: '靠近过程中，梦天与天和的位置在变 → 运动' };
+        return { move: true, txt: '题目问的是「靠近过程中」：那时位置在变 → 运动（现已进入对接阶段，可拖回滑条重看）' };
+      } },
+    { label: '② 对接完成后，仍以天和为参照物，梦天？',
+      eval: function(t){
+        if(t < 0.7) return { move: null, txt: '尚未对接完成——拖动滑条到「对接中」之后再看结论' };
+        return { move: false, txt: '对接后两舱连为一体，相对位置不变 → 静止' };
+      } },
+    { label: '③ 以地面指挥中心为参照物，梦天？',
+      eval: function(t){ return { move: true, txt: '空间站绕地球飞行，梦天相对地面的位置一直在变 → 运动（任何阶段都如此）' }; } }
+  ];
+  var q3Pills = document.getElementById('q3Pills');
+  var q3Concl = document.getElementById('q3Concl');
+  var q3Active = 0, q3Answered = [false, false, false];
+  q3Questions.forEach(function(q, i){
+    var b = document.createElement('button');
+    b.className = 'pill' + (i === 0 ? ' active' : '');
+    b.textContent = q.label;
+    b.addEventListener('click', function(){
+      q3Active = i;
+      q3Pills.querySelectorAll('.pill').forEach(function(p, j){ p.classList.toggle('active', j === i); });
+      updateConcl();
+    });
+    q3Pills.appendChild(b);
+  });
+  function updateConcl(){
+    var q = q3Questions[q3Active];
+    var r = q.eval(currentT);
+    var badge = r.move === null ? '<span class="badge b-wait">拖动滑条看看</span>'
+      : (r.move ? '<span class="badge b-move">运动</span>' : '<span class="badge b-still">静止</span>');
+    q3Concl.innerHTML = q.label.replace('？', '') + ' ' + badge + '<br><span style="color:var(--ink2);font-size:13.5px;">' + r.txt + '</span>';
+    /* 题②需在对接完成阶段亲眼看到结论才算作答 */
+    if(q3Active === 2 || (q3Active === 0) || (q3Active === 1 && currentT >= 0.7)) q3Answered[q3Active] = true;
+    if(q3Answered.every(Boolean)) nav.markDone('qc3');
+  }
+
+  /* 播放/重置 */
+  function tick(){
+    if(!playing) return;
+    currentT += 0.004;
+    if(currentT >= 1){ currentT = 1; setT(1); stopPlay(); return; }
+    setT(currentT);
+    raf = requestAnimationFrame(tick);
+  }
+  function startPlay(){ playing = true; playBtn.textContent = '⏸ 暂停'; if(currentT >= 1) currentT = 0; tick(); }
+  function stopPlay(){ playing = false; playBtn.textContent = '▶ 播放过程'; if(raf) cancelAnimationFrame(raf); }
+  playBtn.addEventListener('click', function(){ playing ? stopPlay() : startPlay(); });
+  resetBtn.addEventListener('click', function(){ stopPlay(); setT(0); });
+  slider.addEventListener('input', function(){ stopPlay(); setT(slider.value / 100); });
+
+  FullscreenHelper.bind(document.getElementById('q3FsWrap'), document.getElementById('q3FsBtn'), resize);
+  window.addEventListener('resize', resize);
+  resize(); setT(0);
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+  var nav = window.__quizNav;
+  /* ========== 题4：观光电梯（简答自评） ========== */
+  var q4Cover = document.getElementById('q4Cover');
+  var q4Got = document.getElementById('q4Got');
+  var q4Done = false;
+  q4Cover.addEventListener('click', function(){
+    if(q4Cover.classList.contains('revealed')) return;
+    q4Cover.classList.add('revealed');
+    document.getElementById('q4Answer').innerHTML =
+      '<b>参考答案：</b>以电梯外的<b>建筑物</b>为参照物。若建筑物相对自己在<b>向下</b>移动，说明电梯在<b>上行</b>；若建筑物相对自己在<b>向上</b>移动，说明电梯在<b>下行</b>。判断依据：看建筑物与电梯（或自己）之间的<b>相对位置如何变化</b>。';
+    q4Got.style.display = '';
+  });
+  q4Got.addEventListener('click', function(){
+    if(q4Done) return;
+    q4Done = true;
+    q4Got.textContent = '✅ 已自评：我明白了';
+    q4Got.disabled = true;
+    q4Got.style.background = 'var(--green-bg)';
+    q4Got.style.color = 'var(--green)';
+    nav.markDone('qc4');
+  });
+
+  /* ========== 基础选择题（沿用 c1s1 判分样式） ========== */
+  var questions = [
+    {
+      stem: '下列现象中属于机械运动的是（　　）',
+      opts: ['五四运动', '候鸟迁徙', '心潮澎湃', '星光闪烁'],
+      ans: 1,
+      fb: '机械运动是指物体<b>位置随时间的变化</b>。候鸟迁徙时位置不断变化，属于机械运动；「五四运动」是社会运动，「心潮澎湃」是心理活动，「星光闪烁」主要是大气折射现象，都不是物体的位置变化。'
+    },
+    {
+      stem: '关于参照物，下列说法正确的是（　　）',
+      opts: ['参照物必须是静止不动的物体', '只能选地面作参照物', '参照物可以根据需要任意选择', '研究物体运动时可以不选参照物'],
+      ans: 2,
+      fb: '参照物是假定不动、作为标准的物体，可以<b>根据需要任意选择</b>；选不同参照物，同一物体的运动情况结论一般不同。研究运动必须先选参照物，地面只是常用选择之一。'
+    },
+    {
+      stem: '小明坐在行驶的公交车上，说他是静止的，所选的参照物可能是（　　）',
+      opts: ['路边的树木', '公交车的车厢', '迎面驶来的汽车', '路边的行人'],
+      ans: 1,
+      fb: '小明和公交车车厢之间的位置没有变化，以<b>车厢</b>为参照物他是静止的；而树木、迎面汽车、行人相对他位置都在变，以它们为参照物小明是运动的。'
+    }
+  ];
+  var qi = 0, answered = false;
+  var bidx = document.getElementById('bidx');
+  var bstem = document.getElementById('bstem');
+  var bopts = document.getElementById('bopts');
+  var bfb = document.getElementById('bfb');
+  var bRow = document.getElementById('bRow');
+  var bNext = document.getElementById('bNext');
+
+  function render(){
+    answered = false;
+    bfb.className = 'fb-text'; bfb.innerHTML = '';
+    bRow.style.display = 'none';
+    var q = questions[qi];
+    bidx.textContent = '基础选择 ' + (qi + 1) + ' / ' + questions.length;
+    bstem.textContent = q.stem;
+    bopts.innerHTML = '';
+    q.opts.forEach(function(t, i){
+      var b = document.createElement('button');
+      b.className = 'opt'; b.textContent = String.fromCharCode(65 + i) + '. ' + t;
+      b.addEventListener('click', function(){ onPick(b, i); });
+      bopts.appendChild(b);
+    });
+  }
+  function onPick(btn, i){
+    if(answered) return;
+    answered = true;
+    var q = questions[qi];
+    bopts.querySelectorAll('.opt').forEach(function(b, j){
+      b.disabled = true;
+      if(j === q.ans) b.classList.add('right');
+      else if(j === i) b.classList.add('wrong');
+      else b.classList.add('dim');
+    });
+    bfb.className = 'fb-text show';
+    bfb.innerHTML = (i === q.ans ? '✅ 回答正确！' : '❌ 再想想。') + q.fb;
+    bRow.style.display = '';
+    bNext.textContent = qi < questions.length - 1 ? '下一题' : '完成基础题';
+  }
+  bNext.addEventListener('click', function(){
+    if(qi < questions.length - 1){ qi++; render(); }
+    else {
+      bstem.textContent = '🎉 基础题全部完成！';
+      bopts.innerHTML = ''; bidx.textContent = ''; bfb.className = 'fb-text'; bRow.style.display = 'none';
+      nav.markDone('qcBasic');
+    }
+  });
+  render();
+})();
+</script>
+</body>
+</html>

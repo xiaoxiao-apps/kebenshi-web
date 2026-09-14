@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：收割机与运稻车 · 相对静止</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar {
+    background: var(--brown-bg); color: var(--brown);
+    border: 1px solid rgba(139,105,20,.15); border-radius: 10px;
+    padding: 10px 14px; font-size: 14px; line-height: 1.6;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #f7e8c0; }
+  #fieldCv { width: 100%; display: block; }
+  .ref-pills { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  .ref-pills .lbl { font-size: 13px; color: var(--ink2); margin-right: 2px; }
+  .pill {
+    border: none; border-radius: 99px; padding: 8px 16px; font-size: 14px; font-weight: 700;
+    cursor: pointer; background: var(--card2); color: var(--ink); transition: all .25s;
+  }
+  .pill.active { background: var(--cyan-bg); color: var(--cyan); box-shadow: 0 0 0 2px var(--cyan-hi); }
+  .pill.guide { animation: pillPulse 1.2s infinite; }
+  @keyframes pillPulse {
+    0% { box-shadow: 0 0 0 0 rgba(63,167,232,.55); }
+    70% { box-shadow: 0 0 0 10px rgba(63,167,232,0); }
+    100% { box-shadow: 0 0 0 0 rgba(63,167,232,0); }
+  }
+  .mark-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink);
+    background: #fff; border: 2px solid #e6dfd0; border-radius: 99px; padding: 6px 14px; cursor: pointer;
+    user-select: none; transition: all .25s; }
+  .mark-toggle.on { border-color: var(--gold); background: var(--brown-bg); color: var(--brown); font-weight: 700; }
+  .tl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; }
+  .tl-row input[type=range] { flex: 1; accent-color: var(--gold); }
+  .tl-row .t-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 56px; text-align: right; }
+  .conclusion {
+    margin-top: 12px; padding: 14px 16px; border-radius: 10px; background: #fff;
+    border: 1px solid rgba(0,0,0,.08); font-size: 15px; line-height: 2; transition: all .25s ease;
+  }
+  .conclusion .ref { color: var(--gold); font-weight: 800; }
+  .badge { display: inline-block; font-size: 12.5px; font-weight: 800; padding: 2px 12px; border-radius: 99px; margin: 0 4px; vertical-align: middle; }
+  .badge.still { background: var(--green-bg); color: var(--green-hi); box-shadow: 0 0 0 1.5px var(--green-hi) inset; }
+  .badge.moving { background: var(--red-bg); color: var(--red); box-shadow: 0 0 0 1.5px var(--red) inset; }
+  .hint.locked { opacity: 0; transform: translateY(20px); pointer-events: none; transition: all .25s ease; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">收割机与运稻车</h1>
+    <p class="page-subtitle">图 1.2-3：收割机收稻子，运稻车与它并排同速前进。换个参照物，谁在动？</p>
+  </div>
+  <div class="card">
+    <h2>相对静止 + 时间轴 <span class="chip brown">运动的相对性</span></h2>
+    <div class="hint-bar">💡 先选一个参照物，再点「▶ 出发」；拖动时间轴可以回到任意时刻。开启「位置印记」看两车每秒留下的点。</div>
+    <div class="ref-pills" id="refPills">
+      <span class="lbl">参照物：</span>
+      <button class="pill guide" data-ref="ground">🌾 地面</button>
+      <button class="pill" data-ref="harvester">🚜 收割机</button>
+      <button class="pill" data-ref="truck">🚚 运稻车</button>
+      <button class="mark-toggle" id="markToggle">📍 位置印记：关</button>
+    </div>
+    <div class="fullscreen-wrap" id="fsHvWrap">
+      <button class="fullscreen-btn" id="fsHvBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="fieldCv"></canvas>
+      </div>
+    </div>
+    <div class="tl-row">
+      <input type="range" id="tlSlider" min="0" max="1000" value="0" step="1" aria-label="时间轴">
+      <span class="t-label" id="tLabel">t = 0.0 s</span>
+    </div>
+    <div class="anim-btns">
+      <button class="btn btn-primary" id="mainBtn">▶ 出发</button>
+      <button class="btn btn-secondary" id="resetBtn">⟲ 重置</button>
+    </div>
+    <div class="conclusion" id="conclusion"></div>
+    <p class="hint locked" id="finalHint">结论：两车同快慢、同方向，彼此之间位置不变 → 互为参照物时都是静止的；但相对地面它们都在运动。运动和静止是<b>相对</b>的。</p>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script>
+(function(){
+  'use strict';
+  /* ===== 常量与状态 ===== */
+  var DW = 640;                    /* 设计宽度（世界单位） */
+  var V = 34;                      /* 两车同速（单位/秒） */
+  var T_TOTAL = 10;                /* 总时长 10s */
+  var HX0 = 210, TX0 = 80;         /* 收割机/运稻车初始位置 */
+  var cv = document.getElementById('fieldCv');
+  var ctx = cv.getContext('2d');
+  var W = 640, H = 360, k = 1;
+  var t = 0;                       /* 当前时刻 s */
+  var mode = 'idle';               /* idle | playing | paused | ended */
+  var refObj = 'ground';           /* ground | harvester | truck */
+  var markOn = false;
+  var camX = -0, lastFrame = 0;
+
+  function hx(tt){ return HX0 + V * tt; }
+  function tx(tt){ return TX0 + V * tt; }
+  function refX(tt){ return refObj === 'harvester' ? hx(tt) : (refObj === 'truck' ? tx(tt) : 0); }
+
+  function resize(){
+    var f = fitCanvas(cv, getCssH(cv));
+    ctx = f.ctx; W = f.w; H = parseFloat(cv.style.height) || f.h;
+    k = W / DW;
+    draw();
+  }
+
+  /* ===== 场景绘制（金黄稻田，禁冷蓝底） ===== */
+  function draw(){
+    var groundY = H * 0.78;
+    /* 暖色天空 */
+    var sky = ctx.createLinearGradient(0, 0, 0, groundY);
+    sky.addColorStop(0, '#fdf3d8'); sky.addColorStop(1, '#f6dfa0');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, groundY);
+    /* 太阳 */
+    ctx.fillStyle = '#f2c14e';
+    ctx.beginPath(); ctx.arc(W - 60, 46, 24, 0, Math.PI * 2); ctx.fill();
+    /* 田埂土带 */
+    ctx.fillStyle = '#d9b36c'; ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = '#c79a52'; ctx.fillRect(0, groundY, W, 6 * k);
+    /* 稻从：随世界坐标滚动（取模循环，无限稻田） */
+    var spacing = 26; /* 世界单位 */
+    var start = Math.floor(camX / spacing) * spacing;
+    ctx.strokeStyle = '#c8952e'; ctx.lineWidth = Math.max(1.5, 2 * k);
+    for(var wx = start; wx < camX + DW + spacing; wx += spacing){
+      var sx = (wx - camX) * k;
+      var h1 = 16 * k;
+      ctx.beginPath();
+      ctx.moveTo(sx, groundY - 1);
+      ctx.lineTo(sx - 3 * k, groundY - h1);
+      ctx.moveTo(sx, groundY - 1);
+      ctx.lineTo(sx + 3 * k, groundY - h1);
+      ctx.moveTo(sx, groundY - 1);
+      ctx.lineTo(sx, groundY - h1 - 4 * k);
+      ctx.stroke();
+      /* 稻穗小点 */
+      ctx.fillStyle = '#e8b53f';
+      ctx.beginPath(); ctx.arc(sx, groundY - h1 - 6 * k, 2.2 * k, 0, Math.PI * 2); ctx.fill();
+    }
+    drawMarks(groundY);
+    drawTruck(tx(t) - camXOffset(), groundY);
+    drawHarvester(hx(t) - camXOffset(), groundY);
+    drawLabels(groundY);
+  }
+  function camXOffset(){ return camX; }
+
+  /* ===== 位置印记：坐标系变换——点位置 = 车位置(s) - 参照物位置(s) + 参照物位置(t) ===== */
+  function drawMarks(groundY){
+    if(!markOn) return;
+    for(var s = 0; s <= Math.floor(t + 1e-6); s++){
+      var dxh = hx(s) - refX(s) + refX(t) - camX;
+      var dxt = tx(s) - refX(s) + refX(t) - camX;
+      dot(dxh * k, groundY + 14 * k, '#8b6914');
+      dot(dxt * k, groundY + 26 * k, '#c0392b');
+    }
+    /* 图例：顶部居中半透明底，避免与印记点/太阳重叠 */
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    roundRectPath(ctx, W/2 - 64 * k, 8 * k, 128 * k, 34 * k, 8 * k);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(90,70,20,.85)';
+    ctx.font = (11 * k) + 'px sans-serif';
+    ctx.fillText('● 收割机每秒印记', W/2 - 56 * k, 22 * k);
+    ctx.fillStyle = 'rgba(160,50,40,.85)';
+    ctx.fillText('● 运稻车每秒印记', W/2 - 56 * k, 36 * k);
+  }
+  function dot(x, y, color){
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(x, y, 3.4 * k, 0, Math.PI * 2); ctx.fill();
+  }
+
+  /* ===== 收割机（金色机身 + 割台） ===== */
+  function drawHarvester(dx, groundY){
+    var x = dx * k, y = groundY, u = k; /* u = 单位缩放 */
+    ctx.save();
+    /* 割台（前方） */
+    ctx.fillStyle = '#a8781e';
+    ctx.fillRect(x + 52 * u, y - 22 * u, 26 * u, 16 * u);
+    ctx.strokeStyle = '#7c5812'; ctx.lineWidth = 1.5 * u;
+    for(var i = 0; i < 5; i++){
+      ctx.beginPath();
+      ctx.moveTo(x + (55 + i * 5) * u, y - 6 * u);
+      ctx.lineTo(x + (55 + i * 5) * u, y - 20 * u);
+      ctx.stroke();
+    }
+    /* 机身 */
+    ctx.fillStyle = '#e0a52e';
+    roundRectPath(ctx, x - 40 * u, y - 46 * u, 92 * u, 34 * u, 6 * u);
+    ctx.fill();
+    ctx.strokeStyle = '#a8781e'; ctx.stroke();
+    /* 驾驶舱 */
+    ctx.fillStyle = '#f7e3ae';
+    roundRectPath(ctx, x - 30 * u, y - 72 * u, 40 * u, 30 * u, 5 * u);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#9fc4d8';
+    ctx.fillRect(x - 26 * u, y - 68 * u, 32 * u, 18 * u);
+    /* 粮仓输出口 */
+    ctx.fillStyle = '#c8901e';
+    ctx.fillRect(x + 16 * u, y - 60 * u, 30 * u, 10 * u);
+    /* 车轮 */
+    wheel(x - 22 * u, y - 8 * u, 14 * u);
+    wheel(x + 34 * u, y - 6 * u, 9 * u);
+    ctx.restore();
+  }
+  /* ===== 运稻车（拖拉机 + 稻斗） ===== */
+  function drawTruck(dx, groundY){
+    var x = dx * k, y = groundY, u = k;
+    ctx.save();
+    /* 稻斗 */
+    ctx.fillStyle = '#d98e32';
+    roundRectPath(ctx, x - 58 * u, y - 40 * u, 66 * u, 28 * u, 4 * u);
+    ctx.fill();
+    ctx.strokeStyle = '#a3641c'; ctx.lineWidth = 1.5 * u; ctx.stroke();
+    /* 稻子堆 */
+    ctx.fillStyle = '#eec550';
+    ctx.beginPath();
+    ctx.moveTo(x - 56 * u, y - 40 * u);
+    ctx.quadraticCurveTo(x - 25 * u, y - 56 * u, x + 6 * u, y - 40 * u);
+    ctx.fill();
+    /* 车头 */
+    ctx.fillStyle = '#4a7a3c';
+    roundRectPath(ctx, x + 12 * u, y - 36 * u, 34 * u, 24 * u, 5 * u);
+    ctx.fill();
+    ctx.fillStyle = '#cfe3c4';
+    ctx.fillRect(x + 18 * u, y - 32 * u, 16 * u, 10 * u);
+    /* 车轮 */
+    wheel(x - 38 * u, y - 8 * u, 12 * u);
+    wheel(x + 28 * u, y - 7 * u, 10 * u);
+    ctx.restore();
+  }
+  function wheel(cx, cy, r){
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#888';
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.4, 0, Math.PI * 2); ctx.fill();
+    /* 轮辐随时间旋转，体现滚动 */
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = Math.max(1, 1.5 * k);
+    var a = (t * V * 0.06) % (Math.PI * 2);
+    ctx.beginPath();
+    ctx.moveTo(cx - Math.cos(a) * r * 0.75, cy - Math.sin(a) * r * 0.75);
+    ctx.lineTo(cx + Math.cos(a) * r * 0.75, cy + Math.sin(a) * r * 0.75);
+    ctx.stroke();
+  }
+  /* ===== 车名标签 + 参照物金环 ===== */
+  function drawLabels(groundY){
+    ctx.font = 'bold ' + (13 * k) + 'px sans-serif';
+    ctx.textAlign = 'center';
+    label((hx(t) - camX + 10) * k, groundY - 84 * k, '收割机', '#8b6914', refObj === 'harvester');
+    label((tx(t) - camX - 12) * k, groundY - 66 * k, '运稻车', '#a3641c', refObj === 'truck');
+    ctx.textAlign = 'left';
+    if(refObj === 'ground'){
+      ctx.fillStyle = 'rgba(139,105,20,.85)';
+      ctx.font = 'bold ' + (12 * k) + 'px sans-serif';
+      ctx.fillText('🌾 以地面为标准', 10 * k, 24 * k);
+    }
+  }
+  function label(x, y, text, color, isRef){
+    if(isRef){
+      ctx.save();
+      ctx.strokeStyle = '#b8860b'; ctx.lineWidth = 2.5 * k;
+      var w = ctx.measureText(text).width + 16 * k;
+      roundRectPath(ctx, x - w/2, y - 13 * k, w, 20 * k, 10 * k);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
+  }
+
+  /* ===== 相机：每个参照物一个相机函数；pill 切换时 250ms 插值过渡 ===== */
+  function camTargetFor(ref, tt){
+    if(ref === 'harvester') return hx(tt) - DW / 2;   /* 锁定收割机居中 */
+    if(ref === 'truck') return tx(tt) - DW / 2;       /* 锁定运稻车居中 */
+    return V * tt * 0.5;                              /* 地面：镜头半速跟拍，两车都在前进、背景滚动 */
+  }
+  var camBlend = null; /* { from, t0 } */
+  function ease(x){ return x < 0.5 ? 2*x*x : 1 - Math.pow(-2*x+2,2)/2; }
+  function stepCam(now){
+    if(camBlend){
+      var p = Math.min(1, (now - camBlend.t0) / 250);
+      var a = camTargetFor(camBlend.from, t), b = camTargetFor(refObj, t);
+      camX = a + (b - a) * ease(p);
+      if(p >= 1) camBlend = null;
+    } else {
+      camX = camTargetFor(refObj, t);
+    }
+  }
+
+  /* ===== 主循环 ===== */
+  var slider = document.getElementById('tlSlider');
+  var tLabel = document.getElementById('tLabel');
+  function loop(now){
+    if(mode === 'playing'){
+      var dt = Math.min(0.05, (now - lastFrame) / 1000);
+      lastFrame = now;
+      t += dt;
+      if(t >= T_TOTAL){ t = T_TOTAL; mode = 'ended'; updateMainBtn(); }
+      syncSlider();
+    }
+    stepCam(now);
+    updateConcl();
+    draw();
+    requestAnimationFrame(loop);
+  }
+  function syncSlider(){
+    slider.value = Math.round(t / T_TOTAL * 1000);
+    tLabel.textContent = 't = ' + t.toFixed(1) + ' s';
+  }
+
+  /* ===== 结论条（实时联动 pill） ===== */
+  var concl = document.getElementById('conclusion');
+  var NAMES = { ground: '地面', harvester: '收割机', truck: '运稻车' };
+  function stateBadge(moving){
+    return moving ? '<span class="badge moving">运动</span>' : '<span class="badge still">静止</span>';
+  }
+  function updateConcl(){
+    var hMov = refObj === 'ground', tMov = refObj === 'ground';
+    concl.innerHTML =
+      '以 <span class="ref">' + NAMES[refObj] + '</span> 为参照物：收割机' + stateBadge(hMov) +
+      '，运稻车' + stateBadge(tMov) + '<br>' +
+      '<span style="font-size:13px;color:var(--ink2);">' + (refObj === 'ground'
+        ? '两车都在前进——相对地面，位置在不断变化。'
+        : '两车同快慢、同方向，彼此位置不变——所以相对对方是静止的。这就是收割机边收、运稻车边接装的关键！') + '</span>';
+  }
+
+  /* ===== 控件 ===== */
+  var mainBtn = document.getElementById('mainBtn');
+  var resetBtn = document.getElementById('resetBtn');
+  var finalHint = document.getElementById('finalHint');
+  function revealHint(){ finalHint.classList.remove('locked'); }
+  function updateMainBtn(){
+    mainBtn.textContent = (mode === 'playing') ? '⏸ 暂停' : (mode === 'ended' ? '▶ 重新出发' : (mode === 'paused' ? '▶ 继续' : '▶ 出发'));
+  }
+  mainBtn.addEventListener('click', function(){
+    document.querySelectorAll('.pill.guide').forEach(function(p){ p.classList.remove('guide'); });
+    revealHint();
+    if(mode === 'playing'){ mode = 'paused'; }
+    else { if(mode === 'ended') t = 0; mode = 'playing'; lastFrame = performance.now(); }
+    updateMainBtn();
+  });
+  resetBtn.addEventListener('click', function(){
+    mode = 'idle'; t = 0; camBlend = null; syncSlider(); updateMainBtn();
+  });
+  slider.addEventListener('input', function(){
+    if(mode === 'playing'){ mode = 'paused'; }
+    if(mode === 'idle' || mode === 'ended') mode = 'paused';
+    t = slider.value / 1000 * T_TOTAL;
+    syncSlider(); updateMainBtn();
+  });
+  document.querySelectorAll('.ref-pills .pill').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.ref-pills .pill').forEach(function(p){ p.classList.remove('active', 'guide'); });
+      btn.classList.add('active');
+      if(btn.dataset.ref !== refObj) camBlend = { from: refObj, t0: performance.now() };
+      refObj = btn.dataset.ref;
+      revealHint();
+    });
+  });
+  var markToggle = document.getElementById('markToggle');
+  markToggle.addEventListener('click', function(){
+    markOn = !markOn;
+    markToggle.classList.toggle('on', markOn);
+    markToggle.textContent = '📍 位置印记：' + (markOn ? '开' : '关');
+  });
+
+  FullscreenHelper.bind(document.getElementById('fsHvWrap'), document.getElementById('fsHvBtn'), resize);
+  window.addEventListener('resize', resize);
+
+  /* 初始：地面 pill 选中，t=0 */
+  document.querySelector('.pill[data-ref="ground"]').classList.add('active');
+  resize(); syncSlider(); updateMainBtn();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

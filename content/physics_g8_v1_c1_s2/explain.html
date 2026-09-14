@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 运动的描述</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .def-row { display: grid; gap: 12px; margin: 12px 0; }
+  @media (min-width: 640px) { .def-row { grid-template-columns: 1fr 1fr; } }
+  .def-card { background: var(--card2); border-radius: 12px; padding: 16px; border-left: 4px solid var(--brown); }
+  .def-card h4 { margin: 0 0 6px; color: var(--brown); }
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 12px 0; }
+  .steps li { position: relative; padding: 10px 12px 10px 52px; margin-bottom: 10px; background: var(--green-bg); border-radius: 10px; line-height: 1.6; }
+  .steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .steps li b { color: var(--green); }
+  .tipbox { border-left: 4px solid var(--brown); background: var(--brown-bg); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; line-height: 1.7; }
+  .tipbox ul { margin: 0; padding-left: 18px; }
+  .tipbox li { margin: 6px 0; }
+  .myth-tabs { display: flex; gap: 10px; margin: 12px 0; }
+  .tab-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; cursor: pointer; font-weight: 700; transition: all .25s ease; }
+  .tab-btn.active { background: var(--green); color: #fff; }
+  .myth-deck { min-height: 140px; }
+  .myth-card { background: var(--card2); border-radius: 12px; padding: 16px; line-height: 1.8; animation: mythIn .25s ease; }
+  @keyframes mythIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .mini-quiz { background: var(--green-bg); border-radius: 10px; padding: 14px 16px; margin-top: 14px; }
+  .mini-quiz h4 { margin: 0 0 8px; color: var(--green); }
+  .mini-quiz select { min-width: 120px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-weight: 700; font-size: 13px; margin-left: 8px; }
+  .badge.green { background: var(--green-bg); color: var(--green); }
+  .badge.red { background: var(--red-bg); color: var(--red); }
+  .reveal { background: var(--card2); border-radius: 10px; padding: 14px 16px; margin-top: 10px; cursor: pointer; }
+  .reveal .answer { display: none; margin-top: 8px; padding: 10px; background: #fff; border-radius: 8px; line-height: 1.7; }
+  .reveal .answer.show { display: block; animation: mythIn .25s ease; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html">‹ 返回本节</a>
+
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">重难点提炼 · 考点一眼看清</p>
+  </div>
+
+  <div class="card">
+    <h2>一、两个黑体定义 <span class="chip brown">基础概念</span></h2>
+    <div class="def-row">
+      <div class="def-card">
+        <h4>机械运动 mechanical motion</h4>
+        <p>物体位置随时间的变化。</p>
+      </div>
+      <div class="def-card">
+        <h4>参照物</h4>
+        <p>判断运动和静止时，作为标准的物体。</p>
+      </div>
+    </div>
+    <div class="tipbox">💡 机械运动是最简单的一种运动形式。运动是宇宙中最普遍的现象，宇宙中的万物都在以各种不同的形式运动着。</div>
+  </div>
+
+  <div class="card">
+    <h2>二、判断三步法 <span class="chip brown">核心考点</span></h2>
+    <ol class="steps">
+      <li><b>选定参照物</b>：先假定它不动。</li>
+      <li><b>看位置变没变</b>：看被研究物体相对于参照物的位置是否发生变化。</li>
+      <li><b>下结论</b>：位置变了就是运动的；位置没变就是静止的。</li>
+    </ol>
+    <div class="tipbox">⚠️ 注意：参照物可以根据需要来选择。如果选择的参照物不同，描述同一个物体的运动情况时，结论一般也不一样。</div>
+  </div>
+
+  <div class="card">
+    <h2>三、三个必背要点 <span class="chip brown">重点难点</span></h2>
+    <div class="tipbox">
+      <ul>
+        <li>参照物可以按需选择，一旦被选定就<strong>假定它不动</strong>。</li>
+        <li>参照物不同，同一个物体的运动结论<strong>一般不同</strong>。</li>
+        <li><strong>物体的运动和静止是相对的</strong>。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>四、易错点 <span class="chip brown">易错点</span></h2>
+    <div class="myth-tabs">
+      <button class="tab-btn active" data-tab="concept">概念</button>
+      <button class="tab-btn" data-tab="poem">诗句</button>
+      <button class="tab-btn" data-tab="space">航天</button>
+    </div>
+    <div class="myth-deck" id="mythDeck"></div>
+  </div>
+
+  <div class="card">
+    <h2>五、mini 联动 a：扶梯上的人 <span class="chip cyan">实时联动</span></h2>
+    <p>图 1.2-4 甲：人乘坐自动扶梯。</p>
+    <div class="mini-quiz">
+      <h4>📝 选参照物，看结论</h4>
+      <p>以 <select id="escRef">
+        <option value="ground">地面</option>
+        <option value="escalator">自动扶梯</option>
+      </select> 为参照物，人是 <span id="escState"></span></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>六、mini 联动 b：列车错觉 <span class="chip cyan">点击揭晓</span></h2>
+    <p>两列列车并排停在站台上，你坐在车厢里，为什么会产生自己的列车在前进的错觉？</p>
+    <div class="reveal" id="trainReveal">
+      <div>💡 点击揭晓成因</div>
+      <div class="answer" id="trainAnswer">因为你以旁边的列车为参照物时，旁边列车向反方向运动，自己的列车相对于它的位置在变化，所以感觉自己乘坐的列车前进。但以站台为参照物时，自己乘坐的列车其实静止。</div>
+    </div>
+  </div>
+
+</div>
+<script>
+(function(){
+  // 易错点 Tab
+  var mythData = {
+    concept: '<p>❌ 易错：不能选被研究物体自身为参照物，否则没有意义。</p><p>✅ 例如研究小明的运动，不能选小明自己；应选地面、树、车等别的物体。</p>',
+    poem: '<p>❌ 易错：诗句里“山……向船尾跑去”，要分清“谁在动、相对谁”。</p><p>✅ 这里山在“动”，船是参照物——因为山相对于船的位置在向后变化。</p>',
+    space: '<p> 易错：空间站对接后，梦天实验舱以天和核心舱为参照物是静止的；但以地面指挥中心为参照物，仍在随空间站高速运动。</p><p>✅ 结论取决于选谁当参照物。</p>'
+  };
+  var mythDeck = document.getElementById('mythDeck');
+  function renderMyth(tab){
+    mythDeck.innerHTML = '<div class="myth-card">' + mythData[tab] + '</div>';
+  }
+  document.querySelectorAll('.myth-tabs .tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.myth-tabs .tab-btn').forEach(function(b){ b.classList.remove('active'); });
+      this.classList.add('active');
+      renderMyth(this.dataset.tab);
+    });
+  });
+  renderMyth('concept');
+
+  // 扶梯联动
+  var escRef = document.getElementById('escRef');
+  var escState = document.getElementById('escState');
+  function updateEsc(){
+    if(escRef.value === 'ground'){
+      escState.innerHTML = '<span class="badge red">运动</span>';
+    } else {
+      escState.innerHTML = '<span class="badge green">静止</span>';
+    }
+  }
+  escRef.addEventListener('change', updateEsc);
+  updateEsc();
+
+  // 列车错觉揭晓
+  document.getElementById('trainReveal').addEventListener('click', function(){
+    document.getElementById('trainAnswer').classList.add('show');
+  });
+})();
+</script>
+</body>
+</html>

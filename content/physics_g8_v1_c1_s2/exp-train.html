@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：列车错觉 · 参照物选择</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar {
+    background: var(--brown-bg); color: var(--brown);
+    border: 1px solid rgba(139,105,20,.15); border-radius: 10px;
+    padding: 10px 14px; font-size: 14px; line-height: 1.6;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .stage { position: relative; border-radius: 12px; overflow: hidden; background: #e8e2d8; }
+  .stage canvas { display: block; width: 100%; height: 320px; }
+  @media (max-width: 768px) { .stage canvas { height: 260px; } }
+  .controls { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .ref-pills { display: none; gap: 8px; align-items: center; }
+  .ref-pills.show { display: flex; animation: pillsIn .25s ease; }
+  @keyframes pillsIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .pill {
+    border: none; border-radius: 99px; padding: 8px 16px; font-size: 14px; font-weight: 700;
+    cursor: pointer; background: var(--card2); color: var(--ink); transition: all .25s;
+  }
+  .pill.active { background: var(--cyan-bg); color: var(--cyan); box-shadow: 0 0 0 2px var(--cyan-hi); }
+  .conclusion {
+    margin-top: 12px; padding: 16px; border-radius: 10px; background: #fff;
+    border: 1px solid rgba(0,0,0,.08); font-size: 15px; line-height: 1.7;
+    transform: translateY(20px); opacity: 0; transition: all .25s ease;
+  }
+  .conclusion.show { transform: translateY(0); opacity: 1; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 13px; font-weight: 700; margin-left: 6px; }
+  .badge.still { background: var(--green-bg); color: var(--green); }
+  .badge.move { background: var(--red-bg); color: var(--red); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">列车错觉</h1>
+    <p class="page-subtitle">先体验“自己的列车动了”的错觉，再找出原因。</p>
+  </div>
+  <div class="card">
+    <h2>想想议议：并排列车 <span class="chip cyan">相对性</span></h2>
+    <div class="hint-bar">你坐在停站的列车里，先体验一个错觉，再找原因。</div>
+    <div class="fullscreen-wrap" id="fsTrainWrap">
+      <button class="fullscreen-btn" id="fsTrainBtn" title="全屏">⛶</button>
+      <div class="stage" id="trainStage">
+        <canvas id="trainCv"></canvas>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" id="mainBtn">▶ 坐在车厢里</button>
+      <div class="ref-pills" id="refPills">
+        <span style="font-size:13px;color:var(--ink2);">以谁为参照物？</span>
+        <button class="pill active" data-ref="platform">🚉 站台</button>
+        <button class="pill" data-ref="other">🚄 旁边列车</button>
+      </div>
+    </div>
+    <div class="conclusion" id="conclusion"></div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script>
+(function(){
+  'use strict';
+  var cv = document.getElementById('trainCv');
+  var ctx = cv.getContext('2d');
+  var mainBtn = document.getElementById('mainBtn');
+  var refPills = document.getElementById('refPills');
+  var conclusion = document.getElementById('conclusion');
+  var wrap = document.getElementById('fsTrainWrap');
+
+  var ST = {
+    SIT: 0,
+    FEEL: 1,
+    REVEAL: 2,
+    VERIFY: 3,
+    CONCLUSION: 4
+  };
+  var state = { step: ST.SIT, ref: 'platform', anim: 0, phase: 0 };
+  var info = [];
+  info[ST.SIT] = { text: '▶ 坐在车厢里', next: ST.FEEL, btn: '继续：好像动了？' };
+  info[ST.FEEL] = { text: '继续：好像动了？', next: ST.REVEAL, btn: '继续：驶过车尾' };
+  info[ST.REVEAL] = { text: '继续：驶过车尾', next: ST.VERIFY, btn: '🔍 切换参照物验证' };
+  info[ST.VERIFY] = { text: '📖 结论', next: ST.CONCLUSION, btn: '📖 结论' };
+  info[ST.CONCLUSION] = { text: '📖 结论', next: ST.SIT, btn: '⟲ 再体验一次' };
+
+  function fit(){
+    var info = fitCanvas(cv, window.innerWidth <= 768 ? 260 : 320);
+    ctx = info.ctx;
+  }
+
+  function drawScene(dt){
+    var w = cv.width / (window.devicePixelRatio || 1);
+    var h = cv.height / (window.devicePixelRatio || 1);
+    var t = state.anim;
+    var otherX, platformX;
+    if(state.step === ST.SIT){ otherX = 0; platformX = 0; }
+    else if(state.step === ST.FEEL){ otherX = -t * w * 0.6; platformX = -t * w * 0.05; }
+    else if(state.step === ST.REVEAL || state.step === ST.VERIFY || state.step === ST.CONCLUSION){ otherX = -t * w * 0.6 - w * 0.1; platformX = -t * w * 0.05 - w * 0.02; }
+
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = '#e8e2d8'; ctx.fillRect(0,0,w,h);
+    // platform
+    ctx.save();
+    ctx.translate(platformX % w, 0);
+    ctx.fillStyle = '#d4c5b0'; ctx.fillRect(0, h-80, w*1.2, 80);
+    ctx.fillStyle = '#a89878'; ctx.fillRect(0, h-85, w*1.2, 8);
+    for(var i=0;i<8;i++){ ctx.fillStyle = '#b5a48a'; ctx.fillRect(i*150+30, h-140, 20, 60); }
+    ctx.restore();
+    // other train
+    ctx.save();
+    ctx.translate(otherX, 0);
+    ctx.fillStyle = '#5c8ea3'; ctx.fillRect(w*0.5, h-230, 280, 110);
+    ctx.fillStyle = '#a8d8ea'; for(var j=0;j<4;j++){ ctx.fillRect(w*0.52+j*60, h-220, 40, 45); }
+    ctx.fillStyle = '#3a3a3a'; ctx.beginPath(); ctx.arc(w*0.55, h-120, 20, 0, Math.PI*2); ctx.arc(w*0.55+200, h-120, 20, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    // window frame
+    ctx.strokeStyle = '#8b7355'; ctx.lineWidth = 8; ctx.strokeRect(0,0,w,h);
+  }
+
+  function update(dt){
+    if(state.step === ST.FEEL || state.step === ST.REVEAL){
+      state.anim += dt * 0.00025;
+      if(state.anim > 1) state.anim = 1;
+    }
+  }
+
+  var last = performance.now();
+  var rafId = null;
+  function loop(now){
+    if(state.step === ST.CONCLUSION){ rafId = null; return; }
+    var dt = now - last; last = now;
+    update(dt);
+    drawScene();
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function setStep(next){
+    state.step = next;
+    state.anim = 0;
+    mainBtn.textContent = (state.step === ST.CONCLUSION) ? info[ST.CONCLUSION].btn : info[state.step].text;
+    if(state.step === ST.VERIFY){ refPills.classList.add('show'); }
+    else { refPills.classList.remove('show'); }
+    if(state.step === ST.CONCLUSION){ showConclusion(); }
+    else { conclusion.classList.remove('show'); }
+    if(state.step !== ST.CONCLUSION && !rafId){ rafId = requestAnimationFrame(loop); }
+  }
+  mainBtn.addEventListener('click', function(){
+    var cur = state.step;
+    var next = info[cur].next;
+    if(cur === ST.CONCLUSION) next = ST.SIT;
+    setStep(next);
+  });
+
+  function showConclusion(){
+    var refText = state.ref === 'platform' ? '站台' : '旁边列车';
+    var result = state.ref === 'platform' ? '静止' : '运动';
+    var badgeClass = state.ref === 'platform' ? 'still' : 'move';
+    conclusion.innerHTML = '以【' + refText + '】为参照物，你乘坐的列车：<span class="badge ' + badgeClass + '">' + result + '</span><br><small>真相：自己的列车没动，是旁边列车在后退。</small>';
+    conclusion.classList.add('show');
+  }
+
+  document.querySelectorAll('#refPills .pill').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#refPills .pill').forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      state.ref = btn.dataset.ref;
+      if(state.step === ST.VERIFY){ showConclusion(); }
+    });
+  });
+
+  FullscreenHelper.bind(wrap, document.getElementById('fsTrainBtn'));
+  window.addEventListener('resize', fit);
+  fit();
+  rafId = requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
