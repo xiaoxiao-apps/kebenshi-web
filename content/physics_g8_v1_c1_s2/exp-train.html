@@ -105,11 +105,39 @@
     cvH = info.h;
   }
 
-  function holeFor(step){
-    if(step === ST.VERIFY || step === ST.CONCLUSION){
-      return { x: 0, y: 0, w: cvW, h: cvH };
+  function norm(a, b){
+    var dx = a[0]-b[0], dy = a[1]-b[1];
+    var L = Math.sqrt(dx*dx + dy*dy) || 1;
+    return [dx/L, dy/L];
+  }
+  function holeCorners(p){
+    var s = [[0.30,0.12],[0.96,0.05],[0.96,0.68],[0.30,0.60]];
+    var b = [[0,0],[1,0],[1,1],[0,1]];
+    var pts = [];
+    for (var i = 0; i < 4; i++) {
+      pts.push([
+        (s[i][0] + (b[i][0]-s[i][0]) * p) * cvW,
+        (s[i][1] + (b[i][1]-s[i][1]) * p) * cvH
+      ]);
     }
-    return { x: cvW*0.03, y: cvH*0.10, w: cvW*0.94, h: cvH*0.50 };
+    return { pts: pts, r: 16 * (1 - p) };
+  }
+  function holePath(hole){
+    var pts = hole.pts, r = hole.r;
+    if (r <= 0.5) {
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (var i = 1; i < 4; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    } else {
+      for (var j = 0; j < 4; j++) {
+        var cur = pts[j], prv = pts[(j+3)%4], nxt = pts[(j+1)%4];
+        var v1 = norm(prv, cur), v2 = norm(nxt, cur);
+        var a = [cur[0]+v1[0]*r, cur[1]+v1[1]*r];
+        var b2 = [cur[0]+v2[0]*r, cur[1]+v2[1]*r];
+        if (j === 0) ctx.moveTo(a[0], a[1]); else ctx.lineTo(a[0], a[1]);
+        ctx.quadraticCurveTo(cur[0], cur[1], b2[0], b2[1]);
+      }
+    }
+    ctx.closePath();
   }
 
   function drawScene(){
@@ -118,30 +146,57 @@
     ctx.clearRect(0,0,w,h);
     ctx.fillStyle = '#e8e2d8'; ctx.fillRect(0,0,w,h);
 
-    // platform (fixed world coordinates, never moves)
-    ctx.fillStyle = '#d4c5b0'; ctx.fillRect(0, h*0.72, w, h*0.08);
-    ctx.fillStyle = '#a89878'; ctx.fillRect(0, h*0.715, w, 4);
-    ctx.fillStyle = '#b5a48a';
-    var pillars = [w*0.15, w*0.38, w*0.62, w*0.85];
-    for(var i=0;i<pillars.length;i++){ ctx.fillRect(pillars[i]-8, h*0.45, 16, h*0.27); }
-    ctx.fillStyle = '#8b7355'; ctx.font = '12px sans-serif';
-    ctx.fillText('站台', pillars[0]+22, h*0.52);
-
-    // other train (moves left as it departs)
-    var ox = state.otherX;
-    ctx.fillStyle = '#5c8ea3'; ctx.fillRect(ox, h*0.06, w*3.6, h*0.54);
-    ctx.fillStyle = '#a8d8ea';
-    for(var k=0;k<16;k++){ ctx.fillRect(ox + 40 + k*w*0.22, h*0.14, w*0.13, h*0.20); }
-    if(state.step === ST.PEEK || state.step === ST.VERIFY || state.step === ST.CONCLUSION){
+    // ---- world: dusk side-view layers (platform never moves) ----
+    var sky = ctx.createLinearGradient(0, 0, 0, h*0.42);
+    sky.addColorStop(0, '#f7c877'); sky.addColorStop(1, '#fde8c8');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h*0.42);
+    var sunGlow = ctx.createRadialGradient(w*0.75, h*0.40, 0, w*0.75, h*0.40, w*0.3);
+    sunGlow.addColorStop(0, 'rgba(255,190,90,0.5)'); sunGlow.addColorStop(1, 'rgba(255,190,90,0)');
+    ctx.fillStyle = sunGlow; ctx.fillRect(0, 0, w, h*0.42);
+    ctx.strokeStyle = '#6b5b45'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, h*0.10); ctx.lineTo(w, h*0.10);
+    ctx.moveTo(0, h*0.16); ctx.lineTo(w, h*0.16); ctx.stroke();
+    ctx.fillStyle = '#7a6a55'; ctx.fillRect(0, h*0.30, w, h*0.08);
+    ctx.fillStyle = '#5f5240'; ctx.fillRect(0, h*0.375, w, 3);
+    ctx.fillStyle = '#f5d9a8';
+    for (var lx = 0.06; lx < 1; lx += 0.12) ctx.fillRect(w*lx, h*0.375, w*0.02, 3);
+    ctx.fillStyle = '#8b7355';
+    var pillars = [0.15, 0.38, 0.62, 0.85];
+    for (var i = 0; i < 4; i++) ctx.fillRect(w*pillars[i]-7, h*0.38, 14, h*0.22);
+    ctx.fillRect(w*0.50-1.5, h*0.34, 3, h*0.26);
+    ctx.fillStyle = '#f5d9a8';
+    ctx.beginPath(); ctx.ellipse(w*0.50-8, h*0.34, 7, 4, 0, 0, Math.PI*2);
+    ctx.ellipse(w*0.50+8, h*0.34, 7, 4, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#cbb9a2'; ctx.fillRect(0, h*0.60, w, h*0.14);
+    ctx.fillStyle = '#8b7355'; ctx.fillRect(0, h*0.60, w, h*0.015);
+    ctx.font = '12px sans-serif'; ctx.fillText('站台', w*0.16, h*0.68);
+    ctx.fillStyle = '#9a8a76'; ctx.fillRect(0, h*0.74, w, h*0.26);
+    ctx.fillStyle = '#857663';
+    for (var sx = 0; sx < 1; sx += 0.06) ctx.fillRect(w*sx, h*0.78, w*0.025, h*0.14);
+    ctx.fillStyle = '#4a4038'; ctx.fillRect(0, h*0.80, w, 3); ctx.fillRect(0, h*0.90, w, 3);
+    ctx.fillStyle = '#c9bda9'; ctx.fillRect(0, h*0.80, w, 1); ctx.fillRect(0, h*0.90, w, 1);
+    function drawTrain(ox, alpha) {
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = '#5c8ea3'; ctx.fillRect(ox, h*0.10, w*3.6, h*0.48);
+      ctx.fillStyle = '#476e80'; ctx.fillRect(ox, h*0.10, w*3.6, h*0.02);
+      ctx.fillStyle = '#a8d8ea';
+      for (var k = 0; k < 16; k++) ctx.fillRect(ox + w*0.06 + k*w*0.22, h*0.18, w*0.13, h*0.18);
+      ctx.fillStyle = '#476e80';
+      for (var d = 0; d < 8; d++) ctx.fillRect(ox + w*0.44*d + w*0.20, h*0.18, 2, h*0.30);
+      ctx.fillStyle = '#3f3f3f'; ctx.fillRect(ox, h*0.58, w*3.6, h*0.04);
+      ctx.globalAlpha = 1;
+    }
+    var moving = state.step !== ST.SIT;
+    if (moving) for (var g = 3; g >= 1; g--) drawTrain(state.otherX + g*12, 0.18);
+    drawTrain(state.otherX, 1);
+    if (state.step === ST.PEEK || state.step === ST.VERIFY || state.step === ST.CONCLUSION) {
       ctx.fillStyle = '#3a3a3a'; ctx.beginPath();
-      ctx.arc(ox + w*0.4, h*0.56, 16, 0, Math.PI*2);
-      ctx.arc(ox + w*1.6, h*0.56, 16, 0, Math.PI*2);
+      ctx.arc(state.otherX + w*0.4, h*0.60, 14, 0, Math.PI*2);
+      ctx.arc(state.otherX + w*1.6, h*0.60, 14, 0, Math.PI*2);
       ctx.fill();
     }
 
     // carriage inner wall mask: only the window opening reveals the scene
-    var small = holeFor(ST.SIT);
-    var big = holeFor(ST.VERIFY);
     var p = 0;
     if(state.step === ST.PEEK){
       p = (performance.now() - state.peekStart) / 1200;
@@ -150,21 +205,35 @@
     } else if(state.step === ST.VERIFY || state.step === ST.CONCLUSION){
       p = 1;
     }
-    var hole = {
-      x: small.x + (big.x - small.x) * p,
-      y: small.y + (big.y - small.y) * p,
-      w: small.w + (big.w - small.w) * p,
-      h: small.h + (big.h - small.h) * p
-    };
+    var hole = holeCorners(p);
     ctx.fillStyle = '#efe9dd';
     ctx.beginPath();
     ctx.rect(0, 0, w, h);
-    ctx.rect(hole.x, hole.y, hole.w, hole.h);
+    holePath(hole);
     ctx.fill('evenodd');
-
-    // window frame around the opening
-    ctx.strokeStyle = '#8b7355'; ctx.lineWidth = 8;
-    ctx.strokeRect(hole.x, hole.y, hole.w, hole.h);
+    if (p < 1) {
+      ctx.fillStyle = '#e5d9c4';
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w,0); ctx.lineTo(w,h*0.04); ctx.lineTo(0,h*0.14); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#f5d9a8';
+      ctx.beginPath(); ctx.moveTo(w*0.05,h*0.045); ctx.lineTo(w*0.55,h*0.018); ctx.lineTo(w*0.55,h*0.030); ctx.lineTo(w*0.05,h*0.065); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(w*0.10,h*0.085); ctx.lineTo(w*0.60,h*0.040); ctx.lineTo(w*0.60,h*0.050); ctx.lineTo(w*0.10,h*0.105); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#efe9dd';
+      ctx.beginPath(); ctx.moveTo(0,h*0.60); ctx.lineTo(w*0.30,h*0.60); ctx.lineTo(w*0.96,h*0.68); ctx.lineTo(w,h*0.68); ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#d8cbb4'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0,h*0.78); ctx.lineTo(w,h*0.82); ctx.stroke();
+      ctx.fillStyle = '#c9a276'; ctx.strokeStyle = '#8b7355'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(w*0.01, h*0.50, w*0.13, h*0.50, 10); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(w*0.03, h*0.44, w*0.09, h*0.07, 6); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(w*0.15, h*0.46, w*0.11, h*0.40, 8); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(w*0.165, h*0.41, w*0.08, h*0.06, 5); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); holePath(hole); ctx.strokeStyle = '#6b4f2a'; ctx.lineWidth = 10; ctx.stroke();
+      ctx.beginPath(); holePath(hole); ctx.strokeStyle = '#b09468'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.save(); ctx.beginPath(); holePath(hole); ctx.clip();
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.beginPath(); ctx.moveTo(w*0.45,0); ctx.lineTo(w*0.60,0); ctx.lineTo(w*0.35,h); ctx.lineTo(w*0.20,h); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(w*0.70,0); ctx.lineTo(w*0.78,0); ctx.lineTo(w*0.53,h); ctx.lineTo(w*0.45,h); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
   }
 
   function update(dt){
