@@ -44,7 +44,7 @@
   </div>
 
   <div class="card">
-    <h2>一、两个黑体定义 <span class="chip brown">基础概念</span></h2>
+    <h2>一、两个定义 <span class="chip brown">基础概念</span></h2>
     <div class="def-row">
       <div class="def-card">
         <h4>机械运动 mechanical motion</h4>
@@ -83,7 +83,7 @@
     <h2>四、易错点 <span class="chip brown">易错点</span></h2>
     <div class="myth-tabs">
       <button class="tab-btn active" data-tab="concept">概念</button>
-      <button class="tab-btn" data-tab="poem">诗句</button>
+      <button class="tab-btn" data-tab="poem">课文</button>
       <button class="tab-btn" data-tab="space">航天</button>
     </div>
     <div class="myth-deck" id="mythDeck"></div>
@@ -91,7 +91,26 @@
 
   <div class="card">
     <h2>五、mini 联动 a：扶梯上的人 <span class="chip cyan">实时联动</span></h2>
-    <p>图 1.2-4 甲：人乘坐自动扶梯。</p>
+    <svg viewBox="0 0 320 170" width="100%" role="img" aria-label="人站在向上运行的自动扶梯上" style="display:block;max-width:480px;margin:0 auto;">
+      <line x1="10" y1="150" x2="310" y2="150" stroke="var(--ink)" stroke-width="2.5"/>
+      <text x="268" y="166" font-size="12" fill="var(--ink2)">地面</text>
+      <rect x="196" y="86" width="6" height="64" fill="var(--brown)"/>
+      <rect x="238" y="70" width="6" height="80" fill="var(--brown)"/>
+      <polygon points="30,138 262,50 262,62 30,150" fill="var(--brown-bg)" stroke="var(--brown)" stroke-width="1.5"/>
+      <polyline points="30,138 59,138 59,127 88,127 88,116 117,116 117,105 146,105 146,94 175,94 175,83 204,83 204,72 233,72 233,61 262,61 262,50" fill="none" stroke="var(--brown)" stroke-width="2" stroke-linejoin="round"/>
+      <g stroke="var(--ink)" stroke-width="2" fill="none" stroke-linecap="round">
+        <line x1="160" y1="72" x2="160" y2="84"/>
+        <line x1="160" y1="84" x2="153" y2="94"/>
+        <line x1="160" y1="84" x2="167" y2="94"/>
+        <line x1="160" y1="75" x2="151" y2="82"/>
+        <line x1="160" y1="75" x2="169" y2="82"/>
+      </g>
+      <circle cx="160" cy="65" r="6.5" fill="var(--brown-bg)" stroke="var(--ink)" stroke-width="2"/>
+      <line x1="185" y1="66" x2="228" y2="50" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/>
+      <polygon points="234,48 221,56 219,47" fill="var(--gold)"/>
+      <text x="196" y="40" font-size="12" fill="var(--gold)">向上运行</text>
+    </svg>
+    <p style="color:var(--ink2);font-size:13px;text-align:center;">人站在向上运行的自动扶梯上。以地面为标准，人在动；以扶梯台阶为标准，人没动。</p>
     <div class="mini-quiz">
       <h4>📝 选参照物，看结论</h4>
       <p>以 <select id="escRef">
@@ -116,7 +135,7 @@
   // 易错点 Tab
   var mythData = {
     concept: '<p>❌ 易错：不能选被研究物体自身为参照物，否则没有意义。</p><p>✅ 例如研究小明的运动，不能选小明自己；应选地面、树、车等别的物体。</p>',
-    poem: '<p>❌ 易错：诗句里“山……向船尾跑去”，要分清“谁在动、相对谁”。</p><p>✅ 这里山在“动”，船是参照物——因为山相对于船的位置在向后变化。</p>',
+    poem: '<p>❌ 易错：以为山真的在“跑”。</p><p>题目情境：鲁迅《社戏》里，人物夜晚乘船去看戏，途中写道“淡黑的起伏的连山，仿佛是踊跃的铁的兽脊似的，都远远地向船尾跑去了……”——山峦看起来向后跑向船尾。问：说山“跑”，选的参照物是什么？</p><p>✅ 分析：山相对地面是静止的；这里以船（船上的人）为参照物，山相对船的位置不断向后变化，所以看起来山“向船尾跑去”。答案：船。</p>',
     space: '<p> 易错：空间站对接后，梦天实验舱以天和核心舱为参照物是静止的；但以地面指挥中心为参照物，仍在随空间站高速运动。</p><p>✅ 结论取决于选谁当参照物。</p>'
   };
   var mythDeck = document.getElementById('mythDeck');

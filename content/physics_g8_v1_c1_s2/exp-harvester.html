@@ -50,7 +50,7 @@
   <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
   <div class="page-header">
     <h1 class="page-title">收割机与运稻车</h1>
-    <p class="page-subtitle">图 1.2-3：收割机收稻子，运稻车与它并排同速前进。换个参照物，谁在动？</p>
+    <p class="page-subtitle">收割机收稻子，运稻车与它并排同速前进。换个参照物，谁在动？</p>
   </div>
   <div class="card">
     <h2>相对静止 + 时间轴 <span class="chip brown">运动的相对性</span></h2>
@@ -88,9 +88,9 @@
   'use strict';
   /* ===== 常量与状态 ===== */
   var DW = 640;                    /* 设计宽度（世界单位） */
-  var V = 34;                      /* 两车同速（单位/秒） */
+  var V = 39;                      /* 两车同速（单位/秒），10s 行程 390，恰好横穿画面 */
   var T_TOTAL = 10;                /* 总时长 10s */
-  var HX0 = 210, TX0 = 80;         /* 收割机/运稻车初始位置 */
+  var HX0 = 170, TX0 = 40;         /* 收割机/运稻车初始位置（左缘附近起步） */
   var cv = document.getElementById('fieldCv');
   var ctx = cv.getContext('2d');
   var W = 640, H = 360, k = 1;
@@ -276,7 +276,7 @@
   function camTargetFor(ref, tt){
     if(ref === 'harvester') return hx(tt) - DW / 2;   /* 锁定收割机居中 */
     if(ref === 'truck') return tx(tt) - DW / 2;       /* 锁定运稻车居中 */
-    return V * tt * 0.5;                              /* 地面：镜头半速跟拍，两车都在前进、背景滚动 */
+    return 0;                                         /* 地面：镜头完全固定，背景静止，两车从左向右驶过 */
   }
   var camBlend = null; /* { from, t0 } */
   function ease(x){ return x < 0.5 ? 2*x*x : 1 - Math.pow(-2*x+2,2)/2; }
