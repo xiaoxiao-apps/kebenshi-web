@@ -32,6 +32,7 @@ const SUBJECT_DESC = {'物理': '八至九年级人教版物理互动实验', '�
 const AVAILABLE = {
   'physics_g8_v1_c4_s2': { title: '光的反射', file: 'content/physics_g8_v1_c4_s2/index.html' },
   'physics_g8_v1_c1_s1': { title: '长度和时间的测量', file: 'content/physics_g8_v1_c1_s1/index.html' },
+  'physics_g8_v1_c1_s2': { title: '运动的描述', file: 'content/physics_g8_v1_c1_s2/index.html' },
   'math_fun_chicken_rabbit': { title: '鸡兔同笼', file: 'content/math_fun_chicken_rabbit/index.html' }
 };
 
