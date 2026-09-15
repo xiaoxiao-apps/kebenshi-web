@@ -37,7 +37,8 @@
   .unit-list { list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 2; }
   .unit-list li { padding-left: 0; }
   .gas-btn { width: 80px; margin-top: 10px; user-select: none; -webkit-user-select: none; touch-action: none; }
-  .reset-btn { margin-top: 10px; margin-left: 8px; user-select: none; -webkit-user-select: none; }
+  .speed-set { display: inline-block; margin-top: 10px; margin-left: 8px; font-size: 13px; color: var(--ink2); }
+  .speed-set input { width: 70px; padding: 8px 6px; border: 1px solid rgba(0,0,0,.1); border-radius: 8px; text-align: center; font-weight: 700; color: var(--ink); font-size: 14px; }
   #compareCaption { min-height: 28px; font-size: 14px; font-weight: 600; color: var(--brown); margin-top: 8px; text-align: center; }
 </style>
 </head>
@@ -120,24 +121,20 @@
               <stop offset="85%" stop-color="#e8e4dd"/>
               <stop offset="100%" stop-color="#cfc9bf"/>
             </radialGradient>
-            <linearGradient id="needleGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--red)"/>
-              <stop offset="100%" stop-color="#8a1f16"/>
-            </linearGradient>
           </defs>
           <circle cx="110" cy="110" r="100" fill="url(#speedoBezel)" stroke="#b5b0a6" stroke-width="2"/>
           <circle cx="110" cy="110" r="90" fill="#fff"/>
           <g id="speedoTicks"></g>
           <g id="speedoNeedleGroup" transform="rotate(-40,110,110)">
-            <line x1="110" y1="110" x2="110" y2="36" stroke="url(#needleGrad)" stroke-width="4" stroke-linecap="round"/>
-            <circle cx="110" cy="110" r="6" fill="#4a4a4a"/>
+            <line x1="110" y1="110" x2="110" y2="40" stroke="#e03131" stroke-width="4.5" stroke-linecap="round"/>
+            <circle cx="110" cy="110" r="6.5" fill="#4a4a4a"/>
           </g>
           <circle cx="110" cy="110" r="94" fill="none" stroke="#d6d1c7" stroke-width="1"/>
-          <text x="110" y="160" text-anchor="middle" font-size="13" fill="var(--ink2)">km/h</text>
-          <text id="speedoValue" x="110" y="138" text-anchor="middle" font-size="32" font-weight="800" fill="var(--ink)">80</text>
+          <text x="110" y="160" text-anchor="middle" font-size="13" fill="#5a5a5a">km/h</text>
+          <text id="speedoValue" x="110" y="138" text-anchor="middle" font-size="32" font-weight="800" fill="#2c2c2c">80</text>
         </svg>
         <button class="btn btn-secondary gas-btn" id="gasBtn">油门</button>
-        <button class="btn btn-secondary reset-btn" id="speedoReset">复位 80</button>
+        <span class="speed-set"><input type="number" id="speedInput" min="0" max="240" step="10" value="80" inputmode="numeric"> km/h</span>
       </div>
     </div>
   </div>
@@ -241,6 +238,7 @@
     var progress = 0; // 0..1
     var t0 = 0;
     var DURATION = 2200;
+    var DURATION_DIST = 4200; // distance 模式更长时长，突出蓝车慢
     function drawCar(x, y, color, label){
       ctx.save();
       ctx.translate(x, y);
@@ -276,7 +274,8 @@
       ctx.strokeStyle = '#ddd'; ctx.beginPath(); ctx.moveTo(0, h*0.72); ctx.lineTo(w, h*0.72); ctx.stroke();
       if(running && now){
         var dt = now - t0;
-        progress = Math.min(dt / DURATION, 1);
+        var dur = (mode === 'distance') ? DURATION_DIST : DURATION;
+        progress = Math.min(dt / dur, 1);
         if(progress >= 1) running = false;
       }
       var p = progress;
@@ -300,15 +299,16 @@
         var lane = h*0.45;
         var startX = 45, endX = w - 45;
         // start / finish markers
-        ctx.strokeStyle = 'var(--ink3)'; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
+        ctx.strokeStyle = '#8a8a8a'; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
         ctx.beginPath(); ctx.moveTo(startX, 10); ctx.lineTo(startX, h*0.7); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(endX, 10); ctx.lineTo(endX, h*0.7); ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle = '#5a5a5a'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText('起点', startX, h*0.78); ctx.fillText('终点', endX, h*0.78);
         // red car leaves immediately, blue leaves after red finishes
-        var redP = Math.min(p * 2, 1);
-        var blueStartP = 0.55;
+        // 红车 p=0.30 到达（1260ms）；蓝车 p=0.34 出发、p=1.0 到达（2772ms 同路程）→ 蓝车约为红车 45% 速度
+        var redP = Math.min(p / 0.30, 1);
+        var blueStartP = 0.34;
         var blueP = p <= blueStartP ? 0 : Math.min((p - blueStartP) / (1 - blueStartP), 1);
         var redX = startX + redP * (endX - startX);
         var blueX = startX + blueP * (endX - startX);
@@ -326,7 +326,7 @@
         }
         if(p < 1){
           ctx.fillStyle = '#2c2c2c'; ctx.font = '13px sans-serif'; ctx.textAlign = 'left';
-          ctx.fillText('同路程：红车先到达，蓝车后到达，比较时间', 12, 22);
+          ctx.fillText('同路程：红车先到（t₁），蓝车后到（t₂），蓝车更慢', 12, 22);
           cap.textContent = '';
         } else {
           cap.textContent = '相同路程，t₁ < t₂，红车快';
@@ -345,28 +345,30 @@
   // E2 speedometer ticks and converter + gas pedal
   (function(){
     var g = document.getElementById('speedoTicks');
-    if(g) for(var i=0;i<=60;i++){
-      var ang = -120 + i * 4;
-      var rad = ang * Math.PI / 180;
-      var isMajor = i % 5 === 0;
-      var r1 = 90, r2 = isMajor ? 75 : 83;
-      var x1 = 110 + r1 * Math.cos(rad), y1 = 110 + r1 * Math.sin(rad);
-      var x2 = 110 + r2 * Math.cos(rad), y2 = 110 + r2 * Math.sin(rad);
+    // 刻度与指针统一定义：θ = -120 + (v/240)*240，x = 110 + r·sin(θ)，y = 110 - r·cos(θ)
+    // v=0 → 左下，v=120 → 正上，v=240 → 右下，左右对称，缺口朝下
+    if(g) for(var i=0;i<=48;i++){
+      var v = i * 5;
+      var theta = (-120 + (v / 240) * 240) * Math.PI / 180;
+      var isMajor = i % 4 === 0;
+      var r1 = 90, r2 = isMajor ? 74 : 83;
+      var x1 = 110 + r1 * Math.sin(theta), y1 = 110 - r1 * Math.cos(theta);
+      var x2 = 110 + r2 * Math.sin(theta), y2 = 110 - r2 * Math.cos(theta);
       var line = document.createElementNS('http://www.w3.org/2000/svg','line');
       line.setAttribute('x1', x1); line.setAttribute('y1', y1);
       line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-      line.setAttribute('stroke', 'var(--ink3)'); line.setAttribute('stroke-width', isMajor?'2':'1');
+      line.setAttribute('stroke', '#8a8a8a'); line.setAttribute('stroke-width', isMajor?'2':'1');
       g.appendChild(line);
       if(isMajor){
-        var labelR = 63;
-        var lx = 110 + labelR * Math.cos(rad), ly = 110 + labelR * Math.sin(rad);
+        var labelR = 64;
+        var lx = 110 + labelR * Math.sin(theta), ly = 110 - labelR * Math.cos(theta);
         var text = document.createElementNS('http://www.w3.org/2000/svg','text');
         text.setAttribute('x', lx); text.setAttribute('y', ly);
         text.setAttribute('text-anchor', 'middle');
         text.setAttribute('dominant-baseline', 'middle');
-        text.setAttribute('font-size', '10');
-        text.setAttribute('fill', 'var(--ink2)');
-        text.textContent = (i / 5) * 20;
+        text.setAttribute('font-size', '10.5');
+        text.setAttribute('fill', '#5a5a5a');
+        text.textContent = v;
         g.appendChild(text);
       }
     }
@@ -387,22 +389,28 @@
       var speed = 80;
       var gas = false;
       var armed = false;    // 踩過油門後才允許回落；初始静止保持 80
-      var returning = false; // 復位動畫中
+      var target = null;    // 手填目标速度，定时补间（确定 0.5s 内到位）
+      var tweenFrom = 80, tweenStart = 0;
+      var TWEEN_MS = 500;
       var lastT = performance.now();
       function angleFor(v){ return -120 + (v / 240) * 240; }
       function renderSpeed(now){
         var dt = Math.min((now - lastT) / 1000, 0.1);
         lastT = now;
-        if(gas){ speed += 70 * dt; returning = false; }
-        else if(returning){ speed += (80 - speed) * Math.min(1, dt * 6); if(Math.abs(speed - 80) < 0.5){ speed = 80; returning = false; armed = false; } }
-        else if(armed){ speed -= 80 * dt; }
+        if(gas){ speed += 70 * dt; target = null; }
+        else if(target !== null){
+          var k = Math.min(1, (now - tweenStart) / TWEEN_MS);
+          speed = tweenFrom + (target - tweenFrom) * k;
+          if(k >= 1){ speed = target; target = null; armed = false; }
+        }
+        else if(armed){ speed -= 80 * dt; if(speed <= 0){ speed = 0; armed = false; } }
         if(speed > 240) speed = 240;
         if(speed < 0) speed = 0;
         needle.setAttribute('transform', 'rotate(' + angleFor(speed) + ',110,110)');
         valueEl.textContent = Math.round(speed);
         requestAnimationFrame(renderSpeed);
       }
-      function startGas(e){ if(e) e.preventDefault(); gas = true; armed = true; returning = false; }
+      function startGas(e){ if(e) e.preventDefault(); gas = true; armed = true; target = null; }
       function stopGas(e){ if(e) e.preventDefault(); gas = false; }
       gasBtn.addEventListener('pointerdown', startGas);
       gasBtn.addEventListener('pointerup', stopGas);
@@ -412,8 +420,17 @@
       gasBtn.addEventListener('mousedown', startGas);
       gasBtn.addEventListener('mouseup', stopGas);
       gasBtn.addEventListener('mouseleave', stopGas);
-      var resetBtn = document.getElementById('speedoReset');
-      if(resetBtn) resetBtn.addEventListener('click', function(){ gas = false; returning = true; });
+      var speedInput = document.getElementById('speedInput');
+      if(speedInput){
+        speedInput.addEventListener('input', function(){
+          var v = parseFloat(speedInput.value);
+          if(isNaN(v)) return; // 非法输入忽略，保持当前值
+          v = Math.max(0, Math.min(240, v));
+          gas = false; armed = false; // 改输入即取消油门状态，以输入框为准
+          tweenFrom = speed; tweenStart = performance.now();
+          target = v;
+        });
+      }
       requestAnimationFrame(renderSpeed);
     })();
   })();
@@ -488,6 +505,11 @@
         }
       }
     }
+    function clearTable(){
+      var tbl = document.getElementById('segTable');
+      if(!tbl) return;
+      tbl.querySelectorAll('.segA, .segB').forEach(function(c){ c.textContent = ''; });
+    }
     function render(now){
       if(playing && now){
         var elapsed = (now - tStart) / 1000;
@@ -508,8 +530,13 @@
     var e3Btn = document.querySelector('#explainTabs .tab-btn[data-tab="e3"]');
     if(e3Btn) e3Btn.addEventListener('click', function(){ setTimeout(refit, 0); });
     window.addEventListener('resize', refit);
-    document.getElementById('playCars').addEventListener('click', function(){ playing = true; tStart = performance.now(); tAnim = 0; render(); });
-    document.getElementById('replayCars').addEventListener('click', function(){ playing = false; tAnim = 0; render(); });
+    document.getElementById('playCars').addEventListener('click', function(){ playing = true; cur = 0; tStart = performance.now(); tAnim = 0; render(); });
+    document.getElementById('replayCars').addEventListener('click', function(){
+      playing = false; cur = 0; tAnim = 0;
+      clearTable();
+      document.getElementById('carHint').textContent = '点击「播放」观察两车 0 ~ 40 s 的位置变化。';
+      render();
+    });
     document.getElementById('stepCars').addEventListener('click', function(){
       playing = false;
       cur = Math.min(cur + 1, times.length - 1);
