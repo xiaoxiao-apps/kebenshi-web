@@ -21,7 +21,7 @@
   .formula { text-align: center; font-size: 28px; font-weight: 700; color: var(--green); margin: 18px 0; letter-spacing: 1px; }
   .convert-line { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; margin: 14px 0; font-size: 14px; overflow-x: auto; }
   .convert-line input { width: 70px; flex: 0 0 auto; padding: 8px 6px; border: 1px solid rgba(0,0,0,.1); border-radius: 8px; text-align: center; font-weight: 700; color: var(--ink); }
-  .speedo { position: relative; width: 220px; height: 220px; margin: 14px auto; }
+  .speedo { position: relative; width: 260px; height: 260px; margin: 14px auto; text-align: center; }
   .speedo svg { width: 100%; height: 100%; }
   .canvas-wrap { background: var(--card2); border-radius: 12px; padding: 14px; margin: 12px 0; }
   .canvas-wrap canvas { display: block; width: 100%; height: 220px; border-radius: 8px; background: #fff; }
@@ -31,6 +31,14 @@
   .checklist { list-style: none; padding: 0; margin: 12px 0; }
   .checklist li { padding: 8px 0 8px 28px; position: relative; }
   .checklist li::before { content: ""; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+  .extra-box { background: var(--cyan-bg) !important; border-left: 4px solid var(--cyan); }
+  .extra-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+  .chip.green { background: var(--green-bg); color: var(--green); }
+  .unit-list { list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 2; }
+  .unit-list li { padding-left: 0; }
+  .gas-btn { width: 80px; margin-top: 10px; user-select: none; -webkit-user-select: none; touch-action: none; }
+  .reset-btn { margin-top: 10px; margin-left: 8px; user-select: none; -webkit-user-select: none; }
+  #compareCaption { min-height: 28px; font-size: 14px; font-weight: 600; color: var(--brown); margin-top: 8px; text-align: center; }
 </style>
 </head>
 <body>
@@ -63,6 +71,7 @@
           <button class="btn btn-secondary" id="sameTimeBtn">同时间比路程</button>
           <button class="btn btn-secondary" id="sameDistBtn">同路程比时间</button>
         </div>
+        <div id="compareCaption"></div>
       </div>
       <div class="question-box">
         <h4>💬 想想议议 1</h4>
@@ -85,6 +94,15 @@
         <p style="margin-top:8px;"><strong>换算关系</strong></p>
         <p>1 m/s = 3.6 km/h</p>
       </div>
+      <div class="key-point extra-box">
+        <p class="extra-title"><span class="chip green">拓展</span><strong>其他常见速度单位</strong></p>
+        <ul class="unit-list">
+          <li><b>mph</b>：英里每小时；1 mph ≈ 1.609 km/h</li>
+          <li><b>kn（节）</b>：海里每小时，1 kn = 1.852 km/h；常用于航海、航空</li>
+          <li><b>Ma（马赫）</b>：声速的倍数，1 Ma ≈ 340 m/s</li>
+          <li><b>cm/s</b>：厘米每秒；1 cm/s = 0.01 m/s</li>
+        </ul>
+      </div>
       <div class="convert-line">
         <span><input type="number" id="msInput" value="1" step="0.1" min="0"> m/s</span>
         <span>=</span>
@@ -95,19 +113,40 @@
         <p>速度表可以直接显示汽车的行驶速度。观察指针位置，读数为：</p>
       </div>
       <div class="speedo">
-        <svg viewBox="0 0 220 220">
-          <circle cx="110" cy="110" r="95" fill="none" stroke="var(--card2)" stroke-width="18"/>
+        <svg viewBox="0 0 220 220" id="speedoSvg">
+          <defs>
+            <radialGradient id="speedoBezel" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="85%" stop-color="#e8e4dd"/>
+              <stop offset="100%" stop-color="#cfc9bf"/>
+            </radialGradient>
+            <linearGradient id="needleGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--red)"/>
+              <stop offset="100%" stop-color="#8a1f16"/>
+            </linearGradient>
+          </defs>
+          <circle cx="110" cy="110" r="100" fill="url(#speedoBezel)" stroke="#b5b0a6" stroke-width="2"/>
+          <circle cx="110" cy="110" r="90" fill="#fff"/>
           <g id="speedoTicks"></g>
-          <g transform="rotate(120,110,110)">
-            <line x1="110" y1="110" x2="110" y2="35" stroke="var(--red)" stroke-width="4" stroke-linecap="round"/>
-            <circle cx="110" cy="110" r="5" fill="var(--ink)"/>
+          <g id="speedoNeedleGroup" transform="rotate(-40,110,110)">
+            <line x1="110" y1="110" x2="110" y2="36" stroke="url(#needleGrad)" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="110" cy="110" r="6" fill="#4a4a4a"/>
           </g>
-          <text x="110" y="160" text-anchor="middle" font-size="14" fill="var(--ink2)">km/h</text>
-          <text x="110" y="130" text-anchor="middle" font-size="26" font-weight="700" fill="var(--green)">80</text>
+          <circle cx="110" cy="110" r="94" fill="none" stroke="#d6d1c7" stroke-width="1"/>
+          <text x="110" y="160" text-anchor="middle" font-size="13" fill="var(--ink2)">km/h</text>
+          <text id="speedoValue" x="110" y="138" text-anchor="middle" font-size="32" font-weight="800" fill="var(--ink)">80</text>
         </svg>
+        <button class="btn btn-secondary gas-btn" id="gasBtn">油门</button>
+        <button class="btn btn-secondary reset-btn" id="speedoReset">复位 80</button>
       </div>
     </div>
   </div>
+
+  <!-- E1 compare info caption -->
+  <style>
+    #compareCaption { min-height: 28px; font-size: 14px; font-weight: 600; color: var(--brown); margin-top: 8px; text-align: center; }
+  </style>
+
 
   <!-- E3 匀速直线运动 -->
   <div class="tab-panel" id="panel-e3">
@@ -129,6 +168,15 @@
           <button class="btn btn-secondary" id="stepCars">+ 步进</button>
         </div>
         <p class="hint" id="carHint">点击「播放」观察两车 0 ~ 40 s 的位置变化。</p>
+        <table id="segTable" style="width:100%;margin-top:12px;border-collapse:collapse;font-size:13px;text-align:center;">
+          <thead><tr><th style="border:1px solid rgba(0,0,0,.08);padding:6px;">区间</th><th style="border:1px solid rgba(0,0,0,.08);padding:6px;">甲车 m</th><th style="border:1px solid rgba(0,0,0,.08);padding:6px;">乙车 m</th></tr></thead>
+          <tbody>
+            <tr><td style="border:1px solid rgba(0,0,0,.08);padding:6px;">0~10 s</td><td class="segA" data-idx="0" style="border:1px solid rgba(0,0,0,.08);padding:6px;"></td><td class="segB" data-idx="0" style="border:1px solid rgba(0,0,0,.08);padding:6px;"></td></tr>
+            <tr><td style="border:1px solid rgba(0,0,0,.08);padding:6px;">10~20 s</td><td class="segA" data-idx="1" style="border:1px solid rgba(0,0,0,.08);padding:6px;"></td><td class="segB" data-idx="1" style="border:1px solid rgba(0,0,0,.08);padding:6px;"></td></tr>
+            <tr><td style="border:1px solid rgba(0,0,0,.08);padding:6px;">20~30 s</td><td class="segA" data-idx="2" style="border:1px solid rgba(0,0,0,.08);padding:6px;"></td><td class="segB" data-idx="2" style="border:1px solid rgba(0,0,0,.08);padding:6px;"></td></tr>
+            <tr><td style="border:1px solid rgba(0,0,0,.08);padding:6px;">30~40 s</td><td class="segA" data-idx="3" style="border:1px solid rgba(0,0,0,.08);padding:6px;"></td><td class="segB" data-idx="3" style="border:1px solid rgba(0,0,0,.08);padding:6px;"></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -141,10 +189,10 @@
       <div class="card" style="background:var(--card2);margin-top:12px;">
         <h2 style="font-size:15px;">例题 <span class="chip brown">分步揭晓</span></h2>
         <p>在第 32 届夏季奥运会田径男子 100 m 半决赛中，我国优秀短跑运动员以 9.83 s 的成绩打破了亚洲纪录。他在这次比赛中的平均速度是多少？</p>
-        <div class="example-step show" id="stepGiven">已知：s = 100 m，t = 9.83 s</div>
+        <div class="example-step show" id="stepGiven">解：路程 s = 100 m，时间 t = 9.83 s</div>
         <div class="example-step" id="stepFormula">公式：v = s / t</div>
-        <div class="example-step" id="stepSubstitute">代入：v = 100 m / 9.83 s</div>
-        <div class="example-step" id="stepResult">结果：v ≈ 10.2 m/s</div>
+        <div class="example-step" id="stepSubstitute">代入：v = s/t = 100 m ÷ 9.83 s = 10.2 m/s</div>
+        <div class="example-step" id="stepResult">即运动员在这次比赛中的平均速度是 10.2 m/s。</div>
         <div class="anim-btns">
           <button class="btn btn-primary" id="nextStep">下一步</button>
           <button class="btn btn-secondary" id="resetSteps">重置</button>
@@ -184,12 +232,16 @@
   // E1 compare animation
   (function(){
     var cv = document.getElementById('compareCanvas');
+    var cap = document.getElementById('compareCaption');
     if(!cv) return;
-    var info = fitCanvas(cv, 160);
+    var info = fitCanvas(cv, 170);
     var ctx = info.ctx, w = info.w, h = info.h;
     var mode = 'time'; // 'time' or 'distance'
-    var t = 0;
-    function drawCar(x, y, color){
+    var running = false;
+    var progress = 0; // 0..1
+    var t0 = 0;
+    var DURATION = 2200;
+    function drawCar(x, y, color, label){
       ctx.save();
       ctx.translate(x, y);
       ctx.fillStyle = color;
@@ -198,47 +250,125 @@
       ctx.fillStyle = '#333';
       ctx.beginPath(); ctx.arc(-10, 10, 4, 0, Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(10, 10, 4, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(label, 0, 3);
       ctx.restore();
     }
-    function render(){
-      ctx.clearRect(0,0,w,h);
-      ctx.fillStyle = '#f8f8f8'; ctx.fillRect(0, h*0.75, w, h*0.25);
-      ctx.strokeStyle = '#ddd'; ctx.beginPath(); ctx.moveTo(0, h*0.75); ctx.lineTo(w, h*0.75); ctx.stroke();
-      if(mode === 'time'){
-        var d = (t % 200) / 200;
-        drawCar(40 + d * (w - 80), h*0.65, '#e74c3c');
-        drawCar(40 + d * (w - 150), h*0.65, '#2980b9');
-        ctx.fillStyle = 'var(--ink)'; ctx.font = '13px sans-serif'; ctx.fillText('同时间：谁跑在前面，谁的路程长，谁快', 12, 24);
-      } else {
-        var p = (t % 240) / 240;
-        var done = p > 0.95;
-        drawCar(Math.min(40 + p * (w - 80), w - 40), h*0.65, '#e74c3c');
-        if(done) drawCar(w - 40, h*0.42, '#2980b9');
-        else drawCar(40, h*0.42, '#2980b9');
-        ctx.fillStyle = 'var(--ink)'; ctx.font = '13px sans-serif'; ctx.fillText('同路程：谁先到达终点，谁用时短，谁快', 12, 24);
+    function drawTrack(y, from, to, color, label, value, finished){
+      ctx.strokeStyle = color; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(from, y); ctx.lineTo(to, y); ctx.stroke();
+      if(finished && to > from + 4){
+        ctx.fillStyle = color; ctx.globalAlpha = 0.15;
+        ctx.fillRect(from, y - 6, to - from, 12); ctx.globalAlpha = 1;
+        ctx.fillStyle = color; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(value ? label + ' = ' + value : label, (from + to) / 2, y + 18);
       }
-      t++;
-      requestAnimationFrame(render);
     }
+    function drawArrow(x, y1, y2, color){
+      ctx.strokeStyle = color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x, y2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, y2 - 4); ctx.lineTo(x - 3, y2 + 2); ctx.lineTo(x + 3, y2 + 2); ctx.fill();
+    }
+    function render(now){
+      ctx.clearRect(0,0,w,h);
+      // road
+      ctx.fillStyle = '#f8f8f8'; ctx.fillRect(0, h*0.72, w, h*0.28);
+      ctx.strokeStyle = '#ddd'; ctx.beginPath(); ctx.moveTo(0, h*0.72); ctx.lineTo(w, h*0.72); ctx.stroke();
+      if(running && now){
+        var dt = now - t0;
+        progress = Math.min(dt / DURATION, 1);
+        if(progress >= 1) running = false;
+      }
+      var p = progress;
+      if(mode === 'time'){
+        var lane1 = h*0.35, lane2 = h*0.55;
+        var startX = 45, endX = w - 45;
+        var redX = startX + p * (endX - startX);
+        var blueX = startX + p * (endX - startX) * 0.62;
+        drawTrack(lane1 + 14, startX, redX, '#e74c3c', 'S₁', Math.round(p * 100) + ' m', p >= 1);
+        drawTrack(lane2 + 14, startX, blueX, '#2980b9', 'S₂', Math.round(p * 62) + ' m', p >= 1);
+        drawCar(redX, lane1, '#e74c3c', '红');
+        drawCar(blueX, lane2, '#2980b9', '蓝');
+        if(p < 1){
+          ctx.fillStyle = '#2c2c2c'; ctx.font = '13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('同时间：两车同时出发，观察谁的路程长', 12, 22);
+          cap.textContent = '';
+        } else {
+          cap.textContent = '相同时间，S₁ > S₂，红车快';
+        }
+      } else {
+        var lane = h*0.45;
+        var startX = 45, endX = w - 45;
+        // start / finish markers
+        ctx.strokeStyle = 'var(--ink3)'; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
+        ctx.beginPath(); ctx.moveTo(startX, 10); ctx.lineTo(startX, h*0.7); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(endX, 10); ctx.lineTo(endX, h*0.7); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#5a5a5a'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('起点', startX, h*0.78); ctx.fillText('终点', endX, h*0.78);
+        // red car leaves immediately, blue leaves after red finishes
+        var redP = Math.min(p * 2, 1);
+        var blueStartP = 0.55;
+        var blueP = p <= blueStartP ? 0 : Math.min((p - blueStartP) / (1 - blueStartP), 1);
+        var redX = startX + redP * (endX - startX);
+        var blueX = startX + blueP * (endX - startX);
+        drawTrack(lane + 14, startX, redX, '#e74c3c', 'S', '', redP >= 1);
+        drawTrack(lane + 34, startX, blueX, '#2980b9', 'S', '', blueP >= 1);
+        drawCar(redX, lane, '#e74c3c', '红');
+        drawCar(blueX, lane + 20, '#2980b9', '蓝');
+        if(redP >= 1){
+          ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('t₁', redX - 12, lane - 18);
+        }
+        if(blueP >= 1){
+          ctx.fillStyle = '#2980b9'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('t₂', blueX - 12, lane + 22);
+        }
+        if(p < 1){
+          ctx.fillStyle = '#2c2c2c'; ctx.font = '13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('同路程：红车先到达，蓝车后到达，比较时间', 12, 22);
+          cap.textContent = '';
+        } else {
+          cap.textContent = '相同路程，t₁ < t₂，红车快';
+        }
+      }
+      if(running) requestAnimationFrame(render);
+    }
+    function start(modeName){ mode = modeName; running = true; progress = 0; t0 = performance.now(); render(); }
     render();
-    document.getElementById('sameTimeBtn').addEventListener('click', function(){ mode = 'time'; t = 0; });
-    document.getElementById('sameDistBtn').addEventListener('click', function(){ mode = 'distance'; t = 0; });
+    document.getElementById('sameTimeBtn').addEventListener('click', function(){ start('time'); });
+    document.getElementById('sameDistBtn').addEventListener('click', function(){ start('distance'); });
+    // default play
+    start('time');
   })();
 
-  // E2 speedometer ticks and converter
+  // E2 speedometer ticks and converter + gas pedal
   (function(){
     var g = document.getElementById('speedoTicks');
-    if(g) for(var i=0;i<=12;i++){
-      var ang = -120 + i * 20;
+    if(g) for(var i=0;i<=60;i++){
+      var ang = -120 + i * 4;
       var rad = ang * Math.PI / 180;
-      var r1 = 95, r2 = i % 2 === 0 ? 79 : 84;
+      var isMajor = i % 5 === 0;
+      var r1 = 90, r2 = isMajor ? 75 : 83;
       var x1 = 110 + r1 * Math.cos(rad), y1 = 110 + r1 * Math.sin(rad);
       var x2 = 110 + r2 * Math.cos(rad), y2 = 110 + r2 * Math.sin(rad);
       var line = document.createElementNS('http://www.w3.org/2000/svg','line');
       line.setAttribute('x1', x1); line.setAttribute('y1', y1);
       line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-      line.setAttribute('stroke', 'var(--ink3)'); line.setAttribute('stroke-width', i%2===0?'2':'1');
+      line.setAttribute('stroke', 'var(--ink3)'); line.setAttribute('stroke-width', isMajor?'2':'1');
       g.appendChild(line);
+      if(isMajor){
+        var labelR = 63;
+        var lx = 110 + labelR * Math.cos(rad), ly = 110 + labelR * Math.sin(rad);
+        var text = document.createElementNS('http://www.w3.org/2000/svg','text');
+        text.setAttribute('x', lx); text.setAttribute('y', ly);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('font-size', '10');
+        text.setAttribute('fill', 'var(--ink2)');
+        text.textContent = (i / 5) * 20;
+        g.appendChild(text);
+      }
     }
     var msInput = document.getElementById('msInput');
     var kmhOutput = document.getElementById('kmhOutput');
@@ -248,9 +378,47 @@
         kmhOutput.textContent = isNaN(v) ? '—' : (v * 3.6).toFixed(2);
       });
     }
+    // Speedometer needle animation with gas button
+    (function(){
+      var needle = document.getElementById('speedoNeedleGroup');
+      var valueEl = document.getElementById('speedoValue');
+      var gasBtn = document.getElementById('gasBtn');
+      if(!needle || !gasBtn || !valueEl) return;
+      var speed = 80;
+      var gas = false;
+      var armed = false;    // 踩過油門後才允許回落；初始静止保持 80
+      var returning = false; // 復位動畫中
+      var lastT = performance.now();
+      function angleFor(v){ return -120 + (v / 240) * 240; }
+      function renderSpeed(now){
+        var dt = Math.min((now - lastT) / 1000, 0.1);
+        lastT = now;
+        if(gas){ speed += 70 * dt; returning = false; }
+        else if(returning){ speed += (80 - speed) * Math.min(1, dt * 6); if(Math.abs(speed - 80) < 0.5){ speed = 80; returning = false; armed = false; } }
+        else if(armed){ speed -= 80 * dt; }
+        if(speed > 240) speed = 240;
+        if(speed < 0) speed = 0;
+        needle.setAttribute('transform', 'rotate(' + angleFor(speed) + ',110,110)');
+        valueEl.textContent = Math.round(speed);
+        requestAnimationFrame(renderSpeed);
+      }
+      function startGas(e){ if(e) e.preventDefault(); gas = true; armed = true; returning = false; }
+      function stopGas(e){ if(e) e.preventDefault(); gas = false; }
+      gasBtn.addEventListener('pointerdown', startGas);
+      gasBtn.addEventListener('pointerup', stopGas);
+      gasBtn.addEventListener('pointerleave', stopGas);
+      gasBtn.addEventListener('touchstart', startGas, {passive: false});
+      gasBtn.addEventListener('touchend', stopGas);
+      gasBtn.addEventListener('mousedown', startGas);
+      gasBtn.addEventListener('mouseup', stopGas);
+      gasBtn.addEventListener('mouseleave', stopGas);
+      var resetBtn = document.getElementById('speedoReset');
+      if(resetBtn) resetBtn.addEventListener('click', function(){ gas = false; returning = true; });
+      requestAnimationFrame(renderSpeed);
+    })();
   })();
 
-  // E3 two-car animation
+  // E3 two-car animation (continuous interpolation)
   (function(){
     var cv = document.getElementById('twoCarCanvas');
     if(!cv) return;
@@ -261,14 +429,28 @@
       ctx = info.ctx; w = info.w; h = info.h;
       if(!playing) render();
     }
-    var frames = 5;
+    var times = [0, 10, 20, 30, 40];
     var carA = [0, 150, 300, 450, 600];
     var carB = [0, 100, 235, 400, 600];
-    var times = [0, 10, 20, 30, 40];
-    var cur = 0;
+    var segDistA = [150, 150, 150, 150];
+    var segDistB = [100, 135, 165, 200];
+    var cur = 0; // step index for discrete stepping
     var playing = false;
-    var t0 = null;
+    var tStart = 0; // ms when play started
+    var tAnim = 0;  // current animation time in seconds (0..40)
+    var SEG_DUR = 8; // seconds of animation for full 40 s
     function xOf(s){ return 50 + (s / 600) * (w - 100); }
+    function lerp(a, b, t){ return a + (b - a) * t; }
+    function posA(t){ return (t / 40) * 600; }
+    function posB(t){
+      // piecewise linear through printed points
+      if(t <= times[0]) return carB[0];
+      if(t >= times[times.length - 1]) return carB[carB.length - 1];
+      var i = 0;
+      while(i < times.length - 1 && times[i + 1] < t) i++;
+      var r = (t - times[i]) / (times[i + 1] - times[i]);
+      return lerp(carB[i], carB[i + 1], r);
+    }
     function drawCarAt(s, y, color, label){
       var x = xOf(s);
       ctx.fillStyle = color;
@@ -277,7 +459,7 @@
       ctx.fillStyle = '#333';
       ctx.beginPath(); ctx.arc(x - 9, y + 9, 3, 0, Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(x + 9, y + 9, 3, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = 'var(--ink2)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#5a5a5a'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(label, x, y - 16);
     }
     function drawRuler(){
@@ -285,49 +467,83 @@
       for(var i=0;i<=600;i+=100){
         var x = xOf(i);
         ctx.beginPath(); ctx.moveTo(x, h*0.18); ctx.lineTo(x, h*0.88); ctx.stroke();
-        ctx.fillStyle = 'var(--ink3)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = '#8a8a8a'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(i + ' m', x, h*0.95);
       }
     }
-    function render(){
+    function fillTable(){
+      // fill segments progressively as animation time passes each 10 s mark
+      var tbl = document.getElementById('segTable');
+      if(!tbl) return;
+      for(var i=0;i<4;i++){
+        var aCell = tbl.querySelector('.segA[data-idx="' + i + '"]');
+        var bCell = tbl.querySelector('.segB[data-idx="' + i + '"]');
+        if(!aCell || !bCell) continue;
+        if(tAnim >= (i + 1) * 10){
+          aCell.textContent = segDistA[i];
+          bCell.textContent = segDistB[i];
+        } else {
+          aCell.textContent = '';
+          bCell.textContent = '';
+        }
+      }
+    }
+    function render(now){
+      if(playing && now){
+        var elapsed = (now - tStart) / 1000;
+        tAnim = Math.min(elapsed, SEG_DUR) * (40 / SEG_DUR);
+        if(tAnim >= 40){ playing = false; tAnim = 40; document.getElementById('carHint').textContent = '动画结束。观察：甲车相同时间内路程相等，是匀速直线运动；乙车路程越来越长，是变速直线运动。'; }
+      }
+      var a = posA(tAnim), b = posB(tAnim);
       ctx.clearRect(0,0,w,h);
       drawRuler();
-      var idx = Math.min(cur, frames - 1);
-      var a = carA[idx], b = carB[idx];
       drawCarAt(a, h*0.32, '#e74c3c', '甲');
       drawCarAt(b, h*0.62, '#2980b9', '乙');
-      ctx.fillStyle = 'var(--ink)'; ctx.font = '14px sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText('t = ' + times[idx] + ' s', 12, 24);
-      if(playing){
-        var now = performance.now();
-        if(now - t0 > 800){ cur++; t0 = now; }
-        if(cur >= frames){ playing = false; cur = frames - 1; document.getElementById('carHint').textContent = '动画结束。观察：甲车相同时间内路程相等，是匀速直线运动；乙车路程越来越长，是变速直线运动。'; }
-        if(playing) requestAnimationFrame(render);
-      }
+      ctx.fillStyle = '#2c2c2c'; ctx.font = '14px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('t = ' + tAnim.toFixed(1) + ' s', 12, 24);
+      fillTable();
+      if(playing) requestAnimationFrame(render);
     }
     refit();
     var e3Btn = document.querySelector('#explainTabs .tab-btn[data-tab="e3"]');
     if(e3Btn) e3Btn.addEventListener('click', function(){ setTimeout(refit, 0); });
     window.addEventListener('resize', refit);
-    document.getElementById('playCars').addEventListener('click', function(){ playing = true; t0 = performance.now(); cur = 0; render(); });
-    document.getElementById('replayCars').addEventListener('click', function(){ playing = false; cur = 0; render(); });
-    document.getElementById('stepCars').addEventListener('click', function(){ playing = false; cur = Math.min(cur + 1, frames - 1); render(); });
+    document.getElementById('playCars').addEventListener('click', function(){ playing = true; tStart = performance.now(); tAnim = 0; render(); });
+    document.getElementById('replayCars').addEventListener('click', function(){ playing = false; tAnim = 0; render(); });
+    document.getElementById('stepCars').addEventListener('click', function(){
+      playing = false;
+      cur = Math.min(cur + 1, times.length - 1);
+      tAnim = times[cur];
+      render();
+    });
   })();
 
   // E4 example steps
   (function(){
     var steps = ['stepGiven','stepFormula','stepSubstitute','stepResult'];
     var idx = 1;
-    document.getElementById('nextStep').addEventListener('click', function(){
+    var nextBtn = document.getElementById('nextStep');
+    function updateNextLabel(){
+      if(nextBtn) nextBtn.textContent = idx === steps.length - 1 ? '结果' : '下一步';
+    }
+    function updateNextVisibility(){
+      if(nextBtn) nextBtn.style.display = idx >= steps.length ? 'none' : 'inline-flex';
+    }
+    nextBtn.addEventListener('click', function(){
       if(idx < steps.length){
         document.getElementById(steps[idx]).classList.add('show');
         idx++;
+        updateNextLabel();
+        updateNextVisibility();
       }
     });
     document.getElementById('resetSteps').addEventListener('click', function(){
       steps.forEach(function(id, i){ if(i>0) document.getElementById(id).classList.remove('show'); });
       idx = 1;
+      updateNextLabel();
+      updateNextVisibility();
     });
+    updateNextLabel();
   })();
 })();
 </script>
