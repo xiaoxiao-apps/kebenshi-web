@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 运动的快慢</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 12px 0 16px; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn { flex: 0 0 auto; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; color: var(--ink); font-weight: 700; font-size: 14px; cursor: pointer; transition: all .2s ease; min-height: 44px; }
+  .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .tab-panel { display: none; animation: panelIn .25s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .question-box { background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 12px 12px 0; padding: 14px 16px; margin: 12px 0; line-height: 1.8; }
+  .question-box h4 { margin: 0 0 8px; color: var(--brown); font-size: 15px; }
+  .compare-anim { background: var(--card2); border-radius: 12px; padding: 14px; margin: 12px 0; }
+  .compare-anim canvas { display: block; width: 100%; height: 160px; border-radius: 8px; background: #fff; }
+  .mode-btns { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .formula { text-align: center; font-size: 28px; font-weight: 700; color: var(--green); margin: 18px 0; letter-spacing: 1px; }
+  .convert-line { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; margin: 14px 0; font-size: 14px; overflow-x: auto; }
+  .convert-line input { width: 70px; flex: 0 0 auto; padding: 8px 6px; border: 1px solid rgba(0,0,0,.1); border-radius: 8px; text-align: center; font-weight: 700; color: var(--ink); }
+  .speedo { position: relative; width: 220px; height: 220px; margin: 14px auto; }
+  .speedo svg { width: 100%; height: 100%; }
+  .canvas-wrap { background: var(--card2); border-radius: 12px; padding: 14px; margin: 12px 0; }
+  .canvas-wrap canvas { display: block; width: 100%; height: 220px; border-radius: 8px; background: #fff; }
+  .timeline { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink2); margin-top: 8px; }
+  .example-step { display: none; background: var(--green-bg); border-radius: 10px; padding: 12px 14px; margin: 10px 0; line-height: 1.8; }
+  .example-step.show { display: block; animation: panelIn .25s ease; }
+  .checklist { list-style: none; padding: 0; margin: 12px 0; }
+  .checklist li { padding: 8px 0 8px 28px; position: relative; }
+  .checklist li::before { content: ""; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">比较快慢 · 速度 · 匀速与变速 · 平均速度</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">怎样比较快慢</button>
+    <button class="tab-btn" data-tab="e2">速度</button>
+    <button class="tab-btn" data-tab="e3">匀速直线运动</button>
+    <button class="tab-btn" data-tab="e4">平均速度</button>
+  </div>
+
+  <!-- E1 怎样比较快慢 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、两种比较方法 <span class="chip brown">基础</span></h2>
+      <div class="question-box">
+        <h4>🧐 问题</h4>
+        <p>运动会上，短跑比赛正在紧张地进行着。比赛过后，观众是如何判断谁跑得快的？运动员跑完全程后，裁判员又是怎样计算成绩的？观众与裁判员所用的方法一样吗？</p>
+      </div>
+      <p>观看赛跑的某一瞬间，运动员跑过的时间相同，谁跑在前面、路程长，谁就快。到达终点时，大家跑过的路程相同，谁花的时间短，谁就快。</p>
+      <div class="compare-anim">
+        <canvas id="compareCanvas"></canvas>
+        <div class="mode-btns">
+          <button class="btn btn-secondary" id="sameTimeBtn">同时间比路程</button>
+          <button class="btn btn-secondary" id="sameDistBtn">同路程比时间</button>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>💬 想想议议 1</h4>
+        <p>甲同学 100 m 跑的成绩为 15 s，乙同学 50 m 跑的成绩为 8 s。要知道他俩谁跑得快，应该怎么办？</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- E2 速度 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、速度 <span class="chip brown">核心概念</span></h2>
+      <p>在物理学中，采用“相同时间比较路程”的方法，把<strong>路程与时间之比</strong>叫做速度。</p>
+      <div class="formula">v = s / t</div>
+      <p style="text-align:center;color:var(--ink2);font-size:13px;">v 表示速度，s 表示路程，t 表示时间</p>
+      <div class="key-point">
+        <p><strong>单位</strong></p>
+        <p>国际单位：米每秒，符号 <strong>m/s</strong>（或 m·s⁻¹）</p>
+        <p>交通常用：千米每小时，符号 <strong>km/h</strong>（或 km·h⁻¹）</p>
+        <p style="margin-top:8px;"><strong>换算关系</strong></p>
+        <p>1 m/s = 3.6 km/h</p>
+      </div>
+      <div class="convert-line">
+        <span><input type="number" id="msInput" value="1" step="0.1" min="0"> m/s</span>
+        <span>=</span>
+        <span><strong id="kmhOutput">3.6</strong> km/h</span>
+      </div>
+      <div class="key-point">
+        <p><strong>图 1.3-2 汽车速度表</strong></p>
+        <p>速度表可以直接显示汽车的行驶速度。观察指针位置，读数为：</p>
+      </div>
+      <div class="speedo">
+        <svg viewBox="0 0 220 220">
+          <circle cx="110" cy="110" r="95" fill="none" stroke="var(--card2)" stroke-width="18"/>
+          <g id="speedoTicks"></g>
+          <g transform="rotate(120,110,110)">
+            <line x1="110" y1="110" x2="110" y2="35" stroke="var(--red)" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="110" cy="110" r="5" fill="var(--ink)"/>
+          </g>
+          <text x="110" y="160" text-anchor="middle" font-size="14" fill="var(--ink2)">km/h</text>
+          <text x="110" y="130" text-anchor="middle" font-size="26" font-weight="700" fill="var(--green)">80</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- E3 匀速直线运动 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、匀速直线运动 <span class="chip brown">运动分类</span></h2>
+      <p>物体所做的机械运动，按路线曲直可分为直线运动和曲线运动。直线运动按速度是否变化，又分为<strong>匀速直线运动</strong>和<strong>变速直线运动</strong>。</p>
+      <p>物体沿直线且速度不变的运动，叫做<strong>匀速直线运动</strong>（uniform rectilinear motion）。如果相等时间内通过的路程不相等，就是变速直线运动。</p>
+      <p class="note">📌 匀速直线运动是最简单的机械运动，是研究其他复杂运动的基础——物理学中把这种抓住主要特征、忽略次要因素的理想化描述叫作<b>物理模型</b>。</p>
+      <div class="question-box">
+        <h4>💬 想想议议 2</h4>
+        <p>图 1.3-3 记录了两辆汽车在平直公路上行驶时相同时间内通过的路程。甲、乙两车各段时间内的速度分别有什么特点？</p>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="twoCarCanvas"></canvas>
+        <div class="timeline" id="carTimeline">0 s — 10 s — 20 s — 30 s — 40 s</div>
+        <div class="anim-btns">
+          <button class="btn btn-primary" id="playCars">▶ 播放</button>
+          <button class="btn btn-secondary" id="replayCars"> 重播</button>
+          <button class="btn btn-secondary" id="stepCars">+ 步进</button>
+        </div>
+        <p class="hint" id="carHint">点击「播放」观察两车 0 ~ 40 s 的位置变化。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- E4 平均速度 -->
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>四、平均速度 <span class="chip brown">粗略描述</span></h2>
+      <p>变速直线运动比较复杂，如果只作粗略研究，也可以用 <strong>v = s/t</strong> 来描述运动的快慢，这样算出来的速度叫做<strong>平均速度</strong>。</p>
+      <div class="card" style="background:var(--card2);margin-top:12px;">
+        <h2 style="font-size:15px;">例题 <span class="chip brown">分步揭晓</span></h2>
+        <p>在第 32 届夏季奥运会田径男子 100 m 半决赛中，我国优秀短跑运动员以 9.83 s 的成绩打破了亚洲纪录。他在这次比赛中的平均速度是多少？</p>
+        <div class="example-step show" id="stepGiven">已知：s = 100 m，t = 9.83 s</div>
+        <div class="example-step" id="stepFormula">公式：v = s / t</div>
+        <div class="example-step" id="stepSubstitute">代入：v = 100 m / 9.83 s</div>
+        <div class="example-step" id="stepResult">结果：v ≈ 10.2 m/s</div>
+        <div class="anim-btns">
+          <button class="btn btn-primary" id="nextStep">下一步</button>
+          <button class="btn btn-secondary" id="resetSteps">重置</button>
+        </div>
+      </div>
+      <div class="key-point">
+        <p><strong>计算规范 checklist</strong></p>
+        <ul class="checklist">
+          <li>写清已知条件，数值后面带单位</li>
+          <li>写出公式</li>
+          <li>代入数据时保留单位</li>
+          <li>结果写出数值和单位</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="exp-common.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  // Tab switching
+  var tabs = document.querySelectorAll('#explainTabs .tab-btn');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var key = btn.dataset.tab;
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('panel-' + key).classList.add('active');
+    });
+  });
+
+  // E1 compare animation
+  (function(){
+    var cv = document.getElementById('compareCanvas');
+    if(!cv) return;
+    var info = fitCanvas(cv, 160);
+    var ctx = info.ctx, w = info.w, h = info.h;
+    var mode = 'time'; // 'time' or 'distance'
+    var t = 0;
+    function drawCar(x, y, color){
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = color;
+      roundRectPath(ctx, -18, -10, 36, 18, 5);
+      ctx.fill();
+      ctx.fillStyle = '#333';
+      ctx.beginPath(); ctx.arc(-10, 10, 4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(10, 10, 4, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+    function render(){
+      ctx.clearRect(0,0,w,h);
+      ctx.fillStyle = '#f8f8f8'; ctx.fillRect(0, h*0.75, w, h*0.25);
+      ctx.strokeStyle = '#ddd'; ctx.beginPath(); ctx.moveTo(0, h*0.75); ctx.lineTo(w, h*0.75); ctx.stroke();
+      if(mode === 'time'){
+        var d = (t % 200) / 200;
+        drawCar(40 + d * (w - 80), h*0.65, '#e74c3c');
+        drawCar(40 + d * (w - 150), h*0.65, '#2980b9');
+        ctx.fillStyle = 'var(--ink)'; ctx.font = '13px sans-serif'; ctx.fillText('同时间：谁跑在前面，谁的路程长，谁快', 12, 24);
+      } else {
+        var p = (t % 240) / 240;
+        var done = p > 0.95;
+        drawCar(Math.min(40 + p * (w - 80), w - 40), h*0.65, '#e74c3c');
+        if(done) drawCar(w - 40, h*0.42, '#2980b9');
+        else drawCar(40, h*0.42, '#2980b9');
+        ctx.fillStyle = 'var(--ink)'; ctx.font = '13px sans-serif'; ctx.fillText('同路程：谁先到达终点，谁用时短，谁快', 12, 24);
+      }
+      t++;
+      requestAnimationFrame(render);
+    }
+    render();
+    document.getElementById('sameTimeBtn').addEventListener('click', function(){ mode = 'time'; t = 0; });
+    document.getElementById('sameDistBtn').addEventListener('click', function(){ mode = 'distance'; t = 0; });
+  })();
+
+  // E2 speedometer ticks and converter
+  (function(){
+    var g = document.getElementById('speedoTicks');
+    if(g) for(var i=0;i<=12;i++){
+      var ang = -120 + i * 20;
+      var rad = ang * Math.PI / 180;
+      var r1 = 95, r2 = i % 2 === 0 ? 79 : 84;
+      var x1 = 110 + r1 * Math.cos(rad), y1 = 110 + r1 * Math.sin(rad);
+      var x2 = 110 + r2 * Math.cos(rad), y2 = 110 + r2 * Math.sin(rad);
+      var line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+      line.setAttribute('stroke', 'var(--ink3)'); line.setAttribute('stroke-width', i%2===0?'2':'1');
+      g.appendChild(line);
+    }
+    var msInput = document.getElementById('msInput');
+    var kmhOutput = document.getElementById('kmhOutput');
+    if(msInput && kmhOutput){
+      msInput.addEventListener('input', function(){
+        var v = parseFloat(msInput.value);
+        kmhOutput.textContent = isNaN(v) ? '—' : (v * 3.6).toFixed(2);
+      });
+    }
+  })();
+
+  // E3 two-car animation
+  (function(){
+    var cv = document.getElementById('twoCarCanvas');
+    if(!cv) return;
+    var info = fitCanvas(cv, 220);
+    var ctx = info.ctx, w = info.w, h = info.h;
+    var frames = 5;
+    var carA = [0, 150, 300, 450, 600];
+    var carB = [0, 100, 235, 400, 600];
+    var times = [0, 10, 20, 30, 40];
+    var cur = 0;
+    var playing = false;
+    var t0 = null;
+    function xOf(s){ return 50 + (s / 600) * (w - 100); }
+    function drawCarAt(s, y, color, label){
+      var x = xOf(s);
+      ctx.fillStyle = color;
+      roundRectPath(ctx, x - 16, y - 10, 32, 18, 5);
+      ctx.fill();
+      ctx.fillStyle = '#333';
+      ctx.beginPath(); ctx.arc(x - 9, y + 9, 3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x + 9, y + 9, 3, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'var(--ink2)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(label, x, y - 16);
+    }
+    function drawRuler(){
+      ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
+      for(var i=0;i<=600;i+=100){
+        var x = xOf(i);
+        ctx.beginPath(); ctx.moveTo(x, h*0.18); ctx.lineTo(x, h*0.88); ctx.stroke();
+        ctx.fillStyle = 'var(--ink3)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(i + ' m', x, h*0.95);
+      }
+    }
+    function render(){
+      ctx.clearRect(0,0,w,h);
+      drawRuler();
+      var idx = Math.min(cur, frames - 1);
+      var a = carA[idx], b = carB[idx];
+      drawCarAt(a, h*0.32, '#e74c3c', '甲');
+      drawCarAt(b, h*0.62, '#2980b9', '乙');
+      ctx.fillStyle = 'var(--ink)'; ctx.font = '14px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('t = ' + times[idx] + ' s', 12, 24);
+      if(playing){
+        var now = performance.now();
+        if(now - t0 > 800){ cur++; t0 = now; }
+        if(cur >= frames){ playing = false; cur = frames - 1; document.getElementById('carHint').textContent = '动画结束。观察：甲车相同时间内路程相等，是匀速直线运动；乙车路程越来越长，是变速直线运动。'; }
+        if(playing) requestAnimationFrame(render);
+      }
+    }
+    render();
+    document.getElementById('playCars').addEventListener('click', function(){ playing = true; t0 = performance.now(); cur = 0; render(); });
+    document.getElementById('replayCars').addEventListener('click', function(){ playing = false; cur = 0; render(); });
+    document.getElementById('stepCars').addEventListener('click', function(){ playing = false; cur = Math.min(cur + 1, frames - 1); render(); });
+  })();
+
+  // E4 example steps
+  (function(){
+    var steps = ['stepGiven','stepFormula','stepSubstitute','stepResult'];
+    var idx = 1;
+    document.getElementById('nextStep').addEventListener('click', function(){
+      if(idx < steps.length){
+        document.getElementById(steps[idx]).classList.add('show');
+        idx++;
+      }
+    });
+    document.getElementById('resetSteps').addEventListener('click', function(){
+      steps.forEach(function(id, i){ if(i>0) document.getElementById(id).classList.remove('show'); });
+      idx = 1;
+    });
+  })();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>速度全景图 表1.3-1 · 运动的快慢</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .bars { margin: 10px 0; }
+  .bar-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; cursor: pointer; }
+  .bar-row .name { min-width: 118px; font-weight: 700; font-size: 13px; text-align: right; color: var(--ink); }
+  .bar-row .track { flex: 1; background: var(--card2); border-radius: 8px; height: 22px; position: relative; overflow: hidden; }
+  .bar-row .fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--green), var(--cyan)); width: 0; transition: width .8s ease; }
+  .bar-row .num { min-width: 96px; font-size: 12px; font-weight: 800; color: var(--brown); }
+  .bar-row:hover .track { box-shadow: inset 0 0 0 2px var(--green); }
+  .detail { background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 14px; line-height: 1.8; min-height: 56px; }
+  .scale-note { font-size: 12px; color: var(--ink3); margin-top: 6px; }
+  @media (max-width: 390px) {
+    .bar-row .name { min-width: 84px; font-size: 12px; }
+    .bar-row .num { min-width: 78px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" href="experiment.html">‹ 返回互动探索区</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📊 速度全景图</h1>
+    <p class="page-subtitle">表1.3-1 十种物体的速度对比。点条目看 km/h 换算和生活化类比。</p>
+  </div>
+  <div class="card">
+    <div class="bars" id="bars"></div>
+    <div class="scale-note">※ 条长用对数刻度（速度跨 6 个数量级：0.0015—3070 m/s），线性条会让蜗牛和步行完全看不见。</div>
+    <div class="detail" id="detail">👆 点上面任意一条，看它的 km/h 换算和生活化类比。</div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var items = [
+    ['蜗牛', 0.0015, '约1.5×10⁻³ m/s', '爬 1 米要 11 分钟，比手表秒针还慢 60 倍。'],
+    ['人（步行）', 1.1, '约1.1 m/s', '散步节奏：1 小时约走 4 km。'],
+    ['自行车', 5, '约5 m/s', '通勤骑行的常见速度，18 km/h。'],
+    ['高速公路上的小轿车', 33, '约33 m/s', '约 119 km/h，高速限速附近。'],
+    ['雨燕', 48, '可达48 m/s', '约 173 km/h，鸟类里的平飞冠军。'],
+    ['上海磁悬浮列车', 120, '可达120 m/s', '约 432 km/h，贴地飞行。'],
+    ['喷气式客机', 250, '约250 m/s', '约 900 km/h，北京到上海一个半小时。'],
+    ['超声速歼击机', 700, '约700 m/s', '约 2520 km/h，2 倍声速以上。'],
+    ['子弹（出膛时）', 1000, '约1 000 m/s', '约 3600 km/h，1 秒飞过 10 个足球场。'],
+    ['地球同步卫星', 3070, '约3 070 m/s', '约 11052 km/h，一天绕地球一圈正好跟上地球自转。']
+  ];
+  var MINL = Math.log10(0.001), MAXL = Math.log10(4000);
+  var bars = document.getElementById('bars');
+  var detail = document.getElementById('detail');
+  items.forEach(function (it, i) {
+    var row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = '<div class="name">' + it[0] + '</div>' +
+      '<div class="track"><div class="fill" id="f' + i + '"></div></div>' +
+      '<div class="num">' + it[2] + '</div>';
+    row.addEventListener('click', function () {
+      detail.innerHTML = '<b>' + it[0] + '</b>：' + it[2] + ' = <b>' +
+        (Math.round(it[1] * 3.6 * 100) / 100) + ' km/h</b>。<br>' + it[3];
+    });
+    bars.appendChild(row);
+    var pct = (Math.log10(it[1]) - MINL) / (MAXL - MINL) * 100;
+    setTimeout(function () { document.getElementById('f' + i).style.width = Math.max(pct, 2) + '%'; }, 60 * i);
+  });
+})();
+</script>
+</body>
+</html>

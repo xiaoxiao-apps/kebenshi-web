@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>双车运动对比 · 运动的快慢</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .ctrl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+  .ctrl button { border: 1px solid var(--green); background: var(--green-bg); color: var(--green); font-weight: 800; border-radius: 10px; padding: 8px 14px; cursor: pointer; font-size: 14px; }
+  .ctrl button:hover { background: var(--green); color: #fff; }
+  .ctrl label { font-weight: 700; font-size: 14px; }
+  .ctrl input[type=range] { width: 140px; }
+  .ctrl .val { font-weight: 800; color: var(--brown); min-width: 64px; }
+  canvas { width: 100%; height: auto; display: block; background: var(--card2); border-radius: 12px; }
+  .segtable { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+  .segtable th, .segtable td { border: 1px solid rgba(0,0,0,.12); padding: 6px 4px; text-align: center; }
+  .segtable th { background: var(--brown-bg); }
+  .hint { font-size: 13px; color: var(--ink2); margin-top: 8px; line-height: 1.7; }
+</style>
+</head>
+<body>
+<a class="back-btn" href="experiment.html">‹ 返回互动探索区</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">🚗 双车运动对比</h1>
+    <p class="page-subtitle">图1.3-3 增强版：甲车匀速（速度可调）、乙车变速，看每 10 s 间隔的路程。</p>
+  </div>
+  <div class="card">
+    <div class="ctrl">
+      <button id="btnPlay" type="button">▶ 播放</button>
+      <button id="btnPause" type="button">⏸ 暂停</button>
+      <button id="btnStep" type="button">⏭ 逐帧 +10s</button>
+      <button id="btnReplay" type="button">🔄 重播</button>
+      <label for="vA">甲车速度</label>
+      <input type="range" id="vA" min="5" max="25" step="1" value="15">
+      <span class="val" id="vAVal">15 m/s</span>
+    </div>
+    <canvas id="cv" width="900" height="360" aria-label="甲乙两车运动对比动画"></canvas>
+    <table class="segtable">
+      <tr><th>时间段</th><th>0–10 s</th><th>10–20 s</th><th>20–30 s</th><th>30–40 s</th></tr>
+      <tr><th>甲 段路程</th><td id="a0">–</td><td id="a1">–</td><td id="a2">–</td><td id="a3">–</td></tr>
+      <tr><th>乙 段路程</th><td id="b0">–</td><td id="b1">–</td><td id="b2">–</td><td id="b3">–</td></tr>
+    </table>
+    <div class="hint" id="hint">💡 播放或逐帧后观察：甲车每 10 s 间隔相等（匀速）；乙车间隔越来越长（变速，从静止开始加速）。乙车数据为教材印刷值：0/100/235/400/600 m。</div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var cv = document.getElementById('cv');
+  var ctx = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+  var posB = [0, 100, 235, 400, 600]; // 教材印刷值
+  var MAXS = 600;
+  var t = 0, playing = false, raf = null, last = null;
+  var vAEl = document.getElementById('vA');
+  var vAVal = document.getElementById('vAVal');
+
+  function vA() { return +vAEl.value; }
+  function posA(tt) { return Math.min(vA() * tt, MAXS); }
+  function posBAt(tt) {
+    var i = Math.min(Math.floor(tt / 10), 3);
+    var f = (tt - i * 10) / 10;
+    return posB[i] + (posB[i + 1] - posB[i]) * Math.min(f, 1);
+  }
+  function x(p) { return 60 + (W - 120) * (p / MAXS); }
+
+  function drawCar(px, py, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(px - 26, py - 14, 52, 16, 6) : ctx.rect(px - 26, py - 14, 52, 16);
+    ctx.fill();
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(px - 14, py - 24, 26, 12, 4) : ctx.rect(px - 14, py - 24, 26, 12); ctx.fill();
+    ctx.fillStyle = '#222';
+    ctx.beginPath(); ctx.arc(px - 15, py + 4, 6, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(px + 15, py + 4, 6, 0, 7); ctx.fill();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    var lanes = [
+      { y: 90, name: '甲（匀速 ' + vA() + ' m/s）', p: posA(t), color: '#e74c3c' },
+      { y: 230, name: '乙（变速）', p: posBAt(t), color: '#2980b9' }
+    ];
+    ctx.font = '700 16px sans-serif';
+    lanes.forEach(function (L) {
+      ctx.fillStyle = '#dfeaf3';
+      ctx.fillRect(40, L.y + 8, W - 80, 10);
+      ctx.fillStyle = '#556';
+      ctx.fillText(L.name, 40, L.y - 34);
+      // 每10s位置标尺
+      for (var k = 0; k <= 4; k++) {
+        var tt = k * 10;
+        var p = L.name.charAt(0) === '甲' ? posA(tt) : posB[k];
+        var px = x(p);
+        ctx.strokeStyle = 'rgba(0,0,0,.25)';
+        ctx.beginPath(); ctx.moveTo(px, L.y + 8); ctx.lineTo(px, L.y + 18); ctx.stroke();
+        ctx.fillStyle = '#778';
+        ctx.font = '600 11px sans-serif';
+        ctx.fillText(Math.round(p) + ' m', px - 16, L.y + 32);
+        ctx.font = '700 16px sans-serif';
+      }
+      drawCar(x(L.p), L.y, L.color);
+    });
+    ctx.fillStyle = '#333';
+    ctx.font = '800 18px sans-serif';
+    ctx.fillText('t = ' + t.toFixed(0) + ' s', W - 110, 30);
+    updateTable();
+  }
+
+  function updateTable() {
+    for (var k = 0; k < 4; k++) {
+      var reached = t >= (k + 1) * 10 - 0.001;
+      document.getElementById('a' + k).textContent = reached ? Math.round(posA((k + 1) * 10) - posA(k * 10)) + ' m' : '–';
+      document.getElementById('b' + k).textContent = reached ? (posB[k + 1] - posB[k]) + ' m' : '–';
+    }
+  }
+
+  function tick(ts) {
+    if (!playing) return;
+    if (last === null) last = ts;
+    t += (ts - last) / 1000 * 8; // 8x 速
+    last = ts;
+    if (t >= 40) { t = 40; playing = false; document.getElementById('hint').textContent = '动画结束：甲车每 10 s 段路程相等 → 匀速；乙车段路程 100/135/165/200 m 递增 → 变速。'; }
+    draw();
+    if (playing) raf = requestAnimationFrame(tick);
+  }
+
+  document.getElementById('btnPlay').addEventListener('click', function () {
+    if (playing) return;
+    if (t >= 40) t = 0;
+    playing = true; last = null;
+    raf = requestAnimationFrame(tick);
+  });
+  document.getElementById('btnPause').addEventListener('click', function () { playing = false; if (raf) cancelAnimationFrame(raf); });
+  document.getElementById('btnStep').addEventListener('click', function () {
+    playing = false; if (raf) cancelAnimationFrame(raf);
+    t = Math.min(t + 10, 40);
+    draw();
+  });
+  document.getElementById('btnReplay').addEventListener('click', function () {
+    playing = false; if (raf) cancelAnimationFrame(raf);
+    t = 0; draw();
+  });
+  vAEl.addEventListener('input', function () {
+    vAVal.textContent = vA() + ' m/s';
+    draw();
+  });
+  draw();
+})();
+</script>
+</body>
+</html>
