@@ -3,22 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>单位换算器 m/s ↔ km/h · 运动的快慢</title>
+<title>单位换算器 · 多单位速度互转 · 运动的快慢</title>
 <link rel="stylesheet" href="common.css">
 <style>
   .conv-wrap { background: var(--card2); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
-  .conv-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; margin: 10px 0; }
-  .conv-row label { min-width: 64px; font-weight: 700; font-size: 15px; }
-  .conv-row input { width: 70px; min-width: 0; padding: 10px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; font-size: 15px; font-weight: 700; text-align: center; color: var(--ink); }
-  .conv-row .arrow { font-weight: 800; color: var(--brown); }
+  .conv-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .conv-row input[type="number"] { width: 110px; min-width: 0; padding: 10px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; font-size: 16px; font-weight: 700; text-align: center; color: var(--ink); min-height: 44px; }
+  .conv-row select { flex: 1; min-width: 120px; padding: 10px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; font-size: 15px; font-weight: 700; color: var(--ink); min-height: 44px; cursor: pointer; }
+  .conv-row .arrow { font-weight: 800; color: var(--brown); font-size: 18px; flex: 0 0 auto; }
+  .out-row { margin: 10px 0; font-size: 20px; font-weight: 800; color: var(--green); text-align: center; padding: 10px; background: #fff; border-radius: 10px; min-height: 44px; }
   .why { background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 14px; line-height: 1.8; }
   .why .line { word-break: break-all; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-  .chip-btn { border: 1px solid var(--green); background: var(--green-bg); color: var(--green); font-weight: 700; font-size: 13px; border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+  .chip-btn { border: 1px solid var(--green); background: var(--green-bg); color: var(--green); font-weight: 700; font-size: 13px; border-radius: 999px; padding: 6px 12px; min-height: 36px; cursor: pointer; }
   .chip-btn:hover { background: var(--green); color: #fff; }
   @media (max-width: 390px) {
-    .conv-row input { width: 60px; padding: 10px 4px; font-size: 14px; }
-    .conv-row label { min-width: 56px; font-size: 14px; }
+    .conv-row input[type="number"] { width: 90px; padding: 10px 4px; font-size: 15px; }
+    .conv-row select { min-width: 100px; font-size: 14px; }
   }
 </style>
 </head>
@@ -27,58 +28,108 @@
 <div class="container">
   <div class="page-header">
     <h1 class="page-title">🔁 单位换算器</h1>
-    <p class="page-subtitle">m/s 与 km/h 双向实时换算，×3.6 / ÷3.6 的原理看得见。</p>
+    <p class="page-subtitle">8 种速度单位任选互转：m/s、km/h、cm/s、km/min、mph、节、ft/s、马赫。换算原理看得见。</p>
   </div>
   <div class="card">
     <div class="conv-wrap">
       <div class="conv-row">
-        <label for="inMs">m/s</label>
-        <input type="number" step="any" id="inMs" placeholder="0" aria-label="米每秒">
+        <input type="number" step="any" id="inVal" value="1" placeholder="0" inputmode="decimal" aria-label="数值">
+        <select id="unitFrom" aria-label="原单位"></select>
         <span class="arrow">⇄</span>
-        <label for="inKmh">km/h</label>
-        <input type="number" step="any" id="inKmh" placeholder="0" aria-label="千米每小时">
+        <select id="unitTo" aria-label="目标单位"></select>
       </div>
+      <div class="out-row" id="outVal">—</div>
       <div class="chips" id="chips">💡 一键载入表1.3-1：</div>
     </div>
-    <div class="why" id="whyBox">
-      <div class="line">原理：1 km = 1000 m，1 h = 3600 s。</div>
-      <div class="line">1 m/s = 1000 m ÷ 1000 / 3600 h… 即 1 m/s = 3.6 km/h；反过来 1 km/h = 1 ÷ 3.6 m/s ≈ 0.28 m/s。</div>
-      <div class="line">在上方任填一边，另一边实时联动。</div>
-    </div>
+    <div class="why" id="whyBox"></div>
   </div>
 </div>
 <script>
 (function () {
   'use strict';
-  var ms = document.getElementById('inMs');
-  var kmh = document.getElementById('inKmh');
+  // 系数 = 1 个该单位等于多少 m/s（全部核对过）
+  var UNITS = [
+    { key: 'ms',    name: '米每秒 m/s',            f: 1 },
+    { key: 'kmh',   name: '千米每小时 km/h',        f: 1 / 3.6 },
+    { key: 'cms',   name: '厘米每秒 cm/s',          f: 0.01 },
+    { key: 'kmmin', name: '千米每分 km/min',        f: 1000 / 60 },
+    { key: 'mph',   name: '英里每小时 mph',         f: 0.44704 },
+    { key: 'kn',    name: '节 kn（海里/小时）',      f: 1852 / 3600 },
+    { key: 'fts',   name: '英尺每秒 ft/s',          f: 0.3048 },
+    { key: 'ma',    name: '马赫 Ma（≈340 m/s）',    f: 340 }
+  ];
+  var byKey = {};
+  UNITS.forEach(function (u) { byKey[u.key] = u; });
+  var inVal = document.getElementById('inVal');
+  var uFrom = document.getElementById('unitFrom');
+  var uTo = document.getElementById('unitTo');
+  var outVal = document.getElementById('outVal');
   var why = document.getElementById('whyBox');
-  function fmt(x) { if (!isFinite(x)) return '—'; if (x === 0) return '0'; var a = Math.abs(x); return String(a >= 0.01 ? Math.round(x * 100) / 100 : parseFloat(x.toPrecision(2))); }
-  function fromMs() {
-    var v = parseFloat(ms.value);
-    if (ms.value === '' || !isFinite(v)) { kmh.value = ''; whyDefault(); return; }
-    kmh.value = fmt(v * 3.6);
-    why.innerHTML =
-      '<div class="line">' + fmt(v) + ' m/s × 3.6 = ' + fmt(v * 3.6) + ' km/h</div>' +
-      '<div class="line">（每小时走 ' + fmt(v) + ' m/s × 3600 s = ' + fmt(v * 3600) + ' m = ' + fmt(v * 3.6) + ' km）</div>';
+
+  UNITS.forEach(function (u) {
+    var o1 = document.createElement('option'); o1.value = u.key; o1.textContent = u.name; uFrom.appendChild(o1);
+    var o2 = document.createElement('option'); o2.value = u.key; o2.textContent = u.name; uTo.appendChild(o2);
+  });
+  uFrom.value = 'ms'; uTo.value = 'kmh';
+
+  function fmt(x) {
+    if (!isFinite(x)) return '—';
+    if (x === 0) return '0';
+    var a = Math.abs(x);
+    if (a >= 100) return String(Math.round(x * 10) / 10);
+    if (a >= 1) return String(Math.round(x * 100) / 100);
+    return String(parseFloat(x.toPrecision(4)));
   }
-  function fromKmh() {
-    var v = parseFloat(kmh.value);
-    if (kmh.value === '' || !isFinite(v)) { ms.value = ''; whyDefault(); return; }
-    ms.value = fmt(v / 3.6);
-    why.innerHTML =
-      '<div class="line">' + fmt(v) + ' km/h ÷ 3.6 = ' + fmt(v / 3.6) + ' m/s</div>' +
-      '<div class="line">（每秒走 ' + fmt(v) + ' × 1000 m ÷ 3600 s = ' + fmt(v / 3.6) + ' m）</div>';
+  // 先去掉括号说明再取末尾英文缩写（单位名里括号可能带空格，如「马赫 Ma（≈340 m/s）」）
+  function shortName(u) { return u.name.replace(/[（(][^）)]*[）)]/g, '').trim().split(/\s+/).slice(-1)[0]; }
+
+  function calc() {
+    var a = byKey[uFrom.value], b = byKey[uTo.value];
+    var v = parseFloat(inVal.value);
+    if (inVal.value === '' || !isFinite(v)) {
+      outVal.textContent = '—';
+      whyDefault();
+      return;
+    }
+    if (a.key === b.key) {
+      outVal.textContent = fmt(v) + ' ' + shortName(a);
+      why.innerHTML = '<div class="line">两边单位相同，数值不变。</div>' +
+        '<div class="line">换一个单位试试，看换算原理 👆</div>';
+      return;
+    }
+    var ms = v * a.f;          // 先全部化成 m/s
+    var out = ms / b.f;        // 再换成目标单位
+    outVal.textContent = fmt(v) + ' ' + shortName(a) + ' = ' + fmt(out) + ' ' + shortName(b);
+    var lines = [];
+    lines.push('<div class="line">第一步，把 ' + fmt(v) + ' ' + shortName(a) + ' 化成国际单位 m/s：</div>');
+    if (a.key === 'ms') {
+      lines.push('<div class="line">' + fmt(v) + ' m/s（本来就是 m/s，不用换）</div>');
+    } else if (a.key === 'kmh') {
+      lines.push('<div class="line">' + fmt(v) + ' km/h ÷ 3.6 = ' + fmt(ms) + ' m/s</div>');
+    } else {
+      lines.push('<div class="line">1 ' + shortName(a) + ' = ' + fmt(a.f) + ' m/s，所以 ' + fmt(v) + ' × ' + fmt(a.f) + ' = ' + fmt(ms) + ' m/s</div>');
+    }
+    lines.push('<div class="line">第二步，把 ' + fmt(ms) + ' m/s 换成 ' + shortName(b) + '：</div>');
+    if (b.key === 'kmh') {
+      lines.push('<div class="line">' + fmt(ms) + ' m/s × 3.6 = <b>' + fmt(out) + ' km/h</b></div>');
+    } else if (b.key === 'ms') {
+      lines.push('<div class="line">就是 <b>' + fmt(out) + ' m/s</b>（不用换）</div>');
+    } else {
+      lines.push('<div class="line">1 ' + shortName(b) + ' = ' + fmt(b.f) + ' m/s，所以 ' + fmt(ms) + ' ÷ ' + fmt(b.f) + ' = <b>' + fmt(out) + ' ' + shortName(b) + '</b></div>');
+    }
+    why.innerHTML = lines.join('');
   }
   function whyDefault() {
     why.innerHTML =
-      '<div class="line">原理：1 km = 1000 m，1 h = 3600 s。</div>' +
-      '<div class="line">1 m/s = 3.6 km/h；1 km/h = 1 ÷ 3.6 m/s ≈ 0.28 m/s。</div>' +
-      '<div class="line">在上方任填一边，另一边实时联动。</div>';
+      '<div class="line">原理：所有速度单位都可以先化成国际单位 <b>m/s</b>，再换成目标单位。</div>' +
+      '<div class="line">常用换算：1 m/s = 3.6 km/h；1 mph ≈ 1.609 km/h；1 kn = 1.852 km/h；1 Ma ≈ 340 m/s。</div>' +
+      '<div class="line">在上方填入数值、选好两个单位，结果实时联动。</div>';
   }
-  ms.addEventListener('input', fromMs);
-  kmh.addEventListener('input', fromKmh);
+  inVal.addEventListener('input', calc);
+  uFrom.addEventListener('change', calc);
+  uTo.addEventListener('change', calc);
 
+  // 表1.3-1 快捷载入（值均为 m/s）
   var items = [
     ['蜗牛', 0.0015], ['人（步行）', 1.1], ['自行车', 5], ['小轿车', 33], ['雨燕', 48],
     ['磁悬浮', 120], ['客机', 250], ['歼击机', 700], ['子弹', 1000], ['同步卫星', 3070]
@@ -90,11 +141,13 @@
     b.type = 'button';
     b.textContent = it[0] + ' ' + it[1] + ' m/s';
     b.addEventListener('click', function () {
-      ms.value = it[1];
-      fromMs();
+      inVal.value = it[1];
+      uFrom.value = 'ms';   // chips 的值是 m/s，左侧单位自动切回 m/s
+      calc();
     });
     chips.appendChild(b);
   });
+  calc();
 })();
 </script>
 </body>

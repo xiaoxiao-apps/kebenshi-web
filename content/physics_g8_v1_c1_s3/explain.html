@@ -39,6 +39,11 @@
   .gas-btn { width: 80px; margin-top: 10px; user-select: none; -webkit-user-select: none; touch-action: none; }
   .speed-set { display: inline-block; margin-top: 10px; margin-left: 8px; font-size: 13px; color: var(--ink2); }
   .speed-set input { width: 70px; padding: 8px 6px; border: 1px solid rgba(0,0,0,.1); border-radius: 8px; text-align: center; font-weight: 700; color: var(--ink); font-size: 14px; }
+  .reveal-btn { margin-top: 10px; padding: 10px 14px; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--green); background: #fff; color: var(--green); font-weight: 800; font-size: 14px; cursor: pointer; transition: background .2s ease; }
+  .reveal-btn:hover { background: var(--green-bg); }
+  .reveal-ans { display: none; margin-top: 10px; background: var(--green-bg); border-left: 4px solid var(--green); border-radius: 0 10px 10px 0; padding: 10px 12px; font-size: 14px; line-height: 1.8; color: var(--ink); }
+  .question-box.open .reveal-ans { display: block; animation: panelIn .25s ease; }
+  .reveal-ans .line { word-break: break-all; }
   #compareCaption { min-height: 28px; font-size: 14px; font-weight: 600; color: var(--brown); margin-top: 8px; text-align: center; }
 </style>
 </head>
@@ -77,6 +82,12 @@
       <div class="question-box">
         <h4>💬 想想议议 1</h4>
         <p>甲同学 100 m 跑的成绩为 15 s，乙同学 50 m 跑的成绩为 8 s。要知道他俩谁跑得快，应该怎么办？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">路程、时间都不同 → 比「路程与时间之比」（速度）。</div>
+          <div class="line">v甲 = 100 m ÷ 15 s ≈ 6.7 m/s；v乙 = 50 m ÷ 8 s = 6.25 m/s。</div>
+          <div class="line">6.7 &gt; 6.25，所以<b>甲跑得快</b>。</div>
+        </div>
       </div>
     </div>
   </div>
@@ -155,6 +166,11 @@
       <div class="question-box">
         <h4>💬 想想议议 2</h4>
         <p>图 1.3-3 记录了两辆汽车在平直公路上行驶时相同时间内通过的路程。甲、乙两车各段时间内的速度分别有什么特点？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">甲车：每 10 s 内通过的路程都是 150 m，相等时间内路程相等 → <b>匀速直线运动</b>。</div>
+          <div class="line">乙车：相等时间内通过的路程分别为 100 m、135 m、165 m、200 m，越来越长 → <b>变速直线运动</b>。</div>
+        </div>
       </div>
       <div class="canvas-wrap">
         <canvas id="twoCarCanvas"></canvas>
@@ -195,6 +211,16 @@
           <button class="btn btn-secondary" id="resetSteps">重置</button>
         </div>
       </div>
+      <div class="question-box">
+        <h4>💬 想想议议 3</h4>
+        <p>我们在生活中常常可以听到“两地车程1小时”等类似的说法。从物理学角度来看，这种说法对吗？若不对，错在哪里？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">不够准确。它只说了<b>时间</b>，没说<b>路程</b>和<b>速度</b>。</div>
+          <div class="line">由 v = s/t，时间由路程与速度共同决定：同样“1小时车程”，速度快路程就长，速度慢路程就短。</div>
+          <div class="line">物理学中要用<b>速度</b>（路程与时间之比）描述运动快慢，单说时间无法确定快慢。</div>
+        </div>
+      </div>
       <div class="key-point">
         <p><strong>计算规范 checklist</strong></p>
         <ul class="checklist">
@@ -223,6 +249,16 @@
       panels.forEach(function(p){ p.classList.remove('active'); });
       btn.classList.add('active');
       document.getElementById('panel-' + key).classList.add('active');
+    });
+  });
+
+  // 想想议议：题目常显，答案点击揭晓/收起
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.question-box');
+      if(!box) return;
+      var open = box.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : '💡 点击揭晓答案';
     });
   });
 
