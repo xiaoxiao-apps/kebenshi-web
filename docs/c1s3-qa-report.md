@@ -28,3 +28,18 @@ quiz / exp-calc / exp-speed 三页 scrollWidth ≤ 390，无横向溢出。
 
 ## 环境遗留
 - 本地预览服务器仍在跑：pid 9130，`http://127.0.0.1:8931/index.html`（仅 127.0.0.1，重启机器即失效；蔡总本机浏览器可直接开此地址预览）
+### 7. exp-speed.html ✅
+- 10 条动画条出现 ✅（#bars 10 子元素，对数宽度 2.7%→98.3% 递增）
+- 点「子弹（出膛时）」条目 → detail 显示「约1 000 m/s = 3600 km/h。约 3600 km/h，1 秒飞过 10 个足球场」✅
+- console errors = 0
+### 8. quiz.html ✅
+- 6 张翻卡全部可揭晓，计数 0/6 → 6/6 ✅
+- Q4 表盘 SVG 刻度数字 0—240（每 20 一格共 13 个数字 + km/h 单位）✅；指针 rotate(-40°)，0 在 -120°、每 20 km/h 加 10° → 恰指 80 ✅；答案 t=7.5 min ✅
+- Q6 点「济南西」行 → 行高亮 class「seg on」，seginfo 显示「天津南→济南西：里程差 284 km、时间差 60 min」✅
+- 揭晓答案数字与 C类核对表一致 ✅：7.5 min / 40 m / 284.5 / 313.7 / 236.1 全部命中
+- console errors = 0
+
+## 问题清单
+1. 【P1·expalin.html Tab3 双车画布空白】explain.html:257 `fitCanvas(cv,220)` 在 IIFE 初始化时执行，panel-e3 初始 display:none → clientWidth=0 → canvas.width=0，画面全白（截图确认）；Tab 切换 handler（explain.html:172-183）与 window resize 均无 refit。动画逻辑/结束文案/步进均正常，仅不可见。建议：Tab 切到 e3 时重调 fitCanvas 并 render()（或监听 resize/IntersectionObserver）。
+2. 【提示·非 bug】exp-motion 甲速滑块调大后表格末段出现 0 m（如 20 m/s → 200/200/200/0），系 600 m 量程上限 t=30s 到达后的正确重算，建议文案加一句上限说明以免学生困惑。
+3. 【环境备注】browser 工具不支持 file:// 协议，本次质检经 127.0.0.1:8931 本地静态服务完成（nohup 脱管，质检完可 kill 9130）。

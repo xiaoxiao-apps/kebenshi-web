@@ -254,8 +254,13 @@
   (function(){
     var cv = document.getElementById('twoCarCanvas');
     if(!cv) return;
-    var info = fitCanvas(cv, 220);
-    var ctx = info.ctx, w = info.w, h = info.h;
+    var ctx, w, h;
+    function refit(){
+      if(!cv.clientWidth) return; // 面板 display:none 时宽度为0，跳过，等Tab激活/resize再触发
+      var info = fitCanvas(cv, 220);
+      ctx = info.ctx; w = info.w; h = info.h;
+      if(!playing) render();
+    }
     var frames = 5;
     var carA = [0, 150, 300, 450, 600];
     var carB = [0, 100, 235, 400, 600];
@@ -300,7 +305,10 @@
         if(playing) requestAnimationFrame(render);
       }
     }
-    render();
+    refit();
+    var e3Btn = document.querySelector('#explainTabs .tab-btn[data-tab="e3"]');
+    if(e3Btn) e3Btn.addEventListener('click', function(){ setTimeout(refit, 0); });
+    window.addEventListener('resize', refit);
     document.getElementById('playCars').addEventListener('click', function(){ playing = true; t0 = performance.now(); cur = 0; render(); });
     document.getElementById('replayCars').addEventListener('click', function(){ playing = false; cur = 0; render(); });
     document.getElementById('stepCars').addEventListener('click', function(){ playing = false; cur = Math.min(cur + 1, frames - 1); render(); });

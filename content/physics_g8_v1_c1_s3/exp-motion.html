@@ -33,7 +33,7 @@
       <button id="btnStep" type="button">⏭ 逐帧 +10s</button>
       <button id="btnReplay" type="button">🔄 重播</button>
       <label for="vA">甲车速度</label>
-      <input type="range" id="vA" min="5" max="25" step="1" value="15">
+      <input type="range" id="vA" min="5" max="15" step="1" value="15">
       <span class="val" id="vAVal">15 m/s</span>
     </div>
     <canvas id="cv" width="900" height="360" aria-label="甲乙两车运动对比动画"></canvas>
@@ -42,7 +42,7 @@
       <tr><th>甲 段路程</th><td id="a0">–</td><td id="a1">–</td><td id="a2">–</td><td id="a3">–</td></tr>
       <tr><th>乙 段路程</th><td id="b0">–</td><td id="b1">–</td><td id="b2">–</td><td id="b3">–</td></tr>
     </table>
-    <div class="hint" id="hint">💡 播放或逐帧后观察：甲车每 10 s 间隔相等（匀速）；乙车间隔越来越长（变速，从静止开始加速）。乙车数据为教材印刷值：0/100/235/400/600 m。</div>
+    <div class="hint" id="hint">💡 播放或逐帧后观察：甲车每 10 s 间隔相等（匀速）；乙车间隔越来越长（变速，从静止开始加速）。乙车数据为教材印刷值：0/100/235/400/600 m；画面量程 0—600 m，甲车速度滑块上限 15 m/s（40 s 恰好跑完 600 m）。</div>
   </div>
 </div>
 <script>
