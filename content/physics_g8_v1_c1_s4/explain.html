@@ -58,7 +58,7 @@
     <div class="card">
       <h2>一、平均速度 <span class="chip brown">衔接 1.3</span></h2>
       <p>平均速度用某段路程除以通过这段路程所用的时间来粗略描述物体运动的快慢。</p>
-      <div class="formula">v̄ = s / t</div>
+      <div class="formula"><span style="text-decoration:overline">v</span> = s / t</div>
       <p style="text-align:center;color:var(--ink2);font-size:13px;margin-top:-8px;">字母 v 上加一条横线，表示平均速度，读作“v杠”</p>
       <p style="text-align:center;color:var(--ink2);font-size:13px;">v 表示速度，s 表示路程，t 表示时间；三者必须对应同一段运动。</p>
 
@@ -69,7 +69,7 @@
         <span class="unit">时间 t =</span>
         <input id="avgT" type="number" value="20" step="0.1">
         <span class="unit">s</span>
-        <span class="unit">→ 平均速度 v̄ =</span>
+        <span class="unit">→ 平均速度 <span style="text-decoration:overline">v</span> =</span>
         <span class="result" id="avgV">5.00</span>
         <span class="unit">m/s</span>
       </div>
@@ -288,42 +288,53 @@
       sOut.textContent = calcS().toFixed(2);
     }
 
-    function drawSensor(ctx, x, y, active){
-      // base
-      var grd = ctx.createLinearGradient(x-18, y-45, x+18, y+45);
-      grd.addColorStop(0, '#7a7a7a'); grd.addColorStop(.5, '#a0a0a0'); grd.addColorStop(1, '#6a6a6a');
-      ctx.fillStyle = grd; ctx.fillRect(x-20, y+10, 40, 36);
-      ctx.fillStyle = '#555'; ctx.fillRect(x-22, y+42, 44, 8);
-      // cylinder body
-      var cyl = ctx.createLinearGradient(x-16, y-50, x+16, y-50);
-      cyl.addColorStop(0, '#555'); cyl.addColorStop(.25, '#999'); cyl.addColorStop(.5, '#bbb'); cyl.addColorStop(.75, '#888'); cyl.addColorStop(1, '#444');
-      ctx.fillStyle = cyl; ctx.beginPath(); ctx.ellipse(x, y-42, 18, 10, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillRect(x-18, y-42, 36, 52); ctx.beginPath(); ctx.ellipse(x, y+10, 18, 10, 0, 0, Math.PI*2); ctx.fill();
-      // front mesh face
-      var face = ctx.createRadialGradient(x, y-20, 2, x, y-20, 18);
-      face.addColorStop(0, '#e8e8e8'); face.addColorStop(1, '#8a8a8a');
-      ctx.fillStyle = face; ctx.beginPath(); ctx.ellipse(x, y-20, 16, 9, 0, 0, Math.PI*2); ctx.fill();
-      // mesh lines
-      ctx.strokeStyle = 'rgba(60,60,60,.35)'; ctx.lineWidth = 1;
-      for(var i=-12;i<=12;i+=4){ ctx.beginPath(); ctx.moveTo(x+i, y-27); ctx.lineTo(x+i, y-13); ctx.stroke(); }
-      for(var j=-6;j<=6;j+=3){ ctx.beginPath(); ctx.ellipse(x, y-20+j, 16*Math.sqrt(1-(j*j)/36), 1, 0, 0, Math.PI*2); ctx.stroke(); }
-      // indicator light
+    // hand-held megaphone probe: cone body + handle, mouth faces right
+    function drawProbe(ctx, mouthX, beamY, groundY, active){
+      var coneLen = 46, mouthR = 22, backR = 10;
+      var hx = mouthX - coneLen * 0.55;
+
+      // handle
+      ctx.fillStyle = '#444';
+      roundRectPath(ctx, hx - 5, beamY + backR - 2, 10, groundY - (beamY + backR) - 6, 3);
+      ctx.fill();
+
+      // cone body
+      var grd = ctx.createLinearGradient(mouthX - coneLen, beamY - mouthR, mouthX, beamY + mouthR);
+      grd.addColorStop(0, '#8a8a8a'); grd.addColorStop(.45, '#dcdcdc'); grd.addColorStop(1, '#6a6a6a');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.moveTo(mouthX - coneLen, beamY - backR);
+      ctx.lineTo(mouthX, beamY - mouthR);
+      ctx.lineTo(mouthX, beamY + mouthR);
+      ctx.lineTo(mouthX - coneLen, beamY + backR);
+      ctx.closePath();
+      ctx.fill();
+
+      // mouth rim
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(mouthX, beamY, 4, mouthR, 0, 0, Math.PI*2); ctx.stroke();
+
+      // indicator light on handle
       ctx.fillStyle = active ? '#ff3333' : '#2ecc40';
-      ctx.beginPath(); ctx.arc(x+12, y+24, 4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx, beamY + 18, 4, 0, Math.PI*2); ctx.fill();
       ctx.strokeStyle = '#444'; ctx.lineWidth = 1; ctx.stroke();
     }
-    function drawObject(ctx, x, y){
-      // obstacle cart/box
-      var grd = ctx.createLinearGradient(x-25, y-35, x+25, y+35);
+
+    function drawObject(ctx, x, groundY, beamY){
+      // obstacle box: bottom on groundY, body centered at beamY
+      var topY = 2 * beamY - groundY;
+      var h = groundY - topY;
+      var w = 44;
+      var grd = ctx.createLinearGradient(x, topY, x + w, groundY);
       grd.addColorStop(0, '#c0392b'); grd.addColorStop(1, '#922b21');
-      ctx.fillStyle = grd; ctx.beginPath(); ctx.moveTo(x-25, y+25); ctx.lineTo(x-22, y-30); ctx.lineTo(x+22, y-30); ctx.lineTo(x+25, y+25); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#7a231b'; ctx.fillRect(x-28, y+20, 56, 8);
-      // wheels
-      ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(x-16, y+30, 7, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(x+16, y+30, 7, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#aaa'; ctx.beginPath(); ctx.arc(x-16, y+30, 3, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(x+16, y+30, 3, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = grd;
+      roundRectPath(ctx, x, topY, w, h, 6);
+      ctx.fill();
+      // base shadow
+      ctx.fillStyle = 'rgba(0,0,0,.12)';
+      ctx.beginPath(); ctx.ellipse(x + w/2, groundY, w/2 + 4, 5, 0, 0, Math.PI*2); ctx.fill();
     }
+
     function drawPathLine(ctx, x1, y1, x2, y2, alpha){
       if(alpha <= 0) return;
       ctx.save();
@@ -333,23 +344,16 @@
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
       ctx.restore();
     }
-    function drawSLabel(ctx, x1, y1, x2, y2){
-      var mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+
+    function drawSLabel(ctx, x, y){
       ctx.save();
-      ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(mx, my, 12, 0, Math.PI*2); ctx.fill();
-      ctx.strokeStyle = '#4a8c3f'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.fillStyle = '#4a8c3f'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('s', mx, my+1);
+      ctx.fillStyle = '#4a8c3f';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('s', x, y);
       ctx.restore();
     }
-    function drawSLabelAt(ctx, x, y){
-      ctx.save();
-      ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.beginPath(); ctx.arc(x, y, 11, 0, Math.PI*2); ctx.fill();
-      ctx.strokeStyle = '#4a8c3f'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.fillStyle = '#4a8c3f'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('s', x, y+1);
-      ctx.restore();
-    }
+
     function drawPulse(ctx, x, y){
       ctx.save();
       var g = ctx.createRadialGradient(x, y, 1, x, y, 9);
@@ -358,37 +362,46 @@
       ctx.strokeStyle = '#3fa7e8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2); ctx.stroke();
       ctx.restore();
     }
+
     function draw(){
       if(!cv) return;
       var info = fitCanvas(cv, 260);
       var ctx = info.ctx, w = info.w, h = info.h;
       ctx.clearRect(0, 0, w, h);
-      var groundY = h - 35, devX = 70, objX = w - 80, beamY = groundY - 56;
-      // ground shadow
-      ctx.fillStyle = 'rgba(0,0,0,.06)'; ctx.fillRect(40, groundY, w-80, 4);
-      drawSensor(ctx, devX, beamY, running || progress > 0);
-      drawObject(ctx, objX, groundY);
-      var travel = objX - devX - 34;
-      var pulseX = devX + 18 + paths.go * travel;
-      var baseY = beamY - 20, goY = baseY - 5, backY = baseY + 5;
-      // path lines
-      drawPathLine(ctx, devX+18, goY, devX+18+paths.go*travel, goY, paths.go);
+      var groundY = h - 28;
+      var devX = 55;
+      var mouthX = devX + 46;
+      var objFaceX = w - 75;
+      var beamY = groundY - 58;
+
+      // ground line
+      ctx.fillStyle = 'rgba(0,0,0,.06)'; ctx.fillRect(30, groundY, w - 60, 3);
+
+      drawProbe(ctx, mouthX, beamY, groundY, running || progress > 0);
+      drawObject(ctx, objFaceX, groundY, beamY);
+
+      var travel = objFaceX - mouthX;
+      var pulseX = mouthX + paths.go * travel;
+      var goY = beamY - 8, backY = beamY + 8;
+
+      drawPathLine(ctx, mouthX, goY, mouthX + paths.go * travel, goY, paths.go);
       if(paths.back > 0){
-        var bx = objX - 16 - paths.back * travel;
-        drawPathLine(ctx, objX-16, backY, bx, backY, paths.back);
+        var bx = objFaceX - paths.back * travel;
+        drawPathLine(ctx, objFaceX, backY, bx, backY, paths.back);
       }
-      // pulse (only while the pulse is in flight; cleared at completion and before next emission)
-      if(running) drawPulse(ctx, pulseX, baseY);
-      // labels
+
+      if(running) drawPulse(ctx, pulseX, beamY);
+
       if(labels){
-        drawSLabelAt(ctx, devX+18 + travel/3, goY);
-        drawSLabelAt(ctx, objX-16 - travel/3, backY);
+        drawSLabel(ctx, mouthX + travel/3, goY - 10);
+        drawSLabel(ctx, objFaceX - travel/3, backY + 10);
       }
-      // texts
+
       ctx.fillStyle = '#5a5a5a'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('超声波探头', devX, beamY+62);
-      ctx.fillText('被测物', objX, groundY+22);
+      ctx.fillText('超声波探头', devX + 20, beamY + 56);
+      ctx.fillText('被测物', objFaceX + 22, groundY + 18);
     }
+
     function loop(now){
       if(running){
         progress = Math.min((now - t0) / DURATION, 1);
@@ -406,14 +419,13 @@
       draw();
       if(running) requestAnimationFrame(loop);
     }
+
     playBtn.addEventListener('click', function(){
       running = true; progress = 0; t0 = performance.now(); labels = false; paths = {go:0, back:0}; loop(t0);
     });
     tIn.addEventListener('input', updateCalc);
     updateCalc(); draw(); drawWhenVisible(cv, draw);
-  })();
-
-  // E5 interval speed animation + calc
+  })();  // E5 interval speed animation + calc
   (function(){
     var sIn = document.getElementById('secS');
     var vIn = document.getElementById('secV');
@@ -422,12 +434,14 @@
     var cv = document.getElementById('sectionCanvas');
     var DURATION = 4500;
     var running = false, progress = 0, t0 = 0, flashA = 0, flashB = 0, pathEnd = 0, showS = false;
+    var CAR_FRONT = 38; // px offset from car translate x to front
 
     function updateCalc(){
       var s = parseFloat(sIn.value) || 0;
       var v = parseFloat(vIn.value) || 1;
       tOut.textContent = (s / v * 60).toFixed(2);
     }
+
     function drawCamera(ctx, x, y, label, flash){
       // pole
       ctx.fillStyle = '#7a7a7a'; ctx.fillRect(x-4, y, 8, 70);
@@ -455,6 +469,7 @@
       ctx.fillStyle = '#5a5a5a'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(label, x+30, y+92);
     }
+
     function drawCar(ctx, x, y, scale){
       ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
       // body
@@ -473,6 +488,7 @@
       ctx.fillStyle = '#ffeb3b'; ctx.beginPath(); ctx.arc(42, -2, 3, 0, Math.PI*2); ctx.fill();
       ctx.restore();
     }
+
     function drawPath(ctx, x1, y, x2){
       if(x2 <= x1) return;
       ctx.save();
@@ -481,6 +497,7 @@
       ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
       ctx.restore();
     }
+
     function drawSection(){
       if(!cv) return;
       var info = fitCanvas(cv, 260);
@@ -497,47 +514,50 @@
       // cameras
       drawCamera(ctx, camAX, roadY-78, '摄像头 A', flashA);
       drawCamera(ctx, camBX, roadY-78, '摄像头 B', flashB);
-      // car position based on progress: left ready -> off-screen right
-      var startX = 70, endX = w + 70, triggerA = camAX + 58, triggerB = camBX + 58;
+      // car
+      var startX = -70, endX = w + 70;
       var carX = startX + progress * (endX - startX);
-      // path from triggerA to min(carX - offset, triggerB)
-      var pathStartX = triggerA + 10, pathStopX = Math.min(carX - 30, triggerB + 10);
-      var recorded = pathEnd * (triggerB - triggerA);
-      var showPath = pathStartX + recorded * pathEnd;
+      var carFront = carX + CAR_FRONT * carScale;
+      // recorded path between the two camera poles
+      var pathStartX = camAX, pathEndX = camBX;
+      var recorded = pathEnd * (pathEndX - pathStartX);
+      var showPath = pathStartX + recorded;
       if(recorded > 0) drawPath(ctx, pathStartX, roadY+55, showPath);
       // car
       drawCar(ctx, carX, roadY+22, carScale);
-      // label s
+      // label s below the recorded path
       if(showS && recorded > 0){
         var sx = pathStartX + recorded/2;
         ctx.save();
-        ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(sx, roadY+55, 13, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = '#4a8c3f'; ctx.lineWidth = 2; ctx.stroke();
         ctx.fillStyle = '#4a8c3f'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('s', sx, roadY+56);
+        ctx.fillText('s', sx, roadY + 66);
         ctx.restore();
       }
       // info
       var s = parseFloat(sIn.value) || 0, v = parseFloat(vIn.value) || 0;
       ctx.fillStyle = '#5a5a5a'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('区间长度 s = ' + s + ' km   限速 ' + Math.round(v) + ' km/h', w/2, h-14);
+      ctx.fillText('区间长度 s = ' + s + ' km   限速 ' + Math.round(v) + ' km/h', w/2, h-5);
     }
+
     function loop(now){
       if(running){
         progress = Math.min((now - t0) / DURATION, 1);
         var w = cv ? cv.clientWidth : 640;
-        var startX = -70, endX = w + 70, camAX = 80, camBX = w - 110;
-        var triggerA = camAX + 58, triggerB = camBX + 58;
+        var camAX = 80, camBX = w - 110;
+        var startX = -70, endX = w + 70;
         var carX = startX + progress * (endX - startX);
-        if(carX >= triggerA && pathEnd === 0){
-          flashA = 1; pathEnd = Math.min((carX - triggerA) / (triggerB - triggerA), 1);
+        var carFront = carX + CAR_FRONT * 0.85;
+
+        if(pathEnd === 0 && carFront >= camAX){
+          flashA = 1;
         }
-        if(pathEnd > 0 && carX < triggerB){
-          pathEnd = Math.min((carX - triggerA) / (triggerB - triggerA), 1);
+        if(flashA > 0 && carFront >= camAX && carFront <= camBX){
+          pathEnd = Math.min((carFront - camAX) / (camBX - camAX), 1);
         }
-        if(carX >= triggerB && flashB === 0){
+        if(pathEnd > 0 && carFront >= camBX && flashB === 0){
           flashB = 1; pathEnd = 1; showS = true;
         }
+
         if(flashA > 0) flashA -= 0.04;
         if(flashB > 0) flashB -= 0.04;
         if(progress >= 1) running = false;
@@ -545,9 +565,11 @@
       drawSection();
       if(running) requestAnimationFrame(loop);
     }
+
     function start(){
       running = true; progress = 0; t0 = performance.now(); flashA = 0; flashB = 0; pathEnd = 0; showS = false; loop(t0);
     }
+
     replayBtn.addEventListener('click', start);
     sIn.addEventListener('input', function(){ updateCalc(); drawSection(); });
     vIn.addEventListener('input', function(){ updateCalc(); drawSection(); });

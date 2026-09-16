@@ -25,7 +25,7 @@
 </style>
 </head>
 <body>
-<a class="back-btn" href="experiment.html">‹ 返回实验区</a>
+<a class="back-btn" href="experiment.html" id="backBtn">‹ 返回实验区</a>
 
 <div class="container">
   <div class="page-header">
@@ -175,6 +175,7 @@
   var CENTER_MAX_X = MAX_X + 24; // 小车中心对应 1.00 m 的 px（504）
   var M_PER_PX = 1.0 / (CENTER_MAX_X - CENTER_MIN_X); // 1 px ≈ 2.38 mm
   var carX = +carRange.value;
+  var measured = false;
   var autoDir = 1;
   var autoPlaying = false;
   var rafId = null;
@@ -197,7 +198,7 @@
     }
   }
   var cmLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  cmLabel.setAttribute('x', CENTER_MAX_X + 10); cmLabel.setAttribute('y', 154);
+  cmLabel.setAttribute('x', CENTER_MAX_X + 14); cmLabel.setAttribute('y', 166);
   cmLabel.setAttribute('font-size', '9'); cmLabel.setAttribute('fill', '#5a5a5a');
   cmLabel.textContent = 'cm';
   nums.appendChild(cmLabel);
@@ -209,12 +210,17 @@
     carX = Math.max(MIN_X, Math.min(MAX_X, x));
     carGroup.setAttribute('transform', 'translate(' + carX + ', 134)');
     carRange.value = carX;
-    var m = pxToM(carX + 24); // 小车中心
-    screenText.textContent = m.toFixed(2) + ' m';
-    distReadout.textContent = m.toFixed(2);
-    if (modeSelect.value === 'drag') {
-      inputT.value = (m * 2 / V_SOUND * 1000).toFixed(2);
-      updateCalcS();
+    if (measured) {
+      var m = pxToM(carX + 24); // 小车中心
+      screenText.textContent = m.toFixed(2) + ' m';
+      distReadout.textContent = m.toFixed(2);
+      if (modeSelect.value === 'drag') {
+        inputT.value = (m * 2 / V_SOUND * 1000).toFixed(2);
+        updateCalcS();
+      }
+    } else {
+      screenText.textContent = '-- m';
+      distReadout.textContent = '--';
     }
   }
 
@@ -247,6 +253,8 @@
 
   function emitPulse() {
     if (pulseAnim) cancelAnimationFrame(pulseAnim);
+    measured = false;
+    setCar(carX);
     var m = pxToM(carX + 24);
     var tTotal = m * 2 / V_SOUND;
     var duration = Math.max(0.4, Math.min(1.2, tTotal * 10));
@@ -265,6 +273,8 @@
         pulseAnim = requestAnimationFrame(frame);
       } else {
         pulseBack.style.display = 'none';
+        measured = true;
+        setCar(carX);
       }
     }
     pulseAnim = requestAnimationFrame(frame);
@@ -288,7 +298,7 @@
       rafId = requestAnimationFrame(loop);
     } else {
       autoPlaying = false; pauseBtn.style.display = 'none';
-      autoHint.textContent = '拖动滑块改变小车位置，实时更新距离读数。';
+      autoHint.textContent = '拖动滑块改变小车位置，点击“发射脉冲”测距离。';
       if (rafId) cancelAnimationFrame(rafId);
     }
   });
@@ -304,6 +314,19 @@
   setCar(carX);
   updateCalcS();
   updateCalcV();
+})();
+</script>
+<script>
+(function(){
+  var back = document.getElementById('backBtn');
+  var ref = document.referrer || '';
+  if (location.search.indexOf('from=explain') !== -1 || /explain\.html/.test(ref)) {
+    back.href = 'explain.html';
+    back.textContent = '‹ 返回讲解';
+  } else {
+    back.href = 'experiment.html';
+    back.textContent = '‹ 返回实验区';
+  }
 })();
 </script>
 </body>
