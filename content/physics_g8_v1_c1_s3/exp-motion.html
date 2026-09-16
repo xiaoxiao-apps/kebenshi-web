@@ -58,9 +58,10 @@
   var vAEl = document.getElementById('vA');
   var vAVal = document.getElementById('vAVal');
   var btnStep = document.getElementById('btnStep');
+  var vARun = 15; // 运行速度：仅在点击"播放"时从滑块取值，滑块拖动不影响画面
 
   function vA() { return +vAEl.value; }
-  function posA(tt) { return Math.min(vA() * tt, MAXS); }
+  function posA(tt) { return Math.min(vARun * tt, MAXS); }
   function posBAt(tt) {
     var i = Math.min(Math.floor(tt / 10), 3);
     var f = (tt - i * 10) / 10;
@@ -82,7 +83,7 @@
   function draw() {
     ctx.clearRect(0, 0, W, H);
     var lanes = [
-      { y: 90, name: '甲（匀速 ' + vA() + ' m/s）', p: posA(t), color: '#e74c3c' },
+      { y: 90, name: '甲（匀速 ' + vARun + ' m/s）', p: posA(t), color: '#e74c3c' },
       { y: 230, name: '乙（变速）', p: posBAt(t), color: '#2980b9' }
     ];
     ctx.font = '700 16px sans-serif';
@@ -94,7 +95,7 @@
       // 每10s位置标尺
       for (var k = 0; k <= 4; k++) {
         var tt = k * 10;
-        var p = L.name.charAt(0) === '甲' ? posA(tt) : posB[k];
+        var p = L.name.charAt(0) === '甲' ? 15 * tt : posB[k]; // 甲车标尺固定按15m/s，不随滑块变
         var px = x(p);
         ctx.strokeStyle = 'rgba(0,0,0,.25)';
         ctx.beginPath(); ctx.moveTo(px, L.y + 8); ctx.lineTo(px, L.y + 18); ctx.stroke();
@@ -105,6 +106,19 @@
       }
       drawCar(x(L.p), L.y, L.color);
     });
+    if (t >= 40) { // 终点标记：甲车实际停止位置
+      var finP = posA(40);
+      var fx = x(finP);
+      ctx.strokeStyle = '#e67e22';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(fx, 60); ctx.lineTo(fx, 110); ctx.stroke();
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#b3541e';
+      ctx.font = '700 13px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('终点 ' + Math.round(finP) + ' m', Math.min(fx + 6, W - 6), 54);
+      ctx.textAlign = 'left';
+    }
     ctx.fillStyle = '#333';
     ctx.font = '800 18px sans-serif';
     ctx.fillText('t = ' + t.toFixed(0) + ' s', W - 110, 30);
@@ -134,6 +148,7 @@
 
   document.getElementById('btnPlay').addEventListener('click', function () {
     if (playing) return;
+    vARun = vA(); // 新速度仅在点击播放时生效
     if (t >= 40) t = 0;
     playing = true; last = null;
     raf = requestAnimationFrame(tick);
@@ -149,8 +164,7 @@
     t = 0; draw();
   });
   vAEl.addEventListener('input', function () {
-    vAVal.textContent = vA() + ' m/s';
-    draw();
+    vAVal.textContent = vA() + ' m/s'; // 只更新数字，不重绘画面
   });
   draw();
 })();
