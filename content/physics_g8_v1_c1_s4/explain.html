@@ -23,6 +23,7 @@
   .s-eq.show { opacity:1; }
   .verdict { font-weight:700; font-size:14px; padding:5px 12px; border-radius:8px; display:inline-block; }
   .verdict.ok { color:#1e7a34; background:#e6f4e6; }
+  .verdict.hidden { visibility:hidden; }
   .verdict.bad { color:#c0392b; background:#fdecea; }
   .canvas-wrap { background: var(--card2); border-radius: 12px; padding: 14px; margin: 12px 0; }
   .canvas-wrap canvas { display: block; width: 100%; height: 220px; border-radius: 8px; background: #fff; }
@@ -176,7 +177,7 @@
             <span class="unit">经过时间 t =</span>
             <input id="secTIn" type="number" value="5" step="0.1">
             <span class="unit">min</span>
-            <span class="verdict ok" id="secVerdict">✓ 正常，未超速（v = 96 km/h）</span>
+            <span class="verdict ok hidden" id="secVerdict">✓ 正常，未超速（v = 96 km/h）</span>
           </div>
           <div class="anim-btns" style="justify-content:center;">
             <button class="btn btn-primary" id="secReplay">🚗 开始出发</button>
@@ -186,7 +187,8 @@
 
         <div class="key-point">
           <p><strong>判断原理</strong></p>
-          <p>平均速度 <span style="text-decoration:overline">v</span> = <span class="frac"><span class="num">s</span><span class="den">t</span></span>，算出的 v 超过限速 100 km/h 即判超速。在限速下通过长度为 s 的区间，最少需要时间 t = s ÷ v。</p>
+          <p>平均速度 <span style="text-decoration:overline">v</span> = <span class="frac"><span class="num">s</span><span class="den">t</span></span>，算出的 v 超过限速 100 km/h 即判超速。</p>
+          <p>在限速下通过长度为 s 的区间，最少需要时间 t = s ÷ v。</p>
         </div>
       </div>
 
@@ -196,7 +198,7 @@
         <p>教材图 1.4-3 中，把超声波传感器固定在斜面一端，小车在斜面上运动。传感器利用超声波测出不同时刻小车与它的距离，计算机再根据时间算出小车在不同位置时的速度。</p>
         <p>如果把传感器放在合适的位置，实验者面对传感器前后行走，还可以在屏幕上实时观察自己行走的速度。</p>
 
-        <a class="link-card" href="exp-sensor.html?from=explain">
+        <a class="link-card" href="exp-sensor.html?from=explain&sub=t3">
           <div class="icon">🔬</div>
           <div class="text">
             <div class="title">去互动探索区体验传感器测速</div>
@@ -229,15 +231,22 @@
   // Sub tabs
   var subTabs = document.querySelectorAll('#toolTabs .tab-btn');
   var subPanels = document.querySelectorAll('.tool-panel');
+  function activateSub(key){
+    subTabs.forEach(function(b){ b.classList.toggle('active', b.dataset.subtab === key); });
+    subPanels.forEach(function(p){ p.classList.remove('active'); });
+    var panel = document.getElementById('tool-panel-' + key);
+    if(panel) panel.classList.add('active');
+  }
   subTabs.forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var key = btn.dataset.subtab;
-      subTabs.forEach(function(b){ b.classList.remove('active'); });
-      subPanels.forEach(function(p){ p.classList.remove('active'); });
-      btn.classList.add('active');
-      document.getElementById('tool-panel-' + key).classList.add('active');
-    });
+    btn.addEventListener('click', function(){ activateSub(btn.dataset.subtab); });
   });
+  // 从传感器测速专栏进入实验区再返回时，直接落回传感器测速专栏
+  var subM = /[?&]sub=(t1|t2|t3)(?:&|$)/.exec(location.search);
+  if(subM){
+    var e2btn = document.querySelector('[data-tab="e2"]');
+    if(e2btn) e2btn.click();
+    activateSub(subM[1]);
+  }
 
   // Reveal buttons
   document.querySelectorAll('.reveal-btn').forEach(function(btn){
@@ -355,6 +364,17 @@
       ctx.restore();
     }
 
+    function drawArrowHead(ctx, x, y, dir, color){
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - dir*9, y - 5);
+      ctx.lineTo(x - dir*9, y + 5);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+
     function drawSLabel(ctx, x, y, sub){
       ctx.save();
       ctx.fillStyle = '#4a8c3f';
@@ -410,6 +430,8 @@
       if(labels){
         drawSLabel(ctx, mouthX + travel/3, goY - 10, '1');
         drawSLabel(ctx, objFaceX - travel/3, backY + 10, '2');
+        drawArrowHead(ctx, mouthX + travel*0.72, goY, 1, 'rgba(41,128,185,.85)');
+        drawArrowHead(ctx, objFaceX - travel*0.72, backY, -1, 'rgba(41,128,185,.85)');
       }
 
       ctx.fillStyle = '#5a5a5a'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
@@ -456,10 +478,13 @@
     var running = false, progress = 0, t0 = 0, flashA = 0, flashB = 0, pathEnd = 0, showS = false;
     var CAR_FRONT = 38; // px offset from car translate x to front
 
-    function updateCalc(){
+    function calcV(){
       var s = parseFloat(sIn.value) || 0;
       var t = parseFloat(tIn.value) || 0;
-      var v = t > 0 ? s / (t / 60) : 0;
+      return t > 0 ? s / (t / 60) : 0;
+    }
+    function judge(){
+      var v = calcV();
       var vv = Math.round(v);
       if(v > 0 && v <= 100){
         verdict.textContent = '✓ 正常，未超速（v = ' + vv + ' km/h）';
@@ -468,7 +493,7 @@
         verdict.textContent = '⚠ 您已超速（v = ' + vv + ' km/h）';
         verdict.className = 'verdict bad';
       } else {
-        verdict.textContent = '请输入时间';
+        verdict.textContent = '请先输入区间长度与经过时间';
         verdict.className = 'verdict ok';
       }
     }
@@ -586,7 +611,7 @@
         if(pathEnd === 0 && carFront >= camAX){
           flashA = 1;
         }
-        if(flashA > 0 && carFront >= camAX && carFront <= camBX){
+        if(carFront >= camAX && carFront <= camBX){
           pathEnd = Math.min((carFront - camAX) / (camBX - camAX), 1);
         }
         if(pathEnd > 0 && carFront >= camBX && flashB === 0){
@@ -595,20 +620,21 @@
 
         if(flashA > 0) flashA -= 0.04;
         if(flashB > 0) flashB -= 0.04;
-        if(progress >= 1) running = false;
+        if(progress >= 1){ running = false; judge(); }
       }
       drawSection();
       if(running) requestAnimationFrame(loop);
     }
 
     function start(){
-      running = true; progress = 0; t0 = performance.now(); flashA = 0; flashB = 0; pathEnd = 0; showS = false; loop(t0);
+      running = true; progress = 0; t0 = performance.now(); flashA = 0; flashB = 0; pathEnd = 0; showS = false;
+      verdict.className = 'verdict ok hidden';
+      loop(t0);
     }
 
     replayBtn.addEventListener('click', start);
-    sIn.addEventListener('input', function(){ updateCalc(); drawSection(); });
-    tIn.addEventListener('input', function(){ updateCalc(); drawSection(); });
-    updateCalc();
+    sIn.addEventListener('input', function(){ verdict.className = 'verdict ok hidden'; drawSection(); });
+    tIn.addEventListener('input', function(){ verdict.className = 'verdict ok hidden'; drawSection(); });
     drawWhenVisible(cv, drawSection);
   })();
 })();

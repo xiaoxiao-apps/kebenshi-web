@@ -32,6 +32,8 @@
 .card.open .answer { display: block; }
 .reveal-btn { margin-top: 10px; background: var(--cyan-bg); color: var(--cyan); border: 1px solid rgba(41,128,185,.2); padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; min-height: 40px; }
 .reveal-btn:hover { background: #d8ebf8; }
+.reset-btn { margin-top: 10px; margin-left: 8px; background: var(--card2); color: var(--ink2); border: 1px solid rgba(0,0,0,.12); padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; min-height: 40px; }
+.reset-btn:hover { background: var(--brown-bg); color: var(--brown); }
 #q2-scene { width: 100%; height: auto; background: var(--card2); border-radius: 10px; margin-bottom: 10px; }
 </style>
 </head>
@@ -93,7 +95,7 @@
       </div>
       <div id="q1-feedback"></div>
     </div>
-    <button class="reveal-btn" type="button">💡 查看答案</button>
+    <button class="reveal-btn" type="button">💡 查看答案</button><button class="reset-btn" type="button">↺ 重置本题</button>
     <div class="answer">
       <div class="line">需要测量的物理量：<b>路程 s</b> 和 <b>时间 t</b>。</div>
       <div class="line">测量工具：用 <b>刻度尺（或卷尺）</b> 测路程，用 <b>秒表（或手表）</b> 测时间；再依据 <b>v = s / t</b> 计算平均速度。</div>
@@ -152,7 +154,7 @@
         <span>cm/s</span>
       </div>
     </div>
-    <button class="reveal-btn" type="button">💡 查看答案</button>
+    <button class="reveal-btn" type="button">💡 查看答案</button><button class="reset-btn" type="button">↺ 重置本题</button>
     <div class="answer">
       <div class="line">已知：s<sub>AB</sub> = 100 − 75 = <b>25 cm</b>，s<sub>BC</sub> = 75 − 0 = <b>75 cm</b>，s<sub>AC</sub> = 100 − 0 = <b>100 cm</b>（由图上刻度读出）。</div>
       <div class="line">t<sub>AB</sub> = 00:01.00 − 00:00.00 = <b>1.00 s</b>，t<sub>BC</sub> = 1.00 s，t<sub>AC</sub> = 2.00 s（由图上时刻算出）。</div>
@@ -174,7 +176,7 @@
       <button class="choice" data-reason="start">小车每次从同一位置释放，速度应该完全相同</button>
     </div>
     <div id="q3-feedback"></div>
-    <button class="reveal-btn" type="button">💡 查看答案</button>
+    <button class="reveal-btn" type="button">💡 查看答案</button><button class="reset-btn" type="button">↺ 重置本题</button>
     <div class="answer">
       <div class="line"><b>第一种情况</b>：小车沿斜面下滑时速度越来越快，做的是变速运动。全程的平均速度 <b>v<sub>1</sub></b> 与上半段的平均速度 <b>v<sub>2</sub></b> 对应的是不同路段，因此这两个速度本来就不同。</div>
       <div class="line"><b>第二种情况</b>：即使测量同一装置、同一路段，不同同学用手表计时、用刻度尺读数时也会存在测量误差，导致算出的 <b>v<sub>2</sub></b> 不完全相同。多次测量取平均值可以减小这种误差。</div>
@@ -194,7 +196,7 @@
       <button class="choice" data-ok="0">测出走一圈所用时间 <b>t</b>，则 v = l · t；再测出从家走到学校所用时间 <b>t′</b>，则 s = l · t′</button>
     </div>
     <div id="q4-feedback"></div>
-    <button class="reveal-btn" type="button">💡 查看答案</button>
+    <button class="reveal-btn" type="button">💡 查看答案</button><button class="reset-btn" type="button">↺ 重置本题</button>
     <div class="answer">
       <div class="line">需要测量的物理量：<b>操场跑道长度 l</b>、<b>沿跑道步行一圈所用时间 t</b>、<b>从家走到学校所用时间 t′</b>。</div>
       <div class="line">步行速度：<b>v = l / t</b>（路程除以时间）。</div>
@@ -221,7 +223,7 @@
         <span class="inline-res" id="q5-v">12.0</span> km/h。
       </div>
     </div>
-    <button class="reveal-btn" type="button">💡 查看答案</button>
+    <button class="reveal-btn" type="button">💡 查看答案</button><button class="reset-btn" type="button">↺ 重置本题</button>
     <div class="answer">
       <div class="line"><b>估测方法：</b>骑自行车沿公路前进，当经过某一里程碑时开始计时，同时数记经过的里程碑数。</div>
       <div class="line">若记录了经过 <b>n</b> 个相邻里程碑所用时间为 <b>t</b>，则行驶的路程 <b>s = n × 1 km = n km</b>。</div>
@@ -388,6 +390,33 @@
   }
   [q5n, q5t].forEach(function (el) { el.addEventListener('input', q5Calc); });
   q5Calc();
+
+  // 重置按钮：清空本题输入/选择/反馈/答案展开，进度重算
+  document.querySelectorAll('.reset-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var card = btn.closest('.card');
+      card.querySelectorAll('input').forEach(function (inp) {
+        if (inp.id === 'q5-n') { inp.value = '1'; }
+        else if (inp.id === 'q5-t') { inp.value = '5'; }
+        else { inp.value = ''; }
+        inp.classList.remove('ok', 'err');
+      });
+      card.querySelectorAll('select').forEach(function (sel) {
+        sel.value = '';
+        sel.classList.remove('ok', 'err');
+      });
+      card.querySelectorAll('.choice').forEach(function (c) { c.classList.remove('ok', 'err'); });
+      card.querySelectorAll('#q1-feedback, #q3-feedback, #q4-feedback').forEach(function (fb) { fb.className = ''; fb.textContent = ''; });
+      card.classList.remove('open');
+      var rb = card.querySelector('.reveal-btn');
+      if (rb) rb.textContent = '💡 查看答案';
+      var q = card.dataset.q;
+      if (q) delete answered[q];
+      if (q === 'q2') q2Check();
+      if (q === 'q5') q5Calc();
+      updateProgress();
+    });
+  });
 
   // 揭晓按钮
   document.querySelectorAll('.reveal-btn').forEach(function (btn) {

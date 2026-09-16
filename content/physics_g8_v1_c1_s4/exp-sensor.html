@@ -177,6 +177,8 @@
   var carX = +carRange.value;
   var measured = false;
   var measuredX = null; // 发射完成时锁定的小车位置
+  var pulsePlaying = false; // 脉冲动画播放中：自动往返继续，但不清空已锁定的读数
+  var snapshot = null; // 脉冲记录的时刻距离读数（m），自动往返继续跑也保持显示
   var autoDir = 1;
   var autoPlaying = false;
   var rafId = null;
@@ -209,13 +211,13 @@
 
   function setCar(x) {
     var nx = Math.max(MIN_X, Math.min(MAX_X, x));
-    // 位置一变（拖动或自动移动）即清空读数，防止自动往返实时跟读
-    if (measured && nx !== measuredX) { measured = false; measuredX = null; }
+    // 位置一变（拖动或自动移动）即清空读数，防止自动往返实时跟读；脉冲播放期间或已有快照记录时保留
+    if (measured && nx !== measuredX && !pulsePlaying && snapshot === null) { measured = false; measuredX = null; }
     carX = nx;
     carGroup.setAttribute('transform', 'translate(' + carX + ', 134)');
     carRange.value = carX;
     if (measured) {
-      var m = pxToM(carX + 24); // 小车中心
+      var m = snapshot !== null ? snapshot : pxToM(carX + 24); // 小车中心
       screenText.textContent = m.toFixed(2) + ' m';
       distReadout.textContent = m.toFixed(2);
       if (modeSelect.value === 'drag') {
@@ -259,13 +261,9 @@
     if (pulseAnim) cancelAnimationFrame(pulseAnim);
     measured = false;
     measuredX = null;
+    snapshot = null;
     setCar(carX);
-    // 发射期间暂停自动往返：读数对应发射时刻位置，播完后固定
-    if (autoPlaying) {
-      autoPlaying = false;
-      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-      pauseBtn.textContent = '继续';
-    }
+    // 自动往返不中断：脉冲只记录发射时刻的位置读数，小车继续跑
     var emitX = carX; // 发射时刻的小车位置
     var m = pxToM(emitX + 24);
     var tTotal = m * 2 / V_SOUND;
@@ -285,11 +283,20 @@
         pulseAnim = requestAnimationFrame(frame);
       } else {
         pulseBack.style.display = 'none';
+        pulsePlaying = false;
         measured = true;
-        measuredX = carX;
-        setCar(carX);
+        measuredX = emitX;
+        var mm = pxToM(emitX + 24);
+        snapshot = mm;
+        screenText.textContent = mm.toFixed(2) + ' m';
+        distReadout.textContent = mm.toFixed(2);
+        if (modeSelect.value === 'drag') {
+          inputT.value = (mm * 2 / V_SOUND * 1000).toFixed(2);
+          updateCalcS();
+        }
       }
     }
+    pulsePlaying = true;
     pulseAnim = requestAnimationFrame(frame);
   }
 
@@ -304,8 +311,9 @@
     rafId = requestAnimationFrame(loop);
   }
 
-  carRange.addEventListener('input', function () { setCar(+carRange.value); });
+  carRange.addEventListener('input', function () { pulsePlaying = false; snapshot = null; setCar(+carRange.value); });
   modeSelect.addEventListener('change', function () {
+    snapshot = null;
     if (modeSelect.value === 'auto') {
       autoPlaying = true; pauseBtn.style.display = 'inline-flex'; pauseBtn.textContent = '暂停';
       autoHint.textContent = '小车自动往返，点“发射脉冲”捕捉不同位置的读数。';
@@ -333,11 +341,14 @@
 <script>
 (function(){
   var back = document.getElementById('backBtn');
+  var backSub = '';
   var labels = { 'explain.html': '‹ 返回讲解', 'experiment.html': '‹ 返回探索区', 'index.html': '‹ 返回本节' };
   var target = null;
   // ① URL from 参数
   var m = /[?&]from=(explain|experiment|index)(?:&|$)/.exec(location.search);
   if (m) target = m[1] + '.html';
+  // 从讲解页传感器测速专栏进来 → 返回时带回专栏锚点
+  if (m && m[1] === 'explain' && /[?&]sub=t3(?:&|$)/.test(location.search)) backSub = '?sub=t3';
   // ② referrer 同目录页面文件名
   if (!target && document.referrer) {
     try {
@@ -353,7 +364,7 @@
   }
   // ③ 默认回探索区
   if (!target) target = 'experiment.html';
-  back.href = target;
+  back.href = target + backSub;
   back.textContent = labels[target];
 })();
 </script>
