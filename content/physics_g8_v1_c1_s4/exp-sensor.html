@@ -19,13 +19,13 @@
 .calc-card { background: linear-gradient(to bottom right, var(--card), var(--card2)); }
 .formula-line { background: var(--brown-bg); border-left: 4px solid var(--brown); padding: 12px 16px; border-radius: 0 10px 10px 0; font-size: 16px; font-weight: 700; color: var(--brown); margin-bottom: 12px; }
 .timeline { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2); margin-top: 10px; flex-wrap: wrap; }
-.timeline .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
-.timeline .dot.echo { background: var(--cyan); }
+.timeline .dot { width: 10px; height: 10px; border-radius: 50%; background: #e74c3c; }
+.timeline .dot.echo { background: #2980b9; }
 #pulseInfo { margin-left: auto; font-weight: 700; color: var(--brown); }
 </style>
 </head>
 <body>
-<a class="back-btn" href="experiment.html" id="backBtn">‹ 返回实验区</a>
+<a class="back-btn" href="experiment.html" id="backBtn">‹ 返回探索区</a>
 
 <div class="container">
   <div class="page-header">
@@ -56,7 +56,7 @@
         <g id="rulerMarks"></g>
         <g id="rulerNums"></g>
         <text x="70" y="34" font-size="13" fill="#5a5a5a">传感器读数</text>
-        <text id="screenText" x="70" y="54" font-size="18" font-weight="800" fill="var(--green)">0.20 m</text>
+        <text id="screenText" x="70" y="54" font-size="18" font-weight="800" fill="#4a8c3f">-- m</text>
         <g transform="translate(20, 130)">
           <rect x="0" y="0" width="36" height="46" rx="6" fill="#34495e"/>
           <rect x="26" y="8" width="10" height="14" rx="2" fill="#e74c3c"/>
@@ -88,7 +88,7 @@
       <span id="distReadout" class="big">0.20</span>
       <span class="unit">m</span>
     </div>
-    <p id="autoHint" class="hint">拖动滑块改变小车位置，实时更新距离读数。</p>
+    <p id="autoHint" class="hint">拖动滑块改变小车位置，点击“发射脉冲”测距离。</p>
   </div>
 
   <div class="card calc-card">
@@ -104,9 +104,9 @@
       <span>m</span>
     </div>
     <div class="timeline">
-      <span class="dot"></span><span>发射时刻</span>
+      <span class="dot"></span><span style="color:#e74c3c;font-weight:600;">红色 = 发射脉冲/时刻</span>
       <span style="margin:0 8px;">—</span>
-      <span class="dot echo"></span><span>接收时刻</span>
+      <span class="dot echo"></span><span style="color:#2980b9;font-weight:600;">蓝色 = 接收脉冲/时刻</span>
       <span id="pulseInfo" style="margin-left:auto;">t = 1.76 ms</span>
     </div>
   </div>
@@ -176,6 +176,7 @@
   var M_PER_PX = 1.0 / (CENTER_MAX_X - CENTER_MIN_X); // 1 px ≈ 2.38 mm
   var carX = +carRange.value;
   var measured = false;
+  var measuredX = null; // 发射完成时锁定的小车位置
   var autoDir = 1;
   var autoPlaying = false;
   var rafId = null;
@@ -207,7 +208,10 @@
   function mToPx(m) { return CENTER_MIN_X + m / M_PER_PX; }
 
   function setCar(x) {
-    carX = Math.max(MIN_X, Math.min(MAX_X, x));
+    var nx = Math.max(MIN_X, Math.min(MAX_X, x));
+    // 位置一变（拖动或自动移动）即清空读数，防止自动往返实时跟读
+    if (measured && nx !== measuredX) { measured = false; measuredX = null; }
+    carX = nx;
     carGroup.setAttribute('transform', 'translate(' + carX + ', 134)');
     carRange.value = carX;
     if (measured) {
@@ -254,8 +258,16 @@
   function emitPulse() {
     if (pulseAnim) cancelAnimationFrame(pulseAnim);
     measured = false;
+    measuredX = null;
     setCar(carX);
-    var m = pxToM(carX + 24);
+    // 发射期间暂停自动往返：读数对应发射时刻位置，播完后固定
+    if (autoPlaying) {
+      autoPlaying = false;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      pauseBtn.textContent = '继续';
+    }
+    var emitX = carX; // 发射时刻的小车位置
+    var m = pxToM(emitX + 24);
     var tTotal = m * 2 / V_SOUND;
     var duration = Math.max(0.4, Math.min(1.2, tTotal * 10));
     var start = performance.now();
@@ -274,6 +286,7 @@
       } else {
         pulseBack.style.display = 'none';
         measured = true;
+        measuredX = carX;
         setCar(carX);
       }
     }
@@ -283,10 +296,11 @@
   function loop(now) {
     if (!autoPlaying) return;
     var speed = 40; // px/s
-    carX += autoDir * speed / 60;
-    if (carX >= MAX_X) { carX = MAX_X; autoDir = -1; }
-    if (carX <= MIN_X) { carX = MIN_X; autoDir = 1; }
-    setCar(carX);
+    // 不直接改 carX，统一经 setCar 走 measured 判断，自动移动中读数保持 -- m
+    var nx = carX + autoDir * speed / 60;
+    if (nx >= MAX_X) { nx = MAX_X; autoDir = -1; }
+    if (nx <= MIN_X) { nx = MIN_X; autoDir = 1; }
+    setCar(nx);
     rafId = requestAnimationFrame(loop);
   }
 
@@ -319,14 +333,28 @@
 <script>
 (function(){
   var back = document.getElementById('backBtn');
-  var ref = document.referrer || '';
-  if (location.search.indexOf('from=explain') !== -1 || /explain\.html/.test(ref)) {
-    back.href = 'explain.html';
-    back.textContent = '‹ 返回讲解';
-  } else {
-    back.href = 'experiment.html';
-    back.textContent = '‹ 返回实验区';
+  var labels = { 'explain.html': '‹ 返回讲解', 'experiment.html': '‹ 返回探索区', 'index.html': '‹ 返回本节' };
+  var target = null;
+  // ① URL from 参数
+  var m = /[?&]from=(explain|experiment|index)(?:&|$)/.exec(location.search);
+  if (m) target = m[1] + '.html';
+  // ② referrer 同目录页面文件名
+  if (!target && document.referrer) {
+    try {
+      var a = document.createElement('a');
+      a.href = document.referrer;
+      var refDir = a.href.split('/').slice(0, -1).join('/');
+      var curDir = location.href.split('#')[0].split('?')[0].split('/').slice(0, -1).join('/');
+      if (a.origin === location.origin && refDir === curDir) {
+        var rm = /^(explain|experiment|index)\.html$/.exec(decodeURIComponent(a.pathname.split('/').pop()));
+        if (rm) target = rm[1] + '.html';
+      }
+    } catch (e) { /* referrer 解析失败则走默认 */ }
   }
+  // ③ 默认回探索区
+  if (!target) target = 'experiment.html';
+  back.href = target;
+  back.textContent = labels[target];
 })();
 </script>
 </body>
