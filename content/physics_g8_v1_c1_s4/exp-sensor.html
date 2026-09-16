@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>超声波传感器测速度 · 速度的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+.notice { background: var(--cyan-bg); border-left: 4px solid var(--cyan); padding: 12px 14px; border-radius: 0 10px 10px 0; font-size: 13px; color: var(--ink2); margin-bottom: 14px; }
+.scene-wrap { position: relative; background: var(--card2); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+#sensorSvg { display: block; width: 100%; height: auto; user-select: none; }
+.control-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+.control-row label { font-size: 13px; color: var(--ink2); white-space: nowrap; }
+.control-row input[type="number"] { width: 66px; padding: 8px 10px; font-size: 14px; text-align: center; }
+.control-row input[type="range"] { width: 160px; }
+.control-row select { min-width: 110px; }
+.readout { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.readout .big { font-size: 26px; font-weight: 800; color: var(--green); font-variant-numeric: tabular-nums; }
+.calc-card { background: linear-gradient(to bottom right, var(--card), var(--card2)); }
+.formula-line { background: var(--brown-bg); border-left: 4px solid var(--brown); padding: 12px 16px; border-radius: 0 10px 10px 0; font-size: 16px; font-weight: 700; color: var(--brown); margin-bottom: 12px; }
+.timeline { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2); margin-top: 10px; flex-wrap: wrap; }
+.timeline .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
+.timeline .dot.echo { background: var(--cyan); }
+#pulseInfo { margin-left: auto; font-weight: 700; color: var(--brown); }
+</style>
+</head>
+<body>
+<a class="back-btn" href="experiment.html">‹ 返回实验区</a>
+
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📡 超声波传感器测速度</h1>
+    <p class="page-subtitle">用超声波“发射—反射—接收”测距离，再用连续两次测距算运动速度。</p>
+  </div>
+
+  <div class="notice">
+    ℹ️ 本页动画为<strong>示意图</strong>，用于展示超声波测距与测速原理。左侧传感器发射超声波脉冲，脉冲遇到运动小车后反射回传感器，计算机根据往返时间计算距离。
+  </div>
+
+  <div class="card">
+    <h2>传感器测距动画示意</h2>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:10px;">拖动滑块或选择“自动往返”移动小车，点击“发射脉冲”观察超声波脉冲的传播与反射。</p>
+    <div class="scene-wrap">
+      <svg id="sensorSvg" viewBox="0 0 620 240" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="trackGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#e8dcc8"/>
+            <stop offset="1" stop-color="#d4c4a8"/>
+          </linearGradient>
+          <linearGradient id="carGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#e74c3c"/>
+            <stop offset="1" stop-color="#c0392b"/>
+          </linearGradient>
+        </defs>
+        <rect x="84" y="180" width="420" height="18" rx="4" fill="url(#trackGrad)" stroke="#b8a688" stroke-width="1"/>
+        <g id="rulerMarks"></g>
+        <g id="rulerNums"></g>
+        <text x="70" y="34" font-size="13" fill="#5a5a5a">传感器读数</text>
+        <text id="screenText" x="70" y="54" font-size="18" font-weight="800" fill="var(--green)">0.20 m</text>
+        <g transform="translate(20, 130)">
+          <rect x="0" y="0" width="36" height="46" rx="6" fill="#34495e"/>
+          <rect x="26" y="8" width="10" height="14" rx="2" fill="#e74c3c"/>
+          <text x="18" y="-8" text-anchor="middle" font-size="12" fill="#34495e">传感器</text>
+        </g>
+        <path id="pulseOut" d="" style="display:none;fill:none;stroke:#e74c3c;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:6 5;"/>
+        <path id="pulseBack" d="" style="display:none;fill:none;stroke:#2980b9;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:6 5;"/>
+        <g id="carGroup" transform="translate(100, 134)">
+          <rect x="0" y="0" width="48" height="24" rx="5" fill="url(#carGrad)"/>
+          <circle cx="10" cy="24" r="5" fill="#2c3e50"/>
+          <circle cx="38" cy="24" r="5" fill="#2c3e50"/>
+          <text x="24" y="-8" text-anchor="middle" font-size="12" fill="#c0392b">小车</text>
+        </g>
+      </svg>
+    </div>
+    <div class="control-row" style="margin-top:12px;">
+      <label>小车位置</label>
+      <input id="carRange" type="range" min="60" max="480" value="200">
+      <label>模式</label>
+      <select id="modeSelect">
+        <option value="drag">手动拖动</option>
+        <option value="auto">自动往返</option>
+      </select>
+      <button id="emitBtn" class="btn btn-primary" type="button">发射脉冲</button>
+      <button id="pauseBtn" class="btn btn-secondary" type="button" style="display:none;">暂停</button>
+    </div>
+    <div class="readout" style="margin-top:12px;">
+      <span>当前距离</span>
+      <span id="distReadout" class="big">0.20</span>
+      <span class="unit">m</span>
+    </div>
+    <p id="autoHint" class="hint">拖动滑块改变小车位置，实时更新距离读数。</p>
+  </div>
+
+  <div class="card calc-card">
+    <h2>🔢 由往返时间算距离</h2>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:10px;">超声波从发射到接收走了<strong>往返路程</strong>，所以单程距离要除以 2。</p>
+    <div class="formula-line">s = 340 m/s × t ÷ 2</div>
+    <div class="control-row" style="justify-content:center;">
+      <span>往返时间 t =</span>
+      <input id="inputT" type="number" value="1.76" step="0.01" min="0">
+      <span>ms</span>
+      <span style="margin-left:8px;">→ 距离 s =</span>
+      <span id="calcS" class="big">0.30</span>
+      <span>m</span>
+    </div>
+    <div class="timeline">
+      <span class="dot"></span><span>发射时刻</span>
+      <span style="margin:0 8px;">—</span>
+      <span class="dot echo"></span><span>接收时刻</span>
+      <span id="pulseInfo" style="margin-left:auto;">t = 1.76 ms</span>
+    </div>
+  </div>
+
+  <div class="card calc-card">
+    <h2>🚀 由连续两次测距算速度</h2>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:10px;">传感器每隔一段时间测一次距离，用位置变化除以时间间隔，即可估算小车速度。</p>
+    <div class="control-row">
+      <span>第一次距离 s₁ =</span>
+      <input id="s1Input" type="number" value="0.30" step="0.01" min="0">
+      <span>m</span>
+      <span>第二次距离 s₂ =</span>
+      <input id="s2Input" type="number" value="0.50" step="0.01" min="0">
+      <span>m</span>
+      <span>时间间隔 Δt =</span>
+      <input id="dtInput" type="number" value="0.20" step="0.01" min="0.01">
+      <span>s</span>
+      <span>→ v =</span>
+      <span id="calcV" class="big">1.00</span>
+      <span>m/s</span>
+    </div>
+    <p class="hint">提示：s₂ > s₁ 表示小车远离传感器，速度取正值；若靠近，可取绝对值比较快慢。</p>
+  </div>
+
+  <div class="card">
+    <h2>💡 原理说明</h2>
+    <details>
+      <summary>查看超声波测距原理</summary>
+      <div class="key-point">
+        <p><strong>为什么距离 = 340 m/s × t ÷ 2？</strong></p>
+        <p>超声波从传感器发出，到达小车后反射回来被传感器接收。计时器记录的是超声波走了一个<strong>来回</strong>的时间 t，因此总路程是 340 m/s × t，单程距离就是这个总路程的一半。</p>
+        <p><strong>为什么能测速度？</strong></p>
+        <p>传感器在不同位置连续测量小车与自己的距离 s₁、s₂，记录两次测量之间的时间间隔 Δt，则小车的位移 Δs = s₂ − s₁，速度 v = Δs / Δt。计算机可以实时画出距离—时间图像，再求出速度。</p>
+      </div>
+    </details>
+  </div>
+</div>
+
+<script src="exp-common.js"></script>
+<script>
+(function () {
+  'use strict';
+  var svg = document.getElementById('sensorSvg');
+  var carGroup = document.getElementById('carGroup');
+  var screenText = document.getElementById('screenText');
+  var distReadout = document.getElementById('distReadout');
+  var pulseOut = document.getElementById('pulseOut');
+  var pulseBack = document.getElementById('pulseBack');
+  var carRange = document.getElementById('carRange');
+  var modeSelect = document.getElementById('modeSelect');
+  var emitBtn = document.getElementById('emitBtn');
+  var pauseBtn = document.getElementById('pauseBtn');
+  var autoHint = document.getElementById('autoHint');
+  var inputT = document.getElementById('inputT');
+  var calcS = document.getElementById('calcS');
+  var pulseInfo = document.getElementById('pulseInfo');
+  var s1Input = document.getElementById('s1Input');
+  var s2Input = document.getElementById('s2Input');
+  var dtInput = document.getElementById('dtInput');
+  var calcV = document.getElementById('calcV');
+
+  var V_SOUND = 340; // m/s
+  var SENSOR_X = 40; // 传感器在 SVG 中的 x 坐标（仅用于脉冲绘制）
+  var MIN_X = 60, MAX_X = 480;
+  var CENTER_MIN_X = MIN_X + 24; // 小车中心对应 0 m 的 px（84）
+  var CENTER_MAX_X = MAX_X + 24; // 小车中心对应 1.00 m 的 px（504）
+  var M_PER_PX = 1.0 / (CENTER_MAX_X - CENTER_MIN_X); // 1 px ≈ 2.38 mm
+  var carX = +carRange.value;
+  var autoDir = 1;
+  var autoPlaying = false;
+  var rafId = null;
+  var pulseAnim = null;
+
+  // 刻度
+  var marks = document.getElementById('rulerMarks');
+  var nums = document.getElementById('rulerNums');
+  for (var cm = 0; cm <= 100; cm += 10) {
+    var px = CENTER_MIN_X + cm * (CENTER_MAX_X - CENTER_MIN_X) / 100; // 0~100 cm 均匀布满滑块全程
+    var ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ln.setAttribute('x1', px); ln.setAttribute('x2', px);
+    ln.setAttribute('y1', 170); ln.setAttribute('y2', cm % 50 === 0 ? 158 : 164);
+    marks.appendChild(ln);
+    if (cm % 20 === 0) {
+      var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', px); t.setAttribute('y', 154);
+      t.textContent = cm;
+      nums.appendChild(t);
+    }
+  }
+  var cmLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  cmLabel.setAttribute('x', CENTER_MAX_X + 10); cmLabel.setAttribute('y', 154);
+  cmLabel.setAttribute('font-size', '9'); cmLabel.setAttribute('fill', '#5a5a5a');
+  cmLabel.textContent = 'cm';
+  nums.appendChild(cmLabel);
+
+  function pxToM(px) { return (px - CENTER_MIN_X) * M_PER_PX; }
+  function mToPx(m) { return CENTER_MIN_X + m / M_PER_PX; }
+
+  function setCar(x) {
+    carX = Math.max(MIN_X, Math.min(MAX_X, x));
+    carGroup.setAttribute('transform', 'translate(' + carX + ', 134)');
+    carRange.value = carX;
+    var m = pxToM(carX + 24); // 小车中心
+    screenText.textContent = m.toFixed(2) + ' m';
+    distReadout.textContent = m.toFixed(2);
+    if (modeSelect.value === 'drag') {
+      inputT.value = (m * 2 / V_SOUND * 1000).toFixed(2);
+      updateCalcS();
+    }
+  }
+
+  function updateCalcS() {
+    var t_s = parseFloat(inputT.value) / 1000 || 0;
+    var s = V_SOUND * t_s / 2;
+    calcS.textContent = s.toFixed(2);
+    pulseInfo.textContent = 't = ' + (t_s * 1000).toFixed(2) + ' ms';
+  }
+
+  function updateCalcV() {
+    var s1 = parseFloat(s1Input.value) || 0;
+    var s2 = parseFloat(s2Input.value) || 0;
+    var dt = parseFloat(dtInput.value) || 1;
+    var v = (s2 - s1) / dt;
+    calcV.textContent = v.toFixed(2);
+  }
+
+  function drawPulse(progress, isEcho) {
+    // progress 0..1 along the path
+    var carCenter = carX + 24;
+    var startX = isEcho ? carCenter : SENSOR_X;
+    var endX = isEcho ? SENSOR_X : carCenter;
+    var curX = startX + (endX - startX) * progress;
+    var d = 'M ' + startX + ' 145 Q ' + ((startX + curX) / 2) + ' ' + (145 - 30 * Math.sin(progress * Math.PI)) + ' ' + curX + ' 145';
+    var el = isEcho ? pulseBack : pulseOut;
+    el.setAttribute('d', d);
+    el.style.display = 'block';
+  }
+
+  function emitPulse() {
+    if (pulseAnim) cancelAnimationFrame(pulseAnim);
+    var m = pxToM(carX + 24);
+    var tTotal = m * 2 / V_SOUND;
+    var duration = Math.max(0.4, Math.min(1.2, tTotal * 10));
+    var start = performance.now();
+    function frame(now) {
+      var elapsed = (now - start) / 1000;
+      var p = Math.min(1, elapsed / duration);
+      if (p <= 0.5) {
+        drawPulse(p * 2, false);
+        pulseBack.style.display = 'none';
+      } else {
+        pulseOut.style.display = 'none';
+        drawPulse((p - 0.5) * 2, true);
+      }
+      if (p < 1) {
+        pulseAnim = requestAnimationFrame(frame);
+      } else {
+        pulseBack.style.display = 'none';
+      }
+    }
+    pulseAnim = requestAnimationFrame(frame);
+  }
+
+  function loop(now) {
+    if (!autoPlaying) return;
+    var speed = 40; // px/s
+    carX += autoDir * speed / 60;
+    if (carX >= MAX_X) { carX = MAX_X; autoDir = -1; }
+    if (carX <= MIN_X) { carX = MIN_X; autoDir = 1; }
+    setCar(carX);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  carRange.addEventListener('input', function () { setCar(+carRange.value); });
+  modeSelect.addEventListener('change', function () {
+    if (modeSelect.value === 'auto') {
+      autoPlaying = true; pauseBtn.style.display = 'inline-flex'; pauseBtn.textContent = '暂停';
+      autoHint.textContent = '小车自动往返，点“发射脉冲”捕捉不同位置的读数。';
+      rafId = requestAnimationFrame(loop);
+    } else {
+      autoPlaying = false; pauseBtn.style.display = 'none';
+      autoHint.textContent = '拖动滑块改变小车位置，实时更新距离读数。';
+      if (rafId) cancelAnimationFrame(rafId);
+    }
+  });
+  pauseBtn.addEventListener('click', function () {
+    autoPlaying = !autoPlaying;
+    pauseBtn.textContent = autoPlaying ? '暂停' : '继续';
+    if (autoPlaying) rafId = requestAnimationFrame(loop);
+  });
+  emitBtn.addEventListener('click', emitPulse);
+  inputT.addEventListener('input', updateCalcS);
+  [s1Input, s2Input, dtInput].forEach(function (el) { el.addEventListener('input', updateCalcV); });
+
+  setCar(carX);
+  updateCalcS();
+  updateCalcV();
+})();
+</script>
+</body>
+</html>

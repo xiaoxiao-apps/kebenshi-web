@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>斜面小车测平均速度 · 速度的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+.notice { background: var(--cyan-bg); border-left: 4px solid var(--cyan); padding: 12px 14px; border-radius: 0 10px 10px 0; font-size: 13px; color: var(--ink2); margin-bottom: 14px; }
+.scene-wrap { position: relative; background: var(--card2); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+#slopeSvg { display: block; width: 100%; height: auto; user-select: none; }
+.control-row { display: flex; flex-wrap: nowrap; align-items: center; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+.control-row label { font-size: 13px; color: var(--ink2); white-space: nowrap; }
+.control-row input[type="number"] { width: 66px; padding: 8px 10px; font-size: 14px; text-align: center; }
+.control-row input[type="range"] { width: 90px; }
+.control-row select { min-width: 90px; }
+.control-row .unit { font-size: 13px; color: var(--ink3); }
+.status-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.status-bar .step { flex: 1; min-width: 60px; text-align: center; font-size: 12px; padding: 8px 6px; border-radius: 10px; background: var(--card2); color: var(--ink2); border: 1px solid rgba(0,0,0,.06); }
+.status-bar .step.active { background: var(--green-bg); color: var(--green); border-color: rgba(74,140,63,.35); font-weight: 700; }
+.step-detail { display: none; background: var(--card2); border-radius: 10px; padding: 12px 14px; margin-top: 8px; font-size: 14px; color: var(--ink); line-height: 1.7; }
+.step-detail.active { display: block; animation: panelIn .25s ease; }
+#stepDetails { margin-top: 10px; }
+@keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.readout { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.readout .big { font-size: 26px; font-weight: 800; color: var(--green); font-variant-numeric: tabular-nums; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+.data-table th, .data-table td { border: 1px solid rgba(0,0,0,.1); padding: 10px 8px; text-align: center; }
+.data-table th { background: var(--card2); font-weight: 700; }
+.data-table td input { width: 66px; text-align: center; padding: 8px; font-size: 14px; }
+.data-table .hl { background: var(--green-bg); color: var(--green); font-weight: 700; }
+.flash { animation: flash .35s ease-out; }
+@keyframes flash { 0% { opacity: 1; } 50% { opacity: .2; } 100% { opacity: 1; } }
+</style>
+</head>
+<body>
+<a class="back-btn" id="backLink" href="experiment.html">‹ 返回实验区</a>
+
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">🚗 斜面小车测平均速度</h1>
+    <p class="page-subtitle">按教材 5 步完成实验，体会“测路程、测时间、再求平均速度”。</p>
+  </div>
+
+  <div class="notice">
+    ℹ️ 本页动画为<strong>示意图</strong>，用于展示实验过程与数据处理方法。坡度的快慢效果是示意性的，真实实验请到实验室动手做。
+  </div>
+
+  <div class="card">
+    <h2>实验装置</h2>
+    <div class="scene-wrap">
+      <svg id="slopeSvg" viewBox="0 0 800 320" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9b382"/><stop offset="1" stop-color="#b68d5e"/></linearGradient>
+          <linearGradient id="carGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e74c3c"/><stop offset="1" stop-color="#c0392b"/></linearGradient>
+        </defs>
+        <g id="sceneGroup"></g>
+      </svg>
+    </div>
+
+    <div class="control-row" style="margin-bottom:10px;">
+      <label>木块高度</label>
+      <input id="slopeRange" type="range" min="0" max="2" step="1" value="1">
+      <span id="slopeLabel" class="unit">中</span>
+      <label>计时</label>
+      <select id="timerMode">
+        <option value="auto">自动计时</option>
+        <option value="manual">手动计时</option>
+      </select>
+      <label>金属片</label>
+      <select id="gateSelect">
+        <option value="bottom">底端</option>
+        <option value="middle">中部</option>
+      </select>
+    </div>
+    <div class="control-row">
+      <button id="releaseBtn" class="btn btn-primary">释放小车</button>
+      <button id="startTimerBtn" class="btn btn-secondary" style="display:none;">开始计时</button>
+      <button id="stopTimerBtn" class="btn btn-secondary" style="display:none;">停止</button>
+      <button id="resetBtn" class="btn btn-secondary">再测一次</button>
+      <div class="readout" style="margin-left:auto;">
+        <span>秒表</span>
+        <span id="stopwatch" class="big">0.00</span>
+        <span class="unit">s</span>
+      </div>
+    </div>
+    <div id="manualHint" class="hint" style="display:none;">手动模式：小车释放后，看到金属片闪光或听到提示时立刻按“停止”。你的反应会带来误差。</div>
+  </div>
+
+  <div class="card">
+    <h2>实验步骤</h2>
+    <div class="status-bar" id="statusBar">
+      <div class="step active" data-step="1">① 组装斜面</div>
+      <div class="step" data-step="2">② 测全程 s₁</div>
+      <div class="step" data-step="3">③ 测 t₁ 算 v₁</div>
+      <div class="step" data-step="4">④ 测上半段 s₂</div>
+      <div class="step" data-step="5">⑤ 测 t₂ 算 v₂</div>
+    </div>
+    <p id="stepTip" class="hint" style="margin-top:8px;">把长木板一端用木块垫起，底端放置金属片。</p>
+    <div id="stepDetails">
+      <div class="step-detail active" data-step="1"><b>① 组装斜面</b>：把长木板的一端用木块垫起，搭成一个坡度很小的斜面。小车放在斜面顶端，金属片放在斜面底端。</div>
+      <div class="step-detail" data-step="2"><b>② 测全程路程 s₁</b>：把小车放在斜面顶端，金属片放在斜面底端，用刻度尺测出小车将要通过的全程路程 s₁。</div>
+      <div class="step-detail" data-step="3"><b>③ 测全程时间 t₁，算 v₁</b>：用秒表测量小车从斜面顶端滑下到撞击金属片的时间 t₁，根据 v₁ = s₁/t₁ 算出小车通过斜面全程的平均速度 v₁。</div>
+      <div class="step-detail" data-step="4"><b>④ 测上半段路程 s₂</b>：将金属片移至斜面的中部，测出小车从斜面顶端到金属片的距离 s₂。</div>
+      <div class="step-detail" data-step="5"><b>⑤ 测上半段时间 t₂，算 v₂</b>：测出小车从斜面顶端滑过斜面上半段路程 s₂ 所用的时间 t₂，根据 v₂ = s₂/t₂ 算出小车通过上半段路程的平均速度 v₂。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>数据记录表</h2>
+    <table class="data-table">
+      <thead>
+        <tr><th></th><th>路程 s / cm</th><th>时间 t / s</th><th>平均速度 v / (cm·s⁻¹)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>全程</td>
+          <td><input id="s1" type="number" value="100" step="1"></td>
+          <td><input id="t1" type="number" value="" placeholder="t₁" step="0.01"></td>
+          <td id="v1" class="hl">—</td>
+        </tr>
+        <tr>
+          <td>上半段</td>
+          <td><input id="s2" type="number" value="50" step="1"></td>
+          <td><input id="t2" type="number" value="" placeholder="t₂" step="0.01"></td>
+          <td id="v2" class="hl">—</td>
+        </tr>
+        <tr>
+          <td>下半段</td>
+          <td id="s3">—</td>
+          <td id="t3">—</td>
+          <td id="v3" class="hl">—</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="hint">提示：下半段路程 s₁−s₂ 与对应时间 t₁−t₂ 间接求得。</p>
+  </div>
+
+  <div class="card" id="repeatCard" style="display:none;">
+    <h2>多次测量求平均（手动模式）</h2>
+    <table class="data-table" id="repeatTable">
+      <thead>
+        <tr><th>次数</th><th>s₁ / cm</th><th>t₁ / s</th><th>v₁ / (cm·s⁻¹)</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- __PART2__ -->
+</div>
+
+<div class="card">
+  <h2>💡 想想议议</h2>
+  <p style="font-size:14px;color:var(--ink2);margin-bottom:10px;">某同学想测出小车在下半段路程的平均速度，提出可以把小车从斜面的中部开始释放，进行测量。想一想：这样测得的平均速度与上面的实验中小车在下半段路程的平均速度是否相等？说明原因。</p>
+  <details id="thinkDiscuss">
+    <summary style="font-size:14px;font-weight:700;color:var(--brown);cursor:pointer;">查看解析</summary>
+    <div class="key-point" style="margin-top:10px;">
+      <p><strong>方案 A（推荐）：间接计算</strong></p>
+      <p>保持小车从顶端静止释放，用全程和上半段的数据间接求下半段。</p>
+      <p class="formula" style="margin:6px 0;">s₃ = s₁ − s₂；&nbsp;t₃ = t₁ − t₂；&nbsp;v₃ = s₃ ÷ t₃</p>
+      <p><strong>方案 B：中部单独释放</strong></p>
+      <p>把小车放到斜面中部，由静止开始单独测下半程。</p>
+      <p><strong>解析：</strong>方案 A 合理。小车从顶端滑下时，经过中点的瞬间已经有一定的速度。若改用方案 B，把小车放在中部由静止释放，相当于让下半段从“初速度为 0”开始运动，改变了真实运动状态，测得的时间会偏长，算出的速度会偏小。所以两种方案测得的平均速度不相等，应选用方案 A。</p>
+    </div>
+  </details>
+</div>
+
+<script src="exp-slope.js"></script>
+<script>
+(function(){
+  'use strict';
+  var params = new URLSearchParams(location.search);
+  var link = document.getElementById('backLink');
+  if(link && params.get('from') === 'explain'){
+    link.href = 'explain.html';
+    link.textContent = '‹ 返回知识讲解';
+  }
+
+  // Sync static step details with the JS-driven status bar
+  var statusBar = document.getElementById('statusBar');
+  var details = document.querySelectorAll('#stepDetails .step-detail');
+  function syncDetails(){
+    var active = statusBar.querySelector('.step.active');
+    if(!active) return;
+    var step = active.dataset.step;
+    details.forEach(function(d){
+      d.classList.toggle('active', d.dataset.step === step);
+    });
+  }
+  if(statusBar){
+    new MutationObserver(syncDetails).observe(statusBar, { attributes: true, subtree: true, attributeFilter: ['class'] });
+    syncDetails();
+  }
+})();
+</script>
+</body>
+</html>

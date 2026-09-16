@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>练习与应用 · 速度的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.tab { background: var(--card2); border: 1px solid rgba(0,0,0,.08); color: var(--ink2); padding: 10px 16px; border-radius: 99px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .15s; min-height: 40px; }
+.tab:hover { background: var(--brown-bg); color: var(--brown); }
+.tab.active { background: var(--green); color: #fff; border-color: var(--green); }
+.panel { display: none; }
+.panel.active { display: block; }
+.qtext { font-size: 15px; line-height: 1.8; margin-bottom: 14px; color: var(--ink); }
+.qtext b { color: var(--brown); }
+.work { display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; color: var(--ink2); }
+.row input, .row select { padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,.1); font-size: 14px; background: var(--card); color: var(--ink); min-height: 40px; }
+.row input.ok, .row select.ok { border-color: var(--green); background: var(--green-bg); color: var(--green); }
+.row input.err, .row select.err { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+.inline-res { font-size: 18px; font-weight: 800; color: var(--green); font-variant-numeric: tabular-nums; min-width: 48px; display: inline-block; text-align: center; }
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.choice { display: block; width: 100%; text-align: left; background: var(--card2); border: 1px solid rgba(0,0,0,.08); color: var(--ink); padding: 14px 16px; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all .15s; line-height: 1.6; }
+.choice:hover { background: var(--brown-bg); }
+.choice.ok { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.choice.err { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+#q3-feedback { margin-top: 10px; padding: 12px 14px; border-radius: 10px; font-size: 13px; line-height: 1.7; display: none; }
+#q3-feedback.ok { display: block; background: var(--green-bg); border: 1px solid rgba(74,140,63,.3); color: var(--green); }
+#q3-feedback.err { display: block; background: var(--red-bg); border: 1px solid rgba(192,57,43,.3); color: var(--red); }
+#q1-tools { display: none; }
+.answer { display: none; background: var(--brown-bg); border-left: 4px solid var(--brown); padding: 14px 16px; border-radius: 0 10px 10px 0; margin-top: 12px; font-size: 14px; line-height: 1.8; }
+.card.open .answer { display: block; }
+.reveal-btn { margin-top: 10px; background: var(--cyan-bg); color: var(--cyan); border: 1px solid rgba(41,128,185,.2); padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; min-height: 40px; }
+.reveal-btn:hover { background: #d8ebf8; }
+#q2-scene { width: 100%; height: auto; background: var(--card2); border-radius: 10px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回目录</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📝 练习与应用</h1>
+    <p class="page-subtitle">第4节 速度的测量 · 共 5 题</p>
+  </div>
+
+  <div class="card" style="padding:14px 18px;">
+    <div class="progress"><div class="bar" id="progressBar"></div></div>
+  </div>
+
+  <div class="tabs" id="qTabs">
+    <button class="tab active" data-i="0">练习1</button>
+    <button class="tab" data-i="1">练习2</button>
+    <button class="tab" data-i="2">练习3</button>
+    <button class="tab" data-i="3">练习4</button>
+    <button class="tab" data-i="4">练习5</button>
+  </div>
+  <!-- 练习 1 -->
+  <div class="card panel active" id="p0" data-q="q1">
+    <div class="qtext">
+      要测量某同学从滑梯顶端滑到底端的平均速度，需要测量哪些物理量？用什么测量工具？
+    </div>
+    <div class="work">
+      <div class="row" style="align-items:flex-start;flex-direction:column;gap:6px;">
+        <label style="font-weight:700;color:var(--ink);">需要测量的物理量：</label>
+        <select id="q1-what">
+          <option value="">请选择</option>
+          <option value="s,t">路程 s 和时间 t</option>
+          <option value="v,t">速度 v 和时间 t</option>
+          <option value="s,v">路程 s 和速度 v</option>
+          <option value="m,t">质量 m 和时间 t</option>
+        </select>
+      </div>
+      <div class="row" id="q1-tools" style="gap:12px;align-items:flex-start;flex-direction:column;">
+        <label style="font-weight:700;color:var(--ink);">测量工具：</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <span class="chip">刻度尺 / 卷尺测路程</span>
+          <span class="chip">秒表 / 手表测时间</span>
+        </div>
+      </div>
+    </div>
+    <button class="reveal-btn" type="button">💡 查看答案</button>
+    <div class="answer">
+      <div class="line">需要测量的物理量：<b>路程 s</b> 和 <b>时间 t</b>。</div>
+      <div class="line">测量工具：用 <b>刻度尺（或卷尺）</b> 测路程，用 <b>秒表（或手表）</b> 测时间；再依据 <b>v = s / t</b> 计算平均速度。</div>
+    </div>
+  </div>
+
+  <!-- 练习 2 -->
+  <div class="card panel" id="p1" data-q="q2">
+    <div class="qtext">
+      某同学利用如图所示的装置测量小球在斜面上运动的速度。让小球从 <b>A</b> 点由静止开始沿斜面运动，并记录小球在 <b>A、B、C</b> 三个位置的时刻。小球在 <b>AB、BC、AC</b> 各段运动的平均速度分别是多少？
+    </div>
+    <svg id="q2-scene" viewBox="0 0 520 170" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="rulerGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#e8dcc8"/>
+          <stop offset="1" stop-color="#d4c4a8"/>
+        </linearGradient>
+      </defs>
+      <rect x="40" y="80" width="440" height="28" rx="4" fill="url(#rulerGrad)" stroke="#b8a688" stroke-width="1"/>
+      <text x="260" y="70" text-anchor="middle" font-size="12" fill="#5a5a5a">频闪照片示意图（位置对应刻度尺）</text>
+      <g id="q2-ruler-marks"></g>
+      <g id="q2-ruler-nums"></g>
+      <circle cx="440" cy="70" r="10" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+      <text x="440" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#c0392b">A</text>
+      <text x="440" y="132" text-anchor="middle" font-size="11" fill="#5a5a5a">00:00.00</text>
+      <circle cx="340" cy="70" r="10" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
+      <text x="340" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#d68910">B</text>
+      <text x="340" y="132" text-anchor="middle" font-size="11" fill="#5a5a5a">00:01.00</text>
+      <circle cx="40" cy="70" r="10" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
+      <text x="40" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#1e8449">C</text>
+      <text x="40" y="132" text-anchor="middle" font-size="11" fill="#5a5a5a">00:02.00</text>
+    </svg>
+    <div class="work">
+      <div class="row">
+        <span>AB 段时间 t<sub>AB</sub> =</span>
+        <input id="q2-tab" type="number" value="1.00" step="0.01" min="0" style="width:70px;">
+        <span>s，则 v<sub>AB</sub> = 25 /</span>
+        <span id="q2-tab-d">1.00</span>
+        <span>=</span>
+        <span class="inline-res" id="q2-vab">25.00</span>
+        <span>cm/s</span>
+      </div>
+      <div class="row">
+        <span>BC 段平均速度 v<sub>BC</sub> =</span>
+        <input id="q2-vbc" type="number" step="0.1" placeholder="?" style="width:80px;">
+        <span>cm/s</span>
+      </div>
+      <div class="row">
+        <span>AC 段时间 t<sub>AC</sub> =</span>
+        <input id="q2-tac" type="number" step="0.01" placeholder="?" style="width:70px;">
+        <span>s</span>
+      </div>
+      <div class="row">
+        <span>AC 段平均速度 v<sub>AC</sub> =</span>
+        <input id="q2-vac" type="number" step="0.1" placeholder="?" style="width:80px;">
+        <span>cm/s</span>
+      </div>
+    </div>
+    <button class="reveal-btn" type="button">💡 查看答案</button>
+    <div class="answer">
+      <div class="line">已知：s<sub>AB</sub> = 100 − 75 = <b>25 cm</b>，s<sub>BC</sub> = 75 − 0 = <b>75 cm</b>，s<sub>AC</sub> = 100 − 0 = <b>100 cm</b>。</div>
+      <div class="line">t<sub>AB</sub> = 1.00 s，t<sub>BC</sub> = 1.00 s，t<sub>AC</sub> = 2.00 s。</div>
+      <div class="line">v<sub>AB</sub> = 25 cm / 1.00 s = <b>25 cm/s</b>。</div>
+      <div class="line">v<sub>BC</sub> = 75 cm / 1.00 s = <b>75 cm/s</b>。</div>
+      <div class="line">v<sub>AC</sub> = 100 cm / 2.00 s = <b>50 cm/s</b>。</div>
+    </div>
+  </div>
+
+  <!-- 练习 3 -->
+  <div class="card panel" id="p2" data-q="q3">
+    <div class="qtext">
+      在用图 1.4-2 中的装置测量小车的速度时，甲同学测得小车通过斜面全程的速度 <b>v<sub>1</sub></b> 和通过上半段路程的速度 <b>v<sub>2</sub></b> 不同；甲同学和乙同学用同一装置测得的 <b>v<sub>2</sub></b> 也不同。请写出以上两种情况中测得的速度不同的原因。
+    </div>
+    <div class="choices">
+      <button class="choice" data-reason="error">不同同学的测量存在误差，导致结果不同</button>
+      <button class="choice" data-reason="varies">小车做变速运动，不同路段的平均速度本来就不相同</button>
+      <button class="choice" data-reason="tool">两人用的测量工具不同，所以结果不同</button>
+      <button class="choice" data-reason="start">小车每次从同一位置释放，速度应该完全相同</button>
+    </div>
+    <div id="q3-feedback"></div>
+    <button class="reveal-btn" type="button">💡 查看答案</button>
+    <div class="answer">
+      <div class="line"><b>第一种情况</b>：小车沿斜面下滑时速度越来越快，做的是变速运动。全程的平均速度 <b>v<sub>1</sub></b> 与上半段的平均速度 <b>v<sub>2</sub></b> 对应的是不同路段，因此这两个速度本来就不同。</div>
+      <div class="line"><b>第二种情况</b>：即使测量同一装置、同一路段，不同同学用手表计时、用刻度尺读数时也会存在测量误差，导致算出的 <b>v<sub>2</sub></b> 不完全相同。多次测量取平均值可以减小这种误差。</div>
+    </div>
+  </div>
+
+
+  <!-- 练习 4 -->
+  <div class="card panel" id="p3" data-q="q4">
+    <div class="qtext">
+      已知学校操场的跑道长度为 <b>l</b>，你能利用手表估测自己正常步行时的速度 <b>v</b> 吗？根据步行速度 <b>v</b>，你能估测你家到学校的路程 <b>s</b> 吗？解决以上问题需要测量哪些物理量？请你用字母表示，并用它们写出 <b>v</b> 和 <b>s</b> 的表达式。
+    </div>
+    <div class="work">
+      <div class="row">
+        <span>测步行速度：用手表测沿跑道走一圈所用时间</span>
+        <input id="q4-t1" type="text" placeholder="字母" style="width:50px;">
+      </div>
+      <div class="row">
+        <span>则 v = l /</span>
+        <input id="q4-t1-check" type="text" placeholder="?" style="width:50px;">
+      </div>
+      <div class="row">
+        <span>估测家到学校路程：再用手表测从家走到学校所用时间</span>
+        <input id="q4-t2" type="text" placeholder="字母" style="width:50px;">
+      </div>
+      <div class="row">
+        <span>则 s =</span>
+        <input id="q4-s-expr" type="text" placeholder="表达式" style="width:120px;">
+      </div>
+    </div>
+    <button class="reveal-btn" type="button">💡 查看答案</button>
+    <div class="answer">
+      <div class="line">需要测量的物理量：<b>操场跑道长度 l</b>、<b>沿跑道步行一圈所用时间 t</b>、<b>从家走到学校所用时间 t′</b>。</div>
+      <div class="line">步行速度：<b>v = l / t</b>。</div>
+      <div class="line">家到学校路程：<b>s = v · t′ = (l / t) · t′</b>。</div>
+    </div>
+  </div>
+
+  <!-- 练习 5 -->
+  <div class="card panel" id="p4" data-q="q5">
+    <div class="qtext">
+      有些公路旁每隔 <b>1 km</b> 就立着一个里程碑。请你利用里程碑估测自行车的速度，写出你的估测方法。
+    </div>
+    <div class="work">
+      <div class="row">
+        <span>方法：记录自行车经过</span>
+        <input id="q5-n" type="number" value="1" min="1" step="1" style="width:60px;">
+        <span>个相邻里程碑，所用时间</span>
+        <input id="q5-t" type="number" value="5" step="0.1" style="width:70px;">
+        <span>min。</span>
+      </div>
+      <div class="row">
+        <span>路程 s =</span>
+        <span class="inline-res" id="q5-s">1</span> km；速度 v =
+        <span class="inline-res" id="q5-v">12.0</span> km/h。
+      </div>
+    </div>
+    <button class="reveal-btn" type="button">💡 查看答案</button>
+    <div class="answer">
+      <div class="line"><b>估测方法：</b>骑自行车沿公路前进，当经过某一里程碑时开始计时，同时数记经过的里程碑数。</div>
+      <div class="line">若记录了经过 <b>n</b> 个相邻里程碑所用时间为 <b>t</b>，则行驶的路程 <b>s = n × 1 km = n km</b>。</div>
+      <div class="line">自行车的平均速度 <b>v = s / t = n km / t</b>。若 t 用小时作单位，结果单位就是 km/h。</div>
+      <div class="line">例如：经过 1 个里程碑用时 5 min（即 1/12 h），则 v = 1 km ÷ (1/12) h = <b>12 km/h</b>。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var tabs = document.querySelectorAll('#qTabs .tab');
+  var panels = document.querySelectorAll('.panel');
+  var answered = {};
+  var bar = document.getElementById('progressBar');
+
+  function updateProgress() {
+    var n = Object.keys(answered).length;
+    bar.style.width = (n / panels.length * 100) + '%';
+  }
+
+  function switchPanel(i) {
+    tabs.forEach(function (t, idx) { t.classList.toggle('active', idx === i); });
+    panels.forEach(function (p, idx) { p.classList.toggle('active', idx === i); });
+  }
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () { switchPanel(+tab.dataset.i); });
+  });
+
+  // 练习 1：下拉选择
+  var q1What = document.getElementById('q1-what');
+  var q1Tools = document.getElementById('q1-tools');
+  q1What.addEventListener('change', function () {
+    q1Tools.style.display = q1What.value === 's,t' ? 'flex' : 'none';
+    if (q1What.value === 's,t') answered.q1 = true;
+    updateProgress();
+  });
+
+  // 练习 2：联动计算
+  var q2tab = document.getElementById('q2-tab');
+  var q2tabD = document.getElementById('q2-tab-d');
+  var q2vab = document.getElementById('q2-vab');
+  var q2vbc = document.getElementById('q2-vbc');
+  var q2tac = document.getElementById('q2-tac');
+  var q2vac = document.getElementById('q2-vac');
+  function q2Check() {
+    var tab = parseFloat(q2tab.value) || 0;
+    q2tabD.textContent = tab.toFixed(2);
+    q2vab.textContent = tab > 0 ? (25 / tab).toFixed(2) : '—';
+    q2vbc.classList.toggle('ok', Math.abs(parseFloat(q2vbc.value) - 75) < 0.5);
+    q2vbc.classList.toggle('err', q2vbc.value !== '' && !q2vbc.classList.contains('ok'));
+    q2tac.classList.toggle('ok', Math.abs(parseFloat(q2tac.value) - 2) < 0.01);
+    q2tac.classList.toggle('err', q2tac.value !== '' && !q2tac.classList.contains('ok'));
+    q2vac.classList.toggle('ok', Math.abs(parseFloat(q2vac.value) - 50) < 0.5);
+    q2vac.classList.toggle('err', q2vac.value !== '' && !q2vac.classList.contains('ok'));
+    if (q2vbc.classList.contains('ok') && q2tac.classList.contains('ok') && q2vac.classList.contains('ok')) answered.q2 = true;
+    updateProgress();
+  }
+  [q2tab, q2vbc, q2tac, q2vac].forEach(function (el) { el.addEventListener('input', q2Check); });
+  q2Check();
+
+  // 练习 3：点击选择
+  document.querySelectorAll('#p2 .choice').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var fb = document.getElementById('q3-feedback');
+      if (btn.dataset.reason === 'varies') {
+        btn.classList.add('ok'); btn.classList.remove('err');
+        fb.textContent = '✅ 正确：变速运动不同路段平均速度不同。';
+      } else {
+        btn.classList.add('ok'); btn.classList.remove('err');
+        fb.textContent = '✅ 正确：测量误差导致不同同学结果不同。';
+      }
+      answered.q3 = true;
+      updateProgress();
+    });
+  });
+
+  // 练习 4：字母表达式检查（宽松）
+  var q4t1 = document.getElementById('q4-t1');
+  var q4t1c = document.getElementById('q4-t1-check');
+  var q4t2 = document.getElementById('q4-t2');
+  var q4s = document.getElementById('q4-s-expr');
+  function q4Check() {
+    var ok1 = /^(t|T)$/.test(q4t1.value.trim());
+    var ok1c = /^(t|T)$/.test(q4t1c.value.trim());
+    var ok2 = /^(t'|t2|T2|t_2|t_\{2\}|t′)$/.test(q4t2.value.trim());
+    var sExpr = q4s.value.trim().replace(/\s+/g, '').replace(/\*/g, '').replace(/·/g, '').replace(/\//g, '/');
+    var ok3 = /^(l(t'|t2|t′)\/t|lt'\/t|lt2\/t|l\/t\*?(t'|t2|t′)|\(l\/t\)(t'|t2|t′)|lt\/t)$/.test(sExpr);
+    q4t1.classList.toggle('ok', ok1); q4t1.classList.toggle('err', q4t1.value && !ok1);
+    q4t1c.classList.toggle('ok', ok1c); q4t1c.classList.toggle('err', q4t1c.value && !ok1c);
+    q4t2.classList.toggle('ok', ok2); q4t2.classList.toggle('err', q4t2.value && !ok2);
+    q4s.classList.toggle('ok', ok3); q4s.classList.toggle('err', q4s.value && !ok3);
+    if (ok1 && ok1c && ok2 && ok3) answered.q4 = true;
+    updateProgress();
+  }
+  [q4t1, q4t1c, q4t2, q4s].forEach(function (el) { el.addEventListener('input', q4Check); });
+
+  // 练习 5：实时换算
+  var q5n = document.getElementById('q5-n');
+  var q5t = document.getElementById('q5-t');
+  var q5s = document.getElementById('q5-s');
+  var q5v = document.getElementById('q5-v');
+  function q5Calc() {
+    var n = parseFloat(q5n.value) || 0;
+    var tMin = parseFloat(q5t.value) || 0;
+    var s = n;
+    var v = tMin > 0 ? (s / (tMin / 60)) : 0;
+    q5s.textContent = s.toFixed(0);
+    q5v.textContent = v.toFixed(1);
+    if (n > 0 && tMin > 0) answered.q5 = true;
+    updateProgress();
+  }
+  [q5n, q5t].forEach(function (el) { el.addEventListener('input', q5Calc); });
+  q5Calc();
+
+  // 揭晓按钮
+  document.querySelectorAll('.reveal-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var c = btn.closest('.card');
+      var open = c.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : '💡 查看答案';
+      var q = c.dataset.q;
+      if (open && q) answered[q] = true;
+      updateProgress();
+    });
+  });
+
+  updateProgress();
+})();
+</script>
+</body>
+</html>

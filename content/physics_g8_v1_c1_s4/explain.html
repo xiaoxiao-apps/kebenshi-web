@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 速度的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 12px 0 16px; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn { flex: 0 0 auto; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; color: var(--ink); font-weight: 700; font-size: 14px; cursor: pointer; transition: all .2s ease; min-height: 44px; }
+  .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .tab-panel { display: none; animation: panelIn .25s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .question-box { background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 12px 12px 0; padding: 14px 16px; margin: 12px 0; line-height: 1.8; }
+  .question-box h4 { margin: 0 0 8px; color: var(--brown); font-size: 15px; }
+  .formula { text-align: center; font-size: 26px; font-weight: 700; color: var(--green); margin: 16px 0; letter-spacing: 1px; }
+  .canvas-wrap { background: var(--card2); border-radius: 12px; padding: 14px; margin: 12px 0; }
+  .canvas-wrap canvas { display: block; width: 100%; height: 220px; border-radius: 8px; background: #fff; }
+  .calc-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; margin: 14px 0; font-size: 14px; overflow-x: auto; }
+  .calc-row input { width: 70px; flex: 0 0 auto; padding: 8px 6px; border: 1px solid rgba(0,0,0,.1); border-radius: 8px; text-align: center; font-weight: 700; color: var(--ink); font-size: 14px; }
+  .calc-row .unit { color: var(--ink3); white-space: nowrap; }
+  .calc-row .result { font-weight: 800; color: var(--green); }
+  .reveal-btn { margin-top: 10px; padding: 10px 14px; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--green); background: #fff; color: var(--green); font-weight: 800; font-size: 14px; cursor: pointer; transition: background .2s ease; }
+  .reveal-btn:hover { background: var(--green-bg); }
+  .reveal-ans { display: none; margin-top: 10px; background: var(--green-bg); border-left: 4px solid var(--green); border-radius: 0 10px 10px 0; padding: 10px 12px; font-size: 14px; line-height: 1.8; color: var(--ink); }
+  .question-box.open .reveal-ans { display: block; animation: panelIn .25s ease; }
+  .reveal-ans .line { word-break: break-all; }
+  .tool-panel { display: none; animation: panelIn .25s ease; }
+  .tool-panel.active { display: block; }
+  .canvas-wrap canvas { height: 260px; }
+  .anim-btns { display: flex; gap: 10px; margin-top: 10px; }
+  .link-card { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 12px; background: var(--green-bg); border: 1px solid rgba(74,140,63,.18); text-decoration: none; color: var(--ink); margin-top: 12px; }
+  .link-card:hover { background: #e2f0df; }
+  .link-card .icon { width: 44px; height: 44px; border-radius: 12px; background: var(--green); color: #fff; display: grid; place-items: center; font-size: 20px; flex: 0 0 auto; }
+  .link-card .text { flex: 1; }
+  .link-card .title { font-weight: 800; font-size: 15px; margin-bottom: 2px; }
+  .link-card .desc { font-size: 13px; color: var(--ink2); }
+  .link-card .arrow { color: var(--green); font-weight: 800; }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">平均速度 · 常用测速工具</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">平均速度</button>
+    <button class="tab-btn" data-tab="e2">常用测速工具</button>
+  </div>
+
+  <!-- E1 平均速度 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、平均速度 <span class="chip brown">衔接 1.3</span></h2>
+      <p>平均速度用某段路程除以通过这段路程所用的时间来粗略描述物体运动的快慢。</p>
+      <div class="formula">v̄ = s / t</div>
+      <p style="text-align:center;color:var(--ink2);font-size:13px;margin-top:-8px;">字母 v 上加一条横线，表示平均速度，读作“v杠”</p>
+      <p style="text-align:center;color:var(--ink2);font-size:13px;">v 表示速度，s 表示路程，t 表示时间；三者必须对应同一段运动。</p>
+
+      <div class="calc-row">
+        <span class="unit">路程 s =</span>
+        <input id="avgS" type="number" value="100" step="1">
+        <span class="unit">m</span>
+        <span class="unit">时间 t =</span>
+        <input id="avgT" type="number" value="20" step="0.1">
+        <span class="unit">s</span>
+        <span class="unit">→ 平均速度 v̄ =</span>
+        <span class="result" id="avgV">5.00</span>
+        <span class="unit">m/s</span>
+      </div>
+
+      <div class="key-point">
+        <p><strong>注意：平均速度 ≠ 速度的平均</strong></p>
+        <p>不能把“全程速度”和“各段速度”简单相加再除以段数。例如前一半路程 4 m/s、后一半路程 6 m/s，平均速度不是 5 m/s。</p>
+      </div>
+
+      <div class="question-box">
+        <h4>🧐 辨析</h4>
+        <p>一只蚂蚁先 2 s 爬了 4 cm，再 3 s 爬了 6 cm，它的平均速度是多少？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">总路程 s = 4 cm + 6 cm = 10 cm</div>
+          <div class="line">总时间 t = 2 s + 3 s = 5 s</div>
+          <div class="line">平均速度 v = s ÷ t = 10 cm ÷ 5 s = <b>2 cm/s</b></div>
+          <div class="line">（不是 (4÷2 + 6÷3) ÷ 2 = 3 cm/s 哦！）</div>
+        </div>
+      </div>
+    </div>
+      <a class="link-card" href="exp-slope.html?from=explain">
+        <div class="icon">🚗</div>
+        <div class="text">
+          <div class="title">去互动探索区：斜面小车测平均速度</div>
+          <div class="desc">动手模拟小车沿斜面下滑，练习测路程、测时间、算平均速度。</div>
+        </div>
+        <div class="arrow">›</div>
+      </a>
+  </div>
+
+  <!-- E2 常用测速工具 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、常用测速工具 <span class="chip brown">科学世界 &amp; 生活应用</span></h2>
+      <p>实际测量中，我们可以用不同的工具和方法来测量路程和时间，从而计算出平均速度。</p>
+
+      <div class="tabs" id="toolTabs">
+        <button class="tab-btn active" data-subtab="t1">超声波测距</button>
+        <button class="tab-btn" data-subtab="t2">区间测速</button>
+        <button class="tab-btn" data-subtab="t3">传感器测速</button>
+      </div>
+
+      <!-- T1 超声波测距 -->
+      <div class="tool-panel active" id="tool-panel-t1">
+        <h3 style="font-size:16px;margin-bottom:10px;">超声波测距 <span class="chip brown">科学世界</span></h3>
+        <p>超声波在空气中的传播速度约为 <strong>340 m/s</strong>，具有指向性好、反射能力强、能量集中等特点，常用于测距、汽车倒车防撞、智能机器人等。</p>
+
+        <div class="canvas-wrap">
+          <canvas id="ultraCanvas"></canvas>
+          <div class="calc-row" style="justify-content:center;margin-top:10px;">
+            <span class="unit">往返时间 t =</span>
+            <input id="ultraT" type="number" value="2.73" step="0.01">
+            <span class="unit">ms</span>
+            <span class="unit">→ 距离 s =</span>
+            <span class="result" id="ultraS">0.46</span>
+            <span class="unit">m</span>
+          </div>
+          <div class="anim-btns" style="justify-content:center;">
+            <button class="btn btn-primary" id="ultraPlay">▶ 发射脉冲</button>
+          </div>
+          <p class="hint" id="ultraHint">超声波：发射 → 遇物反射 → 接收，计时器记录往返时间 t。示意图</p>
+        </div>
+
+        <div class="key-point">
+          <p><strong>原理</strong></p>
+          <p>发射器发出超声波的同时开始计时，超声波遇到被测物反射回来，接收器收到反射波后停止计时。</p>
+          <p>超声波往返路程 = 声速 × 时间；被测物距离只有往返路程的一半：</p>
+          <div class="formula" style="font-size:22px;">s = 340 m/s × t ÷ 2</div>
+        </div>
+
+        <div class="key-point extra-box">
+          <p><strong>应用：测速仪测运动物体速度</strong></p>
+          <p>连续两次测距，结合两次发射的时间间隔 Δt，就能算出物体移动的速度。教材图 1.4-3、图 1.4-4 的传感器就是基于类似原理。</p>
+        </div>
+      </div>
+
+      <!-- T2 区间测速 -->
+      <div class="tool-panel" id="tool-panel-t2">
+        <h3 style="font-size:16px;margin-bottom:10px;">区间测速 <span class="chip brown">生活应用</span></h3>
+        <p>高速公路的区间测速牌上，“100”表示该区间最高限速 <strong>100 km/h</strong>。系统用两个摄像头记录车辆经过两点的时刻，用固定区间长度除以通过时间，判断平均速度是否超速。</p>
+
+        <div class="canvas-wrap">
+          <canvas id="sectionCanvas"></canvas>
+          <div class="anim-btns" style="justify-content:center;margin-top:10px;">
+            <button class="btn btn-secondary" id="secReplay">↻ 重新演示</button>
+          </div>
+          <p class="hint">汽车经过入口、出口两个摄像头，路程已知，时间由两张照片的拍摄时刻得到。示意图</p>
+        </div>
+
+        <div class="key-point">
+          <p><strong>最少通过时间</strong></p>
+          <p>在限速 v 下，通过长度为 s 的区间，至少需要的时间为：</p>
+          <div class="formula" style="font-size:22px;">t = s ÷ v</div>
+        </div>
+
+        <div class="calc-row">
+          <span class="unit">区间长度 s =</span>
+          <input id="secS" type="number" value="8" step="0.1">
+          <span class="unit">km</span>
+          <span class="unit">限速 v =</span>
+          <input id="secV" type="number" value="100" step="1">
+          <span class="unit">km/h</span>
+          <span class="unit">→ 最少时间 t =</span>
+          <span class="result" id="secT">4.80</span>
+          <span class="unit">min</span>
+        </div>
+        <p class="hint">换算：先把 km ÷ km/h 得到 h，再乘以 60 得到 min。</p>
+      </div>
+
+      <!-- T3 传感器测速 -->
+      <div class="tool-panel" id="tool-panel-t3">
+        <h3 style="font-size:16px;margin-bottom:10px;">传感器测速 <span class="chip cyan">拓展实验</span></h3>
+        <p>教材图 1.4-3 中，把超声波传感器固定在斜面一端，小车在斜面上运动。传感器利用超声波测出不同时刻小车与它的距离，计算机再根据时间算出小车在不同位置时的速度。</p>
+        <p>如果把传感器放在合适的位置，实验者面对传感器前后行走，还可以在屏幕上实时观察自己行走的速度。</p>
+
+        <a class="link-card" href="exp-sensor.html?from=explain">
+          <div class="icon">🔬</div>
+          <div class="text">
+            <div class="title">去互动探索区体验传感器测速</div>
+            <div class="desc">用超声波传感器实时采集数据，观察小车速度变化。</div>
+          </div>
+          <div class="arrow">›</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="exp-common.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  // Main tabs
+  var tabs = document.querySelectorAll('#explainTabs .tab-btn');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var key = btn.dataset.tab;
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('panel-' + key).classList.add('active');
+    });
+  });
+
+  // Sub tabs
+  var subTabs = document.querySelectorAll('#toolTabs .tab-btn');
+  var subPanels = document.querySelectorAll('.tool-panel');
+  subTabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var key = btn.dataset.subtab;
+      subTabs.forEach(function(b){ b.classList.remove('active'); });
+      subPanels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('tool-panel-' + key).classList.add('active');
+    });
+  });
+
+  // Reveal buttons
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.question-box');
+      if(!box) return;
+      var open = box.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : '💡 点击揭晓答案';
+    });
+  });
+
+  // Draw a canvas as soon as its box becomes visible (handles panels hidden at init)
+  function drawWhenVisible(cv, drawFn){
+    if(!cv) return;
+    function tryDraw(){
+      var r = cv.getBoundingClientRect();
+      if(r.width > 0 && r.height > 0 && cv.clientWidth > 0) drawFn();
+    }
+    tryDraw();
+    if(typeof IntersectionObserver !== 'undefined'){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting) tryDraw(); });
+      });
+      io.observe(cv);
+    }
+  }
+
+  // E1 average speed calc
+  (function(){
+    var sIn = document.getElementById('avgS');
+    var tIn = document.getElementById('avgT');
+    var vOut = document.getElementById('avgV');
+    function update(){
+      var s = parseFloat(sIn.value) || 0;
+      var t = parseFloat(tIn.value) || 1;
+      vOut.textContent = (s / t).toFixed(2);
+    }
+    sIn.addEventListener('input', update);
+    tIn.addEventListener('input', update);
+    update();
+  })();
+
+  // E4 ultrasonic animation + calc
+  (function(){
+    var cv = document.getElementById('ultraCanvas');
+    var playBtn = document.getElementById('ultraPlay');
+    var tIn = document.getElementById('ultraT');
+    var sOut = document.getElementById('ultraS');
+    var V_SOUND = 340;
+    var DURATION = 1800;
+    var running = false, progress = 0, t0 = 0, paths = {go:0, back:0}, labels = false;
+
+    function calcS(){
+      var ms = parseFloat(tIn.value) || 0;
+      return V_SOUND * (ms / 1000) / 2;
+    }
+    function updateCalc(){
+      sOut.textContent = calcS().toFixed(2);
+    }
+
+    function drawSensor(ctx, x, y, active){
+      // base
+      var grd = ctx.createLinearGradient(x-18, y-45, x+18, y+45);
+      grd.addColorStop(0, '#7a7a7a'); grd.addColorStop(.5, '#a0a0a0'); grd.addColorStop(1, '#6a6a6a');
+      ctx.fillStyle = grd; ctx.fillRect(x-20, y+10, 40, 36);
+      ctx.fillStyle = '#555'; ctx.fillRect(x-22, y+42, 44, 8);
+      // cylinder body
+      var cyl = ctx.createLinearGradient(x-16, y-50, x+16, y-50);
+      cyl.addColorStop(0, '#555'); cyl.addColorStop(.25, '#999'); cyl.addColorStop(.5, '#bbb'); cyl.addColorStop(.75, '#888'); cyl.addColorStop(1, '#444');
+      ctx.fillStyle = cyl; ctx.beginPath(); ctx.ellipse(x, y-42, 18, 10, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillRect(x-18, y-42, 36, 52); ctx.beginPath(); ctx.ellipse(x, y+10, 18, 10, 0, 0, Math.PI*2); ctx.fill();
+      // front mesh face
+      var face = ctx.createRadialGradient(x, y-20, 2, x, y-20, 18);
+      face.addColorStop(0, '#e8e8e8'); face.addColorStop(1, '#8a8a8a');
+      ctx.fillStyle = face; ctx.beginPath(); ctx.ellipse(x, y-20, 16, 9, 0, 0, Math.PI*2); ctx.fill();
+      // mesh lines
+      ctx.strokeStyle = 'rgba(60,60,60,.35)'; ctx.lineWidth = 1;
+      for(var i=-12;i<=12;i+=4){ ctx.beginPath(); ctx.moveTo(x+i, y-27); ctx.lineTo(x+i, y-13); ctx.stroke(); }
+      for(var j=-6;j<=6;j+=3){ ctx.beginPath(); ctx.ellipse(x, y-20+j, 16*Math.sqrt(1-(j*j)/36), 1, 0, 0, Math.PI*2); ctx.stroke(); }
+      // indicator light
+      ctx.fillStyle = active ? '#ff3333' : '#2ecc40';
+      ctx.beginPath(); ctx.arc(x+12, y+24, 4, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#444'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    function drawObject(ctx, x, y){
+      // obstacle cart/box
+      var grd = ctx.createLinearGradient(x-25, y-35, x+25, y+35);
+      grd.addColorStop(0, '#c0392b'); grd.addColorStop(1, '#922b21');
+      ctx.fillStyle = grd; ctx.beginPath(); ctx.moveTo(x-25, y+25); ctx.lineTo(x-22, y-30); ctx.lineTo(x+22, y-30); ctx.lineTo(x+25, y+25); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#7a231b'; ctx.fillRect(x-28, y+20, 56, 8);
+      // wheels
+      ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(x-16, y+30, 7, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+16, y+30, 7, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#aaa'; ctx.beginPath(); ctx.arc(x-16, y+30, 3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+16, y+30, 3, 0, Math.PI*2); ctx.fill();
+    }
+    function drawPathLine(ctx, x1, y1, x2, y2, alpha){
+      if(alpha <= 0) return;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(41,128,185,' + (0.2 + alpha*0.6) + ')';
+      ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.setLineDash([8, 6]);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.restore();
+    }
+    function drawSLabel(ctx, x1, y1, x2, y2){
+      var mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(mx, my, 12, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#4a8c3f'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#4a8c3f'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('s', mx, my+1);
+      ctx.restore();
+    }
+    function drawSLabelAt(ctx, x, y){
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.beginPath(); ctx.arc(x, y, 11, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#4a8c3f'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#4a8c3f'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('s', x, y+1);
+      ctx.restore();
+    }
+    function drawPulse(ctx, x, y){
+      ctx.save();
+      var g = ctx.createRadialGradient(x, y, 1, x, y, 9);
+      g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(.6, 'rgba(63,167,232,.8)'); g.addColorStop(1, 'rgba(63,167,232,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#3fa7e8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
+    function draw(){
+      if(!cv) return;
+      var info = fitCanvas(cv, 260);
+      var ctx = info.ctx, w = info.w, h = info.h;
+      ctx.clearRect(0, 0, w, h);
+      var groundY = h - 35, devX = 70, objX = w - 80, beamY = groundY - 56;
+      // ground shadow
+      ctx.fillStyle = 'rgba(0,0,0,.06)'; ctx.fillRect(40, groundY, w-80, 4);
+      drawSensor(ctx, devX, beamY, running || progress > 0);
+      drawObject(ctx, objX, groundY);
+      var travel = objX - devX - 34;
+      var pulseX = devX + 18 + paths.go * travel;
+      var baseY = beamY - 20, goY = baseY - 5, backY = baseY + 5;
+      // path lines
+      drawPathLine(ctx, devX+18, goY, devX+18+paths.go*travel, goY, paths.go);
+      if(paths.back > 0){
+        var bx = objX - 16 - paths.back * travel;
+        drawPathLine(ctx, objX-16, backY, bx, backY, paths.back);
+      }
+      // pulse (only while the pulse is in flight; cleared at completion and before next emission)
+      if(running) drawPulse(ctx, pulseX, baseY);
+      // labels
+      if(labels){
+        drawSLabelAt(ctx, devX+18 + travel/3, goY);
+        drawSLabelAt(ctx, objX-16 - travel/3, backY);
+      }
+      // texts
+      ctx.fillStyle = '#5a5a5a'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('超声波探头', devX, beamY+62);
+      ctx.fillText('被测物', objX, groundY+22);
+    }
+    function loop(now){
+      if(running){
+        progress = Math.min((now - t0) / DURATION, 1);
+        if(progress < 0.5){
+          paths.go = progress * 2;
+          paths.back = 0;
+        } else {
+          paths.go = 1;
+          paths.back = (progress - 0.5) * 2;
+        }
+        if(progress >= 1){
+          running = false; labels = true; paths.back = 1;
+        }
+      }
+      draw();
+      if(running) requestAnimationFrame(loop);
+    }
+    playBtn.addEventListener('click', function(){
+      running = true; progress = 0; t0 = performance.now(); labels = false; paths = {go:0, back:0}; loop(t0);
+    });
+    tIn.addEventListener('input', updateCalc);
+    updateCalc(); draw(); drawWhenVisible(cv, draw);
+  })();
+
+  // E5 interval speed animation + calc
+  (function(){
+    var sIn = document.getElementById('secS');
+    var vIn = document.getElementById('secV');
+    var tOut = document.getElementById('secT');
+    var replayBtn = document.getElementById('secReplay');
+    var cv = document.getElementById('sectionCanvas');
+    var DURATION = 4500;
+    var running = false, progress = 0, t0 = 0, flashA = 0, flashB = 0, pathEnd = 0, showS = false;
+
+    function updateCalc(){
+      var s = parseFloat(sIn.value) || 0;
+      var v = parseFloat(vIn.value) || 1;
+      tOut.textContent = (s / v * 60).toFixed(2);
+    }
+    function drawCamera(ctx, x, y, label, flash){
+      // pole
+      ctx.fillStyle = '#7a7a7a'; ctx.fillRect(x-4, y, 8, 70);
+      ctx.fillStyle = '#666'; ctx.fillRect(x-6, y+66, 12, 6);
+      // arm
+      ctx.fillStyle = '#888'; ctx.fillRect(x, y+12, 44, 6);
+      // camera housing
+      ctx.fillStyle = '#444'; ctx.beginPath(); ctx.roundRect(x+36, y+4, 34, 18, 4); ctx.fill();
+      ctx.fillStyle = '#222'; ctx.fillRect(x+66, y+8, 8, 10);
+      // lens
+      var lens = ctx.createRadialGradient(x+44, y+13, 2, x+44, y+13, 7);
+      lens.addColorStop(0, '#3fa7e8'); lens.addColorStop(1, '#1a5276');
+      ctx.fillStyle = lens; ctx.beginPath(); ctx.arc(x+44, y+13, 6, 0, Math.PI*2); ctx.fill();
+      // flash unit
+      ctx.fillStyle = '#555'; ctx.beginPath(); ctx.roundRect(x+50, y-10, 16, 12, 3); ctx.fill();
+      if(flash > 0){
+        ctx.save();
+        var a = Math.max(0, flash);
+        ctx.fillStyle = 'rgba(255,255,200,' + a + ')';
+        ctx.beginPath(); ctx.arc(x+58, y-4, 22, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,220,' + (a*0.6) + ')'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(x+58, y-4, 30, 0, Math.PI*2); ctx.stroke();
+        ctx.restore();
+      }
+      ctx.fillStyle = '#5a5a5a'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(label, x+30, y+92);
+    }
+    function drawCar(ctx, x, y, scale){
+      ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
+      // body
+      var grd = ctx.createLinearGradient(-40, -22, 40, 18);
+      grd.addColorStop(0, '#c0392b'); grd.addColorStop(1, '#922b21');
+      ctx.fillStyle = grd; ctx.beginPath(); ctx.moveTo(-46, 8); ctx.lineTo(-38, -16); ctx.quadraticCurveTo(-20, -24, 10, -20); ctx.lineTo(38, -14); ctx.lineTo(44, 8); ctx.closePath(); ctx.fill();
+      // windows
+      ctx.fillStyle = '#dfefff'; ctx.beginPath(); ctx.moveTo(-30, -12); ctx.lineTo(-18, -20); ctx.lineTo(6, -18); ctx.lineTo(8, -10); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(12, -10); ctx.lineTo(10, -18); ctx.lineTo(30, -16); ctx.lineTo(34, -10); ctx.closePath(); ctx.fill();
+      // wheels
+      ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(-24, 10, 9, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(24, 10, 9, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#aaa'; ctx.beginPath(); ctx.arc(-24, 10, 4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(24, 10, 4, 0, Math.PI*2); ctx.fill();
+      // headlights
+      ctx.fillStyle = '#ffeb3b'; ctx.beginPath(); ctx.arc(42, -2, 3, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+    function drawPath(ctx, x1, y, x2){
+      if(x2 <= x1) return;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(41,128,185,.55)'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.setLineDash([10, 8]);
+      ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
+      ctx.restore();
+    }
+    function drawSection(){
+      if(!cv) return;
+      var info = fitCanvas(cv, 260);
+      var ctx = info.ctx, w = info.w, h = info.h;
+      ctx.clearRect(0, 0, w, h);
+      var roadY = h*0.62, camAX = 80, camBX = w - 110, carScale = 0.85;
+      // sky/ground
+      ctx.fillStyle = '#e8f6e5'; ctx.fillRect(0, 0, w, roadY-10);
+      ctx.fillStyle = '#f0ece5'; ctx.fillRect(0, roadY-10, w, h-roadY+10);
+      // road
+      ctx.fillStyle = '#4a4a4a'; ctx.fillRect(20, roadY, w-40, 46);
+      ctx.strokeStyle = '#fff'; ctx.setLineDash([16, 14]); ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(20, roadY+23); ctx.lineTo(w-20, roadY+23); ctx.stroke(); ctx.setLineDash([]);
+      // cameras
+      drawCamera(ctx, camAX, roadY-78, '摄像头 A', flashA);
+      drawCamera(ctx, camBX, roadY-78, '摄像头 B', flashB);
+      // car position based on progress: left ready -> off-screen right
+      var startX = 70, endX = w + 70, triggerA = camAX + 58, triggerB = camBX + 58;
+      var carX = startX + progress * (endX - startX);
+      // path from triggerA to min(carX - offset, triggerB)
+      var pathStartX = triggerA + 10, pathStopX = Math.min(carX - 30, triggerB + 10);
+      var recorded = pathEnd * (triggerB - triggerA);
+      var showPath = pathStartX + recorded * pathEnd;
+      if(recorded > 0) drawPath(ctx, pathStartX, roadY+55, showPath);
+      // car
+      drawCar(ctx, carX, roadY+22, carScale);
+      // label s
+      if(showS && recorded > 0){
+        var sx = pathStartX + recorded/2;
+        ctx.save();
+        ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(sx, roadY+55, 13, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#4a8c3f'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#4a8c3f'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('s', sx, roadY+56);
+        ctx.restore();
+      }
+      // info
+      var s = parseFloat(sIn.value) || 0, v = parseFloat(vIn.value) || 0;
+      ctx.fillStyle = '#5a5a5a'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('区间长度 s = ' + s + ' km   限速 ' + Math.round(v) + ' km/h', w/2, h-14);
+    }
+    function loop(now){
+      if(running){
+        progress = Math.min((now - t0) / DURATION, 1);
+        var w = cv ? cv.clientWidth : 640;
+        var startX = -70, endX = w + 70, camAX = 80, camBX = w - 110;
+        var triggerA = camAX + 58, triggerB = camBX + 58;
+        var carX = startX + progress * (endX - startX);
+        if(carX >= triggerA && pathEnd === 0){
+          flashA = 1; pathEnd = Math.min((carX - triggerA) / (triggerB - triggerA), 1);
+        }
+        if(pathEnd > 0 && carX < triggerB){
+          pathEnd = Math.min((carX - triggerA) / (triggerB - triggerA), 1);
+        }
+        if(carX >= triggerB && flashB === 0){
+          flashB = 1; pathEnd = 1; showS = true;
+        }
+        if(flashA > 0) flashA -= 0.04;
+        if(flashB > 0) flashB -= 0.04;
+        if(progress >= 1) running = false;
+      }
+      drawSection();
+      if(running) requestAnimationFrame(loop);
+    }
+    function start(){
+      running = true; progress = 0; t0 = performance.now(); flashA = 0; flashB = 0; pathEnd = 0; showS = false; loop(t0);
+    }
+    replayBtn.addEventListener('click', start);
+    sIn.addEventListener('input', function(){ updateCalc(); drawSection(); });
+    vIn.addEventListener('input', function(){ updateCalc(); drawSection(); });
+    updateCalc();
+    drawWhenVisible(cv, function(){
+      if(!running && progress === 0) start();
+    });
+  })();
+})();
+</script>
+</body>
+</html>

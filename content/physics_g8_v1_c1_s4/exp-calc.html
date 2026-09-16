@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>速度计算器 v=s/t · 速度的测量</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .calc-wrap { background: var(--card2); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .calc-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; margin: 10px 0; }
+  .calc-row label { min-width: 44px; font-weight: 700; font-size: 15px; }
+  .calc-row input { width: 70px; min-width: 0; padding: 10px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; font-size: 15px; font-weight: 700; text-align: center; color: var(--ink); }
+  .calc-row select { padding: 10px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; font-size: 14px; font-weight: 700; color: var(--ink); }
+  .calc-row .active input { border-color: var(--green); box-shadow: 0 0 0 3px rgba(74,140,63,.15); background: #fff; }
+  .calc-row .active .sym { color: var(--green); }
+  .hint-line { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--ink2); }
+  .formula-display { background: var(--brown-bg); border-left: 4px solid var(--brown); padding: 12px 14px; border-radius: 0 10px 10px 0; font-size: 14px; line-height: 1.8; color: var(--ink); min-height: 60px; }
+  .formula-display .line { word-break: break-all; }
+  .empty { color: var(--ink3); }
+  @media (max-width: 390px) {
+    .calc-row { gap: 6px; }
+    .calc-row input { width: 60px; padding: 10px 4px; font-size: 14px; }
+    .calc-row label { min-width: 36px; font-size: 14px; }
+    .calc-row select { padding: 10px 4px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" href="experiment.html">‹ 返回互动探索区</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">🧮 速度计算器</h1>
+    <p class="page-subtitle">输入路程和时间，自动算出平均速度；或任填两量求第三量。</p>
+  </div>
+  <div class="card">
+    <div class="calc-wrap">
+      <div class="calc-row" id="rowS">
+        <label>路程 s</label>
+        <input type="number" step="any" id="inS" placeholder="0" aria-label="路程">
+        <select id="unitS"><option value="m">m</option><option value="km">km</option></select>
+      </div>
+      <div class="calc-row" id="rowT">
+        <label>时间 t</label>
+        <input type="number" step="any" id="inT" placeholder="0" aria-label="时间">
+        <select id="unitT"><option value="s">s</option><option value="min">min</option><option value="h">h</option></select>
+      </div>
+      <div class="calc-row" id="rowV">
+        <label>速度 v</label>
+        <input type="number" step="any" id="inV" placeholder="0" aria-label="速度">
+        <select id="unitV"><option value="ms">m/s</option><option value="kmh">km/h</option></select>
+      </div>
+      <div class="hint-line">💡 平均速度公式：v = s ÷ t；变形：s = v·t，t = s ÷ v。任填两量即可。</div>
+    </div>
+    <div class="formula-display" id="formulaBox">
+      <div class="line empty">在上方输入任意两个量，这里会显示带单位的代入过程。</div>
+    </div>
+  </div>
+</div>
+<script src="exp-calc.js"></script>
+</body>
+</html>
