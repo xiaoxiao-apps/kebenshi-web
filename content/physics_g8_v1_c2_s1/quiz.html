@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>小练习 · 声音的产生与传播</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .qcard { position: relative; margin-bottom: 14px; }
+  .qtag { display: inline-block; background: var(--green-bg); color: var(--green); font-weight: 800; font-size: 12px; border-radius: 8px; padding: 3px 8px; margin-bottom: 8px; }
+  .qtag.extra { background: var(--cyan-bg); color: var(--cyan); margin-left: 6px; }
+  .qtext { font-size: 15px; line-height: 1.8; color: var(--ink); }
+  .reveal-btn { display: inline-block; margin-top: 10px; padding: 10px 16px; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--green); background: #ffffff; color: var(--green); font-weight: 800; font-size: 14px; cursor: pointer; transition: background .2s ease; }
+  .reveal-btn:hover { background: var(--green-bg); }
+  .answer { display: none; margin-top: 10px; background: var(--green-bg); border-left: 4px solid var(--green); border-radius: 0 10px 10px 0; padding: 10px 12px; font-size: 14px; line-height: 1.8; }
+  .qcard.open .answer { display: block; }
+  .answer .line { word-break: break-all; }
+  .scorebar { position: sticky; top: 8px; z-index: 5; background: var(--green); color: #ffffff; border-radius: 999px; padding: 6px 16px; font-weight: 800; font-size: 13px; display: inline-block; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+  .reset-btn { display: inline-block; margin-left: 8px; padding: 6px 14px; min-height: 36px; border-radius: 999px; border: 1px solid rgba(0,0,0,.15); background: var(--card2); color: var(--ink2); font-weight: 700; font-size: 13px; cursor: pointer; vertical-align: middle; }
+  .done-banner { display: none; margin: 0 0 14px; background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 14px; line-height: 1.8; }
+  .done-banner.show { display: block; }
+  .optrow { display: flex; gap: 8px; flex-wrap: nowrap; margin-top: 12px; }
+  .optrow .opt { flex: 1; width: auto; text-align: center; margin-bottom: 0; }
+  .input-line.calc { flex-wrap: nowrap; }
+  .input-line.calc input { width: 70px; min-width: 70px; text-align: center; }
+  .input-line.calc .unit { font-size: 14px; color: var(--ink2); font-weight: 700; }
+  .foot-note { font-size: 12px; color: var(--ink3); margin-top: 10px; line-height: 1.7; }
+  @media (max-width: 390px) {
+    .qtext { font-size: 14px; }
+    .optrow .opt { padding: 12px 6px; font-size: 13px; }
+    .input-line.calc input { width: 64px; min-width: 64px; }
+    .input-line.calc .btn { padding: 12px 12px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节导航</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">✍️ 小练习 · 声音的产生与传播</h1>
+    <p class="page-subtitle">教材「练习与应用」①~⑥ 原题。先自己想，再点开「示例要点」或提交答案核对！</p>
+  </div>
+  <div><span class="scorebar" id="score">已答 0/6</span><button class="reset-btn" id="resetBtn" type="button">🔄 重置</button></div>
+  <div class="done-banner" id="doneBanner"></div>
+
+  <div class="card qcard" data-q="q1">
+    <span class="qtag">练习与应用 · 第 1 题</span><span class="qtag extra">说理题</span>
+    <div class="qtext">用手拨动绷紧的橡皮筋，我们听到了声音，同时看到橡皮筋变"胖"变"虚"了，这是橡皮筋在振动。请你另外举例说明：你在听到声音的同时，是如何判断物体在发生振动的？</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">· 发声的音叉旁放一个乒乓球，球被反复弹开；</div>
+      <div class="line">· 说话时用手轻按喉部，感到声带在振动；</div>
+      <div class="line">· 敲鼓时鼓面上的纸屑（豆粒）随之跳动；</div>
+      <div class="line">· 手机响铃时贴在桌面上，能感到桌面发麻。</div>
+      <div class="line"><b>核心方法</b>：把不易观察的微小振动，转化为容易观察的物体运动（转换法）。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q2">
+    <span class="qtag">练习与应用 · 第 2 题</span><span class="qtag extra">说理题</span>
+    <div class="qtext">花样游泳融合了游泳、舞蹈和音乐，有"水上芭蕾"之称。请你以花样游泳为例说明：水是可以传播声音的介质。</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">花样游泳运动员大部分时间头部没入水中，仍能听到水池扬声器放出的音乐，并随音乐的节奏完成动作。</div>
+      <div class="line">音乐声是经过<b>水</b>传到运动员耳中的——说明水（液体）能够传播声音，是可以传声的介质。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q3">
+    <span class="qtag">练习与应用 · 第 3 题</span><span class="qtag extra">说理题</span>
+    <div class="qtext">阅读课本中关于声速的"小资料"，你能从中获得关于声速的哪些信息？</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">① 声速的大小跟<b>介质的种类</b>有关：不同介质中声速一般不同；</div>
+      <div class="line">② 一般情况下 <b>固体 &gt; 液体 &gt; 气体</b>（如铁棒 5 200 &gt; 水 1 500 &gt; 空气 340 m/s）；</div>
+      <div class="line">③ 声速还跟<b>温度</b>有关：空气 0 ℃ 331、15 ℃ 340、25 ℃ 346 m/s，温度越高声速越大；</div>
+      <div class="line">④ 15 ℃ 时空气中的声速是 <b>340 m/s</b>。</div>
+    </div>
+  </div>
+  <div class="card qcard" data-q="q4">
+    <span class="qtag">练习与应用 · 第 4 题</span><span class="qtag extra">选择题</span>
+    <div class="qtext">将耳朵贴在长铁管的一端，让别人敲一下铁管的另一端，你认为会听到几次敲打的声音？请说出其中的道理。</div>
+    <div class="optrow">
+      <button class="opt" data-v="1" type="button">1 次</button>
+      <button class="opt" data-v="2" type="button">2 次</button>
+      <button class="opt" data-v="3" type="button">3 次</button>
+    </div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解（作答后可点）</button>
+    <div class="answer">
+      <div class="line">正确答案：<b>2 次</b>。</div>
+      <div class="line">敲击声沿两条路径传来：一条经<b>铁管</b>（固体，5 200 m/s），一条经<b>空气</b>（340 m/s）。</div>
+      <div class="line">声音在铁中传播比在空气中<b>快得多</b>，铁管足够长时，两次声音到达耳朵的间隔大于 0.1 s，人耳就能分辨出先后<b>两次</b>敲打声：先听到沿铁管传来的，后听到沿空气传来的。</div>
+      <div class="line">🔬 想看动画演示？去 <a href="exp-dual.html?from=quiz" style="color:var(--cyan)">双声到达模拟</a>。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q5">
+    <span class="qtag">练习与应用 · 第 5 题</span><span class="qtag extra">说理题</span>
+    <div class="qtext">在室内讲话比旷野里响亮，这是为什么？</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">室内空间小，讲话声遇到墙壁、天花板等障碍物被<b>反射</b>回来，反射声与原声到达人耳的时间差<b>小于 0.1 s</b>，人耳分辨不出回声，反射声与原声<b>混在一起</b>使原声加强，所以听起来更响亮。</div>
+      <div class="line">旷野里声音向四周扩散出去，几乎<b>没有障碍物反射</b>回来，所以不如室内响亮。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q6">
+    <span class="qtag">练习与应用 · 第 6 题</span><span class="qtag extra">计算题</span>
+    <div class="qtext">向前传播的声音遇到障碍物能反射回来。一个同学向着远处的山崖大喊一声，约1.5 s后听到回声，那么该同学距山崖大约多少米？①</div>
+    <div class="foot-note">① 本套书题目解答所需的数据，如能在"小资料"中查询，题目中就不再给出。（提示：查表 2.1-1，15 ℃ 空气中声速 340 m/s）</div>
+    <div class="input-line calc">
+      <input type="text" id="q6Input" inputmode="decimal" placeholder="?" aria-label="该同学距山崖大约多少米">
+      <span class="unit">m</span>
+      <button class="btn btn-primary" id="q6Check" type="button">提交判分</button>
+    </div>
+    <div class="feedback" id="q6Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓算式讲解（作答后可点）</button>
+    <div class="answer">
+      <div class="line">声音从同学传到山崖再<b>反射回来</b>，1.5 s 内声音走过的总路程是同学到山崖距离的 <b>2 倍</b>。</div>
+      <div class="line">v = 340 m/s（15 ℃ 空气，查表 2.1-1），t = 1.5 s。</div>
+      <div class="line">s = v·t ÷ 2 = 340 m/s × 1.5 s ÷ 2 = <b>约 255 m</b>。</div>
+      <div class="line">🔬 想玩回声测距？去 <a href="exp-echo.html?from=quiz" style="color:var(--cyan)">回声测距计算器</a>。</div>
+    </div>
+  </div>
+<script>
+(function () {
+  'use strict';
+  var answered = {};      // 已作答（去重计数）
+  var q4Correct = null;   // null=未答, true/false
+  var q6Correct = null;
+  var TOTAL = 6;
+  var scoreEl = document.getElementById('score');
+  var doneEl = document.getElementById('doneBanner');
+  var resetBtn = document.getElementById('resetBtn');
+
+  function markAnswered(q) {
+    var first = !answered[q];
+    answered[q] = true;
+    if (first) refresh();
+  }
+  function countAnswered() { return Object.keys(answered).length; }
+  function refresh() {
+    var n = countAnswered();
+    scoreEl.textContent = '已答 ' + n + '/' + TOTAL;
+    if (n >= TOTAL) {
+      var objScore = (q4Correct ? 1 : 0) + (q6Correct ? 1 : 0);
+      doneEl.innerHTML = '🎉 <b>全部完成！</b> 6 题已答，其中客观题（第4、6题）得分：<b>' + objScore + '/2</b>。开放说理题请对照「示例要点」自查关键词。';
+      doneEl.classList.add('show');
+    } else {
+      doneEl.classList.remove('show');
+    }
+  }
+
+  // ①②③⑤ 折叠卡：点开即计已答；④⑥ 的讲解按钮需先作答
+  document.querySelectorAll('.qcard').forEach(function (card) {
+    var q = card.dataset.q;
+    var btn = card.querySelector('.reveal-btn');
+    if (!btn) return;
+    var needAnswerFirst = (q === 'q4' || q === 'q6');
+    btn.addEventListener('click', function () {
+      if (needAnswerFirst) {
+        var done = (q === 'q4') ? (q4Correct !== null) : (q6Correct !== null);
+        if (!done) { btn.textContent = '✋ 请先作答本题'; setTimeout(function(){ btn.textContent = btn.dataset.orig; }, 1500); return; }
+      }
+      var open = card.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : btn.dataset.orig;
+      if (open) markAnswered(q);
+    });
+    btn.dataset.orig = btn.textContent;
+  });
+
+  // ④ 选择题
+  var q4Card = document.querySelector('[data-q="q4"]');
+  var q4FbShown = false;
+  q4Card.querySelectorAll('.opt').forEach(function (opt) {
+    opt.addEventListener('click', function () {
+      q4Card.querySelectorAll('.opt').forEach(function (o) { o.classList.remove('right', 'wrong', 'dim'); });
+      var v = opt.dataset.v;
+      if (v === '2') { opt.classList.add('right'); q4Correct = true; }
+      else { opt.classList.add('wrong'); q4Card.querySelector('[data-v="2"]').classList.add('dim'); q4Correct = false; }
+      markAnswered('q4');
+    });
+  });
+
+  // ⑥ 计算题：接受 255 / 255m / 约255 / 约255米 等
+  var q6Input = document.getElementById('q6Input');
+  var q6Fb = document.getElementById('q6Fb');
+  document.getElementById('q6Check').addEventListener('click', function () {
+    var raw = q6Input.value.trim();
+    if (!raw) { q6Fb.className = 'feedback show err'; q6Fb.textContent = '请先输入答案（单位 m）。'; return; }
+    var num = raw.replace(/[^0-9.]/g, '');
+    var val = parseFloat(num);
+    q6Fb.className = 'feedback show';
+    if (!isNaN(val) && Math.abs(val - 255) < 1) {
+      q6Correct = true;
+      q6Fb.classList.remove('err'); q6Fb.classList.add('ok');
+      q6Fb.innerHTML = '✅ 正确！s = v·t ÷ 2 = 340 × 1.5 ÷ 2 = <b>255 m</b>。可点下方按钮看完整讲解。';
+    } else {
+      q6Correct = false;
+      q6Fb.classList.remove('ok'); q6Fb.classList.add('err');
+      q6Fb.innerHTML = '❌ 再想想：回声走过的路程是「人到山崖距离」的几倍？可点下方按钮看算式讲解。';
+    }
+    markAnswered('q6');
+  });
+  q6Input.addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('q6Check').click(); });
+
+  // 重置：清计数、收起卡片、清作答状态（重置后再答不重复计——markAnswered 用首次判定）
+  resetBtn.addEventListener('click', function () {
+    answered = {}; q4Correct = null; q6Correct = null;
+    document.querySelectorAll('.qcard').forEach(function (c) {
+      c.classList.remove('open');
+      var b = c.querySelector('.reveal-btn');
+      if (b && b.dataset.orig) b.textContent = b.dataset.orig;
+      c.querySelectorAll('.opt').forEach(function (o) { o.classList.remove('right', 'wrong', 'dim'); });
+    });
+    q6Input.value = '';
+    q6Fb.className = 'feedback';
+    q6Fb.textContent = '';
+    refresh();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

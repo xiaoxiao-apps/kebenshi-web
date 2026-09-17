@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>介质传声对比台 · 声音的产生与传播</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .notice { background: var(--cyan-bg); border-left: 4px solid var(--cyan); padding: 12px 14px; border-radius: 0 10px 10px 0; font-size: 13px; color: var(--ink2); margin-bottom: 14px; line-height: 1.7; }
+  .path-btns { display: flex; gap: 10px; flex-wrap: nowrap; margin-bottom: 12px; }
+  .path-btn { flex: 1; min-height: 44px; border-radius: 12px; border: 2px solid rgba(0,0,0,.1); background: var(--card); color: var(--ink2); font-weight: 800; font-size: 14px; cursor: pointer; padding: 12px 8px; transition: all .15s; }
+  .path-btn.on { border-color: var(--green); background: var(--green-bg); color: var(--green); }
+  .path-btn small { display: block; font-weight: 600; font-size: 12px; margin-top: 4px; color: var(--ink3); }
+  .path-btn.on small { color: var(--green); }
+  .meter-wrap { margin: 12px 0; }
+  .meter-label { font-size: 13px; color: var(--ink2); font-weight: 700; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .meter-track { height: 22px; background: var(--card2); border-radius: 99px; overflow: hidden; position: relative; }
+  .meter-fill { height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--green), var(--cyan)); transition: width .3s ease; }
+  .meter-note { font-size: 12px; color: var(--ink3); margin-top: 6px; line-height: 1.6; }
+  .flip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 6px; }
+  .flip-card { perspective: 600px; height: 132px; cursor: pointer; }
+  .flip-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .5s ease; }
+  .flip-card.flipped .flip-inner { transform: rotateY(180deg); }
+  .flip-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px; text-align: center; font-size: 13px; line-height: 1.6; }
+  .flip-front { background: var(--card2); border: 1.5px solid rgba(0,0,0,.08); color: var(--ink); font-weight: 800; }
+  .flip-front .big { font-size: 30px; }
+  .flip-back { background: var(--green-bg); border: 1.5px solid rgba(74,140,63,.35); color: var(--ink); transform: rotateY(180deg); font-weight: 600; font-size: 12px; }
+  .flip-back .verdict { font-weight: 800; font-size: 14px; color: var(--green); }
+  .flip-back.no { background: var(--red-bg); border-color: rgba(192,57,43,.4); }
+  .flip-back.no .verdict { color: var(--red); }
+  .flip-hint { font-size: 11px; color: var(--ink3); margin-top: 8px; }
+  @media (max-width: 390px) {
+    .flip-grid { grid-template-columns: repeat(2, 1fr); }
+    .flip-card { height: 128px; }
+    .path-btn { font-size: 13px; padding: 10px 4px; }
+    .path-btn small { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">🪵 介质传声对比台</h1>
+    <p class="page-subtitle">同一个敲桌声，走「空气路径」和「耳贴桌面路径」音量差多少？戴上耳机更明显，点按钮亲耳听！</p>
+  </div>
+  <div class="notice">ℹ️ 本页音频为 WebAudio 合成的敲桌声示意：两条路径的<b>音量差</b>对应教材实验「固体（桌面）传声效果比空气好」。请将音量调至适中，避免贴耳过大音量。</div>
+
+  <div class="card">
+    <h2>🔊 听一听：同一声敲击，两条路径 <span class="chip">G5</span></h2>
+    <div class="path-btns">
+      <button class="path-btn on" id="btnAir" type="button">🌬️ 空气路径<small>隔空听敲桌声</small></button>
+      <button class="path-btn" id="btnDesk" type="button">👂 耳贴桌面<small>耳朵贴着桌面听</small></button>
+    </div>
+    <button class="btn btn-primary" id="knockBtn" type="button" style="width:100%">🔨 敲击桌面（播放当前路径）</button>
+    <div class="meter-wrap">
+      <div class="meter-label"><span>听到的响度（示意）</span><span id="dbText">—</span></div>
+      <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+      <div class="meter-note" id="pathNote">👆 先选路径，再点「敲击桌面」对比。同一声敲击，耳贴桌面明显更响——固体传声本领更强。</div>
+    </div>
+    <div class="feedback" id="cmpFb"></div>
+  </div>
+
+  <div class="card">
+    <h2>🃏 翻一翻：哪些能当传声介质？ <span class="chip cyan">归纳</span></h2>
+    <div class="flip-grid">
+      <div class="flip-card" data-k="solid"><div class="flip-inner">
+        <div class="flip-face flip-front"><span class="big">🪨</span>固体<span class="flip-hint">桌面·铁管·大地</span></div>
+        <div class="flip-face flip-back"><span class="verdict">✓ 能传声</span>耳贴桌面听敲声更响；土电话靠线传声。一般固体传声本领最强。</div>
+      </div></div>
+      <div class="flip-card" data-k="liquid"><div class="flip-inner">
+        <div class="flip-face flip-front"><span class="big">💧</span>液体<span class="flip-hint">水·海水·煤油</span></div>
+        <div class="flip-face flip-back"><span class="verdict">✓ 能传声</span>花样游泳运动员在水中能听到音乐；鱼会被岸上说话声吓跑。</div>
+      </div></div>
+      <div class="flip-card" data-k="gas"><div class="flip-inner">
+        <div class="flip-face flip-front"><span class="big">🌬️</span>气体<span class="flip-hint">空气</span></div>
+        <div class="flip-face flip-back"><span class="verdict">✓ 能传声</span>平时听到的大多数声音都靠空气传来。15 ℃ 空气中声速 340 m/s。</div>
+      </div></div>
+      <div class="flip-card" data-k="vacuum"><div class="flip-inner">
+        <div class="flip-face flip-front"><span class="big">🕳️</span>真空<span class="flip-hint">没有介质</span></div>
+        <div class="flip-face flip-back no"><span class="verdict">✗ 不能传声</span>真空罩里的闹钟铃声越来越弱；月球上没有空气，宇航员要靠无线电交谈。</div>
+      </div></div>
+    </div>
+    <div class="key-point" id="conceptBox" style="display:none">🎯 <b>归纳</b>：能传播声音的物质叫<b>介质</b>。固体、液体、气体都是介质，<b>真空不能传声</b>——声音的传播需要介质。</div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-medium.js"></script>
+</body>
+</html>

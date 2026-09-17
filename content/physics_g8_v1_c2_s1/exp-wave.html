@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：声波可视化 · 疏密波与水波</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #fdf3d8; }
+  #waveCv { width: 100%; display: block; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
+  .ctl-row .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 64px; }
+  .ctl-row input[type=range] { flex: 1; accent-color: var(--gold); min-width: 0; }
+  .ctl-row .ctl-val { font-size: 13px; color: var(--brown); font-weight: 700; min-width: 64px; text-align: right; }
+  .anim-btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .anim-btns .btn { flex: 1; min-width: 100px; }
+  .note-line { margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: var(--green-bg); border: 1px solid rgba(74,140,63,.25); font-size: 13.5px; line-height: 1.7; color: var(--ink); }
+  @media (max-width: 768px) {
+    .anim-btns { flex-direction: column; }
+    .anim-btns .btn { min-width: 0; }
+    .ctl-row .ctl-label { min-width: 56px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">🌊 声波可视化</h1>
+    <p class="page-subtitle">鼓面振动带动周围空气形成疏密相间的波动，向远处传播——跟铅笔点水面的水波很像。</p>
+  </div>
+
+  <div class="card">
+    <h2>上：声波（疏密波） 下：水波 <span class="chip cyan">分屏对比</span></h2>
+    <div class="hint-bar">💡 点「🥁 敲鼓」：看空气粒子在鼓旁原位振动、疏密波形向外传；拖「频率」slider 看疏密间距怎么变。下半屏是铅笔点水面的水波，对比看。</div>
+    <div class="fullscreen-wrap" id="fsWaveWrap">
+      <button class="fullscreen-btn" id="fsWaveBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="waveCv"></canvas>
+      </div>
+      <div class="ctl-row">
+        <span class="ctl-label">频率</span>
+        <input type="range" id="freqSlider" min="20" max="100" value="50" step="1" aria-label="振动频率">
+        <span class="ctl-val" id="freqVal">适中</span>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="beatBtn">🥁 敲鼓（持续振动）</button>
+        <button class="btn btn-secondary" id="pauseBtn">⏸ 暂停</button>
+      </div>
+    </div>
+    <div class="note-line" id="noteLine"></div>
+    <p class="hint">注意看：每个空气质点（蓝点）只在自己位置附近来回振动，<b>向外传播的是疏密相间的波形</b>，不是质点本身。水波同理：水质点上下振动，波纹向外传。</p>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-wave.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>本节小结 · 声音的产生与传播</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .map-tabs { display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; margin-bottom: 14px; padding-bottom: 4px; }
+  .map-tab { flex: 0 0 auto; padding: 10px 16px; min-height: 44px; border-radius: 999px; border: 1.5px solid rgba(0,0,0,.1); background: var(--card); color: var(--ink2); font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+  .map-tab.on { background: var(--green); border-color: var(--green); color: #ffffff; }
+  .map-panel { display: none; }
+  .map-panel.on { display: block; animation: panelIn .25s ease; }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .mindmap { display: flex; flex-direction: column; gap: 10px; }
+  .mm-root { align-self: center; background: var(--brown); color: #ffffff; font-weight: 800; font-size: 15px; padding: 10px 22px; border-radius: 999px; box-shadow: 0 4px 12px rgba(139,105,20,.25); }
+  .mm-branch { background: var(--card2); border-left: 4px solid var(--green); border-radius: 0 10px 10px 0; padding: 10px 14px; font-size: 14px; line-height: 1.8; }
+  .mm-branch b { color: var(--brown); }
+  .mm-branch.cyan { border-left-color: var(--cyan); }
+  .mm-branch.gold { border-left-color: var(--gold); }
+  .mm-branch.red { border-left-color: var(--red); }
+  .num-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 6px; }
+  .num-cell { background: var(--cyan-bg); border: 1px solid rgba(41,128,185,.25); border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.7; }
+  .num-cell .v { display: block; font-size: 20px; font-weight: 800; color: var(--cyan); font-variant-numeric: tabular-nums; }
+  .num-cell.warn { background: var(--brown-bg); border-color: rgba(139,105,20,.25); }
+  .num-cell.warn .v { color: var(--brown); }
+  @media (max-width: 390px) {
+    .num-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .num-cell { padding: 8px 10px; font-size: 12px; }
+    .num-cell .v { font-size: 17px; }
+    .map-tab { padding: 10px 12px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节导航</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">🗺️ 本节小结 · 声音的产生与传播</h1>
+    <p class="page-subtitle">四支导图串起整节知识：振动发声 → 介质传声 → 声速 → 回声与骨传导。点上方标签切换。</p>
+  </div>
+  <div class="map-tabs" id="mapTabs">
+    <button class="map-tab on" data-t="m1" type="button">① 振动发声</button>
+    <button class="map-tab" data-t="m2" type="button">② 介质传声</button>
+    <button class="map-tab" data-t="m3" type="button">③ 声速</button>
+    <button class="map-tab" data-t="m4" type="button">④ 回声·骨传导</button>
+  </div>
+
+  <div class="card map-panel on" data-p="m1">
+    <h2>① 声音的产生：振动发声 <span class="chip">必记</span></h2>
+    <div class="mindmap">
+      <div class="mm-root">声音是由物体的振动产生的</div>
+      <div class="mm-branch"><b>发声体</b>：一切正在发声的物体都在<b>振动</b>；振动停止，发声也停止（但已发出的声音仍继续传播）。</div>
+      <div class="mm-branch cyan"><b>声源</b>：固体、液体、气体振动都能发声——琴弦（固）、流水（液）、笛中空气柱（气）。</div>
+      <div class="mm-branch gold"><b>转换法</b>：微小振动看不见？转化为易观察的现象——音叉弹乒乓球、鼓面纸屑跳动、喉部手摸发麻。</div>
+    </div>
+  </div>
+
+  <div class="card map-panel" data-p="m2">
+    <h2>② 声音的传播：介质传声 <span class="chip">必记</span></h2>
+    <div class="mindmap">
+      <div class="mm-root">声音靠介质以声波的形式传播</div>
+      <div class="mm-branch"><b>介质</b>：固体、液体、气体都能传声；<b>真空不能传声</b>（月球上宇航员要靠无线电交谈）。</div>
+      <div class="mm-branch cyan"><b>一般规律</b>：固体传声本领强于液体、气体——耳贴桌面听敲桌声更响；花样游泳运动员在水中能听到音乐。</div>
+      <div class="mm-branch gold"><b>声波</b>：声音以波的形式向外传播，类似水波。</div>
+      <div class="mm-branch red"><b>实验方法</b>：真空罩实验用到了<b>科学推理法</b>（空气越抽越少→声音越来越弱→推理真空无声）。</div>
+    </div>
+  </div>
+
+  <div class="card map-panel" data-p="m3">
+    <h2>③ 声速 <span class="chip">必记</span></h2>
+    <div class="mindmap">
+      <div class="mm-root">声速：声音传播的快慢</div>
+      <div class="mm-branch"><b>与介质种类有关</b>：一般 <b>固体 &gt; 液体 &gt; 气体</b>（铁棒 5 200 &gt; 海水 1 531 &gt; 空气 340 m/s）。</div>
+      <div class="mm-branch cyan"><b>与温度有关</b>：空气 0 ℃ → 331，15 ℃ → 340，25 ℃ → 346 m/s，温度越高声速越大。</div>
+      <div class="mm-branch gold"><b>必背数值</b>：15 ℃ 空气中声速 <b>v = 340 m/s</b>，公式 <b>s = v·t</b>。</div>
+    </div>
+  </div>
+
+  <div class="card map-panel" data-p="m4">
+    <h2>④ 回声与骨传导 <span class="chip cyan">应用</span></h2>
+    <div class="mindmap">
+      <div class="mm-root">声音的反射与另一条听觉通路</div>
+      <div class="mm-branch"><b>回声</b>：声音遇障碍物反射回来。反射声与原声相隔<b>大于 0.1 s</b> 才能分辨——对应障碍距离大于 17 m。</div>
+      <div class="mm-branch cyan"><b>回声测距</b>：s = v·t ÷ 2（t 为发出到听到回声的总时间，路程要除以 2）。</div>
+      <div class="mm-branch gold"><b>混响</b>：室内反射声与原声差小于 0.1 s，分辨不出回声但使原声加强——所以室内讲话比旷野响亮。</div>
+      <div class="mm-branch red"><b>骨传导</b>：声音经头骨、颌骨传到听觉神经引起听觉。不塞耳也能听（自己说话声部分经骨传导）；应用：骨传导助听器、耳机、特殊场合（工业、战场）。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔢 C 类数字速记 <span class="chip brown">考频高</span></h2>
+    <div class="num-grid">
+      <div class="num-cell"><span class="v">340 m/s</span>15 ℃ 空气中声速（必背）</div>
+      <div class="num-cell"><span class="v">0.1 s</span>分辨回声的最小时间间隔</div>
+      <div class="num-cell"><span class="v">331 / 346</span>空气 0 ℃ / 25 ℃ 声速（m/s）</div>
+      <div class="num-cell"><span class="v">5 200 m/s</span>铁（棒）声速，表 2.1-1 最大</div>
+      <div class="num-cell"><span class="v">1 500 m/s</span>水（常温）声速；海水 25 ℃ 1 531</div>
+      <div class="num-cell warn"><span class="v">约 255 m</span>练习⑥：340×1.5÷2（回声测距）</div>
+    </div>
+  </div>
+<script>
+(function () {
+  'use strict';
+  var tabs = document.querySelectorAll('.map-tab');
+  var panels = document.querySelectorAll('.map-panel');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (t) { t.classList.remove('on'); });
+      panels.forEach(function (p) { p.classList.remove('on'); });
+      tab.classList.add('on');
+      var target = document.querySelector('.map-panel[data-p="' + tab.dataset.t + '"]');
+      if (target) target.classList.add('on');
+    });
+  });
+})();
+</script>
+</body>
+</html>
+</div>

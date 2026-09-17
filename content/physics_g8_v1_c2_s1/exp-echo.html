@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>回声测距计算器 · 声音的产生与传播</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .mode-tabs { display: flex; gap: 8px; flex-wrap: nowrap; margin-bottom: 12px; }
+  .mode-tab { flex: 1; min-height: 44px; border-radius: 10px; border: 1.5px solid rgba(0,0,0,.1); background: var(--card); color: var(--ink2); font-weight: 700; font-size: 13px; cursor: pointer; }
+  .mode-tab.on { background: var(--green); border-color: var(--green); color: #ffffff; }
+  .panel { display: none; }
+  .panel.on { display: block; animation: panelIn .25s ease; }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .dist-line { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; margin-top: 10px; }
+  .dist-line input { width: 70px; min-width: 70px; text-align: center; }
+  .dist-line input[type=range] { flex: 1; width: auto; min-width: 0; }
+  .dist-line .unit { font-size: 13px; color: var(--ink2); font-weight: 700; white-space: nowrap; }
+  .readout { display: flex; gap: 10px; flex-wrap: nowrap; margin-top: 12px; }
+  .ro-cell { flex: 1; background: var(--card2); border-radius: 10px; padding: 10px 8px; text-align: center; font-size: 12px; color: var(--ink2); min-width: 0; }
+  .ro-cell .rv { display: block; font-size: 20px; font-weight: 800; color: var(--brown); font-variant-numeric: tabular-nums; }
+  .ro-cell .rv.green { color: var(--green); }
+  .verdict { margin-top: 12px; padding: 12px 14px; border-radius: 10px; font-size: 14px; line-height: 1.7; font-weight: 700; }
+  .verdict.echo { background: var(--green-bg); border: 1px solid rgba(74,140,63,.3); color: var(--green); }
+  .verdict.mix { background: var(--brown-bg); border: 1px solid rgba(139,105,20,.3); color: var(--brown); }
+  .scene { position: relative; background: var(--card2); border-radius: 12px; overflow: hidden; margin-top: 12px; }
+  #echoSvg { display: block; width: 100%; height: auto; }
+  .quiz-line { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; margin-top: 10px; }
+  .quiz-line input[type=text] { width: 70px; min-width: 70px; text-align: center; }
+  .quiz-line .qtext2 { font-size: 14px; color: var(--ink); line-height: 1.6; flex: 1; min-width: 0; }
+  .formula-box { background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 10px 10px 0; padding: 10px 14px; font-size: 14px; line-height: 1.9; margin-top: 10px; display: none; }
+  .formula-box.show { display: block; }
+  @media (max-width: 390px) {
+    .ro-cell .rv { font-size: 16px; }
+    .ro-cell { padding: 8px 4px; font-size: 11px; }
+    .dist-line input { width: 62px; min-width: 62px; }
+    .quiz-line input[type=text] { width: 62px; min-width: 62px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">🏔️ 回声测距计算器</h1>
+    <p class="page-subtitle">拖距离滑块听效果：反射声回来晚于 0.1 s 才分得出回声。再挑战反向出题：给时间求距离！</p>
+  </div>
+
+  <div class="card">
+    <div class="mode-tabs">
+      <button class="mode-tab on" data-p="calc" type="button">📏 正向：距离→回声</button>
+      <button class="mode-tab" data-p="quiz" type="button">🎯 反向：时间→距离</button>
+    </div>
+
+    <div class="panel on" data-p="calc">
+      <div class="dist-line">
+        <span class="unit">距障碍</span>
+        <input type="range" id="distRange" min="5" max="120" step="1" value="60" aria-label="距障碍距离">
+        <input type="number" id="distInput" min="5" max="120" step="1" value="60" aria-label="距障碍距离数值">
+        <span class="unit">m</span>
+      </div>
+      <div class="readout">
+        <div class="ro-cell">往返路程<span class="rv" id="roS">120 m</span></div>
+        <div class="ro-cell">往返时间<span class="rv" id="roT">0.353 s</span></div>
+        <div class="ro-cell">能否分辨<span class="rv green" id="roV">能</span></div>
+      </div>
+      <div class="verdict echo" id="verdict"></div>
+      <div class="scene">
+        <svg id="echoSvg" viewBox="0 0 640 200" role="img" aria-label="人对山崖喊话，声波往返示意">
+          <rect x="0" y="0" width="640" height="200" fill="#f3efe8"/>
+          <rect x="560" y="30" width="80" height="170" fill="#8a8a8a"/>
+          <rect x="548" y="30" width="14" height="170" fill="#5a5a5a"/>
+          <text x="600" y="22" font-size="13" fill="#5a5a5a" text-anchor="middle" font-weight="700">山崖/墙</text>
+          <circle id="person" cx="70" cy="120" r="16" fill="#8b6914"/>
+          <text x="70" y="160" font-size="13" fill="#2c2c2c" text-anchor="middle" font-weight="700">你</text>
+          <rect id="cliffFlash" x="548" y="30" width="14" height="170" fill="#ffd766" opacity="0"/>
+          <g id="waveGo" opacity="0" stroke="#2980b9" stroke-width="3" fill="none">
+            <path d="M 0 -22 A 22 22 0 0 1 0 22"/>
+            <path d="M -12 -16 A 16 16 0 0 1 -12 16"/>
+            <path d="M -22 -10 A 10 10 0 0 1 -22 10"/>
+          </g>
+          <g id="waveBack" opacity="0" stroke="#4a8c3f" stroke-width="3" fill="none" stroke-dasharray="6 5">
+            <path d="M 0 -22 A 22 22 0 0 0 0 22"/>
+            <path d="M 12 -16 A 16 16 0 0 0 12 16"/>
+            <path d="M 22 -10 A 10 10 0 0 0 22 10"/>
+          </g>
+          <text id="svgLabel" x="320" y="46" font-size="14" fill="#5a5a5a" text-anchor="middle">拖动滑块，再点「喊一嗓子」</text>
+        </svg>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="shoutBtn" type="button">📣 喊一嗓子（听效果）</button>
+      </div>
+      <div class="hint">※ 音频为 WebAudio 示意：喊声出发，反射声波回到耳边的瞬间播对应的回声（t&gt;0.1 s 两声分得开）或混响（t≤0.1 s 叠加更响亮）。</div>
+    </div>
+
+    <div class="panel" data-p="quiz">
+      <div class="qtext2" style="font-size:14px;line-height:1.8">🎯 <b>挑战题</b>（同练习⑥）：一个同学向着远处的山崖大喊一声，约 <b id="quizT">1.5</b> s 后听到回声。该同学距山崖大约多少米？（15 ℃ 空气声速 340 m/s）</div>
+      <div class="quiz-line">
+        <input type="text" id="quizInput" inputmode="decimal" placeholder="?" aria-label="距山崖多少米">
+        <span class="unit">m</span>
+        <button class="btn btn-primary" id="quizCheck" type="button">提交判分</button>
+        <button class="btn btn-secondary" id="newQuiz" type="button">🎲 换一题</button>
+      </div>
+      <div class="feedback" id="quizFb"></div>
+      <div class="formula-box" id="formulaBox"></div>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-echo.js"></script>
+</body>
+</html>

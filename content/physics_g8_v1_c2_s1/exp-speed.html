@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>声速排序游戏 · 声音的产生与传播</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .mode-tabs { display: flex; gap: 8px; flex-wrap: nowrap; margin-bottom: 12px; }
+  .mode-tab { flex: 1; min-height: 44px; border-radius: 10px; border: 1.5px solid rgba(0,0,0,.1); background: var(--card); color: var(--ink2); font-weight: 700; font-size: 13px; cursor: pointer; }
+  .mode-tab.on { background: var(--green); border-color: var(--green); color: #ffffff; }
+  .panel { display: none; }
+  .panel.on { display: block; animation: panelIn .25s ease; }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .slots { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; }
+  .slot { width: 74px; height: 84px; border-radius: 10px; border: 2px dashed rgba(0,0,0,.18); background: var(--card2); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: var(--ink3); gap: 4px; }
+  .slot .rank { font-size: 10px; font-weight: 800; color: var(--ink3); }
+  .slot.filled { border-style: solid; border-color: rgba(74,140,63,.5); background: var(--green-bg); }
+  .slot.filled .nm { font-weight: 800; color: var(--green); font-size: 11px; text-align: center; line-height: 1.3; }
+  .slot.filled .rank { color: var(--green); }
+  .pool { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .pcard { border-radius: 10px; border: 1.5px solid rgba(0,0,0,.1); background: var(--card); padding: 10px 6px; text-align: center; cursor: pointer; transition: all .15s; user-select: none; }
+  .pcard:hover { border-color: var(--green); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+  .pcard .nm { font-weight: 800; font-size: 12px; color: var(--ink); line-height: 1.35; }
+  .pcard .vv { font-size: 15px; font-weight: 800; color: var(--brown); font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .pcard.picked { opacity: .25; pointer-events: none; }
+  .pcard.shake { animation: shake .35s ease; }
+  @keyframes shake { 0%,100% { transform: none; } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .rule-reveal { display: none; margin-top: 14px; }
+  .rule-reveal.show { display: block; }
+  .temp-track { display: flex; gap: 8px; flex-wrap: nowrap; margin-top: 10px; }
+  .temp-cell { flex: 1; text-align: center; background: var(--cyan-bg); border: 1px solid rgba(41,128,185,.25); border-radius: 10px; padding: 10px 4px; font-size: 12px; color: var(--ink2); }
+  .temp-cell .tv { font-size: 19px; font-weight: 800; color: var(--cyan); font-variant-numeric: tabular-nums; display: block; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th, .tbl td { border: 1px solid rgba(0,0,0,.1); padding: 8px 6px; text-align: center; }
+  .tbl th { background: var(--brown-bg); font-weight: 700; }
+  .tbl tr.hintrow { cursor: pointer; }
+  .tbl tr.hintrow:hover { background: var(--cyan-bg); }
+  .tbl tr.hintrow.on { background: var(--green-bg); font-weight: 800; }
+  @media (max-width: 390px) {
+    .pool { grid-template-columns: repeat(3, 1fr); }
+    .slot { width: 62px; height: 76px; }
+    .temp-cell .tv { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📊 声速排序游戏</h1>
+    <p class="page-subtitle">表 2.1-1 十二种介质声速卡片被打乱了。按声速<b>从小到大</b>依次点选，排对了有惊喜！</p>
+  </div>
+
+  <div class="card">
+    <div class="mode-tabs">
+      <button class="mode-tab on" data-p="game" type="button">🎮 排序挑战</button>
+      <button class="mode-tab" data-p="table" type="button">📋 原表核对</button>
+    </div>
+
+    <div class="panel on" data-p="game">
+      <div class="hint" style="margin-top:0">从小到大：先点声速最小的卡片放进 1 号槽，依次点满 12 格。点错会抖动提示。</div>
+      <div class="slots" id="slots"></div>
+      <div class="pool" id="pool"></div>
+      <div class="input-line" style="margin-top:12px">
+        <button class="btn btn-secondary" id="resetSort" type="button">🔄 重新排</button>
+        <span class="qidx" id="sortProgress">已排 0/12</span>
+      </div>
+      <div class="feedback" id="sortFb"></div>
+      <div class="rule-reveal" id="ruleReveal">
+        <div class="key-point">🎯 <b>规律揭晓</b>：对比表中数据可以发现——<br>① 声速跟介质<b>种类</b>有关，一般 <b>固体 &gt; 液体 &gt; 气体</b>（铁棒 5 200 &gt; 海水 1 531 &gt; 空气 340 m/s）；<br>② 声速还跟<b>温度</b>有关，同是空气，温度越高声速越大：0 ℃ → 331，15 ℃ → 340，25 ℃ → 346 m/s。<br>③ 特例：软木（500）虽是固体却比多数液体慢——“一般”不等于“一定”。</div>
+        <div class="temp-track">
+          <div class="temp-cell">空气 0 ℃<span class="tv">331</span>m/s</div>
+          <div class="temp-cell">空气 15 ℃<span class="tv">340</span>m/s</div>
+          <div class="temp-cell">空气 25 ℃<span class="tv">346</span>m/s</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" data-p="table">
+      <table class="tbl">
+        <tr><th>介质</th><th>声速/(m·s⁻¹)</th><th>介质</th><th>声速/(m·s⁻¹)</th></tr>
+        <tr class="hintrow" data-i="0"><td>空气（0 ℃）</td><td>331</td><td>海水（25 ℃）</td><td>1 531</td></tr>
+        <tr class="hintrow" data-i="1"><td>空气（15 ℃）</td><td>340</td><td>冰</td><td>3 230</td></tr>
+        <tr class="hintrow" data-i="2"><td>空气（25 ℃）</td><td>346</td><td>铜（棒）</td><td>3 750</td></tr>
+        <tr class="hintrow" data-i="3"><td>软木</td><td>500</td><td>大理石</td><td>3 810</td></tr>
+        <tr class="hintrow" data-i="4"><td>煤油（25 ℃）</td><td>1 324</td><td>铝（棒）</td><td>5 000</td></tr>
+        <tr class="hintrow" data-i="5"><td>水（常温）</td><td>1 500</td><td>铁（棒）</td><td>5 200</td></tr>
+      </table>
+      <div class="seginfo" id="tblInfo" style="font-size:13px;color:var(--ink2);margin-top:8px;min-height:20px">💡 点任意一行高亮，左右两格对照着记。数据与教材表 2.1-1 逐格一致。</div>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-speed.js"></script>
+</body>
+</html>

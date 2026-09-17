@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：振动放大器 · 把微小振动放大</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #fdf3d8; }
+  #ampCv { width: 100%; display: block; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
+  .ctl-row .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 64px; }
+  .ctl-row input[type=range] { flex: 1; accent-color: var(--gold); min-width: 0; }
+  .ctl-row .ctl-val { font-size: 13px; color: var(--brown); font-weight: 700; min-width: 64px; text-align: right; }
+  .anim-btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .anim-btns .btn { flex: 1; min-width: 100px; }
+  #slowBtn.active { background: var(--cyan); color: #fff; }
+  .qa-card { background: var(--card2); border-radius: 12px; padding: 14px 16px; margin-top: 14px; }
+  .qa-card h4 { margin: 0 0 10px; font-size: 14px; color: var(--brown); }
+  .qa-card .opt { margin-bottom: 8px; }
+  .qa-card .opt.right { background: var(--green-bg); border-color: rgba(74,140,63,.5); color: var(--green); }
+  .qa-card .opt.wrong { background: var(--red-bg); border-color: rgba(192,57,43,.4); color: var(--red); }
+  .qa-card .opt.dim { opacity: .45; }
+  .fb-text { font-size: 13px; line-height: 1.7; color: var(--ink2); overflow: hidden; max-height: 0; transition: max-height .35s; }
+  .fb-text.show { max-height: 260px; margin-top: 6px; }
+  .fb-text b { color: var(--brown); }
+  @media (max-width: 768px) {
+    .anim-btns { flex-direction: column; }
+    .anim-btns .btn { min-width: 0; }
+    .ctl-row .ctl-label { min-width: 56px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">🥁 振动放大器</h1>
+    <p class="page-subtitle">鼓面的振动太微小，眼睛看不清？让碎纸屑替我们"跳"出来！</p>
+  </div>
+
+  <div class="card">
+    <h2>左：鼓面碎纸屑 右：音叉点水 <span class="chip cyan">实时联动</span></h2>
+    <div class="hint-bar">💡 拖「敲鼓力度」slider 再点「敲一下」：力度越大，鼓面振幅越大，碎纸屑跳得越高。点「音叉点水」看振动的音叉溅起水花。「慢镜头」0.25× 回放最近一次敲击。</div>
+    <div class="fullscreen-wrap" id="fsAmpWrap">
+      <button class="fullscreen-btn" id="fsAmpBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="ampCv"></canvas>
+      </div>
+      <div class="ctl-row">
+        <span class="ctl-label">敲鼓力度</span>
+        <input type="range" id="forceSlider" min="10" max="100" value="60" step="1" aria-label="敲鼓力度">
+        <span class="ctl-val" id="forceVal">60</span>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="hitBtn">🥁 敲一下</button>
+        <button class="btn btn-brown" id="forkBtn">🔱 音叉点水</button>
+        <button class="btn btn-secondary" id="slowBtn">🐢 慢镜头回放</button>
+      </div>
+    </div>
+    <p class="hint">碎纸屑本身不发声，它把鼓面的<b>微小振动</b>放大成了看得见的跳动——这种方法叫<b>转换法（放大法）</b>。</p>
+  </div>
+
+  <div class="card">
+    <h2>想一想 <span class="chip brown">问答</span></h2>
+    <div class="qa-card" id="qaCard">
+      <h4>📝 这个实验里，我们把什么微小变化，放大成了什么明显变化？</h4>
+      <button class="opt" data-ok="1">鼓面的微小振动 → 碎纸屑的明显跳动（音叉的微小振动 → 水面的明显水花）</button>
+      <button class="opt" data-ok="0">小声的声音 → 大声的声音</button>
+      <button class="opt" data-ok="0">慢的振动 → 快的振动</button>
+      <div class="fb-text" id="fbAmp"><b>答对了！</b>鼓面、音叉发声时在振动，但振幅太小看不清。碎纸屑跳动、水花飞溅把<b>微小的振动放大</b>成明显的现象，让我们"看见"了振动——这就是<b>转换法</b>。振动停止，纸屑落下、水面平静，发声也停止。</div>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-amp.js"></script>
+</body>
+</html>

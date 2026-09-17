@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：真空罩模拟 · 声音的传播</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #e8f4fd; }
+  #vacCv { width: 100%; display: block; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
+  .ctl-row .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 64px; }
+  .ctl-row input[type=range] { flex: 1; accent-color: var(--gold); min-width: 0; }
+  .ctl-row .ctl-val { font-size: 13px; color: var(--brown); font-weight: 700; min-width: 64px; text-align: right; }
+  .anim-btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .anim-btns .btn { flex: 1; min-width: 100px; }
+  #pumpBtn.pressed { transform: translateY(3px) scale(.97); box-shadow: inset 0 3px 6px rgba(0,0,0,.35); }
+  .qa-zone { margin-top: 14px; }
+  .qa-step { background: var(--card2); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+  .qa-step.locked { opacity: .5; pointer-events: none; }
+  .qa-step h4 { margin: 0 0 10px; font-size: 14px; color: var(--brown); }
+  .qa-step .opt { margin-bottom: 8px; }
+  .qa-step .opt.right { background: var(--green-bg); border-color: rgba(74,140,63,.5); color: var(--green); }
+  .qa-step .opt.wrong { background: var(--red-bg); border-color: rgba(192,57,43,.4); color: var(--red); }
+  .qa-step .fb-text { font-size: 13px; line-height: 1.7; color: var(--ink2); overflow: hidden; max-height: 0; transition: max-height .35s; }
+  .qa-step .fb-text.show { max-height: 200px; margin-top: 6px; }
+  .badge-zone { display: none; margin-top: 14px; padding: 16px; border-radius: 12px; background: linear-gradient(135deg, #eef6ec, #f5f0e0); border: 2px solid var(--green); text-align: center; }
+  .badge-zone.show { display: block; animation: badgeIn .4s ease; }
+  @keyframes badgeIn { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+  .badge-zone .medal { font-size: 40px; }
+  .badge-zone h3 { color: var(--green); margin: 6px 0 10px; font-size: 16px; }
+  .chain { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; font-size: 13px; font-weight: 700; }
+  .chain .node { background: #fff; border: 1px solid rgba(74,140,63,.4); color: var(--green); border-radius: 99px; padding: 4px 12px; }
+  .chain .arr { color: var(--brown); font-weight: 800; }
+  .counter { font-size: 12px; color: var(--ink3); margin-top: 8px; }
+  @media (max-width: 768px) {
+    .anim-btns { flex-direction: column; }
+    .anim-btns .btn { min-width: 0; }
+    .ctl-row .ctl-label { min-width: 56px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">🔔 真空罩模拟</h1>
+    <p class="page-subtitle">正在响铃的闹钟放进玻璃罩。慢慢抽走空气，听听铃声怎么变？（教材演示 · 图2.1-4）</p>
+  </div>
+
+  <div class="card">
+    <h2>抽气 · 听声 <span class="chip cyan">实时联动</span></h2>
+    <div class="hint-bar">💡 按住「按住抽气」（或直接按住画面里的泵体）：粒子一粒一粒排队经管道入泵，铃声变小；松开粒子一粒一粒回流、铃声恢复。抽到真空：闹钟仍在振动，但没介质传声听不见。</div>
+    <div class="fullscreen-wrap" id="fsVacWrap">
+      <button class="fullscreen-btn" id="fsVacBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="vacCv"></canvas>
+      </div>
+      <div class="ctl-row">
+        <span class="ctl-label">空气量</span>
+        <span class="ctl-val" id="airVal" style="flex:1;text-align:left;min-width:0;">100%</span>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="playBtn">▶ 播放闹铃</button>
+        <button class="btn btn-secondary" id="pumpBtn">🫳 按住抽气</button>
+        <button class="btn btn-secondary" id="resetVac">⟲ 重置</button>
+      </div>
+    </div>
+    <div class="state-line" id="stateLine" style="margin-top:12px;padding:12px 14px;border-radius:10px;background:#fff;border:1px solid rgba(0,0,0,.08);font-size:14px;line-height:1.7;"></div>
+  </div>
+
+  <div class="card">
+    <h2>三步推理挑战 <span class="chip brown">分析原因</span></h2>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:4px;">按顺序回答三个问题（先把上面的 slider 拉一拉再答），全部答对获得推理链徽章！<span class="counter" id="qaCounter">进度 0/3</span></p>
+    <div class="qa-zone" id="qaZone">
+      <div class="qa-step" id="q1">
+        <h4>① 逐渐抽气时，你听到了什么？</h4>
+        <button class="opt" data-ok="1">铃声越来越小</button>
+        <button class="opt" data-ok="0">铃声越来越大</button>
+        <button class="opt" data-ok="0">铃声不变，只是变尖了</button>
+        <div class="fb-text" id="fb1"><b>对！</b>空气被抽走，传声的介质变少，铃声越来越小。</div>
+      </div>
+      <div class="qa-step locked" id="q2">
+        <h4>② 再让空气逐渐进入罩内，铃声会怎样？</h4>
+        <button class="opt" data-ok="0">一直听不到</button>
+        <button class="opt" data-ok="1">逐渐变大，恢复响铃</button>
+        <button class="opt" data-ok="0">突然爆响一声</button>
+        <div class="fb-text" id="fb2"><b>对！</b>介质回来了，声音又能传播了——证明是<b>空气</b>传送了声音。</div>
+      </div>
+      <div class="qa-step locked" id="q3">
+        <h4>③ 推理：如果罩内是理想真空，声音还能传出来吗？</h4>
+        <button class="opt" data-ok="0">能，声音不需要任何物质</button>
+        <button class="opt" data-ok="1">不能，真空不能传声</button>
+        <button class="opt" data-ok="0">能，但会慢很多</button>
+        <div class="fb-text" id="fb3"><b>对！</b>实验+推理得出结论：<b>真空不能传声</b>。所以太空中航天员离得再近，也只能靠无线电交谈。</div>
+      </div>
+    </div>
+    <div class="badge-zone" id="badgeZone">
+      <div class="medal">🏅</div>
+      <h3>推理链徽章 Get！</h3>
+      <div class="chain">
+        <span class="node">抽气→粒子变少</span><span class="arr">→</span>
+        <span class="node">铃声变小</span><span class="arr">→</span>
+        <span class="node">进气→铃声恢复</span><span class="arr">→</span>
+        <span class="node">真空不能传声</span>
+      </div>
+      <p style="font-size:12px;color:var(--ink3);margin-top:8px;">声音的传播需要介质（气/固/液），真空不能传声。</p>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-vacuum.js"></script>
+</body>
+</html>

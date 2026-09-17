@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 声音的产生与传播</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .tabs { display: flex; gap: 8px; margin: 12px 0; flex-wrap: nowrap; overflow-x: auto; }
+  .tab-btn { flex: 1; white-space: nowrap; padding: 10px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; cursor: pointer; font-weight: 700; font-size: 13px; transition: all .25s ease; min-height: 44px; }
+  .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .tab-pane { display: none; animation: tabIn .25s ease; }
+  .tab-pane.active { display: block; }
+  @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .tipbox { border-left: 4px solid var(--brown); background: var(--brown-bg); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; line-height: 1.7; font-size: 14px; }
+  .greenbox { border-left: 4px solid var(--green); background: var(--green-bg); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; line-height: 1.7; font-size: 14px; }
+  .figbox { background: var(--card2); border-radius: 12px; padding: 14px; margin: 12px 0; }
+  .figcap { color: var(--ink2); font-size: 13px; text-align: center; margin-top: 8px; line-height: 1.6; }
+  .def-row { display: grid; gap: 12px; margin: 12px 0; }
+  @media (min-width: 640px) { .def-row { grid-template-columns: 1fr 1fr; } }
+  .def-card { background: var(--card2); border-radius: 12px; padding: 14px 16px; border-left: 4px solid var(--brown); font-size: 14px; line-height: 1.7; }
+  .def-card h4 { margin: 0 0 6px; color: var(--brown); font-size: 15px; }
+  table.speed { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 10px 0; }
+  table.speed th, table.speed td { border: 1px solid rgba(0,0,0,.12); padding: 7px 8px; text-align: center; }
+  table.speed th { background: var(--brown-bg); color: var(--brown); font-weight: 700; }
+  table.speed td.hl { background: var(--green-bg); color: var(--green); font-weight: 800; }
+  ul.plain { padding-left: 20px; margin: 8px 0; font-size: 14px; line-height: 1.9; }
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 12px 0; }
+  .steps li { position: relative; padding: 10px 12px 10px 52px; margin-bottom: 10px; background: var(--green-bg); border-radius: 10px; line-height: 1.6; font-size: 14px; }
+  .steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .steps li b { color: var(--green); }
+  .t1-ctrls { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-top: 10px; font-size: 13.5px; color: var(--ink2); }
+  .t1-ctrls input[type=range] { flex: 1 1 150px; min-width: 120px; accent-color: #4a8c3f; }
+  .t1-ctrls button { min-height: 42px; padding: 8px 20px; border: none; border-radius: 10px; background: var(--green); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .t1-ctrls button:active { transform: scale(.96); }
+  .t2-ctrls { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-top: 10px; font-size: 13.5px; color: var(--ink2); }
+  .t2-ctrls button { min-height: 44px; padding: 8px 18px; border: none; border-radius: 10px; background: var(--green); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .t2-ctrls button:active { transform: scale(.96); }
+  #t2Pump { background: #2980b9; }
+  #t2Pump.pressed { transform: translateY(3px) scale(.97); box-shadow: inset 0 3px 6px rgba(0,0,0,.35); }
+  .t3-ctrls { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-top: 10px; font-size: 13.5px; color: var(--ink2); }
+  .t3-ctrls button { min-height: 44px; padding: 8px 18px; border: none; border-radius: 10px; background: var(--green); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .t3-ctrls button:active { transform: scale(.96); }
+  .t3-ctrls button.on { outline: 3px solid rgba(74,140,63,.35); }
+  #t3ModeWater, #t3Tap { background: #2980b9; }
+  .t3-modes { justify-content: flex-start; margin-top: 10px; }
+  .t3-act { justify-content: center; margin-top: 10px; }
+  @media (max-width: 768px) { .tabs { gap: 6px; } .tab-btn { font-size: 12px; padding: 10px 4px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html">‹ 返回本节</a>
+
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">声音是怎么产生的？靠什么传到我们耳朵里？四个 Tab 一次讲清。</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="t1" role="tab">① 声音的产生</button>
+    <button class="tab-btn" data-tab="t2" role="tab">② 声音的传播</button>
+    <button class="tab-btn" data-tab="t3" role="tab">③ 声波与水波</button>
+    <button class="tab-btn" data-tab="t4" role="tab">④ 声速与回声</button>
+  </div>
+
+  <!-- ============ Tab 1 声音的产生 ============ -->
+  <div class="tab-pane active" id="t1">
+    <div class="card">
+      <h2>声音由振动产生 <span class="chip brown">核心结论</span></h2>
+      <div class="greenbox">大量观察、分析表明：<b>声音是由物体的振动（vibration）产生的</b>。振动停止，发声也停止。</div>
+      <div class="figbox">
+        <canvas id="t1BandCv" width="520" height="240" role="img" aria-label="互动实验：盒子上绷着橡皮筋，拉动滑块调节绷紧长度，点拨动按钮振动发声" style="display:block;width:100%;max-width:640px;margin:0 auto;border-radius:10px;"></canvas>
+        <div class="t1-ctrls">
+          <label for="t1Tension">🤏 拉动（绷紧长度）</label>
+          <input type="range" id="t1Tension" min="0" max="100" value="50" aria-label="橡皮筋绷紧长度">
+          <button type="button" id="t1Pluck">👆 拨动</button>
+        </div>
+        <div class="figcap">互动实验（对应教材图2.1-2 想想做做）：拉动滑块，共鸣盒跟着橡皮筋一起变长/变短，橡皮筋拉长变细、缩短变粗；点「拨动」，橡皮筋以驻波（两端固定、中间振幅最大）上下振动并真实发声——拉得越紧振动越快、音调越高。说话时声带也在振动，动手体验：<a href="exp-vibrate.html?from=explain&tab=t1" style="color:var(--brown);font-weight:700;">发声体振动台</a>。</div>
+      </div>
+      <h2 style="margin-top:16px;">方法点拨：归纳推理 <span class="chip">科学方法</span></h2>
+      <p style="font-size:14px;line-height:1.8;">观察生活中许多与声音有关的现象，发现这些声音都是由振动产生的，由此得出"声音是由物体的振动产生的"这个一般性结论——这里用到了<b>归纳推理</b>的方法。</p>
+      <div class="tipbox">💡 想一想：蝈蝈靠翅膀摩擦振动发声；想让发声的物体不再发声，只需<b>让它停止振动</b>（如按住橡皮筋）。<br>动手体验：<a href="exp-vibrate.html?from=explain&tab=t1" style="color:var(--brown);font-weight:700;">→ 发声体振动台</a></div>
+      <h2 style="margin-top:16px;">声音可以被记录 <span class="chip cyan">延伸</span></h2>
+      <p style="font-size:14px;line-height:1.8;">把发声体的<b>振动记录下来</b>，需要时再让物体按记录的振动规律振动，就能重现原来的声音。早期机械唱片表面有一圈圈不规则的沟槽，唱片转动时唱针随沟槽振动，就把记录的声音重现出来；后来还有磁带、激光唱片和存储卡。</p>
+    </div>
+  </div>
+  <!-- ============ Tab 2 声音的传播 ============ -->
+  <div class="tab-pane" id="t2">
+    <div class="card">
+      <h2>传声需要介质 <span class="chip brown">核心结论</span></h2>
+      <div class="greenbox">大量实验表明：声音的传播需要物质，物理学中把这样的物质叫作<b>介质（medium）</b>。传声的介质既可以是<b>气体、固体，也可以是液体</b>；<b>真空不能传声</b>。</div>
+      <div class="figbox">
+        <canvas id="t2VacCv" width="520" height="280" role="img" aria-label="互动实验：真空罩中的闹钟，点播放闹钟跳动响铃，按住抽气泵抽走蓝色空气粒子铃声变小，松开粒子回流铃声恢复" style="display:block;width:100%;max-width:640px;margin:0 auto;border-radius:10px;"></canvas>
+        <div class="t2-ctrls">
+          <button type="button" id="t2Play">▶ 播放</button>
+          <button type="button" id="t2Pump" aria-label="按住抽气，松开进气">🫳 按住抽气</button>
+          <span>空气量：<b id="t2AirVal" style="color:var(--brown);">100%</b></span>
+        </div>
+        <div class="figcap">互动实验（对应教材图2.1-4 演示实验）：点「播放」，玻璃罩内闹钟跳动发声；按住「抽气泵」，蓝色空气粒子沿管子被抽出罩外，铃声越来越小，抽成真空后完全无声；松开，粒子沿管回流进罩，铃声越来越大直到恢复正常。</div>
+      </div>
+      <div class="tipbox">🚀 正是平时大家并不留意的<b>空气</b>传送了声音。在没有空气的太空中，哪怕离得再近，航天员也只能通过<b>无线电</b>交谈。动手体验：<a href="exp-vacuum.html?from=explain&tab=t2" style="color:var(--brown);font-weight:700;">→ 真空罩模拟</a></div>
+      <h2 style="margin-top:16px;">三态介质都能传声 <span class="chip">证据</span></h2>
+      <ul class="plain">
+        <li><b>固体</b>：耳朵贴在桌面上，同学用手指甲轻刮桌子（别人听不到），你却听得很清楚——桌子能传声。</li>
+        <li><b>液体</b>：将要上钩的鱼，会被岸上的说话声或脚步声吓跑；花样游泳运动员在水中也能听到音乐——水能传声。</li>
+        <li><b>气体</b>：平时对话靠空气传声，真空罩实验已证明。</li>
+      </ul>
+      <h2 style="margin-top:16px;">骨传导：声音入耳的「第二条路」 <span class="chip cyan">科学世界</span></h2>
+      <p style="font-size:14px;line-height:1.8;">平时声音走<b>空气传导</b>这条路：外界声音 → 鼓膜振动 → 听小骨（锤骨、砧骨、镫骨）放大传递 → 耳蜗 → 听觉神经。但声音还有另一条路：<b>骨传导</b>——发声体的振动经头骨、颌骨等骨头直接传到耳蜗和听觉神经引起听觉，<b>不经过鼓膜和听小骨</b>。</p>
+      <ol class="steps">
+        <li><b>塞耳听音叉</b>：用棉花塞住耳朵（堵住空气传导的路），把振动的音叉柄抵在下巴、前额或耳后的骨头上，仍能清楚听到音叉声——声音走了骨传导这条路。</li>
+        <li><b>听自己的录音</b>：自己说话时，一部分声音经头骨、颌骨直接传入内耳（低频更明显）；别人听到和录音机录下的只有空气传导的声音。所以听自己的录音总觉得「不像自己」。</li>
+        <li><b>吃脆饼干</b>：咬碎脆饼时自己听到的声音特别响，旁人却几乎听不见——碎裂的振动经颌骨、头骨直接传入内耳，是骨传导。</li>
+      </ol>
+      <div class="def-row">
+        <div class="def-card"><h4>🦻 骨传导助听器</h4>鼓膜或听小骨损坏、但听觉神经正常的人，普通助听器没用；骨传导助听器把声音变成颅骨振动，绕过损坏部位直接传入内耳，照样能听。</div>
+        <div class="def-card"><h4>🎧 骨传导耳机</h4>耳机贴在耳前的颊骨上，声音经头骨传入内耳，双耳保持开放——骑车、跑步时仍能听到周围环境声，更安全；工业、军事等特殊场合也在用。</div>
+      </div>
+      <div class="greenbox">📌 要点：空气传导和骨传导最终都到达<b>听觉神经</b>，只是路径不同。骨传导还证明了一个结论：<b>固体（骨头）也能传声</b>，而且传声效果很好。</div>
+    </div>
+  </div>
+  <!-- ============ Tab 3 声波与水波 ============ -->
+  <div class="tab-pane" id="t3">
+    <div class="card">
+      <h2>声音以波的形式传播 <span class="chip brown">声波模型</span></h2>
+      <p style="font-size:14px;line-height:1.8;">以击鼓为例：鼓面的振动带动周围的空气振动，形成了<b>疏密相间的波动</b>，向远处传播。声音以波的形式传播着，因此我们把它叫<b>声波（sound wave）</b>。</p>
+      <div class="figbox">
+        <div class="t3-ctrls t3-modes">
+          <button type="button" id="t3ModeWave" class="on">🥁 声波</button>
+          <button type="button" id="t3ModeWater">💧 水波</button>
+        </div>
+        <canvas id="t3WaveCv" width="560" height="260" role="img" aria-label="互动实验：声波模式敲鼓看声波一圈圈向右扩散，水波模式击打水面看涟漪向四周扩散" style="display:block;width:100%;max-width:640px;margin:0 auto;border-radius:10px;"></canvas>
+        <div class="t3-ctrls t3-act">
+          <button type="button" id="t3Hit">🔨 敲击</button>
+          <button type="button" id="t3Tap" style="display:none;">👆 击打水面</button>
+        </div>
+        <div class="figcap">互动实验（对应教材图2.1-5）：「声波」模式点「敲击」，鼓面振动发声，声波一圈圈向右扩散——越远越稀疏、范围越大；「水波」模式点「击打水面」或直接点水面，涟漪从击打点向四周泛起——越远越弱直到消失。两者传播方式相似。</div>
+      </div>
+      <div class="greenbox">类比理解：水波中水质点只在原位上下振动，波纹向外传；声波中空气质点也只在原位振动，<b>疏密波形向远处传</b>——传的是波动形式，不是质点本身。</div>
+      <div class="tipbox">🌊 动手体验：<a href="exp-wave.html?from=explain&tab=t3" style="color:var(--brown);font-weight:700;">→ 声波可视化</a>（疏密波前外推 + 水波分屏对比 + 频率 slider）</div>
+    </div>
+  </div>
+  <!-- ============ Tab 4 声速与回声 ============ -->
+  <div class="tab-pane" id="t4">
+    <div class="card">
+      <h2>声速 <span class="chip brown">小资料 表2.1-1</span></h2>
+      <p style="font-size:14px;line-height:1.8;">远处闪电划过夜空，过一会儿才听到隆隆雷声——声音传到耳朵需要时间。声速的大小跟<b>介质的种类</b>有关，还跟<b>介质的温度</b>有关。<b>15 ℃时空气中的声速是340 m/s</b>。</p>
+      <div class="figbox">
+        <table class="speed">
+          <tr><th colspan="4">表2.1-1 一些介质中的声速（声速/（m·s⁻¹））</th></tr>
+          <tr><th>介质</th><th>声速/（m·s⁻¹）</th><th>介质</th><th>声速/（m·s⁻¹）</th></tr>
+          <tr><td>空气（0 ℃）</td><td>331</td><td>海水（25 ℃）</td><td>1 531</td></tr>
+          <tr><td>空气（15 ℃）</td><td class="hl">340</td><td>冰</td><td>3 230</td></tr>
+          <tr><td>空气（25 ℃）</td><td>346</td><td>铜（棒）</td><td>3 750</td></tr>
+          <tr><td>软木</td><td>500</td><td>大理石</td><td>3 810</td></tr>
+          <tr><td>煤油（25 ℃）</td><td>1 324</td><td>铝（棒）</td><td>5 000</td></tr>
+          <tr><td>水（常温）</td><td>1 500</td><td>铁（棒）</td><td>5 200</td></tr>
+        </table>
+        <div class="figcap">读表规律：一般 固体 &gt; 液体 &gt; 气体；同是空气，温度越高声速越大（0 ℃→331，15 ℃→340，25 ℃→346）。</div>
+      </div>
+      <div class="def-row">
+        <div class="def-card"><h4>🌡️ 温度的影响</h4>空气 0 ℃ 时 331 m·s⁻¹，15 ℃ 时 340 m·s⁻¹，25 ℃ 时 346 m·s⁻¹——温度升高，声速变大。</div>
+        <div class="def-card"><h4>🧱 种类的影响</h4>软木 500，水（常温）1 500，铁（棒）5 200（m·s⁻¹）——一般固体传声最快。</div>
+      </div>
+      <h2 style="margin-top:16px;">回声 <span class="chip brown">大于0.1 s</span></h2>
+      <p style="font-size:14px;line-height:1.8;">声音在传播过程中遇到障碍物会被<b>反射</b>。对着高墙或山崖喊话后听到的回声，就是反射回来的声音。</p>
+      <ol class="steps">
+        <li><b>障碍物较远</b>：声音经过较长时间（<b>大于0.1 s</b>）回到耳边，人能把回声与原声区分开。</li>
+        <li><b>障碍物太近</b>：声波很快反射回来，回声与原声混在一起分辨不出，但会觉得声音<b>更响亮</b>——音乐厅常利用这种原理使演奏效果更好（室内讲话比旷野里响亮也是这个道理）。</li>
+      </ol>
+      <div class="greenbox">📏 回声测距：向着山崖大喊一声，约1.5 s后听到回声，则距离 s = vt/2 = 340 m/s × 1.5 s ÷ 2 = <b>约255 m</b>（声速查表2.1-1：15 ℃空气 340 m/s）。</div>
+      <div class="tipbox">🦴 科学世界·骨传导：声音不走鼓膜、经头骨也能传入内耳引起听觉。完整原理、三个小实验与应用（骨传导助听器/耳机）见「② 声音的传播」标签页 →「骨传导：声音入耳的『第二条路』」。</div>
+    </div>
+  </div>
+</div>
+<script src="explain-tab1.js"></script>
+<script src="explain-tab2.js"></script>
+<script src="explain-tab3.js"></script>
+<script>
+(function(){
+  var btns = document.querySelectorAll('.tabs .tab-btn');
+  var panes = document.querySelectorAll('.tab-pane');
+  btns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      btns.forEach(function(b){ b.classList.remove('active'); });
+      panes.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+      try{ sessionStorage.setItem('c2s1_explain_tab', btn.dataset.tab); }catch(e){}
+      /* 切 Tab 后 canvas 从隐藏变可见：下一帧 re-fit 一次，让内部坐标与 CSS 宽度对齐（否则点击坐标偏） */
+      requestAnimationFrame(function(){ window.dispatchEvent(new Event('resize')); });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+})();
+/* 返回溯源：从 exp 页带 #tX 回来时直接激活对应 Tab */
+(function(){
+  var m = (location.hash || '').match(/^#(t[1-4])$/);
+  var tab = m ? m[1] : null;
+  if(!tab) return;
+  var btn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+  if(btn) btn.click();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>双声到达模拟 · 声音的产生与传播</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .len-line { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; margin-top: 10px; }
+  .len-line input[type=range] { flex: 1; width: auto; min-width: 0; }
+  .len-line input[type=number] { width: 70px; min-width: 70px; text-align: center; }
+  .len-line .unit { font-size: 13px; color: var(--ink2); font-weight: 700; white-space: nowrap; }
+  .race-scene { position: relative; background: var(--card2); border-radius: 12px; overflow: hidden; margin-top: 12px; }
+  #raceSvg { display: block; width: 100%; height: auto; }
+  .readout { display: flex; gap: 10px; flex-wrap: nowrap; margin-top: 12px; }
+  .ro-cell { flex: 1; background: var(--card2); border-radius: 10px; padding: 10px 6px; text-align: center; font-size: 12px; color: var(--ink2); min-width: 0; }
+  .ro-cell .rv { display: block; font-size: 18px; font-weight: 800; color: var(--brown); font-variant-numeric: tabular-nums; }
+  .ro-cell .rv.cyan { color: var(--cyan); }
+  .ro-cell .rv.green { color: var(--green); }
+  .verdict { margin-top: 12px; padding: 12px 14px; border-radius: 10px; font-size: 14px; line-height: 1.7; font-weight: 700; }
+  .verdict.two { background: var(--green-bg); border: 1px solid rgba(74,140,63,.3); color: var(--green); }
+  .verdict.one { background: var(--brown-bg); border: 1px solid rgba(139,105,20,.3); color: var(--brown); }
+  .quick-btns { display: flex; gap: 8px; flex-wrap: nowrap; margin-top: 12px; }
+  .quick-btns .btn { flex: 1; padding: 10px 6px; font-size: 13px; }
+  .explain-box { display: none; margin-top: 12px; }
+  .explain-box.show { display: block; }
+  @media (max-width: 390px) {
+    .ro-cell .rv { font-size: 14px; }
+    .ro-cell { padding: 8px 4px; font-size: 11px; }
+    .len-line input[type=number] { width: 62px; min-width: 62px; }
+    .quick-btns .btn { font-size: 12px; padding: 10px 4px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">🛤️ 双声到达模拟</h1>
+    <p class="page-subtitle">练习④说：耳朵贴长铁管一端，另一端敲一下，会听到<b>2 次</b>敲打声。为什么？让声音沿铁管（5 200 m/s）和空气（340 m/s）赛个跑！</p>
+  </div>
+
+  <div class="card">
+    <h2>🏁 竞速跑道 <span class="chip">G11</span></h2>
+    <div class="len-line">
+      <span class="unit">管长</span>
+      <input type="range" id="lenRange" min="5" max="150" step="1" value="100" aria-label="铁管长度">
+      <input type="number" id="lenInput" min="5" max="150" step="1" value="100" aria-label="铁管长度数值">
+      <span class="unit">m</span>
+    </div>
+    <div class="quick-btns">
+      <button class="btn btn-secondary" id="q20" type="button">短管 20 m</button>
+      <button class="btn btn-secondary" id="q36" type="button">临界 ≈36.4 m</button>
+      <button class="btn btn-secondary" id="q100" type="button">长管 100 m</button>
+    </div>
+    <div class="race-scene">
+      <svg id="raceSvg" viewBox="0 0 640 220" role="img" aria-label="声音沿铁管与空气双路径竞速动画">
+        <rect x="0" y="0" width="640" height="220" fill="#f3efe8"/>
+        <!-- 铁管 -->
+        <rect x="70" y="52" width="480" height="26" rx="13" fill="#8a8a8a" stroke="#5a5a5a" stroke-width="2"/>
+        <text x="310" y="44" font-size="13" fill="#5a5a5a" text-anchor="middle" font-weight="700">铁管路径 · v = 5 200 m/s</text>
+        <!-- 空气路径 -->
+        <line x1="70" y1="150" x2="550" y2="150" stroke="#2980b9" stroke-width="2" stroke-dasharray="8 6"/>
+        <text x="310" y="176" font-size="13" fill="#2980b9" text-anchor="middle" font-weight="700">空气路径 · v = 340 m/s</text>
+        <!-- 起点：敲击者 -->
+        <circle cx="70" cy="65" r="10" fill="#8b6914"/>
+        <circle cx="70" cy="150" r="10" fill="#8b6914"/>
+        <text x="40" y="112" font-size="13" fill="#2c2c2c" text-anchor="middle" font-weight="700">敲</text>
+        <!-- 终点：耳朵 -->
+        <g id="earIcon">
+          <circle cx="562" cy="65" r="16" fill="#f5e9d8" stroke="#8b6914" stroke-width="3"/>
+          <circle cx="562" cy="150" r="16" fill="#f5e9d8" stroke="#8b6914" stroke-width="3"/>
+          <text x="600" y="112" font-size="13" fill="#2c2c2c" text-anchor="middle" font-weight="700">耳朵👂</text>
+        </g>
+        <!-- 跑者 -->
+        <circle id="runIron" cx="70" cy="65" r="9" fill="#4a8c3f" opacity="0"/>
+        <circle id="runAir" cx="70" cy="150" r="9" fill="#2980b9" opacity="0"/>
+        <!-- 到达闪光 -->
+        <circle id="flashIron" cx="562" cy="65" r="20" fill="none" stroke="#4a8c3f" stroke-width="4" opacity="0"/>
+        <circle id="flashAir" cx="562" cy="150" r="20" fill="none" stroke="#2980b9" stroke-width="4" opacity="0"/>
+        <text id="raceLabel" x="310" y="206" font-size="14" fill="#5a5a5a" text-anchor="middle" font-weight="700">调好管长，点「敲一下！」</text>
+      </svg>
+    </div>
+    <div class="anim-btns">
+      <button class="btn btn-primary" id="hitBtn" type="button">🔨 敲一下！（看竞速+听到达声）</button>
+    </div>
+    <div class="readout">
+      <div class="ro-cell">铁管到达 t₁<span class="rv green" id="roT1">0.019 s</span></div>
+      <div class="ro-cell">空气到达 t₂<span class="rv cyan" id="roT2">0.294 s</span></div>
+      <div class="ro-cell">时间差 Δt<span class="rv" id="roD">0.275 s</span></div>
+    </div>
+    <div class="verdict two" id="verdict"></div>
+  </div>
+
+  <div class="card">
+    <h2>📖 这解释了练习④ <span class="chip cyan">归纳</span></h2>
+    <div class="explain-box show">
+      <div class="key-point">🎯 敲击声同时沿<b>铁管</b>（固体，5 200 m/s）和管内外的<b>空气</b>（340 m/s）传播。铁中声速远大于空气，若铁管足够长，两声到达耳朵的时间差 <b>Δt &gt; 0.1 s</b>，人耳就能分辨——先听到<b>铁管传来</b>的一声，再听到<b>空气传来</b>的一声，共 <b>2 次</b>。<br><br>🔬 试试把管长拖到临界值 <b>≈36.4 m</b> 附近：Δt 恰好等于 0.1 s；再短，两声合并为 1 次——「长铁管」的“长”正是这个意思！</div>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-dual.js"></script>
+</body>
+</html>

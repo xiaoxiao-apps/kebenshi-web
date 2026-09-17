@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：发声体振动台 · 声音的产生</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #f7e8c0; }
+  #bandCv { width: 100%; display: block; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
+  .ctl-row .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 64px; }
+  .ctl-row input[type=range] { flex: 1; accent-color: var(--gold); min-width: 0; }
+  .ctl-row .ctl-val { font-size: 13px; color: var(--brown); font-weight: 700; min-width: 52px; text-align: right; }
+  .anim-btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .anim-btns .btn { flex: 1; min-width: 100px; }
+  #holdBtn.holding { background: var(--red); color: #fff; }
+  .state-line { margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: #fff; border: 1px solid rgba(0,0,0,.08); font-size: 14px; line-height: 1.7; }
+  .badge { display: inline-block; font-size: 12.5px; font-weight: 800; padding: 2px 12px; border-radius: 99px; margin-right: 6px; vertical-align: middle; }
+  .badge.on { background: var(--green-bg); color: var(--green); box-shadow: 0 0 0 1.5px var(--green) inset; }
+  .badge.off { background: var(--red-bg); color: var(--red); box-shadow: 0 0 0 1.5px var(--red) inset; }
+  .throat-note { margin-top: 12px; padding: 12px 16px; background: var(--card2); border-radius: 12px; font-size: 14px; line-height: 1.8; color: var(--ink2); }
+  @media (max-width: 768px) {
+    .anim-btns { flex-direction: column; }
+    .anim-btns .btn { min-width: 0; }
+    .ctl-row .ctl-label { min-width: 56px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">🎸 发声体振动台</h1>
+    <p class="page-subtitle">拨动绷紧的橡皮筋：一边听声音，一边看它的变化。松紧、振幅都能调，按住它试试！</p>
+  </div>
+
+  <div class="card">
+    <h2>拨动橡皮筋 <span class="chip brown">想想做做 · 图2.1-2</span></h2>
+    <div class="hint-bar">💡 点「▶ 拨动」：每振动一个来回，就发出「铮」的一声；振动越来越弱，声音也越来越轻，静止后不再发声；拖 slider 改变振幅和音调；<b>按住</b>「🖐 按住橡皮筋」→ 振动停、声音停。</div>
+    <div class="fullscreen-wrap" id="fsVibWrap">
+      <button class="fullscreen-btn" id="fsVibBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="bandCv"></canvas>
+      </div>
+      <div class="ctl-row">
+        <span class="ctl-label">振幅</span>
+        <input type="range" id="ampSlider" min="0" max="100" value="60" step="1" aria-label="振幅">
+        <span class="ctl-val" id="ampVal">60</span>
+      </div>
+      <div class="ctl-row">
+        <span class="ctl-label">松紧</span>
+        <input type="range" id="tensionSlider" min="0" max="100" value="50" step="1" aria-label="松紧">
+        <span class="ctl-val" id="tensionVal">适中</span>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="pluckBtn">▶ 拨动</button>
+        <button class="btn btn-brown" id="holdBtn">🖐 按住橡皮筋</button>
+        <button class="btn btn-secondary" id="resetBtn">⟲ 重置</button>
+      </div>
+    </div>
+    <div class="state-line" id="stateLine"></div>
+    <p class="hint">越紧的橡皮筋振动越快，音调越高；振幅越大，声音越响、"变胖变虚"越明显。</p>
+  </div>
+
+  <div class="card">
+    <h2>说话时的声带 <span class="chip cyan">体验</span></h2>
+    <p class="throat-note">🗣 说话时把手轻按在喉头处，能感到声带在振动——和橡皮筋一样，<b>声音是由振动产生的</b>。</p>
+    <div class="tipbox" style="border-left:4px solid var(--brown);background:var(--brown-bg);border-radius:0 10px 10px 0;padding:12px 16px;margin:12px 0;font-size:14px;line-height:1.7;">
+      🧠 归纳：橡皮筋嗡嗡作响时它在振动，说话时声带在振动——大量现象归纳出一般结论：<b>声音是由物体的振动产生的</b>。想让物体不再发声？让它<b>停止振动</b>。
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-vibrate.js"></script>
+</body>
+</html>
