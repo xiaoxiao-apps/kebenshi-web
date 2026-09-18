@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>小练习 · 声音的特性</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .qcard { position: relative; margin-bottom: 14px; }
+  .qtag { display: inline-block; background: var(--green-bg); color: var(--green); font-weight: 800; font-size: 12px; border-radius: 8px; padding: 3px 8px; margin-bottom: 8px; }
+  .qtag.extra { background: var(--cyan-bg); color: var(--cyan); margin-left: 6px; }
+  .qtext { font-size: 15px; line-height: 1.8; color: var(--ink); }
+  .reveal-btn { display: inline-block; margin-top: 10px; padding: 10px 16px; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--green); background: #ffffff; color: var(--green); font-weight: 800; font-size: 14px; cursor: pointer; transition: background .2s ease; }
+  .reveal-btn:hover { background: var(--green-bg); }
+  .answer { display: none; margin-top: 10px; background: var(--green-bg); border-left: 4px solid var(--green); border-radius: 0 10px 10px 0; padding: 10px 12px; font-size: 14px; line-height: 1.8; }
+  .qcard.open .answer { display: block; }
+  .line { word-break: break-all; }
+  .scorebar { position: sticky; top: 8px; z-index: 5; background: var(--green); color: #ffffff; border-radius: 999px; padding: 6px 16px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+  .reset-btn { display: inline-block; margin-left: 8px; padding: 6px 14px; min-height: 36px; border-radius: 999px; border: 1px solid rgba(0,0,0,.15); background: var(--card2); color: var(--ink2); font-weight: 700; font-size: 13px; cursor: pointer; vertical-align: middle; }
+  .done-banner { display: none; margin: 0 0 14px; background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 14px; line-height: 1.8; }
+  .done-banner.show { display: block; }
+  .input-line.calc input { width: 80px; min-width: 70px; text-align: center; }
+  .input-line.calc .unit { font-size: 14px; color: var(--ink2); font-weight: 700; }
+  .match-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+  .match-row:last-child { border-bottom: none; }
+  .match-label { font-size: 14px; flex: 1; }
+  .match-opts { display: flex; gap: 8px; }
+  .match-opts button { padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,.1); background: var(--card2); color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer; min-height: 36px; transition: all .15s; }
+  .match-opts button.right { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .match-opts button.wrong { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+  .optrow { display: flex; gap: 8px; flex-wrap: nowrap; margin-top: 12px; }
+  .optrow .opt { flex: 1; width: auto; text-align: center; margin-bottom: 0; }
+  .scheme-wrap { display: grid; gap: 14px; margin-top: 12px; }
+  .scheme { background: var(--card2); border-radius: 10px; padding: 14px; border: 1px solid rgba(0,0,0,.06); }
+  .scheme h4 { font-size: 15px; margin-bottom: 8px; }
+  .scheme ul { font-size: 13px; color: var(--ink2); padding-left: 18px; line-height: 1.8; }
+  .craft-btn { margin-top: 12px; }
+  @media (max-width: 390px) {
+    .qtext { font-size: 14px; }
+    .optrow .opt { padding: 12px 6px; font-size: 13px; }
+    .input-line.calc input { width: 70px; min-width: 64px; }
+    .match-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节导航</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">✍️ 小练习 · 声音的特性</h1>
+    <p class="page-subtitle">教材「练习与应用」①~⑤ 原题。先自己想，再点开「示例要点」或提交答案核对！</p>
+  </div>
+  <div><span class="scorebar" id="score">已答 0/5</span><button class="reset-btn" id="resetBtn" type="button">🔄 重置</button></div>
+  <div class="done-banner" id="doneBanner"></div>
+
+  <div class="card qcard" data-q="q1">
+    <span class="qtag">练习与应用 · 第 1 题</span><span class="qtag extra">计算题</span>
+    <div class="qtext">某种昆虫靠翅的振动发声。如果这种昆虫的翅在 2 s 内振动了 700 次，频率是多少？人耳能不能听到？</div>
+    <div class="input-line calc">
+      <input type="text" id="q1Freq" inputmode="decimal" placeholder="?" aria-label="翅振动频率">
+      <span class="unit">Hz</span>
+      <button class="btn btn-primary" id="q1Check" type="button">提交判分</button>
+    </div>
+    <div class="optrow" style="margin-top:10px;">
+      <button class="opt" id="q1Yes" type="button">能</button>
+      <button class="opt" id="q1No" type="button">不能</button>
+    </div>
+    <div class="feedback" id="q1Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解（作答后可点）</button>
+    <div class="answer">
+      <div class="line">频率 = 振动次数 ÷ 时间 = 700 次 ÷ 2 s = <b>350 Hz</b>。</div>
+      <div class="line">多数人耳能听到的频率范围是 <b>20~20 000 Hz</b>，350 Hz 在这个范围内，所以 <b>能听到</b>。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q2">
+    <span class="qtag">练习与应用 · 第 2 题</span><span class="qtag extra">辨析题</span>
+    <div class="qtext">生活中经常用“高”“低”来形容声音，如“女高音”“男低音”“引吭高歌”“低声细语”。这 4 个词语中的“高”“低”描述的各是声音的哪些特性？请逐一点选。</div>
+    <div id="q2Rows">
+      <div class="match-row" data-phrase="女高音" data-ans="pitch">
+        <div class="match-label">“女高音”</div>
+        <div class="match-opts">
+          <button type="button" data-v="pitch">音调</button>
+          <button type="button" data-v="loudness">响度</button>
+        </div>
+      </div>
+      <div class="match-row" data-phrase="男低音" data-ans="pitch">
+        <div class="match-label">“男低音”</div>
+        <div class="match-opts">
+          <button type="button" data-v="pitch">音调</button>
+          <button type="button" data-v="loudness">响度</button>
+        </div>
+      </div>
+      <div class="match-row" data-phrase="引吭高歌" data-ans="loudness">
+        <div class="match-label">“引吭高歌”</div>
+        <div class="match-opts">
+          <button type="button" data-v="pitch">音调</button>
+          <button type="button" data-v="loudness">响度</button>
+        </div>
+      </div>
+      <div class="match-row" data-phrase="低声细语" data-ans="loudness">
+        <div class="match-label">“低声细语”</div>
+        <div class="match-opts">
+          <button type="button" data-v="pitch">音调</button>
+          <button type="button" data-v="loudness">响度</button>
+        </div>
+      </div>
+    </div>
+    <div class="feedback" id="q2Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解（全部点选后可点）</button>
+    <div class="answer">
+      <div class="line"><b>女高音</b>、<b>男低音</b> → 描述的是 <b>音调</b>（声音的高低）；</div>
+      <div class="line"><b>引吭高歌</b>、<b>低声细语</b> → 描述的是 <b>响度</b>（声音的大小/强弱）。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q3">
+    <span class="qtag">练习与应用 · 第 3 题</span><span class="qtag extra">选择说理题</span>
+    <div class="qtext">曲笛是一种竹笛，它的音域和二胡接近。当曲笛和二胡演奏同一个音高时，我们可以根据声音的哪个特性来区分这两种乐器？它们发出的波形有什么相同和不同之处？</div>
+    <div class="optrow">
+      <button class="opt" data-v="pitch" type="button">音调</button>
+      <button class="opt" data-v="loudness" type="button">响度</button>
+      <button class="opt" data-v="timbre" type="button">音色</button>
+    </div>
+    <div class="feedback" id="q3Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解（作答后可点）</button>
+    <div class="answer">
+      <div class="line">应选：<b>音色</b>。曲笛和二胡的制作材料、结构不同，所以发出声音的音色不同。</div>
+      <div class="line">波形上的相同点：<b>疏密程度相同</b>，说明频率相同、音调相同；</div>
+      <div class="line">不同点：<b>波的形状不同</b>，说明音色不同。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q4">
+    <span class="qtag">练习与应用 · 第 4 题</span><span class="qtag extra">开放说理题</span>
+    <div class="qtext">观察二胡（或吉他）。它是由什么振动发出声音的？又是怎样改变音调和响度的？</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">示例（二胡）：</div>
+      <div class="line">· 发声体：琴弦的振动发出声音，并通过共鸣筒放大。</div>
+      <div class="line">· 改变音调：改变弦的<b>长度</b>（按不同把位）和<b>松紧</b>。弦越短、越紧，振动越快，音调越高；反之音调越低。</div>
+      <div class="line">· 改变响度：改变<b>拉弓力度</b>。拉弓力度越大，弦的振幅越大，响度越大；反之响度越小。</div>
+      <div class="line">你也可以用吉他回答：琴弦振动发声；按品格改变弦长来改变音调；拨弦力度改变响度。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q5">
+    <span class="qtag">练习与应用 · 第 5 题</span><span class="qtag extra">实践题</span>
+    <div class="qtext">在班里举行的小型音乐会上，用自己制作的乐器进行演奏，看看谁的乐器有新意，谁演奏得好。写出你的制作过程。看看以下制作方案能否给你启发。</div>
+    <div class="scheme-wrap">
+      <div class="scheme">
+        <h4>🫙 方案一：水瓶琴</h4>
+        <ul>
+          <li>准备 8 个相同的玻璃瓶。</li>
+          <li>向瓶中灌入<b>不同高度</b>的水。</li>
+          <li>仔细调节水的高度，使音阶准确。</li>
+          <li>用筷子或敲击棒轻轻敲击瓶口边缘，就能发出“1，2，3，4，5，6，7，i”的声音。</li>
+        </ul>
+        <a class="btn btn-primary craft-btn" href="exp-craft.html?from=quiz#bottles">🎶 去仿真试试 →</a>
+      </div>
+      <div class="scheme">
+        <h4>🎵 方案二：活塞哨子</h4>
+        <ul>
+          <li>在筷子上捆一些棉花或碎布，做一个“活塞”。</li>
+          <li>用水蘸湿棉花或碎布后，把它从下面插入两端开口的塑料管或竹管中。</li>
+          <li>用嘴吹管的上端，可以发出悦耳的哨音。</li>
+          <li>上下推拉活塞，改变管中空气柱的长度，音调就会改变。</li>
+        </ul>
+        <a class="btn btn-primary craft-btn" href="exp-craft.html?from=quiz#pipe">🎶 去仿真试试 →</a>
+      </div>
+    </div>
+    <button class="reveal-btn" type="button" style="margin-top:12px;">💡 制作小贴士</button>
+    <div class="answer">
+      <div class="line">· 水瓶琴：敲击时主要是瓶子和水一起振动。水越多，整体振动越慢，音调越低；水越少，振动越快，音调越高。所以<b>装水最多的瓶子音最低（do）</b>，装水最少的音最高（i）。</div>
+      <div class="line">· 活塞哨子：声音由管内空气柱振动产生。空气柱越长，振动越慢，音调越低；空气柱越短，振动越快，音调越高。</div>
+      <div class="line">🔬 想边做边验证？点击上方按钮进仿真室。</div>
+    </div>
+  </div>
+<script>
+(function () {
+  'use strict';
+  var answered = {};
+  var q1Correct = null;
+  var q3Correct = null;
+  var q2Done = false;
+  var TOTAL = 5;
+  var scoreEl = document.getElementById('score');
+  var doneEl = document.getElementById('doneBanner');
+  var resetBtn = document.getElementById('resetBtn');
+
+  function markAnswered(q) {
+    var first = !answered[q];
+    answered[q] = true;
+    if (first) refresh();
+  }
+  function countAnswered() { return Object.keys(answered).length; }
+  function refresh() {
+    var n = countAnswered();
+    scoreEl.textContent = '已答 ' + n + '/' + TOTAL;
+    if (n >= TOTAL) {
+      var rightRows = document.querySelectorAll('.match-row .right[data-v]').length;
+      var q2All = q2Done && rightRows === document.querySelectorAll('.match-row').length;
+      var objScore = (q1Correct ? 1 : 0) + (q2All ? 1 : 0) + (q3Correct ? 1 : 0);
+      doneEl.innerHTML = '🎉 <b>全部完成！</b> 5 题已答，其中客观题得分：<b>' + objScore + '/3</b>。开放说理题请对照「示例要点」自查关键词。';
+      doneEl.classList.add('show');
+    } else {
+      doneEl.classList.remove('show');
+    }
+  }
+
+  document.querySelectorAll('.qcard').forEach(function (card) {
+    var q = card.dataset.q;
+    var btn = card.querySelector('.reveal-btn');
+    if (!btn) return;
+    var needAnswerFirst = (q === 'q1' || q === 'q2' || q === 'q3');
+    btn.addEventListener('click', function () {
+      if (needAnswerFirst) {
+        var done = false;
+        if (q === 'q1') done = (q1FreqCorrect !== null && q1HearCorrect !== null);
+        if (q === 'q2') done = q2Done;
+        if (q === 'q3') done = (q3Correct !== null);
+        if (!done) { btn.textContent = '✋ 请先作答本题'; setTimeout(function(){ btn.textContent = btn.dataset.orig; }, 1500); return; }
+      }
+      var open = card.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : btn.dataset.orig;
+      if (open) markAnswered(q);
+    });
+    btn.dataset.orig = btn.textContent;
+  });
+
+  // Q1
+  var q1Input = document.getElementById('q1Freq');
+  var q1Fb = document.getElementById('q1Fb');
+  var q1Yes = document.getElementById('q1Yes');
+  var q1No = document.getElementById('q1No');
+  var q1FreqCorrect = null;
+  var q1HearCorrect = null;
+
+  function updateQ1Feedback() {
+    var parts = [];
+    if (q1FreqCorrect === true) parts.push('频率正确');
+    else if (q1FreqCorrect === false) parts.push('频率错误');
+    if (q1HearCorrect === true) parts.push('人耳判断正确');
+    else if (q1HearCorrect === false) parts.push('人耳判断错误');
+    if (parts.length === 0) return;
+    var bothDone = (q1FreqCorrect !== null) && (q1HearCorrect !== null);
+    var all = (q1FreqCorrect === true) && (q1HearCorrect === true);
+    q1Fb.className = 'feedback show ' + (bothDone && all ? 'ok' : (bothDone ? 'err' : ''));
+    q1Fb.innerHTML = (bothDone ? (all ? '✅ ' : '❌ ') : '') + parts.join('；');
+    if (bothDone) { q1Correct = all; markAnswered('q1'); }
+  }
+
+  document.getElementById('q1Check').addEventListener('click', function () {
+    var raw = q1Input.value.trim();
+    if (!raw) { q1Fb.className = 'feedback show err'; q1Fb.textContent = '请先输入频率。'; return; }
+    var num = raw.replace(/[^0-9.]/g, '');
+    var val = parseFloat(num);
+    if (!isNaN(val) && Math.abs(val - 350) < 1) { q1FreqCorrect = true; }
+    else { q1FreqCorrect = false; }
+    updateQ1Feedback();
+  });
+
+  function pickHear(isYes) {
+    q1HearCorrect = isYes;
+    q1Yes.classList.toggle('right', isYes);
+    q1Yes.classList.toggle('wrong', !isYes);
+    q1No.classList.toggle('right', !isYes);
+    q1No.classList.toggle('wrong', isYes);
+    updateQ1Feedback();
+  }
+  q1Yes.addEventListener('click', function(){ pickHear(true); });
+  q1No.addEventListener('click', function(){ pickHear(false); });
+  q1Input.addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('q1Check').click(); });
+
+  // Q2
+  var rows = document.querySelectorAll('.match-row');
+  var q2Fb = document.getElementById('q2Fb');
+  rows.forEach(function (row) {
+    var ans = row.dataset.ans;
+    row.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        row.querySelectorAll('button').forEach(function (x) { x.classList.remove('right', 'wrong'); });
+        if (b.dataset.v === ans) { b.classList.add('right'); }
+        else { b.classList.add('wrong'); row.querySelector('[data-v="' + ans + '"]').classList.add('right'); }
+        checkQ2();
+      });
+    });
+  });
+  function checkQ2() {
+    var answeredRows = 0, rightRows = 0;
+    rows.forEach(function (row) {
+      var chosen = row.querySelector('button.right, button.wrong');
+      if (chosen) {
+        answeredRows++;
+        if (chosen.dataset.v === row.dataset.ans) rightRows++;
+      }
+    });
+    if (answeredRows === rows.length) {
+      q2Done = true;
+      q2Fb.className = 'feedback show';
+      if (rightRows === rows.length) { q2Fb.classList.add('ok'); q2Fb.innerHTML = '✅ 全对！“高/低”描述音调；“大/小”描述响度。'; }
+      else { q2Fb.classList.add('err'); q2Fb.innerHTML = '❌ 还有配对不对，可点下方按钮看讲解。'; }
+      markAnswered('q2');
+    }
+  }
+
+  // Q3
+  var q3Card = document.querySelector('[data-q="q3"]');
+  var q3Fb = document.getElementById('q3Fb');
+  q3Card.querySelectorAll('.opt').forEach(function (opt) {
+    opt.addEventListener('click', function () {
+      q3Card.querySelectorAll('.opt').forEach(function (o) { o.classList.remove('right', 'wrong', 'dim'); });
+      if (opt.dataset.v === 'timbre') { opt.classList.add('right'); q3Correct = true; }
+      else { opt.classList.add('wrong'); q3Card.querySelector('[data-v="timbre"]').classList.add('dim'); q3Correct = false; }
+      markAnswered('q3');
+      q3Fb.className = 'feedback show';
+      if (q3Correct) { q3Fb.classList.add('ok'); q3Fb.innerHTML = '✅ 正确！靠音色区分，波形疏密相同、形状不同。'; }
+      else { q3Fb.classList.add('err'); q3Fb.innerHTML = '❌ 再想想：同音高下还能区分的是什么特性？'; }
+    });
+  });
+
+  // Reset
+  resetBtn.addEventListener('click', function () {
+    answered = {}; q1Correct = null; q1FreqCorrect = null; q1HearCorrect = null; q3Correct = null; q2Done = false;
+    document.querySelectorAll('.qcard').forEach(function (c) {
+      c.classList.remove('open');
+      var b = c.querySelector('.reveal-btn');
+      if (b && b.dataset.orig) b.textContent = b.dataset.orig;
+      c.querySelectorAll('.opt').forEach(function (o) { o.classList.remove('right', 'wrong', 'dim'); });
+    });
+    document.querySelectorAll('.match-row button').forEach(function (b) { b.classList.remove('right', 'wrong'); });
+    q1Input.value = ''; q1Fb.className = 'feedback'; q1Fb.textContent = '';
+    q2Fb.className = 'feedback'; q2Fb.textContent = '';
+    q3Fb.className = 'feedback'; q3Fb.textContent = '';
+    refresh();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

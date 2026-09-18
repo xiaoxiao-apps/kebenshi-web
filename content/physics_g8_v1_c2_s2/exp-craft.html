@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>自制乐器仿真 · 声音的特性</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .stage-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .stage-title::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .bottle-stage { display: flex; align-items: flex-end; justify-content: center; gap: 8px; min-height: 220px; padding: 14px 8px 8px; background: linear-gradient(180deg, #eef6ec 0%, #ffffff 100%); border-radius: 12px; border: 1px solid rgba(74,140,63,.15); margin-bottom: 12px; flex-wrap: wrap; }
+  .bottle { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .bottle .jar { position: relative; width: 36px; height: 120px; border: 2px solid rgba(41,128,185,.35); border-radius: 0 0 12px 12px; background: rgba(255,255,255,.5); overflow: hidden; }
+  .bottle .water { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(41,128,185,.45), rgba(41,128,185,.65)); transition: height .3s ease; }
+  .bottle .note { font-size: 14px; font-weight: 800; color: var(--brown); }
+  .bottle .name { font-size: 11px; color: var(--ink3); }
+  .bottle:active .jar { transform: scale(.97); }
+  .bottle.active .jar { box-shadow: 0 0 0 3px var(--green-light); }
+  .pipe-card { display: grid; gap: 14px; }
+  .pipe-stage { position: relative; height: 300px; width: 90px; margin: 0 auto; border-radius: 12px; border: 3px solid rgba(41,128,185,.25); background: rgba(232,244,253,.4); overflow: hidden; touch-action: none; cursor: ns-resize; }
+  .pipe-air { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,.75); }
+  .pipe-piston { position: absolute; left: 0; right: 0; height: 14px; background: linear-gradient(180deg, #8b6914, #a07d1c); border-radius: 2px; box-shadow: 0 2px 6px rgba(0,0,0,.12); touch-action: none; }
+  .pipe-piston::after { content: "活塞"; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 10px; color: #fff; font-weight: 700; }
+  .pipe-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink3); margin-top: 6px; }
+  .readout { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .readout .pill { background: var(--cyan-bg); border: 1px solid rgba(41,128,185,.2); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--cyan); }
+  .blow-btn { width: 100%; margin-top: 10px; }
+  .step-card { background: var(--card2); border-radius: 10px; padding: 14px; border: 1px solid rgba(0,0,0,.06); }
+  .step-card h4 { font-size: 15px; margin-bottom: 8px; }
+  .step-card ol { font-size: 13px; color: var(--ink2); padding-left: 18px; line-height: 1.9; }
+  .hint { font-size: 12px; color: var(--ink3); margin-top: 10px; line-height: 1.7; }
+  @media (max-width: 390px) {
+    .bottle-stage { gap: 6px; min-height: 190px; }
+    .bottle .jar { width: 30px; height: 100px; }
+    .bottle .note { font-size: 12px; }
+    .pipe-stage { height: 260px; width: 80px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">🎶 自制乐器仿真</h1>
+    <p class="page-subtitle">动手做、亲耳听：水瓶琴与活塞哨子背后的音调秘密。</p>
+  </div>
+
+  <div class="card" id="bottles">
+    <div class="stage-title">方案一：水瓶琴</div>
+    <p class="hint">点击瓶子立刻发声，无需先取消。水越多，瓶+水振动越慢，音调越低。</p>
+    <div class="bottle-stage" id="bottleStage">
+      <div class="bottle" data-idx="0" data-src="assets/audio/bottle-1.wav" data-note="1">
+        <div class="jar"><div class="water" style="height:92%"></div></div>
+        <div class="note">1</div><div class="name">do</div>
+      </div>
+      <div class="bottle" data-idx="1" data-src="assets/audio/bottle-2.wav" data-note="2">
+        <div class="jar"><div class="water" style="height:80%"></div></div>
+        <div class="note">2</div><div class="name">re</div>
+      </div>
+      <div class="bottle" data-idx="2" data-src="assets/audio/bottle-3.wav" data-note="3">
+        <div class="jar"><div class="water" style="height:68%"></div></div>
+        <div class="note">3</div><div class="name">mi</div>
+      </div>
+      <div class="bottle" data-idx="3" data-src="assets/audio/bottle-4.wav" data-note="4">
+        <div class="jar"><div class="water" style="height:58%"></div></div>
+        <div class="note">4</div><div class="name">fa</div>
+      </div>
+      <div class="bottle" data-idx="4" data-src="assets/audio/bottle-5.wav" data-note="5">
+        <div class="jar"><div class="water" style="height:48%"></div></div>
+        <div class="note">5</div><div class="name">sol</div>
+      </div>
+      <div class="bottle" data-idx="5" data-src="assets/audio/bottle-6.wav" data-note="6">
+        <div class="jar"><div class="water" style="height:38%"></div></div>
+        <div class="note">6</div><div class="name">la</div>
+      </div>
+      <div class="bottle" data-idx="6" data-src="assets/audio/bottle-7.wav" data-note="7">
+        <div class="jar"><div class="water" style="height:28%"></div></div>
+        <div class="note">7</div><div class="name">si</div>
+      </div>
+      <div class="bottle" data-idx="7" data-src="assets/audio/bottle-8.wav" data-note="i">
+        <div class="jar"><div class="water" style="height:18%"></div></div>
+        <div class="note">i</div><div class="name">do</div>
+      </div>
+    </div>
+    <div class="key-point">物理原理：敲击时主要是<b>瓶子和水一起振动</b>。水越多，整体质量越大、振动越慢，频率越低，音调越低。所以装水最多的瓶子发最低的 do，装水最少的发最高的 i。</div>
+  </div>
+
+  <div class="card" id="pipe">
+    <div class="stage-title">方案二：活塞哨子</div>
+    <p class="hint">拖动活塞或滑块改变空气柱长度，再点「吹气」听音。空气柱越短，振动越快，音调越高。</p>
+    <div class="pipe-card">
+      <div class="pipe-stage" id="pipeStage" aria-label="活塞哨子">
+        <div class="pipe-air" id="pipeAir"></div>
+        <div class="pipe-piston" id="pipePiston"></div>
+      </div>
+      <div class="pipe-labels"><span>活塞在上（空气柱长）</span><span>活塞在下（空气柱短）</span></div>
+      <div class="input-line" style="margin-top:4px;">
+        <span style="font-size:13px;color:var(--ink2);font-weight:700;">空气柱长度</span>
+        <input type="range" id="pipeRange" min="0" max="100" value="60" style="flex:1;min-width:120px;">
+      </div>
+      <div class="readout">
+        <span class="pill">空气柱相对长度 <b id="airLenVal">60%</b></span>
+        <span class="pill">音调 <b id="pitchVal">偏低</b></span>
+      </div>
+      <button class="btn btn-primary blow-btn" id="blowBtn" type="button">🌬️ 吹气</button>
+      <p class="hint" style="margin-bottom:0;">提示：点「吹气」后哨音持续响，点「⏹ 停止」结束。拖动滑块/活塞时音调实时变化。</p>
+    </div>
+    <div class="key-point">物理原理：哨音由管内<b>空气柱振动</b>产生。空气柱越长，振动越慢，音调越低；空气柱越短，振动越快，音调越高。</div>
+  </div>
+
+  <div class="card">
+    <div class="stage-title">制作步骤对照卡</div>
+    <div style="display:grid;gap:14px;">
+      <div class="step-card">
+        <h4>🫙 水瓶琴</h4>
+        <ol>
+          <li>准备 8 个相同的玻璃瓶。</li>
+          <li>向瓶中灌入<b>不同高度</b>的水，水量从左到右递减（左多右少）。</li>
+          <li>敲击瓶口，听音并微调水量，直到能发出“1，2，3，4，5，6，7，i”。</li>
+          <li>试着用筷子敲出一首简单旋律。</li>
+        </ol>
+      </div>
+      <div class="step-card">
+        <h4>🎵 活塞哨子</h4>
+        <ol>
+          <li>在筷子上捆一些棉花或碎布，做成一个活塞。</li>
+          <li>用水把棉花或碎布蘸湿，让它能紧贴管壁。</li>
+          <li>将活塞从下面插入两端开口的塑料管或竹管中。</li>
+          <li>用嘴吹管的上端，同时上下推拉活塞，音调随之改变。</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="exp-back.js"></script>
+<script src="exp-craft.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：钢尺振动 · 音调与频率</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #e8e8e8; }
+  #rulerCv { width: 100%; display: block; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
+  .ctl-row .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 70px; }
+  .ctl-row input[type=range] { flex: 1; accent-color: var(--gold); min-width: 0; }
+  .ctl-row .ctl-val { font-size: 13px; color: var(--brown); font-weight: 700; min-width: 64px; text-align: right; }
+  .readout { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .readout .pill { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--ink2); }
+  .readout .pill b { color: var(--brown); }
+  .anim-btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .anim-btns .btn { flex: 1; min-width: 100px; }
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.7; margin-bottom: 8px; }
+  .steps li::before { counter-increment: s; content: counter(s); flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--brown-bg); color: var(--brown); display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+  .fill-card { background: var(--card2); border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .fill-card h3 { font-size: 15px; margin-bottom: 10px; }
+  .fill-card select { min-width: 80px; }
+  .fill-card .answer-hidden { display: none; }
+  @media (max-width: 768px) {
+    .anim-btns { flex-direction: column; }
+    .anim-btns .btn { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">📏 钢尺振动</h1>
+    <p class="page-subtitle">拨动压在桌边的钢尺：伸出长度越短，振动越快，音调越高。</p>
+  </div>
+
+  <div class="card">
+    <h2>想想做做 · 图2.2-2 <span class="chip brown">钢尺音调实验</span></h2>
+    <div class="hint-bar">💡 按照教材步骤：先把钢尺伸出桌边<b>较长</b>，拨动听音调；再<b>逐渐缩短</b>伸出长度，重复拨动，观察振动快慢与音调变化。</div>
+
+    <div class="fullscreen-wrap" id="fsRulerWrap">
+      <button class="fullscreen-btn" id="fsRulerBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="rulerCv"></canvas>
+      </div>
+      <div class="ctl-row">
+        <span class="ctl-label">伸出长度</span>
+        <input type="range" id="lenSlider" min="8" max="25" value="20" step="1" aria-label="伸出长度">
+        <span class="ctl-val" id="lenVal">20 cm</span>
+      </div>
+      <div class="readout">
+        <span class="pill">等效频率 <b id="freqVal">32 Hz</b></span>
+        <span class="pill">已试长度 <b id="tryVal">0/3</b></span>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="pluckBtn">👆 拨动钢尺</button>
+        <button class="btn btn-secondary" id="resetBtn">⟲ 重置</button>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li>把钢尺紧按在桌面上，使伸出桌边的部分较长，点击「拨动钢尺」。</li>
+      <li>缩短钢尺伸出的长度，再次拨动，注意音调和振动快慢的变化。</li>
+      <li>继续缩短长度，多试几次，看看长度、振动快慢、音调之间有什么关系。</li>
+    </ol>
+
+    <div class="fill-card" id="findCard" style="display:none;">
+      <h3>🔓 你的发现（完成 3 种不同长度后解锁）</h3>
+      <div class="input-line" style="flex-wrap:wrap;gap:8px 16px;">
+        <span>钢尺伸出越</span>
+        <select id="w1"><option value="">—</option><option value="短">短</option><option value="长">长</option></select>
+        <span>，振动越</span>
+        <select id="w2"><option value="">—</option><option value="快">快</option><option value="慢">慢</option></select>
+        <span>，发出声音的音调越</span>
+        <select id="w3"><option value="">—</option><option value="高">高</option><option value="低">低</option></select>
+        <span>。</span>
+        <button class="btn btn-brown" id="checkBtn">提交</button>
+      </div>
+      <div class="feedback" id="findFb"></div>
+      <div class="answer-hidden" id="answerBox">
+        <p class="key-point" style="margin-top:12px;">参考答案：<b>短 / 快 / 高</b>。伸出越短，钢尺振动部分越短，振动越快，频率越高，所以音调越高。</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-ruler.js"></script>
+</body>
+</html>

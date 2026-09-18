@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：听觉频率范围 · 人与动物</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .axis-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid rgba(0,0,0,.08); }
+  #rangeCv { width: 100%; display: block; }
+  .animal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .animal-grid .btn { flex-direction: column; gap: 4px; padding: 12px 6px; }
+  .animal-grid .btn .icon { font-size: 22px; }
+  .animal-grid .btn.active { box-shadow: 0 0 0 2px var(--green) inset; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; font-size: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; }
+  .play-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .play-row input[type=range] { flex: 1; min-width: 120px; }
+  .reveal-card { background: var(--card2); border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .reveal-card h3 { font-size: 15px; margin-bottom: 8px; }
+  @media (max-width: 768px) {
+    .animal-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">👂 听觉频率范围</h1>
+    <p class="page-subtitle">人和动物能听到的声音频率范围不同，有些声音人听不到，猫狗却能感知。</p>
+  </div>
+
+  <div class="card">
+    <h2>人和一些动物的听觉频率范围 <span class="chip brown">表2.2-1</span></h2>
+    <div class="hint-bar">💡 点击动物按钮，在轴上画出它的听觉范围。绿色高亮区是<b>人耳</b>可听范围（20~20 000 Hz）。<20 Hz 为次声波，>20 000 Hz 为超声波。</div>
+
+    <div class="axis-wrap">
+      <canvas id="rangeCv"></canvas>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:rgba(74,140,63,.25);"></i> 人耳可听</span>
+      <span><i style="background:rgba(41,128,185,.35);"></i> 选中动物</span>
+      <span><i style="background:rgba(192,57,43,.2);"></i> 次声波</span>
+      <span><i style="background:rgba(155,89,182,.2);"></i> 超声波</span>
+    </div>
+
+    <div class="animal-grid">
+      <button class="btn btn-secondary" data-animal="人"><span class="icon">🧑</span>人</button>
+      <button class="btn btn-secondary" data-animal="狗"><span class="icon">🐕</span>狗</button>
+      <button class="btn btn-secondary" data-animal="猫"><span class="icon">🐈</span>猫</button>
+      <button class="btn btn-secondary" data-animal="蝙蝠"><span class="icon">🦇</span>蝙蝠</button>
+      <button class="btn btn-secondary" data-animal="海豚"><span class="icon">🐬</span>海豚</button>
+      <button class="btn btn-secondary" data-animal="大象"><span class="icon">🐘</span>大象</button>
+    </div>
+
+    <div class="play-row">
+      <span class="ctl-label" style="font-size:13px;color:var(--ink2);font-weight:700;">试听频率</span>
+      <input type="range" id="playSlider" min="10" max="100" value="54" step="1" aria-label="试听频率对数位置">
+      <span id="playHz" style="font-size:13px;color:var(--brown);font-weight:700;min-width:70px;text-align:right;">1 000 Hz</span>
+      <button class="btn btn-primary" id="playToneBtn">▶ 播放纯音</button>
+      <button class="btn btn-secondary" id="stopToneBtn">⏹ 停止</button>
+    </div>
+    <p class="hint">拖动滑块选频率，点播放用合成器持续发声，点停止结束；进入超声波/次声波区域人耳听不到。</p>
+    <p id="rangeWarn" class="hint" style="display:none;color:var(--red);font-weight:700;"></p>
+
+    <div class="reveal-card">
+      <h3>🤔 为什么有时你觉得安静，猫狗却突然警觉？</h3>
+      <button class="btn btn-brown" id="revealBtn">揭晓答案</button>
+      <div class="answer-hidden" id="answerBox" style="display:none;">
+        <p class="key-point" style="margin-top:12px;">猫的听觉范围是 60~65 000 Hz，狗是 15~50 000 Hz，都比人耳（20~20 000 Hz）宽。环境中的一些高频超声波或低频次声波人听不到，但猫狗可以感知，所以它们会突然警觉。</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-range.js"></script>
+</body>
+</html>

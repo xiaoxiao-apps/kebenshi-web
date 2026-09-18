@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：响度与振幅 · 声音的特性</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #f7f3e8; display: flex; gap: 14px; align-items: flex-end; justify-content: center; padding: 14px; }
+  #loudCv { width: 100%; display: block; }
+  .stage-left { flex: 1.6; min-width: 0; }
+  .stage-right { flex: 1; display: flex; justify-content: center; align-items: flex-end; min-width: 120px; }
+  #personTrack { position: relative; width: 100%; display: flex; justify-content: center; align-items: flex-end; }
+  #personSvg { width: 108px; height: auto; display: block; transition: transform .25s ease, opacity .25s ease; }
+  @media (max-width: 768px) { .scene-wrap { flex-direction: column; align-items: center; } .stage-right { margin-top: 8px; min-width: 0; width: 100%; } #personSvg { width: 92px; } }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
+  .ctl-row .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 70px; }
+  .ctl-row input[type=range] { flex: 1; accent-color: var(--gold); min-width: 0; }
+  .ctl-row .ctl-val { font-size: 13px; color: var(--brown); font-weight: 700; min-width: 64px; text-align: right; }
+  .readout { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .readout .pill { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--ink2); }
+  .readout .pill b { color: var(--brown); }
+  .anim-btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .anim-btns .btn { flex: 1; min-width: 100px; }
+  .fill-card { background: var(--card2); border-radius: 12px; padding: 16px; margin-top: 14px; display: none; }
+  .fill-card h3 { font-size: 15px; margin-bottom: 10px; }
+  .fill-card select { min-width: 80px; }
+  .answer-hidden { display: none; }
+  @media (max-width: 768px) { .anim-btns { flex-direction: column; } .anim-btns .btn { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">🔔 响度与振幅</h1>
+    <p class="page-subtitle">音叉弹开乒乓球：振幅越大，响度越大；离得越远，听到的声音越小。</p>
+  </div>
+
+  <div class="card">
+    <h2>演示：决定响度的因素 · 图2.2-4 <span class="chip brown">音叉实验</span></h2>
+    <div class="hint-bar">💡 分别点击「轻敲」「重敲」，观察乒乓球被弹开的幅度和听到的声音强弱。再拖动「距离」滑块，体验远近对响度的影响。</div>
+
+    <div class="fullscreen-wrap" id="fsLoudWrap">
+      <button class="fullscreen-btn" id="fsLoudBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <div class="stage-left"><canvas id="loudCv"></canvas></div>
+        <div class="stage-right">
+          <div id="personTrack">
+            <svg id="personSvg" viewBox="0 0 120 212" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="听声音的小朋友">
+              <!-- 地面阴影 -->
+              <ellipse cx="60" cy="205" rx="34" ry="5.5" fill="rgba(107,74,46,.14)"/>
+              <!-- 腿（棕裤） -->
+              <rect x="43.5" y="148" width="14" height="42" rx="7" fill="#8a6a45" stroke="#6b4f30" stroke-width="2"/>
+              <rect x="62.5" y="148" width="14" height="42" rx="7" fill="#8a6a45" stroke="#6b4f30" stroke-width="2"/>
+              <!-- 鞋 -->
+              <ellipse cx="49" cy="193" rx="10.5" ry="6.5" fill="#5d4630" stroke="#473322" stroke-width="1.5"/>
+              <ellipse cx="71" cy="193" rx="10.5" ry="6.5" fill="#5d4630" stroke="#473322" stroke-width="1.5"/>
+              <!-- 手臂（皮肤色，画在身体两侧） -->
+              <path d="M42 112 Q29 130 33.5 146" stroke="#f8d9b0" stroke-width="9" fill="none" stroke-linecap="round"/>
+              <path d="M78 112 Q91 130 86.5 146" stroke="#f8d9b0" stroke-width="9" fill="none" stroke-linecap="round"/>
+              <circle cx="33.5" cy="147.5" r="6" fill="#f8d9b0" stroke="#e0b484" stroke-width="1.8"/>
+              <circle cx="86.5" cy="147.5" r="6" fill="#f8d9b0" stroke="#e0b484" stroke-width="1.8"/>
+              <!-- 身体（绿上衣） -->
+              <rect x="37" y="100" width="46" height="54" rx="19" fill="#5aa24e" stroke="#46803c" stroke-width="2.5"/>
+              <path d="M50 102 Q60 112 70 102" stroke="#46803c" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <!-- 脖子 -->
+              <rect x="54" y="92" width="12" height="12" rx="5" fill="#f8d9b0"/>
+              <!-- 耳朵 -->
+              <circle cx="30.5" cy="72" r="5.5" fill="#f8d9b0" stroke="#e0b484" stroke-width="1.8"/>
+              <circle cx="89.5" cy="72" r="5.5" fill="#f8d9b0" stroke="#e0b484" stroke-width="1.8"/>
+              <!-- 头 -->
+              <circle cx="60" cy="66" r="31" fill="#f8d9b0" stroke="#e0b484" stroke-width="2.5"/>
+              <!-- 头发 -->
+              <path d="M29 66 Q31 36 60 35 Q89 36 91 66 Q80 50 60 52 Q40 50 29 66 Z" fill="#6b4a2e"/>
+              <path d="M60 34 Q57 25 64 20" stroke="#6b4a2e" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <!-- 五官：笑脸 -->
+              <circle cx="49.5" cy="68" r="3.4" fill="#3a2e22"/>
+              <circle cx="70.5" cy="68" r="3.4" fill="#3a2e22"/>
+              <circle cx="50.7" cy="66.8" r="1.1" fill="#fff"/>
+              <circle cx="71.7" cy="66.8" r="1.1" fill="#fff"/>
+              <ellipse cx="41" cy="79" rx="4.4" ry="2.8" fill="#f2a68e" opacity=".75"/>
+              <ellipse cx="79" cy="79" rx="4.4" ry="2.8" fill="#f2a68e" opacity=".75"/>
+              <path d="M52 80 Q60 88.5 68 80" stroke="#3a2e22" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="ctl-row">
+        <span class="ctl-label">距离</span>
+        <input type="range" id="distSlider" min="1" max="10" value="2" step="0.5" aria-label="距离">
+        <span class="ctl-val" id="distVal">2 m</span>
+      </div>
+      <div class="readout">
+        <span class="pill">当前力度 <b id="forceVal">—</b></span>
+        <span class="pill">已试力度 <b id="tryVal">0/2</b></span>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-secondary" id="lightBtn">🔨 轻敲</button>
+        <button class="btn btn-primary" id="hardBtn">🔨 重敲</button>
+      </div>
+    </div>
+
+    <div class="fill-card" id="findCard">
+      <h3>🔓 你的发现（轻敲、重敲都体验后解锁）</h3>
+      <div class="input-line" style="flex-wrap:wrap;gap:8px 16px;">
+        <span>乒乓球弹开幅度反映音叉的</span>
+        <select id="w1"><option value="">—</option><option value="振幅">振幅</option><option value="频率">频率</option><option value="音色">音色</option></select>
+        <span>；</span>
+        <select id="w2"><option value="">—</option><option value="振幅">振幅</option><option value="频率">频率</option><option value="音色">音色</option></select>
+        <span>越大，响度越大。</span>
+        <button class="btn btn-brown" id="checkBtn">提交</button>
+      </div>
+      <div class="feedback" id="findFb"></div>
+      <div class="answer-hidden" id="answerBox">
+        <p class="key-point">参考答案：<b>振幅 / 振幅</b>。音叉振动幅度越大，乒乓球被弹得越远，听到的声音也越响亮。</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-loudness.js"></script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 声音的特性</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .tabs { display: flex; gap: 8px; margin: 12px 0; flex-wrap: nowrap; overflow-x: auto; }
+  .tab-btn { flex: 1; white-space: nowrap; padding: 10px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; cursor: pointer; font-weight: 700; font-size: 13px; transition: all .25s ease; min-height: 44px; }
+  .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .tab-pane { display: none; animation: tabIn .25s ease; }
+  .tab-pane.active { display: block; }
+  @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .tipbox { border-left: 4px solid var(--brown); background: var(--brown-bg); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; line-height: 1.7; font-size: 14px; }
+  .greenbox { border-left: 4px solid var(--green); background: var(--green-bg); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; line-height: 1.7; font-size: 14px; }
+  .figbox { background: var(--card2); border-radius: 12px; padding: 14px; margin: 12px 0; }
+  .figcap { color: var(--ink2); font-size: 13px; text-align: center; margin-top: 8px; line-height: 1.6; }
+  table.speed { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 10px 0; }
+  table.speed th, table.speed td { border: 1px solid rgba(0,0,0,.12); padding: 7px 8px; text-align: center; }
+  table.speed th { background: var(--brown-bg); color: var(--brown); font-weight: 700; }
+  table.speed td.hl { background: var(--green-bg); color: var(--green); font-weight: 800; }
+  ul.plain { padding-left: 20px; margin: 8px 0; font-size: 14px; line-height: 1.9; }
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 12px 0; }
+  .steps li { position: relative; padding: 10px 12px 10px 52px; margin-bottom: 10px; background: var(--green-bg); border-radius: 10px; line-height: 1.6; font-size: 14px; }
+  .steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .think { border: 2px dashed var(--brown); border-radius: 12px; padding: 14px 16px; margin-top: 14px; background: #fffdf5; font-size: 14px; line-height: 1.7; }
+  .think .q { font-weight: 700; color: var(--brown); margin-bottom: 6px; }
+  @media (max-width: 768px) { .tabs { gap: 6px; } .tab-btn { font-size: 12px; padding: 10px 4px; } }
+  .wave-grid { width: 100%; height: auto; display: block; }
+  .wave-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 10px; font-size: 13px; color: var(--ink2); }
+  .wave-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .wave-legend i { width: 18px; height: 3px; border-radius: 2px; display: inline-block; }
+  .to-exp { margin-top: 10px; text-align: center; }
+  .bio-chart { width: 100%; height: auto; display: block; }
+  .bio-seg { cursor: pointer; transition: opacity .15s; }
+  .bio-seg:hover { opacity: .8; }
+  .bio-popover { position: absolute; left: 0; right: 0; bottom: 8px; background: rgba(255,255,255,.96); border: 1px solid rgba(0,0,0,.1); border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.6; color: var(--ink); box-shadow: 0 4px 12px rgba(0,0,0,.12); display: none; pointer-events: none; }
+  .bio-popover.show { display: block; }
+  .bio-popover b { color: var(--brown); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html">‹ 返回本节</a>
+
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">音调、响度、音色，三个特性各自由什么决定？</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="t1" role="tab">① 音调与频率</button>
+    <button class="tab-btn" data-tab="t2" role="tab">② 响度与振幅</button>
+    <button class="tab-btn" data-tab="t3" role="tab">③ 音色与波形</button>
+    <button class="tab-btn" data-tab="t4" role="tab">④ 听觉范围与超声次声</button>
+  </div>
+
+  <!-- ============ Tab 1 音调与频率 ============ -->
+  <div class="tab-pane active" id="t1">
+    <div class="card">
+      <h2>为什么听得见蚊子却听不见蝴蝶？ <span class="chip brown">问题引入</span></h2>
+      <p style="font-size:14px;line-height:1.8;">蚊子和蝴蝶在飞行时翅膀都在振动（图2.2-1），为什么我们能听到讨厌的蚊子声，却听不到蝴蝶翅膀振动发出的声音？要知道这个问题的答案，就要研究<b>声音的特性</b>。</p>
+      <div class="figbox">
+        <div style="background:linear-gradient(135deg,#fdf3d8,#f3e2b3);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:48px;line-height:1;">🦟 🦋</div>
+          <div style="margin-top:10px;font-size:14px;color:var(--brown);font-weight:700;">图 2.2-1 蚊子与蝴蝶振翅</div>
+        </div>
+        <div class="to-exp"><a class="btn btn-primary" href="exp-intro.html?from=explain&tab=t1">去互动体验 →</a></div>
+        <div class="figcap">蚊子翅膀振动的频率在人耳听觉范围内，蝴蝶翅膀振动的频率太低，低于人耳能听到的下限。</div>
+      </div>
+
+      <h2 style="margin-top:16px;">钢尺实验：音调与振动快慢 <span class="chip">想想做做 图2.2-2</span></h2>
+      <ol class="steps">
+        <li>把一把钢尺紧按在桌面上，使<b>伸出桌边</b>的部分较长；拨动钢尺，观察它的振动情况。</li>
+        <li>逐渐<b>缩短</b>钢尺伸出的长度，重复前面的操作与观察。</li>
+        <li>注意听：伸出长度变短时，钢尺振动变<b>快</b>，音调变<b>高</b>；伸出长度变长时，振动变<b>慢</b>，音调变<b>低</b>。</li>
+      </ol>
+      <div class="greenbox"><b>结论</b>：物体振动得快，发出声音的音调就高；振动得慢，音调就低。</div>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>钢尺伸出桌面的长度越短，振动越____，听到的音调越____。你还能举出生活中“振动越快、音调越高”的例子吗？</div>
+        <div style="margin-top:8px;font-size:13px;color:var(--ink2);">（不附答案，到实验区验证你的想法 → <a href="exp-ruler.html?from=explain&tab=t1" style="color:var(--brown);font-weight:700;">钢尺实验</a>）</div>
+      </div>
+
+      <h2 style="margin-top:16px;">频率：描述振动快慢的物理量 <span class="chip brown">核心概念</span></h2>
+      <p style="font-size:14px;line-height:1.8;">发声体振动的快慢是一个很重要的物理量，它决定着音调的高低。物理学中用物体振动的<b>次数与所用时间之比</b>——<b>频率（frequency）</b>来描述物体振动的快慢。频率决定声音的音调，频率高则音调高，频率低则音调低。</p>
+      <div class="figbox">
+        <div style="background:var(--green-bg);border-radius:10px;padding:16px;text-align:center;font-size:15px;line-height:1.8;">
+          频率的单位为<b>赫兹（hertz）</b>，简称<b>赫</b>，符号为<b>Hz</b><br>
+          如果一个物体在 1 s 内振动 100 次，它的频率就是 <b>100 Hz</b>
+        </div>
+      </div>
+
+      <h2 style="margin-top:16px;">演示：观察声音的波形 <span class="chip">图2.2-3</span></h2>
+      <p style="font-size:14px;line-height:1.8;">把音叉发出的声音信号输入示波器、计算机或手机，观察声音的波形。换一个不同频率的音叉做实验，边听边比较。</p>
+      <div class="figbox">
+        <svg class="wave-grid" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="g1" width="30" height="30" patternUnits="userSpaceOnUse">
+              <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3,3"/>
+            </pattern>
+          </defs>
+          <rect width="600" height="220" fill="url(#g1)"/>
+          <line x1="0" y1="110" x2="600" y2="110" stroke="#333" stroke-width="1.5"/>
+          <polyline points="40,120 42.6,105.9 45.2,92.4 47.8,79.8 50.4,68.7 53,59.3 55.6,52.1 58.2,47.4 60.8,45.1 63.4,45.6 66,48.7 68.6,54.3 71.2,62.2 73.8,72.2 76.4,83.9 79,96.8 81.6,110.6 84.2,124.7 86.8,138.7 89.4,151.9 92,164.1 94.6,174.7 97.2,183.3 99.8,189.7 102.4,193.7 105,195 107.6,193.7 110.2,189.7 112.8,183.3 115.4,174.7 118,164.1 120.6,151.9 123.2,138.7 125.8,124.7 128.4,110.6 131,96.8 133.6,83.9 136.2,72.2 138.8,62.2 141.4,54.3 144,48.7 146.6,45.6 149.2,45.1 151.8,47.4 154.4,52.1 157,59.3 159.6,68.7 162.2,79.8 164.8,92.4 167.4,105.9 170,120 172.6,134.1 175.2,147.6 177.8,160.2 180.4,171.3 183,180.7 185.6,187.9 188.2,192.6 190.8,194.9 193.4,194.4 196,191.3 198.6,185.7 201.2,177.8 203.8,167.8 206.4,156.1 209,143.2 211.6,129.4 214.2,115.3 216.8,101.3 219.4,88.1 222,75.9 224.6,65.3 227.2,56.7 229.8,50.3 232.4,46.3 235,45 237.6,46.3 240.2,50.3 242.8,56.7 245.4,65.3 248,75.9 250.6,88.1 253.2,101.3 255.8,115.3 258.4,129.4 261,143.2 263.6,156.1 266.2,167.8 268.8,177.8 271.4,185.7 274,191.3 276.6,194.4 279.2,194.9 281.8,192.6 284.4,187.9 287,180.7 289.6,171.3 292.2,160.2 294.8,147.6 297.4,134.1 300,120 302.6,105.9 305.2,92.4 307.8,79.8 310.4,68.7 313,59.3 315.6,52.1 318.2,47.4 320.8,45.1 323.4,45.6 326,48.7 328.6,54.3 331.2,62.2 333.8,72.2 336.4,83.9 339,96.8 341.6,110.6 344.2,124.7 346.8,138.7 349.4,151.9 352,164.1 354.6,174.7 357.2,183.3 359.8,189.7 362.4,193.7 365,195 367.6,193.7 370.2,189.7 372.8,183.3 375.4,174.7 378,164.1 380.6,151.9 383.2,138.7 385.8,124.7 388.4,110.6 391,96.8 393.6,83.9 396.2,72.2 398.8,62.2 401.4,54.3 404,48.7 406.6,45.6 409.2,45.1 411.8,47.4 414.4,52.1 417,59.3 419.6,68.7 422.2,79.8 424.8,92.4 427.4,105.9 430,120 432.6,134.1 435.2,147.6 437.8,160.2 440.4,171.3 443,180.7 445.6,187.9 448.2,192.6 450.8,194.9 453.4,194.4 456,191.3 458.6,185.7 461.2,177.8 463.8,167.8 466.4,156.1 469,143.2 471.6,129.4 474.2,115.3 476.8,101.3 479.4,88.1 482,75.9 484.6,65.3 487.2,56.7 489.8,50.3 492.4,46.3 495,45 497.6,46.3 500.2,50.3 502.8,56.7 505.4,65.3 508,75.9 510.6,88.1 513.2,101.3 515.8,115.3 518.4,129.4 521,143.2 523.6,156.1 526.2,167.8 528.8,177.8 531.4,185.7 534,191.3 536.6,194.4 539.2,194.9 541.8,192.6 544.4,187.9 547,180.7 549.6,171.3 552.2,160.2 554.8,147.6 557.4,134.1 560,120" fill="none" stroke="#c0392b" stroke-width="2.5"/>
+          <polyline points="40,120 42.6,115.3 45.2,110.6 47.8,105.9 50.4,101.3 53,96.8 55.6,92.4 58.2,88.1 60.8,83.9 63.4,79.8 66,75.9 68.6,72.2 71.2,68.7 73.8,65.3 76.4,62.2 79,59.3 81.6,56.7 84.2,54.3 86.8,52.1 89.4,50.3 92,48.7 94.6,47.4 97.2,46.3 99.8,45.6 102.4,45.1 105,45 107.6,45.1 110.2,45.6 112.8,46.3 115.4,47.4 118,48.7 120.6,50.3 123.2,52.1 125.8,54.3 128.4,56.7 131,59.3 133.6,62.2 136.2,65.3 138.8,68.7 141.4,72.2 144,75.9 146.6,79.8 149.2,83.9 151.8,88.1 154.4,92.4 157,96.8 159.6,101.3 162.2,105.9 164.8,110.6 167.4,115.3 170,120 172.6,124.7 175.2,129.4 177.8,134.1 180.4,138.7 183,143.2 185.6,147.6 188.2,151.9 190.8,156.1 193.4,160.2 196,164.1 198.6,167.8 201.2,171.3 203.8,174.7 206.4,177.8 209,180.7 211.6,183.3 214.2,185.7 216.8,187.9 219.4,189.7 222,191.3 224.6,192.6 227.2,193.7 229.8,194.4 232.4,194.9 235,195 237.6,194.9 240.2,194.4 242.8,193.7 245.4,192.6 248,191.3 250.6,189.7 253.2,187.9 255.8,185.7 258.4,183.3 261,180.7 263.6,177.8 266.2,174.7 268.8,171.3 271.4,167.8 274,164.1 276.6,160.2 279.2,156.1 281.8,151.9 284.4,147.6 287,143.2 289.6,138.7 292.2,134.1 294.8,129.4 297.4,124.7 300,120 302.6,115.3 305.2,110.6 307.8,105.9 310.4,101.3 313,96.8 315.6,92.4 318.2,88.1 320.8,83.9 323.4,79.8 326,75.9 328.6,72.2 331.2,68.7 333.8,65.3 336.4,62.2 339,59.3 341.6,56.7 344.2,54.3 346.8,52.1 349.4,50.3 352,48.7 354.6,47.4 357.2,46.3 359.8,45.6 362.4,45.1 365,45 367.6,45.1 370.2,45.6 372.8,46.3 375.4,47.4 378,48.7 380.6,50.3 383.2,52.1 385.8,54.3 388.4,56.7 391,59.3 393.6,62.2 396.2,65.3 398.8,68.7 401.4,72.2 404,75.9 406.6,79.8 409.2,83.9 411.8,88.1 414.4,92.4 417,96.8 419.6,101.3 422.2,105.9 424.8,110.6 427.4,115.3 430,120 432.6,124.7 435.2,129.4 437.8,134.1 440.4,138.7 443,143.2 445.6,147.6 448.2,151.9 450.8,156.1 453.4,160.2 456,164.1 458.6,167.8 461.2,171.3 463.8,174.7 466.4,177.8 469,180.7 471.6,183.3 474.2,185.7 476.8,187.9 479.4,189.7 482,191.3 484.6,192.6 487.2,193.7 489.8,194.4 492.4,194.9 495,195 497.6,194.9 500.2,194.4 502.8,193.7 505.4,192.6 508,191.3 510.6,189.7 513.2,187.9 515.8,185.7 518.4,183.3 521,180.7 523.6,177.8 526.2,174.7 528.8,171.3 531.4,167.8 534,164.1 536.6,160.2 539.2,156.1 541.8,151.9 544.4,147.6 547,143.2 549.6,138.7 552.2,134.1 554.8,129.4 557.4,124.7 560,120" fill="none" stroke="#2980b9" stroke-width="2.5"/>
+        </svg>
+        <div class="wave-legend"><span><i style="background:#c0392b;"></i>红色：高音调（频率高）</span><span><i style="background:#2980b9;"></i>蓝色：低音调（频率低）</span></div>
+        <div class="figcap">高音调波形更密集，说明频率较高；低音调波形比较稀疏，说明频率较低。</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ Tab 2 响度与振幅 ============ -->
+  <div class="tab-pane" id="t2">
+    <div class="card">
+      <h2>演示：决定响度的因素 <span class="chip brown">图2.2-4</span></h2>
+      <p style="font-size:14px;line-height:1.8;">使正在发声的音叉轻触系在细绳上的乒乓球，观察乒乓球被弹开的幅度。使音叉发出不同响度的声音，重做上面的实验。</p>
+      <div class="figbox">
+        <svg class="wave-grid" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="tf-metal" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#6f6f6f"/>
+              <stop offset="0.24" stop-color="#c3c3c3"/>
+              <stop offset="0.48" stop-color="#f4f4f4"/>
+              <stop offset="0.72" stop-color="#b0b0b0"/>
+              <stop offset="1" stop-color="#7a7a7a"/>
+            </linearGradient>
+            <linearGradient id="tf-metal-h" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#6f6f6f"/>
+              <stop offset="0.24" stop-color="#c3c3c3"/>
+              <stop offset="0.48" stop-color="#f4f4f4"/>
+              <stop offset="0.72" stop-color="#b0b0b0"/>
+              <stop offset="1" stop-color="#7a7a7a"/>
+            </linearGradient>
+            <radialGradient id="ball-g" cx="0.34" cy="0.3" r="0.92">
+              <stop offset="0" stop-color="#ffffff"/>
+              <stop offset="0.5" stop-color="#fff4e8"/>
+              <stop offset="0.84" stop-color="#f4c89a"/>
+              <stop offset="1" stop-color="#dc9e68"/>
+            </radialGradient>
+            <marker id="tf-ar" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+              <path d="M0,0 L7,3.5 L0,7 L1.8,3.5 Z" fill="#c0392b"/>
+            </marker>
+          </defs>
+          <rect width="600" height="220" fill="#faf8f5"/>
+          <g transform="translate(135,0)">
+            <text x="0" y="17" text-anchor="middle" font-size="13" fill="#5a5a5a">轻敲：振幅小，球弹开幅度小</text>
+            <line x1="-35.5" y1="25" x2="-35.5" y2="87" stroke="#8a8a8a" stroke-width="1.1"/>
+            <circle cx="-35.5" cy="25" r="1.9" fill="#6e6e6e"/>
+            <path d="M-24,60 A5.5,5.5 0 0 1 -13,60 L-13,150 A13,13 0 0 0 13,150 L13,60 A5.5,5.5 0 0 1 24,60 L24,150 A24,24 0 0 1 -24,150 Z" fill="url(#tf-metal)" stroke="#5f5f5f" stroke-width="1.3" stroke-linejoin="round"/>
+            <line x1="-21" y1="68" x2="-21" y2="144" stroke="#fdfdfd" stroke-width="2.2" stroke-linecap="round" opacity="0.7"/>
+            <line x1="16" y1="68" x2="16" y2="144" stroke="#fdfdfd" stroke-width="2.2" stroke-linecap="round" opacity="0.7"/>
+            <path d="M-8,172 L8,172 L6,178 L-6,178 Z" fill="url(#tf-metal)" stroke="#5f5f5f" stroke-width="1.2"/>
+            <rect x="-5.5" y="177" width="11" height="20" rx="5" fill="url(#tf-metal)" stroke="#5f5f5f" stroke-width="1.3"/>
+            <circle cx="-35.5" cy="100" r="13" fill="url(#ball-g)" stroke="#d9a06e" stroke-width="1"/>
+            <circle cx="-73" cy="90" r="13" fill="none" stroke="#b0b0b0" stroke-width="1.4" stroke-dasharray="4,3"/>
+            <path d="M-35.5,100 A75,75 0 0 1 -61.2,95.5" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#tf-ar)"/>
+            <text x="-78" y="118" text-anchor="middle" font-size="12" fill="#c0392b">幅度小</text>
+          </g>
+          <g transform="translate(400,0)">
+            <text x="0" y="17" text-anchor="middle" font-size="13" fill="#5a5a5a">重敲：振幅大，球弹开幅度大</text>
+            <line x1="-35.5" y1="25" x2="-35.5" y2="87" stroke="#8a8a8a" stroke-width="1.1"/>
+            <circle cx="-35.5" cy="25" r="1.9" fill="#6e6e6e"/>
+            <path d="M-24,60 A5.5,5.5 0 0 1 -13,60 L-13,150 A13,13 0 0 0 13,150 L13,60 A5.5,5.5 0 0 1 24,60 L24,150 A24,24 0 0 1 -24,150 Z" fill="url(#tf-metal)" stroke="#5f5f5f" stroke-width="1.3" stroke-linejoin="round"/>
+            <line x1="-21" y1="68" x2="-21" y2="144" stroke="#fdfdfd" stroke-width="2.2" stroke-linecap="round" opacity="0.7"/>
+            <line x1="16" y1="68" x2="16" y2="144" stroke="#fdfdfd" stroke-width="2.2" stroke-linecap="round" opacity="0.7"/>
+            <path d="M-8,172 L8,172 L6,178 L-6,178 Z" fill="url(#tf-metal)" stroke="#5f5f5f" stroke-width="1.2"/>
+            <rect x="-5.5" y="177" width="11" height="20" rx="5" fill="url(#tf-metal)" stroke="#5f5f5f" stroke-width="1.3"/>
+            <circle cx="-35.5" cy="100" r="13" fill="url(#ball-g)" stroke="#d9a06e" stroke-width="1"/>
+            <circle cx="-96.9" cy="68" r="13" fill="none" stroke="#b0b0b0" stroke-width="1.4" stroke-dasharray="4,3"/>
+            <path d="M-35.5,100 A75,75 0 0 1 -88.5,78" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#tf-ar)"/>
+            <text x="-100" y="98" text-anchor="middle" font-size="12" fill="#c0392b">幅度大</text>
+          </g>
+        </svg>
+        <div class="figcap">音叉振动时把轻触它的乒乓球弹开；弹开幅度越大，说明音叉振动的幅度越大。</div>
+      </div>
+      <ol class="steps">
+        <li>用橡皮锤<b>轻敲</b>音叉：音叉振幅小，乒乓球被弹开幅度<b>小</b>，声音<b>轻</b>。</li>
+        <li>用橡皮锤<b>重敲</b>音叉：音叉振幅大，乒乓球被弹开幅度<b>大</b>，声音<b>响</b>。</li>
+      </ol>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>在音叉实验中，乒乓球被弹开的幅度反映的是音叉振动的哪个物理量？除此之外，我们平时听到的声音大小还与什么因素有关？</div>
+        <div style="margin-top:8px;font-size:13px;color:var(--ink2);">（不附答案，可在本页下方「动手体验」里亲手寻找证据）</div>
+      </div>
+
+      <h2 style="margin-top:16px;">振幅与响度 <span class="chip brown">核心概念</span></h2>
+      <div class="greenbox">物理学中用<b>振幅（amplitude）</b>来描述物体振动的幅度。物体的振幅越大，产生声音的响度越大。</div>
+      <div class="figbox">
+        <svg class="wave-grid" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="g2" width="30" height="30" patternUnits="userSpaceOnUse">
+              <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3,3"/>
+            </pattern>
+          </defs>
+          <rect width="600" height="220" fill="url(#g2)"/>
+          <line x1="0" y1="110" x2="600" y2="110" stroke="#333" stroke-width="1.5"/>
+          <polyline points="40,120 42.6,112.5 45.2,105 47.8,97.7 50.4,90.6 53,83.7 55.6,77.1 58.2,71 60.8,65.2 63.4,60 66,55.3 68.6,51.1 71.2,47.6 73.8,44.7 76.4,42.5 79,41 81.6,40.2 84.2,40 86.8,40.6 89.4,41.9 92,43.9 94.6,46.6 97.2,49.9 99.8,53.8 102.4,58.4 105,63.4 107.6,69 110.2,75 112.8,81.5 115.4,88.2 118,95.3 120.6,102.5 123.2,110 125.8,117.5 128.4,125 131,132.5 133.6,139.9 136.2,147.1 138.8,154.1 141.4,160.7 144,167 146.6,172.9 149.2,178.3 151.8,183.2 154.4,187.5 157,191.3 159.6,194.4 162.2,196.8 164.8,198.6 167.4,199.6 170,200 172.6,199.6 175.2,198.6 177.8,196.8 180.4,194.4 183,191.3 185.6,187.5 188.2,183.2 190.8,178.3 193.4,172.9 196,167 198.6,160.7 201.2,154.1 203.8,147.1 206.4,139.9 209,132.5 211.6,125 214.2,117.5 216.8,110 219.4,102.5 222,95.3 224.6,88.2 227.2,81.5 229.8,75 232.4,69 235,63.4 237.6,58.4 240.2,53.8 242.8,49.9 245.4,46.6 248,43.9 250.6,41.9 253.2,40.6 255.8,40 258.4,40.2 261,41 263.6,42.5 266.2,44.7 268.8,47.6 271.4,51.1 274,55.3 276.6,60 279.2,65.2 281.8,71 284.4,77.1 287,83.7 289.6,90.6 292.2,97.7 294.8,105 297.4,112.5 300,120 302.6,127.5 305.2,135 307.8,142.3 310.4,149.4 313,156.3 315.6,162.9 318.2,169 320.8,174.8 323.4,180 326,184.7 328.6,188.9 331.2,192.4 333.8,195.3 336.4,197.5 339,199 341.6,199.8 344.2,200 346.8,199.4 349.4,198.1 352,196.1 354.6,193.4 357.2,190.1 359.8,186.2 362.4,181.6 365,176.6 367.6,171 370.2,165 372.8,158.5 375.4,151.8 378,144.7 380.6,137.5 383.2,130 385.8,122.5 388.4,115 391,107.5 393.6,100.1 396.2,92.9 398.8,85.9 401.4,79.3 404,73 406.6,67.1 409.2,61.7 411.8,56.8 414.4,52.5 417,48.7 419.6,45.6 422.2,43.2 424.8,41.4 427.4,40.4 430,40 432.6,40.4 435.2,41.4 437.8,43.2 440.4,45.6 443,48.7 445.6,52.5 448.2,56.8 450.8,61.7 453.4,67.1 456,73 458.6,79.3 461.2,85.9 463.8,92.9 466.4,100.1 469,107.5 471.6,115 474.2,122.5 476.8,130 479.4,137.5 482,144.7 484.6,151.8 487.2,158.5 489.8,165 492.4,171 495,176.6 497.6,181.6 500.2,186.2 502.8,190.1 505.4,193.4 508,196.1 510.6,198.1 513.2,199.4 515.8,200 518.4,199.8 521,199 523.6,197.5 526.2,195.3 528.8,192.4 531.4,188.9 534,184.7 536.6,180 539.2,174.8 541.8,169 544.4,162.9 547,156.3 549.6,149.4 552.2,142.3 554.8,135 557.4,127.5 560,120" fill="none" stroke="#c0392b" stroke-width="2.5"/>
+          <polyline points="40,120 42.6,117.2 45.2,114.4 47.8,111.6 50.4,109 53,106.4 55.6,103.9 58.2,101.6 60.8,99.5 63.4,97.5 66,95.7 68.6,94.2 71.2,92.9 73.8,91.8 76.4,90.9 79,90.4 81.6,90.1 84.2,90 86.8,90.2 89.4,90.7 92,91.5 94.6,92.5 97.2,93.7 99.8,95.2 102.4,96.9 105,98.8 107.6,100.9 110.2,103.1 112.8,105.5 115.4,108.1 118,110.7 120.6,113.5 123.2,116.2 125.8,119.1 128.4,121.9 131,124.7 133.6,127.5 136.2,130.2 138.8,132.8 141.4,135.3 144,137.6 146.6,139.8 149.2,141.9 151.8,143.7 154.4,145.3 157,146.7 159.6,147.9 162.2,148.8 164.8,149.5 167.4,149.9 170,150 172.6,149.9 175.2,149.5 177.8,148.8 180.4,147.9 183,146.7 185.6,145.3 188.2,143.7 190.8,141.9 193.4,139.8 196,137.6 198.6,135.3 201.2,132.8 203.8,130.2 206.4,127.5 209,124.7 211.6,121.9 214.2,119.1 216.8,116.2 219.4,113.5 222,110.7 224.6,108.1 227.2,105.5 229.8,103.1 232.4,100.9 235,98.8 237.6,96.9 240.2,95.2 242.8,93.7 245.4,92.5 248,91.5 250.6,90.7 253.2,90.2 255.8,90 258.4,90.1 261,90.4 263.6,90.9 266.2,91.8 268.8,92.9 271.4,94.2 274,95.7 276.6,97.5 279.2,99.5 281.8,101.6 284.4,103.9 287,106.4 289.6,109 292.2,111.6 294.8,114.4 297.4,117.2 300,120 302.6,122.8 305.2,125.6 307.8,128.4 310.4,131 313,133.6 315.6,136.1 318.2,138.4 320.8,140.5 323.4,142.5 326,144.3 328.6,145.8 331.2,147.1 333.8,148.2 336.4,149.1 339,149.6 341.6,149.9 344.2,150 346.8,149.8 349.4,149.3 352,148.5 354.6,147.5 357.2,146.3 359.8,144.8 362.4,143.1 365,141.2 367.6,139.1 370.2,136.9 372.8,134.5 375.4,131.9 378,129.3 380.6,126.5 383.2,123.8 385.8,120.9 388.4,118.1 391,115.3 393.6,112.5 396.2,109.8 398.8,107.2 401.4,104.7 404,102.4 406.6,100.2 409.2,98.1 411.8,96.3 414.4,94.7 417,93.3 419.6,92.1 422.2,91.2 424.8,90.5 427.4,90.1 430,90 432.6,90.1 435.2,90.5 437.8,91.2 440.4,92.1 443,93.3 445.6,94.7 448.2,96.3 450.8,98.1 453.4,100.2 456,102.4 458.6,104.7 461.2,107.2 463.8,109.8 466.4,112.5 469,115.3 471.6,118.1 474.2,120.9 476.8,123.8 479.4,126.5 482,129.3 484.6,131.9 487.2,134.5 489.8,136.9 492.4,139.1 495,141.2 497.6,143.1 500.2,144.8 502.8,146.3 505.4,147.5 508,148.5 510.6,149.3 513.2,149.8 515.8,150 518.4,149.9 521,149.6 523.6,149.1 526.2,148.2 528.8,147.1 531.4,145.8 534,144.3 536.6,142.5 539.2,140.5 541.8,138.4 544.4,136.1 547,133.6 549.6,131 552.2,128.4 554.8,125.6 557.4,122.8 560,120" fill="none" stroke="#2980b9" stroke-width="2.5"/>
+        </svg>
+        <div class="wave-legend"><span><i style="background:#c0392b;"></i>红色：响度大（振幅大）</span><span><i style="background:#2980b9;"></i>蓝色：响度小（振幅小）</span></div>
+        <div class="figcap">波形上下偏离平衡位置的距离反映振幅，振幅越大声音越响亮。</div>
+      </div>
+
+      <h2 style="margin-top:16px;">响度还与距离发声体的远近有关 <span class="chip">生活经验</span></h2>
+      <p style="font-size:14px;line-height:1.8;">声音是从发声体向四面八方传播的，越到远处越分散。因此，人距离发声体越远，听到的声音越小。</p>
+      <div class="tipbox">🔬 动手体验：到 <a href="exp-loudness.html?from=explain&tab=t2" style="color:var(--brown);font-weight:700;">响度与振幅实验</a>，拖动敲击力度和距离滑块，观察乒乓球弹开幅度和听到的声音变化。</div>
+
+    </div>
+  </div>
+
+  <!-- ============ Tab 3 音色与波形 ============ -->
+  <div class="tab-pane" id="t3">
+    <div class="card">
+      <h2>音色：声音的“品质” <span class="chip brown">核心概念</span></h2>
+      <p style="font-size:14px;line-height:1.8;">频率的高低决定声音的音调，振幅的大小影响声音的响度。但是，不同物体发出的声音，即便音调和响度相同，我们还是能够分辨出它们的不同。声音还有一个十分重要的特性——<b>音色（tone quality）</b>。</p>
+      <div class="greenbox"><b>结论</b>：不同发声体的材料、结构不同，发出声音的音色也就不同。</div>
+
+      <h2 style="margin-top:16px;">演示：比较不同乐器发出声音的波形 <span class="chip">图2.2-5</span></h2>
+      <p style="font-size:14px;line-height:1.8;">用计算机或手机播放音叉、钢琴、长笛发出的 C 调 do，边听边比较它们的波形。</p>
+      <div class="figbox">
+        <svg class="wave-grid" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="g3" width="30" height="30" patternUnits="userSpaceOnUse">
+              <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3,3"/>
+            </pattern>
+          </defs>
+          <rect width="600" height="220" fill="url(#g3)"/>
+          <line x1="0" y1="110" x2="600" y2="110" stroke="#333" stroke-width="1.5"/>
+          <polyline points="40,120 42.6,113.4 45.2,106.9 47.8,100.5 50.4,94.2 53,88.2 55.6,82.5 58.2,77.1 60.8,72.1 63.4,67.5 66,63.4 68.6,59.7 71.2,56.7 73.8,54.1 76.4,52.2 79,50.9 81.6,50.1 84.2,50 86.8,50.6 89.4,51.7 92,53.4 94.6,55.8 97.2,58.7 99.8,62.1 102.4,66.1 105,70.5 107.6,75.4 110.2,80.7 112.8,86.3 115.4,92.2 118,98.4 120.6,104.7 123.2,111.2 125.8,117.8 128.4,124.4 131,131 133.6,137.4 136.2,143.7 138.8,149.8 141.4,155.6 144,161.1 146.6,166.3 149.2,171 151.8,175.3 154.4,179.1 157,182.4 159.6,185.1 162.2,187.2 164.8,188.8 167.4,189.7 170,190 172.6,189.7 175.2,188.8 177.8,187.2 180.4,185.1 183,182.4 185.6,179.1 188.2,175.3 190.8,171 193.4,166.3 196,161.1 198.6,155.6 201.2,149.8 203.8,143.7 206.4,137.4 209,131 211.6,124.4 214.2,117.8 216.8,111.2 219.4,104.7 222,98.4 224.6,92.2 227.2,86.3 229.8,80.7 232.4,75.4 235,70.5 237.6,66.1 240.2,62.1 242.8,58.7 245.4,55.8 248,53.4 250.6,51.7 253.2,50.6 255.8,50 258.4,50.1 261,50.9 263.6,52.2 266.2,54.1 268.8,56.7 271.4,59.7 274,63.4 276.6,67.5 279.2,72.1 281.8,77.1 284.4,82.5 287,88.2 289.6,94.2 292.2,100.5 294.8,106.9 297.4,113.4 300,120 302.6,126.6 305.2,133.1 307.8,139.5 310.4,145.8 313,151.8 315.6,157.5 318.2,162.9 320.8,167.9 323.4,172.5 326,176.6 328.6,180.3 331.2,183.3 333.8,185.9 336.4,187.8 339,189.1 341.6,189.9 344.2,190 346.8,189.4 349.4,188.3 352,186.6 354.6,184.2 357.2,181.3 359.8,177.9 362.4,173.9 365,169.5 367.6,164.6 370.2,159.3 372.8,153.7 375.4,147.8 378,141.6 380.6,135.3 383.2,128.8 385.8,122.2 388.4,115.6 391,109 393.6,102.6 396.2,96.3 398.8,90.2 401.4,84.4 404,78.9 406.6,73.7 409.2,69 411.8,64.7 414.4,60.9 417,57.6 419.6,54.9 422.2,52.8 424.8,51.2 427.4,50.3 430,50 432.6,50.3 435.2,51.2 437.8,52.8 440.4,54.9 443,57.6 445.6,60.9 448.2,64.7 450.8,69 453.4,73.7 456,78.9 458.6,84.4 461.2,90.2 463.8,96.3 466.4,102.6 469,109 471.6,115.6 474.2,122.2 476.8,128.8 479.4,135.3 482,141.6 484.6,147.8 487.2,153.7 489.8,159.3 492.4,164.6 495,169.5 497.6,173.9 500.2,177.9 502.8,181.3 505.4,184.2 508,186.6 510.6,188.3 513.2,189.4 515.8,190 518.4,189.9 521,189.1 523.6,187.8 526.2,185.9 528.8,183.3 531.4,180.3 534,176.6 536.6,172.5 539.2,167.9 541.8,162.9 544.4,157.5 547,151.8 549.6,145.8 552.2,139.5 554.8,133.1 557.4,126.6 560,120" fill="none" stroke="#c0392b" stroke-width="2.2"/>
+          <polyline points="40,120 42.6,103 45.2,87.1 47.8,73.2 50.4,62.3 53,54.8 55.6,50.8 58.2,50.1 60.8,52.5 63.4,57.1 66,63.1 68.6,69.7 71.2,76.2 73.8,81.8 76.4,86.2 79,89.2 81.6,90.9 84.2,91.5 86.8,91.4 89.4,91.1 92,91 94.6,91.5 97.2,92.9 99.8,95.2 102.4,98.4 105,102.2 107.6,106.3 110.2,110.3 112.8,113.8 115.4,116.7 118,118.6 120.6,119.7 123.2,120.1 125.8,120.1 128.4,119.9 131,119.9 133.6,120.5 136.2,121.9 138.8,124.2 141.4,127.3 144,131 146.6,135.1 149.2,139.1 151.8,142.7 154.4,145.7 157,147.7 159.6,148.8 162.2,149.1 164.8,148.8 167.4,148.5 170,148.6 172.6,149.5 175.2,151.6 177.8,155.1 180.4,159.9 183,165.9 185.6,172.5 188.2,179 190.8,184.7 193.4,188.6 196,190 198.6,188.3 201.2,183.1 203.8,174.4 206.4,162.4 209,147.8 211.6,131.4 214.2,114.3 216.8,97.5 219.4,82.2 222,69.3 224.6,59.4 227.2,53 229.8,50.2 232.4,50.6 235,53.8 237.6,58.9 240.2,65.3 242.8,71.9 245.4,78.2 248,83.4 250.6,87.4 253.2,89.9 255.8,91.2 258.4,91.5 261,91.3 263.6,91 266.2,91.1 268.8,91.9 271.4,93.6 274,96.2 276.6,99.6 279.2,103.5 281.8,107.6 284.4,111.5 287,114.9 289.6,117.4 292.2,119.1 294.8,119.9 297.4,120.1 300,120 302.6,119.9 305.2,120.1 307.8,120.9 310.4,122.6 313,125.1 315.6,128.5 318.2,132.4 320.8,136.5 323.4,140.4 326,143.8 328.6,146.4 331.2,148.1 333.8,148.9 336.4,149 339,148.7 341.6,148.5 344.2,148.8 346.8,150.1 349.4,152.6 352,156.6 354.6,161.8 357.2,168.1 359.8,174.7 362.4,181.1 365,186.2 367.6,189.4 370.2,189.8 372.8,187 375.4,180.6 378,170.7 380.6,157.8 383.2,142.5 385.8,125.7 388.4,108.6 391,92.2 393.6,77.6 396.2,65.6 398.8,56.9 401.4,51.7 404,50 406.6,51.4 409.2,55.3 411.8,61 414.4,67.5 417,74.1 419.6,80.1 422.2,84.9 424.8,88.4 427.4,90.5 430,91.4 432.6,91.5 435.2,91.2 437.8,90.9 440.4,91.2 443,92.3 445.6,94.3 448.2,97.3 450.8,100.9 453.4,104.9 456,109 458.6,112.7 461.2,115.8 463.8,118.1 466.4,119.5 469,120.1 471.6,120.1 474.2,119.9 476.8,119.9 479.4,120.3 482,121.4 484.6,123.3 487.2,126.2 489.8,129.7 492.4,133.7 495,137.8 497.6,141.6 500.2,144.8 502.8,147.1 505.4,148.5 508,149 510.6,148.9 513.2,148.6 515.8,148.5 518.4,149.1 521,150.8 523.6,153.8 526.2,158.2 528.8,163.8 531.4,170.3 534,176.9 536.6,182.9 539.2,187.5 541.8,189.9 544.4,189.2 547,185.2 549.6,177.7 552.2,166.8 554.8,152.9 557.4,137 560,120" fill="none" stroke="#2980b9" stroke-width="2.2"/>
+          <polyline points="40,120 42.6,97.3 45.2,78.6 47.8,66.8 50.4,62.3 53,63.6 55.6,67.6 58.2,71 60.8,71.3 63.4,67.9 66,62 68.6,55.6 71.2,51.1 73.8,50.1 76.4,52.6 79,57.8 81.6,64.1 84.2,70.4 86.8,76.2 89.4,82.1 92,89.2 94.6,98.3 97.2,109.3 99.8,120.9 102.4,130.7 105,136.3 107.6,136 110.2,130 112.8,120.3 115.4,110.1 118,103.1 120.6,101.8 123.2,106.8 125.8,116.3 128.4,127.2 131,135.5 133.6,138.5 136.2,135.1 138.8,126.6 141.4,116.2 144,107.4 146.6,103.2 149.2,105 151.8,112.2 154.4,122.9 157,134.6 159.6,145 162.2,153.4 164.8,159.9 167.4,165.7 170,171.6 172.6,178 175.2,184.1 177.8,188.6 180.4,190 183,187.7 185.6,182.4 188.2,175.9 190.8,170.6 193.4,168.4 196,169.9 198.6,173.8 201.2,177.3 203.8,177 206.4,170.1 209,155.8 211.6,135.4 214.2,112.2 216.8,90.4 219.4,73.8 222,64.5 224.6,62.2 227.2,64.8 229.8,69 232.4,71.5 235,70.6 237.6,66.1 240.2,59.8 242.8,53.8 245.4,50.4 248,50.5 250.6,54.1 253.2,59.9 255.8,66.3 258.4,72.4 261,78.1 263.6,84.3 266.2,91.9 268.8,101.8 271.4,113.2 274,124.5 276.6,133.1 279.2,136.9 281.8,134.6 284.4,127.1 287,116.8 289.6,107.3 292.2,102 294.8,102.8 297.4,109.6 300,120 302.6,130.4 305.2,137.2 307.8,138 310.4,132.7 313,123.2 315.6,112.9 318.2,105.4 320.8,103.1 323.4,106.9 326,115.5 328.6,126.8 331.2,138.2 333.8,148.1 336.4,155.7 339,161.9 341.6,167.6 344.2,173.7 346.8,180.1 349.4,185.9 352,189.5 354.6,189.6 357.2,186.2 359.8,180.2 362.4,173.9 365,169.4 367.6,168.5 370.2,171 372.8,175.2 375.4,177.8 378,175.5 380.6,166.2 383.2,149.6 385.8,127.8 388.4,104.6 391,84.2 393.6,69.9 396.2,63 398.8,62.7 401.4,66.2 404,70.1 406.6,71.6 409.2,69.4 411.8,64.1 414.4,57.6 417,52.3 419.6,50 422.2,51.4 424.8,55.9 427.4,62 430,68.4 432.6,74.3 435.2,80.1 437.8,86.6 440.4,95 443,105.4 445.6,117.1 448.2,127.8 450.8,135 453.4,136.8 456,132.6 458.6,123.8 461.2,113.4 463.8,104.9 466.4,101.5 469,104.5 471.6,112.8 474.2,123.7 476.8,133.2 479.4,138.2 482,136.9 484.6,129.9 487.2,119.7 489.8,110 492.4,104 495,103.7 497.6,109.3 500.2,119.1 502.8,130.7 505.4,141.7 508,150.8 510.6,157.9 513.2,163.8 515.8,169.6 518.4,175.9 521,182.2 523.6,187.4 526.2,189.9 528.8,188.9 531.4,184.4 534,178 536.6,172.1 539.2,168.7 541.8,169 544.4,172.4 547,176.4 549.6,177.7 552.2,173.2 554.8,161.4 557.4,142.7 560,120" fill="none" stroke="#4a8c3f" stroke-width="2.2"/>
+        </svg>
+        <div class="wave-legend"><span><i style="background:#c0392b;"></i>红色：音叉（近正弦）</span><span><i style="background:#2980b9;"></i>蓝色：钢琴（有规律复杂形）</span><span><i style="background:#4a8c3f;"></i>绿色：长笛（另一种规律形）</span></div>
+        <div style="text-align:center;font-size:13px;color:var(--ink2);margin-top:8px;">疏密程度相同=频率相同；波的形状不同=音色不同</div>
+        <div class="figcap">甲 音叉、乙 钢琴、丙 长笛：三幅波形图显示出相同疏密程度（频率相同），但形状不同（音色不同）。</div>
+      </div>
+      <div class="greenbox">📌 要点：音调相同的声音，波形总体上的<b>疏密程度相同</b>（频率相同）；<b>波的形状不同</b>（音色不同）。</div>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>钢琴和长笛演奏同一个音高时，它们的波形有什么相同之处？又有什么不同之处？你靠声音的哪个特性来区分它们？</div>
+        <div style="margin-top:8px;font-size:13px;color:var(--ink2);">（不附答案，到实验区对比波形 → <a href="exp-timbre.html?from=explain&tab=t3" style="color:var(--brown);font-weight:700;">音色实验</a>）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 4 听觉范围与超声次声 ============ -->
+  <div class="tab-pane" id="t4">
+    <div class="card">
+      <h2>人耳的听觉范围 <span class="chip brown">小资料 表2.2-1</span></h2>
+      <p style="font-size:14px;line-height:1.8;">人能听到的声音频率有一定的范围。<b>多数人能够听到的频率范围是 20 ~ 20 000 Hz</b>。</p>
+      <div class="greenbox"><b>声波</b>：人耳能听到的声音对应的频率范围（20 ~ 20 000 Hz）内的波。<br><b>超声波（ultrasonic wave）</b>：频率高于 20 000 Hz 的声波。<br><b>次声波（infrasonic wave）</b>：频率低于 20 Hz 的声波。<br>声波、超声波、次声波<b>统称声</b>。</div>
+
+      <h2 style="margin-top:16px;">人和一些动物的听觉频率范围 <span class="chip">表2.2-1</span></h2>
+      <div class="figbox">
+        <table class="speed">
+          <tr><th colspan="4">表 2.2-1 人和一些动物的听觉频率范围（频率/Hz）</th></tr>
+          <tr><th>动物</th><th>听觉频率范围/Hz</th><th>动物</th><th>听觉频率范围/Hz</th></tr>
+          <tr><td>人</td><td>20 ~ 20 000</td><td>蝙蝠</td><td>1 000 ~ 120 000</td></tr>
+          <tr><td>狗</td><td>15 ~ 50 000</td><td>海豚</td><td>150 ~ 150 000</td></tr>
+          <tr><td>猫</td><td>60 ~ 65 000</td><td>大象</td><td>1 ~ 20 000</td></tr>
+        </table>
+        <div class="figcap">动物的听觉范围通常与人的不同，一些动物对高频声波反应灵敏。</div>
+      </div>
+
+      <div class="figbox" style="position:relative;">
+        <svg class="bio-chart" viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg">
+  <rect width="620" height="260" fill="#faf8f5"/>
+  <rect x="50" y="56" width="132.5" height="140" fill="#e8f4fd" opacity="0.5"/>
+  <rect x="488.1" y="56" width="101.9" height="140" fill="#fdecea" opacity="0.5"/>
+  <line x1="50" y1="56" x2="50" y2="204" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="50" y="220" text-anchor="middle" font-size="11" fill="#5a5a5a">1 Hz</text>
+  <line x1="151.9" y1="56" x2="151.9" y2="204" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="151.9" y="234" text-anchor="middle" font-size="11" fill="#5a5a5a">10 Hz</text>
+  <line x1="253.7" y1="56" x2="253.7" y2="204" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="253.7" y="220" text-anchor="middle" font-size="11" fill="#5a5a5a">100 Hz</text>
+  <line x1="355.6" y1="56" x2="355.6" y2="204" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="355.6" y="234" text-anchor="middle" font-size="11" fill="#5a5a5a">1 kHz</text>
+  <line x1="457.5" y1="56" x2="457.5" y2="204" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="457.5" y="220" text-anchor="middle" font-size="11" fill="#5a5a5a">10 kHz</text>
+  <line x1="559.3" y1="56" x2="559.3" y2="204" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="559.3" y="234" text-anchor="middle" font-size="11" fill="#5a5a5a">100 kHz</text>
+  <line x1="590" y1="56" x2="590" y2="204" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="590" y="220" text-anchor="middle" font-size="11" fill="#5a5a5a">200 kHz</text>
+  <line x1="50" y1="204" x2="590" y2="204" stroke="#333" stroke-width="1.5"/>
+  <text x="116.3" y="250" text-anchor="middle" font-size="12" fill="#2980b9">次声波区域 &lt;20 Hz</text>
+  <text x="539.1" y="250" text-anchor="middle" font-size="12" fill="#c0392b">超声波区域 &gt;20 000 Hz</text>
+  <g class="bio-seg" data-animal="大象" data-range="1 ~ 20000 Hz" data-tip="对次声波敏感，可远距离感知同伴信息">
+    <rect x="50" y="62" width="438.1" height="20" rx="6" fill="#7a5c28" opacity="0.85"/>
+    <text x="269.1" y="76" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">大象</text>
+    <text x="480.1" y="76" text-anchor="end" font-size="10" fill="#fff" opacity="0.95">1~20000</text>
+  </g>
+  <g class="bio-seg" data-animal="人" data-range="20 ~ 20000 Hz" data-tip="日常对话、音乐都在这个范围内">
+    <rect x="182.5" y="84" width="305.6" height="20" rx="6" fill="#4a8c3f" opacity="0.85"/>
+    <text x="335.3" y="98" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">人</text>
+    <text x="480.1" y="98" text-anchor="end" font-size="10" fill="#fff" opacity="0.95">20~20000</text>
+  </g>
+  <g class="bio-seg" data-animal="狗" data-range="15 ~ 50000 Hz" data-tip="能听到人耳听不到的高频哨声">
+    <rect x="169.8" y="106" width="358.9" height="20" rx="6" fill="#b8860b" opacity="0.85"/>
+    <text x="349.2" y="120" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">狗</text>
+    <text x="520.7" y="120" text-anchor="end" font-size="10" fill="#fff" opacity="0.95">15~50000</text>
+  </g>
+  <g class="bio-seg" data-animal="猫" data-range="60 ~ 65000 Hz" data-tip="对老鼠等小动物的高频叫声很灵敏">
+    <rect x="231.1" y="128" width="309.1" height="20" rx="6" fill="#e67e22" opacity="0.85"/>
+    <text x="385.7" y="142" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">猫</text>
+    <text x="532.2" y="142" text-anchor="end" font-size="10" fill="#fff" opacity="0.95">60~65000</text>
+  </g>
+  <g class="bio-seg" data-animal="蝙蝠" data-range="1000 ~ 120000 Hz" data-tip="常用超声波定位导航">
+    <rect x="355.6" y="150" width="211.8" height="20" rx="6" fill="#8e44ad" opacity="0.85"/>
+    <text x="461.5" y="164" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">蝙蝠</text>
+    <text x="559.4" y="164" text-anchor="end" font-size="10" fill="#fff" opacity="0.95">1000~120000</text>
+  </g>
+  <g class="bio-seg" data-animal="海豚" data-range="150 ~ 150000 Hz" data-tip="用超声波交流、探测和导航">
+    <rect x="271.7" y="172" width="305.6" height="20" rx="6" fill="#2980b9" opacity="0.85"/>
+    <text x="424.5" y="186" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">海豚</text>
+    <text x="569.3" y="186" text-anchor="end" font-size="10" fill="#fff" opacity="0.95">150~150000</text>
+  </g>
+</svg>
+        <div class="bio-popover" id="bioPopover"></div>
+        <div class="figcap">人和一些动物的听觉频率范围不同；颜色条越长，可听频率范围越宽。把鼠标或手指移到彩色条上，可查看该动物的听觉范围和应用。</div>
+      </div>
+
+      <h2 style="margin-top:16px;">猫和狗为什么突然警觉？ <span class="chip">生活解释</span></h2>
+      <p style="font-size:14px;line-height:1.8;">有时在我们认为很静、没有任何声音时，猫或者狗却突然表现得非常警觉。这是因为：</p>
+      <ul class="plain">
+        <li><b>狗</b>能听到的频率范围是 <b>15 ~ 50 000 Hz</b>，可以听到人耳听不到的高频或低频声音。</li>
+        <li><b>猫</b>能听到的频率范围是 <b>60 ~ 65 000 Hz</b>，也能感知许多人耳听不到的声音。</li>
+      </ul>
+      <div class="tipbox">🦇 蝙蝠能听到 1 000 ~ 120 000 Hz，常用<b>超声波</b>定位；海豚能听到 150 ~ 150 000 Hz，可用超声波交流或探测；大象能听到 1 ~ 20 000 Hz，对<b>次声波</b>敏感。</div>
+
+      <h2 style="margin-top:16px;">方法点拨：怎样做好观察？ <span class="chip cyan">科学方法</span></h2>
+      <div class="greenbox">在研究声音的特性时，我们用听觉、视觉等不同感官来搜集信息，也就是在观察。科学研究中，观察要有<b>明确的观察目的</b>，要<b>真实而准确地记录</b>观察到的信息。</div>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>某种昆虫的翅膀在 2 s 内振动了 700 次，它的频率是多少？人耳能听到这种声音吗？请说明理由。</div>
+        <div style="margin-top:8px;font-size:13px;color:var(--ink2);">（不附答案，到实验区用「听觉范围」工具验证 → <a href="exp-range.html?from=explain&tab=t4" style="color:var(--brown);font-weight:700;">听觉范围实验</a>）</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var btns = document.querySelectorAll('.tabs .tab-btn');
+  var panes = document.querySelectorAll('.tab-pane');
+  btns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      btns.forEach(function(b){ b.classList.remove('active'); });
+      panes.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+      try{ sessionStorage.setItem('c2s2_explain_tab', btn.dataset.tab); }catch(e){}
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+})();
+(function(){
+  var m = (location.hash || '').match(/^#(t[1-4])$/);
+  var tab = m ? m[1] : null;
+  if(!tab) return;
+  var btn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+  if(btn) btn.click();
+})();
+(function(){
+  var pop = document.getElementById('bioPopover');
+  if(!pop) return;
+  document.querySelectorAll('.bio-seg').forEach(function(seg){
+    function show(){
+      pop.innerHTML = '<b>' + seg.dataset.animal + '</b>：' + seg.dataset.range + '<br>' + seg.dataset.tip;
+      pop.classList.add('show');
+    }
+    function hide(){ pop.classList.remove('show'); }
+    seg.addEventListener('mouseenter', show);
+    seg.addEventListener('mouseleave', hide);
+    seg.addEventListener('click', function(){ pop.classList.toggle('show'); show(); });
+  });
+})();
+</script>
+</body>
+</html>

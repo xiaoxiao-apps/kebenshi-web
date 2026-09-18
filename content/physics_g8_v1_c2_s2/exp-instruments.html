@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>科学世界·乐音和乐器 · 声音的特性</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .wave-box { background: #1a1f26; border-radius: 12px; padding: 14px; margin-top: 12px; }
+  .wave-box svg { display: block; width: 100%; height: 80px; }
+  .tab-nav { display: flex; gap: 10px; margin: 16px 0 14px; flex-wrap: wrap; }
+  .tab-btn { flex: 1; min-width: 100px; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,.08); background: var(--card2); cursor: pointer; font-weight: 700; font-size: 14px; }
+  .tab-btn.active { background: var(--brown); color: #fff; }
+  .btn.playing { background: var(--brown); color: #fff; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .sim-row { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+  .sim-col { flex: 1; min-width: 260px; background: var(--card2); border-radius: 12px; padding: 14px; }
+  .sim-col h3 { font-size: 15px; margin-bottom: 10px; }
+  .slider-row { margin: 14px 0; }
+  .slider-row label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: var(--ink2); }
+  .slider-row input[type=range] { width: 100%; }
+  .readout { display: inline-block; background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 8px; padding: 4px 10px; font-size: 12px; color: var(--brown); margin-left: 8px; }
+  .flip { perspective: 800px; cursor: pointer; margin-top: 14px; }
+  .flip-inner { position: relative; width: 100%; min-height: 92px; transition: transform .4s; transform-style: preserve-3d; border-radius: 12px; }
+  .flip.flipped .flip-inner { transform: rotateY(180deg); }
+  .flip-front, .flip-back { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; }
+  .flip-front { background: var(--cyan-bg); border: 1px solid rgba(41,128,185,.15); }
+  .flip-back { background: var(--green-bg); border: 1px solid rgba(74,140,63,.2); transform: rotateY(180deg); font-size: 14px; line-height: 1.7; }
+  .jiahu-card { background: var(--brown-bg); border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .jiahu-card h3 { font-size: 15px; margin-bottom: 8px; }
+  .jiahu-svg { width: 100%; max-width: 480px; display: block; margin: 12px auto; }
+  @media (max-width: 480px) {
+    .tab-nav { flex-direction: column; }
+    .tab-btn { min-width: 0; }
+    .sim-col { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">🎸 乐音和乐器</h1>
+    <p class="page-subtitle">科学世界：不同乐器怎样发出不同音调和响度的声音？</p>
+  </div>
+
+  <div class="card">
+    <h2>什么是乐音？<span class="chip brown">教材 P41</span></h2>
+    <p>歌唱家的歌声、演奏家演奏的乐曲声，听起来悠扬、悦耳，这类声音都是<strong>乐音</strong>。乐音的波形是<strong>有规律</strong>的；而噪声的波形杂乱无章。</p>
+    <div class="wave-box">
+      <svg viewBox="0 0 600 80" preserveAspectRatio="none">
+        <path d="M0,40 Q30,10 60,40 T120,40 T180,40 T240,40 T300,40 T360,40 T420,40 T480,40 T540,40 T600,40" fill="none" stroke="#7ee787" stroke-width="2.5"/>
+        <text x="10" y="20" fill="#7ee787" font-size="12">乐音：规则波形</text>
+        <path d="M0,40 L600,40" fill="none" stroke="#e74c3c" stroke-width="2" opacity="0"/>
+        <path d="M10,45 L25,30 L40,55 L55,25 L70,50 L85,35 L100,60 L115,20 L130,48 L145,38 L160,52 L175,28 L190,46 L205,34 L220,56 L235,22 L250,50 L265,36 L280,58 L295,26 L310,48 L325,32 L340,54 L355,24 L370,52 L385,30 L400,60 L415,18 L430,46 L445,38 L460,56 L475,20 L490,50 L505,34 L520,58 L535,28 L550,48 L565,36 L580,54 L595,20" fill="none" stroke="#e74c3c" stroke-width="2"/>
+        <text x="10" y="72" fill="#e74c3c" font-size="12">噪声：无规律波形</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>乐器分类迷你仿真<span class="chip cyan">教材 P41-42</span></h2>
+    <p class="hint">点击 Tab 切换乐器类型，拖动滑块改变演奏参数。打击乐器点一下响一下；弦乐、管乐点「试听」循环播放、再点「停止」结束。</p>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="perc">🥁 打击乐器</button>
+      <button class="tab-btn" data-tab="string">🎻 弦乐器</button>
+      <button class="tab-btn" data-tab="wind">🎺 管乐器</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-perc">
+      <p>鼓、锣等受到敲击时振动发声。击鼓力度越大，鼓面振动幅度越大，声音越响亮。</p>
+      <div class="sim-row">
+        <div class="sim-col">
+          <h3>🥁 击鼓力度</h3>
+          <div class="slider-row">
+            <label><span>力度小</span><span>力度大</span></label>
+            <input type="range" id="drumStrength" min="0" max="100" value="50">
+          </div>
+          <button class="btn btn-secondary" id="playDrum">▶ 试听鼓声</button>
+          <span class="readout" id="drumRead">响度：中</span>
+        </div>
+        <div class="sim-col">
+          <h3>🔔 编钟大小</h3>
+          <div class="slider-row">
+            <label><span>钟大→音低</span><span>钟小→音高</span></label>
+            <input type="range" id="bellSize" min="0" max="100" value="50">
+          </div>
+          <button class="btn btn-secondary" id="playBell">▶ 试听编钟</button>
+          <span class="readout" id="bellRead">音调：中</span>
+        </div>
+      </div>
+      <div class="flip" data-flip>
+        <div class="flip-inner">
+          <div class="flip-front"><div style="font-size:28px">🥁</div><div><strong>它是哪类乐器？</strong><br><span class="hint">点击翻面</span></div></div>
+          <div class="flip-back"><strong>鼓</strong>是<strong>打击乐器</strong>。它受到敲击时振动发声；敲击力度越大，声音越响亮。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-string">
+      <p>二胡、小提琴通过弦的振动发声。弦越短、越细、越紧，音调越高；振动幅度越大，声音越响。</p>
+      <div class="sim-row">
+        <div class="sim-col">
+          <h3>🎻 弦长与音调</h3>
+          <div class="slider-row">
+            <label><span>弦短→音高</span><span>弦长→音低</span></label>
+            <input type="range" id="stringLen" min="0" max="100" value="50">
+          </div>
+          <button class="btn btn-secondary" id="playViolin">▶ 试听小提琴</button>
+          <span class="readout" id="violinRead">音调：中</span>
+        </div>
+        <div class="sim-col">
+          <h3>🎸 拨弦力度</h3>
+          <div class="slider-row">
+            <label><span>力度小</span><span>力度大</span></label>
+            <input type="range" id="pluckStrength" min="0" max="100" value="50">
+          </div>
+          <button class="btn btn-secondary" id="playPluck">▶ 试听拨弦</button>
+          <span class="readout" id="pluckRead">响度：中</span>
+        </div>
+      </div>
+      <div class="flip" data-flip>
+        <div class="flip-inner">
+          <div class="flip-front"><div style="font-size:28px">🎻</div><div><strong>它是哪类乐器？</strong><br><span class="hint">点击翻面</span></div></div>
+          <div class="flip-back"><strong>小提琴</strong>是<strong>弦乐器</strong>。琴弦振动发声；改变弦的长短、松紧可以改变音调，改变拉弦力度可以改变响度。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-wind">
+      <p>箫、笛子等管乐器包含一段空气柱，吹奏时空气柱振动发声。手指按在不同音孔上，改变空气柱长度，从而改变音调：空气柱越短，音调越高。</p>
+      <div class="sim-row">
+        <div class="sim-col">
+          <h3>🎺 空气柱长度</h3>
+          <div class="slider-row">
+            <label><span>柱短→音高</span><span>柱长→音低</span></label>
+            <input type="range" id="airLen" min="0" max="100" value="50">
+          </div>
+          <button class="btn btn-secondary" id="playFlute">▶ 试听长笛</button>
+          <button class="btn btn-secondary" id="playDizi">▶ 试听笛子</button>
+          <span class="readout" id="windRead">音调：中</span>
+        </div>
+      </div>
+      <div class="flip" data-flip>
+        <div class="flip-inner">
+          <div class="flip-front"><div style="font-size:28px">🎺</div><div><strong>它是哪类乐器？</strong><br><span class="hint">点击翻面</span></div></div>
+          <div class="flip-back"><strong>箫、笛子</strong>是<strong>管乐器</strong>。吹奏时管内空气柱振动发声；空气柱越短，音调越高。</div>
+        </div>
+      </div>
+
+      <div class="jiahu-card">
+        <h3>🏛️ 贾湖骨笛 <span class="chip brown">教材 P42</span></h3>
+        <p>在河南舞阳出土的 <strong>8 000 多年</strong>前的贾湖骨笛，是我国迄今发现的最早的管乐器。它可以吹奏出<strong>七声音阶</strong>。</p>
+        <svg class="jiahu-svg" viewBox="0 0 520 110" aria-label="贾湖骨笛示意图">
+          <defs>
+            <linearGradient id="boneGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f3efe8"/>
+              <stop offset="50%" stop-color="#e6dec8"/>
+              <stop offset="100%" stop-color="#d4c9ad"/>
+            </linearGradient>
+          </defs>
+          <path d="M40,55 C40,35 55,30 70,32 L460,48 C475,50 485,58 485,68 C485,80 472,86 458,84 L70,68 C52,66 40,62 40,55 Z" fill="url(#boneGrad)" stroke="#b8a880" stroke-width="2"/>
+          <ellipse cx="465" cy="66" rx="10" ry="16" fill="#2c2c2c"/>
+          <ellipse cx="55" cy="48" rx="9" ry="13" fill="#2c2c2c"/>
+          <g fill="#2c2c2c">
+            <circle cx="112" cy="47" r="4.5"/>
+            <circle cx="164" cy="50" r="4.5"/>
+            <circle cx="216" cy="53" r="4.5"/>
+            <circle cx="268" cy="55.5" r="4.5"/>
+            <circle cx="320" cy="58.5" r="4.5"/>
+            <circle cx="372" cy="61" r="4.5"/>
+            <circle cx="424" cy="64" r="4.5"/>
+          </g>
+          <text x="112" y="77" fill="#5a5a5a" font-size="11" text-anchor="middle">1</text>
+          <text x="164" y="80" fill="#5a5a5a" font-size="11" text-anchor="middle">2</text>
+          <text x="216" y="83" fill="#5a5a5a" font-size="11" text-anchor="middle">3</text>
+          <text x="268" y="85" fill="#5a5a5a" font-size="11" text-anchor="middle">4</text>
+          <text x="320" y="88" fill="#5a5a5a" font-size="11" text-anchor="middle">5</text>
+          <text x="372" y="91" fill="#5a5a5a" font-size="11" text-anchor="middle">6</text>
+          <text x="424" y="94" fill="#5a5a5a" font-size="11" text-anchor="middle">7</text>
+          <text x="455" y="102" fill="#5a5a5a" font-size="11" text-anchor="middle">吹口</text>
+          <text x="55" y="22" fill="#5a5a5a" font-size="11" text-anchor="middle">尾孔</text>
+          <text x="260" y="22" fill="#8b6914" font-size="13" text-anchor="middle">7 个音孔 + 两端开孔</text>
+        </svg>
+        <p class="hint">示意图为艺术化重绘，形态参考博物馆实物照片；7 个音孔清晰可见。</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-instruments.js"></script>
+</body>
+</html>

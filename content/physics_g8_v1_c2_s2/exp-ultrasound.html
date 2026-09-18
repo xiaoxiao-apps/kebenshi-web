@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>超声波与次声波的应用 · 声音的特性</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .section-title { font-size: 16px; font-weight: 700; margin: 22px 0 10px; display: flex; align-items: center; gap: 8px; }
+  .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 14px; }
+  .flip { perspective: 800px; cursor: pointer; }
+  .flip-inner { position: relative; width: 100%; min-height: 120px; transition: transform .4s; transform-style: preserve-3d; border-radius: 12px; }
+  .flip.flipped .flip-inner { transform: rotateY(180deg); }
+  .flip-front, .flip-back { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .flip-front { background: var(--card2); border: 1px solid rgba(0,0,0,.08); }
+  .flip-back { background: var(--green-bg); border: 1px solid rgba(74,140,63,.2); transform: rotateY(180deg); font-size: 14px; line-height: 1.7; }
+  .icon-big { font-size: 34px; margin-bottom: 8px; }
+  .back-link { margin-top: 18px; text-align: center; }
+  @media (max-width: 480px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .flip-inner { min-height: 100px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">📡 超声波与次声波的应用</h1>
+    <p class="page-subtitle">课标 2.3.2 例 3 拓展资料：了解超声雷达、医学检查、金属探伤等应用。</p>
+  </div>
+
+  <div class="card">
+    <h2>拓展阅读 <span class="chip brown">超声波 / 次声波</span></h2>
+    <p>人耳能听到的声音频率范围约为 20~20 000 Hz。频率高于 20 000 Hz 的声波叫<strong>超声波</strong>，低于 20 Hz 的声波叫<strong>次声波</strong>。它们虽然听不到，却在生产和生活中有重要用途。</p>
+    <div class="section-title">🔊 超声波的应用（频率 &gt; 20 000 Hz）</div>
+    <div class="card-grid">
+      <div class="flip" data-flip>
+        <div class="flip-inner">
+          <div class="flip-front"><div class="icon-big">🌊</div><div><strong>声呐</strong><br><span class="hint">点击翻面</span></div></div>
+          <div class="flip-back">向水中发射超声波，根据回声的时间与方向，可测定目标的位置和距离。</div>
+        </div>
+      </div>
+      <div class="flip" data-flip>
+        <div class="flip-inner">
+          <div class="flip-front"><div class="icon-big">🏥</div><div><strong>B 超</strong><br><span class="hint">点击翻面</span></div></div>
+          <div class="flip-back">超声波能穿透人体组织并反射，接收反射波后成像，用于医学检查。</div>
+        </div>
+      </div>
+      <div class="flip" data-flip>
+        <div class="flip-inner">
+          <div class="flip-front"><div class="icon-big">🔧</div><div><strong>金属探伤</strong><br><span class="hint">点击翻面</span></div></div>
+          <div class="flip-back">超声波进入金属后遇到内部裂缝或气泡会反射，从而检测材料内部缺陷。</div>
+        </div>
+      </div>
+      <div class="flip" data-flip>
+        <div class="flip-inner">
+          <div class="flip-front"><div class="icon-big">🧼</div><div><strong>超声清洗</strong><br><span class="hint">点击翻面</span></div></div>
+          <div class="flip-back">超声波在液体中产生剧烈振动，把精密零件缝隙中的污垢震落下来。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">🌍 次声波的应用（频率 &lt; 20 Hz）</div>
+    <div class="card-grid">
+      <div class="flip" data-flip>
+        <div class="flip-inner">
+          <div class="flip-front"><div class="icon-big">🐘</div><div><strong>大象交流</strong><br><span class="hint">点击翻面</span></div></div>
+          <div class="flip-back">大象能发出和接收次声波，在远处互相“通话”，人类听不到。</div>
+        </div>
+      </div>
+      <div class="flip" data-flip>
+        <div class="flip-inner">
+          <div class="flip-front"><div class="icon-big">🌪️</div><div><strong>自然灾害监测</strong><br><span class="hint">点击翻面</span></div></div>
+          <div class="flip-back">地震、台风、核爆炸等会产生次声波，监测次声波可预警或核查。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="back-link">
+      <a class="btn btn-secondary" href="exp-range.html">👂 返回「听觉频率范围」频谱图</a>
+    </div>
+  </div>
+</div>
+<script src="exp-back.js"></script>
+<script src="exp-ultrasound.js"></script>
+</body>
+</html>

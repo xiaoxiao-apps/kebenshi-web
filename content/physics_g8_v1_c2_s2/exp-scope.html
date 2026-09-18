@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：示波器波形 · 音调与频率</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .screen-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #1a1f26; border: 6px solid #2c3540; }
+  #scopeCv { width: 100%; display: block; }
+  .scope-bezel { position: absolute; top: 8px; left: 12px; color: #6c8a6c; font-size: 11px; font-family: monospace; }
+  .screen-note { position: absolute; top: 6px; right: 8px; font-size: 11px; color: rgba(154,168,184,0.85); pointer-events: none; }
+  .readout { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .scope-ctl { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .freq-btns { display: flex; gap: 8px; flex: 1; min-width: 240px; flex-wrap: wrap; }
+  .freq-btns .btn { flex: 1; min-width: 72px; padding: 7px 10px; font-size: 13px; }
+  .freq-btns .btn.active { box-shadow: 0 0 0 2px var(--green) inset; color: var(--green); font-weight: 700; }
+  .readout .pill { background: var(--green-bg); border: 1px solid rgba(74,140,63,.2); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--green); }
+  .predict-card { background: var(--cyan-bg); border-radius: 12px; padding: 14px 16px; margin-top: 14px; }
+  .predict-card h3 { font-size: 15px; margin-bottom: 8px; }
+  .predict-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .predict-btns .btn { flex: 1; min-width: 100px; }
+  .conclusion { display: none; background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 10px 10px 0; padding: 12px 16px; margin-top: 12px; font-size: 14px; line-height: 1.8; }
+  .conclusion.show { display: block; }
+  @media (max-width: 768px) {
+    .scope-bezel { display: none; }
+    .scope-ctl { flex-direction: column; align-items: stretch; }
+    .scope-ctl .btn { min-width: 0; }
+    .freq-btns { min-width: 0; }
+    .freq-btns .btn { flex: 1 1 40%; }
+    .predict-btns { flex-direction: column; }
+    .predict-btns .btn { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="index.html">‹ 返回本节</a>
+  <div class="page-header">
+    <h1 class="page-title">📟 示波器波形</h1>
+    <p class="page-subtitle">把音叉声音「画」出来：频率越高，1 秒内振动次数越多，波形越密集。</p>
+  </div>
+
+  <div class="card">
+    <h2>观察声音的波形 · 图2.2-3 <span class="chip cyan">演示</span></h2>
+    <div class="hint-bar">💡 选择频率按钮，听真实音叉录音并观察示波器波形。注意比较：高频波形更密，低频波形更疏。</div>
+
+    <div class="fullscreen-wrap" id="fsScopeWrap">
+      <button class="fullscreen-btn" id="fsScopeBtn" title="全屏">⛶</button>
+      <div class="screen-wrap">
+        <span class="scope-bezel">OSCILLOSCOPE · CH1</span>
+        <span class="screen-note">示意波形：周期数按频率真实比例</span>
+        <canvas id="scopeCv"></canvas>
+      </div>
+      <div class="readout">
+        <span class="pill">1 s 内振动 <b id="countVal">—</b> 次 = <b id="hzVal">—</b> Hz</span>
+      </div>
+      <div class="scope-ctl">
+        <span class="ctl-label" style="font-size:13px;color:var(--ink2);font-weight:700;">频率</span>
+        <div class="freq-btns" id="freqBtns">
+          <button class="btn btn-secondary freq-btn" data-hz="110">110 Hz</button>
+          <button class="btn btn-secondary freq-btn" data-hz="220">220 Hz</button>
+          <button class="btn btn-secondary freq-btn active" data-hz="440">440 Hz</button>
+          <button class="btn btn-secondary freq-btn" data-hz="880">880 Hz</button>
+        </div>
+        <button class="btn btn-primary" id="playBtn">▶ 播放</button>
+        <button class="btn btn-secondary" id="stopBtn">⏹ 停止</button>
+      </div>
+    </div>
+
+    <div class="predict-card" id="predictCard">
+      <h3>🤔 先预测：高音叉的波形更密还是更疏？</h3>
+      <div class="predict-btns">
+        <button class="btn btn-secondary" id="predDense">更密</button>
+        <button class="btn btn-secondary" id="predSparse">更疏</button>
+      </div>
+      <div class="feedback" id="predFb"></div>
+    </div>
+
+    <div class="conclusion" id="conclusionBox">
+      <b>教材结论：</b>高音调的波形更<b>密集</b>，说明声音的频率较高；低音调的波形比较<b>稀疏</b>，说明声音的频率较低。
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-scope.js"></script>
+</body>
+</html>

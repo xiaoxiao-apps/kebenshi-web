@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>问题导入：蚊子与蝴蝶 · 声音的特性</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar { background: var(--cyan-bg); color: var(--cyan); border: 1px solid rgba(41,128,185,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: linear-gradient(180deg, #e8f4fd 0%, #d4e9f7 100%); }
+  #introCv { width: 100%; display: block; cursor: pointer; }
+  .axis-wrap { background: var(--card2); border-radius: 12px; padding: 14px 16px; margin-top: 14px; }
+  .axis-wrap h3 { font-size: 15px; margin-bottom: 10px; }
+  .freq-axis { position: relative; height: 42px; border-radius: 8px; background: #e8e8e8; margin: 8px 0; }
+  .freq-window { position: absolute; left: 18%; right: 18%; top: 0; bottom: 0; background: rgba(74,140,63,.18); border-left: 2px solid var(--green); border-right: 2px solid var(--green); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--green); font-weight: 700; }
+  .freq-mark { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: var(--brown); }
+  .freq-label { position: absolute; top: -20px; transform: translateX(-50%); font-size: 11px; color: var(--ink2); white-space: nowrap; }
+  .guess-card { background: var(--brown-bg); border-radius: 12px; padding: 14px 16px; margin-top: 14px; }
+  .guess-card h3 { font-size: 15px; margin-bottom: 10px; }
+  .answer-hidden { display: none; }
+  @media (max-width: 768px) { .opt { font-size: 13px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">🦟 蚊子与蝴蝶</h1>
+    <p class="page-subtitle">为什么能听到蚊子声，却听不到蝴蝶翅膀振动的声音？</p>
+  </div>
+
+  <div class="card">
+    <h2>问题导入 · 图2.2-1 <span class="chip cyan">想一想</span></h2>
+    <div class="hint-bar">💡 点击蚊子听声音，点击蝴蝶看提示；再想想翅膀振动快慢与「能否听见」有什么关系。</div>
+
+    <div class="fullscreen-wrap" id="fsIntroWrap">
+      <button class="fullscreen-btn" id="fsIntroBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="introCv"></canvas>
+      </div>
+    </div>
+
+    <div class="axis-wrap">
+      <h3>迷你频率轴</h3>
+      <div class="freq-axis">
+        <div class="freq-window">人耳听觉范围 20 ~ 20 000 Hz</div>
+        <div class="freq-mark" style="left: 6%;"><span class="freq-label">蝴蝶 ~6 Hz</span></div>
+        <div class="freq-mark" style="left: 34%;"><span class="freq-label">蚊子 ~550 Hz</span></div>
+      </div>
+      <p class="hint">蝴蝶翅膀振动频率太低（&lt;20 Hz），属于次声波，人耳听不到；蚊子约 550 Hz，落在人耳听觉范围内。</p>
+    </div>
+
+    <div class="guess-card" id="guessCard">
+      <h3>🤔 先猜猜看</h3>
+      <p>教材原问题：为什么能听到蚊子声，却听不到蝴蝶翅膀振动的声音？</p>
+      <button class="opt" data-ans="freq">A. 蚊子翅膀振动频率在人耳听觉范围内，蝴蝶太低。</button>
+      <button class="opt" data-ans="amp">B. 蚊子翅膀振动幅度更大，所以更响。</button>
+      <button class="opt" data-ans="timbre">C. 蚊子与蝴蝶的音色不同。</button>
+      <div class="feedback" id="guessFb"></div>
+      <button class="btn btn-primary" id="revealBtn" style="margin-top:10px;">🔓 揭晓答案</button>
+      <div class="answer-hidden" id="answerBox" style="margin-top:12px;">
+        <p class="key-point">人耳能听到的频率范围约为 <b>20 ~ 20 000 Hz</b>。蚊子翅膀振动约 <b>550 Hz</b>，在人耳范围内；蝴蝶翅膀扇动约 <b>6 Hz</b>，低于 20 Hz，属于次声波，所以听不到。</p>
+        <a class="btn btn-secondary" href="explain.html" style="margin-top:8px;">去学音调 →</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-intro.js"></script>
+</body>
+</html>

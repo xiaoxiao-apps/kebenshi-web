@@ -1,0 +1,50 @@
+/* exp-intro.js — 问题导入：蚊子 vs 蝴蝶翅膀振动频率 */
+(function(){
+  'use strict';
+  var DW = 640, cv = document.getElementById('introCv'), ctx = cv.getContext('2d');
+  var W = 640, H = 360, k = 1, t0 = performance.now();
+  var audioEl = null, butterflyHint = 0, mosqHint = 0;
+  function resize(){ var f = fitCanvas(cv, getCssH(cv)); ctx = f.ctx; W = f.w; H = parseFloat(cv.style.height) || f.h; k = W / DW; draw(); }
+  function ensureAudio(){ if(!audioEl){ audioEl = document.createElement('audio'); audioEl.src = 'assets/audio/mosquito-buzz.mp3'; audioEl.preload = 'auto'; } return audioEl; }
+  function drawPanel(x, w, label, freq, color, wingPhase, wingSpeed){
+    ctx.fillStyle = color; ctx.fillRect(x, 0, w, H);
+    ctx.strokeStyle = 'rgba(0,0,0,.08)'; ctx.lineWidth = 2 * k; ctx.strokeRect(x, 0, w, H);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold ' + (16 * k) + 'px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(label, x + w / 2, 26 * k);
+    ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = '' + (13 * k) + 'px sans-serif';
+    ctx.fillText('约 ' + freq + ' Hz', x + w / 2, 46 * k);
+    var cx = x + w / 2, cy = H * 0.55, wingSpan = Math.abs(Math.sin(wingPhase)) * w * 0.35;
+    ctx.fillStyle = label === '蝴蝶' ? '#f8cdda' : '#a8e6cf';
+    ctx.beginPath(); ctx.ellipse(cx - wingSpan / 2, cy, wingSpan / 2, 22 * k, -0.3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + wingSpan / 2, cy, wingSpan / 2, 22 * k, 0.3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#444'; ctx.beginPath(); ctx.ellipse(cx, cy, 10 * k, 28 * k, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  function draw(){
+    var now = (performance.now() - t0) / 1000;
+    ctx.clearRect(0, 0, W, H);
+    var w2 = W / 2;
+    drawPanel(0, w2, '蝴蝶', 6, '#b8e0d2', now * 6 * Math.PI * 2, 6);
+    drawPanel(w2, W - w2, '蚊子', 550, '#ffd3b6', now * 25 * Math.PI * 2, 550);
+    if(butterflyHint > 0){ butterflyHint -= 0.02; ctx.fillStyle = 'rgba(255,255,255,.92)'; roundRectPath(ctx, W * 0.08, H * 0.65, W * 0.34, 44 * k, 8 * k); ctx.fill(); ctx.fillStyle = '#555'; ctx.font = 'bold ' + (13 * k) + 'px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('振动太慢，人耳听不到', W * 0.25, H * 0.65 + 27 * k); }
+    if(mosqHint > 0){ mosqHint -= 0.02; ctx.fillStyle = 'rgba(255,255,255,.92)'; roundRectPath(ctx, W * 0.58, H * 0.65, W * 0.34, 44 * k, 8 * k); ctx.fill(); ctx.fillStyle = '#555'; ctx.textAlign = 'center'; ctx.fillText('播放蚊子嗡嗡声', W * 0.75, H * 0.65 + 27 * k); }
+  }
+  cv.addEventListener('click', function(e){
+    var r = cv.getBoundingClientRect(), x = (e.clientX - r.left) * (cv.width / r.width);
+    if(x < W / 2){ butterflyHint = 1.5; }
+    else { var a = ensureAudio(); a.pause(); a.currentTime = 0; a.play().catch(function(){}); mosqHint = 1.5; }
+  });
+  document.querySelectorAll('.opt').forEach(function(b){
+    b.addEventListener('click', function(){
+      var fb = document.getElementById('guessFb');
+      if(this.dataset.ans === 'freq'){ fb.className = 'feedback ok show'; fb.textContent = '✅ 猜对方向！揭晓后看看完整解释。'; this.classList.add('right'); }
+      else { fb.className = 'feedback err show'; fb.textContent = '❌ 再想想：蚊子和蝴蝶翅膀都在振动，关键差别是振动的快慢。'; this.classList.add('wrong'); }
+    });
+  });
+  document.getElementById('revealBtn').addEventListener('click', function(){
+    document.getElementById('answerBox').style.display = 'block';
+    document.getElementById('guessFb').className = 'feedback info show'; document.getElementById('guessFb').textContent = '答案揭晓：频率是否落在人耳听觉范围内。';
+  });
+  function loop(){ draw(); requestAnimationFrame(loop); }
+  FullscreenHelper.bind(document.getElementById('fsIntroWrap'), document.getElementById('fsIntroBtn'), resize);
+  window.addEventListener('resize', resize); resize(); requestAnimationFrame(loop);
+})();

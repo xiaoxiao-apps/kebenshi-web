@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：音色对比 · 声音的特性</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .screen-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #1a1f26; border: 6px solid #2c3540; }
+  #timbreCv { width: 100%; display: block; }
+  .screen-wrap .screen-note { position: absolute; top: 6px; right: 8px; font-size: 11px; color: rgba(154,168,184,0.85); pointer-events: none; }
+  .inst-btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .inst-btns .btn { flex: 1; min-width: 90px; }
+  .inst-btns .btn.active { box-shadow: 0 0 0 2px var(--green) inset; }
+  .readout { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .readout .pill { background: var(--green-bg); border: 1px solid rgba(74,140,63,.2); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--green); }
+  .blind-card { background: var(--cyan-bg); border-radius: 12px; padding: 14px 16px; margin-top: 14px; }
+  .blind-card h3 { font-size: 15px; margin-bottom: 8px; }
+  .guess-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .guess-btns .btn { flex: 1; min-width: 90px; }
+  .conclusion { display: none; background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 10px 10px 0; padding: 12px 16px; margin-top: 12px; font-size: 14px; line-height: 1.8; }
+  .conclusion.show { display: block; }
+  @media (max-width: 768px) { .inst-btns, .guess-btns { flex-direction: column; } .inst-btns .btn, .guess-btns .btn { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="index.html">‹ 返回本节</a>
+  <div class="page-header">
+    <h1 class="page-title">🎹 音色对比</h1>
+    <p class="page-subtitle">音叉、钢琴、长笛同唱 C 调 do：疏密相同，形状不同。</p>
+  </div>
+
+  <div class="card">
+    <h2>演示：比较不同乐器的波形 · 图2.2-5 <span class="chip cyan">波形对比</span></h2>
+    <div class="hint-bar">💡 先点三个发声体听声音、看波形；再玩「盲辨」：遮住名字随机播放，猜猜是哪种乐器。至少猜 2 次解锁结论。</div>
+
+    <div class="fullscreen-wrap" id="fsTimbreWrap">
+      <button class="fullscreen-btn" id="fsTimbreBtn" title="全屏">⛶</button>
+      <div class="screen-wrap">
+        <div class="screen-note">示意波形：高度已归一化，便于对比形状差异</div>
+        <canvas id="timbreCv"></canvas>
+      </div>
+      <div class="readout">
+        <span class="pill">正在播放 <b id="nowVal">—</b></span>
+        <span class="pill">已盲辨 <b id="guessVal">0/2</b></span>
+      </div>
+      <div class="inst-btns">
+        <button class="btn btn-secondary" data-inst="fork" data-src="assets/audio/fork-c4-261.m4a">🔔 音叉</button>
+        <button class="btn btn-secondary" data-inst="piano" data-src="assets/audio/piano-do-c4.mp3">🎹 钢琴</button>
+        <button class="btn btn-secondary" data-inst="flute" data-src="assets/audio/flute-do-c4.mp3">🎵 长笛</button>
+      </div>
+    </div>
+
+    <div class="blind-card" id="blindCard">
+      <h3>🙈 盲辨小游戏</h3>
+      <p class="hint">点击「随机播放」，凭声音判断是哪种发声体。</p>
+      <div class="guess-btns">
+        <button class="btn btn-secondary" data-guess="fork">🔔 音叉</button>
+        <button class="btn btn-secondary" data-guess="piano">🎹 钢琴</button>
+        <button class="btn btn-secondary" data-guess="flute">🎵 长笛</button>
+      </div>
+      <div class="feedback" id="guessFb"></div>
+      <button class="btn btn-primary" id="randomBtn">🔀 随机播放</button>
+    </div>
+
+    <div class="conclusion" id="conclusionBox">
+      <b>教材结论：</b>不同乐器发出音调相同的声音，波形总体上的<b>疏密程度相同</b>，即<b>频率相同</b>；但是波的<b>形状不同</b>，即<b>音色不同</b>。不同发声体的材料、结构不同，发出声音的音色也就不同。
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js"></script>
+<script src="exp-common.js"></script>
+<script src="exp-back.js"></script>
+<script src="exp-timbre.js"></script>
+</body>
+</html>
