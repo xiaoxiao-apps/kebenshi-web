@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：扬声器与烛焰 · 声的利用</title>
+<link rel="stylesheet" href="common.css?v=20260920r4">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #1a1512; }
+  #candleCv { width: 100%; display: block; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
+  .ctl-row .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 70px; }
+  .ctl-row input[type=range] { flex: 1; accent-color: var(--gold); min-width: 0; }
+  .ctl-row .ctl-val { font-size: 13px; color: var(--brown); font-weight: 700; min-width: 64px; text-align: right; }
+  .readout { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .readout .pill { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--ink2); }
+  .readout .pill b { color: var(--brown); }
+  .anim-btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .anim-btns .btn { flex: 1; min-width: 100px; }
+  .conclusion-card { background: var(--green-bg); border: 1px solid rgba(74,140,63,.2); border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: 14px; line-height: 1.7; }
+  @media (max-width: 768px) { .anim-btns { flex-direction: column; } .anim-btns .btn { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html?v=20260920r4">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title"> 扬声器与烛焰</h1>
+    <p class="page-subtitle">声波能传递能量：扬声器播放音乐时，烛焰会随声波颤动。</p>
+  </div>
+
+  <div class="card">
+    <h2>演示 · 图2.3-6 <span class="chip brown">声与能量</span></h2>
+    <div class="hint-bar"> 点击「播放音乐」，观察声波波纹向烛焰传播；拖动「音量」滑杆改变振幅，火焰颤动幅度随之变化。</div>
+
+    <div class="fullscreen-wrap" id="fsCandleWrap">
+      <button class="fullscreen-btn" id="fsCandleBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="candleCv"></canvas>
+      </div>
+      <div class="ctl-row">
+        <span class="ctl-label">音量（振幅）</span>
+        <input type="range" id="ampSlider" min="0" max="100" value="60" step="1" aria-label="音量">
+        <span class="ctl-val" id="ampVal">60 %</span>
+      </div>
+      <div class="readout">
+        <span class="pill">状态 <b id="stateVal">静音</b></span>
+        <span class="pill">频率 <b>440 Hz</b></span>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="playBtn"> 播放音乐</button>
+        <button class="btn btn-secondary" id="stopBtn"> 停止</button>
+      </div>
+    </div>
+
+    <div class="conclusion-card">
+      <b>结论：</b>扬声器旁的烛焰发生颤动，说明声波能传递能量。
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js?v=20260920r4"></script>
+<script src="exp-common.js?v=20260920r4"></script>
+<script src="exp-back.js?v=20260920r4"></script>
+<script src="exp-candle.js?v=20260920r4"></script>
+</body>
+</html>

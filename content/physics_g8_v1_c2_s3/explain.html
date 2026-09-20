@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 声的利用</title>
+<link rel="stylesheet" href="common.css?v=20260920r4">
+<style>
+  .tabs { display: flex; gap: 8px; margin: 12px 0; flex-wrap: nowrap; overflow-x: auto; }
+  .tab-btn { flex: 1; white-space: nowrap; padding: 10px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; cursor: pointer; font-weight: 700; font-size: 13px; transition: all .25s ease; min-height: 44px; }
+  .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .tab-pane { display: none; animation: tabIn .25s ease; }
+  .tab-pane.active { display: block; }
+  @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .tipbox { border-left: 4px solid var(--brown); background: var(--brown-bg); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; line-height: 1.7; font-size: 14px; }
+  .greenbox { border-left: 4px solid var(--green); background: var(--green-bg); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; line-height: 1.7; font-size: 14px; }
+  .figbox { background: var(--card2); border-radius: 12px; padding: 14px; margin: 12px 0; }
+  .figcap { color: var(--ink2); font-size: 13px; text-align: center; margin-top: 8px; line-height: 1.6; }
+  ul.plain { padding-left: 20px; margin: 8px 0; font-size: 14px; line-height: 1.9; }
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 12px 0; }
+  .steps li { position: relative; padding: 10px 12px 10px 52px; margin-bottom: 10px; background: var(--green-bg); border-radius: 10px; line-height: 1.6; font-size: 14px; }
+  .steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .think { border: 2px dashed var(--brown); border-radius: 12px; padding: 14px 16px; margin-top: 14px; background: #fffdf5; font-size: 14px; line-height: 1.7; }
+  .think .q { font-weight: 700; color: var(--brown); margin-bottom: 6px; }
+  @media (max-width: 768px) { .tabs { gap: 6px; } .tab-btn { font-size: 12px; padding: 10px 4px; } }
+  .to-exp { margin-top: 10px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html?v=20260920r4">‹ 返回本节</a>
+
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">声音能传递什么？信息，还是能量？看看人类和动物怎样利用声。</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="t1" role="tab">① 声与信息·自然</button>
+    <button class="tab-btn" data-tab="t2" role="tab">② 声与信息·应用</button>
+    <button class="tab-btn" data-tab="t3" role="tab">③ 声与能量</button>
+    <button class="tab-btn" data-tab="t4" role="tab">④ 建筑声学</button>
+  </div>
+
+  <!-- ============ Tab 1 问题导入 + 声与信息（自然界的声） ============ -->
+  <div class="tab-pane active" id="t1">
+    <div class="card">
+      <h2>问题：大象的“无声”交流 <span class="chip brown">问题 图2.3-1</span></h2>
+      <p style="font-size:14px;line-height:1.8;">人从呱呱坠地时起，就开始利用声音来表达自己
+的情绪和需求。人们在优美的音乐中愉悦身心，从彼此的
+对话中获得信息……除了人类，动物也能利用声。例
+如，大象就可以用人类听不到的“声音”进行交流（图
+2.3-1）。你能举出其他一些例子吗？</p>
+      <div class="figbox">
+        <div style="background:linear-gradient(135deg,#e8f0e3,#cfe0c8);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:48px;line-height:1;">🐘 🐘 🐘</div>
+          <div style="margin-top:10px;font-size:14px;color:var(--brown);font-weight:700;">图 2.3-1 “无声”交流的大象</div>
+        </div>
+        <div class="figcap">大象发出的是次声波，人耳听不到，大象之间却能靠它交流。</div>
+      </div>
+
+      <h2 style="margin-top:16px;">声与信息：动物与次声波 <span class="chip">声与信息</span></h2>
+      <p style="font-size:14px;line-height:1.8;">不同的动物感受声波的频率范围不同。有些动物
+对高频率声波的反应很灵敏，有些动物则容易感受到低
+频声波。大象就可以发出次声波，并通过次声波互相
+交流。</p>
+      <p style="font-size:14px;line-height:1.8;">大自然的许多活动，如地震、火山爆发（图2.3-2）、
+台风、海啸等，都伴有次声波产生。一些机器在工作
+时，也会产生人耳听不到的次声波。次声波传播的距
+离很远，发生地震、台风、核爆炸时，即使在几千千
+米以外，使用灵敏的声学仪器也能接收到它们产生的
+次声波。处理这些信息，可以确定这些活动发生的方
+位和强度。</p>
+      <div class="figbox">
+        <div style="background:linear-gradient(135deg,#f5e3d7,#e8c9b0);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:48px;line-height:1;">🌋</div>
+          <div style="margin-top:10px;font-size:14px;color:var(--brown);font-weight:700;">图 2.3-2 火山爆发会产生次声波</div>
+        </div>
+        <div class="figcap">地震、火山爆发、台风、海啸都伴有次声波产生，可被灵敏的声学仪器接收。</div>
+      </div>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>大象之间“无声”的交流靠的是什么声波？为什么几千千米外也能接收到地震、台风产生的次声波？</div>
+        <details style="margin-top:10px;background:#fff;border:1px solid var(--brown);border-radius:8px;padding:10px 12px;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--brown);list-style:none;outline:none;">查看答案</summary>
+          <div style="margin-top:8px;line-height:1.8;">
+            <p>大象之间“无声”的交流靠的是<strong>次声波</strong>。</p>
+            <p><strong>为什么次声波能远距离传播？</strong>次声波的频率低于 20 Hz，波长很长。波长长的声波在传播过程中不易被障碍物吸收和散射，能量衰减很慢，所以能传到几千千米以外。</p>
+            <p><strong>为什么几千千米外能接收到地震、台风的次声波？</strong>地震、台风、火山爆发、海啸等自然灾害发生时都会产生大量次声波。这些次声波传播距离远、能量衰减小，使用灵敏的声学仪器接收到这些次声信号并分析其特征，就能对这些灾害提前预报。</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+  <!-- ============ Tab 2 声与信息（回声定位与应用） ============ -->
+  <div class="tab-pane" id="t2">
+    <div class="card">
+      <h2>蝙蝠的“绝技”：回声定位 <span class="chip brown">图2.3-3</span></h2>
+      <p style="font-size:14px;line-height:1.8;">蝙蝠通常只在夜间出来活动、觅食，但它们不会撞
+到墙壁、树枝，并且能准确定位。它们的这些“绝技”
+靠的是什么？原来，蝙蝠在飞行时会发出超声波（图
+2.3-3），超声波碰到墙壁或昆虫时会反射回来，根据
+回声到来的方位和时间，蝙蝠就可以确定目标的位置。</p>
+      <div class="figbox">
+        <div style="background:linear-gradient(135deg,#e3e8f5,#c8d2e8);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:48px;line-height:1;">🦇 ))) 🦟</div>
+          <div style="margin-top:10px;font-size:14px;color:var(--brown);font-weight:700;">图 2.3-3 蝙蝠靠超声波发现昆虫</div>
+        </div>
+        <div class="figcap">蝙蝠发出超声波，碰到墙壁或昆虫反射回来，根据回声的方位和时间确定目标位置。</div>
+      </div>
+      <div class="greenbox"><b>回声定位</b>：蝙蝠采用的方法叫作回声定位。根据回声到来的方位和时间，确定目标的位置。</div>
+
+      <h2 style="margin-top:16px;">回声定位的应用 <span class="chip">图2.3-4</span></h2>
+      <p style="font-size:14px;line-height:1.8;">现在，利用这个
+方法制成的超声导盲仪可以探测前进道路上的障碍
+物，以便帮助视障人士出行。有的倒车雷达也是利用
+超声波来定位的（图2.3-4）。科学家利用这个方法
+还发明了声呐。利用声呐系统，人们可以探知海洋
+的深度，绘出水下数千米处的地形图，捕鱼时还可
+以获得水中鱼群的信息。</p>
+      <div class="figbox">
+        <div style="background:linear-gradient(135deg,#e8f0e3,#cfe0c8);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:48px;line-height:1;">🚗 ))) 🚧</div>
+          <div style="margin-top:10px;font-size:14px;color:var(--brown);font-weight:700;">图 2.3-4 利用超声波定位的倒车雷达</div>
+        </div>
+        <div class="figcap">倒车雷达利用超声波定位；声呐可以探知海洋深度、绘出海底地形图、获得鱼群信息。</div>
+      </div>
+
+      <h2 style="margin-top:16px;">医学与生产中的“声信息” <span class="chip">图2.3-5</span></h2>
+      <p style="font-size:14px;line-height:1.8;">医生利用听诊器捕获人体内的声音信息来诊断疾
+病。而借助超声波，医生还可以准确地获得人体内部
+脏器的图像信息。医生用B型超声波诊断仪向
+就诊者体内发射超声波，然后接收体内脏
+器的反射波，反射波携带的信息经过处理
+后显示在屏幕上。这就是常说的“B超”。
+在图2.3-5中，医生正在用B超查看胎儿
+的发育情况。中医诊病通过“望、闻、问、
+切”四个途径，其中“闻”也有听的意思。</p>
+      <p style="font-size:14px;line-height:1.8;">在生产实践中，超声波检测技术应用很广。例
+如，利用超声波可以检测出锅炉有没有裂纹，甚至还
+可以知道裂纹有多大、多深。</p>
+      <div class="figbox">
+        <div style="background:linear-gradient(135deg,#e3f0f5,#c8e0e8);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:48px;line-height:1;">🩺 🖥️</div>
+          <div style="margin-top:10px;font-size:14px;color:var(--brown);font-weight:700;">图 2.3-5 B超检查</div>
+        </div>
+        <div class="figcap">B型超声波诊断仪发射超声波并接收脏器反射波，处理后显示在屏幕上。</div>
+      </div>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>蝙蝠、倒车雷达、声呐确定目标位置，共同利用了声音的哪种现象？它们获得的是信息还是能量？</div>
+        <div style="margin-top:8px;font-size:13px;color:var(--ink2);">（不附答案，到实验区验证你的想法 → <a href="exp-echo.html?from=explain&tab=t2&v=20260920r4" style="color:var(--brown);font-weight:700;">互动探索区</a>）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 3 声与能量 ============ -->
+  <div class="tab-pane" id="t3">
+    <div class="card">
+      <h2>声波能传递能量吗？ <span class="chip brown">问题引入</span></h2>
+      <p style="font-size:14px;line-height:1.8;">把一块石头扔进水里，可以看到一圈一圈的波纹
+向四周散去，水面上的树叶也随之起伏。我们说，扔
+石头的能量通过水波传给了树叶。声波也是一种波
+动，那么声波能传递能量吗？</p>
+
+      <h2 style="margin-top:16px;">演示：声波能否传递能量 <span class="chip">演示 图2.3-6</span></h2>
+      <ol class="steps">
+        <li>如图2.3-6所示，将扬声器对准烛焰，播放音乐。</li>
+        <li>观察：你看到了什么现象？这说明了什么问题？</li>
+        <li>现象与结论：扬声器旁的烛焰发生颤动，说明<b>声波能传递能量</b>。</li>
+      </ol>
+      <div class="figbox">
+        <div style="background:linear-gradient(135deg,#f5e3d7,#e8c9b0);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:48px;line-height:1;">🔊  🕯️</div>
+          <div style="margin-top:10px;font-size:14px;color:var(--brown);font-weight:700;">图 2.3-6 扬声器旁的烛焰</div>
+        </div>
+        <div class="to-exp"><a class="btn btn-primary" href="exp-candle.html?from=explain&tab=t3&v=20260920r4">去互动体验 →</a></div>
+        <div class="figcap">播放音乐时扬声器旁的烛焰发生颤动，说明声波能传递能量。</div>
+      </div>
+
+      <h2 style="margin-top:16px;">声与能量的应用 <span class="chip">图2.3-7</span></h2>
+      <p style="font-size:14px;line-height:1.8;">声波传递能量的性质应用在社会生活的很多方面。
+例如，超声波常被用来清洗物体（图2.3-7）。把待清洗
+的物体放在清洗液里，超声波会引起液体激烈的振动，
+振动把物体上的污垢敲击下来而不会损坏被清洗的物
+体。医生常利用声波振动除去人体内的某些结石：向
+结石发射超声波，结石会被击成细小的粉末，从而可
+以顺畅地排出体外。</p>
+      <div class="figbox">
+        <div style="background:linear-gradient(135deg,#e3f0f5,#c8e0e8);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:48px;line-height:1;">🫧 ⌚ 🫧</div>
+          <div style="margin-top:10px;font-size:14px;color:var(--brown);font-weight:700;">图 2.3-7 超声波清洗机</div>
+        </div>
+        <div class="figcap">超声波引起清洗液激烈振动，把污垢敲击下来而不损坏被清洗的物体。</div>
+      </div>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>烛焰颤动、超声清洗、超声碎石，这三个事例中声波传递的是什么？与“B超”“声呐”有什么不同？</div>
+        <details style="margin-top:10px;background:#fff;border:1px solid var(--brown);border-radius:8px;padding:10px 12px;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--brown);list-style:none;outline:none;">查看答案</summary>
+          <div style="margin-top:8px;line-height:1.8;">
+            <p><strong>共性：</strong>烛焰颤动、超声清洗、超声碎石都是利用<strong>声波传递能量</strong>。烛焰颤动是因为声波推动周围空气振动；超声清洗是利用超声波引起清洗液激烈振动，把污垢敲击下来；超声碎石则是把声能集中在结石上，将结石击碎。</p>
+            <p><strong>超声碎石原理：</strong>医学上常用高压放电产生冲击波，经反射装置会聚到人体内的结石上，冲击波反复冲击并释放能量，把结石击碎成细小颗粒，随后随尿液自然排出体外，无需开刀。</p>
+            <p><strong>声呐原理：</strong>声呐利用超声波方向性好、在水中传播遇到物体会反射的特点。声呐向水中发射超声波，遇到海底、潜艇、鱼群等会反射回来。测出从发射到收到回声的时间 <em>t</em>，利用公式 <em>s = vt/2</em>（回声测距）就能算出距离，用于测量海洋深度、探测潜艇和鱼群。</p>
+            <p><strong>区别：</strong>B 超和声呐是利用声波<strong>传递信息</strong>——B 超利用超声在人体组织界面反射的回波成像，检查器官或胎儿；声呐利用回声测距获取水下目标信息。而烛焰颤动、超声清洗、超声碎石则是利用声波<strong>传递能量</strong>。</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+  <!-- ============ Tab 4 科学世界·建筑声学的杰作 ============ -->
+  <div class="tab-pane" id="t4">
+    <div class="card">
+      <h2>科学世界：建筑声学的杰作 <span class="chip brown">科学世界 图2.3-8</span></h2>
+      <p style="font-size:14px;line-height:1.8;">驰名中外的北京天坛，是明清皇帝祭谷、祈雨、祈天的地方。其中的回音壁、
+三音石、圜丘三处建筑都有非常美妙的声音现象。
+圜丘在天坛公园的南部（图2.3-8），始建于明嘉靖九年（公元1530年），是
+一座分成三层的圆形平台，每层周边都有汉白玉栏板，每层平台的台面都由光滑
+的石板铺成。第三层台面高出地面约 5 m，半径约为 11.5 m，第三层中心是一块圆
+形大理石，俗称天心石。当你站在天心石上说话或唱歌时，你会觉得声音特别洪
+亮。但是站在天心石以外的人听起来，却没有这种感觉，站在天心石以外说话或
+唱歌，也没有这种感觉。</p>
+      <div class="figbox">
+        <img src="assets/fig2-3-8-yuanqiu.jpg" alt="图2.3-8 圜丘" style="width:100%;border-radius:10px;display:block;">
+        <div class="figcap">圜丘第三层台面高出地面约 5 m，半径约为 11.5 m，中心是天心石。<br><span style="font-size:11px;opacity:.7">图片来源：网络公开资料（左）· Pexels（右）</span></div>
+      </div>
+
+      <h2 style="margin-top:16px;">天心石上为什么声音格外响亮？ <span class="chip">图2.3-9</span></h2>
+      <p style="font-size:14px;line-height:1.8;">这种奇妙的现象是声音反射形成的音响效果。圜丘第三层台面中心略高（图
+2.3-9），四周微微向下倾斜。当有人在台面中心说话时，传向四周的声音有一部
+分被四周的石栏板反射，射到稍有倾斜的台面后又被反射到台面中心。因为圜丘
+第三层台面的半径仅约为 11.5 m，从发声到回声返回台面中心所需的时间约为 0.07 s，
+所以回声跟原来的声音混在一起，分辨不开，让人觉得声音格外响亮，似乎觉得
+还有声音从地下传来。</p>
+      <div class="figbox">
+        <svg id="fig239-r8" viewBox="0 50 600 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#2980b9"/>
+            </marker>
+          </defs>
+          <line x1="40" y1="170" x2="560" y2="170" stroke="#999" stroke-width="1.5" stroke-dasharray="6,4"/>
+          <text x="40" y="190" font-size="13" fill="#666">水平线</text>
+          <path d="M 120 168 Q 300 154 480 168" fill="none" stroke="#8b6914" stroke-width="3"/>
+          <!-- 真实人物：黑短发、粉色上衣、米色长裤、深色鞋 -->
+          <g id="person">
+            <!-- 鞋子 -->
+            <ellipse cx="300" cy="161" rx="7" ry="3" fill="#3e2723"/>
+            <!-- 左腿 -->
+            <path d="M295 158 L294 120 L300 120 L299 158 Z" fill="#d4c2a0"/>
+            <!-- 右腿 -->
+            <path d="M301 158 L300 120 L306 120 L305 158 Z" fill="#d4c2a0"/>
+            <!-- 躯干/粉色上衣 -->
+            <rect x="291" y="92" width="18" height="34" rx="4" fill="#f2a6a6"/>
+            <!-- 左臂 -->
+            <path d="M292 96 L287 128" stroke="#f2a6a6" stroke-width="5" stroke-linecap="round"/>
+            <!-- 右臂 -->
+            <path d="M308 96 L313 128" stroke="#f2a6a6" stroke-width="5" stroke-linecap="round"/>
+            <!-- 脖子 -->
+            <rect x="296.5" y="85" width="7" height="8" fill="#f2d9c8"/>
+            <!-- 头部 -->
+            <ellipse cx="300" cy="76" rx="10" ry="12" fill="#f2d9c8"/>
+            <!-- 黑发 -->
+            <path d="M290 72 Q290 56 300 58 Q310 56 310 72 Q310 78 305 75 Q300 72 295 75 Q290 78 290 72 Z" fill="#1a1a1a"/>
+          </g>
+          <text x="288" y="110" font-size="13" fill="#c0392b" font-weight="700" text-anchor="end">台面中心</text>
+          <rect x="470" y="128" width="14" height="42" fill="#b0a08a" stroke="#8b6914"/>
+          <rect x="468" y="124" width="18" height="6" fill="#b0a08a" stroke="#8b6914"/>
+          <text x="452" y="190" font-size="13" fill="#666">栏板</text>
+          <!-- 三段反射光线：头部/嘴部发出 → 栏板 → 台面 → 头部眼睛 -->
+          <line x1="305" y1="80" x2="477" y2="133" stroke="#2980b9" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+          <line x1="477" y1="133" x2="400" y2="162" stroke="#2980b9" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+          <line x1="400" y1="162" x2="304" y2="74" stroke="#2980b9" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+          <text x="330" y="60" font-size="13" fill="#2980b9">声音被栏板、台面反射回中心</text>
+        </svg>
+        <div class="figcap">图 2.3-9 圜丘反射声音的示意图：回声返回台面中心所需的时间约为 0.07 s，与原声混在一起。</div>
+      </div>
+
+      <h2 style="margin-top:16px;">从古圜丘到现代音乐厅 <span class="chip">图2.3-10</span></h2>
+      <p style="font-size:14px;line-height:1.8;">圜丘等建筑反映出我国古代高水平的建筑声学成就。现在，人们也经常在设
+计礼堂、音乐厅（图2.3-10）等建筑时进行特别的声学设计，使听众听到的声音
+更加饱满、悦耳。</p>
+      <div class="figbox">
+        <img src="assets/fig2-3-10-concerthall.jpg" alt="图2.3-10 国家大剧院音乐厅" style="width:100%;border-radius:10px;display:block;">
+        <div class="figcap">现代礼堂、音乐厅进行特别的声学设计，使听众听到的声音更加饱满、悦耳。<br><span style="font-size:11px;opacity:.7">图片来源：网络公开资料</span></div>
+      </div>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>站在天心石上声音格外响亮，是声音的哪种现象形成的？为什么站在天心石以外就没有这种感觉？</div>
+        <div style="margin-top:8px;font-size:13px;color:var(--ink2);">（不附答案，到实验区验证你的想法 → <a href="exp-huanqiu.html?from=explain&tab=t4&v=20260920r4" style="color:var(--brown);font-weight:700;">互动探索区</a>）</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var btns = document.querySelectorAll('.tab-btn');
+  function activate(id) {
+    btns.forEach(function (b) { b.classList.toggle('active', b.dataset.tab === id); });
+    document.querySelectorAll('.tab-pane').forEach(function (p) { p.classList.toggle('active', p.id === id); });
+    try { sessionStorage.setItem('c2s3_explain_tab', id); } catch (e) {}
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { activate(b.dataset.tab); }); });
+  var m = (location.hash || '').match(/^#(t[1-4])$/);
+  if (m) activate(m[1]);
+})();
+</script>
+</body>
+</html>

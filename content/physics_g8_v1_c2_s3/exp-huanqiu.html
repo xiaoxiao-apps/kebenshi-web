@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：圜丘回声 · 声的利用</title>
+<link rel="stylesheet" href="common.css?v=20260920r4">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #f0ece3; }
+  #huanqiuCv { width: 100%; display: block; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: wrap; }
+  .ctl-row .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 700; }
+  .readout { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .readout .pill { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--ink2); }
+  .readout .pill b { color: var(--brown); }
+  .anim-btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .anim-btns .btn { flex: 1; min-width: 100px; }
+  .info-card { background: var(--cyan-bg); border: 1px solid rgba(41,128,185,.2); border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: 14px; line-height: 1.7; }
+  @media (max-width: 768px) { .anim-btns { flex-direction: column; } .anim-btns .btn { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">🔊 丘回声</h1>
+    <p class="page-subtitle">站在天心石上，回声经石栏板反射后返回人耳，与原声混在一起。</p>
+  </div>
+
+  <div class="card">
+    <h2>建筑声学的杰作 · 图2.3-8/2.3-9 <span class="chip brown">回声反射</span></h2>
+    <div class="hint-bar"> 圜丘第三层台面高出地面约 5 m，半径约 11.5 m。在天心石喊话，声波向上向外传播、被石栏板反射，再返回人耳。</div>
+
+    <div class="fullscreen-wrap" id="fsHuanqiuWrap">
+      <button class="fullscreen-btn" id="fsHuanqiuBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="huanqiuCv"></canvas>
+      </div>
+      <div class="ctl-row">
+        <label class="ctl-label" for="standSelect">站位：</label>
+        <select id="standSelect" aria-label="站位">
+          <option value="center">天心石</option>
+          <option value="outside">天心石以外</option>
+        </select>
+      </div>
+      <div class="readout">
+        <span class="pill">台面半径 <b id="rVal">约 11.5 m</b></span>
+        <span class="pill">回声延迟 <b id="delayVal">约 0.07 s</b></span>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="shoutBtn">📢 喊话</button>
+      </div>
+    </div>
+
+    <div class="info-card" id="infoCard">
+      <b>为什么天心石格外响亮？</b><br>
+      当人在台面中心说话时，传向四周的声音有一部分被四周的石栏板反射，射到稍有倾斜的台面后又被反射到台面中心。因为圜丘第三层台面的半径仅约 11.5 m，从发声到回声返回台面中心所需的时间约 0.07 s，所以回声跟原来的声音混在一起，分辨不开，让人觉得声音格外响亮。
+    </div>
+    <div class="info-card" id="outsideInfo" style="display:none;background:var(--red-bg);border-color:rgba(192,57,43,.2);">
+      <b>天心石以外喊话会怎样？</b><br>
+      反射声波仍汇聚回天心石，人站在偏心位置听不到响亮回声效果。
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js?v=20260920r4"></script>
+<script src="exp-common.js?v=20260920r4"></script>
+<script src="exp-back.js?v=20260920r4"></script>
+<script src="exp-huanqiu.js?v=20260920r8"></script>
+</body>
+</html>

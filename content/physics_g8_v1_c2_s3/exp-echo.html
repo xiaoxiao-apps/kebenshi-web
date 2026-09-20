@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：回声定位测距 · 声的利用</title>
+<link rel="stylesheet" href="common.css?v=20260920r4">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #0b1d2e; }
+  #echoCv { width: 100%; display: block; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
+  .ctl-row .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 700; min-width: 70px; }
+  .ctl-row input[type=range] { flex: 1; accent-color: var(--gold); min-width: 0; }
+  .ctl-row .ctl-val { font-size: 13px; color: var(--brown); font-weight: 700; min-width: 64px; text-align: right; }
+  .ctl-row select { font-size: 14px; padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; }
+  .readout { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .readout .pill { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--ink2); }
+  .readout .pill b { color: var(--brown); }
+  .anim-btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .anim-btns .btn { flex: 1; min-width: 100px; }
+  .guess-card { background: var(--card2); border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .guess-card h3 { font-size: 15px; margin-bottom: 10px; }
+  .guess-card .opt { margin-bottom: 8px; }
+  .guess-card .answer-hidden { display: none; }
+  @media (max-width: 768px) {
+    .anim-btns { flex-direction: column; }
+    .anim-btns .btn { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html?v=20260920r4">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">📡 回声定位测距</h1>
+    <p class="page-subtitle">超声波往返一次：距离 = 速度 × 往返时间 ÷ 2。</p>
+  </div>
+
+  <div class="card">
+    <h2>模拟测深 <span class="chip brown">回声定位</span></h2>
+    <div class="hint-bar">💡 调节「目标距离」，点击「发射脉冲」，观察声波从声源到目标再返回的全过程；介质不同，声速不同。</div>
+
+    <div class="fullscreen-wrap" id="fsEchoWrap">
+      <button class="fullscreen-btn" id="fsEchoBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="echoCv"></canvas>
+      </div>
+      <div class="ctl-row">
+        <span class="ctl-label">目标距离</span>
+        <input type="range" id="distSlider" min="2" max="40" value="15" step="1" aria-label="目标距离">
+        <span class="ctl-val" id="distVal">15 m</span>
+      </div>
+      <div class="ctl-row">
+        <span class="ctl-label">介质</span>
+        <select id="mediumSel" aria-label="介质">
+          <option value="340">空气 340 m/s</option>
+          <option value="1500">海水 1 500 m/s</option>
+        </select>
+      </div>
+      <div class="readout">
+        <span class="pill">往返时间 <b id="tVal">0.088 s</b></span>
+        <span class="pill">目标距离 <b id="sVal">15 m</b></span>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="fireBtn"> 发射脉冲</button>
+        <button class="btn btn-secondary" id="resetBtn">⟲ 重置</button>
+        <button class="btn btn-secondary" id="soundBtn">🔊 声音开</button>
+      </div>
+    </div>
+
+    <div class="guess-card">
+      <h3> 猜一猜</h3>
+      <p class="hint" style="margin-bottom:10px;">用超声测位仪向海底垂直发射声波，经过 <b>4 s</b> 后收到回波。若海水中声音的平均传播速度为 <b>1 500 m/s</b>，则此处海水约有多深？</p>
+      <button class="opt" data-opt="A">A. 6 000 m</button>
+      <button class="opt" data-opt="B">B. 3 000 m</button>
+      <button class="opt" data-opt="C">C. 1 500 m</button>
+      <button class="opt" data-opt="D">D. 750 m</button>
+      <div class="feedback" id="echoFb"></div>
+      <div class="answer-hidden" id="answerBox">
+        <p class="key-point" style="margin-top:12px;">正确答案：<b>B. 3 000 m</b>。推导：1 500 m/s × 4 s ÷ 2 = 3 000 m。注意回波是声波往返，所以深度要除以 2。</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js?v=20260920r4"></script>
+<script src="exp-common.js?v=20260920r4"></script>
+<script src="exp-back.js?v=20260920r4"></script>
+<script src="exp-echo.js?v=20260920r4"></script>
+</body>
+</html>

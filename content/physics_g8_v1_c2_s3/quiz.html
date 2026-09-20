@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>小练习 · 声的利用</title>
+<link rel="stylesheet" href="common.css?v=20260920r4">
+<style>
+  .qcard { position: relative; margin-bottom: 14px; }
+  .qtag { display: inline-block; background: var(--green-bg); color: var(--green); font-weight: 800; font-size: 12px; border-radius: 8px; padding: 3px 8px; margin-bottom: 8px; }
+  .qtag.extra { background: var(--cyan-bg); color: var(--cyan); margin-left: 6px; }
+  .qtext { font-size: 15px; line-height: 1.8; color: var(--ink); }
+  .reveal-btn { display: inline-block; margin-top: 10px; padding: 10px 16px; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--green); background: #ffffff; color: var(--green); font-weight: 800; font-size: 14px; cursor: pointer; transition: background .2s ease; }
+  .reveal-btn:hover { background: var(--green-bg); }
+  .answer { display: none; margin-top: 10px; background: var(--green-bg); border-left: 4px solid var(--green); border-radius: 0 10px 10px 0; padding: 10px 12px; font-size: 14px; line-height: 1.8; }
+  .qcard.open .answer { display: block; }
+  .line { word-break: break-all; }
+  .scorebar { position: sticky; top: 8px; z-index: 5; background: var(--green); color: #ffffff; border-radius: 999px; padding: 6px 16px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+  .reset-btn { display: inline-block; margin-left: 8px; padding: 6px 14px; min-height: 36px; border-radius: 999px; border: 1px solid rgba(0,0,0,.15); background: var(--card2); color: var(--ink2); font-weight: 700; font-size: 13px; cursor: pointer; vertical-align: middle; }
+  .done-banner { display: none; margin: 0 0 14px; background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 14px; line-height: 1.8; }
+  .done-banner.show { display: block; }
+  .input-line.calc input { width: 96px; min-width: 70px; text-align: center; }
+  .input-line.calc .unit { font-size: 14px; color: var(--ink2); font-weight: 700; }
+  .match-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+  .match-row:last-child { border-bottom: none; }
+  .match-label { font-size: 14px; flex: 1; line-height: 1.7; }
+  .match-opts { display: flex; gap: 8px; flex-shrink: 0; }
+  .match-opts button { padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,.1); background: var(--card2); color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer; min-height: 36px; transition: all .15s; }
+  .match-opts button.right { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .match-opts button.wrong { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+  .unitrow { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+  .unitrow .unit-tip { font-size: 13px; color: var(--ink2); font-weight: 700; }
+  .unit-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(0,0,0,.1); background: var(--card2); color: var(--ink); font-size: 14px; font-weight: 700; cursor: pointer; min-height: 36px; transition: all .15s; }
+  .unit-btn.sel { background: var(--cyan-bg); border-color: var(--cyan); color: var(--cyan); }
+  @media (max-width: 390px) {
+    .qtext { font-size: 14px; }
+    .input-line.calc input { width: 78px; min-width: 64px; }
+    .match-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节导航</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">✍️ 小练习 · 声的利用</h1>
+    <p class="page-subtitle">教材「练习与应用」①~⑤ 原题。先自己想，再点开「示例要点」或提交答案核对！</p>
+  </div>
+  <div><span class="scorebar" id="score">已答 0/5</span><button class="reset-btn" id="resetBtn" type="button">🔄 重置</button></div>
+  <div class="done-banner" id="doneBanner"></div>
+
+  <div class="card qcard" data-q="q1">
+    <span class="qtag">练习与应用 · 第 1 题</span><span class="qtag extra">计算题</span>
+    <div class="qtext">用超声测位仪向海底垂直发射声波，经过4 s后收到回波。若海水中声音的平均传播速度为1 500 m/s，则此处海水约有多深？</div>
+    <div class="input-line calc">
+      <input type="text" id="q1Depth" inputmode="decimal" placeholder="?" aria-label="海水深度">
+      <span class="unit">m</span>
+      <button class="btn btn-primary" id="q1Check" type="button">提交判分</button>
+    </div>
+    <div class="feedback" id="q1Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解（作答后可点）</button>
+    <div class="answer">
+      <div class="line">4 s 是声波<b>往返</b>（海面→海底→海面）的总时间，所以计算深度只用单程时间。</div>
+      <div class="line">s = v·t/2 = 1 500 m/s × 4 s ÷ 2 = <b>3 000 m</b>。</div>
+      <div class="line">⚠️ 关键：回声测距必须把往返时间<b>除以 2</b>，否则会错算成 6 000 m。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q2">
+    <span class="qtag">练习与应用 · 第 2 题</span><span class="qtag extra">辨析题</span>
+    <div class="qtext">请你分析下列事例是利用声传递能量，还是利用声传递信息。</div>
+    <div id="q2Rows">
+      <div class="match-row" data-ans="info">
+        <div class="match-label">（1）用超声波给金属工件探伤。</div>
+        <div class="match-opts">
+          <button type="button" data-v="info">传递信息</button>
+          <button type="button" data-v="energy">传递能量</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="info">
+        <div class="match-label">（2）医生通过听诊器给病人诊病。</div>
+        <div class="match-opts">
+          <button type="button" data-v="info">传递信息</button>
+          <button type="button" data-v="energy">传递能量</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="info">
+        <div class="match-label">（3）通过声学仪器接收到的次声波等信息判断地震的方位和强度。</div>
+        <div class="match-opts">
+          <button type="button" data-v="info">传递信息</button>
+          <button type="button" data-v="energy">传递能量</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="energy">
+        <div class="match-label">（4）利用超声波排除人体内的结石。</div>
+        <div class="match-opts">
+          <button type="button" data-v="info">传递信息</button>
+          <button type="button" data-v="energy">传递能量</button>
+        </div>
+      </div>
+    </div>
+    <div class="feedback" id="q2Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解（全部点选后可点）</button>
+    <div class="answer">
+      <div class="line">（1）探伤、（2）听诊器诊病、（3）次声波判断地震的方位和强度 → 都是靠声音获得"消息"，属于<b>声传递信息</b>。</div>
+      <div class="line">（4）超声波排除结石 → 声波把结石震碎、对结石做功，属于<b>声传递能量</b>。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q3">
+    <span class="qtag">练习与应用 · 第 3 题</span><span class="qtag extra">开放题</span>
+    <div class="qtext">除了课本中的事例，请你根据对周围生活的观察，再举一个利用声音的例子，并说明这个例子中应用了声音的什么性质。</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">示例（供参考，答案不唯一）：</div>
+      <div class="line">· 听到雷声知道要下雨了 → 利用<b>声传递信息</b>。</div>
+      <div class="line">· 超声波加湿器、超声波清洗眼镜 → 利用<b>声传递能量</b>。</div>
+      <div class="line">✍️ 自查：你的回答要有两个要素——①一个生活中利用声音的具体例子；②说明它是<b>传递信息</b>还是<b>传递能量</b>。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q4">
+    <span class="qtag">练习与应用 · 第 4 题</span><span class="qtag extra">开放题 · 查阅资料</span>
+    <div class="qtext">声音在传播过程中遇到障碍物会发生反射。我国古代建筑师利用这一特点建造了许多神奇的建筑。例如北京天坛的回音壁、重庆潼南大佛寺的石琴、山西永济普救寺的莺莺塔（图2.3-11）等。请你查阅资料，向同学们介绍并展示我国古代建筑应用声学知识的实例。</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">示例要点（供参考）：</div>
+      <div class="line">· <b>回音壁</b>：墙面光滑、呈圆形，声音贴着墙面不断反射，能传到很远的地方，两人隔墙贴壁说话也能听清。</div>
+      <div class="line">· <b>三音石</b>：从皇穹宇到回音壁大门的石路，站在不同位置的石块上拍手，能分别听到一次、两次、三次回声。</div>
+      <div class="line">· <b>圜丘天心石</b>：站在天心石上发声，回声约 0.07 s 返回台面中心，与原声混在一起，听起来格外洪亮。</div>
+      <div class="line">🔍 建议动手查一查：重庆潼南大佛寺的石琴、山西永济普救寺的莺莺塔，整理后讲给同学听。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q5">
+    <span class="qtag">练习与应用 · 第 5 题</span><span class="qtag extra">计算题</span>
+    <div class="qtext">我国有些地方修筑了“音乐公路”。当汽车以一定速度匀速行驶时，就会奏出一段悦耳的乐曲。音乐公路的路面上分布着许多横向凹槽，如图2.3-12所示。汽车每经过一个凹槽，就会上下振动一次。路面上凹槽的分布比较密，汽车行进时振动很快，于是就发出了声音。凹槽的疏密可以根据乐曲的音调高低来设计，假设某音乐公路规定的行驶速度是54 km/h，设定乐曲为《歌唱祖国》，第一个音符“sol”的频率为392 Hz，汽车发出这个音时，所对应的相邻凹槽之间的距离是多少？</div>
+    <div class="input-line calc">
+      <input type="text" id="q5Dist" inputmode="decimal" placeholder="?" aria-label="相邻凹槽之间的距离">
+      <button class="btn btn-primary" id="q5Check" type="button">提交判分</button>
+    </div>
+    <div class="unitrow">
+      <span class="unit-tip">单位：</span>
+      <button class="unit-btn" id="q5UnitM" type="button">m</button>
+      <button class="unit-btn" id="q5UnitCm" type="button">cm</button>
+    </div>
+    <div class="feedback" id="q5Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解（作答后可点）</button>
+    <div class="answer">
+      <div class="line"><b>发声原理：</b>音乐公路的路面上有一系列横向凹槽。汽车匀速驶过时，每经过一个凹槽就会上下振动一次；连续经过凹槽就形成了周期性的振动，从而发出声音。这相当于把汽车变成了一个“振动源”。</div>
+      <div class="line"><b>频率与间距的关系：</b>振动频率 = 车速 ÷ 相邻凹槽间距，即 <b>f = v / λ</b>。间距越小（凹槽越密），单位时间内经过的凹槽越多，振动频率越高，音调就越高。</div>
+      <div class="line"><b>音调控制：</b>凹槽的疏密是按乐曲的音调高低设计的。音调高（频率大）的音符对应较密的凹槽；音调低的音符对应较疏的凹槽。</div>
+      <div class="line"><b>本题计算：</b>汽车速度 v = 54 km/h = 54 ÷ 3.6 m/s = <b>15 m/s</b>。已知音符“sol”的频率 f = 392 Hz，由 f = v / λ 得：λ = v / f = 15 / 392 m ≈ 0.038 m ≈ <b>3.8 cm</b>。</div>
+      <div class="line"><b>本质：</b>音乐公路其实是把“乐曲的音符序列”编码成“凹槽间距序列”；而匀速行驶的汽车就是读取这段“编码”的<b>播放器</b>。</div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var answered = {};
+  var q1Correct = null;
+  var q2Done = false;
+  var q2AllRight = false;
+  var q5Correct = null;
+  var q5Unit = null;
+  var TOTAL = 5;
+  var scoreEl = document.getElementById('score');
+  var doneEl = document.getElementById('doneBanner');
+  var resetBtn = document.getElementById('resetBtn');
+
+  function markAnswered(q) {
+    var first = !answered[q];
+    answered[q] = true;
+    if (first) refresh();
+  }
+  function refresh() {
+    var n = Object.keys(answered).length;
+    scoreEl.textContent = '已答 ' + n + '/' + TOTAL;
+    if (n >= TOTAL) {
+      var objScore = (q1Correct ? 1 : 0) + (q2Done && q2AllRight ? 1 : 0) + (q5Correct ? 1 : 0);
+      doneEl.innerHTML = '🎉 <b>全部完成！</b> 5 题已答，客观题得分：<b>' + objScore + '/3</b>。开放题③④请对照「示例要点」自查：例子是否具体、是传递信息还是传递能量说清楚了吗？';
+      doneEl.classList.add('show');
+    } else {
+      doneEl.classList.remove('show');
+    }
+  }
+
+  function qDone(q) {
+    if (q === 'q1') return q1Correct !== null;
+    if (q === 'q2') return q2Done;
+    if (q === 'q5') return q5Correct !== null;
+    return true;
+  }
+
+  document.querySelectorAll('.qcard').forEach(function (card) {
+    var q = card.dataset.q;
+    var btn = card.querySelector('.reveal-btn');
+    if (!btn) return;
+    btn.dataset.orig = btn.textContent;
+    btn.addEventListener('click', function () {
+      if ((q === 'q1' || q === 'q2' || q === 'q5') && !qDone(q)) {
+        btn.textContent = '✋ 请先作答本题';
+        setTimeout(function () { if (!card.classList.contains('open')) btn.textContent = btn.dataset.orig; }, 1500);
+        return;
+      }
+      var open = card.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : btn.dataset.orig;
+      if (open) markAnswered(q);
+    });
+  });
+
+  // Q1：回声测深计算
+  var q1Input = document.getElementById('q1Depth');
+  var q1Fb = document.getElementById('q1Fb');
+  function checkQ1() {
+    var raw = q1Input.value.trim();
+    if (!raw) { q1Fb.className = 'feedback show err'; q1Fb.textContent = '请先输入深度。'; return; }
+    var val = parseFloat(raw.replace(/[^0-9.]/g, ''));
+    if (isNaN(val)) { q1Fb.className = 'feedback show err'; q1Fb.textContent = '请输入数字。'; return; }
+    q1Correct = Math.abs(val - 3000) <= 10;
+    q1Fb.className = 'feedback show ' + (q1Correct ? 'ok' : 'err');
+    q1Fb.innerHTML = q1Correct ? '✅ 正确！3 000 m。记住：4 s 是往返时间，要除以 2。' : '❌ 再想想：4 s 是声波往返的总时间，算深度该用几秒？';
+    markAnswered('q1');
+  }
+  document.getElementById('q1Check').addEventListener('click', checkQ1);
+  q1Input.addEventListener('keydown', function (e) { if (e.key === 'Enter') checkQ1(); });
+
+  // Q2：信息/能量四例辨析
+  var rows = document.querySelectorAll('.match-row');
+  var q2Fb = document.getElementById('q2Fb');
+  rows.forEach(function (row) {
+    row.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        row.querySelectorAll('button').forEach(function (x) { x.classList.remove('right', 'wrong'); });
+        if (b.dataset.v === row.dataset.ans) { b.classList.add('right'); }
+        else { b.classList.add('wrong'); row.querySelector('[data-v="' + row.dataset.ans + '"]').classList.add('right'); }
+        checkQ2();
+      });
+    });
+  });
+  function checkQ2() {
+    var answeredRows = 0, rightRows = 0;
+    rows.forEach(function (row) {
+      var chosen = row.querySelector('button.right, button.wrong');
+      if (chosen) { answeredRows++; if (chosen.dataset.v === row.dataset.ans) rightRows++; }
+    });
+    if (answeredRows === rows.length) {
+      q2Done = true;
+      q2AllRight = (rightRows === rows.length);
+      q2Fb.className = 'feedback show ' + (q2AllRight ? 'ok' : 'err');
+      q2Fb.innerHTML = q2AllRight ? '✅ 全对！探伤、听诊、判断地震靠声传信息；碎结石靠声传能量。' : '❌ 答对 ' + rightRows + '/4。可点下方按钮看讲解。';
+      markAnswered('q2');
+    }
+  }
+
+  // Q5：音乐公路凹槽间距（含单位选择）
+  var q5Input = document.getElementById('q5Dist');
+  var q5Fb = document.getElementById('q5Fb');
+  var uM = document.getElementById('q5UnitM');
+  var uCm = document.getElementById('q5UnitCm');
+  function pickUnit(u) {
+    q5Unit = u;
+    uM.classList.toggle('sel', u === 'm');
+    uCm.classList.toggle('sel', u === 'cm');
+  }
+  uM.addEventListener('click', function () { pickUnit('m'); });
+  uCm.addEventListener('click', function () { pickUnit('cm'); });
+  function checkQ5() {
+    if (!q5Unit) { q5Fb.className = 'feedback show err'; q5Fb.textContent = '请先选择单位（m 或 cm）。'; return; }
+    var raw = q5Input.value.trim();
+    if (!raw) { q5Fb.className = 'feedback show err'; q5Fb.textContent = '请先输入距离。'; return; }
+    var val = parseFloat(raw.replace(/[^0-9.]/g, ''));
+    if (isNaN(val)) { q5Fb.className = 'feedback show err'; q5Fb.textContent = '请输入数字。'; return; }
+    q5Correct = (q5Unit === 'm') ? (Math.abs(val - 0.038) <= 0.002) : (Math.abs(val - 3.8) <= 0.2);
+    q5Fb.className = 'feedback show ' + (q5Correct ? 'ok' : 'err');
+    q5Fb.innerHTML = q5Correct ? '✅ 正确！15 m/s ÷ 392 Hz ≈ 0.038 m ≈ 3.8 cm。' : '❌ 再想想：先把 54 km/h 换成 m/s，再用 v ÷ f。';
+    markAnswered('q5');
+  }
+  document.getElementById('q5Check').addEventListener('click', checkQ5);
+  q5Input.addEventListener('keydown', function (e) { if (e.key === 'Enter') checkQ5(); });
+
+  // 重置
+  resetBtn.addEventListener('click', function () {
+    answered = {}; q1Correct = null; q2Done = false; q2AllRight = false; q5Correct = null; q5Unit = null;
+    document.querySelectorAll('.qcard').forEach(function (c) {
+      c.classList.remove('open');
+      var b = c.querySelector('.reveal-btn');
+      if (b && b.dataset.orig) b.textContent = b.dataset.orig;
+    });
+    document.querySelectorAll('.match-row button').forEach(function (b) { b.classList.remove('right', 'wrong'); });
+    document.querySelectorAll('.unit-btn').forEach(function (b) { b.classList.remove('sel'); });
+    q1Input.value = ''; q1Fb.className = 'feedback'; q1Fb.textContent = '';
+    q2Fb.className = 'feedback'; q2Fb.textContent = '';
+    q5Input.value = ''; q5Fb.className = 'feedback'; q5Fb.textContent = '';
+    refresh();
+  });
+  refresh();
+})();
+</script>
+<script src="exp-back.js"></script>
+</body>
+</html>
