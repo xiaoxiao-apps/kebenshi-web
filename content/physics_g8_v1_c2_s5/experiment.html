@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>互动探索区 · 跨学科实践：制作隔音房间模型</title>
+<link rel="stylesheet" href="common.css?v=20260920r5">
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html" data-back>‹ 返回本节</a>
+  <div class="page-header">
+    <h1 class="page-title">🔬 互动探索区</h1>
+    <p class="page-subtitle">亲手拼装隔音房间模型，选择材料、测量分贝，对比前后的变化。</p>
+  </div>
+
+  <div class="nav-grid">
+    <a class="nav-card" href="exp-room.html">
+      <div class="icon experiment">🏠</div>
+      <div>
+        <div class="title">隔音房间模型</div>
+        <div class="desc">给鞋盒贴附不同隔音材料，用 3D 分贝计测试隔音性能。</div>
+      </div>
+    </a>
+  </div>
+</div>
+<script>
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var from = params.get('from');
+  var tab = params.get('tab');
+  if (from || tab) {
+    var qs = '?' + (from ? 'from=' + encodeURIComponent(from) : '') + (from && tab ? '&' : '') + (tab ? 'tab=' + encodeURIComponent(tab) : '');
+    document.querySelectorAll('.nav-card').forEach(function(link){
+      var base = link.getAttribute('href').split('?')[0];
+      link.setAttribute('href', base + qs);
+    });
+  }
+})();
+</script>
+<script src="exp-back.js?v=20260920r5"></script>
+</body>
+</html>

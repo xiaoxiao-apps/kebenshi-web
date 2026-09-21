@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>小练习 · 跨学科实践：制作隔音房间模型</title>
+<link rel="stylesheet" href="common.css?v=20260920r5">
+<style>
+  .qcard { position: relative; margin-bottom: 14px; }
+  .qtag { display: inline-block; background: var(--green-bg); color: var(--green); font-weight: 800; font-size: 12px; border-radius: 8px; padding: 3px 8px; margin-bottom: 8px; }
+  .qtag.extra { background: var(--cyan-bg); color: var(--cyan); margin-left: 6px; }
+  .qtext { font-size: 15px; line-height: 1.8; color: var(--ink); }
+  .reveal-btn { display: inline-block; margin-top: 10px; padding: 10px 16px; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--green); background: #ffffff; color: var(--green); font-weight: 800; font-size: 14px; cursor: pointer; transition: background .2s ease; }
+  .reveal-btn:hover { background: var(--green-bg); }
+  .answer { display: none; margin-top: 10px; background: var(--green-bg); border-left: 4px solid var(--green); border-radius: 0 10px 10px 0; padding: 10px 12px; font-size: 14px; line-height: 1.8; }
+  .qcard.open .answer { display: block; }
+  .line { word-break: break-all; }
+  .scorebar { position: sticky; top: 8px; z-index: 5; background: var(--green); color: #ffffff; border-radius: 999px; padding: 6px 16px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+  .reset-btn { display: inline-block; margin-left: 8px; padding: 6px 14px; min-height: 36px; border-radius: 999px; border: 1px solid rgba(0,0,0,.15); background: var(--card2); color: var(--ink2); font-weight: 700; font-size: 13px; cursor: pointer; vertical-align: middle; }
+  .done-banner { display: none; margin: 0 0 14px; background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 14px; line-height: 1.8; }
+  .done-banner.show { display: block; }
+  .fill-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 10px 0; font-size: 15px; line-height: 1.8; }
+  .fill-row input { width: 90px; text-align: center; padding: 8px; border: 1.5px solid rgba(0,0,0,.12); border-radius: 8px; font-size: 14px; }
+  .match-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+  .match-row:last-child { border-bottom: none; }
+  .match-label { font-size: 14px; flex: 1; line-height: 1.7; }
+  .match-opts { display: flex; gap: 8px; flex-shrink: 0; }
+  .match-opts button, .choice-opts button { padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,.1); background: var(--card2); color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer; min-height: 36px; transition: all .15s; }
+  .match-opts button.right, .choice-opts button.right { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .match-opts button.wrong, .choice-opts button.wrong { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+  .choice-opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  @media (max-width: 390px) {
+    .qtext { font-size: 14px; }
+    .match-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节导航</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">✍️ 小练习 · 跨学科实践：制作隔音房间模型</h1>
+    <p class="page-subtitle">本章知识梳理 —— 依据教材 P54「章小结示例二」</p>
+  </div>
+  <div><span class="scorebar" id="score">已答 0/8</span><button class="reset-btn" id="resetBtn" type="button">🔄 重置</button></div>
+  <div class="done-banner" id="doneBanner"></div>
+
+  <div class="card qcard" data-q="q1">
+    <span class="qtag">知识梳理 1</span><span class="qtag extra">填空判分</span>
+    <div class="qtext">声音是由物体的____产生的；声音的传播需要____，真空不能传声。</div>
+    <div class="fill-row">
+      <input type="text" id="q1a" placeholder="第一空" aria-label="第一空">
+      <input type="text" id="q1b" placeholder="第二空" aria-label="第二空">
+      <button class="btn btn-primary" id="q1Check" type="button">提交判分</button>
+    </div>
+    <div class="feedback" id="q1Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解</button>
+    <div class="answer">
+      <div class="line">声音是由物体的<b>振动</b>产生的；声音的传播需要<b>介质</b>，真空不能传声。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q2">
+    <span class="qtag">知识梳理 1</span><span class="qtag extra">判断对错</span>
+    <div class="qtext">判断下列说法是否正确。</div>
+    <div id="q2Rows">
+      <div class="match-row" data-ans="right">
+        <div class="match-label">声速跟介质的种类和温度有关。</div>
+        <div class="match-opts">
+          <button type="button" data-v="right">正确</button>
+          <button type="button" data-v="wrong">错误</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="wrong">
+        <div class="match-label">声音在传播过程中遇到障碍物会被吸收，不会发生反射。</div>
+        <div class="match-opts">
+          <button type="button" data-v="right">正确</button>
+          <button type="button" data-v="wrong">错误</button>
+        </div>
+      </div>
+    </div>
+    <div class="feedback" id="q2Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解</button>
+    <div class="answer">
+      <div class="line">教材原文：声速跟介质的种类和温度有关；声音在传播过程中遇到障碍物会发生反射。第二题把“会反射”说成“不会反射”，所以错误。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q3">
+    <span class="qtag">知识梳理 2</span><span class="qtag extra">配对</span>
+    <div class="qtext">将下列描述与声音的特性配对。</div>
+    <div id="q3Rows">
+      <div class="match-row" data-ans="音调">
+        <div class="match-label">声音的高低，由发声体振动的频率决定。</div>
+        <div class="match-opts">
+          <button type="button" data-v="音调">音调</button>
+          <button type="button" data-v="响度">响度</button>
+          <button type="button" data-v="音色">音色</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="响度">
+        <div class="match-label">声音的强弱，与发声体振动的幅度以及距发声体的远近有关。</div>
+        <div class="match-opts">
+          <button type="button" data-v="音调">音调</button>
+          <button type="button" data-v="响度">响度</button>
+          <button type="button" data-v="音色">音色</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="音色">
+        <div class="match-label">不同发声体发出声音的特有品质，可以用来辨别不同的发声体。</div>
+        <div class="match-opts">
+          <button type="button" data-v="音调">音调</button>
+          <button type="button" data-v="响度">响度</button>
+          <button type="button" data-v="音色">音色</button>
+        </div>
+      </div>
+    </div>
+    <div class="feedback" id="q3Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解</button>
+    <div class="answer">
+      <div class="line"><b>音调</b>：声音的高低，由发声体振动的频率决定。</div>
+      <div class="line"><b>响度</b>：声音的强弱，与发声体振动的幅度以及距发声体的远近有关。</div>
+      <div class="line"><b>音色</b>：不同发声体发出声音的特有品质，可以用来辨别不同的发声体。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q4">
+    <span class="qtag">知识梳理 2</span><span class="qtag extra">单选</span>
+    <div class="qtext">“声音的强弱，与发声体振动的幅度以及距发声体的远近有关。”这句话描述的是声音的哪个特性？</div>
+    <div class="choice-opts" id="q4Opts">
+      <button type="button" data-v="音调">A. 音调</button>
+      <button type="button" data-v="响度">B. 响度</button>
+      <button type="button" data-v="音色">C. 音色</button>
+    </div>
+    <div class="feedback" id="q4Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解</button>
+    <div class="answer">
+      <div class="line">教材原文：<b>响度：声音的强弱，与发声体振动的幅度以及距发声体的远近有关。</b></div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q5">
+    <span class="qtag">知识梳理 3</span><span class="qtag extra">分类判分</span>
+    <div class="qtext">下列应用实例中，哪些是利用声传递信息，哪些是利用声传递能量？</div>
+    <div id="q5Rows">
+      <div class="match-row" data-ans="信息">
+        <div class="match-label">回声定位</div>
+        <div class="match-opts">
+          <button type="button" data-v="信息">传递信息</button>
+          <button type="button" data-v="能量">传递能量</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="信息">
+        <div class="match-label">B超</div>
+        <div class="match-opts">
+          <button type="button" data-v="信息">传递信息</button>
+          <button type="button" data-v="能量">传递能量</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="信息">
+        <div class="match-label">超声检测</div>
+        <div class="match-opts">
+          <button type="button" data-v="信息">传递信息</button>
+          <button type="button" data-v="能量">传递能量</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="能量">
+        <div class="match-label">超声波清洗</div>
+        <div class="match-opts">
+          <button type="button" data-v="信息">传递信息</button>
+          <button type="button" data-v="能量">传递能量</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="能量">
+        <div class="match-label">超声波碎石</div>
+        <div class="match-opts">
+          <button type="button" data-v="信息">传递信息</button>
+          <button type="button" data-v="能量">传递能量</button>
+        </div>
+      </div>
+    </div>
+    <div class="feedback" id="q5Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解</button>
+    <div class="answer">
+      <div class="line">教材原文：<b>声可以传递信息：如回声定位、B超、超声检测等。</b></div>
+      <div class="line">教材原文：<b>声可以传递能量：如超声波清洗、超声波碎石等。</b></div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q6">
+    <span class="qtag">知识梳理 4</span><span class="qtag extra">多选</span>
+    <div class="qtext">控制噪声可以从以下哪些方面着手？（多选）</div>
+    <div class="choice-opts" id="q6Opts">
+      <button type="button" data-v="A">A. 防止噪声产生</button>
+      <button type="button" data-v="B">B. 阻断噪声传播</button>
+      <button type="button" data-v="C">C. 防止噪声进入耳朵</button>
+      <button type="button" data-v="D">D. 提高声音频率</button>
+    </div>
+    <div class="feedback" id="q6Fb"></div>
+    <button class="reveal-btn" type="button">💡 揭晓讲解</button>
+    <div class="answer">
+      <div class="line">教材原文：<b>控制噪声可以从防止噪声产生、阻断噪声传播和防止噪声进入耳朵三个方面着手。</b></div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q7">
+    <span class="qtag">知识梳理 4</span><span class="qtag extra">开放题</span>
+    <div class="qtext">结合本节制作隔音房间模型的项目经验，模型内壁贴上海绵属于控制噪声的哪个途径？</div>
+    <button class="reveal-btn" type="button">💡 示例要点</button>
+    <div class="answer">
+      <div class="line">示例要点：海绵安装在模型内壁，用来吸收和削弱传播中的声音，属于<b>阻断噪声传播</b>。</div>
+      <div class="line">✍️ 自查：你的回答要点——① 指出这是“阻断噪声传播”；② 结合“材料放在房间内部/内壁”说明它作用于声音的传播过程。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q8">
+    <span class="qtag">综合</span><span class="qtag extra">开放题</span>
+    <div class="qtext">生活中，如果我们在家练习钢琴，怎样尽量减小对邻居的干扰？请从声源处、传播过程中和接收处三个角度各说一条措施。</div>
+    <button class="reveal-btn" type="button">💡 示例要点</button>
+    <div class="answer">
+      <div class="line">示例要点（答案不唯一，言之有理即可）：</div>
+      <div class="line">· <b>声源处减弱</b>：调低钢琴音量，或在钢琴下垫减振垫，减少振动向外传递。</div>
+      <div class="line">· <b>传播过程中阻断</b>：关闭门窗，在墙面、门窗缝隙加装隔音/吸音材料，阻断噪声传播。</div>
+      <div class="line">· <b>接收处防护</b>：邻居在需要时佩戴耳塞、关闭自己门窗，防止噪声进入耳朵。</div>
+      <div class="line">✍️ 自查：你的回答要同时覆盖“防止噪声产生 / 阻断噪声传播 / 防止噪声进入耳朵”三个方面，且结合练琴场景具体说明。</div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var answered = {};
+  var TOTAL = 8;
+  var scoreEl = document.getElementById('score');
+  var doneEl = document.getElementById('doneBanner');
+  var resetBtn = document.getElementById('resetBtn');
+
+  function markAnswered(q) {
+    if (!answered[q]) { answered[q] = true; refresh(); }
+  }
+  function refresh() {
+    var n = Object.keys(answered).length;
+    scoreEl.textContent = '已答 ' + n + '/' + TOTAL;
+    if (n >= TOTAL) {
+      var obj = (q1Correct?1:0) + (q2AllRight?1:0) + (q3AllRight?1:0) + (q4Correct?1:0) + (q5AllRight?1:0) + (q6Correct?1:0);
+      doneEl.innerHTML = '🎉 <b>全部完成！</b> 8 题已答，客观题得分：<b>' + obj + '/6</b>。开放题⑦⑧请对照「示例要点」自查。';
+      doneEl.classList.add('show');
+    } else {
+      doneEl.classList.remove('show');
+    }
+  }
+
+  function qDone(q) {
+    if (q === 'q1') return q1Correct !== null;
+    if (q === 'q2') return q2Done;
+    if (q === 'q3') return q3Done;
+    if (q === 'q4') return q4Correct !== null;
+    if (q === 'q5') return q5Done;
+    if (q === 'q6') return q6Correct !== null;
+    return true;
+  }
+  function safeGet(id){ var el=document.getElementById(id); return el ? el.value : ''; }
+  function safeSet(id, v){ var el=document.getElementById(id); if (el) el.value = v; }
+  function safeHtml(id, v){ var el=document.getElementById(id); if (el) el.innerHTML = v; }
+  function safeClass(id, c){ var el=document.getElementById(id); if (el) el.className = c; }
+  function safeText(id, v){ var el=document.getElementById(id); if (el) el.textContent = v; }
+
+  document.querySelectorAll('.qcard').forEach(function (card) {
+    var q = card.dataset.q;
+    var btn = card.querySelector('.reveal-btn');
+    if (!btn) return;
+    btn.dataset.orig = btn.textContent;
+    btn.addEventListener('click', function () {
+      if (q !== 'q7' && q !== 'q8' && !qDone(q)) {
+        btn.textContent = '✋ 请先作答本题';
+        setTimeout(function () { if (!card.classList.contains('open')) btn.textContent = btn.dataset.orig; }, 1500);
+        return;
+      }
+      var open = card.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : btn.dataset.orig;
+      if (open) markAnswered(q);
+    });
+  });
+
+  var q1Correct = null, q2Done = false, q2AllRight = false, q3Done = false, q3AllRight = false,
+      q4Correct = null, q5Done = false, q5AllRight = false, q6Correct = null;
+
+  // Q1：填空
+  function checkQ1() {
+    var a = safeGet('q1a').trim();
+    var b = safeGet('q1b').trim();
+    var okA = a === '振动';
+    var okB = b === '介质';
+    var fb = document.getElementById('q1Fb');
+    if (!okA && !okB) { fb.className = 'feedback show err'; fb.textContent = '❌ 两空都不对，再想想教材原文。'; }
+    else if (!okA || !okB) { fb.className = 'feedback show err'; fb.textContent = '❌ 还有一空不对。'; }
+    else { q1Correct = true; fb.className = 'feedback show ok'; fb.textContent = '✅ 正确！声音由振动产生，传播需要介质。'; }
+    if (okA && okB) markAnswered('q1');
+  }
+  document.getElementById('q1Check').addEventListener('click', checkQ1);
+  ['q1a','q1b'].forEach(function(id){ document.getElementById(id).addEventListener('keydown', function(e){ if(e.key==='Enter') checkQ1(); }); });
+
+  // Q2~Q3：match-row 共用绑定
+  function bindMatch(rows, cb) {
+    rows.forEach(function(row) {
+      row.querySelectorAll('button').forEach(function(b) {
+        b.addEventListener('click', function() {
+          row.querySelectorAll('button').forEach(function(x){ x.classList.remove('right','wrong'); });
+          if (b.dataset.v === row.dataset.ans) b.classList.add('right'); else b.classList.add('wrong');
+          cb();
+        });
+      });
+    });
+  }
+  function scoreMatch(rows, fbId, state) {
+    var answeredRows = 0, rightRows = 0;
+    rows.forEach(function(row){
+      var chosen = row.querySelector('button.right, button.wrong');
+      if (chosen) { answeredRows++; if (chosen.dataset.v === row.dataset.ans) rightRows++; }
+    });
+    if (answeredRows === rows.length) {
+      state.done = true; state.allRight = (rightRows === rows.length);
+      var fb = document.getElementById(fbId); fb.className = 'feedback show ' + (state.allRight?'ok':'err');
+      fb.innerHTML = state.allRight ? '✅ 全对！' : '❌ 答对 ' + rightRows + '/' + rows.length + '。';
+      return true;
+    }
+    return false;
+  }
+
+  var q2Rows = document.querySelectorAll('#q2Rows .match-row');
+  var q2State = {done:false, allRight:false};
+  bindMatch(q2Rows, function(){ if(scoreMatch(q2Rows,'q2Fb',q2State)) { q2Done=q2State.done; q2AllRight=q2State.allRight; markAnswered('q2'); } });
+
+  var q3Rows = document.querySelectorAll('#q3Rows .match-row');
+  var q3State = {done:false, allRight:false};
+  bindMatch(q3Rows, function(){ if(scoreMatch(q3Rows,'q3Fb',q3State)) { q3Done=q3State.done; q3AllRight=q3State.allRight; markAnswered('q3'); } });
+
+  // Q4：单选
+  document.querySelectorAll('#q4Opts button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#q4Opts button').forEach(function(x){ x.classList.remove('right','wrong'); });
+      q4Correct = (b.dataset.v === '响度');
+      b.classList.add(q4Correct ? 'right' : 'wrong');
+      var fb = document.getElementById('q4Fb'); fb.className = 'feedback show ' + (q4Correct?'ok':'err');
+      fb.innerHTML = q4Correct ? '✅ 正确！描述的是响度。' : '❌ 再读一遍教材原文。';
+      markAnswered('q4');
+    });
+  });
+
+  var q5Rows = document.querySelectorAll('#q5Rows .match-row');
+  var q5State = {done:false, allRight:false};
+  bindMatch(q5Rows, function(){ if(scoreMatch(q5Rows,'q5Fb',q5State)) { q5Done=q5State.done; q5AllRight=q5State.allRight; markAnswered('q5'); } });
+
+  // Q6：多选（A/B/C 全选才对）
+  var q6Selected = {};
+  document.querySelectorAll('#q6Opts button').forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.dataset.v;
+      q6Selected[v] = !q6Selected[v];
+      b.classList.toggle('right', !!q6Selected[v]);
+      var fb = document.getElementById('q6Fb');
+      var ok = q6Selected.A && q6Selected.B && q6Selected.C && !q6Selected.D;
+      if (q6Selected.A || q6Selected.B || q6Selected.C || q6Selected.D) {
+        q6Correct = ok;
+        fb.className = 'feedback show ' + (ok?'ok':'err');
+        fb.innerHTML = ok ? '✅ 正确！控制噪声的三大途径你都找到了。' : '❌ 再想想：提高声音频率能控制噪声吗？';
+        markAnswered('q6');
+      }
+    });
+  });
+
+  // 重置
+  resetBtn.addEventListener('click', function(){
+    answered = {}; q1Correct = null; q2Done = false; q2AllRight = false; q3Done = false; q3AllRight = false;
+    q4Correct = null; q5Done = false; q5AllRight = false; q6Correct = null;
+    document.querySelectorAll('.qcard').forEach(function(c){ c.classList.remove('open'); var b=c.querySelector('.reveal-btn'); if(b&&b.dataset.orig) b.textContent=b.dataset.orig; });
+    document.querySelectorAll('.match-row button, .choice-opts button').forEach(function(b){ b.classList.remove('right','wrong'); });
+    ['q1a','q1b'].forEach(function(id){ safeSet(id, ''); });
+    ['q1Fb','q2Fb','q3Fb','q4Fb','q5Fb','q6Fb'].forEach(function(id){ safeClass(id, 'feedback'); safeText(id, ''); });
+    refresh();
+  });
+  refresh();
+})();
+</script>
+<script src="exp-back.js"></script>
+</body>
+</html>

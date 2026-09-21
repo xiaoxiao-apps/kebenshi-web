@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：隔音房间模型 · 跨学科实践</title>
+<link rel="stylesheet" href="common.css?v=20260920r5">
+<style>
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #f2efe8; }
+  #room3d { width: 100%; height: 420px; display: block; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: wrap; }
+  .ctl-row .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 700; }
+  .mat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
+  .mat-btn { text-align: left; padding: 10px 12px; border-radius: 10px; border: 2px solid rgba(0,0,0,.08); background: #fff; cursor: pointer; transition: all .15s; min-height: 44px; }
+  .mat-btn.active { border-color: var(--green); background: var(--green-bg); }
+  .mat-btn .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; vertical-align: middle; border: 1px solid rgba(0,0,0,.1); }
+  .readout { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .readout .pill { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--ink2); }
+  .readout .pill b { color: var(--brown); }
+  .info-card { background: var(--cyan-bg); border: 1px solid rgba(41,128,185,.2); border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: 14px; line-height: 1.7; }
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 13px; line-height: 1.6; margin-bottom: 14px; }
+  .dim-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  .dim-table th, .dim-table td { border: 1px solid rgba(0,0,0,.08); padding: 8px 10px; text-align: left; }
+  .dim-table th { background: var(--card2); }
+  @media (max-width: 768px) { .mat-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html"> 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title"> 隔音房间模型</h1>
+    <p class="page-subtitle">用包装盒或鞋盒充当“房间”，给内壁贴材料，测试隔音性能。</p>
+  </div>
+
+  <div class="card">
+    <h2>3D 模型 · 图2.5-2 <span class="chip brown">项目实施</span></h2>
+    <div class="hint-bar"> 鼠标拖拽可旋转视角，滚轮缩放；打开盒盖观察内部。先测“处理前”的分贝，再贴材料测“处理后”。</div>
+
+    <div class="scene-wrap" id="roomWrap">
+      <canvas id="room3d"></canvas>
+    </div>
+
+    <div class="readout">
+      <span class="pill">状态：<b id="bellState">未响铃</b></span>
+      <span class="pill">外部声级 <b id="dbVal">--</b> dB</span>
+      <span class="pill">与处理前差值 <b id="diffVal">--</b> dB</span>
+    </div>
+
+    <div class="ctl-row">
+      <button class="btn btn-primary" id="bellBtn">开始响铃</button>
+      <button class="btn btn-secondary" id="measureBtn"> 测量分贝</button>
+      <button class="btn btn-secondary" id="lidBtn">打开盒盖</button>
+      <button class="btn btn-secondary" id="resetBtn">清空材料</button>
+    </div>
+
+    <h3 style="font-size:15px;margin:14px 0 8px;">选择一种隔音材料，点击贴附到盒内壁</h3>
+    <div class="mat-grid" id="matGrid">
+      <button class="mat-btn active" data-mat="none"><span class="dot" style="background:#e8e2d6;"></span>无（处理前）</button>
+      <button class="mat-btn" data-mat="sponge"><span class="dot" style="background:#d980a0;"></span>海绵</button>
+      <button class="mat-btn" data-mat="foam"><span class="dot" style="background:#80c5d9;"></span>泡沫</button>
+      <button class="mat-btn" data-mat="towel"><span class="dot" style="background:#d9c580;"></span>毛巾</button>
+      <button class="mat-btn" data-mat="cardboard"><span class="dot" style="background:#bfa887;"></span>纸板</button>
+    </div>
+
+    <div class="info-card">
+      <b>隔音性能模拟说明</b><br>
+      软多孔材料（海绵、泡沫、毛巾）对声音的吸收效果较好，模拟衰减较大；硬质薄材料（纸板）衰减较小。界面数值为<strong>教学示意</strong>，实际请以实测为准。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>测试方法 <span class="chip">教材原话</span></h2>
+    <p style="font-size:14px;line-height:1.8;">测试时，通过手机或计算机中的软件等先测量闹钟铃声的强弱，再测量经过隔音处理后闹钟铃声的强弱，通过比较前后的变化来评估模型的隔音性能。</p>
+    <div style="margin-top:10px;padding:12px;background:var(--green-bg);border-radius:10px;font-size:13px;line-height:1.7;">
+      <b>建议步骤：</b>① 选“无（处理前）”点击测量，记录分贝；② 选择海绵/泡沫/毛巾/纸板贴附内壁；③ 再次测量，比较前后差值。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>展示交流 · 评价维度 <span class="chip brown">教材原话</span></h2>
+    <p style="font-size:14px;line-height:1.8;">展示你制作的隔音房间模型，并从<strong>隔音性能、空间占用率、材料是否易得、安全和环保</strong>等方面对模型进行评价。</p>
+    <table class="dim-table">
+      <tr><th>评价维度</th><th>关注要点</th></tr>
+      <tr><td>隔音性能</td><td>处理前后声音强弱变化是否明显</td></tr>
+      <tr><td>空间占用率</td><td>隔音材料是否占用了过多“房间”内部空间</td></tr>
+      <tr><td>材料是否易得</td><td>所用材料在生活中是否容易找到</td></tr>
+      <tr><td>安全和环保</td><td>材料是否安全、无毒、环保</td></tr>
+    </table>
+  </div>
+</div>
+<script src="three.min.js?v=20260920r5"></script>
+<script src="exp-back.js?v=20260920r5"></script>
+<script src="exp-room.js?v=20260920r5"></script>
+</body>
+</html>

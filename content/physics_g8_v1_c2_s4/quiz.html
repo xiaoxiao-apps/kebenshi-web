@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>小练习 · 噪声的危害和控制</title>
+<link rel="stylesheet" href="common.css?v=20260920r4">
+<style>
+  .qcard { position: relative; margin-bottom: 14px; }
+  .qtag { display: inline-block; background: var(--green-bg); color: var(--green); font-weight: 800; font-size: 12px; border-radius: 8px; padding: 3px 8px; margin-bottom: 8px; }
+  .qtag.extra { background: var(--cyan-bg); color: var(--cyan); margin-left: 6px; }
+  .qtext { font-size: 15px; line-height: 1.8; color: var(--ink); }
+  .reveal-btn { display: inline-block; margin-top: 10px; padding: 10px 16px; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--green); background: #ffffff; color: var(--green); font-weight: 800; font-size: 14px; cursor: pointer; transition: background .2s ease; }
+  .reveal-btn:hover { background: var(--green-bg); }
+  .answer { display: none; margin-top: 10px; background: var(--green-bg); border-left: 4px solid var(--green); border-radius: 0 10px 10px 0; padding: 10px 12px; font-size: 14px; line-height: 1.8; }
+  .qcard.open .answer { display: block; }
+  .line { word-break: break-all; }
+  .scorebar { position: sticky; top: 8px; z-index: 5; background: var(--green); color: #ffffff; border-radius: 999px; padding: 6px 16px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+  .reset-btn { display: inline-block; margin-left: 8px; padding: 6px 14px; min-height: 36px; border-radius: 999px; border: 1px solid rgba(0,0,0,.15); background: var(--card2); color: var(--ink2); font-weight: 700; font-size: 13px; cursor: pointer; vertical-align: middle; }
+  .done-banner { display: none; margin: 0 0 14px; background: var(--brown-bg); border-left: 4px solid var(--brown); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 14px; line-height: 1.8; }
+  .done-banner.show { display: block; }
+  .match-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+  .match-row:last-child { border-bottom: none; }
+  .match-label { font-size: 14px; flex: 1; line-height: 1.7; }
+  .match-opts { display: flex; gap: 8px; flex-shrink: 0; }
+  .match-opts button { padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,.1); background: var(--card2); color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer; min-height: 36px; transition: all .15s; }
+  .match-opts button.right { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .match-opts button.wrong { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+  .answer textarea { width: 100%; min-height: 80px; margin: 10px 0 6px; padding: 10px; border: 1px solid rgba(0,0,0,.1); border-radius: 10px; font-size: 14px; line-height: 1.7; resize: vertical; box-sizing: border-box; }
+  @media (max-width: 390px) {
+    .qtext { font-size: 14px; }
+    .match-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节导航</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">✍️ 小练习 · 噪声的危害和控制</h1>
+    <p class="page-subtitle">教材「练习与应用」①~⑤ 原题。先自己想，再点开「示例要点」核对！</p>
+  </div>
+  <div><span class="scorebar" id="score">已答 0/5</span></div>
+  <div class="done-banner" id="doneBanner"></div>
+
+  <div class="card qcard" data-q="q1">
+    <span class="qtag">练习与应用 · 第 1 题</span><span class="qtag extra">开放题 · 调查</span>
+    <div class="qtext">调查校园里或者你家周围有什么样的噪声。应该采取什么样的控制措施？与班里的同学交流，看看谁的调查更详细，采取的措施更好。</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">示例（供参考，答案不唯一）：</div>
+      <div class="line">· <b>校园操场</b>：课间喧哗、体育器材碰撞声 → 属于<b>防止噪声进入耳朵</b>：必要时戴耳塞，或规定活动区域远离教学楼。</div>
+      <div class="line">· <b>校门口道路</b>：汽车鸣笛声 → 属于<b>阻断噪声传播</b>：设置禁鸣标志、在校门口路段植树或安装隔音屏障。</div>
+      <div class="line">· <b>家中厨房</b>：抽油烟机、破壁机运转声 → 属于<b>防止噪声产生</b>：选购低噪声电器，使用时关厨房门以阻断传播。</div>
+      <div class="line">✍️ 自查：你的回答要有两个要素——①列出<b>具体的噪声源</b>；②针对每个噪声源给出<b>控制噪声的有效措施</b>（从“防止噪声产生 / 阻断噪声传播 / 防止噪声进入耳朵”三途径中说明）。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q2">
+    <span class="qtag">练习与应用 · 第 2 题</span><span class="qtag extra">开放题 · 实践测量</span>
+    <div class="qtext">在安静的环境里，测量你的脉搏在1 min内跳动的次数。在声音过大的环境里，你的脉搏有变化吗？测量一下。</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">示例结论（供参考，个体差异大，以自己实测为准）：</div>
+      <div class="line">· 在噪声过大的环境中，人的脉搏通常会<b>略微加快</b>。</div>
+      <div class="line">· 这说明噪声不仅影响听觉，还会对<b>人体的生理状态</b>产生影响。</div>
+      <div class="line">✍️ 自查：你的回答要有两个要素——①分别记录在<b>安静环境</b>和<b>声音过大环境</b>中 1 min 的脉搏次数；②指出噪声对脉搏可能产生的影响及含义。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q3">
+    <span class="qtag">练习与应用 · 第 3 题</span><span class="qtag extra">判断题</span>
+    <div class="qtext">为了使教室内免受环境噪声干扰，采取下面的哪些方法是有效、合理的？如果你认为无效或不合理，请简单说明理由。<br>（1）老师讲话声音大一些。<br>（2）每位学生都戴一个防噪声耳罩。<br>（3）在教室周围植树。<br>（4）教室内安装噪声监测装置。</div>
+    <div id="q3Rows">
+      <div class="match-row" data-ans="no">
+        <div class="match-label">（1）老师讲话声音大一些。</div>
+        <div class="match-opts">
+          <button type="button" data-v="yes">有效合理</button>
+          <button type="button" data-v="no">无效或不合理</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="no">
+        <div class="match-label">（2）每位学生都戴一个防噪声耳罩。</div>
+        <div class="match-opts">
+          <button type="button" data-v="yes">有效合理</button>
+          <button type="button" data-v="no">无效或不合理</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="yes">
+        <div class="match-label">（3）在教室周围植树。</div>
+        <div class="match-opts">
+          <button type="button" data-v="yes">有效合理</button>
+          <button type="button" data-v="no">无效或不合理</button>
+        </div>
+      </div>
+      <div class="match-row" data-ans="no">
+        <div class="match-label">（4）教室内安装噪声监测装置。</div>
+        <div class="match-opts">
+          <button type="button" data-v="yes">有效合理</button>
+          <button type="button" data-v="no">无效或不合理</button>
+        </div>
+      </div>
+    </div>
+    <div class="feedback" id="q3Fb"></div>
+    <button class="reset-btn" id="resetQ3Btn" type="button" style="margin-top:10px;">🔄 重置本题</button>
+    <button class="reveal-btn" type="button">📖 查看理由（全部点选后可点）</button>
+    <div class="answer">
+      <details><summary><b>（1）老师讲话声音大一些</b></summary><div class="line">无效且不合理。老师讲课声音大，虽然学生听得清些，但教室内的总噪声反而增大，本质上是通过提高声源响度来对抗环境噪声，对保护教室安静没有帮助。</div></details>
+      <details><summary><b>（2）每位学生戴防噪声耳罩</b></summary><div class="line">能隔声但不合理。耳罩可以<b>防止噪声进入耳朵</b>，但同时会把老师的讲课声音也挡住，影响听课，因此不是合理方案。</div></details>
+      <details><summary><b>（3）教室周围植树</b></summary><div class="line">有效且合理。树木可以吸收、反射部分声波，<b>阻断噪声传播</b>，从而减少外界噪声进入教室。</div></details>
+      <details><summary><b>（4）安装噪声监测装置</b></summary><div class="line">无效。噪声监测装置只能测量噪声大小，<b>不能减弱噪声</b>，因此不能使教室免受环境噪声干扰。</div></details>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q4">
+    <span class="qtag">练习与应用 · 第 4 题</span><span class="qtag extra">开放题 · 感受</span>
+    <div class="qtext">噪声严重影响人们的生活。请你说说你的感受并找到这些噪声的来源。</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">示例（供参考，答案不唯一）：</div>
+      <div class="line">· <b>感受</b>：噪声让人烦躁、注意力难集中，长时间暴露会影响听力和睡眠。</div>
+      <div class="line">· <b>来源</b>：交通噪声（汽车、地铁）、建筑施工噪声、家用电器噪声、校园/社区人群喧哗等。</div>
+      <div class="line">✍️ 自查：你的回答要有两个要素——①描述噪声给你带来的<b>真实感受</b>；②指出具体噪声的<b>来源</b>。</div>
+    </div>
+  </div>
+
+  <div class="card qcard" data-q="q5">
+    <span class="qtag">练习与应用 · 第 5 题</span><span class="qtag extra">简答题</span>
+    <div class="qtext">住宅区的高架桥两侧常安装隔音板（图2.4-4），请你从减少噪声危害的角度谈谈这样做有什么道理。</div>
+    <button class="reveal-btn" type="button">💡 示例要点（点开查看）</button>
+    <div class="answer">
+      <div class="line">参考答案要点：</div>
+      <div class="line">· 高架桥上车辆行驶产生噪声，噪声向两侧传播。</div>
+      <div class="line">· 隔音板设置在噪声传播路径上，可以<b>阻挡、反射和吸收部分声波</b>，使传入住宅区的噪声减弱。</div>
+      <div class="line">· 从控制噪声的途径看，这属于在<b>传播过程中阻断噪声传播</b>。</div>
+      <div class="line">✍️ 自查：你的回答要有两个要素——①说明隔音板是通过<b>阻断噪声传播</b>来减弱噪声；②指出最终效果是<b>减弱传入住宅区的噪声</b>。</div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var answered = {};
+  var q3Done = false;
+  var q3AllRight = false;
+  var TOTAL = 5;
+  var scoreEl = document.getElementById('score');
+  var doneEl = document.getElementById('doneBanner');
+
+  function markAnswered(q) {
+    var first = !answered[q];
+    answered[q] = true;
+    if (first) refresh();
+  }
+  function refresh() {
+    var n = Object.keys(answered).length;
+    scoreEl.textContent = '已答 ' + n + '/' + TOTAL;
+    if (n >= TOTAL) {
+      var objScore = (q3Done && q3AllRight ? 1 : 0);
+      doneEl.innerHTML = '🎉 <b>全部完成！</b> 5 题已答，客观题得分：<b>' + objScore + '/1</b>。开放题①②④⑤请对照「示例要点」自查要点是否齐全。';
+      doneEl.classList.add('show');
+    } else {
+      doneEl.classList.remove('show');
+    }
+  }
+
+  function qDone(q) {
+    if (q === 'q3') return q3Done;
+    return true;
+  }
+
+  document.querySelectorAll('.qcard').forEach(function (card) {
+    var q = card.dataset.q;
+    var btn = card.querySelector('.reveal-btn');
+    if (!btn) return;
+    btn.dataset.orig = btn.textContent;
+    btn.addEventListener('click', function () {
+      if (q === 'q3' && !qDone(q)) {
+        btn.textContent = '✋ 请先作答本题';
+        setTimeout(function () { if (!card.classList.contains('open')) btn.textContent = btn.dataset.orig; }, 1500);
+        return;
+      }
+      var open = card.classList.toggle('open');
+      btn.textContent = open ? ' 收起答案' : btn.dataset.orig;
+      if (open) markAnswered(q);
+    });
+  });
+
+  // Q3：有效/不合理四例判断
+  var rows = document.querySelectorAll('#q3Rows .match-row');
+  var q3Fb = document.getElementById('q3Fb');
+  rows.forEach(function (row) {
+    row.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        row.querySelectorAll('button').forEach(function (x) { x.classList.remove('right', 'wrong'); });
+        if (b.dataset.v === row.dataset.ans) { b.classList.add('right'); }
+        else { b.classList.add('wrong'); row.querySelector('[data-v="' + row.dataset.ans + '"]').classList.add('right'); }
+        checkQ3();
+      });
+    });
+  });
+  function checkQ3() {
+    var answeredRows = 0, rightRows = 0;
+    rows.forEach(function (row) {
+      var chosen = row.querySelector('button.right, button.wrong');
+      if (chosen) { answeredRows++; if (chosen.dataset.v === row.dataset.ans) rightRows++; }
+    });
+    if (answeredRows === rows.length) {
+      q3Done = true;
+      q3AllRight = (rightRows === rows.length);
+      q3Fb.className = 'feedback show ' + (q3AllRight ? 'ok' : 'err');
+      q3Fb.innerHTML = q3AllRight ? '✅ 全对！植树可阻断噪声传播；监测仪只能测不能减弱；大声讲课和戴耳罩都不是合理方案。' : '❌ 答对 ' + rightRows + '/4。可点下方按钮看理由。';
+      markAnswered('q3');
+    }
+  }
+
+  function resetQ3() {
+    delete answered.q3;
+    q3Done = false;
+    q3AllRight = false;
+    var q3Card = document.querySelector('.card[data-q="q3"]');
+    if (q3Card) {
+      q3Card.classList.remove('open');
+      var b = q3Card.querySelector('.reveal-btn');
+      if (b && b.dataset.orig) b.textContent = b.dataset.orig;
+    }
+    document.querySelectorAll('#q3Rows .match-row button').forEach(function (btn) { btn.classList.remove('right', 'wrong'); });
+    if (q3Fb) { q3Fb.className = 'feedback'; q3Fb.textContent = ''; }
+    refresh();
+  }
+  document.getElementById('resetQ3Btn').addEventListener('click', resetQ3);
+  refresh();
+})();
+</script>
+<script src="exp-back.js"></script>
+</body>
+</html>

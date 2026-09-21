@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：观察噪声的波形 · 噪声的危害和控制</title>
+<link rel="stylesheet" href="common.css?v=20260920r4">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #0b1d2e; }
+  #waveCv { width: 100%; display: block; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: wrap; }
+  .readout { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .readout .pill { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--ink2); }
+  .readout .pill b { color: var(--brown); }
+  .source-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .source-btns .btn { flex: 1; min-width: 80px; }
+  .stop-wrap { margin-top: 10px; }
+  .stop-wrap .btn { width: 100%; }
+  .conclusion-card { background: var(--green-bg); border: 1px solid rgba(74,140,63,.2); border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: 14px; line-height: 1.7; }
+  @media (max-width: 768px) { .source-btns { flex-direction: column; } .source-btns .btn { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html?v=20260920r4">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">️ 观察噪声的波形</h1>
+    <p class="page-subtitle">教材演示：噪声波形与音叉声波形对比。</p>
+  </div>
+
+  <div class="card">
+    <h2>演示 · 图2.4-1 <span class="chip brown">演示</span></h2>
+    <div class="hint-bar">💡 点击「音叉」或「噪声」直接播放并观察波形；点击「停止」恢复直线。</div>
+
+    <div class="fullscreen-wrap" id="fsWaveWrap">
+      <button class="fullscreen-btn" id="fsWaveBtn" title="全屏">⛶</button>
+      <div class="scene-wrap">
+        <canvas id="waveCv"></canvas>
+      </div>
+      <div class="ctl-row" style="justify-content:center;">
+        <div class="source-btns" style="flex:1;">
+          <button class="btn btn-secondary" data-source="tuning">🎵 音叉</button>
+          <button class="btn btn-secondary" data-source="noise">🔊 噪声</button>
+        </div>
+      </div>
+      <div class="stop-wrap">
+        <button class="btn btn-primary" id="stopBtn">⏹ 停止</button>
+      </div>
+    </div>
+
+    <div class="conclusion-card">
+      <b>结论：</b>音叉等乐音的波形是规则的，而噪声的波形杂乱无章，说明噪声是由发声体的无规则振动产生的。
+    </div>
+  </div>
+</div>
+<script src="fullscreen.js?v=20260920r4"></script>
+<script src="exp-common.js?v=20260920r4"></script>
+<script src="exp-back.js?v=20260920r4"></script>
+<script src="exp-wave.js?v=20260920r4"></script>
+</body>
+</html>

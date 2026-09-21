@@ -38,6 +38,8 @@ const AVAILABLE = {
   'physics_g8_v1_c2_s1': { title: '声音的产生与传播', file: 'content/physics_g8_v1_c2_s1/index.html' },
   'physics_g8_v1_c2_s2': { title: '声音的特性', file: 'content/physics_g8_v1_c2_s2/index.html' },
   'physics_g8_v1_c2_s3': { title: '声的利用', file: 'content/physics_g8_v1_c2_s3/index.html' },
+  'physics_g8_v1_c2_s4': { title: '噪声的危害和控制', file: 'content/physics_g8_v1_c2_s4/index.html' },
+  'physics_g8_v1_c2_s5': { title: '跨学科实践：制作隔音房间模型', file: 'content/physics_g8_v1_c2_s5/index.html' },
   'math_fun_chicken_rabbit': { title: '鸡兔同笼', file: 'content/math_fun_chicken_rabbit/index.html' }
 };
 

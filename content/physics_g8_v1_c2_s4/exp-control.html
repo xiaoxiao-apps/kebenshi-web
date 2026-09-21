@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：控制噪声的三个途径 · 噪声的危害和控制</title>
+<link rel="stylesheet" href="common.css?v=20260920r4">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .drag-pool { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; min-height: 54px; }
+  .measure-card { background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 10px; padding: 10px 14px; font-size: 13px; cursor: grab; user-select: none; transition: transform .12s, box-shadow .15s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .measure-card:active { cursor: grabbing; transform: scale(.97); }
+  .measure-card.dragging { opacity: .6; }
+  .measure-card.placed { background: var(--green-bg); border-color: rgba(74,140,63,.3); cursor: default; }
+  .bins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  @media (max-width: 768px) { .bins { grid-template-columns: 1fr; } }
+  .bin { background: var(--card2); border: 2px dashed rgba(0,0,0,.12); border-radius: 12px; padding: 12px; min-height: 160px; }
+  .bin h3 { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: var(--brown); }
+  .bin .slot-list { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; }
+  .bin.drag-over { background: #fff; border-color: var(--green); }
+  .feedback { margin-top: 10px; padding: 12px 14px; border-radius: 10px; font-size: 14px; line-height: 1.7; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: var(--green-bg); border: 1px solid rgba(74,140,63,.3); color: var(--green); }
+  .feedback.err { background: var(--red-bg); border: 1px solid rgba(192,57,43,.3); color: var(--red); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html?v=20260920r4"> 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">🛡️ 控制噪声的三个途径</h1>
+    <p class="page-subtitle">教材图2.4-2、2.4-3、2.4-4：把措施拖入对应的控制途径。</p>
+  </div>
+
+  <div class="card">
+    <h2>想想议议 · 图2.4-2 <span class="chip brown">图2.4-2/3/4</span></h2>
+    <div class="hint-bar">💡 拖动下方卡片到左侧三栏中，每栏放对得分；放错卡片会自动归位并提示。全部正确后查看讲解。</div>
+
+    <div class="drag-pool" id="cardPool">
+      <div class="measure-card" data-category="source" draggable="true">🏍️ 摩托车消声器</div>
+      <div class="measure-card" data-category="source" draggable="true">🔇 禁止鸣喇叭标志</div>
+      <div class="measure-card" data-category="path" draggable="true">🌉 高架桥两侧隔音板</div>
+      <div class="measure-card" data-category="path" draggable="true">🌳 道路两旁植树</div>
+      <div class="measure-card" data-category="ear" draggable="true">🎧 机场工作人员戴耳罩</div>
+    </div>
+
+    <div class="bins">
+      <div class="bin" data-accept="source" id="binSource">
+        <h3>1 防止噪声产生</h3>
+        <div class="slot-list"></div>
+      </div>
+      <div class="bin" data-accept="path" id="binPath">
+        <h3>2 阻断噪声传播</h3>
+        <div class="slot-list"></div>
+      </div>
+      <div class="bin" data-accept="ear" id="binEar">
+        <h3>3 防止噪声进入耳朵</h3>
+        <div class="slot-list"></div>
+      </div>
+    </div>
+
+    <div class="feedback" id="fb"></div>
+  </div>
+</div>
+<script src="exp-back.js?v=20260920r4"></script>
+<script src="exp-control.js?v=20260920r4"></script>
+</body>
+</html>

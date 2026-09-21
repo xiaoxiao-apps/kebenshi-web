@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 噪声的危害和控制</title>
+<link rel="stylesheet" href="common.css?v=20260920r4">
+<style>
+  .tabs { display: flex; gap: 8px; margin: 12px 0; flex-wrap: nowrap; overflow-x: auto; }
+  .tab-btn { flex: 1; white-space: nowrap; padding: 10px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; cursor: pointer; font-weight: 700; font-size: 13px; transition: all .25s ease; min-height: 44px; }
+  .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .tab-pane { display: none; animation: tabIn .25s ease; }
+  .tab-pane.active { display: block; }
+  @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .tipbox { border-left: 4px solid var(--brown); background: var(--brown-bg); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; line-height: 1.7; font-size: 14px; }
+  .greenbox { border-left: 4px solid var(--green); background: var(--green-bg); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; line-height: 1.7; font-size: 14px; }
+  .figbox { background: var(--card2); border-radius: 12px; padding: 14px; margin: 12px 0; }
+  .figcap { color: var(--ink2); font-size: 13px; text-align: center; margin-top: 8px; line-height: 1.6; }
+  ul.plain { padding-left: 20px; margin: 8px 0; font-size: 14px; line-height: 1.9; }
+  .think { border: 2px dashed var(--brown); border-radius: 12px; padding: 14px 16px; margin-top: 14px; background: #fffdf5; font-size: 14px; line-height: 1.7; }
+  .think .q { font-weight: 700; color: var(--brown); margin-bottom: 6px; }
+  @media (max-width: 768px) { .tabs { gap: 6px; } .tab-btn { font-size: 12px; padding: 10px 4px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html?v=20260920r4"> 返回本节</a>
+
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">噪声从哪来？有什么危害？又有哪些方法可以控制它？</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="t1" role="tab">① 噪声的来源</button>
+    <button class="tab-btn" data-tab="t2" role="tab">② 噪声的危害</button>
+    <button class="tab-btn" data-tab="t3" role="tab">③ 控制噪声</button>
+  </div>
+
+  <!-- ============ Tab 1 噪声的来源 ============ -->
+  <div class="tab-pane active" id="t1">
+    <div class="card">
+      <h2>问题：嘈杂的声音令人心烦 <span class="chip brown">问题</span></h2>
+      <p style="font-size:14px;line-height:1.8;">经过热闹的街道或繁忙的建筑工地时，嘈杂的声音
+常令人心烦意乱。这些声音对人有哪些危害？怎样才能
+有效地防止或减弱它们呢？</p>
+
+      <h2 style="margin-top:16px;">噪声的来源 <span class="chip">图2.4-1</span></h2>
+      <p style="font-size:14px;line-height:1.8;">嘈杂的声音——噪声（noise）是严重影响我们生活的
+污染之一。从物理学的角度讲，发声体做无规则振动时
+会发出噪声。</p>
+
+      <div class="figbox">
+        <img src="img/noise-sources.jpg" alt="噪声的来源" style="width:100%;height:auto;border-radius:10px;display:block;">
+        <div class="figcap">生活中许多无规则振动发出的声音都属于噪声。</div>
+      </div>
+
+      <h2 style="margin-top:16px;">演示：观察噪声的波形 <span class="chip brown">演示</span></h2>
+      <p style="font-size:14px;line-height:1.8;">观察泡沫塑料块刮玻璃时产生的噪声的波形（图
+2.4-1），并与音叉发出的声音的波形作比较。</p>
+      <div class="figbox">
+        <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;background:#1a1a1a;border-radius:10px;">
+          <rect x="0" y="0" width="640" height="220" fill="#1a1a1a"/>
+          <text x="20" y="30" font-size="14" fill="#aaa" font-weight="700">演示：音叉波形（上）与噪声波形（下）对比</text>
+          <line x1="30" y1="60" x2="610" y2="60" stroke="#444" stroke-width="1" stroke-dasharray="6,4"/>
+          <path d="M30 110 L35 122 L40 133 L45 142 L50 148 L55 152 L60 154 L65 153 L70 151 L75 148 L80 146 L85 144 L90 144 L95 146 L100 149 L105 153 L110 157 L115 159 L120 160 L125 159 L130 154 L135 147 L140 137 L145 126 L150 114 L155 102 L160 92 L165 83 L170 77 L175 74 L180 73 L185 74 L190 75 L195 77 L200 78 L205 77 L210 75 L215 72 L220 67 L225 62 L230 57 L235 54 L240 53 L245 55 L250 60 L255 68 L260 78 L265 89 L270 101 L275 112 L280 122 L285 129 L290 134 L295 137 L300 138 L305 137 L310 136 L315 136 L320 137 L325 139 L330 143 L335 148 L340 154 L345 160 L350 166 L355 169 L360 170 L365 168 L370 163 L375 155 L380 145 L385 134 L390 123 L395 112 L400 104 L405 97 L410 93 L415 91 L420 90 L425 90 L430 91 L435 90 L440 88 L445 83 L450 78 L455 71 L460 63 L465 56 L470 51 L475 47 L480 46 L485 49 L490 54 L495 62 L500 72 L505 82 L510 92 L515 102 L520 109 L525 114 L530 117 L535 119 L540 119 L545 119 L550 120 L555 122 L560 126 L565 132 L570 139 L575 147 L580 156 L585 164 L590 170 L595 174 L600 174 L605 172 L610 166" fill="none" stroke="#60a5fa" stroke-width="2" opacity="0.95"/>
+          <line x1="30" y1="160" x2="610" y2="160" stroke="#444" stroke-width="1" stroke-dasharray="6,4"/>
+          <path d="M30 96 L34 80 L38 62 L42 59 L46 59 L49 36 L54 28 L58 136 L62 79 L65 76 L67 55 L72 40 L74 37 L76 52 L79 81 L81 152 L86 114 L90 96 L92 78 L94 81 L97 80 L101 82 L104 115 L109 136 L113 159 L117 138 L121 137 L125 123 L128 138 L133 126 L135 95 L137 102 L142 74 L146 80 L149 72 L154 83 L156 109 L159 157 L164 115 L168 97 L172 73 L177 68 L181 114 L186 132 L188 151 L193 150 L196 84 L201 33 L203 49 L208 102 L212 146 L216 173 L221 143 L225 52 L228 46 L230 187 L233 159 L237 129 L239 75 L243 47 L247 40 L249 65 L253 135 L255 158 L258 171 L261 160 L266 101 L269 129 L272 139 L274 128 L278 145 L281 120 L285 120 L290 106 L295 85 L299 118 L303 96 L307 61 L311 36 L314 47 L318 57 L322 79 L325 103 L330 74 L333 85 L337 57 L341 44 L344 179 L348 171 L353 187 L357 155 L361 151 L366 126 L371 88 L374 78 L379 43 L381 39 L383 28 L386 25 L391 159 L394 109 L397 94 L400 74 L402 68 L404 52 L408 65 L411 61 L413 40 L416 50 L419 43 L424 34 L427 35 L431 79 L435 94 L439 100 L442 97 L445 112 L449 138 L452 125 L456 115 L461 93 L463 92 L466 94 L470 115 L475 125 L478 88 L482 66 L485 66 L488 62 L492 101 L496 74 L500 91 L502 94 L506 92 L509 122 L514 142 L516 141 L521 130 L524 118 L529 55 L533 56 L535 58 L540 110 L545 153 L549 169 L551 136 L555 90 L558 83 L562 73 L567 104 L571 57 L573 50 L576 61 L579 79 L581 137 L586 178 L590 155 L593 126 L597 54 L599 24 L603 54 L607 121" fill="none" stroke="#4ade80" stroke-width="1.5" opacity="0.95"/>
+          <text x="30" y="50" font-size="12" fill="#60a5fa">音叉：规则正弦波</text>
+          <text x="30" y="180" font-size="12" fill="#4ade80">泡沫塑料刮玻璃：杂乱无章</text>
+        </svg>
+        <div class="figcap">噪声的波形杂乱无章，说明其振动没有规律。</div>
+      </div>
+
+      <div class="tipbox">
+        <b>从环境保护角度看</b>：除了从物理学的角度，人们还常从环境保护的角度，把妨碍人们正常工作和生活的声音也称为噪声。例如，夜深人静时有人引吭高歌，这时的歌声就成了噪声。
+      </div>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>从物理学角度看，什么样的声音属于噪声？从环境保护角度看，深夜的歌声为什么也可能成为噪声？</div>
+        <p style="margin-top:8px;"><a class="btn btn-secondary" href="exp-wave.html?from=explain&tab=t1">🔬 去互动探索区试试</a></p>
+        <details style="margin-top:10px;background:#fff;border:1px solid var(--brown);border-radius:8px;padding:10px 12px;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--brown);list-style:none;outline:none;">查看答案</summary>
+          <div style="margin-top:8px;line-height:1.8;">
+            <p><strong>物理学角度：</strong>发声体做<strong>无规则振动</strong>时发出的声音属于噪声。例如泡沫塑料块刮玻璃、机器轰鸣等，其声波的波形杂乱无章。</p>
+            <p><strong>环境保护角度：</strong>凡是<strong>妨碍人们正常工作和生活的声音</strong>都称为噪声。深夜的歌声虽然本身可能是乐音，但在需要安静的夜晚妨碍了他人休息，因此也成了噪声。</p>
+            <p><strong>易混点：</strong>物理学上的“噪声”强调声波是否规则；环境保护上的“噪声”强调是否对人造成干扰。同一声音在不同情境下可能既是乐音也是噪声。</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 2 噪声的危害 ============ -->
+  <div class="tab-pane" id="t2">
+    <div class="card">
+      <h2>噪声的危害 <span class="chip">必记</span></h2>
+      <p style="font-size:14px;line-height:1.8;">噪声会严重影响人们的工作和生活，控制噪声十
+分重要。我们知道，声音从产生到引起听觉有这样三
+个阶段：</p>
+      <div class="greenbox" style="text-align:center;font-weight:700;">
+        声源的振动产生声音 —— 空气等介质传播声音 —— 鼓膜振动引起听觉
+      </div>
+      <p style="font-size:14px;line-height:1.8;">因此，控制噪声也要从这三个方面着手，即：</p>
+      <div class="greenbox" style="text-align:center;font-weight:700;">
+        防止噪声产生 —— 阻断噪声传播 —— 防止噪声进入耳朵
+      </div>
+
+      <h2 style="margin-top:16px;">想想议议 <span class="chip brown">图2.4-2</span></h2>
+      <p style="font-size:14px;line-height:1.8;">图2.4-2中控制噪声的措施分别属于哪个方面？你还能举出哪些生活中采用不同方法控制噪声的实例吗？</p>
+      <div class="figbox">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;">
+          <div style="background:linear-gradient(135deg,#f5e3d7,#e8c9b0);border-radius:10px;padding:16px;text-align:center;">
+            <img src="img/muffler.jpg" alt="摩托车消声器" style="width:100%;height:auto;border-radius:8px;margin-bottom:8px;">
+            <div style="font-size:13px;color:var(--brown);font-weight:700;">甲：摩托车消声器</div>
+            <div style="font-size:12px;color:var(--ink2);margin-top:4px;">防止噪声产生</div>
+          </div>
+          <div style="background:linear-gradient(135deg,#e3e8f5,#c8d2e8);border-radius:10px;padding:16px;text-align:center;">
+            <img src="img/wall.jpg" alt="隔音通道" style="width:100%;height:auto;border-radius:8px;margin-bottom:8px;">
+            <div style="font-size:13px;color:var(--brown);font-weight:700;">乙：隔音通道</div>
+            <div style="font-size:12px;color:var(--ink2);margin-top:4px;">阻断噪声传播</div>
+          </div>
+          <div style="background:linear-gradient(135deg,#e8f0e3,#cfe0c8);border-radius:10px;padding:16px;text-align:center;">
+            <img src="img/ear-defender.jpg" alt="耳罩" style="width:100%;height:auto;border-radius:8px;margin-bottom:8px;">
+            <div style="font-size:13px;color:var(--brown);font-weight:700;">丙：耳罩</div>
+            <div style="font-size:12px;color:var(--ink2);margin-top:4px;">防止噪声进入耳朵</div>
+          </div>
+        </div>
+        <div class="figcap">图 2.4-2 几种控制噪声的措施：消声器、隔音通道、耳罩分别对应控制噪声的三个途径。</div>
+      </div>
+
+      <h2 style="margin-top:16px;">小资料：人对不同强度的声音的感觉 <span class="chip brown">小资料</span></h2>
+      <div class="figbox">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;line-height:1.7;">
+          <thead>
+            <tr style="background:var(--brown-bg);">
+              <th style="padding:8px 10px;text-align:left;border:1px solid rgba(0,0,0,.08);">声音强弱的等级/dB</th>
+              <th style="padding:8px 10px;text-align:left;border:1px solid rgba(0,0,0,.08);">主观感觉</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">150</td><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">无法忍受</td></tr>
+            <tr><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">120</td><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">感到疼痛</td></tr>
+            <tr><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">100</td><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">很吵</td></tr>
+            <tr><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">80</td><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">较吵</td></tr>
+            <tr><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">60</td><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">较静</td></tr>
+            <tr><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">40</td><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">安静</td></tr>
+            <tr><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">10</td><td style="padding:8px 10px;border:1px solid rgba(0,0,0,.08);">极静</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:14px;line-height:1.8;">人们以分贝（decibel，符号是dB）为单位来表示
+声音强弱的等级。0 dB是人耳刚能听到的最微弱的
+声音；<b>30~40 dB是较为理想的安静环境</b>；<b>70 dB会干
+扰谈话，影响工作效率</b>；<b>长期生活在90 dB以上的噪声环
+境中，听力会受到严重影响并产生神经衰弱、头疼、
+高血压等疾病</b>；<b>如果突然暴露在高150 dB的噪声环
+境中，鼓膜会破裂出血，双耳完全失去听力</b>。为了保护
+听力，<b>声音不能超过90 dB</b>；为了保证工作和学习，<b>声
+音不能超过70 dB</b>；为了保证休息和睡眠，<b>声音不能超过
+50 dB</b>。</p>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>小资料中，保护听力、保证工作和学习、保证休息和睡眠的声音上限分别是多少？70 dB 和 90 dB 分别会对人产生什么影响？</div>
+        <p style="margin-top:8px;"><a class="btn btn-secondary" href="exp-decibel.html?from=explain&tab=t2"> 去互动探索区试试</a></p>
+        <details style="margin-top:10px;background:#fff;border:1px solid var(--brown);border-radius:8px;padding:10px 12px;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--brown);list-style:none;outline:none;">查看答案</summary>
+          <div style="margin-top:8px;line-height:1.8;">
+            <p><strong>三个“不能超过”：</strong></p>
+            <ul style="padding-left:20px;margin:6px 0;">
+              <li>为了保护听力，声音<strong>不能超过 90 dB</strong>；</li>
+              <li>为了保证工作和学习，声音<strong>不能超过 70 dB</strong>；</li>
+              <li>为了保证休息和睡眠，声音<strong>不能超过 50 dB</strong>。</li>
+            </ul>
+            <p><strong>70 dB</strong>：会干扰谈话，影响工作效率。</p>
+            <p><strong>90 dB</strong>：长期生活在 90 dB 以上的噪声环境中，听力会受到严重影响，并产生神经衰弱、头疼、高血压等疾病。</p>
+            <p><strong>易混点：</strong>“不能超过 90 dB”是针对<strong>长期</strong>而言，强调保护听力；“150 dB”是<strong>突然暴露</strong>即可造成鼓膜破裂，二者程度完全不同。</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 3 控制噪声 ============ -->
+  <div class="tab-pane" id="t3">
+    <div class="card">
+      <h2>控制噪声 <span class="chip">图2.4-3</span></h2>
+      <p style="font-size:14px;line-height:1.8;">由于噪声的危害，人们将噪声称为“隐形杀手”。
+现代城市把控制噪声列为环境保护的重要项目之一。
+在需要安静环境的医院、学校和科学研究部门附近，常
+常有禁止鸣喇叭的标志（图2.4-3）。家用电器、机动
+车等在设计时都应考虑减小噪声对环境的影响。</p>
+      <div class="figbox">
+        <img src="img/no-horn.jpg?v=20260921r9" alt="禁止鸣喇叭的标志" style="max-width:280px;width:100%;height:auto;display:block;margin:0 auto;border-radius:10px;background:#fff;">
+        <div class="figcap">图 2.4-3 禁止鸣喇叭的标志。医院、学校和科研部门附近常设有此标志。</div>
+      </div>
+
+      <h2 style="margin-top:16px;">控制噪声的三条途径 <span class="chip green">必记</span></h2>
+      <div class="figbox">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+          <div style="background:var(--green-bg);border-radius:10px;padding:14px;border-left:4px solid var(--green);">
+            <div style="font-weight:700;color:var(--green);margin-bottom:6px;">1 防止噪声产生</div>
+            <div style="font-size:13px;line-height:1.7;">从声源处入手，让发声体不振动或减小振动。例如：给机器加消声器、禁止鸣笛、改造噪声大的设备等。</div>
+          </div>
+          <div style="background:var(--cyan-bg);border-radius:10px;padding:14px;border-left:4px solid var(--cyan);">
+            <div style="font-weight:700;color:var(--cyan);margin-bottom:6px;">2 阻断噪声传播</div>
+            <div style="font-size:13px;line-height:1.7;">在传播过程中减弱噪声。例如：修建隔音墙、植树、关闭门窗、使用吸音材料等。</div>
+          </div>
+          <div style="background:var(--brown-bg);border-radius:10px;padding:14px;border-left:4px solid var(--brown);">
+            <div style="font-weight:700;color:var(--brown);margin-bottom:6px;">3 防止噪声进入耳朵</div>
+            <div style="font-size:13px;line-height:1.7;">在人耳处进行防护。例如：戴耳罩、耳塞，或在强噪声环境中减少暴露时间。</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 style="margin-top:16px;">练习与应用：高架桥隔音板 <span class="chip brown">图2.4-4</span></h2>
+      <p style="font-size:14px;line-height:1.8;">住宅区的高架桥两侧常安装隔音板（图2.4-4），请你从减少噪声危害的角度谈谈这样做有什么道理。</p>
+      <div class="figbox">
+        <img src="img/sound-barrier.jpg?v=20260921r9" alt="高架桥两侧安装隔音板" style="width:100%;height:auto;border-radius:10px;display:block;">
+        <div class="figcap">图 2.4-4 高架桥两侧安装隔音板。隔音板可以阻挡或吸收噪声在空气中的传播，降低到达住宅区的噪声强度。</div>
+      </div>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>高架桥两侧的隔音板属于控制噪声的哪条途径？你还能分别举出“防止噪声产生”“阻断噪声传播”“防止噪声进入耳朵”的一个实例吗？</div>
+        <p style="margin-top:8px;"><a class="btn btn-secondary" href="exp-control.html?from=explain&tab=t3">🔬 去互动探索区试试</a></p>
+        <details style="margin-top:10px;background:#fff;border:1px solid var(--brown);border-radius:8px;padding:10px 12px;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--brown);list-style:none;outline:none;">查看答案</summary>
+          <div style="margin-top:8px;line-height:1.8;">
+            <p><strong>高架桥隔音板</strong>属于<strong>阻断噪声传播</strong>。它通过阻挡和吸收声波，减少噪声从高架桥向住宅区的传播。</p>
+            <p><strong>三途径实例：</strong></p>
+            <ul style="padding-left:20px;margin:6px 0;">
+              <li><strong>防止噪声产生</strong>：给摩托车安装消声器、市区禁止鸣喇叭、选用低噪声机器。</li>
+              <li><strong>阻断噪声传播</strong>：高架桥隔音板、道路两旁植树、剧场墙面使用吸音材料。</li>
+              <li><strong>防止噪声进入耳朵</strong>：戴防噪声耳罩或耳塞、机场地勤人员佩戴耳罩。</li>
+            </ul>
+            <p><strong>易混点：</strong>判断方法的关键是看作用位置——在<strong>声源处</strong>减弱、在<strong>传播过程中</strong>减弱，还是在<strong>人耳处</strong>减弱。同一措施可能同时涉及多种方式，但通常按主要作用位置来分类。</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var btns = document.querySelectorAll('.tab-btn');
+  function activate(id) {
+    btns.forEach(function (b) { b.classList.toggle('active', b.dataset.tab === id); });
+    document.querySelectorAll('.tab-pane').forEach(function (p) { p.classList.toggle('active', p.id === id); });
+    try { sessionStorage.setItem('c2s4_explain_tab', id); } catch (e) {}
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { activate(b.dataset.tab); }); });
+  var m = (location.hash || '').match(/^#(t[1-3])$/);
+  if (m) activate(m[1]);
+})();
+</script>
+</body>
+</html>

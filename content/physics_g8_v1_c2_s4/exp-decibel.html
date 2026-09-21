@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>实验：人对不同强度的声音的感觉 · 噪声的危害和控制</title>
+<link rel="stylesheet" href="common.css?v=20260920r4">
+<style>
+  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid rgba(0,0,0,.08); padding: 16px; }
+  .db-scale { position: relative; height: 36px; border-radius: 8px; background: linear-gradient(90deg, #4ade80 0%, #facc15 50%, #f87171 100%); margin: 12px 0 6px; }
+  .db-tick { position: absolute; top: -6px; transform: translateX(-50%); font-size: 11px; color: var(--ink2); }
+  .db-tick::after { content: ''; position: absolute; left: 50%; top: 18px; width: 1px; height: 8px; background: rgba(0,0,0,.3); }
+  .db-marker { position: absolute; top: -4px; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid var(--brown); transform: translateX(-50%); transition: left .25s ease; }
+  .db-readout { text-align: center; font-size: 18px; font-weight: 700; margin: 8px 0; color: var(--brown); }
+  .db-info { background: var(--brown-bg); border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.7; min-height: 80px; }
+  .drag-pool { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+  .drag-pool .chip-card { background: var(--card2); border: 1px solid rgba(0,0,0,.1); border-radius: 10px; padding: 10px 14px; font-size: 13px; cursor: grab; user-select: none; transition: transform .12s; }
+  .drag-pool .chip-card:active { cursor: grabbing; transform: scale(.97); }
+  .limit-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .limit-row .btn { flex: 1; min-width: 120px; font-size: 13px; padding: 8px 10px; }
+  @media (max-width: 768px) { .limit-row .btn { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" data-back href="experiment.html?v=20260920r4">‹ 返回实验区</a>
+  <div class="page-header">
+    <h1 class="page-title">🔊 人对不同强度的声音的感觉</h1>
+    <p class="page-subtitle">教材小资料：人们对不同分贝声音的主观感觉与“不能超过”上限。</p>
+  </div>
+
+  <div class="card">
+    <h2>小资料 · 图2.4-X <span class="chip brown">小资料</span></h2>
+    <div class="hint-bar">💡 拖动场景卡片放到分贝刻度条上，或点击下方的“不能超过”上限，查看对应的 dB 和说明。数字和单位与教材逐字一致。</div>
+
+    <div class="scene-wrap">
+      <div style="font-size:13px;color:var(--ink2);margin-bottom:6px;">拖动场景 →</div>
+      <div class="drag-pool" id="scenePool">
+        <div class="chip-card" data-db="35">🍃 安静的图书馆 30~40 dB</div>
+        <div class="chip-card" data-db="70">💬 干扰谈话的办公室</div>
+        <div class="chip-card" data-db="90">🏭 长期生活的噪声环境</div>
+        <div class="chip-card" data-db="150">✈️ 飞机起飞旁</div>
+      </div>
+
+      <div class="db-scale" id="dbScale">
+        <span class="db-tick" style="left:0%">0</span>
+        <span class="db-tick" style="left:33.3%">50</span>
+        <span class="db-tick" style="left:50%">75</span>
+        <span class="db-tick" style="left:66.7%">100</span>
+        <span class="db-tick" style="left:100%">150</span>
+        <div class="db-marker" id="dbMarker" style="left:0%"></div>
+      </div>
+
+      <div class="db-readout" id="dbReadout">0 dB · 人耳刚能听到的最微弱的声音</div>
+      <div class="db-info" id="dbInfo">拖动上方场景或点击下方上限，查看不同分贝声音给人的感觉。</div>
+    </div>
+
+    <h3 style="margin-top:16px;font-size:15px;">三个“不能超过”的上限</h3>
+    <div class="limit-row">
+      <button class="btn btn-secondary" data-limit="90">保护听力：90 dB</button>
+      <button class="btn btn-secondary" data-limit="70">工作学习：70 dB</button>
+      <button class="btn btn-secondary" data-limit="50">休息睡眠：50 dB</button>
+    </div>
+  </div>
+</div>
+<script src="exp-back.js?v=20260920r4"></script>
+<script src="exp-decibel.js?v=20260920r4"></script>
+</body>
+</html>

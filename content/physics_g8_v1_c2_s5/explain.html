@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 跨学科实践：制作隔音房间模型</title>
+<link rel="stylesheet" href="common.css?v=20260920r5">
+<style>
+  .tabs { display: flex; gap: 8px; margin: 12px 0; flex-wrap: nowrap; overflow-x: auto; }
+  .tab-btn { flex: 1; white-space: nowrap; padding: 10px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background: #fff; cursor: pointer; font-weight: 700; font-size: 13px; transition: all .25s ease; min-height: 44px; }
+  .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .tab-pane { display: none; animation: tabIn .25s ease; }
+  .tab-pane.active { display: block; }
+  @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .figbox { background: var(--card2); border-radius: 12px; padding: 14px; margin: 12px 0; }
+  .figcap { color: var(--ink2); font-size: 13px; text-align: center; margin-top: 8px; line-height: 1.6; }
+  ul.plain { padding-left: 20px; margin: 8px 0; font-size: 14px; line-height: 1.9; }
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 12px 0; }
+  .steps li { position: relative; padding: 10px 12px 10px 52px; margin-bottom: 10px; background: var(--green-bg); border-radius: 10px; line-height: 1.6; font-size: 14px; }
+  .steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .think { border: 2px dashed var(--brown); border-radius: 12px; padding: 14px 16px; margin-top: 14px; background: #fffdf5; font-size: 14px; line-height: 1.7; }
+  .think .q { font-weight: 700; color: var(--brown); margin-bottom: 6px; }
+  @media (max-width: 768px) { .tabs { gap: 6px; } .tab-btn { font-size: 12px; padding: 10px 4px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-btn" href="index.html?v=20260920r5">‹ 返回本节</a>
+
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">动手做一个隔音房间模型，在“做中学”理解控制噪声的实际意义。</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="t1" role="tab">① 项目提出</button>
+    <button class="tab-btn" data-tab="t2" role="tab">② 项目分析</button>
+    <button class="tab-btn" data-tab="t3" role="tab">③ 项目实施</button>
+    <button class="tab-btn" data-tab="t4" role="tab">④ 展示交流</button>
+  </div>
+
+  <!-- ============ Tab 1 项目提出 ============ -->
+  <div class="tab-pane active" id="t1">
+    <div class="card">
+      <h2>生活中的问题 <span class="chip brown">项目提出 图2.5-1</span></h2>
+      <p style="font-size:14px;line-height:1.8;">当我们在家中弹奏乐器、欣赏音乐或观看电视节目时，有可能会打扰需要休息的家人和邻居。你有什么办法解决这个问题？</p>
+      <div class="figbox">
+        <img src="img/fig-2-5-1.png" alt="图 2.5-1" style="width:100%;height:auto;display:block;border-radius:8px;">
+        <div class="figcap">图 2.5-1 在家中弹奏乐器</div>
+      </div>
+
+      <h2 style="margin-top:16px;">项目任务 <span class="chip">核心问题</span></h2>
+      <p style="font-size:14px;line-height:1.8;">有同学设计了一个方案，打算将家中的一个房间改造为隔音房间，这样就不会彼此干扰。在方案实施前，我们可以通过制作模型来高效、经济地测试方案的可行性。请你根据以上思路，制作一个隔音房间的简易模型，并测试它的隔音性能。</p>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>如果你要改造一个隔音房间，你首先会想到从哪些方面入手？</div>
+        <details style="margin-top:10px;background:#fff;border:1px solid var(--brown);border-radius:8px;padding:10px 12px;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--brown);list-style:none;outline:none;">查看答案</summary>
+          <div style="margin-top:8px;line-height:1.8;">
+            <p>可以从<strong>控制噪声的三个途径</strong>入手：防止噪声产生、阻断噪声传播、防止噪声进入耳朵。隔音房间主要属于“阻断噪声传播”。</p>
+            <p>具体思考方向包括：用什么材料阻挡声音？材料放在房间的哪些位置？如何固定材料？怎样测试隔音效果？</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 2 项目分析 ============ -->
+  <div class="tab-pane" id="t2">
+    <div class="card">
+      <h2>制作模型前需要考虑的问题 <span class="chip brown">项目分析</span></h2>
+      <p style="font-size:14px;line-height:1.8;">制作模型之前，我们需要考虑下面的问题。</p>
+      <ol class="steps">
+        <li>生活中哪些常见的物品能够充当“房间”？可以选用哪些材料？</li>
+        <li>为房间隔音的材料要满足哪些要求？</li>
+        <li>声音是如何传播到房间外的？隔音的材料应放在房间的哪些位置以及如何放置？</li>
+        <li>怎样测试模型房间的隔音性能？</li>
+      </ol>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>“房间”和“隔音材料”在选择时分别要考虑哪些因素？</div>
+        <details style="margin-top:10px;background:#fff;border:1px solid var(--brown);border-radius:8px;padding:10px 12px;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--brown);list-style:none;outline:none;">查看答案</summary>
+          <div style="margin-top:8px;line-height:1.8;">
+            <p><strong>“房间”选择：</strong>要有一定的结构强度，便于开口放置发声物体，且内部空间足够安装隔音材料。常见的包装盒、鞋盒大小适中，容易获取。</p>
+            <p><strong>隔音材料选择：</strong>要兼顾隔音性能、厚度、易得性、安全性和环保性。材料太厚会占用太多“房间”空间，太薄则隔音效果差；材料要安全、环保、容易获取。</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 3 项目实施 ============ -->
+  <div class="tab-pane" id="t3">
+    <div class="card">
+      <h2>制作隔音房间模型 <span class="chip brown">项目实施 图2.5-2</span></h2>
+      <p style="font-size:14px;line-height:1.8;">我们可以用包装盒或鞋盒充当“房间”，将一只闹钟放入其中模拟房间中发声的乐器或电视机。然后，在盒内相应区域安装能够隔音的材料，制作隔音房间模型。</p>
+
+      <div class="figbox">
+        <img src="img/fig-2-5-2.png" alt="图 2.5-2" style="width:100%;height:auto;display:block;border-radius:8px;">
+        <div class="figcap">图 2.5-2 某科创小组制作的隔音房间模型</div>
+      </div>
+
+      <h2 style="margin-top:16px;">查阅资料与选材 <span class="chip">资料查阅</span></h2>
+      <p style="font-size:14px;line-height:1.8;">上网查阅资料，了解不同材料的隔音性能以及它们的特点，尽量从常见材料中选取合适的材料。在注意隔音性能的同时，也要尽量减小材料的厚度，最大限度地保证“房间”的空间。</p>
+
+      <h2 style="margin-top:16px;">测试方法 <span class="chip">测试</span></h2>
+      <p style="font-size:14px;line-height:1.8;">测试时，通过手机或计算机中的软件等先测量闹钟铃声的强弱，再测量经过隔音处理后闹钟铃声的强弱，通过比较前后的变化来评估模型的隔音性能。</p>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>为什么要先测“处理前”、再测“处理后”？测量时应注意什么？</div>
+        <details style="margin-top:10px;background:#fff;border:1px solid var(--brown);border-radius:8px;padding:10px 12px;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--brown);list-style:none;outline:none;">查看答案</summary>
+          <div style="margin-top:8px;line-height:1.8;">
+            <p><strong>对比实验思想：</strong>只有先测量处理前的声音强弱，再测量处理后的声音强弱，才能比较出隔音材料带来的效果。没有“处理前”的数据，就无法判断模型是否有效。</p>
+            <p><strong>测量注意事项：</strong>应保持发声源（闹钟）音量、测量位置、周围环境等条件相同，只改变“是否加隔音材料”这一个因素；尽量使用同一台手机和同一个软件，并在同一位置测量。</p>
+          </div>
+        </details>
+        <p style="margin-top:8px;"><a class="btn btn-secondary" href="exp-room.html?from=explain&tab=t3">🔬 去互动探索区试试</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 4 展示交流 ============ -->
+  <div class="tab-pane" id="t4">
+    <div class="card">
+      <h2>展示与交流 <span class="chip brown">展示交流</span></h2>
+      <ol class="steps">
+        <li>展示你制作的隔音房间模型，并从隔音性能、空间占用率、材料是否易得、安全和环保等方面对模型进行评价。</li>
+        <li>相互交流，总结经验并进行反思，尝试对制作的模型进行改进。</li>
+        <li>如果有了真正的隔音房间，为了做到不打扰他人，也为了自己听力的健康，在使用时还要注意哪些问题？</li>
+      </ol>
+
+      <h2 style="margin-top:16px;">评价维度 <span class="chip">重点</span></h2>
+      <ul class="plain">
+        <li><strong>隔音性能</strong>：处理前后声音强弱的变化是否明显。</li>
+        <li><strong>空间占用率</strong>：隔音材料是否占用了过多“房间”内部空间。</li>
+        <li><strong>材料是否易得</strong>：所用材料在生活中是否容易找到。</li>
+        <li><strong>安全和环保</strong>：材料是否安全、无毒、环保。</li>
+      </ul>
+
+      <div class="think">
+        <div class="q">💡 想一想</div>
+        <div>如果要在“隔音性能”和“空间占用率”之间取舍，你会怎么平衡？</div>
+        <details style="margin-top:10px;background:#fff;border:1px solid var(--brown);border-radius:8px;padding:10px 12px;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--brown);list-style:none;outline:none;">查看答案</summary>
+          <div style="margin-top:8px;line-height:1.8;">
+            <p>应在满足基本隔音要求的前提下，尽量选择<strong>厚度小、隔音性能好</strong>的材料，或者优化材料的安装位置（如优先覆盖声音传播的主要路径），以减小对“房间”空间的占用。</p>
+            <p>同时，还要兼顾材料的易得性、安全性和环保性，不能只追求隔音效果而忽视实际可行性。</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var btns = document.querySelectorAll('.tab-btn');
+  function activate(id) {
+    btns.forEach(function (b) { b.classList.toggle('active', b.dataset.tab === id); });
+    document.querySelectorAll('.tab-pane').forEach(function (p) { p.classList.toggle('active', p.id === id); });
+    try { sessionStorage.setItem('c2s5_explain_tab', id); } catch (e) {}
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { activate(b.dataset.tab); }); });
+  var m = (location.hash || '').match(/^#(t[1-4])$/);
+  if (m) activate(m[1]);
+})();
+</script>
+</body>
+</html>
