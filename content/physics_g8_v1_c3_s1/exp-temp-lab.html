@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>温度实验室</title>
+  <link rel="stylesheet" href="temp-lab.css" />
+</head>
+<body>
+  <a id="back-to-cards" href="index.html">‹ 返回</a>
+  <style>
+    #back-to-cards{position:fixed;left:12px;top:10px;z-index:30;height:32px;line-height:32px;padding:0 14px;border-radius:99px;background:rgba(13,16,22,.68);color:#eef2f8;font-size:14px;text-decoration:none;backdrop-filter:blur(4px);}
+    #back-to-cards:hover{background:rgba(30,36,48,.9);}
+  </style>
+  <div id="app">
+    <div id="canvas-container"></div>
+    <div id="ui-layer">
+      <div class="title-bar">
+        温度实验室
+      </div>
+
+      <a id="back-to-index" href="index.html" style="position:fixed;top:8px;left:10px;z-index:50;display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:10px;background:rgba(24,24,34,.55);border:1px solid rgba(255,255,255,.14);color:#e8ecf4;font-size:14px;font-weight:600;text-decoration:none;backdrop-filter:blur(4px);">‹ 返回</a>
+
+      <div class="thermometer-rack" id="thermometer-rack">
+        <div class="rack-title">温度计架</div>
+        <div class="rack-items">
+          <button class="rack-item" data-type="lab" title="实验室温度计">实验室</button>
+          <button class="rack-item" data-type="clinical" title="体温计">体温计</button>
+          <button class="rack-item" data-type="diy" title="自制瓶式温度计">自制</button>
+          <button class="rack-item" data-type="digital" title="电子温度计">电子</button>
+        </div>
+      </div>
+
+      <div class="control-panel">
+        <div class="panel-section">
+          <div class="panel-title">读数面板</div>
+          <div class="readout"><span>当前水温</span><span class="value" id="r-water-temp">20.0 ℃</span></div>
+          <div class="readout"><span>环境温度</span><span class="value" id="r-amb-temp">20.0 ℃</span></div>
+          <div class="readout"><span>模拟时间</span><span class="value" id="r-sim-time">0.0 s</span></div>
+          <div class="readout"><span>冰剩余质量</span><span class="value" id="r-ice-mass">0.0 g</span></div>
+          <div class="readout"><span>加热功率</span><span class="value" id="r-power">0 W</span></div>
+        </div>
+        <div class="panel-section" id="readings-section">
+          <div class="panel-title">已插入温度计</div>
+          <div id="thermometer-readings"></div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-title">参数</div>
+          <div class="slider-row">
+            <label>环境温度</label>
+            <button class="stepper-btn" id="amb-minus">◀</button>
+            <input id="amb-slider" type="range" min="-10" max="40" step="1" value="20" />
+            <button class="stepper-btn" id="amb-plus">▶</button>
+            <span class="slider-value" id="amb-val">20 ℃</span>
+          </div>
+          <div class="slider-row">
+            <label>加热功率</label>
+            <button class="stepper-btn" id="power-minus">◀</button>
+            <input id="power-slider" type="range" min="0" max="500" step="10" value="0" />
+            <button class="stepper-btn" id="power-plus">▶</button>
+            <span class="slider-value" id="power-val">0 W</span>
+          </div>
+          <div class="slider-row">
+            <label>水量</label>
+            <button class="stepper-btn" id="vol-minus">◀</button>
+            <input id="vol-slider" type="range" min="100" max="400" step="10" value="200" />
+            <button class="stepper-btn" id="vol-plus">▶</button>
+            <span class="slider-value" id="vol-val">200 mL</span>
+          </div>
+          <div class="slider-row">
+            <label>时间加速</label>
+            <select id="timescale-select">
+              <option value="1">×1</option>
+              <option value="10">×10</option>
+              <option value="60" selected>×60</option>
+              <option value="300">×300</option>
+            </select>
+          </div>
+          <div class="button-row">
+            <button class="btn primary" id="btn-heat">加热：关</button>
+            <button class="btn" id="btn-ice">加冰</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-controls">
+        <button class="btn primary" id="btn-pause">开始</button>
+        <button class="btn" id="btn-reset">重置</button>
+        <button class="btn" id="btn-mute" title="切换静音">🔊</button>
+      </div>
+
+      <div class="hint">
+        点击「温度计架」插入杯中 · 点击杯中温度计取出 · 拖温度计到垃圾桶删除 · 空白处拖动旋转视角 · 滚轮/双指缩放 · 右侧调节参数
+      </div>
+      <div id="trash-bin">🗑️<div class="trash-label">垃圾桶</div></div>
+      <button id="clinical-shake">甩一甩体温计</button>
+    </div>
+  </div>
+
+  <script src="three.min.js"></script>
+  <script src="exp-temp-lab-audio.js"></script>
+  <script src="exp-temp-lab-core.js"></script>
+  <script src="exp-temp-lab.js"></script>
+</body>
+</html>

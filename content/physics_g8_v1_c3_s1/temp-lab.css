@@ -1,0 +1,144 @@
+/* temp-lab.css */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+  background: #1a1a24; color: #f0f0f0;
+}
+#app { position: relative; width: 100vw; height: 100vh; }
+#canvas-container { position: absolute; inset: 0; z-index: 1; }
+#ui-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+#ui-layer > * { pointer-events: auto; }
+
+.title-bar {
+  position: absolute; top: 0; left: 0; right: 0; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(24,24,34,0.85);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-size: 18px; font-weight: 600; letter-spacing: 0.5px;
+}
+
+.thermometer-rack {
+  position: absolute; top: 60px; left: 16px; transform: none;
+  width: auto; min-width: 120px;
+  background: rgba(30,30,44,0.95);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  padding: 12px 16px; display: flex; flex-direction: column; gap: 8px;
+}
+.rack-title { font-size: 13px; color: #ffd54f; font-weight: 600; }
+.rack-items { display: flex; flex-direction: column; gap: 10px; }
+.rack-item {
+  flex: 1; padding: 8px 0; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15); background: #2c2c40;
+  color: #f0f0f0; cursor: pointer; font-size: 13px; font-weight: 600;
+  text-align: center;
+}
+.rack-item:hover { background: #3a3a55; }
+.rack-item.active { border-color: #4caf50; color: #4caf50; }
+
+.control-panel {
+  position: absolute; top: 160px; right: 16px; width: 320px;
+  max-height: calc(100vh - 220px); overflow-y: auto; overflow-x: hidden;
+  background: rgba(30,30,44,0.95);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  padding: 14px; display: flex; flex-direction: column; gap: 14px;
+}
+.panel-section { display: flex; flex-direction: column; gap: 8px; }
+.panel-title {
+  font-size: 13px; font-weight: 600; color: #ffd54f;
+  border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;
+}
+.readout { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.readout .value {
+  font-variant-numeric: tabular-nums; color: #81d4fa; font-weight: 600;
+}
+.reading-row { font-size: 12px; color: #c0c0d0; }
+.reading-row.warn { color: #ff5252; }
+.slider-row {
+  display: grid;
+  grid-template-columns: 70px 24px 1fr 24px 72px;
+  align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.slider-row label { width: 70px; font-size: 12px; color: #b0b0c0; }
+#timescale-select {
+  grid-column: 2 / 6; width: 100%; height: 30px;
+  background: #2c2c40; color: #f0f0f0;
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+  font-size: 13px; padding: 0 8px; cursor: pointer;
+}
+.stepper-btn {
+  width: 24px; height: 24px; border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.2); background: #2c2c40;
+  color: #f0f0f0; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; font-weight: 700;
+}
+.stepper-btn:hover { background: #3a3a55; }
+input[type="range"] { flex: 1; height: 6px; cursor: pointer; }
+.slider-value {
+  min-width: 64px; text-align: right; font-variant-numeric: tabular-nums;
+  color: #81d4fa; font-size: 13px; white-space: nowrap;
+}
+.button-row { display: flex; gap: 10px; margin-top: 4px; }
+.btn {
+  flex: 1; padding: 8px 0; border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15); background: #2c2c40;
+  color: #f0f0f0; cursor: pointer; font-size: 13px; font-weight: 600;
+}
+.btn:hover { background: #3a3a55; }
+.btn.primary { background: #4caf50; border-color: #4caf50; color: #fff; }
+.btn.warn { background: #ff9800; border-color: #ff9800; color: #fff; }
+
+.bottom-controls {
+  position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 12px; align-items: center;
+  background: rgba(30,30,44,0.95); padding: 10px 18px;
+  border-radius: 28px; border: 1px solid rgba(255,255,255,0.1);
+}
+.bottom-controls .btn {
+  min-height: 44px; padding: 0 16px; white-space: nowrap; font-size: 14px;
+}
+
+.hint {
+  position: absolute; bottom: 92px; left: 50%; transform: translateX(-50%);
+  font-size: 12px; color: #9090a5; background: rgba(0,0,0,0.35);
+  padding: 4px 12px; border-radius: 12px; text-align: center;
+}
+
+#clinical-shake {
+  display: none;
+  position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+  padding: 8px 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);
+  background: #ff9800; color: #fff; font-size: 14px; font-weight: 600;
+  cursor: pointer; pointer-events: auto;
+}
+#clinical-shake.active { display: block; }
+
+#trash-bin {
+  position: absolute; bottom: 100px; left: 24px;
+  width: 88px; height: 88px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; font-size: 34px;
+  background: rgba(40,40,52,0.55);
+  border: 2px solid rgba(255,255,255,0.15); border-radius: 12px;
+  opacity: 0.55; filter: grayscale(0.6);
+  pointer-events: none; /* 不挡画布拖拽，命中靠 pointerup 坐标判定 */
+  transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s, border-color 0.15s;
+  z-index: 12;
+}
+#trash-bin .trash-label { font-size: 12px; color: #b0b0c0; }
+#trash-bin.lit {
+  opacity: 1; filter: none;
+  border-color: #ff5252; background: rgba(80,26,26,0.8);
+  box-shadow: 0 0 18px 4px rgba(255,82,82,0.65);
+  transform: scale(1.12);
+}
+#trash-bin.lit .trash-label { color: #ff8a80; }
+
+@media (max-width: 640px) {
+  .control-panel { width: calc(100vw - 32px); right: 16px; top: 140px; }
+  .thermometer-rack { top: 56px; left: 12px; transform: none; width: auto; min-width: 96px; }
+  .rack-items { flex-direction: column; flex-wrap: nowrap; }
+  .rack-item { min-width: 72px; font-size: 12px; }
+  #trash-bin { bottom: 92px; left: 12px; width: 72px; height: 72px; font-size: 28px; }
+}
