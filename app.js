@@ -41,6 +41,9 @@ const AVAILABLE = {
   'physics_g8_v1_c2_s4': { title: '噪声的危害和控制', file: 'content/physics_g8_v1_c2_s4/index.html' },
   'physics_g8_v1_c2_s5': { title: '跨学科实践：制作隔音房间模型', file: 'content/physics_g8_v1_c2_s5/index.html' },
   'physics_g8_v1_c3_s1': { title: '温度', file: 'content/physics_g8_v1_c3_s1/index.html' },
+  'physics_g8_v1_c3_s2': { title: '第2节 熔化和凝固', file: 'content/physics_g8_v1_c3_s2/index.html' },
+  'physics_g8_v1_c3_summary': { title: '本章小结', file: 'content/physics_g8_v1_c3_summary/index.html' },
+  'physics_g8_v1_c3_practice': { title: '本章练习', file: 'content/physics_g8_v1_c3_practice/index.html' },
   'math_fun_chicken_rabbit': { title: '鸡兔同笼', file: 'content/math_fun_chicken_rabbit/index.html' }
 };
 

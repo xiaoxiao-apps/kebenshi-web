@@ -1,0 +1,178 @@
+/* 教材四图切换区 [r5] */
+.textbook-chart-box {
+  position:absolute; inset:10px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.textbook-chart-box h4 { font-size:12px; color:#ffd54f; margin:0; flex-shrink:0; }
+.chart-switcher { display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0; }
+.chart-switcher button {
+  padding:5px 8px; border-radius:12px; border:1px solid rgba(255,255,255,.15);
+  background:#2c2c40; color:#e0e0f0; font-size:11px; cursor:pointer;
+}
+.chart-switcher button.active { background:#5ad7ff; border-color:#5ad7ff; color:#0f1218; }
+#textbook-chart-stage { flex:1; position:relative; min-height:0; }
+#textbook-chart-stage svg { position:absolute; inset:0; width:100%; height:100%; }
+
+/* 分段点击卡片 */
+.segment-card {
+  position:absolute; left:14px; right:14px; bottom:14px;
+  background:rgba(30,30,44,.98); border:1px solid rgba(90,215,255,.45);
+  border-radius:12px; padding:12px 14px; font-size:13px; line-height:1.6;
+  box-shadow:0 6px 24px rgba(0,0,0,.35); display:none; max-width:520px;
+}
+.segment-card h5 { color:#5ad7ff; margin-bottom:6px; font-size:14px; }
+.segment-card p { margin:3px 0; color:#e8ecf4; }
+.segment-card .close {
+  position:absolute; top:8px; right:10px; color:#9090a5; cursor:pointer; font-size:16px;
+}
+
+/* 相变提示 toast */
+#phase-toast {
+  position: absolute;
+  top: 110px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  max-width: 520px;
+  padding: 12px 18px;
+  background: rgba(24, 30, 44, 0.95);
+  border: 1px solid rgba(90, 215, 255, 0.45);
+  border-radius: 12px;
+  color: #e8f4ff;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 60;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+#phase-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---------- 温度-时间曲线系统（阶段2追加） ---------- */
+.chart-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 4px; margin-bottom: 4px;
+}
+#chart-title {
+  font-size: 13px; font-weight: 600; color: #ffd54f;
+}
+#chart-float-btn {
+  width: 28px; height: 28px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.18); background: #2c2c40;
+  color: #e0e0f0; font-size: 16px; line-height: 1;
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+}
+#chart-float-btn:active { background: #3d3d55; }
+
+.chart-float {
+  position: fixed; left: 15vw; top: 20vh;
+  width: 70vw; height: 60vh;
+  min-width: 320px; min-height: 260px;
+  max-width: calc(100vw - 16px); max-height: calc(100vh - 16px);
+  display: none; flex-direction: column;
+  background: rgba(24,24,34,0.98);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 14px; box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+  z-index: 100; overflow: hidden; touch-action: none;
+}
+.chart-float-titlebar {
+  height: 42px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 12px 0 16px;
+  background: rgba(30,30,44,0.98);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  cursor: move; user-select: none;
+}
+#chart-float-title {
+  font-size: 14px; font-weight: 600; color: #ffd54f;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chart-float-close {
+  width: 28px; height: 28px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15); background: #2c2c40;
+  color: #e0e0f0; font-size: 18px; line-height: 1;
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+}
+.chart-float-latest {
+  margin-right: 8px; padding: 4px 10px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15); background: #2c2c40;
+  color: #5ad7ff; font-size: 12px; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+}
+.chart-float-latest:hover { background: #3d3d55; }
+.chart-float-latest.active { background:#5ad7ff; border-color:#5ad7ff; color:#0f1218; }
+#chart-float-hint {
+  margin-left: auto; margin-right: 12px;
+  font-size: 11px; color: #9090a5;
+  white-space: nowrap; pointer-events: none;
+}
+.chart-float-tabs {
+  display: flex; gap: 8px; padding: 8px 12px;
+  background: rgba(30,30,44,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.chart-float-tabs button {
+  padding: 5px 12px; border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12); background: #2c2c40;
+  color: #e0e0f0; font-size: 12px; cursor: pointer;
+}
+.chart-float-tabs button.active {
+  background: #5ad7ff; border-color: #5ad7ff; color: #0f1218;
+}
+.chart-float-body {
+  flex: 1; position: relative; overflow: hidden;
+}
+.chart-tab-pane {
+  position: absolute; inset: 0; display: none; flex-direction: column;
+  padding: 10px;
+}
+.chart-tab-pane.active { display: flex; }
+.chart-float-chart-wrap {
+  flex: 1; position: relative;
+  background: rgba(0,0,0,0.25); border-radius: 10px; overflow: hidden;
+}
+.chart-float-chart-wrap canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+
+#chart-tooltip {
+  position: fixed; display: none;
+  padding: 6px 10px; background: rgba(24,24,34,0.96);
+  border: 1px solid rgba(90,215,255,0.45); border-radius: 8px;
+  color: #e8f4ff; font-size: 12px; white-space: nowrap;
+  pointer-events: none; z-index: 200;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+}
+
+.chart-float-resizer {
+  position: absolute; right: 2px; bottom: 2px; width: 22px; height: 22px;
+  color: rgba(255,255,255,0.35); font-size: 10px; line-height: 22px;
+  text-align: center; cursor: se-resize; user-select: none; z-index: 5;
+}
+
+@media (max-width: 720px) {
+  .chart-float { left: 8px !important; top: 8px !important; width: calc(100vw - 16px) !important; height: calc(100vh - 16px) !important; border-radius: 12px; }
+  .chart-float-titlebar { height: 44px; }
+  .chart-float-tabs button { padding: 7px 10px; font-size: 13px; }
+  .chart-float-resizer { width: 34px; height: 34px; line-height: 34px; font-size: 14px; }
+}
+
+.custom-select-trigger {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.custom-select-text {
+  display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex: 1 1 auto; min-width: 0; padding-right: 4px;
+}
+
+@media (max-width: 720px) {
+  .slider-row { grid-template-columns: 34px 12px 1fr 12px 26px !important; gap: 3px !important; }
+  .slider-row label { font-size: 11px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slider-row.select-row { grid-template-columns: 34px 1fr !important; }
+  .slider-row.select-row .custom-select { grid-column: 2 / 3; width: 100% !important; min-width: 100% !important; }
+  .custom-select-trigger { font-size: 12px !important; padding: 0 5px !important; min-width: 0; }
+}
