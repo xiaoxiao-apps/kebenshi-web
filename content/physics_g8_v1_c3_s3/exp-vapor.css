@@ -1,0 +1,146 @@
+/* exp-vapor.css — 汽化液化探究馆 UI 样式 [s1] */
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html, body { width:100%; height:100%; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei",sans-serif; background:#1a1a24; color:#f0f0f0; }
+#app { position:relative; width:100vw; height:100vh; }
+#canvas-container { position:absolute; inset:0; z-index:1; }
+#ui-layer { position:absolute; inset:0; z-index:10; pointer-events:none; }
+#ui-layer > * { pointer-events:auto; }
+.title-bar { position:absolute; top:0; left:0; right:0; height:48px; display:flex; align-items:center; justify-content:center; background:rgba(24,24,34,.85); border-bottom:1px solid rgba(255,255,255,.08); font-size:18px; font-weight:600; }
+.mode-tabs { position:absolute; top:50px; left:50%; transform:translateX(-50%); display:flex; gap:6px; background:rgba(24,24,34,.9); padding:6px; border-radius:24px; border:1px solid rgba(255,255,255,.1); z-index:40; }
+.mode-tab { padding:6px 14px; border-radius:18px; border:none; background:transparent; color:#c8c8d8; font-size:13px; font-weight:600; cursor:pointer; }
+.mode-tab.active { background:#5ad7ff; color:#12121a; }
+.mode-tab:disabled { color:#666670; cursor:not-allowed; }
+.sub-tabs { display:flex; gap:4px; margin-bottom:8px; }
+.sub-tab { flex:1; padding:6px 4px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:#2c2c40; color:#d0d0e0; font-size:12px; cursor:pointer; }
+.sub-tab.active { background:rgba(90,215,255,.25); color:#5ad7ff; border-color:rgba(90,215,255,.45); }
+.evap-note { font-size:12px; color:#b0b0c0; line-height:1.5; margin-top:8px; }
+#back-to-index { position:absolute; top:8px; left:10px; z-index:50; display:inline-flex; align-items:center; gap:4px; padding:6px 12px; border-radius:10px; background:rgba(24,24,34,.55); border:1px solid rgba(255,255,255,.14); color:#e8ecf4; font-size:14px; font-weight:600; text-decoration:none; backdrop-filter:blur(4px); }
+.panel { position:absolute; background:rgba(30,30,44,.95); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:10px; }
+.control-panel { top:62px; left:14px; width:260px; max-height:calc(100vh - 150px); overflow-y:auto; }
+.data-panel { top:62px; right:14px; width:340px; max-height:calc(100vh - 150px); overflow-y:auto; }
+.panel-title { font-size:13px; font-weight:600; color:#ffd54f; border-bottom:1px solid rgba(255,255,255,.08); padding-bottom:4px; }
+.row { display:flex; align-items:center; justify-content:space-between; font-size:13px; gap:8px; }
+.row label { color:#b0b0c0; }
+.row .value { font-variant-numeric:tabular-nums; color:#81d4fa; font-weight:600; }
+.slider-row { display:grid; grid-template-columns:64px 22px 1fr 22px 56px; align-items:center; gap:6px; margin-bottom:4px; }
+.slider-row label { font-size:12px; color:#b0b0c0; }
+input[type=range] { width:100%; height:6px; cursor:pointer; }
+select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:none; }
+.stepper-btn { width:22px; height:22px; border-radius:4px; border:1px solid rgba(255,255,255,.2); background:#2c2c40; color:#f0f0f0; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.custom-select { position:relative; width:100%; height:30px; }
+.custom-select-trigger { display:flex; align-items:center; justify-content:space-between; width:100%; height:30px; background:#2c2c40; color:#f0f0f0; border:1px solid rgba(255,255,255,.2); border-radius:6px; font-size:13px; padding:0 6px; cursor:pointer; }
+.custom-select-trigger::after { content:'▾'; font-size:11px; color:#b0b0c0; margin-left:4px; }
+.custom-options { position:absolute; left:0; right:0; top:calc(100% + 4px); max-height:180px; overflow-y:auto; background:rgba(36,36,52,.98); border:1px solid rgba(255,255,255,.2); border-radius:8px; z-index:1000; display:none; }
+.custom-option { padding:8px 10px; font-size:13px; color:#f0f0f0; cursor:pointer; }
+.custom-option:hover, .custom-option.active { background:rgba(90,215,255,.2); color:#5ad7ff; }
+.custom-select.open .custom-options { display:block; }
+.slider-row.select-row { grid-template-columns:64px 1fr; }
+.btn { padding:8px 14px; border-radius:20px; border:1px solid rgba(255,255,255,.15); background:#2c2c40; color:#f0f0f0; font-size:13px; font-weight:600; cursor:pointer; }
+.btn.primary { background:#4caf50; border-color:#4caf50; color:#fff; }
+.btn.warn { background:#ff9800; border-color:#ff9800; color:#fff; }
+.status-chip { display:inline-block; padding:3px 10px; border-radius:12px; background:#2c2c40; border:1px solid rgba(255,255,255,.12); font-size:12px; color:#ffd54f; font-weight:600; }
+.sound-bar-wrap { width:100%; height:8px; background:rgba(255,255,255,.1); border-radius:4px; overflow:hidden; margin-top:2px; }
+.sound-bar { width:0%; height:100%; background:linear-gradient(90deg,#5ad7ff,#ff9800); transition:width .15s linear; }
+#data-table { width:100%; border-collapse:collapse; font-size:12px; }
+#data-table th, #data-table td { padding:4px 6px; text-align:center; border-bottom:1px solid rgba(255,255,255,.08); }
+#data-table th { color:#ffd54f; font-weight:600; }
+#chart-wrap { width:100%; height:180px; background:rgba(0,0,0,.25); border-radius:8px; overflow:hidden; }
+#tt-chart { width:100%; height:100%; }
+.bottom-controls { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); display:flex; gap:12px; align-items:center; background:rgba(30,30,44,.95); padding:10px 18px; border-radius:28px; border:1px solid rgba(255,255,255,.1); }
+.hint { position:absolute; bottom:86px; left:50%; transform:translateX(-50%); font-size:12px; color:#9090a5; background:rgba(0,0,0,.35); padding:4px 12px; border-radius:12px; text-align:center; }
+#heat-arrow { position:absolute; left:50%; top:56%; transform:translateX(-50%); font-size:13px; color:#ff7043; font-weight:700; opacity:0; transition:opacity .4s ease; pointer-events:none; text-shadow:0 0 6px rgba(255,112,67,.6); }
+#heat-arrow.show { opacity:1; }
+#phase-toast {
+  position: absolute; top: 110px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  max-width: 520px; padding: 12px 18px;
+  background: rgba(24, 30, 44, 0.95);
+  border: 1px solid rgba(90, 215, 255, 0.45);
+  border-radius: 12px; color: #e8f4ff; font-size: 14px; line-height: 1.5;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 60; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); text-align: center;
+}
+#phase-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#intro-overlay {
+  position:fixed; inset:0; z-index:200; background:rgba(12,14,20,.92);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+}
+#intro-canvas { width:360px; height:260px; background:rgba(0,0,0,.25); border-radius:14px; }
+#intro-text { max-width:420px; font-size:14px; line-height:1.7; color:#c8d0e0; text-align:center; min-height:52px; }
+#intro-text b { color:#ffd54f; }
+.intro-controls { display:flex; gap:12px; }
+#chart-tooltip {
+  position: fixed; display: none; padding: 6px 10px;
+  background: rgba(24,24,34,0.96); border: 1px solid rgba(90,215,255,0.45);
+  border-radius: 8px; color: #e8f4ff; font-size: 12px; white-space: nowrap;
+  pointer-events: none; z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+}
+#evap-tooltip {
+  position: fixed; display: none; padding: 8px 12px;
+  background: rgba(24,24,34,0.96); border: 1px solid rgba(90,215,255,0.45);
+  border-radius: 8px; color: #e8f4ff; font-size: 12px; line-height: 1.6;
+  pointer-events: none; z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+}
+.evap-coat-btn {
+  position: fixed; display: none; padding: 4px 10px;
+  background: rgba(76,175,80,0.92); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px; color: #fff; font-size: 12px; font-weight: 600;
+  cursor: pointer; z-index: 210; transform: translate(-50%,0);
+  pointer-events: auto;
+}
+@media (max-width:720px) {
+  .control-panel { width:calc(50vw - 22px); padding:10px; }
+  .data-panel { width:calc(50vw - 22px); }
+  .slider-row { grid-template-columns:52px 18px 1fr 18px 42px; gap:4px; }
+  .slider-row label { font-size:11px; }
+  .stepper-btn { width:18px; height:18px; font-size:10px; }
+  #intro-canvas { width:92vw; height:42vh; }
+}
+/* ---------- 液化探究 模式③ ---------- */
+#liquefy-panel { display:none; }
+.liquefy-sub-tab { flex:1; padding:6px 2px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:#2c2c40; color:#d0d0e0; font-size:11px; cursor:pointer; }
+.liquefy-sub-tab.active { background:rgba(144,202,249,.25); color:#90caf9; border-color:rgba(144,202,249,.45); }
+#liquefy-breath-controls .evap-note,
+#liquefy-glasses-controls .evap-note,
+#liquefy-dew-controls .evap-note,
+#liquefy-compress-controls .evap-note { margin-top:8px; color:#b0c4de; font-size:12px; }
+#data-liquefy { display:none; }
+.heat-bar-wrap { width:100%; height:10px; background:rgba(255,255,255,.1); border-radius:5px; overflow:hidden; margin:4px 0 10px; }
+
+/* ---------- 液化探究 悬浮说明卡 ---------- */
+.lq-tooltip {
+  position: fixed; display: none; max-width: 220px; padding: 8px 10px;
+  background: rgba(24,30,44,0.96); border: 1px solid rgba(144,202,249,0.55);
+  border-radius: 10px; color: #e8f4ff; font-size: 12px; line-height: 1.5;
+  pointer-events: none; z-index: 220; box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  transition: opacity 0.15s ease; opacity: 0;
+}
+.lq-tooltip.show { opacity: 1; }
+.lq-tooltip-title { font-weight: 700; color: #90caf9; margin-bottom: 3px; }
+.lq-tooltip-body { color: #c8d0e0; }
+
+/* ---------- 液化探究 阶段说明窗口 ---------- */
+.lq-phase-hint {
+  position: absolute; bottom: 140px; left: 50%; transform: translateX(-50%);
+  max-width: 520px; padding: 10px 18px;
+  background: rgba(24,30,44,0.95); border: 1px solid rgba(90,215,255,0.45);
+  border-radius: 12px; color: #e8f4ff; font-size: 13px; line-height: 1.6;
+  text-align: center; pointer-events: none; z-index: 55;
+  opacity: 1; transition: opacity 0.25s ease;
+}
+.lq-phase-hint.hidden { opacity: 0; pointer-events: none; }
+.heat-bar { height:100%; width:0%; border-radius:5px; background:linear-gradient(90deg,#5ad7ff,#2196f3); transition:width .3s linear; }
+#lq-q2-bar { background:linear-gradient(90deg,#ff7043,#ff5722); }
+#lq-heat-note { margin-top:6px; color:#ffd54f; font-size:13px; font-weight:600; }
+/* ④沸点长廊 [s28] */
+#gallery-panel { display:flex; flex-direction:column; gap:8px; }
+.gallery-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; max-height:220px; overflow:auto; }
+.gallery-card { border:2px solid var(--blue-border, rgba(90,215,255,.45)); border-radius:10px; padding:8px 10px; background:rgba(255,255,255,.05); transition:border-color .2s, background .2s; }
+.gallery-card-name { font-weight:700; font-size:15px; }
+.gallery-card-bp { font-size:12px; color:#cfd8dc; margin:2px 0 4px; }
+.gallery-card-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:700; }
+.badge-liquid { background:rgba(90,215,255,.2); color:#5ad7ff; border:1px solid rgba(90,215,255,.55); }
+.badge-gas { background:rgba(255,152,0,.2); color:#ff9800; border:1px solid rgba(255,152,0,.6); }
+.gallery-card.card-gas { border-color:rgba(255,152,0,.8); }
+.gallery-card.card-liquid { border-color:rgba(90,215,255,.7); }

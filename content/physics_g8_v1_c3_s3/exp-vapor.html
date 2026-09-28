@@ -1,0 +1,160 @@
+<!DOCTYPE html> <!-- s1 -->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汽化液化探究馆</title>
+<link rel="stylesheet" href="exp-vapor.css?v=s46">
+</head>
+<body>
+<div id="app">
+  <div id="canvas-container"></div>
+  <div id="ui-layer">
+    <div class="title-bar">汽化液化探究馆</div>
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="boil">① 沸腾探究</button>
+      <button class="mode-tab" data-mode="evap">② 蒸发探究</button>
+      <button class="mode-tab" data-mode="liquefy">③ 液化探究</button>
+    </div>
+    <a id="back-to-index" href="index.html">‹ 返回</a>
+    <div class="panel control-panel">
+      <div class="panel-title">参数</div>
+      <div id="boil-panel">
+      <div class="slider-row select-row"><label>火力</label>
+        <div class="custom-select" id="fire-wrap">
+          <select id="fire-select"><option value="low">小</option><option value="medium" selected>中</option><option value="high">大</option></select>
+          <div class="custom-select-trigger"><span class="custom-select-text">中</span></div>
+          <div class="custom-options"><div class="custom-option" data-value="low">小</div><div class="custom-option active" data-value="medium">中</div><div class="custom-option" data-value="high">大</div></div>
+        </div>
+      </div>
+      <div class="slider-row"><label>环境温度</label><button class="stepper-btn" id="amb-minus">◀</button><input id="amb-slider" type="range" min="10" max="40" step="1" value="25"><button class="stepper-btn" id="amb-plus">▶</button><span class="value" id="amb-val">25℃</span></div>
+      <div class="slider-row select-row"><label>杯盖</label>
+        <div class="custom-select" id="lid-wrap">
+          <select id="lid-select"><option value="vent" selected>纸板盖·带孔</option><option value="sealed">密封盖</option></select>
+          <div class="custom-select-trigger"><span class="custom-select-text">纸板盖·带孔</span></div>
+          <div class="custom-options"><div class="custom-option active" data-value="vent">纸板盖·带孔</div><div class="custom-option" data-value="sealed">密封盖</div></div>
+        </div>
+      </div>
+      <div class="slider-row select-row"><label>水量</label>
+        <div class="custom-select" id="amount-wrap">
+          <select id="amount-select"><option value="small">小</option><option value="medium" selected>中</option><option value="large">大</option></select>
+          <div class="custom-select-trigger"><span class="custom-select-text">中</span></div>
+          <div class="custom-options"><div class="custom-option" data-value="small">小</div><div class="custom-option active" data-value="medium">中</div><div class="custom-option" data-value="large">大</div></div>
+        </div>
+      </div>
+      <div class="slider-row select-row"><label>时间加速</label>
+        <div class="custom-select" id="timescale-wrap">
+          <select id="timescale-select"><option value="1">×1</option><option value="10" selected>×10</option><option value="60">×60</option><option value="300">×300</option></select>
+          <div class="custom-select-trigger"><span class="custom-select-text">×10</span></div>
+          <div class="custom-options"><div class="custom-option" data-value="1">×1</div><div class="custom-option active" data-value="10">×10</div><div class="custom-option" data-value="60">×60</div><div class="custom-option" data-value="300">×300</div></div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:4px;"><button class="btn primary" id="btn-lamp" style="flex:1;">点燃酒精灯</button></div>
+      </div>
+      <div id="evap-panel" style="display:none;">
+        <div class="sub-tabs">
+          <button class="sub-tab active" data-sub="factors">三因素对比台</button>
+          <button class="sub-tab" data-sub="cooling">蒸发吸热对比</button>
+          <button class="sub-tab" data-sub="paper">纸锅烧水</button>
+        </div>
+        <div id="evap-factors-controls">
+          <div class="slider-row"><label>环境温度</label><button class="stepper-btn" id="evap-amb-minus">◀</button><input id="evap-amb-slider" type="range" min="10" max="60" step="1" value="25"><button class="stepper-btn" id="evap-amb-plus">▶</button><span class="value" id="evap-amb-val">25℃</span></div>
+          <div class="slider-row"><label>液体温度</label><button class="stepper-btn" id="evap-temp-minus">◀</button><input id="evap-temp-slider" type="range" min="10" max="60" step="1" value="35"><button class="stepper-btn" id="evap-temp-plus">▶</button><span class="value" id="evap-temp-val">35℃</span></div>
+          <div class="slider-row"><label>表面积</label><button class="stepper-btn" id="evap-area-minus">◀</button><input id="evap-area-slider" type="range" min="0.3" max="2.0" step="0.1" value="1.5"><button class="stepper-btn" id="evap-area-plus">▶</button><span class="value" id="evap-area-val">1.5</span></div>
+          <div class="slider-row"><label>空气流速</label><button class="stepper-btn" id="evap-wind-minus">◀</button><input id="evap-wind-slider" type="range" min="0" max="5" step="0.5" value="2.0"><button class="stepper-btn" id="evap-wind-plus">▶</button><span class="value" id="evap-wind-val">2.0</span></div>
+          <button class="btn" id="evap-reset-drops" style="width:100%;margin-top:6px;">重置液滴</button>
+        </div>
+        <div id="evap-cooling-controls" style="display:none;">
+          <div class="slider-row"><label>当前温度</label><button class="stepper-btn" id="evap-cool-temp-minus">◀</button><input id="evap-cool-temp-slider" type="range" min="10" max="40" step="1" value="25"><button class="stepper-btn" id="evap-cool-temp-plus">▶</button><span class="value" id="evap-cool-temp-val">25℃</span></div>
+          <div class="slider-row"><label>空气流速</label><button class="stepper-btn" id="evap-cool-wind-minus">◀</button><input id="evap-cool-wind-slider" type="range" min="0" max="5" step="0.5" value="2"><button class="stepper-btn" id="evap-cool-wind-plus">▶</button><span class="value" id="evap-cool-wind-val">2.0</span></div>
+          <p class="evap-note">点击温度计玻璃泡下方的“涂酒精”按钮，观察两支温度计示数变化。</p>
+        </div>
+        <div id="evap-paper-controls" style="display:none;">
+          <button class="btn primary" id="paper-match-btn" style="width:100%;margin-bottom:6px;">划火柴</button>
+          <button class="btn" id="paper-water-btn" style="width:100%;margin-bottom:6px;">往纸盒中加水</button>
+          <p class="evap-note">厚纸折的小纸锅盛水在火上加热，注意不要让火苗烧到水面以上的纸。点击火柴或按“划火柴”点燃。</p>
+        </div>
+      </div>
+      <div id="liquefy-panel" style="display:none;">
+        <p class="evap-note">点燃酒精灯加热烧杯中的水，观察水蒸气在上方冷玻璃片上液化、凝结成水珠并沿玻璃片流下收集。</p>
+        <div class="row" style="margin-top:6px;">
+          <button class="btn primary" id="lq-lamp-btn" style="flex:1;">点燃酒精灯</button>
+          <button class="btn" id="lq-reset-btn" style="flex:1;margin-left:6px;">重置</button>
+        </div>
+        <p class="evap-note" id="lq-hint-note">提示：水蒸气上升后遇冷玻璃片会液化成小水珠。</p>
+      </div>
+
+    </div>
+    <div class="panel data-panel">
+      <div class="panel-title">数据面板</div>
+      <div id="data-boil">
+        <div class="row"><label>水温</label><span id="r-water-temp" class="value">25.0 ℃</span></div>
+        <div class="row"><label>状态</label><span id="r-boil-state" class="status-chip">未沸腾</span></div>
+        <div class="row"><label>实验时间</label><span id="r-sim-time" class="value">0.0 min</span></div>
+        <div class="row"><label>声音</label><span id="r-sound-state" class="status-chip">无声</span></div>
+        <div class="sound-bar-wrap"><div class="sound-bar" id="r-sound-level"></div></div>
+        <div class="row" style="margin:2px 0;"><label style="flex:1;">T-t 曲线</label><button class="btn" id="btn-chart-zoom" title="放大曲线图" style="padding:2px 10px;">⤢</button></div>
+        <div id="chart-wrap"><canvas id="tt-chart"></canvas></div>
+        <div class="panel-title" style="margin-top:4px;">数据记录</div>
+        <div style="max-height:140px;overflow:auto;">
+          <table id="data-table"><thead><tr><th>时间/min</th><th>温度/℃</th></tr></thead><tbody id="data-tbody"></tbody></table>
+        </div>
+      </div>
+      <div id="data-evap" style="display:none;">
+        <div id="evap-factors-readout">
+          <div class="row"><label>对照组液滴</label><span id="evap-vol-left" class="value">100%</span></div>
+          <div class="row"><label>实验组液滴</label><span id="evap-vol-right" class="value">100%</span></div>
+        </div>
+        <div id="evap-cooling-readout" style="display:none;">
+          <div class="row"><label>涂酒精温度计</label><span id="evap-temp-with" class="value">25.0 ℃</span></div>
+          <div class="row"><label>不涂酒精温度计</label><span id="evap-temp-without" class="value">25.0 ℃</span></div>
+          <div class="row"><label>酒精剩余（左）</label><span id="evap-alcohol-left" class="value">0%</span></div>
+          <div class="row"><label>酒精剩余（右）</label><span id="evap-alcohol-right" class="value">0%</span></div>
+        </div>
+        <div id="evap-paper-readout" style="display:none;">
+          <div class="row"><label>水温</label><span id="paper-water-temp" class="value">25.0 ℃</span></div>
+          <div class="row"><label>纸锅温度</label><span id="paper-pot-temp" class="value">25.0 ℃</span></div>
+          <div class="row"><label>纸锅状态</label><span id="paper-state" class="status-chip">未点燃</span></div>
+        </div>
+      </div>
+      <div id="data-liquefy" style="display:none;">
+        <div class="row"><label>水温</label><span id="lq-water-temp" class="value">25.0 ℃</span></div>
+        <div class="row"><label>蒸气状态</label><span id="lq-steam-state" class="status-chip">无</span></div>
+        <div class="row"><label>已收集水量</label><span id="lq-collected" class="value">0%</span></div>
+      </div>
+    </div>
+    <div class="bottom-controls">
+      <button class="btn primary" id="btn-pause">开始</button>
+      <button class="btn" id="btn-reset">重置</button>
+      <button class="btn" id="btn-mute">🔊</button>
+    </div>
+    <div class="hint">左侧调参数 · 右侧看曲线 · 空白处拖动旋转 · 滚轮/双指缩放<br>高原气压低，沸点低于100℃</div>
+    <div id="heat-arrow">↑ 持续吸热 ↑</div>
+    <div id="phase-toast"></div>
+    <div id="chart-tooltip"></div>
+    <div id="evap-tooltip"></div>
+    <div id="lq-tooltip" class="lq-tooltip"><div class="lq-tooltip-title"></div><div class="lq-tooltip-body"></div></div>
+    <div id="lq-phase-hint" class="lq-phase-hint hidden" style="display:none;">点燃酒精灯，开始加热烧杯中的水</div>
+    <button class="evap-coat-btn" style="display:none;">涂酒精</button>
+    <button class="evap-coat-btn" style="display:none;">涂酒精</button>
+  </div>
+  <div id="chart-modal" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(6,10,18,0.88);align-items:center;justify-content:center;">
+    <div style="width:min(92vw,900px);background:#101725;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <b style="color:#ffd54f;">T-t 曲线（放大）· 拖动看历史 · 双击回当下</b>
+        <button class="btn" id="chart-modal-close">✕ 关闭</button>
+      </div>
+      <div style="height:min(60vh,520px);position:relative;"><canvas id="tt-chart-big"></canvas></div>
+    </div>
+  </div>
+</div>
+<script src="three.min.js"></script>
+<script src="exp-vapor-physics.js?v=s46"></script>
+<script src="exp-vapor-audio.js?v=s30"></script>
+<script src="exp-vapor-core.js?v=s50"></script>
+<script src="exp-vapor-chart.js?v=s26"></script>
+<script src="exp-vapor.js?v=s46"></script>
+<script src="exp-liquefy-core.js?v=s48"></script>
+<script src="exp-liquefy.js?v=s46"></script>
+</body>
+</html>
