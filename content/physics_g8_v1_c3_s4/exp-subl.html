@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>升华凝华观察站</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html, body { width:100%; height:100%; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei",sans-serif; background:#1a1a24; color:#f0f0f0; }
+  #app { position:relative; width:100vw; height:100vh; }
+  #canvas-container { position:absolute; inset:0; z-index:1; }
+  #ui-layer { position:absolute; inset:0; z-index:10; pointer-events:none; }
+  #ui-layer > * { pointer-events:auto; }
+  .title-bar { position:absolute; top:0; left:0; right:0; height:48px; display:flex; align-items:center; justify-content:center; background:rgba(24,24,34,.85); border-bottom:1px solid rgba(255,255,255,.08); font-size:18px; font-weight:600; }
+  #back-to-index { position:absolute; top:8px; left:10px; z-index:50; display:inline-flex; align-items:center; gap:4px; padding:6px 12px; border-radius:10px; background:rgba(24,24,34,.55); border:1px solid rgba(255,255,255,.14); color:#e8ecf4; font-size:14px; font-weight:600; text-decoration:none; }
+
+  .mode-tabs { position:absolute; top:50px; left:50%; transform:translateX(-50%); display:flex; gap:6px; background:rgba(24,24,34,.9); padding:6px; border-radius:24px; border:1px solid rgba(255,255,255,.1); z-index:40; }
+  .mode-tab { padding:6px 14px; border-radius:18px; border:none; background:transparent; color:#c8c8d8; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .mode-tab.active { background:#b892ff; color:#12121a; }
+
+  .panel { position:absolute; background:rgba(30,30,44,.95); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:10px; }
+  .control-panel { top:62px; left:14px; width:250px; max-height:calc(100vh - 150px); overflow-y:auto; }
+  .data-panel { top:62px; right:14px; width:280px; max-height:calc(100vh - 150px); overflow-y:auto; }
+  .panel-title { font-size:13px; font-weight:600; color:#ffd54f; border-bottom:1px solid rgba(255,255,255,.08); padding-bottom:4px; }
+
+  /* 内联控件样式（照 c3s3 规范） */
+  .ctl-row { display:flex; align-items:center; gap:8px; font-size:13px; flex-wrap:wrap; }
+  .ctl-row label { color:#b0b0c0; font-size:12px; min-width:48px; }
+  .ctl-row select { flex:1; min-width:80px; background:#2c2c40; color:#f0f0f0; border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:6px 8px; font-size:13px; }
+  .readout { display:flex; gap:8px; flex-wrap:wrap; }
+  .readout .pill { background:#2c2c40; border:1px solid rgba(255,255,255,.12); border-radius:99px; padding:5px 12px; font-size:12px; color:#c8c8d8; }
+  .readout .pill b { color:#b892ff; font-weight:700; }
+  .row { display:flex; align-items:center; justify-content:space-between; font-size:13px; gap:8px; }
+  .row label { color:#b0b0c0; }
+  .row .value { font-variant-numeric:tabular-nums; color:#ce93d8; font-weight:600; }
+  .status-chip { display:inline-block; padding:3px 10px; border-radius:12px; background:#2c2c40; border:1px solid rgba(255,255,255,.12); font-size:12px; color:#ffd54f; font-weight:600; }
+
+  .btn { padding:8px 14px; border-radius:20px; border:1px solid rgba(255,255,255,.15); background:#2c2c40; color:#f0f0f0; font-size:13px; font-weight:600; cursor:pointer; }
+  .btn.primary { background:#b892ff; border-color:#b892ff; color:#15121d; }
+  .btn.cool { background:#64b5f6; border-color:#64b5f6; color:#10131a; }
+  .btn.warn { background:#ff9800; border-color:#ff9800; color:#fff; }
+
+  .bottom-controls { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); display:flex; gap:12px; align-items:center; background:rgba(30,30,44,.95); padding:10px 18px; border-radius:28px; border:1px solid rgba(255,255,255,.1); }
+  .hint-bar { position:absolute; bottom:86px; left:50%; transform:translateX(-50%); font-size:12px; color:#9090a5; background:rgba(0,0,0,.35); padding:4px 14px; border-radius:12px; text-align:center; max-width:90vw; }
+
+  #heat-arrow, #cool-arrow { position:absolute; left:50%; transform:translateX(-50%); font-size:14px; font-weight:700; opacity:0; transition:opacity .4s; pointer-events:none; }
+  #heat-arrow { top:56%; color:#ff7043; text-shadow:0 0 6px rgba(255,112,67,.6); }
+  #cool-arrow { top:60%; color:#64b5f6; text-shadow:0 0 6px rgba(100,181,246,.6); }
+  #heat-arrow.show, #cool-arrow.show { opacity:1; }
+
+  /* 猜测卡（进场） */
+  #guess-card { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(88vw,460px); background:rgba(24,30,44,.98); border:1px solid rgba(150,90,255,.45); border-radius:14px; padding:18px 20px; z-index:80; box-shadow:0 12px 36px rgba(0,0,0,.45); }
+  #guess-card.hidden { display:none; }
+  #guess-card h3 { font-size:16px; color:#ffd54f; margin-bottom:6px; }
+  #guess-card p { font-size:13px; color:#c8d0e0; line-height:1.6; margin-bottom:12px; }
+  .guess-q { margin-bottom:10px; }
+  .guess-q .qtitle { font-size:13px; color:#b892ff; font-weight:700; margin-bottom:4px; }
+  .guess-opts { display:flex; gap:8px; flex-wrap:wrap; }
+  .guess-opt { padding:6px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.2); background:#2c2c40; color:#e8ecf4; font-size:13px; cursor:pointer; }
+  .guess-opt.active { background:rgba(150,90,255,.3); border-color:#b892ff; color:#e6d9ff; }
+  .guess-opt.sel-true { background:none; }
+
+  /* 定义弹出卡 */
+  #def-card { position:absolute; top:112px; left:50%; transform:translateX(-50%) translateY(-20px); max-width:420px; padding:12px 18px; background:rgba(24,30,44,.96); border:1px solid rgba(150,90,255,.55); border-radius:12px; text-align:center; opacity:0; pointer-events:none; transition:all .4s; z-index:60; }
+  #def-card.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  #def-title { font-size:20px; font-weight:800; color:#b892ff; }
+  #def-en { font-size:12px; color:#9090a5; font-style:italic; margin-bottom:6px; }
+  #def-body { font-size:14px; line-height:1.6; color:#e8f4ff; }
+  #def-body b { color:#ffd54f; }
+
+  #pour-tooltip { position:fixed; z-index:90; display:none; background:rgba(24,30,44,.96); border:1px solid rgba(150,90,255,.45); border-radius:8px; padding:6px 10px; font-size:12px; color:#e8f4ff; pointer-events:none; }
+  #pour-tooltip.show { display:block; }
+
+  @media (max-width:720px) {
+    .control-panel { width:calc(50vw - 16px); padding:10px; }
+    .data-panel { width:calc(50vw - 16px); }
+    .mode-tab { font-size:11px; padding:5px 9px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="canvas-container"></div>
+  <div id="ui-layer">
+    <div class="title-bar">升华凝华观察站</div>
+    <a id="back-to-index" href="index.html">‹ 返回</a>
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="iodine">① 碘的演示</button>
+    </div>
+
+    <div class="panel control-panel" id="iodine-panel">
+      <div class="panel-title">参数</div>
+      <div class="ctl-row">
+        <label>热水温度</label>
+        <select id="hot-select">
+          <option value="60">60℃</option>
+          <option value="80" selected>80℃</option>
+          <option value="100">100℃</option>
+        </select>
+      </div>
+      <div class="ctl-row">
+        <label>碘颗粒量</label>
+        <select id="iodine-select">
+          <option value="small">少</option>
+          <option value="medium" selected>中</option>
+          <option value="large">多</option>
+        </select>
+      </div>
+      <div class="row" style="margin-top:4px;">
+        <button class="btn primary" id="btn-hot" style="flex:1;">浇热水</button>
+        <button class="btn cool" id="btn-cold" style="flex:1;margin-left:6px;">浇冷水</button>
+      </div>
+    </div>
+
+    <div class="panel data-panel">
+      <div class="panel-title">读数面板</div>
+      <div class="row"><label>碘蒸气充满度</label><span id="r-vapor" class="value">0%</span></div>
+      <div class="row"><label>固态碘剩余</label><span id="r-iodine" class="value">100%</span></div>
+      <div class="row"><label>状态</label><span id="r-phase" class="status-chip">静止</span></div>
+      <div class="readout" style="margin-top:8px;">
+        <span class="pill">直接 <b>固⇌气</b> 互变</span>
+        <span class="pill">全程<b>无液态</b></span>
+      </div>
+    </div>
+
+    <div class="bottom-controls">
+      <button class="btn primary" id="btn-pause">暂停</button>
+      <button class="btn" id="btn-reset">重置</button>
+      <button class="btn" id="btn-mute">🔊</button>
+      <button class="btn" id="btn-fullscreen">⛶ 全屏</button>
+    </div>
+    <div class="hint-bar">💡 空白处拖动旋转视角 · 滚轮/双指缩放 · 点「浇热水」看碘升华为紫色蒸气，点「浇冷水」看蒸气凝华回落</div>
+
+    <div id="heat-arrow">↑ 持续吸热 ↑</div>
+    <div id="cool-arrow">↓ 放热 ↓</div>
+
+    <div id="guess-card">
+      <h3>问题</h3>
+      <p>封闭的玻璃容器中有少量碘颗粒。先向容器浇热水，再浇冷水，各会有什么变化？（点选你的猜测，再看演示）</p>
+      <div class="guess-q" data-q="hot" data-step="1">
+        <div class="qtitle">浇热水后：</div>
+        <div class="guess-opts">
+          <button class="guess-opt" data-target="hot" data-step="1">充满紫色蒸气</button>
+          <button class="guess-opt" data-target="hot" data-step="1">碘先熔化成液体</button>
+        </div>
+      </div>
+      <div class="guess-q" data-q="cold" data-step="2">
+        <div class="qtitle">浇冷水后：</div>
+        <div class="guess-opts">
+          <button class="guess-opt" data-target="cold" data-step="2">蒸气变回固态碘</button>
+          <button class="guess-opt" data-target="cold" data-step="2">蒸气先液化成小水珠</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn primary" id="guess-reveal" style="flex:1;">开始演示</button>
+      </div>
+      <p style="margin-top:10px;font-size:12px;color:#9090a5;">提示：碘熔点 113.7℃，低于酒精灯火焰温度，故用浇热水方式而非直接火焰加热（教材题1原意）。</p>
+    </div>
+
+    <div id="def-card">
+      <div id="def-title">升华</div>
+      <div id="def-en">sublimation</div>
+      <div id="def-body"></div>
+    </div>
+
+    <div id="pour-tooltip"></div>
+  </div>
+</div>
+<script src="three.min.js"></script>
+<script src="exp-subl-audio.js?v=19"></script>
+<script src="exp-subl-core.js?v=19"></script>
+<script src="exp-subl-pour.js?v=19"></script>
+<script src="exp-subl.js?v=19"></script>
+</body>
+</html>

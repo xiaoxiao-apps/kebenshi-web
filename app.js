@@ -43,6 +43,7 @@ const AVAILABLE = {
   'physics_g8_v1_c3_s1': { title: '温度', file: 'content/physics_g8_v1_c3_s1/index.html' },
   'physics_g8_v1_c3_s2': { title: '第2节 熔化和凝固', file: 'content/physics_g8_v1_c3_s2/index.html' },
   'physics_g8_v1_c3_s3': { title: '第3节 汽化和液化', file: 'content/physics_g8_v1_c3_s3/index.html' },
+  'physics_g8_v1_c3_s4': { title: '第4节 升华和凝华', file: 'content/physics_g8_v1_c3_s4/index.html' },
   'physics_g8_v1_c3_summary': { title: '本章小结', file: 'content/physics_g8_v1_c3_summary/index.html' },
   'physics_g8_v1_c3_practice': { title: '本章练习', file: 'content/physics_g8_v1_c3_practice/index.html' },
   'math_fun_chicken_rabbit': { title: '鸡兔同笼', file: 'content/math_fun_chicken_rabbit/index.html' }
