@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>介质中的直线传播 — 光的直线传播</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f9f4cd;color:#1f2937;overflow:hidden}
+  header{position:fixed;top:0;left:0;right:0;height:34px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f9f4cd;border-bottom:1px solid rgba(0,0,0,0.08);z-index:10}
+  .back{font-size:13px;color:#2563eb;text-decoration:none;white-space:nowrap}
+  .back:hover{text-decoration:underline}
+  .title{font-size:13px;font-weight:600;color:#111827;white-space:nowrap}
+  .hint{font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;height:16%;background:transparent;pointer-events:none;display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:0 16px 14px;z-index:20}
+  .ctrlbar>*{pointer-events:auto}
+  .group{background:rgba(255,255,255,0.25);border-radius:10px;padding:6px 10px;display:flex;align-items:center;gap:8px}
+  label{font-size:13px;cursor:pointer}
+  button{border:0;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s}
+  button:hover{background:#1d4ed8}
+  button.secondary{background:#6b7280}
+  button.secondary:hover{background:#4b5563}
+</style>
+</head>
+<body>
+<header>
+  <div class="title">实验① 介质中的直线传播 <span class="hint">从左上卡槽拖器材到桌面，观察光在不同介质里的直线传播</span></div>
+  <a class="back" href="./index.html">← 返回实验卡页</a>
+</header>
+<div class="scene-wrap">
+  <canvas id="scene"></canvas>
+</div>
+<div class="ctrlbar">
+  <div class="group">
+    <button id="btn-play">▶ 播放光点</button>
+    <button id="btn-pause" class="secondary">暂停</button>
+    <button id="btn-reset" class="secondary">重置</button>
+  </div>
+  <div class="group" id="grp-turbid" style="display:none">
+    <label>水的浑浊度 <input type="range" id="rng-turbid" min="0" max="100" value="0" style="width:110px;vertical-align:middle"> <span id="turbid-val">0</span>%</label>
+  </div>
+  <div class="group">
+    <label><input type="checkbox" id="cb-ray" checked> 光线符号</label>
+    <button id="btn-mute">🔊</button>
+    <button id="btn-full" class="secondary">全屏</button>
+  </div>
+</div>
+<script src="../_lib/v1/props.js?v=50"></script>
+<script src="exp-medium-audio.js?v=32"></script>
+<script src="exp-medium-core.js?v=53"></script>
+</body>
+</html>

@@ -30,6 +30,7 @@ const SUBJECT_ICONS = {'物理': '🔬', '数学': '📐', '化学': '🧪'};
 const SUBJECT_DESC = {'物理': '八至九年级人教版物理互动实验', '数学': '一至九年级人教版数学互动探索', '化学': '九年级人教版化学互动实验'};
 
 const AVAILABLE = {
+  'physics_g8_v1_c4_s1': { title: '第1节 光的直线传播', file: 'content/physics_g8_v1_c4_s1/index.html' },
   'physics_g8_v1_c4_s2': { title: '光的反射', file: 'content/physics_g8_v1_c4_s2/index.html' },
   'physics_g8_v1_c1_s1': { title: '长度和时间的测量', file: 'content/physics_g8_v1_c1_s1/index.html' },
   'physics_g8_v1_c1_s2': { title: '运动的描述', file: 'content/physics_g8_v1_c1_s2/index.html' },
