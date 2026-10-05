@@ -2,79 +2,63 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>光影成像实验室 — 光的直线传播</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:linear-gradient(180deg,#f7fbff 0%,#eef4f9 100%);color:#1f2937;min-height:100vh}
-.wrap{max-width:1100px;margin:0 auto;padding:18px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.back{font-size:14px;color:#2563eb;text-decoration:none}
-.title{font-size:20px;font-weight:700;color:#111827}
-.subtitle{font-size:14px;color:#6b7280}
-.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border-radius:12px;padding:10px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:12px}
-.group{display:flex;align-items:center;gap:8px;background:#f3f4f6;border-radius:8px;padding:6px 10px}
-label{font-size:13px;cursor:pointer;white-space:nowrap}
-input[type=radio],input[type=range]{cursor:pointer}
-button{border:0;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s}
-button:hover{background:#1d4ed8}
-button.secondary{background:#6b7280}
-button.secondary:hover{background:#4b5563}
-button:disabled{background:#cbd5e1;color:#64748b;cursor:not-allowed}
-.val{font-size:12px;color:#374151;min-width:30px;text-align:center}
-.scene-wrap{background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:10px;position:relative}
-canvas#scene{display:block;width:100%;height:auto;border-radius:10px;background:linear-gradient(180deg,#f7fbff,#e8f1f8)}
-.hint{display:flex;align-items:center;gap:8px;margin-top:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 14px;color:#92400e;font-size:13px}
-.hint::before{content:"💡"}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#e8f1f8;color:#1f2937;overflow:hidden}
+  header{position:fixed;top:0;left:0;right:0;height:34px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#e8f1f8;border-bottom:1px solid rgba(0,0,0,0.08);z-index:10}
+  .back{font-size:13px;color:#2563eb;text-decoration:none;white-space:nowrap}
+  .back:hover{text-decoration:underline}
+  .title{font-size:13px;font-weight:600;color:#111827;white-space:nowrap}
+  .hint{font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400;margin-left:8px}
+  .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;height:16%;background:transparent;pointer-events:none;display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:0 16px 14px;z-index:20}
+  .ctrlbar>*{pointer-events:auto}
+  .group{background:rgba(255,255,255,0.25);border-radius:10px;padding:6px 10px;display:flex;align-items:center;gap:8px}
+  label{font-size:13px;cursor:pointer}
+  button{border:0;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s}
+  button:hover{background:#1d4ed8}
+  button.secondary{background:#6b7280}
+  button.secondary:hover{background:#4b5563}
+  button:disabled{background:#c3cad6;cursor:not-allowed}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <div class="title">第4章 光现象 · 第1节 光的直线传播</div>
-      <div class="subtitle">实验② 光影成像实验室</div>
-    </div>
-    <a class="back" href="./index.html">← 返回实验卡页</a>
-  </header>
-  <div class="toolbar">
-    <div class="group"><label>光源</label>
-      <label><input type="radio" name="source" value="candle" checked> 蜡烛</label>
-      <label><input type="radio" name="source" value="lamp"> 台灯</label>
-      <label><input type="radio" name="source" value="laser"> 激光笔</label>
-    </div>
-    <div class="group"><label>物体</label>
-      <label><input type="radio" name="object" value="hand"> 手</label>
-      <label><input type="radio" name="object" value="hole" checked> 带孔板</label>
-      <label><input type="radio" name="object" value="holes"> 三孔纸板</label>
-    </div>
-    <div class="group" id="grp-obj">
-      <label>物距</label>
-      <button class="secondary" id="obj-minus">-</button>
-      <input type="range" id="obj-slider" min="80" max="260" step="5" value="150">
-      <button class="secondary" id="obj-plus">+</button>
-      <span class="val" id="obj-val">150</span>
-    </div>
-    <div class="group" id="grp-screen">
-      <label>屏距</label>
-      <button class="secondary" id="screen-minus">-</button>
-      <input type="range" id="screen-slider" min="60" max="220" step="5" value="120">
-      <button class="secondary" id="screen-plus">+</button>
-      <span class="val" id="screen-val">120</span>
-    </div>
-    <button id="btn-align" disabled>一键对齐</button>
-    <button id="btn-pause" class="secondary">暂停</button>
+<header>
+  <div class="title">实验② 光影成像实验室 <span id="hint" class="hint">点击蜡烛点燃，光幕出现火焰光斑；左右拖蜡烛/光屏改物距像距</span></div>
+  <a class="back" href="./index.html">← 返回实验卡页</a>
+</header>
+<div class="scene-wrap">
+  <canvas id="scene"></canvas>
+</div>
+<div class="ctrlbar">
+  <div class="group">
     <button id="btn-reset" class="secondary">重置</button>
+  </div>
+  <div class="group" id="grp-mode">
+    <label><input type="radio" name="mode" value="pinhole" checked> 小孔成像</label>
+    <label><input type="radio" name="mode" value="hand"> 手影游戏</label>
+  </div>
+  <div class="group">
+    <label><input type="checkbox" id="cb-ray" checked> 光线符号</label>
+  </div>
+  <div class="group" id="grp-hole">
+    <label>孔径</label>
+    <button id="hole-minus" class="secondary">−</button>
+    <input id="hole-slider" type="range" min="8" max="40" step="2" value="14" style="width:90px">
+    <button id="hole-plus" class="secondary">+</button>
+    <span id="hole-val" style="font-size:12px;min-width:34px">14px</span>
+  </div>
+  <div class="group">
     <button id="btn-mute">🔊</button>
     <button id="btn-full" class="secondary">全屏</button>
   </div>
-  <div class="scene-wrap">
-    <canvas id="scene" width="960" height="520"></canvas>
-  </div>
-  <div class="hint" id="hint">切换光源与物体，观察影子、小孔成像和激光准直。</div>
 </div>
-<script src="../_lib/v1/props.js"></script>
-<script src="exp-shadow-audio.js"></script>
-<script src="exp-shadow-core.js"></script>
+<script src="../_lib/v1/props.js?v=53"></script>
+<script src="exp-shadow-audio.js?v=2"></script>
+<script src="exp-shadow-core.js?v=81"></script>
 </body>
 </html>

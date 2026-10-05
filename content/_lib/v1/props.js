@@ -240,23 +240,83 @@
     ctx.restore();
   };
 
-  // screen: 纯 sprite
+  // 2.5D 透视卷帘屏（PhET geometric-optics ProjectionScreen 同款：近边高/远边高=1.09/0.91）
+  // 投影内容 clip 用 PROPS.screenGeom().pts；opt.w 被忽略，屏几何全由 h 推导
+  function geomOf(h) {
+    var fw = 0.36 * h;
+    var cy = -h / 2;
+    return {
+      fw: fw,
+      cy: cy,
+      TL: { x: -fw / 2, y: cy - 0.455 * h },
+      BL: { x: -fw / 2, y: cy + 0.455 * h },
+      BR: { x: fw / 2, y: cy + 0.545 * h },
+      TR: { x: fw / 2, y: cy - 0.545 * h }
+    };
+  }
   PROPS.screen = function(ctx, x, y, opt) {
     opt = opt || {};
-    if (!PROPS.spriteReady('screen')) return;
-    var img = PROPS.img('screen');
-    var s = spriteScale('screen', opt);
-    var w = img.naturalWidth * s, h = img.naturalHeight * s;
+    // 兼容旧 opt.h / opt.scale；opt.w 忽略
+    var s = opt.h ? opt.h / 467 : (opt.scale || 1);
+    var h = 467 * s;
     var a = (opt.angle || 0) * Math.PI / 180;
     var dir = (opt.dir === 'left' || opt.dir === -1) ? -1 : 1;
     ctx.save(); ctx.translate(x, y);
     if (a) ctx.rotate(a);
     if (dir < 0) ctx.scale(-1, 1);
-    ctx.drawImage(img, -w / 2, -h, w, h);
+    var g = geomOf(h);
+    function bar(p1, p2) {
+      var dx = p2.x - p1.x, dy = p2.y - p1.y;
+      var len = Math.hypot(dx, dy) || 1;
+      var ux = dx / len, uy = dy / len;
+      var nx = -uy, ny = ux;
+      var o = 0.05 * h, t = 0.055 * h / 2;
+      ctx.beginPath();
+      ctx.moveTo(p1.x - ux * o - nx * t, p1.y - uy * o - ny * t);
+      ctx.lineTo(p2.x + ux * o - nx * t, p2.y + uy * o - ny * t);
+      ctx.lineTo(p2.x + ux * o + nx * t, p2.y + uy * o + ny * t);
+      ctx.lineTo(p1.x - ux * o + nx * t, p1.y - uy * o + ny * t);
+      ctx.closePath();
+      ctx.fillStyle = '#94a3b8'; ctx.fill();
+      ctx.strokeStyle = '#64748b'; ctx.lineWidth = Math.max(1, h * 0.008); ctx.stroke();
+    }
+    // 拉杆 + 圆钮
+    var midB = { x: (g.BL.x + g.BR.x) / 2, y: (g.BL.y + g.BR.y) / 2 };
+    var rodLen = 0.12 * h;
+    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = Math.max(1.5, h * 0.01); ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(midB.x, midB.y); ctx.lineTo(midB.x, midB.y + rodLen); ctx.stroke();
+    var knobR = Math.max(1.5, 0.022 * h);
+    ctx.fillStyle = '#b4b4b4'; ctx.strokeStyle = '#64748b'; ctx.lineWidth = Math.max(1, h * 0.008);
+    ctx.beginPath(); ctx.arc(midB.x, midB.y + rodLen, knobR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    // 底杆 → 屏面 → 顶杆（顶杆压屏面上缘）
+    bar(g.BL, g.BR);
+    ctx.fillStyle = '#f8fafc'; ctx.strokeStyle = '#334155'; ctx.lineWidth = Math.max(1.5, h * 0.012);
+    ctx.beginPath();
+    ctx.moveTo(g.TL.x, g.TL.y); ctx.lineTo(g.BL.x, g.BL.y);
+    ctx.lineTo(g.BR.x, g.BR.y); ctx.lineTo(g.TR.x, g.TR.y); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    bar(g.TL, g.TR);
     ctx.restore();
   };
 
-  // board_with_hole: 洞已修补进sprite,渲染时代码打孔: holeDx/holeDy(原生px偏移)/holeR(原生px半径,默认28)/noHole
+  // 返回光屏几何（全局坐标，未施加 angle/dir 变换），供投影内容 clip
+  PROPS.screenGeom = function(x, y, h) {
+    var g = geomOf(h);
+    return {
+      cx: x,
+      cy: y + g.cy,
+      fw: g.fw,
+      pts: {
+        TL: { x: x + g.TL.x, y: y + g.TL.y },
+        BL: { x: x + g.BL.x, y: y + g.BL.y },
+        BR: { x: x + g.BR.x, y: y + g.BR.y },
+        TR: { x: x + g.TR.x, y: y + g.TR.y }
+      },
+      faceX: x
+    };
+  };
+
+  // board_with_hole: 真挖孔渲染。离屏缓冲复用 PROPS._boardBuf，孔位/孔径算法不变。
   PROPS.board_with_hole = function(ctx, x, y, opt) {
     opt = opt || {};
     if (!PROPS.spriteReady('board_with_hole')) return;
@@ -268,18 +328,31 @@
     ctx.save(); ctx.translate(x, y);
     if (a) ctx.rotate(a);
     if (dir < 0) ctx.scale(-1, 1);
-    ctx.drawImage(img, -w / 2, -h, w, h);
-    if (!opt.noHole) {
+    if (opt.noHole) {
+      ctx.drawImage(img, -w / 2, -h, w, h);
+    } else {
+      var buf = PROPS._boardBuf;
+      var bw = Math.ceil(w), bh = Math.ceil(h);
+      if (!buf || buf.width !== bw || buf.height !== bh) {
+        buf = document.createElement('canvas');
+        buf.width = bw; buf.height = bh;
+        PROPS._boardBuf = buf;
+      }
+      var bctx = buf.getContext('2d');
+      bctx.clearRect(0, 0, bw, bh);
+      bctx.drawImage(img, 0, 0, w, h);
       var BH = PROPS.BOARD_HOLE;
-      var hx = -w / 2 + w * BH.cx + (opt.holeDx || 0) * s;
-      var hy = -h + h * BH.cy + (opt.holeDy || 0) * s;
+      var hx = w * BH.cx + (opt.holeDx || 0) * s;
+      var hy = h * BH.cy + (opt.holeDy || 0) * s;
       var hr = Math.max(2, (opt.holeR === undefined ? BH.r : opt.holeR) * s);
-      var gh = ctx.createRadialGradient(hx, hy - hr * 0.2, hr * 0.15, hx, hy, hr);
-      gh.addColorStop(0, '#000'); gh.addColorStop(0.78, '#1c1c20'); gh.addColorStop(1, '#3a3a40');
-      ctx.fillStyle = gh;
-      ctx.beginPath(); ctx.arc(hx, hy, hr, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,.22)'; ctx.lineWidth = Math.max(1, hr * 0.12);
-      ctx.beginPath(); ctx.arc(hx, hy, hr + ctx.lineWidth / 2, 0, Math.PI * 2); ctx.stroke();
+      bctx.globalCompositeOperation = 'destination-out';
+      bctx.beginPath(); bctx.arc(hx, hy, hr, 0, Math.PI * 2); bctx.fill();
+      bctx.globalCompositeOperation = 'source-atop';
+      bctx.strokeStyle = 'rgba(0,0,0,.25)';
+      bctx.lineWidth = Math.max(1, hr * 0.12);
+      bctx.beginPath(); bctx.arc(hx, hy, hr, 0, Math.PI * 2); bctx.stroke();
+      bctx.globalCompositeOperation = 'source-over';
+      ctx.drawImage(buf, -w / 2, -h, w, h);
     }
     ctx.restore();
   };
@@ -352,16 +425,19 @@
     opt = opt || {};
     var topRatio = opt.topRatio || 0.80;
     var thickRatio = opt.thickRatio || 0.04;
-    var wood = opt.wood || ['#e8dcc0','#dcd0b0'];
-    var sideColor = opt.sideColor || 'rgb(160,160,160)';
+    var cool = opt.tone === 'cool';
+    var wood = opt.wood || (cool ? ['#dfe6ee','#cbd5e1'] : ['#e8dcc0','#dcd0b0']);
+    var sideColor = opt.sideColor || (cool ? '#9aa8b8' : 'rgb(160,160,160)');
     function rand(seed) { var x = Math.sin(seed) * 10000; return x - Math.floor(x); }
     var by = H * topRatio, bh = H * thickRatio;
-    ctx.fillStyle = '#f9f4cd'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = cool ? '#e8f1f8' : '#f9f4cd'; ctx.fillRect(0, 0, W, H);
     var g = ctx.createLinearGradient(0, by, 0, by + bh);
     g.addColorStop(0, wood[0]); g.addColorStop(1, wood[1]);
     ctx.fillStyle = g; ctx.fillRect(0, by, W, bh);
     for (var y = by + 2; y < by + bh; y += (2 + rand(y * 17) * 2)) {
-      ctx.strokeStyle = 'rgba(150,125,85,' + (0.10 + rand(y * 11) * 0.08) + ')';
+      ctx.strokeStyle = cool
+        ? 'rgba(148,163,184,' + (0.16 + rand(y * 11) * 0.12).toFixed(2) + ')'
+        : 'rgba(150,125,85,' + (0.10 + rand(y * 11) * 0.08) + ')';
       ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
     }
     ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 1;
