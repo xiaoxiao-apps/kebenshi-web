@@ -85,23 +85,7 @@ R.draw=function(){
   function drawSun(){
     var S={x:W*0.13,y:H*0.15}, rs=Math.min(W,H)*0.045;
     R.sunHit={x:S.x,y:S.y,r:rs*1.7};
-    var g=c.createRadialGradient(S.x,S.y,rs*0.25,S.x,S.y,rs);
-    g.addColorStop(0,'#ffd43b'); g.addColorStop(1,'#ff922b');
-    c.fillStyle=g; c.beginPath(); c.arc(S.x,S.y,rs,0,7); c.fill();
-    c.strokeStyle='rgba(255,212,59,0.25)'; c.lineWidth=rs*0.35;
-    c.beginPath(); c.arc(S.x,S.y,rs*1.3,0,7); c.stroke();
-    c.fillStyle='#ffd43b';
-    for(var i=0;i<12;i++){
-      var th=i*30*Math.PI/180, r1=rs*1.15, r2=rs*1.55;
-      c.beginPath(); c.moveTo(S.x+r1*Math.cos(th),S.y+r1*Math.sin(th));
-      c.lineTo(S.x+r2*Math.cos(th+7*Math.PI/180),S.y+r2*Math.sin(th+7*Math.PI/180));
-      c.lineTo(S.x+r2*Math.cos(th-7*Math.PI/180),S.y+r2*Math.sin(th-7*Math.PI/180));
-      c.closePath(); c.fill();
-    }
-    if(R.sunHover){
-      c.strokeStyle='#e0a20a'; c.lineWidth=2;
-      c.beginPath(); c.arc(S.x,S.y,rs*1.5,0,7); c.stroke();
-    }
+    PROPS.sun(c,S.x,S.y,{r:rs,rays:12,hover:R.sunHover});
   }
   function drawBeam(){
     if(!R.laserOn) return;

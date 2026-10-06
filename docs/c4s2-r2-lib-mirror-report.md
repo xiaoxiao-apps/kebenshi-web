@@ -112,3 +112,9 @@
 
 ## 波及面
 `content/_lib/v1/props.js`、`content/_lib/v1/gallery.html`、`content/_lib/v1/sprites/paper_board.png`、`content/_lib/v1/assets/raw/paper_board-src-20261006.png`、`content/_lib/v1/assets/raw/paper_board-pre-flat-20261006.png`、`content/_lib/v1/assets/raw/paper_board-pre-deedge-20261006.png`、`content/physics_g8_v1_c4_s2/exp-reflect-render.js`、`content/physics_g8_v1_c4_s2/exp-reflect-core.js`、`content/physics_g8_v1_c4_s2/exp-reflect.html`
+
+## 太阳迁库单（2026-10-06）
+- `PROPS.sun(c, x, y, opts)`，opts 字段：`r`（半径）、`rays=12`（光芒数）、`hover=false`（悬停金环）
+- 迁移范围：`props.js` 新增函数、`exp-reflect-render.js` 改为调用、`gallery.html` 加条目、两页 `props.js?v=58`
+- 预览图：`/tmp/keben_sun_gallery.png`、`/tmp/keben_sun_exp.png`
+- 自查：`node --check` 通过；实验页零 JS 报错；目视太阳橙黄渐变圆盘+三角光芒+淡黄晕环与迁移前一致
