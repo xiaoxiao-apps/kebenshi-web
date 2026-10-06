@@ -161,19 +161,98 @@
     ctx.restore();
   };
 
-  // plane_mirror: 待多状态素材(stand)
+  // plane_mirror: 2.5D 躺镜，纯代码绘制，(x,y)=顶面中心
   PROPS.plane_mirror = function(ctx, x, y, opt) {
     opt = opt || {};
-    if (!PROPS.spriteReady('plane_mirror')) return;
-    var img = PROPS.img('plane_mirror');
-    var s = spriteScale('plane_mirror', opt);
-    var w = img.naturalWidth * s, h = img.naturalHeight * s;
-    var a = (opt.angle || 0) * Math.PI / 180;
-    var dir = (opt.dir === 'left' || opt.dir === -1) ? -1 : 1;
+    var w = opt.w || 300;
+    var d = opt.depth || Math.max(40, w * 0.14);
+    var rough = Math.max(0, Math.min(100, opt.rough || 0));
     ctx.save(); ctx.translate(x, y);
-    if (a) ctx.rotate(a);
-    if (dir < 0) ctx.scale(-1, 1);
-    ctx.drawImage(img, -w / 2, -h, w, h);
+    // 顶面梯形：远边 y-0.30d 宽 0.92w；近边 y+0.30d 宽 w
+    var farY = -0.30 * d, nearY = 0.30 * d;
+    var farW = 0.92 * w, nearW = w;
+    var fx0 = -farW / 2, fx1 = farW / 2;
+    var nx0 = -nearW / 2, nx1 = nearW / 2;
+    var frontH = 0.45 * d;
+    var fy = nearY + frontH;
+    var gradTop = ctx.createLinearGradient(0, farY, 0, nearY);
+    gradTop.addColorStop(0, '#e8eef5');
+    gradTop.addColorStop(1, '#c9d4e0');
+    if (rough > 0) {
+      var teeth = 8 + Math.floor(rough / 8);
+      var amp = d * (0.015 + 0.045 * rough / 100);
+      var jag = [];
+      for (var i = 0; i <= teeth; i++) {
+        var t = i / teeth;
+        jag.push({ x: nx0 + (nx1 - nx0) * t, y: nearY + amp * Math.sin(i * 91.7 + rough) });
+      }
+      // 顶面：远边平直 + 近边 jag 逆序
+      ctx.beginPath();
+      ctx.moveTo(fx0, farY); ctx.lineTo(fx1, farY);
+      for (var j = teeth; j >= 0; j--) ctx.lineTo(jag[j].x, jag[j].y);
+      ctx.closePath();
+      ctx.fillStyle = gradTop; ctx.fill();
+      // 前面：顶边 jag 正序 + 底边平直
+      var gradFront = ctx.createLinearGradient(0, nearY, 0, fy);
+      gradFront.addColorStop(0, '#6b7684');
+      gradFront.addColorStop(1, '#4b5563');
+      ctx.beginPath();
+      ctx.moveTo(jag[0].x, jag[0].y);
+      for (var k = 1; k <= teeth; k++) ctx.lineTo(jag[k].x, jag[k].y);
+      ctx.lineTo(nx1, fy); ctx.lineTo(nx0, fy);
+      ctx.closePath();
+      ctx.fillStyle = gradFront; ctx.fill();
+      // 亮/暗分界锯齿描边强化
+      ctx.strokeStyle = '#556070'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(jag[0].x, jag[0].y);
+      for (var m = 1; m <= teeth; m++) ctx.lineTo(jag[m].x, jag[m].y);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(fx0, farY); ctx.lineTo(fx1, farY);
+      ctx.lineTo(nx1, nearY); ctx.lineTo(nx0, nearY);
+      ctx.closePath();
+      ctx.fillStyle = gradTop; ctx.fill();
+    }
+    // 镜面光泽：两条斜向高光带
+    var shineAlpha = 0.30 * (1 - rough / 130);
+    if (shineAlpha > 0.001) {
+      ctx.strokeStyle = 'rgba(255,255,255,' + shineAlpha.toFixed(3) + ')';
+      ctx.lineWidth = Math.max(1, w * 0.012);
+      ctx.beginPath(); ctx.moveTo(fx0 + w * 0.10, farY + d * 0.05); ctx.lineTo(nx1 - w * 0.12, nearY - d * 0.02); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(fx0 + w * 0.22, farY + d * 0.18); ctx.lineTo(nx1 - w * 0.05, nearY + d * 0.08); ctx.stroke();
+    }
+    // 粗糙微面
+    if (rough > 0) {
+      ctx.strokeStyle = 'rgba(230,235,240,0.35)';
+      ctx.lineWidth = Math.max(0.6, w * 0.004);
+      var n = Math.floor(6 + rough / 10);
+      for (var i = 0; i < n; i++) {
+        var t0 = (i + 0.2) / n;
+        var sx = fx0 + (nx1 - fx0) * t0;
+        var sy = farY + (nearY - farY) * (0.2 + 0.6 * ((Math.sin(i * 127.1 + rough) + 1) / 2));
+        ctx.beginPath(); ctx.moveTo(sx, sy);
+        for (var j = 0; j < 4; j++) {
+          var tt = (j + 1) / 4;
+          var px = sx + (nx1 - sx) * tt * 0.35;
+          var py = sy + (nearY - sy) * tt + Math.sin(i * 127.1 + rough + j * 33.7) * d * 0.02;
+          ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+    }
+    // rough>0 时前面已在顶面分支内绘制；平直分支才需下面这段
+    // 左右侧三角连接
+    ctx.fillStyle = '#8b96a5';
+    ctx.beginPath(); ctx.moveTo(fx0, farY); ctx.lineTo(nx0, nearY); ctx.lineTo(nx0, fy); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(fx1, farY); ctx.lineTo(nx1, nearY); ctx.lineTo(nx1, fy); ctx.closePath(); ctx.fill();
+    // 全件描边
+    ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(fx0, farY); ctx.lineTo(fx1, farY);
+    ctx.lineTo(nx1, nearY); ctx.lineTo(nx1, fy); ctx.lineTo(nx0, fy); ctx.lineTo(nx0, nearY);
+    ctx.closePath();
+    ctx.stroke();
     ctx.restore();
   };
 
@@ -194,7 +273,7 @@
     if (fold <= 0) {
       ctx.drawImage(img, -w / 2, -h, w, h);
     } else {
-      var topF = 0.0107, botF = 0.9893, foldTop = 0.0789, foldBot = 0.9829;
+      var topF = 0.0122, botF = 0.9976, foldTop = 0.0805, foldBot = 0.9976;
       ctx.save(); ctx.beginPath(); ctx.rect(-w / 2 - 1, -h + h * topF - 1, w / 2 + 1, h * (botF - topF) + 2); ctx.clip();
       ctx.drawImage(img, -w / 2, -h, w, h); ctx.restore();
       var iw = img.naturalWidth, ih = img.naturalHeight;
@@ -204,7 +283,7 @@
       ctx.fillRect(0, -h + h * foldTop, (w / 2) * cf, h * (foldBot - foldTop));
       ctx.strokeStyle = 'rgba(120,120,130,.8)'; ctx.lineWidth = 1;
       ctx.setLineDash([4, 3]);
-      ctx.beginPath(); ctx.moveTo(0, -h + h * 0.0789); ctx.lineTo(0, -h + h * 0.9829); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, -h + h * foldTop); ctx.lineTo(0, -h + h * foldBot); ctx.stroke();
       ctx.setLineDash([]);
     }
     ctx.restore();
