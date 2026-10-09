@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 170">
+  <defs>
+    <linearGradient id="spec" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff0000"/><stop offset="16%" stop-color="#ff7f00"/>
+      <stop offset="32%" stop-color="#ffff00"/><stop offset="48%" stop-color="#00ff00"/>
+      <stop offset="64%" stop-color="#0000ff"/><stop offset="80%" stop-color="#4b0082"/>
+      <stop offset="100%" stop-color="#9400d3"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="170" fill="#f1f5f9"/>
+  <g transform="translate(160,100)">
+    <polygon points="-28,-32 28,-32 0,28" fill="rgba(200,220,255,.55)" stroke="#60a5fa" stroke-width="2"/>
+    <line x1="-110" y1="-18" x2="-28" y2="-18" stroke="#fff" stroke-width="3"/>
+    <line x1="-110" y1="-18" x2="-110" y2="36" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="28" y1="-18" x2="98" y2="-48" stroke="#ff0000" stroke-width="2.5"/>
+    <line x1="28" y1="-18" x2="102" y2="-32" stroke="#ff7f00" stroke-width="2.5"/>
+    <line x1="28" y1="-18" x2="104" y2="-16" stroke="#ffff00" stroke-width="2.5"/>
+    <line x1="28" y1="-18" x2="104" y2="0" stroke="#00ff00" stroke-width="2.5"/>
+    <line x1="28" y1="-18" x2="102" y2="16" stroke="#0000ff" stroke-width="2.5"/>
+    <line x1="28" y1="-18" x2="98" y2="32" stroke="#4b0082" stroke-width="2.5"/>
+    <line x1="28" y1="-18" x2="92" y2="48" stroke="#9400d3" stroke-width="2.5"/>
+    <rect x="95" y="-55" width="8" height="110" fill="url(#spec)" opacity=".9" rx="2"/>
+    <circle cx="-110" cy="-18" r="8" fill="#fef08a" stroke="#f59e0b" stroke-width="2"/>
+  </g>
+  <text x="160" y="150" text-anchor="middle" font-size="13" fill="#475569">红→紫 偏折递增</text>
+</svg>

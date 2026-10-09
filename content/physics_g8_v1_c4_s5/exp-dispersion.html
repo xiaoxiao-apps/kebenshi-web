@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光的色散实验室 — 第4章 光现象</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f0f5fa;color:#1f2937;overflow:hidden}
+  header{position:fixed;top:0;left:0;right:0;height:34px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f0f5fa;border-bottom:1px solid rgba(0,0,0,0.08);z-index:10}
+  .back{font-size:13px;color:#2563eb;text-decoration:none;white-space:nowrap}
+  .back:hover{text-decoration:underline}
+  .title{font-size:13px;font-weight:600;color:#111827;white-space:nowrap}
+  .hint{font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400;margin-left:8px}
+  .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:transparent;pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:8px;padding:8px 10px;z-index:20}
+  .ctrlbar>*{pointer-events:auto}
+  .group{display:flex;flex-direction:column;gap:5px;background:rgba(255,255,255,.6);border-radius:10px;padding:6px 10px}
+  .glabel{font-size:11px;color:#5b6472;white-space:nowrap;letter-spacing:.5px;line-height:1}
+  .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:28px}
+  .gctrl label{font-size:13px;cursor:pointer;white-space:nowrap}
+  button{border:0;border-radius:8px;padding:7px 11px;font-size:13px;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s}
+  button:hover{background:#1d4ed8}
+  button.secondary{background:#6b7280}
+  button.secondary:hover{background:#4b5563}
+  button:disabled{background:#c3cad6;cursor:not-allowed}
+  button.active{background:#1d4ed8;box-shadow:inset 0 0 0 2px #1e40af}
+  input[type=range]{width:110px;height:26px}
+  .readout{font-size:13px;color:#2563eb;font-weight:600;white-space:nowrap}
+  .tray-item{width:44px;height:44px;border-radius:8px;background:#fff;border:1px solid #cbd5e1;display:flex;align-items:center;justify-content:center;cursor:grab;font-size:20px}
+  .tray-item:active{cursor:grabbing}
+  #mix-swatch{width:34px;height:34px;border-radius:6px;border:1px solid #cbd5e1;background:#fff}
+  .m2-only{display:none}
+  .m1-only{display:none}
+  body.mode-m1 .m1-only{display:flex}
+  body.mode-m2 .m2-only{display:flex}
+html.pseudo-fs{width:100%;height:100%}
+html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
+.rgb-num{width:46px;padding:1px 4px;border:1.5px solid #d0c9b8;border-radius:6px;font:inherit;font-size:12px;text-align:center;background:#fff}
+.rgb-num.invalid{border-color:#e03131;background:#fff0f0;color:#e03131;font-weight:700}
+</style>
+</head>
+<body class="mode-m1">
+<header>
+  <div class="title">第5节 光的色散 <span id="hint" class="hint">棱镜角度滑杆=转棱柱看光带偏移；拖太阳改入射仰角（立着放棱柱→色散在水平面→幕上横排七色；躺着放才竖排）</span></div>
+  <a class="back" href="./index.html">← 返回实验卡页</a>
+</header>
+<div id="scene-wrap" class="scene-wrap"><canvas id="scene"></canvas></div>
+<div class="ctrlbar">
+  <div class="group">
+    <div class="glabel">模式</div>
+    <div class="gctrl">
+      <button id="mode-m1" class="active">色散台</button>
+      <button id="mode-m2">三原色</button>
+    </div>
+  </div>
+  <div class="group m1-only">
+    <div class="glabel">棱镜角度</div>
+    <div class="gctrl">
+      <input id="prism-slider" type="range" min="-15" max="15" step="1" value="0">
+      <span id="prism-val">0°</span>
+    </div>
+  </div>
+  <div class="group m1-only">
+    <div class="glabel">光源</div>
+    <div class="gctrl">
+      <button id="btn-light" class="secondary">开灯</button>
+    </div>
+  </div>
+  <div class="group m1-only">
+    <div class="glabel">显示</div>
+    <div class="gctrl">
+      <label><input type="checkbox" id="cb-rays" checked> 光线</label>
+      <label><input type="checkbox" id="cb-labels"> 标签</label>
+      <span class="readout">墙上光带宽 <span id="read-spread">—</span></span>
+    </div>
+  </div>
+  <div class="group m2-only">
+    <div class="glabel">三原色</div>
+    <div class="gctrl" style="flex-direction:column;align-items:flex-start;gap:4px">
+      <label>R <input id="r-slider" type="range" min="0" max="255" value="255"><input id="r-num" class="rgb-num" type="text" inputmode="numeric" value="255"></label>
+      <label>G <input id="g-slider" type="range" min="0" max="255" value="255"><input id="g-num" class="rgb-num" type="text" inputmode="numeric" value="255"></label>
+      <label>B <input id="b-slider" type="range" min="0" max="255" value="255"><input id="b-num" class="rgb-num" type="text" inputmode="numeric" value="255"></label>
+    </div>
+  </div>
+  <div class="group m2-only">
+    <div class="glabel">混合读数</div>
+    <div class="gctrl">
+      <div id="mix-swatch"></div>
+      <span id="mix-readout" class="readout">R255 G255 B255 白</span>
+    </div>
+  </div>
+  <div class="group">
+    <div class="glabel">系统</div>
+    <div class="gctrl">
+      <button id="btn-reset" class="secondary">重置</button>
+      <button id="btn-mute">🔊</button>
+      <button id="btn-full" class="secondary">全屏</button>
+    </div>
+  </div>
+</div>
+<script src="../_lib/v1/props.js?v=89"></script>
+<script src="exp-dispersion-audio.js?v=24"></script>
+<script src="exp-dispersion-render.js?v=63"></script>
+<script src="exp-dispersion-core.js?v=53"></script>
+</body>
+</html>

@@ -614,5 +614,286 @@
     }
   };
 
+  // prism: 三棱镜 3D 程序化版（蔡总 2026-10-09 21:59 定版：贴图版删除，实验页 drawPrism3D 沉库为唯一实现）
+  // (x,y)=底边中心（底面坐深、后角坐桌）；opt={h=高(默认120), angle=yaw度(绕竖直轴真旋转、外法向可见性排序)}
+  PROPS.prism = function(ctx, x, y, opt) {
+    opt = opt || {};
+    var h = opt.h || 120;
+    var yawDeg = opt.angle || 0;
+    ctx.save();
+    var th = yawDeg * Math.PI / 180, r = h * 0.42, T = [], B = [];
+    for (var k = 0; k < 3; k++) { var a = th + k * 2 * Math.PI / 3; var tx = x + r * Math.cos(a), ty = y - h - 0.30 * r * Math.sin(a); T.push({x: tx, y: ty}); B.push({x: tx, y: ty + h}); }
+    var byMax = Math.max(B[0].y, B[1].y, B[2].y), dy = y - byMax;
+    T = T.map(function(p) { return {x: p.x, y: p.y + dy}; }); B = B.map(function(p) { return {x: p.x, y: p.y + dy}; });
+    var srt = [0, 1, 2].sort(function(i1, i2) { return T[i1].x - T[i2].x; });
+    var iL = srt[0], iR = srt[2], iM = srt[1];
+    var t = (T[iM].x - T[iL].x) / ((T[iR].x - T[iL].x) || 1), yLR = T[iL].y + (T[iR].y - T[iL].y) * t;
+    var low = (T[iM].y > yLR) ? [iL, iM, iR] : [iL, iR];
+    for (var i = 0; i < low.length - 1; i++) {
+      var a1 = low[i], a2 = low[i + 1];
+      ctx.beginPath(); ctx.moveTo(T[a1].x, T[a1].y); ctx.lineTo(T[a2].x, T[a2].y); ctx.lineTo(B[a2].x, B[a2].y); ctx.lineTo(B[a1].x, B[a1].y); ctx.closePath();
+      var g = ctx.createLinearGradient(T[a1].x, 0, T[a2].x, 0);
+      g.addColorStop(0, 'rgba(176,214,236,0.78)'); g.addColorStop(1, 'rgba(226,243,250,0.78)');
+      ctx.fillStyle = g; ctx.fill();
+    }
+    ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(B[low[0]].x, B[low[0]].y);
+    for (var i2 = 1; i2 < low.length; i2++) ctx.lineTo(B[low[i2]].x, B[low[i2]].y);
+    ctx.stroke();
+    low.forEach(function(ix) { ctx.beginPath(); ctx.moveTo(T[ix].x, T[ix].y); ctx.lineTo(B[ix].x, B[ix].y); ctx.stroke(); });
+    ctx.beginPath(); ctx.moveTo(T[0].x, T[0].y); ctx.lineTo(T[1].x, T[1].y); ctx.lineTo(T[2].x, T[2].y); ctx.closePath();
+    ctx.fillStyle = 'rgba(236,248,252,0.92)'; ctx.fill(); ctx.stroke();
+    ctx.restore();
+  };
+
+  // glass_plate: 竖立玻璃板（含底座），(x,y)=整体底边中心
+  PROPS.glass_plate = function(ctx, x, y, opt) {
+    opt = opt || {};
+    var id = 'glass_plate';
+    var h = opt.h || 160;
+    var a = opt.angle || 0;
+    ctx.save(); ctx.translate(x, y);
+    if (a) ctx.rotate(a);
+    if (!PROPS.spriteReady(id)) {
+      var ratio = 0.41;
+      var w = h * ratio;
+      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+      ctx.strokeRect(-w / 2, -h, w, h);
+      ctx.setLineDash([]);
+      ctx.restore();
+      return;
+    }
+    var img = PROPS.img(id);
+    var s = h / img.naturalHeight;
+    var w = img.naturalWidth * s;
+    ctx.drawImage(img, -w / 2, -h, w, h);
+    ctx.restore();
+  };
+
+  // screen_wide: 加宽横幕（c4s345 新增），(x,y)=整件底边中心；opt.h 显示高（默认300）
+  PROPS.screen_wide = function(ctx, x, y, opt) {
+    opt = opt || {};
+    var id = 'screen_wide';
+    var h = opt.h || 300;
+    ctx.save(); ctx.translate(x, y);
+    if (!PROPS.spriteReady(id)) {
+      var w = h * 1.1918;
+      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+      ctx.strokeRect(-w / 2, -h, w, h);
+      ctx.setLineDash([]);
+      ctx.restore();
+      return;
+    }
+    var img = PROPS.img(id);
+    var s = h / img.naturalHeight;
+    var w = img.naturalWidth * s;
+    ctx.drawImage(img, -w / 2, -h, w, h);
+    ctx.restore();
+  };
+
+  // 加宽横幕几何（全局坐标）：幕面占图比例为主会话像素实测，硬编码不许改
+  PROPS.screenWideGeom = function(x, y, h) {
+    var w = h * 1.1918;
+    return {
+      cx: x, w: w,
+      xL: x - w / 2 + 0.119 * w,
+      xR: x - w / 2 + 0.911 * w,
+      yT: y - h + 0.006 * h,
+      yB: y - h + 0.747 * h,
+      faceW: 0.792 * w
+    };
+  };
+
+  // === wood_desk: 全屏木质桌带（蔡总 2026-10-09 验收定版，以后所有实验桌面统一用它） ===
+  // opt={by,fy}：by=桌面顶线（顶面起点）、fy=地板线（前缘底边）；顶面 by→by+64 斜向自然木纹、白高光亮线4px、前缘 by+68→fy 竖向自然木纹、底缘阴影3px
+  // opt.x0/opt.x1（默认 0/W）=桌带水平范围
+  // 左出屏弯折桌变体（蔡总 14:11 定版沉库）：{x0:0, x1:<桌边>, bend:true, legTo:<立板底边>}——x1=进出屏长度随意调；bend=顶面深度三角+同板90°弯折立板(宽45=板厚)+2.5D右侧面(斜宽sideDx默认40)；legTo默认fy
+  PROPS._wrnd = function(s) {
+    var x = Math.sin(s * 12.9898 + 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  };
+  PROPS._wobLine = function(c, x1, y1, x2, y2, seed, amp, segs) {
+    c.beginPath(); c.moveTo(x1, y1);
+    for (var k = 1; k <= segs; k++) {
+      var t = k / segs;
+      var px = x1 + (x2 - x1) * t, py = y1 + (y2 - y1) * t;
+      if (k < segs) {
+        px += (PROPS._wrnd(seed * 7.3 + k * 3.1) - 0.5) * 2 * amp;
+        py += (PROPS._wrnd(seed * 3.7 + k * 5.9) - 0.5) * amp * 0.5;
+      }
+      c.lineTo(px, py);
+    }
+    c.stroke();
+  };
+  PROPS.wood_desk = function(ctx, W, H, opt) {
+    var by = opt.by, fy = opt.fy;
+    var X0 = (typeof opt.x0 === 'number') ? opt.x0 : 0;
+    var X1 = (typeof opt.x1 === 'number') ? opt.x1 : W;
+    var topH = 64, topB = by + topH;
+    var tg = ctx.createLinearGradient(0, by, 0, topB);
+    tg.addColorStop(0, '#e3d3ab'); tg.addColorStop(1, '#d6c294');
+    ctx.fillStyle = tg; ctx.fillRect(X0, by, X1 - X0, topH);
+    ctx.save(); ctx.beginPath(); ctx.rect(X0, by, X1 - X0, topH); ctx.clip();
+    var gi = 0, gx;
+    for (gx = X0 - topH; gx < X1 + topH; ) {
+      ctx.strokeStyle = 'rgba(165,135,85,' + (0.10 + PROPS._wrnd(gi * 2.3) * 0.14).toFixed(2) + ')';
+      ctx.lineWidth = 0.9 + PROPS._wrnd(gi * 4.1) * 0.9;
+      var t0 = PROPS._wrnd(gi * 5.7) * 0.4;
+      PROPS._wobLine(ctx, gx + topH * 0.62 * t0, topB - topH * t0, gx + topH * 0.62, by, gi + 1, 2.4, 4);
+      gi++; gx += 10 + PROPS._wrnd(gi * 1.7) * 7;
+    }
+    gi = 0;
+    for (gx = X0 - topH; gx < X1 + topH; ) {
+      ctx.strokeStyle = 'rgba(150,118,70,' + (0.09 + PROPS._wrnd(gi * 9.7 + 21) * 0.08).toFixed(2) + ')';
+      ctx.lineWidth = 2.4 + PROPS._wrnd(gi * 10.3 + 22) * 1.4;
+      PROPS._wobLine(ctx, gx, topB, gx + topH * 0.62, by, gi + 200, 2.8, 4);
+      gi++; gx += 56 + PROPS._wrnd(gi * 9.1 + 20) * 24;
+    }
+    ctx.restore();
+    ctx.fillStyle = '#f6ecd4'; ctx.fillRect(X0, topB, X1 - X0, 4);
+    var fg = ctx.createLinearGradient(0, topB + 4, 0, fy);
+    fg.addColorStop(0, '#dcc99c'); fg.addColorStop(1, '#c8b183');
+    ctx.fillStyle = fg; ctx.fillRect(X0, topB + 4, X1 - X0, fy - topB - 4);
+    gi = 0;
+    for (gx = X0 + 3; gx < X1; ) {
+      ctx.strokeStyle = 'rgba(150,120,70,' + (0.12 + PROPS._wrnd(gi * 3.3 + 41) * 0.14).toFixed(2) + ')';
+      ctx.lineWidth = 0.8 + PROPS._wrnd(gi * 4.7 + 42) * 0.8;
+      PROPS._wobLine(ctx, gx, topB + 6, gx, fy - 3, gi + 60, 1.7, 3);
+      gi++; gx += 4 + PROPS._wrnd(gi * 2.9 + 40) * 4;
+    }
+    gi = 0;
+    for (gx = X0 + 20; gx < X1; ) {
+      ctx.strokeStyle = 'rgba(140,108,60,' + (0.09 + PROPS._wrnd(gi * 7.7 + 81) * 0.10).toFixed(2) + ')';
+      ctx.lineWidth = 2 + PROPS._wrnd(gi * 8.3 + 82) * 1.2;
+      PROPS._wobLine(ctx, gx, topB + 6, gx, fy - 3, gi + 120, 2.0, 3);
+      gi++; gx += 34 + PROPS._wrnd(gi * 6.1 + 80) * 20;
+    }
+    ctx.fillStyle = 'rgba(110,82,45,0.45)'; ctx.fillRect(X0, fy - 3, X1 - X0, 3);
+    if (opt.bend) {
+      var legTo = (typeof opt.legTo === 'number') ? opt.legTo : fy;
+      var dxs = (typeof opt.sideDx === 'number') ? opt.sideDx : 40;
+      var D = 64;
+      ctx.save(); ctx.beginPath(); ctx.moveTo(X1, by); ctx.lineTo(X1 + dxs, by); ctx.lineTo(X1, by + topH); ctx.closePath(); ctx.clip();
+      var tgg = ctx.createLinearGradient(0, by, 0, by + topH);
+      tgg.addColorStop(0, '#e3d3ab'); tgg.addColorStop(1, '#d6c294');
+      ctx.fillStyle = tgg; ctx.fillRect(X1, by, dxs, topH);
+      var gt = 0;
+      for (var gxt = X1 - dxs; gxt < X1 + dxs; ) {
+        ctx.strokeStyle = 'rgba(165,135,85,' + (0.10 + PROPS._wrnd(gt * 2.3 + 401) * 0.14).toFixed(2) + ')';
+        ctx.lineWidth = 0.9 + PROPS._wrnd(gt * 4.1 + 402) * 0.9;
+        PROPS._wobLine(ctx, gxt + 40, by + topH, gxt + 80, by, gt + 420, 2.4, 4);
+        gt++; gxt += 10 + PROPS._wrnd(gt * 1.7 + 400) * 7;
+      }
+      ctx.restore();
+      var tw = 45, ex = X1 - tw, yC = fy;
+      var lg = ctx.createLinearGradient(ex, 0, X1, 0);
+      lg.addColorStop(0, '#c8b183'); lg.addColorStop(1, '#dcc99c');
+      ctx.fillStyle = lg; ctx.fillRect(ex, yC, tw, legTo - yC);
+      var gii = 0;
+      for (var gy = yC + 6; gy < legTo - 2; ) {
+        ctx.strokeStyle = 'rgba(150,120,70,' + (0.12 + PROPS._wrnd(gii * 3.3 + 41) * 0.14).toFixed(2) + ')';
+        ctx.lineWidth = 0.8 + PROPS._wrnd(gii * 4.7 + 42) * 0.8;
+        PROPS._wobLine(ctx, ex + 4, gy, X1 - 5, gy, gii + 60, 1.7, 3);
+        gii++; gy += 4 + PROPS._wrnd(gii * 2.9 + 40) * 4;
+      }
+      gii = 0;
+      for (var gy2 = yC + 16; gy2 < legTo - 2; ) {
+        ctx.strokeStyle = 'rgba(140,108,60,' + (0.09 + PROPS._wrnd(gii * 7.7 + 81) * 0.10).toFixed(2) + ')';
+        ctx.lineWidth = 2 + PROPS._wrnd(gii * 8.3 + 82) * 1.2;
+        PROPS._wobLine(ctx, ex + 4, gy2, X1 - 5, gy2, gii + 120, 2.0, 3);
+        gii++; gy2 += 34 + PROPS._wrnd(gii * 6.1 + 80) * 20;
+      }
+      ctx.strokeStyle = 'rgba(110,82,45,0.16)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(ex, yC); ctx.lineTo(X1 - 4, by + topH + 4); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(ex, yC + 2); ctx.lineTo(X1 - 4, by + topH + 6); ctx.stroke();
+      ctx.fillStyle = '#f6ecd4'; ctx.fillRect(X1 - 4, by + topH, 4, legTo - by - topH);
+      ctx.fillStyle = 'rgba(110,82,45,0.45)'; ctx.fillRect(ex, yC, 3, legTo - yC);
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(X1, by + topH); ctx.lineTo(X1 + dxs, by); ctx.lineTo(X1 + dxs, legTo); ctx.lineTo(X1, legTo); ctx.closePath(); ctx.clip();
+      var sg = ctx.createLinearGradient(X1, 0, X1 + dxs, 0);
+      sg.addColorStop(0, '#d6c294'); sg.addColorStop(1, '#c0a878');
+      ctx.fillStyle = sg; ctx.fillRect(X1, by - D - 6, dxs, legTo - by + D + 12);
+      var g3 = 0;
+      for (var gx5 = X1 + 4; gx5 < X1 + dxs - 2; ) {
+        ctx.strokeStyle = 'rgba(150,118,70,' + (0.10 + PROPS._wrnd(g3 * 3.9 + 301) * 0.12).toFixed(2) + ')';
+        ctx.lineWidth = 0.9 + PROPS._wrnd(g3 * 4.3 + 302) * 0.9;
+        PROPS._wobLine(ctx, gx5, by - D, gx5, legTo, g3 + 320, 1.5, 4);
+        g3++; gx5 += 4 + PROPS._wrnd(g3 * 5.7 + 300) * 4;
+      }
+      g3 = 0;
+      for (var gx6 = X1 + 10; gx6 < X1 + dxs - 2; ) {
+        ctx.strokeStyle = 'rgba(140,108,60,' + (0.08 + PROPS._wrnd(g3 * 7.1 + 341) * 0.09).toFixed(2) + ')';
+        ctx.lineWidth = 2 + PROPS._wrnd(g3 * 8.9 + 342) * 1.1;
+        PROPS._wobLine(ctx, gx6, by - D, gx6, legTo, g3 + 360, 1.8, 4);
+        g3++; gx6 += 30 + PROPS._wrnd(g3 * 6.3 + 340) * 18;
+      }
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(X1, by + topH); ctx.lineTo(X1 + dxs, by); ctx.stroke();
+      ctx.strokeStyle = 'rgba(110,82,45,0.25)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(X1 + dxs, by); ctx.lineTo(X1 + dxs, legTo); ctx.stroke();
+    }
+    return { by: by, fy: fy, topB: topB, x0: X0, x1: X1 };
+  };
+
+  /* == 桌面摆放规则（蔡总 2026-10-09 15:40 定版沉库；以后所有需放桌面的实验器材一律照此摆放） ==
+     R1 坐深居中：器材等轴测足迹竖向跨度 span 居中于桌面进深带 [by, by+topH]，seatY=PROPS.seatY(by,topH,span)；span 按器材几何算（三棱柱 span≈0.218*h）；上下留白相等、不贴桌沿
+     R2 零投影：器材直接坐桌面、不画接地阴影/椭圆影（阴影形与足迹不重合会露楔缝=悬空感；蔡总 R31/R34 两轮定）
+     R3 连线锚实时轮廓：光线/绳/杆等连到器材的端点=器材当前轮廓左右极点 PROPS.silhouetteX(x,r,yawDeg)，随旋转/拖动实时跟随，禁用固定偏移（蔡总 R34 定：旋转拖动光线不许断）
+     R4 拖拽夹取在桌面带内：器材拖拽 x 范围 ⊂ [x0+margin, x1-margin]，不许拖出桌边悬空（c4s5：桌边0.5W 时夹取 0.12W..0.46W）
+     R5 桌变体选择：PROPS.wood_desk({x0,x1,bend,legTo})；立板 legTo 接场景下边界（如灰栏顶 fy）；器材只坐顶面带 by..by+topH，不越立板/栏区
+  */
+  PROPS.seatY = function (by, topH, span) { return by + (topH + span) / 2; };
+  PROPS.silhouetteX = function (x, r, yawDeg) {
+    var th = yawDeg * Math.PI / 180, mn = 9, mx = -9;
+    for (var k = 0; k < 3; k++) { var cs = Math.cos(th + k * 2 * Math.PI / 3); if (cs < mn) mn = cs; if (cs > mx) mx = cs; }
+    return { L: x + r * mn, R: x + r * mx };
+  };
+  /* == 2.5D 房间空间（蔡总 2026-10-09 20:45 定版沉库；以后所有需要室内场景的实验一律调 PROPS.room_25d） ==
+     调用：PROPS.room_25d(c,W,H,opts)；opts 可覆写 {cy 阴角线=0.16H, xc 角竖线=0.62W, cyN 顶交线右端=0.05H, fy 灰栏顶=默认H不画灰栏}
+     含：屋顶带+条纹收敛消失点VP（VP在右墙顶交线延长线=地平线高）+背墙+阴角下环境光渐变+右墙退缩四边形（亮一档+角线AO）+冠顶线脚（亮+暗、角点连续）+角竖线+灰栏
+     用法纪律：光带/光斑落右墙（x>xc 区）；器材摆放按 R1-R5；三比例不擅改保透视一致；条纹/线脚低对比不抢实验主体的戏
+  */
+  PROPS.room_25d = function (c, W, H, opts) {
+    opts = opts || {};
+
+  var fy=opts.fy!=null?opts.fy:H;
+  var cy=opts.cy!=null?opts.cy:H*0.16, xc=opts.xc!=null?opts.xc:W*0.62, cyN=opts.cyN!=null?opts.cyN:H*0.05;
+  var m=(cyN-cy)/(W-xc);
+  c.fillStyle='#f6f1e3'; c.fillRect(0,0,W,cy-3);
+  c.save(); c.beginPath();
+  c.moveTo(0,0); c.lineTo(W,0); c.lineTo(W,cyN); c.lineTo(xc,cy-3); c.lineTo(0,cy-3); c.closePath(); c.clip();
+  var vpx=W*0.45, vpy=cy-3+m*(vpx-xc);
+  c.strokeStyle='rgba(175,165,135,0.28)'; c.lineWidth=2;
+  for(var i=0;i<4;i++){
+    var xt=W*(0.08+0.24*i);
+    c.beginPath();
+    c.moveTo(xt,-10);
+    c.lineTo(vpx,vpy);
+    c.stroke();
+  }
+  c.restore();
+  c.fillStyle='#f0ecc6'; c.fillRect(0,cy-3,xc,fy-cy+3);
+  var g=c.createLinearGradient(0,cy+2,0,cy+48);
+  g.addColorStop(0,'rgba(120,110,80,0.12)'); g.addColorStop(1,'rgba(120,110,80,0)');
+  c.fillStyle=g; c.fillRect(0,cy+2,xc,46);
+  c.fillStyle='#f5f1d6';
+  c.beginPath(); c.moveTo(xc,cy-3); c.lineTo(W,cyN); c.lineTo(W,H); c.lineTo(xc,H); c.closePath(); c.fill();
+  var ga=c.createLinearGradient(xc,0,xc+90,0);
+  ga.addColorStop(0,'rgba(120,110,80,0.14)'); ga.addColorStop(1,'rgba(120,110,80,0)');
+  c.save(); c.beginPath(); c.moveTo(xc,cy-3); c.lineTo(W,cyN); c.lineTo(W,H); c.lineTo(xc,H); c.closePath(); c.clip();
+  c.fillStyle=ga; c.fillRect(xc,cyN,W-xc,H-cyN);
+  c.restore();
+  c.fillStyle='#fbf8ec';
+  c.beginPath(); c.moveTo(xc,cy-3); c.lineTo(W,cyN-3); c.lineTo(W,cyN); c.lineTo(xc,cy); c.closePath(); c.fill();
+  c.fillStyle='rgba(140,130,100,0.35)';
+  c.beginPath(); c.moveTo(xc,cy); c.lineTo(W,cyN); c.lineTo(W,cyN+2); c.lineTo(xc,cy+2); c.closePath(); c.fill();
+  c.fillStyle='#fbf8ec'; c.fillRect(0,cy-3,xc,3);
+  c.fillStyle='rgba(140,130,100,0.35)'; c.fillRect(0,cy,xc,2);
+  c.strokeStyle='rgba(140,130,100,0.35)'; c.lineWidth=2;
+  c.beginPath(); c.moveTo(xc,cy+2); c.lineTo(xc,H); c.stroke();
+  c.fillStyle='#9aa0a6'; c.fillRect(0,fy,W,H-fy);
+  };
   /* == APPEND-POINT: 6~10号件由单②插入此行上方 == */
 })(typeof window !== 'undefined' ? window : globalThis);
