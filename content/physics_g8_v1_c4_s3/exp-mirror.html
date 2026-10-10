@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平面镜成像探究馆 — 第4章 光现象</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f0f5fa;color:#1f2937;overflow:hidden}
+  header{position:fixed;top:0;left:0;right:0;height:34px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f0f5fa;border-bottom:1px solid rgba(0,0,0,0.08);z-index:10}
+  .back{font-size:13px;color:#2563eb;text-decoration:none;white-space:nowrap}
+  .back:hover{text-decoration:underline}
+  .title{font-size:13px;font-weight:600;color:#111827;white-space:nowrap}
+  .hint{font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400;margin-left:8px}
+  .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(100,108,120,.55),rgba(100,108,120,.28) 70%,rgba(100,108,120,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:8px;padding:8px 10px;z-index:20}
+  .ctrlbar>*{pointer-events:auto}
+  .group{display:flex;flex-direction:column;gap:5px;background:rgba(240,242,245,.82);border-radius:10px;padding:6px 10px}
+  .glabel{font-size:11px;color:#5b6472;white-space:nowrap;letter-spacing:.5px;line-height:1}
+  .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:28px}
+  .gctrl label{font-size:13px;cursor:pointer;white-space:nowrap}
+  button{border:0;border-radius:8px;padding:7px 11px;font-size:13px;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
+  button:hover{background:#1d4ed8}
+  button.secondary{background:#6b7280}
+  button.secondary:hover{background:#4b5563}
+  button:disabled{background:#c3cad6;cursor:not-allowed}
+  button.active{background:#1d4ed8;box-shadow:inset 0 0 0 2px #1e40af}
+  button.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
+  button#btn-eq,button#btn-table{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
+  button#btn-eq:hover,button#btn-table:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  button#btn-eq.on,button#btn-table.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
+  .mode-m1 .m2-only,.mode-m1 .m3-only{display:none}
+  .mode-m2 .m1-only,.mode-m2 .m3-only{display:none}
+  .mode-m3 .m1-only,.mode-m3 .m2-only{display:none}
+  input[type=range]{width:110px;height:26px}
+  .rec-panel{display:none;position:absolute;top:16px;right:16px;min-width:320px;background:rgba(255,255,255,.9);border:1px solid #b8c6da;border-radius:10px;padding:10px 14px;box-shadow:0 2px 8px rgba(30,41,59,.15);z-index:15}
+  .rec-panel.show{display:block}
+  .rp-title{font-weight:700;font-size:14px;margin-bottom:6px;color:#334155}
+  .rec-panel .rec{font-size:14px;width:100%}
+  .rec-panel .rec th,.rec-panel .rec td{padding:6px 8px}
+  .rp-foot{margin-top:8px;text-align:right}
+  .readout{font-size:13px;color:#2563eb;font-weight:600;white-space:nowrap}
+  .badge{display:inline-block;font-size:9px;background:rgba(255,255,255,.85);color:#6b7280;border-radius:4px;padding:0 3px;margin-left:2px;vertical-align:middle}
+  table.rec{border-collapse:collapse;font-size:11px;background:#fff;border-radius:6px;overflow:hidden}
+  table.rec th,table.rec td{border:1px solid #cbd5e1;padding:1px 5px;text-align:center;white-space:nowrap;color:#334155}
+  table.rec th{background:#e2e8f0;font-weight:600;font-size:10px}
+html.pseudo-fs{width:100%;height:100%}
+html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
+</style>
+</head>
+<body class="mode-m1">
+<header>
+  <div class="title">第3节 平面镜成像 <span id="hint" class="hint">①点击蜡烛点燃 ②拖板前蜡烛改变物距、看虚像对称移动 ③拖板后未点燃蜡烛去找像的位置</span></div>
+  <a class="back" href="./index.html">← 返回实验卡页</a>
+</header>
+<div id="scene-wrap" class="scene-wrap">
+<canvas id="scene"></canvas>
+<div class="rec-panel" id="rec-panel">
+  <div class="rp-title">观察记录表</div>
+  <table class="rec" id="rec-table">
+    <thead><tr><th>序号</th><th>蜡烛到板距离/cm</th><th>像到板距离/cm</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td class="c-do">—</td><td class="c-di">—</td></tr>
+      <tr><td>2</td><td class="c-do">—</td><td class="c-di">—</td></tr>
+      <tr><td>3</td><td class="c-do">—</td><td class="c-di">—</td></tr>
+    </tbody>
+  </table>
+  <div class="rp-foot"><button id="btn-rec" class="secondary">记录数据</button><button id="btn-clear" class="secondary">清除</button></div>
+</div>
+</div>
+<div class="ctrlbar">
+  <div class="group">
+    <div class="glabel">模式</div>
+    <div class="gctrl">
+      <button id="mode-m1" class="active">M1 成像探究台</button>
+      <button id="mode-m2">M2 虚像原理</button>
+      <button id="mode-m3">M3 潜望镜</button>
+    </div>
+  </div>
+  <div class="group m1-only">
+    <div class="glabel">蜡烛</div>
+    <div class="gctrl">
+      <label>物距 <input id="obj-slider" type="range" min="3" max="16" step="1" value="8"> cm</label>
+      <span class="readout">物距 <span id="read-do">—</span> cm</span>
+      <span class="readout">像距 <span id="read-di">—</span> cm</span>
+      <label><input type="checkbox" id="cb-aux"> 辅助线</label>
+      <button id="btn-eq">等效蜡烛</button>
+      <button id="btn-table">记录表</button>
+    </div>
+  </div>
+  <div class="group m2-only">
+    <div class="glabel">光线显示</div>
+    <div class="gctrl">
+      <label><input type="checkbox" id="cb-ray"> 入射-反射线</label>
+      <label><input type="checkbox" id="cb-ext"> 反向延长线</label>
+      <label><input type="checkbox" id="cb-norm"> 法线</label>
+      <label><input type="checkbox" id="cb-sym"> 对称标注</label>
+    </div>
+  </div>
+  <div class="group m2-only">
+    <div class="glabel">光屏</div>
+    <div class="gctrl">
+      <span style="font-size:12px;color:#475569">拖动光屏到 S′ 位置</span>
+    </div>
+  </div>
+  <div class="group m3-only">
+    <div class="glabel">镜子角度</div>
+    <div class="gctrl">
+      <label><input id="angle-slider" type="range" min="30" max="60" step="0.1" value="45"> <span id="read-angle">45.0</span>°</label>
+    </div>
+  </div>
+  <div class="group m3-only">
+    <div class="glabel">光路</div>
+    <div class="gctrl">
+      <label><input type="checkbox" id="cb-path"> 显示光路</label>
+    </div>
+  </div>
+  <div class="group">
+    <div class="glabel">系统</div>
+    <div class="gctrl">
+      <button id="btn-reset" class="secondary">重置</button>
+      <button id="btn-mute">🔊</button>
+      <button id="btn-full" class="secondary">全屏</button>
+    </div>
+  </div>
+</div>
+<script src="../_lib/v1/props.js?v=94"></script>
+<script src="exp-mirror-audio.js?v=1"></script>
+<script src="exp-mirror-render.js?v=30"></script>
+<script src="exp-mirror-core.js?v=32"></script>
+</body>
+</html>

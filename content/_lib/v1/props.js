@@ -22,6 +22,7 @@
 
   // === sprite loader contract ===
   PROPS.SPRITE_BASE = 'sprites/';
+  PROPS.SPRITE_VER = 91;
   PROPS._imgCache = PROPS._imgCache || {};
   PROPS.img = function(id) {
     var c = PROPS._imgCache;
@@ -648,25 +649,23 @@
 
   // glass_plate: 竖立玻璃板（含底座），(x,y)=整体底边中心
   PROPS.glass_plate = function(ctx, x, y, opt) {
+    /* R25c 蔡总：玻璃板=绕纵轴旋转的竖立 2.5D（旧 R25b 侧边斜=绕横轴歪=要倒了）；几何照旧版 PNG 探针：侧边竖直、上下边右斜 drop=s*w、顶面薄平行四边形退向右后上、右侧厚度面；(x,y)=底边中心；opt.h 显示高；总宽≈0.39h 对齐旧图 0.41h */
     opt = opt || {};
-    var id = 'glass_plate';
     var h = opt.h || 160;
     var a = opt.angle || 0;
+    var w = h * 0.34, drop = h * 0.085, dx = h * 0.030, dy = -dx * 0.4, fh = h - drop; // R25d 蔡总：旋转角加大（drop 0.048→0.085h，超旧图 0.076h）、厚度再减（dx 0.05→0.030h）、去中间白竖纹
     ctx.save(); ctx.translate(x, y);
     if (a) ctx.rotate(a);
-    if (!PROPS.spriteReady(id)) {
-      var ratio = 0.41;
-      var w = h * ratio;
-      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
-      ctx.strokeRect(-w / 2, -h, w, h);
-      ctx.setLineDash([]);
-      ctx.restore();
-      return;
-    }
-    var img = PROPS.img(id);
-    var s = h / img.naturalHeight;
-    var w = img.naturalWidth * s;
-    ctx.drawImage(img, -w / 2, -h, w, h);
+    ctx.lineWidth = Math.max(1.2, h * 0.008); ctx.strokeStyle = '#64748b'; ctx.lineJoin = 'round';
+    // 顶面（退向右后上）
+    ctx.beginPath(); ctx.moveTo(-w / 2, -h); ctx.lineTo(w / 2, -fh); ctx.lineTo(w / 2 + dx, -fh + dy); ctx.lineTo(-w / 2 + dx, -h + dy); ctx.closePath();
+    ctx.fillStyle = 'rgba(225,242,250,0.60)'; ctx.fill(); ctx.stroke();
+    // 右侧厚度面（侧边竖直）
+    ctx.beginPath(); ctx.moveTo(w / 2, -fh); ctx.lineTo(w / 2 + dx, -fh + dy); ctx.lineTo(w / 2 + dx, dy); ctx.lineTo(w / 2, 0); ctx.closePath();
+    ctx.fillStyle = 'rgba(150,196,216,0.45)'; ctx.fill(); ctx.stroke();
+    // 板面（平行四边形：侧边竖直、上下边右斜）
+    ctx.beginPath(); ctx.moveTo(-w / 2, -drop); ctx.lineTo(w / 2, 0); ctx.lineTo(w / 2, -fh); ctx.lineTo(-w / 2, -h); ctx.closePath();
+    ctx.fillStyle = 'rgba(191,225,240,0.30)'; ctx.fill(); ctx.stroke();
     ctx.restore();
   };
 
@@ -702,6 +701,50 @@
       yB: y - h + 0.747 * h,
       faceW: 0.792 * w
     };
+  };
+
+  // observer_eye: 观察者眼（蔡总 2026-10-10 素材入库），(x,y)=包围盒中心；opt.h 显示高（默认48），dir='right' 水平翻转
+  PROPS.observer_eye = function(ctx, x, y, opt) {
+    opt = opt || {};
+    var id = 'observer_eye';
+    var h = opt.h || 48;
+    var dir = (opt.dir === 'right' || opt.dir === -1) ? -1 : 1;
+    ctx.save(); ctx.translate(x, y);
+    ctx.scale(dir, 1);
+    if (!PROPS.spriteReady(id)) {
+      var w = h * 1.0603;
+      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+      ctx.strokeRect(-w / 2, -h / 2, w, h);
+      ctx.setLineDash([]);
+      ctx.restore();
+      return;
+    }
+    var img = PROPS.img(id);
+    var s = h / img.naturalHeight;
+    var w = img.naturalWidth * s;
+    ctx.drawImage(img, -w / 2, -h / 2, w, h);
+    ctx.restore();
+  };
+
+  // submarine_hull: 潜艇水下剖面艇体（蔡总 2026-10-10 Seedream生成+抠图入库），(x,y)=包围盒中心；opt.w 显示宽（高=opt.w/5.136，来源=sprite实测bbox宽高比）
+  PROPS.submarine_hull = function(ctx, x, y, opt) {
+    opt = opt || {};
+    var id = 'submarine_hull';
+    var w = opt.w || 300;
+    var h = w / 5.136;
+    ctx.save(); ctx.translate(x, y);
+    if (!PROPS.spriteReady(id)) {
+      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+      ctx.strokeRect(-w / 2, -h / 2, w, h);
+      ctx.setLineDash([]);
+      ctx.restore();
+      return;
+    }
+    var img = PROPS.img(id);
+    var s = w / img.naturalWidth;
+    var dh = img.naturalHeight * s;
+    ctx.drawImage(img, -w / 2, -dh / 2, w, dh);
+    ctx.restore();
   };
 
   // === wood_desk: 全屏木质桌带（蔡总 2026-10-09 验收定版，以后所有实验桌面统一用它） ===
@@ -895,5 +938,23 @@
   c.beginPath(); c.moveTo(xc,cy+2); c.lineTo(xc,H); c.stroke();
   c.fillStyle='#9aa0a6'; c.fillRect(0,fy,W,H-fy);
   };
+  // mirror_plate: 薄反射镜片（蔡总 2026-10-10 R22 点名：plane_mirror 渲染太厚，换薄片画法），(x,y)=板中心；opt.len 板长默认90、厚 th=7，正面玻璃渐变+背面斜纹
+  PROPS.mirror_plate = function(ctx, x, y, opt) {
+    opt = opt || {};
+    var len = opt.len || 90, th = 7;
+    ctx.save();
+    ctx.translate(x, y);
+    var g = ctx.createLinearGradient(-len / 2, 0, len / 2, 0);
+    g.addColorStop(0, '#cfe4f7'); g.addColorStop(0.45, '#f4f9ff'); g.addColorStop(1, '#a8c8e8');
+    ctx.fillStyle = g; ctx.strokeStyle = '#334155'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(-len / 2, -th / 2, len, th, 3); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.2;
+    for (var i = 0; i < 4; i++) {
+      var bx = -len / 2 + len * (i + 0.5) / 4;
+      ctx.beginPath(); ctx.moveTo(bx, th / 2); ctx.lineTo(bx - 5, th / 2 + 6); ctx.stroke();
+    }
+    ctx.restore();
+  };
+
   /* == APPEND-POINT: 6~10号件由单②插入此行上方 == */
 })(typeof window !== 'undefined' ? window : globalThis);
