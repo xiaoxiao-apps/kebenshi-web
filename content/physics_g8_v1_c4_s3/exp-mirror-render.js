@@ -229,12 +229,6 @@ function buildM3Background(){
     b.beginPath();b.moveTo(x_r-(w/2+7),j.y);b.lineTo(x_r+(w/2+7),j.y);b.stroke();
   });b.restore();
 }
-function drawWave(c,y,t,amp,wlen,phase,lw,col){
-  c.save();c.strokeStyle=col;c.lineWidth=lw;c.lineCap='round';
-  c.beginPath();
-  for(var x=0;x<=R.W;x+=8){var yy=y+Math.sin((x+phase)/wlen+t)*amp;c.lineTo(x,yy);}
-  c.stroke();c.restore();
-}
 function drawBoat(c,x,y,scale,mastH){
   var s=scale||1;
   c.save();c.translate(x,y);c.scale(s,s);
@@ -256,8 +250,8 @@ function drawM3(c){
   var x_l=t.x_l,x_r=t.x_r,x_e=t.x_e,y1=t.y1,y2=t.y2,w=t.w;
   // 波浪
   var f=m.flowT||0;
-  drawWave(c,t.y_w,f/900,4,90,0,2,'#ffffff');
-  drawWave(c,t.y_w+2,f/1400,6,140,40,2.5,'#38bdf8');
+  PROPS.water_wave(c,R.W/2,t.y_w,{w:R.W,t:f/900,amp:4,wlen:90,lw:2,col:'#ffffff'}); // R26 改库调用
+  PROPS.water_wave(c,R.W/2,t.y_w+2,{w:R.W,t:f/1400,amp:6,wlen:140,phase:40,lw:2.5,col:'#38bdf8'});
   // 小船
   drawBoat(c,m.objPos.x,m.objPos.y,1);
   c.save();c.fillStyle='#1e3a5f';c.font='bold 12px sans-serif';c.textAlign='right';

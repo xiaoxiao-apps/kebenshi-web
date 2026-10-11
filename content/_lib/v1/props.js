@@ -939,6 +939,20 @@
   c.fillStyle='#9aa0a6'; c.fillRect(0,fy,W,H-fy);
   };
   // mirror_plate: 薄反射镜片（蔡总 2026-10-10 R22 点名：plane_mirror 渲染太厚，换薄片画法），(x,y)=板中心；opt.len 板长默认90、厚 th=7，正面玻璃渐变+背面斜纹
+  // water_wave: 水面波浪标准件（R26 蔡总点名入库；原 c4s3 inline drawWave 抽库）；(x,y)=波浪带水平中心线中点；opt.w 带宽默认400、amp 振幅、wlen 波长、t 时间相位、phase 空间相位、lw 线宽、col 颜色
+  PROPS.water_wave = function(ctx, x, y, opt) {
+    opt = opt || {};
+    var w = opt.w || 400, amp = opt.amp == null ? 4 : opt.amp, wlen = opt.wlen || 90;
+    var t = opt.t || 0, ph = opt.phase || 0, lw = opt.lw || 2, col = opt.col || '#38bdf8';
+    ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineCap = 'round';
+    ctx.beginPath();
+    for (var xx = -w / 2; xx <= w / 2; xx += 8) {
+      var yy = y + Math.sin((x + xx + ph) / wlen + t) * amp;
+      if (xx === -w / 2) ctx.moveTo(x + xx, yy); else ctx.lineTo(x + xx, yy);
+    }
+    ctx.stroke(); ctx.restore();
+  };
+
   PROPS.mirror_plate = function(ctx, x, y, opt) {
     opt = opt || {};
     var len = opt.len || 90, th = 7;

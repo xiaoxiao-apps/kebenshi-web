@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>器材标准件库 v1 · 审核 gallery</title>
+<link rel="stylesheet" href="./ui.css">
+<style>
+.prop-card{cursor:zoom-in}
+#lightbox-ov{position:fixed;inset:0;background:rgba(0,0,0,0.72);display:none;align-items:center;justify-content:center;z-index:999}
+#lightbox-ov.show{display:flex}
+#lightbox-ov .lb-box{background:#fff;border-radius:14px;padding:14px 16px;max-width:92vw;max-height:90vh;display:flex;flex-direction:column;gap:8px;box-shadow:0 12px 48px rgba(0,0,0,0.4)}
+#lightbox-ov .lb-title{font-weight:700;font-size:14px;color:#333;text-align:center}
+#lightbox-ov .lb-cv{text-align:center}
+#lightbox-ov .lb-cv img,#lightbox-ov .lb-cv canvas{max-width:88vw;max-height:74vh;border-radius:8px;display:inline-block;background:#f5f2ec}
+#lightbox-ov .lb-close{text-align:center;font-size:12px;color:#999;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="page-title">器材标准件库 v1 · 审核 gallery</div>
+<div class="page-sub">15件标准器材 + 滑轨插槽组合演示 + UI 组件 token（亮底方案）</div>
+<div class="hint-bar">提示：逐件审核器材默认参数与变体，点击任意卡片可放大查看原图（点空白处或 Esc 关闭）；右侧为插槽组合与 UI 控件样例</div>
+<div id="gallery" class="gallery"></div>
+<div class="demo-stage">
+  <div class="demo-title">插槽组合演示：凸透镜成像 + 凹透镜发散 + 空底座</div>
+  <canvas id="demo" class="demo-canvas" width="960" height="220"></canvas>
+</div>
+<div class="ui-section">
+  <div class="demo-title">UI 组件 token 样例</div>
+  <div class="panel">
+    <div class="ctl-row">
+      <label><input type="checkbox" checked> 法线</label>
+      <label><input type="radio" name="beam" checked> 单光线</label>
+      <label><input type="radio" name="beam"> 平行光束</label>
+      <select><option>平面镜</option><option>粗糙面</option></select>
+    </div>
+    <div class="ctl-row">
+      <button class="btn">重置</button>
+      <button class="btn primary">播放</button>
+      <label>角度<input type="range" min="0" max="80" value="45"><span>45°</span></label>
+    </div>
+    <div class="ctl-row">
+      <span class="readout">∠i=45°</span>
+      <span class="readout">∠r=45°</span>
+      <span class="pill">f=15</span>
+    </div>
+  </div>
+</div>
+<script src="./props.js?v=95"></script>
+<script src="./props-optics.js?v=5"></script>
+<script>
+// PROPS.SPRITE_BASE 默认为 'sprites/'，与 gallery.html 同目录，正确无需覆写
+const PROPS_LIST=[
+  {id:'laser_pen',name:'激光笔',fn:'laser_pen',wide:true,row:true,opts:[{},{beam:true,beamLen:150},{beam:true,beamLen:110,angle:-8}]},
+  {id:'water_tank',name:'水槽',fn:'water_tank',opts:[{},{water:0.4},{water:0.7,turbid:0.9}]},
+  {id:'glass_brick',name:'玻璃砖',fn:'glass_brick',opts:[{},{w:70,h:70},{w:120,h:40}]},
+  {id:'plane_mirror',name:'平面镜',fn:'plane_mirror',opts:[{rough:0,w:260,depth:44},{rough:70,w:260,depth:44}]},
+  {id:'sun',name:'太阳',fn:'sun',opts:[{r:40},{r:28,rays:8,hover:true}]},
+  {id:'paper_board',name:'纸板',fn:'paper_board',opts:[{},{fold:30},{fold:60}]},
+  {id:'candle',name:'蜡烛',fn:'candle',tall:true,opts:[{},{lit:false},{h:70}]},
+  {id:'screen',name:'光屏',fn:'screen',tall:true,opts:[{},{w:60,h:70},{w:100,h:110}]},
+  {id:'screen_wide',name:'加宽横幕',fn:'screen_wide',wide:true,opts:[{},{h:200},{h:260}],badge:'c4s345 新增'},
+  {id:'board_with_hole',name:'带孔板',fn:'board_with_hole',tall:true,opts:[{},{holeR:16},{holeDy:45}]},
+  {id:'desk_lamp',name:'台灯',fn:'desk_lamp',tall:true,opts:[{},{lit:false},{dir:'left'}]},
+  {id:'hand_shadow',name:'手影',fn:'hand_shadow',tall:true,opts:[{},{skin:true},{dir:'left',skin:true}]},
+  {id:'optical_rail',name:'光具座',fn:'optical_rail',size:{w:520,h:250},opts:[{railLen:60,scale:8,baseCount:3},{railLen:40,scale:12,baseCount:2,zero:'left'},{railLen:80,scale:6,baseCount:4}]},
+  {id:'lens_convex',name:'凸透镜',fn:'lens_convex',tall:true,opts:[{},{h:60,f:15},{h:60,f:6}]},
+  {id:'lens_concave',name:'凹透镜',fn:'lens_concave',tall:true,opts:[{},{h:60,f:15},{h:60,f:6}]},
+  {id:'smoke_box',name:'浓烟盒(密闭)',fn:'smoke_box',wide:true,row:true,opts:[{},{h:120}]},
+  {id:'prism',name:'三棱镜（3D可旋转）',fn:'prism',tall:true,vector:true,opts:[{h:120,angle:0},{h:100,angle:25},{h:80,angle:-20}],badge:'c4s345 新增'},
+  {id:'glass_plate',name:'竖立玻璃板',fn:'glass_plate',tall:true,opts:[{},{h:120},{h:90}],badge:'c4s345 新增'},
+  {id:'observer_eye',name:'观察眼',fn:'observer_eye',opts:[{},{h:36,dir:'right'},{h:56}],badge:'c4s3 新增'},
+  {id:'mirror_plate',name:'薄镜片',fn:'mirror_plate',opts:[{},{len:60},{len:120}],badge:'c4s3 新增'},
+  {id:'water_wave',name:'水面波浪',fn:'water_wave',wide:true,opts:[{w:240},{w:240,amp:6,wlen:140,col:'#38bdf8'},{w:240,lw:3,t:2}],badge:'c4s3 新增'}
+];
+const CARD_SIZES={wide:{w:520,h:160},tall:{w:300,h:420},normal:{w:300,h:160}};
+function sizeOf(item){return item.size||CARD_SIZES[item.wide?'wide':(item.tall?'tall':'normal')];}
+function clearDesk(ctx,w,h){ctx.fillStyle='#f5f2ec';ctx.fillRect(0,0,w,h);ctx.imageSmoothingEnabled=true;}
+function relU(u){return u+30;}
+function spriteIdsFor(item,o){
+  if(item.vector) return [];
+  const ids=new Set();
+  if(!item.wait) ids.add(item.fn);
+  if(item.fn==='optical_rail' && o.bases) o.bases.forEach(function(b){if(b.mount) ids.add(b.mount);});
+  return Array.from(ids);
+}
+function noteFor(o){const kv=Object.keys(o).map(function(k){return k+'='+JSON.stringify(o[k]);}).join(',');return kv||'默认';}
+const UNWIRED={plane_mirror:['stand']};
+function unwired(item,o){const ks=UNWIRED[item.fn]||[];return Object.keys(o).some(function(k){return ks.indexOf(k)>=0;});}
+function drawCard(item){
+  const s=sizeOf(item);
+  const wrap=document.createElement('div');wrap.className='prop-card';
+  const lab=document.createElement('div');lab.className='prop-label';lab.textContent=item.id;
+  const name=document.createElement('div');name.className='prop-name';name.textContent=item.name;
+  if(item.badge){const b=document.createElement('span');b.className='pill';b.style.marginLeft='8px';b.style.background='var(--gold)';b.textContent=item.badge;name.appendChild(b);}
+  if(item.wait){const b=document.createElement('span');b.className='pill';b.style.marginLeft='8px';b.textContent='⏳ 等蔡总素材';name.appendChild(b);}
+  const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=s.w;cvs.height=s.h;
+  const note=document.createElement('div');note.className='variant-note';
+  const ctx0=cvs.getContext('2d'),opts=item.opts||[{}],cols=opts.length,colW=s.w/cols,baseY=item.fn==='optical_rail'?s.h/2+10:(s.h-22-(item.tall?60:0));
+  function draw(g){
+    const ctx=(g&&g.canvas)?g:ctx0;
+    clearDesk(ctx,s.w,s.h);
+    const notes=[];
+    if(item.row){
+      const rowH=s.h/opts.length;
+      opts.forEach(function(o,i){
+        ctx.save();ctx.beginPath();ctx.rect(0,i*rowH,s.w,rowH);ctx.clip();
+        let drawOpt=o;
+        const img=PROPS.img(item.fn);
+        if(PROPS.spriteReady && PROPS.spriteReady(item.fn)){
+          const fit=Math.min((s.w*0.5)/img.naturalWidth,(rowH-10)/img.naturalHeight);
+          drawOpt=Object.assign({},o,{scale:fit});
+        }
+        PROPS[item.fn](ctx,s.w*0.30,i*rowH+rowH-6,drawOpt);
+        ctx.restore();
+        notes.push((unwired(item,o)?'⏳':'')+'变体'+(i+1)+':'+noteFor(o));
+      });
+    }else if(item.fn==='optical_rail'){
+      opts.forEach(function(o,i){
+        ctx.save();ctx.beginPath();ctx.rect(0,i*80,s.w,80);ctx.clip();
+        PROPS[item.fn](ctx,260,55+i*80,o);
+        ctx.restore();
+        notes.push((unwired(item,o)?'⏳':'')+'变体'+(i+1)+':'+noteFor(o));
+      });
+    }else{
+      opts.forEach(function(o,i){
+        ctx.save();ctx.beginPath();ctx.rect(i*colW,0,colW,s.h);ctx.clip();
+        let drawOpt=o;
+        if(!o.w && !o.h && !o.scale){
+          const img=PROPS.img(item.fn);
+          if(PROPS.spriteReady && PROPS.spriteReady(item.fn)){
+            const fit=Math.min((colW-14)/img.naturalWidth,(s.h-20)/img.naturalHeight);
+            drawOpt=Object.assign({},o,{scale:fit});
+          }
+        }
+        PROPS[item.fn](ctx,i*colW+colW/2,baseY,drawOpt);
+        ctx.restore();
+        notes.push((unwired(item,o)?'⏳':'')+'变体'+(i+1)+':'+noteFor(o));
+      });
+    }
+    note.textContent=notes.join(' | ');
+  }
+  draw();
+  opts.forEach(function(o){spriteIdsFor(item,o).forEach(function(id){PROPS.onSprite(id,function(){draw();});});});
+  wrap._lbBig=draw;
+  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);wrap.appendChild(note);
+  return wrap;
+}
+function initBenchCard(){
+  const wrap=document.createElement('div');wrap.className='prop-card';
+  const lab=document.createElement('div');lab.className='prop-label';lab.textContent='bench';
+  const name=document.createElement('div');name.className='prop-name';name.textContent='实验桌面';
+  const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=300;cvs.height=160;
+  const ctx0=cvs.getContext('2d');
+  function paint(g){const ctx=(g&&g.canvas)?g:ctx0;ctx.imageSmoothingEnabled=true;PROPS.bench(ctx,300,160);}
+  paint();wrap._lbBig=paint;
+  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);return wrap;
+}
+function initToolboxCard(){
+  const wrap=document.createElement('div');wrap.className='prop-card';
+  const lab=document.createElement('div');lab.className='prop-label';lab.textContent='toolbox';
+  const name=document.createElement('div');name.className='prop-name';name.textContent='收纳卡';
+  const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=300;cvs.height=160;
+  const ctx0=cvs.getContext('2d');
+  const tb=PROPS.toolbox.create({card:{x:20,y:20,w:260,h:110,r:10,fill:'#dce6f2',stroke:'#b8c6da'},items:[{id:'glass_brick',x:70,y:85},{id:'water_tank',x:150,y:85},{id:'smoke_box',x:230,y:85}],fit:60,nat:{glass_brick:{w:515,h:344},water_tank:{w:800,h:310},smoke_box:{w:800,h:516}}});
+  function paint(g){const ctx=(g&&g.canvas)?g:ctx0;ctx.imageSmoothingEnabled=true;
+    ctx.fillStyle='#f9f4cd';ctx.fillRect(0,0,300,160);
+    tb.drawCard(ctx);
+    tb.drawThumb(ctx,'glass_brick',70,85+tb.slots[0].h/2);
+    tb.drawThumb(ctx,'water_tank',150,85+tb.slots[1].h/2);
+    tb.drawThumb(ctx,'smoke_box',230,85+tb.slots[2].h/2);
+  }
+  paint();
+  ['glass_brick','water_tank','smoke_box'].forEach(function(id){PROPS.onSprite(id,function(){paint();});});
+  wrap._lbBig=paint;
+  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);return wrap;
+}
+function initDeskCard(){
+  const wrap=document.createElement('div');wrap.className='prop-card';wrap.id='card-desk-full';
+  const lab=document.createElement('div');lab.className='prop-label';lab.textContent='wood_desk';
+  const name=document.createElement('div');name.className='prop-name';name.textContent='实验桌面（定版原版·全屏）';
+  const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=480;cvs.height=200;
+  const ctx0=cvs.getContext('2d');
+  function paint(g){const ctx=(g&&g.canvas)?g:ctx0;ctx.imageSmoothingEnabled=true;
+  ctx.fillStyle='#f0ecc6';ctx.fillRect(0,0,480,170);
+  ctx.fillStyle='#9aa0a6';ctx.fillRect(0,170,480,30);
+  PROPS.wood_desk(ctx,480,200,{by:110,fy:170});}
+  paint();wrap._lbBig=paint;
+  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);return wrap;
+}
+function initRoomCard(){
+  const wrap=document.createElement('div');wrap.className='prop-card';wrap.id='card-room-25d';
+  const lab=document.createElement('div');lab.className='prop-label';lab.textContent='2.5D 房间空间';
+  const name=document.createElement('div');name.className='prop-name';name.textContent='屋顶收敛条纹+三面交界+右墙退缩（PROPS.room_25d）';
+  const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=480;cvs.height=220;
+  const c0=cvs.getContext('2d');
+  function paint(g){const c=(g&&g.canvas)?g:c0;
+  PROPS.room_25d(c,480,220,{fy:220});
+  var gr=c.createLinearGradient(340,0,430,0);
+  ['#ff0000','#ff7f00','#ffff00','#00a000','#0066ff','#4b0082','#9400d3'].forEach(function(cc,k){gr.addColorStop(k/6,cc);});
+  c.save(); c.filter='blur(3px)'; c.fillStyle=gr; c.globalAlpha=0.9;
+  c.beginPath(); c.moveTo(340,90); c.lineTo(430,82); c.lineTo(430,150); c.lineTo(340,142); c.closePath(); c.fill(); c.restore();
+  c.fillStyle='#e03131'; c.font='11px sans-serif'; c.fillText('光斑落右墙 x>xc',330,180);}
+  paint();wrap._lbBig=paint;
+  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);return wrap;
+}
+function initPlaceRuleCard(){
+  const wrap=document.createElement('div');wrap.className='prop-card';wrap.id='card-place-rule';
+  const lab=document.createElement('div');lab.className='prop-label';lab.textContent='桌面摆放规则 R1-R5';
+  const name=document.createElement('div');name.className='prop-name';name.textContent='坐深居中·零投影·连线锚轮廓·夹取在桌内·桌变体legTo';
+  const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=480;cvs.height=220;
+  const c0=cvs.getContext('2d');
+  function paint(g){const c=(g&&g.canvas)?g:c0;
+  c.fillStyle='#f0ecc6';c.fillRect(0,0,480,220);
+  PROPS.wood_desk(c,480,220,{by:70,fy:179,x0:0,x1:300,bend:true,legTo:220});
+  var by=70,topH=64,span=42,sy=PROPS.seatY(by,topH,span);
+  c.strokeStyle='#e03131';c.lineWidth=1.5;c.setLineDash([4,3]);
+  c.beginPath();c.moveTo(20,by);c.lineTo(290,by);c.moveTo(20,by+topH);c.lineTo(290,by+topH);c.stroke();c.setLineDash([]);
+  c.fillStyle='#e03131';c.font='11px sans-serif';c.fillText('进深带 by..by+topH',300,by+8);c.fillText('足迹居中 上下留白相等',300,by+topH-2);
+  var r=80,th2=30*Math.PI/180,pts=[];
+  for(var k=0;k<3;k++){var a=th2+k*2*Math.PI/3;pts.push({x:150+r*0.42*Math.cos(a),y:sy-0.30*r*0.42*Math.sin(a)*-1+0});}
+  c.fillStyle='rgba(200,230,240,0.9)';c.strokeStyle='#1a1a1a';c.lineWidth=1.5;
+  c.beginPath();c.moveTo(pts[0].x,pts[0].y);c.lineTo(pts[1].x,pts[1].y);c.lineTo(pts[2].x,pts[2].y);c.closePath();c.fill();c.stroke();
+  var sil=PROPS.silhouetteX(150,r*0.42,30);
+  c.strokeStyle='#fff';c.lineWidth=2.5;c.beginPath();c.moveTo(20,sy-40);c.lineTo(sil.L,sy-40);c.stroke();
+  c.strokeStyle='#f08c00';c.lineWidth=2;c.beginPath();c.moveTo(sil.R,sy-40);c.lineTo(290,sy-46);c.stroke();
+  c.fillStyle='#e03131';c.fillText('光线锚=轮廓极点',300,sy-44);
+  c.strokeStyle='#e03131';c.lineWidth=2;
+  c.beginPath();c.arc(150,sy+16,10,0,7);c.moveTo(143,sy+9);c.lineTo(157,sy+23);c.moveTo(157,sy+9);c.lineTo(143,sy+23);c.stroke();
+  c.fillStyle='#e03131';c.fillText('零投影：不画接地阴影',300,sy+20);}
+  paint();wrap._lbBig=paint;
+  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);return wrap;
+}
+function initDeskBendCard(){
+  const wrap=document.createElement('div');wrap.className='prop-card';wrap.id='card-desk-bend';
+  const lab=document.createElement('div');lab.className='prop-label';lab.textContent='wood_desk(bend)';
+  const name=document.createElement('div');name.className='prop-name';name.textContent='左出屏弯折桌（x1进出长度可调）';
+  const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=480;cvs.height=220;
+  const ctx0=cvs.getContext('2d');
+  function paint(g){const ctx=(g&&g.canvas)?g:ctx0;ctx.imageSmoothingEnabled=true;
+  ctx.fillStyle='#f0ecc6';ctx.fillRect(0,0,480,220);
+  PROPS.wood_desk(ctx,480,220,{by:50,fy:159,x0:0,x1:240,bend:true,legTo:220});}
+  paint();wrap._lbBig=paint;
+  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);return wrap;
+}
+function initGallery(){const g=document.getElementById('gallery');PROPS_LIST.forEach(function(item){g.appendChild(drawCard(item));});g.appendChild(initBenchCard());g.appendChild(initToolboxCard());g.appendChild(initDeskCard());g.appendChild(initDeskBendCard());g.appendChild(initPlaceRuleCard());g.appendChild(initRoomCard());}
+function initDemo(){
+  const cvs=document.getElementById('demo'),ctx=cvs.getContext('2d');ctx.imageSmoothingEnabled=true;
+  cvs.width=760;cvs.height=220;
+  function draw(){
+    clearDesk(ctx,cvs.width,cvs.height);
+    const y=cvs.height-34;
+    PROPS.optical_rail(ctx,190,y,{railLen:60,scale:6,zero:'center',ruler:true,bases:[{u:relU(-20),mount:'candle'},{u:relU(0),mount:'lens_convex'},{u:relU(20),mount:'screen'}]});
+    PROPS.optical_rail(ctx,570,y,{railLen:60,scale:6,zero:'center',ruler:true,bases:[{u:relU(-15),mount:'candle'},{u:relU(10),mount:'lens_concave'},{u:relU(30),mount:null}]});
+  }
+  draw();
+  ['optical_rail','candle','lens_convex','screen'].forEach(function(id){PROPS.onSprite(id,draw);});
+}
+function initAll(){initGallery();initDemo();}
+window.addEventListener('load',initAll);
+
+/* 点击卡片放大看原图 lightbox（蔡总 2026-10-09 21:06 指令新增；事件委托、后续新卡自动生效） */
+(function(){
+  var ov=document.createElement('div'); ov.id='lightbox-ov';
+  ov.innerHTML='<div class="lb-box"><div class="lb-title"></div><div class="lb-cv"></div><div class="lb-close">✕ 关闭（点任意处 / Esc）</div></div>';
+  document.body.appendChild(ov);
+  var titleEl=ov.querySelector('.lb-title'), cvEl=ov.querySelector('.lb-cv');
+  function closeLb(){ ov.classList.remove('show'); cvEl.innerHTML=''; }
+  document.getElementById('gallery').addEventListener('click',function(e){
+    var card=e.target.closest?e.target.closest('.prop-card'):null;
+    if(!card) return;
+    var src=card.querySelector('canvas.prop-canvas');
+    if(!src) return;
+    var lab=card.querySelector('.prop-label'), nm=card.querySelector('.prop-name');
+    titleEl.textContent=(lab?lab.textContent:'')+(nm?' · '+nm.textContent:'');
+    cvEl.innerHTML='';
+    var k=2.5;
+    var big=document.createElement('canvas');
+    big.width=Math.round(src.width*k); big.height=Math.round(src.height*k);
+    var g=big.getContext('2d'); g.imageSmoothingEnabled=true;
+    if(card._lbBig){ g.save(); g.scale(k,k); card._lbBig(g); g.restore(); }
+    else { g.drawImage(src,0,0,big.width,big.height); }
+    cvEl.appendChild(big);
+    ov.classList.add('show');
+  });
+  ov.addEventListener('click',closeLb);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLb(); });
+})();
+</script>
+</body>
+</html>
