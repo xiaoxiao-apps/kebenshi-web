@@ -22,7 +22,7 @@
 
   // === sprite loader contract ===
   PROPS.SPRITE_BASE = 'sprites/';
-  PROPS.SPRITE_VER = 91;
+  PROPS.SPRITE_VER = 92; // R28 sprite 压缩入库换缓存
   PROPS._imgCache = PROPS._imgCache || {};
   PROPS.img = function(id) {
     var c = PROPS._imgCache;

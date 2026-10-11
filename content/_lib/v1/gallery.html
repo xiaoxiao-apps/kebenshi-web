@@ -89,6 +89,7 @@ function spriteIdsFor(item,o){
 function noteFor(o){const kv=Object.keys(o).map(function(k){return k+'='+JSON.stringify(o[k]);}).join(',');return kv||'默认';}
 const UNWIRED={plane_mirror:['stand']};
 function unwired(item,o){const ks=UNWIRED[item.fn]||[];return Object.keys(o).some(function(k){return ks.indexOf(k)>=0;});}
+const LAZY_OBS=window.IntersectionObserver?new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting&&en.target._lazyActivate)en.target._lazyActivate();});},{rootMargin:'300px 0px'}):null; // R28 懒加载：进视口(±300px)才请求/绘制该卡图片
 function drawCard(item){
   const s=sizeOf(item);
   const wrap=document.createElement('div');wrap.className='prop-card';
@@ -142,8 +143,12 @@ function drawCard(item){
     }
     note.textContent=notes.join(' | ');
   }
-  draw();
-  opts.forEach(function(o){spriteIdsFor(item,o).forEach(function(id){PROPS.onSprite(id,function(){draw();});});});
+  const lazyIds=[];opts.forEach(function(o){spriteIdsFor(item,o).forEach(function(id){if(lazyIds.indexOf(id)<0)lazyIds.push(id);});});
+  wrap._lazyIds=lazyIds;
+  let activated=false;
+  function activate(){if(activated)return;activated=true;draw();lazyIds.forEach(function(id){PROPS.onSprite(id,function(){draw();});});if(LAZY_OBS)LAZY_OBS.unobserve(wrap);}
+  wrap._lazyActivate=activate;
+  if(!lazyIds.length||!LAZY_OBS)activate();else LAZY_OBS.observe(wrap); // R28 懒加载：首屏只请求视口内卡图片
   wrap._lbBig=draw;
   wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);wrap.appendChild(note);
   return wrap;
@@ -172,8 +177,11 @@ function initToolboxCard(){
     tb.drawThumb(ctx,'water_tank',150,85+tb.slots[1].h/2);
     tb.drawThumb(ctx,'smoke_box',230,85+tb.slots[2].h/2);
   }
-  paint();
-  ['glass_brick','water_tank','smoke_box'].forEach(function(id){PROPS.onSprite(id,function(){paint();});});
+  wrap._lazyIds=['glass_brick','water_tank','smoke_box'];
+  let actTb=false;
+  function activateTb(){if(actTb)return;actTb=true;paint();wrap._lazyIds.forEach(function(id){PROPS.onSprite(id,function(){paint();});});if(LAZY_OBS)LAZY_OBS.unobserve(wrap);}
+  wrap._lazyActivate=activateTb;
+  if(!LAZY_OBS)activateTb();else LAZY_OBS.observe(wrap); // R28 懒加载
   wrap._lbBig=paint;
   wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);return wrap;
 }
@@ -255,8 +263,11 @@ function initDemo(){
     PROPS.optical_rail(ctx,190,y,{railLen:60,scale:6,zero:'center',ruler:true,bases:[{u:relU(-20),mount:'candle'},{u:relU(0),mount:'lens_convex'},{u:relU(20),mount:'screen'}]});
     PROPS.optical_rail(ctx,570,y,{railLen:60,scale:6,zero:'center',ruler:true,bases:[{u:relU(-15),mount:'candle'},{u:relU(10),mount:'lens_concave'},{u:relU(30),mount:null}]});
   }
-  draw();
-  ['optical_rail','candle','lens_convex','screen'].forEach(function(id){PROPS.onSprite(id,draw);});
+  const demoIds=['optical_rail','candle','lens_convex','screen'];
+  let actDm=false;
+  function activateDm(){if(actDm)return;actDm=true;draw();demoIds.forEach(function(id){PROPS.onSprite(id,draw);});if(LAZY_OBS)LAZY_OBS.unobserve(cvs);}
+  cvs._lazyActivate=activateDm;
+  if(!LAZY_OBS)activateDm();else LAZY_OBS.observe(cvs); // R28 懒加载
 }
 function initAll(){initGallery();initDemo();}
 window.addEventListener('load',initAll);
@@ -276,12 +287,14 @@ window.addEventListener('load',initAll);
     var lab=card.querySelector('.prop-label'), nm=card.querySelector('.prop-name');
     titleEl.textContent=(lab?lab.textContent:'')+(nm?' · '+nm.textContent:'');
     cvEl.innerHTML='';
+    if(card._lazyActivate) card._lazyActivate(); // R28：点未绘制的懒卡放大时补触发
     var k=2.5;
     var big=document.createElement('canvas');
     big.width=Math.round(src.width*k); big.height=Math.round(src.height*k);
     var g=big.getContext('2d'); g.imageSmoothingEnabled=true;
-    if(card._lbBig){ g.save(); g.scale(k,k); card._lbBig(g); g.restore(); }
-    else { g.drawImage(src,0,0,big.width,big.height); }
+    function drawBig(){ g.clearRect(0,0,big.width,big.height); if(card._lbBig){ g.save(); g.scale(k,k); card._lbBig(g); g.restore(); } else { g.drawImage(src,0,0,big.width,big.height); } }
+    drawBig();
+    (card._lazyIds||[]).forEach(function(id){ if(!PROPS.spriteReady(id)) PROPS.onSprite(id,drawBig); }); // R28：懒图到齐重绘放大图
     cvEl.appendChild(big);
     ov.classList.add('show');
   });
