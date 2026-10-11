@@ -14,18 +14,27 @@
 #lightbox-ov .lb-cv{text-align:center}
 #lightbox-ov .lb-cv img,#lightbox-ov .lb-cv canvas{max-width:88vw;max-height:74vh;border-radius:8px;display:inline-block;background:#f5f2ec}
 #lightbox-ov .lb-close{text-align:center;font-size:12px;color:#999;cursor:pointer}
+.zone-title{margin:28px 0 10px;font-size:16px;font-weight:800;color:#7a5c1e;border-left:5px solid var(--gold,#d9a441);padding-left:10px}
+.zone-title .zone-sub{font-size:12px;font-weight:400;color:#999;margin-left:8px}
 </style>
 </head>
 <body>
 <div class="page-title">器材标准件库 v1 · 审核 gallery</div>
-<div class="page-sub">15件标准器材 + 滑轨插槽组合演示 + UI 组件 token（亮底方案）</div>
-<div class="hint-bar">提示：逐件审核器材默认参数与变体，点击任意卡片可放大查看原图（点空白处或 Esc 关闭）；右侧为插槽组合与 UI 控件样例</div>
+<div class="page-sub">三大分区：一区标准器材件 / 二区标准音效 / 三区标准规则与UI（亮底方案）· 新资产按类归区入库</div>
+<div class="hint-bar">提示：逐件审核器材默认参数与变体，点击任意卡片可放大查看原图（点空白处或 Esc 关闭）；音效卡点击试听</div>
+<div class="zone-title">一区 · 标准器材件<span class="zone-sub">单件器材+变体、组合场景件、插槽组合演示——所有实验页从这里引用</span></div>
 <div id="gallery" class="gallery"></div>
 <div class="demo-stage">
   <div class="demo-title">插槽组合演示：凸透镜成像 + 凹透镜发散 + 空底座</div>
   <canvas id="demo" class="demo-canvas" width="960" height="220"></canvas>
 </div>
+<div class="zone-title">二区 · 标准音效<span class="zone-sub">_lib/v1/sfx.js · 全项目同操作同音效 · 点击试听</span></div>
 <div class="ui-section">
+  <div class="panel" id="sfx-panel"></div>
+</div>
+<div class="zone-title">三区 · 标准规则与UI<span class="zone-sub">放置规则、UI 组件 token——各页交互与视觉基线</span></div>
+<div class="ui-section">
+  <div class="gallery" id="rules-grid"></div>
   <div class="demo-title">UI 组件 token 样例</div>
   <div class="panel">
     <div class="ctl-row">
@@ -48,6 +57,7 @@
 </div>
 <script src="./props.js?v=95"></script>
 <script src="./props-optics.js?v=5"></script>
+<script src="./sfx.js?v=1"></script>
 <script>
 // PROPS.SPRITE_BASE 默认为 'sprites/'，与 gallery.html 同目录，正确无需覆写
 const PROPS_LIST=[
@@ -253,7 +263,7 @@ function initDeskBendCard(){
   paint();wrap._lbBig=paint;
   wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);return wrap;
 }
-function initGallery(){const g=document.getElementById('gallery');PROPS_LIST.forEach(function(item){g.appendChild(drawCard(item));});g.appendChild(initBenchCard());g.appendChild(initToolboxCard());g.appendChild(initDeskCard());g.appendChild(initDeskBendCard());g.appendChild(initPlaceRuleCard());g.appendChild(initRoomCard());}
+function initGallery(){const g=document.getElementById('gallery');PROPS_LIST.forEach(function(item){g.appendChild(drawCard(item));});g.appendChild(initBenchCard());g.appendChild(initToolboxCard());g.appendChild(initDeskCard());g.appendChild(initDeskBendCard());(document.getElementById('rules-grid')||g).appendChild(initPlaceRuleCard());g.appendChild(initRoomCard());} // R32：放置规则卡归三区
 function initDemo(){
   const cvs=document.getElementById('demo'),ctx=cvs.getContext('2d');ctx.imageSmoothingEnabled=true;
   cvs.width=760;cvs.height=220;
@@ -269,7 +279,34 @@ function initDemo(){
   cvs._lazyActivate=activateDm;
   if(!LAZY_OBS)activateDm();else LAZY_OBS.observe(cvs); // R28 懒加载
 }
-function initAll(){initGallery();initDemo();}
+/* R31 标准音效展示区（蔡总 19:51 点名：音效要在器材库里看得见、听得到） */
+const SFX_LIST=[
+  {fn:'playLight',name:'点燃蜡烛',desc:'火苗窜起（低频→高频扫过）'},
+  {fn:'playSnuff',name:'熄灭蜡烛',desc:'气流吹灭（下行）'},
+  {fn:'playTick',name:'移动器材',desc:'拖拽棘轮滴答'},
+  {fn:'playPick',name:'拖起器材',desc:'拾取短音'},
+  {fn:'playDrop',name:'放下器材',desc:'落定短音'},
+  {fn:'playClick',name:'点击按钮',desc:'方波短击'},
+  {fn:'playMatch',name:'判定成功',desc:'三音上行和弦'}
+];
+function initSfx(){
+  const p=document.getElementById('sfx-panel');
+  if(!p)return;
+  p.style.display='flex';p.style.flexWrap='wrap';p.style.gap='10px';
+  SFX_LIST.forEach(function(s){
+    const card=document.createElement('div');
+    card.style.cssText='border:1px solid #d8d2c0;border-radius:10px;padding:10px 12px;text-align:center;min-width:118px;background:#fff';
+    const b=document.createElement('button');b.className='btn primary';b.textContent='▶ '+s.name;
+    b.addEventListener('click',function(){if(window[s.fn])window[s.fn]();});
+    const code=document.createElement('div');code.className='prop-label';code.textContent=s.fn;
+    code.style.cssText='margin-top:6px;font-size:11px';
+    const desc=document.createElement('div');desc.textContent=s.desc;
+    desc.style.cssText='font-size:11px;color:#999;margin-top:2px';
+    card.appendChild(b);card.appendChild(code);card.appendChild(desc);
+    p.appendChild(card);
+  });
+}
+function initAll(){initGallery();initDemo();initSfx();}
 window.addEventListener('load',initAll);
 
 /* 点击卡片放大看原图 lightbox（蔡总 2026-10-09 21:06 指令新增；事件委托、后续新卡自动生效） */
