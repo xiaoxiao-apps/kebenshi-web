@@ -82,6 +82,8 @@ function spriteIdsFor(item,o){
   const ids=new Set();
   if(!item.wait) ids.add(item.fn);
   if(item.fn==='optical_rail' && o.bases) o.bases.forEach(function(b){if(b.mount) ids.add(b.mount);});
+  if(item.fn==='hand_shadow' && o.skin) ids.add('hand_shadow_skin'); // R27 蔡总：肤色变体图冷缓存时首帧兑底画黑版且不重绘→补重绘钩子（默认语义不变：默认黑、skin:true 肤色）
+  if(item.fn==='desk_lamp' && o.lit===false) ids.add('desk_lamp_off'); // R27 同款隐患：灭灯变体图
   return Array.from(ids);
 }
 function noteFor(o){const kv=Object.keys(o).map(function(k){return k+'='+JSON.stringify(o[k]);}).join(',');return kv||'默认';}
