@@ -1,6 +1,6 @@
 (function(){
 PROPS.SPRITE_BASE='../_lib/v1/sprites/';
-PROPS.SPRITE_VER=53;
+// R29：删 SPRITE_VER 钉死，统一听 props.js
 var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
 var W=960,H=520,DPR=1;
 var A_MAX=35*Math.PI/180,PI2=Math.PI*2;

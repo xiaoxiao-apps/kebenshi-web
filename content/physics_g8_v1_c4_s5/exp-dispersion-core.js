@@ -2,7 +2,7 @@
 /* c4s5 光的色散 · 控制层 (R10 场景重构) */
 (function(){
 PROPS.SPRITE_BASE='../_lib/v1/sprites/';
-PROPS.SPRITE_VER=85;
+// R29：删 SPRITE_VER 钉死，统一听 props.js
 var cv=document.getElementById('scene'), wrap=document.getElementById('scene-wrap');
 var R=window.DSP;
 R.ctx=cv.getContext('2d');

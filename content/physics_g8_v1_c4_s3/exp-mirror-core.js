@@ -1,8 +1,7 @@
 'use strict';
 /* c4s3 平面镜成像 · 控制层（M1 成像探究台；批次2阶段1） */
 (function(){
-PROPS.SPRITE_BASE='../_lib/v1/sprites/';
-PROPS.SPRITE_VER=88;
+PROPS.SPRITE_BASE='../_lib/v1/sprites/'; // R29：删 SPRITE_VER 钉死，统一听 props.js（否则压缩缓存 bump 到不了实验页）
 var cv=document.getElementById('scene'),wrap=document.getElementById('scene-wrap');
 var R=window.MRR;
 if(!R.m2)R.m2={};
@@ -168,6 +167,7 @@ function layout(){
   R.candleY=PROPS.seatY(R.by,64,12);
   if(R.candleY-R.candleH<0)R.candleH=Math.round(R.candleY);
   layoutM2();layoutM3();
+  if(R.mode==='m3')computeM3Path(); // R29 修复（蔡总 19:21）：光路是像素缓存值，resize/全屏切换后必须随新槽位重算，否则光路飞旧坐标
   var trayW=150,trayH=150,trayX=24,trayY=24;
   R.eqTray=PROPS.toolbox.create({card:{x:trayX,y:trayY,w:trayW,h:trayH,r:8,fill:'#e8eef5',stroke:'#b8c6da'},items:[{id:'candle',x:trayX+trayW/2,y:trayY+trayH/2}],fit:100,nat:{candle:{w:175,h:465}}});
   R.objX=R.mirrorX-R.doCm*K;

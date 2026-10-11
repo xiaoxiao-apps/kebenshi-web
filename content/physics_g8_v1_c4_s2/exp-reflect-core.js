@@ -2,7 +2,7 @@
 /* c4s2 光的反射 · 控制层：布局/交互/控件同步；渲染几何见 exp-reflect-render.js (window.RFX) */
 (function(){
 PROPS.SPRITE_BASE='../_lib/v1/sprites/';
-PROPS.SPRITE_VER=81;
+// R29：删 SPRITE_VER 钉死，统一听 props.js
 var cv=document.getElementById('scene'), wrap=document.getElementById('scene-wrap');
 var R=window.RFX;
 R.ctx=cv.getContext('2d');
