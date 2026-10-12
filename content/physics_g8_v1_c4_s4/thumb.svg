@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 226" width="400" height="226">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0f2fe"/>
+      <stop offset="1" stop-color="#bae6fd"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7dd3fc"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="226" fill="url(#sky)"/>
+  <rect x="0" y="113" width="400" height="113" fill="url(#water)"/>
+  <line x1="0" y1="113" x2="400" y2="113" stroke="#38bdf8" stroke-width="2"/>
+
+  <!-- 法线 -->
+  <line x1="200" y1="40" x2="200" y2="186" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="208" y="48" font-size="11" font-family="sans-serif" fill="#64748b">法线</text>
+
+  <!-- 入射光线 -->
+  <line x1="80" y1="40" x2="200" y2="113" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+  <!-- 折射光线（向法线偏折） -->
+  <line x1="200" y1="113" x2="260" y2="186" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- 入射点 -->
+  <circle cx="200" cy="113" r="3.5" fill="#1f2937"/>
+  <text x="208" y="124" font-size="11" font-family="sans-serif" fill="#1f2937">O</text>
+
+  <!-- 空气/水标注 -->
+  <text x="40" y="80" font-size="13" font-family="sans-serif" fill="#0369a1" font-weight="600">空气</text>
+  <text x="40" y="160" font-size="13" font-family="sans-serif" fill="#0c4a6e" font-weight="600">水</text>
+</svg>
