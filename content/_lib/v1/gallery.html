@@ -81,7 +81,8 @@ const PROPS_LIST=[
   {id:'glass_plate',name:'竖立玻璃板',fn:'glass_plate',tall:true,opts:[{},{h:120},{h:90}],badge:'c4s345 新增'},
   {id:'observer_eye',name:'观察眼',fn:'observer_eye',opts:[{},{h:36,dir:'right'},{h:56}],badge:'c4s3 新增'},
   {id:'mirror_plate',name:'薄镜片',fn:'mirror_plate',opts:[{},{len:60},{len:120}],badge:'c4s3 新增'},
-  {id:'water_wave',name:'水面波浪',fn:'water_wave',wide:true,opts:[{w:240},{w:240,amp:6,wlen:140,col:'#38bdf8'},{w:240,lw:3,t:2}],badge:'c4s3 新增'}
+  {id:'water_wave',name:'水面波浪',fn:'water_wave',wide:true,opts:[{w:240},{w:240,amp:6,wlen:140,col:'#38bdf8'},{w:240,lw:3,t:2}],badge:'c4s3 新增'},
+  {id:'bulb',name:'小灯泡（点光源）',fn:'bulb',tall:true,opts:[{},{on:true},{h:90}],badge:'c5s1 新增'}
 ];
 const CARD_SIZES={wide:{w:520,h:160},tall:{w:300,h:420},normal:{w:300,h:160}};
 function sizeOf(item){return item.size||CARD_SIZES[item.wide?'wide':(item.tall?'tall':'normal')];}

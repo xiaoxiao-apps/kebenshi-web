@@ -970,5 +970,38 @@
     ctx.restore();
   };
 
+  // bulb: 小灯泡（点光源）c5s1 立项件；sprite=bulb 未点亮态，点亮光晕代码画（不烤进 sprite）
+  // 锚点=底面中心；opt.h 控高（默认 90）；opt.on=true 叠加暖黄 radialGradient 光晕
+  PROPS.bulb = function(ctx, x, y, opt) {
+    opt = opt || {};
+    if (!PROPS.spriteReady('bulb')) return;
+    var img = PROPS.img('bulb');
+    var s = spriteScale('bulb', (opt.h || opt.w || opt.scale) ? opt : { h: 90 });
+    var w = img.naturalWidth * s, h = img.naturalHeight * s;
+    var a = (opt.angle || 0) * Math.PI / 180;
+    ctx.save(); ctx.translate(x, y);
+    if (a) ctx.rotate(a);
+    if (opt.on) {
+      var cx = 0, cy = -h * 0.62, r = h * 0.72;
+      var g = ctx.createRadialGradient(cx, cy, 2, cx, cy, r);
+      g.addColorStop(0, 'rgba(255,214,90,.50)');
+      g.addColorStop(0.55, 'rgba(255,214,90,.20)');
+      g.addColorStop(1, 'rgba(255,214,90,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.drawImage(img, -w / 2, -h, w, h);
+    if (opt.on) {
+      var gx = 0, gy = -h * 0.62, gr = h * 0.30;
+      var g2 = ctx.createRadialGradient(gx, gy, 1, gx, gy, gr);
+      g2.addColorStop(0, 'rgba(255,236,150,.85)');
+      g2.addColorStop(1, 'rgba(255,236,150,0)');
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = g2;
+      ctx.beginPath(); ctx.arc(gx, gy, gr, 0, Math.PI * 2); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    ctx.restore();
+  };
   /* == APPEND-POINT: 6~10号件由单②插入此行上方 == */
 })(typeof window !== 'undefined' ? window : globalThis);

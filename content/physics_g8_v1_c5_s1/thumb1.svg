@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#101a2e"/><stop offset="100%" stop-color="#0a1220"/></linearGradient>
+    <linearGradient id="lens" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#6a9ce0"/><stop offset="50%" stop-color="#4d7fd0"/><stop offset="100%" stop-color="#3b6bb8"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="320" height="180" fill="url(#bg)"/>
+  <line x1="0" y1="90" x2="320" y2="90" stroke="#5b6b84" stroke-width="1" stroke-dasharray="10 4 2 4" opacity=".8"/>
+  <path d="M160 44 C146 62 146 118 160 136 C174 118 174 62 160 44 Z" fill="url(#lens)" stroke="#1a1a1a" stroke-width="1.5" opacity=".95"/>
+  <rect x="157" y="134" width="6" height="12" fill="#6b737c" stroke="#1a1a1a" stroke-width="1"/>
+  <rect x="150" y="146" width="20" height="4" fill="#5a626b" stroke="#1a1a1a" stroke-width="1"/>
+  <g filter="url(#glow)">
+    <line x1="30" y1="58" x2="157" y2="58" stroke="#ff3b30" stroke-width="2"/>
+    <line x1="157" y1="58" x2="290" y2="115" stroke="#ff3b30" stroke-width="2"/>
+    <line x1="30" y1="90" x2="157" y2="90" stroke="#ff3b30" stroke-width="2"/>
+    <line x1="157" y1="90" x2="290" y2="90" stroke="#ff3b30" stroke-width="2"/>
+    <line x1="30" y1="122" x2="157" y2="122" stroke="#ff3b30" stroke-width="2"/>
+    <line x1="157" y1="122" x2="290" y2="65" stroke="#ff3b30" stroke-width="2"/>
+  </g>
+  <circle cx="232" cy="90" r="3.5" fill="#ffd166"/>
+  <text x="232" y="80" text-anchor="middle" font-size="12" fill="#ffd166" font-family="Arial,sans-serif">F</text>
+  <circle cx="160" cy="90" r="3" fill="none" stroke="#9fb4d4" stroke-width="1.5"/>
+  <text x="160" y="164" text-anchor="middle" font-size="13" fill="#c7d4e8" font-family="Arial,sans-serif">透镜光学台</text>
+</svg>
