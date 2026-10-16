@@ -1003,5 +1003,41 @@
     }
     ctx.restore();
   };
+  // f_led: F形LED光源 c5s23 立项件；两态 sprite（lit 默认 true→f_led_on，false→f_led_off）
+  // 锚点=底面中心；opt.h 控高（默认 90，照 bulb）；F形用于判倒立与左右反
+  PROPS.f_led = function(ctx, x, y, opt) {
+    opt = opt || {};
+    var id = (opt.lit === false) ? 'f_led_off' : 'f_led_on';
+    if (!PROPS.spriteReady(id)) return;
+    var img = PROPS.img(id);
+    var s = spriteScale(id, (opt.h || opt.w || opt.scale) ? opt : { h: 90 });
+    var w = img.naturalWidth * s, h = img.naturalHeight * s;
+    var a = (opt.angle || 0) * Math.PI / 180;
+    ctx.save(); ctx.translate(x, y);
+    if (a) ctx.rotate(a);
+    ctx.drawImage(img, -w / 2, -h, w, h);
+    ctx.restore();
+  };
+
+  // paper_tube: 模型照相机纸筒 c5s23 立项件（桌面件，不挂载）
+  // 锚点=外筒底面中心；opt.innerX=内筒 px 偏移（默认 0），内筒先画外筒后画=套接遮挡；opt.flip 整图水平翻转
+  PROPS.paper_tube = function(ctx, x, y, opt) {
+    opt = opt || {};
+    if (!PROPS.spriteReady('paper_tube')) return;
+    var img = PROPS.img('paper_tube');
+    var s = spriteScale('paper_tube', opt);
+    var w = img.naturalWidth * s, h = img.naturalHeight * s;
+    var innerX = opt.innerX || 0;
+    ctx.save(); ctx.translate(x, y);
+    if (opt.flip) ctx.scale(-1, 1);
+    if (innerX && PROPS.spriteReady('paper_tube_inner')) {
+      var iimg = PROPS.img('paper_tube_inner');
+      var is = spriteScale('paper_tube_inner', { h: h });
+      var iw = iimg.naturalWidth * is, ih = iimg.naturalHeight * is;
+      ctx.drawImage(iimg, innerX - iw / 2, -ih, iw, ih);
+    }
+    ctx.drawImage(img, -w / 2, -h, w, h);
+    ctx.restore();
+  };
   /* == APPEND-POINT: 6~10号件由单②插入此行上方 == */
 })(typeof window !== 'undefined' ? window : globalThis);

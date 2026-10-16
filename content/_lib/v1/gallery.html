@@ -55,8 +55,8 @@
     </div>
   </div>
 </div>
-<script src="./props.js?v=95"></script>
-<script src="./props-optics.js?v=8"></script>
+<script src="./props.js?v=96"></script>
+<script src="./props-optics.js?v=9"></script>
 <script src="./sfx.js?v=1"></script>
 <script>
 // PROPS.SPRITE_BASE 默认为 'sprites/'，与 gallery.html 同目录，正确无需覆写
@@ -82,7 +82,9 @@ const PROPS_LIST=[
   {id:'observer_eye',name:'观察眼',fn:'observer_eye',opts:[{},{h:36,dir:'right'},{h:56}],badge:'c4s3 新增'},
   {id:'mirror_plate',name:'薄镜片',fn:'mirror_plate',opts:[{},{len:60},{len:120}],badge:'c4s3 新增'},
   {id:'water_wave',name:'水面波浪',fn:'water_wave',wide:true,opts:[{w:240},{w:240,amp:6,wlen:140,col:'#38bdf8'},{w:240,lw:3,t:2}],badge:'c4s3 新增'},
-  {id:'bulb',name:'小灯泡（点光源）',fn:'bulb',tall:true,opts:[{},{on:true},{h:90}],badge:'c5s1 新增'}
+  {id:'bulb',name:'小灯泡（点光源）',fn:'bulb',tall:true,opts:[{},{on:true},{h:90}],badge:'c5s1 新增'},
+  {id:'f_led',name:'F形LED光源',fn:'f_led',tall:true,opts:[{},{lit:false},{h:90}],badge:'c5s23 新增',desc:'探究凸透镜成像规律的发光物体，F形可判倒立与左右反'},
+  {id:'paper_tube',name:'模型照相机纸筒',fn:'paper_tube',wide:true,opts:[{},{innerX:60},{innerX:120,flip:true}],badge:'c5s23 新增',desc:'想想做做：双纸筒套接，一端凸透镜一端薄膜'}
 ];
 const CARD_SIZES={wide:{w:520,h:160},tall:{w:300,h:420},normal:{w:300,h:160}};
 function sizeOf(item){return item.size||CARD_SIZES[item.wide?'wide':(item.tall?'tall':'normal')];}
@@ -91,10 +93,12 @@ function relU(u){return u+30;}
 function spriteIdsFor(item,o){
   if(item.vector) return [];
   const ids=new Set();
+  if(item.fn==='f_led'){ids.add(o.lit===false?'f_led_off':'f_led_on');return Array.from(ids);} // 两态双 sprite，无 f_led.png 单图
   if(!item.wait) ids.add(item.fn);
   if(item.fn==='optical_rail' && o.bases) o.bases.forEach(function(b){if(b.mount) ids.add(b.mount);});
   if(item.fn==='hand_shadow' && o.skin) ids.add('hand_shadow_skin'); // R27 蔡总：肤色变体图冷缓存时首帧兑底画黑版且不重绘→补重绘钩子（默认语义不变：默认黑、skin:true 肤色）
   if(item.fn==='desk_lamp' && o.lit===false) ids.add('desk_lamp_off'); // R27 同款隐患：灭灯变体图
+  if(item.fn==='paper_tube' && o.innerX) ids.add('paper_tube_inner'); // 同款隐患：内筒变体图
   return Array.from(ids);
 }
 function noteFor(o){const kv=Object.keys(o).map(function(k){return k+'='+JSON.stringify(o[k]);}).join(',');return kv||'默认';}
@@ -108,6 +112,8 @@ function drawCard(item){
   const name=document.createElement('div');name.className='prop-name';name.textContent=item.name;
   if(item.badge){const b=document.createElement('span');b.className='pill';b.style.marginLeft='8px';b.style.background='var(--gold)';b.textContent=item.badge;name.appendChild(b);}
   if(item.wait){const b=document.createElement('span');b.className='pill';b.style.marginLeft='8px';b.textContent='⏳ 等蔡总素材';name.appendChild(b);}
+  let desc=null;
+  if(item.desc){desc=document.createElement('div');desc.textContent=item.desc;desc.style.cssText='font-size:11px;color:#999;margin:2px 0';}
   const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=s.w;cvs.height=s.h;
   const note=document.createElement('div');note.className='variant-note';
   const ctx0=cvs.getContext('2d'),opts=item.opts||[{}],cols=opts.length,colW=s.w/cols,baseY=item.fn==='optical_rail'?s.h/2+10:(s.h-22-(item.tall?60:0));
@@ -161,7 +167,7 @@ function drawCard(item){
   wrap._lazyActivate=activate;
   if(!lazyIds.length||!LAZY_OBS)activate();else LAZY_OBS.observe(wrap); // R28 懒加载：首屏只请求视口内卡图片
   wrap._lbBig=draw;
-  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);wrap.appendChild(note);
+  wrap.appendChild(lab);wrap.appendChild(name);if(desc)wrap.appendChild(desc);wrap.appendChild(cvs);wrap.appendChild(note);
   return wrap;
 }
 function initBenchCard(){

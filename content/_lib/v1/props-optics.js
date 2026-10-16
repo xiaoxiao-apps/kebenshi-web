@@ -15,7 +15,7 @@ function px(u, x, opt){
   return x - (len * scale) / 2 + u * scale;
 }
 
-PROPS.MOUNTABLE = ['candle','lens_convex','lens_concave','screen','laser_pen'];
+PROPS.MOUNTABLE = ['candle','lens_convex','lens_concave','screen','laser_pen','f_led'];
 
 PROPS.AXIS_H = 70;
 
