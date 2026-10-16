@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>探究凸透镜成像的规律 — 光具座</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;background:#f5f2ec;color:#3d3830;overflow:hidden}
+  header{position:fixed;top:0;left:0;right:0;height:34px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f5f2ec;border-bottom:1px solid rgba(0,0,0,0.12);z-index:10}
+  .back{font-size:13px;color:#2563eb;text-decoration:none;white-space:nowrap}
+  .back:hover{text-decoration:underline}
+  .title{font-size:13px;font-weight:600;color:#2b2620;white-space:nowrap}
+  .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
+  #bubble{display:none;position:absolute;left:0;top:0;max-width:340px;background:rgba(255,255,255,0.35);border-radius:16px;padding:10px 30px 10px 13px;font-size:14px;line-height:1.55;color:#2a2620;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:17;opacity:0;transition:opacity .15s ease}
+  #bubble.show{opacity:1}
+  #bubble-x{position:absolute;top:3px;right:8px;cursor:pointer;color:#8a7c66;font-size:16px;line-height:1;user-select:none}
+  #bubble-x:hover{color:#3d3830}
+  #bubble-arrow{position:absolute;width:0;height:0;border:9px solid transparent;left:20px}
+  #bubble.arr-b #bubble-arrow{bottom:-18px;border-top-color:rgba(255,255,255,0.35)}
+  #bubble.arr-t #bubble-arrow{top:-18px;border-bottom-color:rgba(255,255,255,0.35)}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:stretch;gap:6px;padding:8px 12px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
+  .ctrlbar>*{pointer-events:auto}
+  .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px;transition:opacity .3s ease,transform .3s ease}
+  .glabel{font-size:14px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
+  .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:40px}
+  .gctrl label{font-size:14px;cursor:pointer;white-space:nowrap;color:#3d3830}
+  button{border:0;border-radius:8px;padding:9px 13px;font-size:14px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
+  button:hover{background:#1d4ed8}
+  button.secondary{background:#6b7280}
+  button.secondary:hover{background:#4b5563}
+  button.step{padding:6px 10px}
+  button:disabled{opacity:.35;cursor:default}
+  /* 物理按压两态钮（照 c5s1）：凸起渐变→按下内凹 */
+  button#btn-table,button#btn-law,button#btn-marks,button#btn-rays,button#btn-hand,button#btn-read,button#btn-noscreen{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
+  button#btn-table:hover,button#btn-law:hover,button#btn-marks:hover,button#btn-rays:hover,button#btn-hand:hover,button#btn-read:hover,button#btn-noscreen:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  button#btn-table.on,button#btn-law.on,button#btn-marks.on,button#btn-rays.on,button#btn-hand.on,button#btn-read.on,button#btn-noscreen.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
+  input#rng-f{width:150px;accent-color:#d97706}
+  #lbl-f{font-size:15px;color:#854d0e;min-width:88px;text-align:right;font-variant-numeric:tabular-nums}
+  .ctrlbar.compact .glabel{font-size:12px}
+  .ctrlbar.compact .gctrl{min-height:32px}
+  .ctrlbar.compact .gctrl label{font-size:12px}
+  .ctrlbar.compact button{padding:5px 7px;font-size:13px}
+  .ctrlbar.compact input#rng-f{width:110px}
+  .ctrlbar.compact #lbl-f{font-size:13px;min-width:0}
+  /* 幽灵化浮层（三级色阶：标题琥珀>数值>标签） */
+  .rec-panel{display:none;position:absolute;top:12px;right:12px;min-width:340px;max-width:min(560px,92vw);background:rgba(255,255,255,0.45);border-radius:16px;padding:14px 18px;z-index:15}
+  .rec-panel.show{display:block}
+  .rec-panel .rp-title{font-size:18px;font-weight:600;color:#b45309;margin-bottom:8px}
+  .rec-panel .rp-x{position:absolute;top:8px;right:12px;cursor:pointer;color:#8a7c66;font-size:17px;line-height:1;user-select:none}
+  .rec-panel .rp-x:hover{color:#3d3830}
+  table.rec{border-collapse:collapse;font-size:15px;background:transparent;width:100%}
+  table.rec th,table.rec td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:7px 11px;text-align:left;white-space:nowrap;color:#1e293b}
+  table.rec th{background:transparent;font-weight:400;color:#64748b}
+  table.rec td{font-weight:600}
+  #panel-rec{max-height:72vh;overflow:auto}
+  #panel-rec .rp-btns{display:flex;gap:8px;margin-bottom:8px}
+  #panel-rec .rp-btns button{padding:5px 10px;font-size:13px}
+  #panel-law{max-width:min(520px,92vw);font-size:14px;line-height:1.65}
+  #panel-law .law-blue{background:rgba(219,234,254,.75);border-left:4px solid #2563eb;border-radius:8px;padding:9px 12px;color:#1e3a8a;margin:6px 0 10px}
+  #panel-law .law-kj{color:#854d0e;font-weight:600;margin-bottom:10px}
+  #panel-law .law-qa{color:#334155}
+  #panel-law .law-qa b{color:#0f172a}
+  #toast{display:none;position:absolute;left:50%;top:13%;transform:translateX(-50%);max-width:82%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:16;text-align:center}
+  #toast.show{display:block}
+  html.pseudo-fs{width:100%;height:100%}
+  html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
+</style>
+</head>
+<body>
+<header>
+  <div class="title">第5章 第3节 探究凸透镜成像的规律 · 光具座</div>
+  <a class="back" href="./index.html">← 返回实验卡页</a>
+</header>
+<div class="scene-wrap">
+<canvas id="scene"></canvas>
+<div id="bubble">
+  <div id="bubble-txt"></div>
+  <span id="bubble-x">×</span>
+  <div id="bubble-arrow"></div>
+</div>
+<div class="rec-panel" id="panel-read">
+  <div class="rp-title">读数面板</div>
+  <table class="rec"><tbody>
+    <tr><th>物距 u</th><td id="pr-u">—</td></tr>
+    <tr><th>像距 v</th><td id="pr-v">—</td></tr>
+    <tr><th>放大率 m</th><td id="pr-m">—</td></tr>
+    <tr><th>像的性质</th><td id="pr-nat">—</td></tr>
+  </tbody></table>
+</div>
+<div class="rec-panel" id="panel-rec">
+  <div class="rp-title">记录表</div>
+  <span class="rp-x" id="rec-x">×</span>
+  <div class="rp-btns">
+    <button id="btn-textbook">教材数据</button>
+    <button id="btn-clear" class="secondary">清空</button>
+  </div>
+  <table class="rec">
+    <thead><tr><th>物距/cm</th><th>虚实</th><th>大小</th><th>正倒</th><th>像高/cm</th><th>像距/cm</th></tr></thead>
+    <tbody id="rec-body"></tbody>
+  </table>
+</div>
+<div class="rec-panel" id="panel-law">
+  <div class="rp-title">规律结论卡</div>
+  <span class="rp-x" id="law-x">×</span>
+  <div class="law-blue">实验表明：当物距大于2倍焦距时，凸透镜成倒立、缩小的实像；当物距小于2倍焦距、大于焦距时，凸透镜成倒立、放大的实像；当物距小于焦距时，凸透镜成正立、放大的虚像。这就是凸透镜成像的规律。</div>
+  <div class="law-kj">口诀：一倍焦距分虚实、二倍焦距分大小；实像倒异侧、虚像正同侧</div>
+  <div class="law-qa">
+    <div><b>想想议议①</b> 照相机成倒立、缩小的实像，像在 f 与 2f 之间（f＜v＜2f）；物距比像距大（u＞v）。</div>
+    <div><b>想想议议②</b> 投影仪成倒立、放大的实像，像在 2 倍焦距之外（v＞2f）；此时物距比像距小（u＜v）。</div>
+    <div><b>想想议议③</b> 成虚像时（u＜f），像距比物距大（|v|＞u）——正立、放大的虚像。</div>
+    <div><b>想想议议④</b> 放大镜离物体越远（仍小于焦距）像越大；F 形光源比蜡烛好：像稳定、可判断左右是否相反、安全环保、高度不变。</div>
+  </div>
+</div>
+<div id="toast"></div>
+</div>
+<div class="ctrlbar">
+  <div class="group" id="grp-f">
+    <div class="glabel">焦距</div>
+    <div class="gctrl">
+      <button id="btn-f-down" class="secondary step">◀</button>
+      <input type="range" id="rng-f" min="2" max="12" step="0.1" value="10">
+      <span id="lbl-f">f = 10.0 cm</span>
+      <button id="btn-f-up" class="secondary step">▶</button>
+      <button id="btn-mute">🔊</button>
+      <button id="btn-full" class="secondary">全屏</button>
+    </div>
+  </div>
+  <div class="group" id="grp-act">
+    <div class="glabel">动作</div>
+    <div class="gctrl">
+      <button id="btn-auto">自动寻像</button>
+      <button id="btn-noscreen">撤屏观察</button>
+      <button id="btn-record">记一笔</button>
+      <button id="btn-table">记录表</button>
+      <button id="btn-law">规律结论卡</button>
+      <button id="btn-reset" class="secondary">复位</button>
+    </div>
+  </div>
+  <div class="group" id="grp-show">
+    <div class="glabel">显示</div>
+    <div class="gctrl">
+      <button id="btn-rays" class="on">光路</button>
+      <button id="btn-marks" class="on">F/2F 标注</button>
+      <button id="btn-hand">🖐 遮挡</button>
+      <button id="btn-read" class="on">读数面板</button>
+    </div>
+  </div>
+</div>
+<script src="../_lib/v1/props.js?v=96"></script>
+<script src="../_lib/v1/props-optics.js?v=9"></script>
+<script src="../_lib/v1/sfx.js?v=1"></script>
+<script src="exp-image-law-core.js?v=1"></script>
+</body>
+</html>
