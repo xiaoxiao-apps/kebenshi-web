@@ -768,8 +768,8 @@ function exitFull(){
 if(btnFull) btnFull.addEventListener('click',function(){if(state.animating)return;if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();});
 ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){document.addEventListener(ev,function(){syncFull();setTimeout(resize,60);});});
 
-// ===== sprite 重绘钩子（加性回调，仅注册有 sprite 文件的件） =====
-['laser_pen','lens_convex','lens_concave','bulb'].forEach(function(id){
+// ===== sprite 重绘钩子（加性回调，仅注册有 sprite 文件的件；透镜已统一矢量无 sprite） =====
+['laser_pen','bulb'].forEach(function(id){
   PROPS.onSprite(id,function(){ draw(); });
 });
 

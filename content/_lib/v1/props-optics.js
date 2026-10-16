@@ -59,10 +59,11 @@ function mountAt(ctx, x, yBase, id, opt){
     console.warn('props-optics: PROPS.' + id + ' not loaded');
     return;
   }
-  const ms = (PROPS.spriteReady && PROPS.spriteReady(id)) ? Math.min(90 / PROPS.img(id).naturalHeight, 120 / PROPS.img(id).naturalWidth) : 1;
+  // 旧透镜 sprite 已退役（2026-10-17 蔡总拍板），lens 统一矢量绘制，旁路 PROPS.img 防 404
+  const vecLens = (id === 'lens_convex' || id === 'lens_concave');
+  const ms = vecLens ? 1 : ((PROPS.spriteReady && PROPS.spriteReady(id)) ? Math.min(90 / PROPS.img(id).naturalHeight, 120 / PROPS.img(id).naturalWidth) : 1);
   const mountOpt = Object.assign({}, opt || {}, {scale: ms});
-  const img = PROPS.img(id);
-  const h = img.naturalHeight * ms;
+  const h = vecLens ? ((opt && opt.h) || 60) : PROPS.img(id).naturalHeight * ms;
   const yEquip = yBase - PROPS.AXIS_H + OPTIC_OFF(id, h);
   fn(ctx, x, yEquip, mountOpt);
   // 立柱:连接器材到底座（等效改写：视觉不变）
@@ -156,20 +157,6 @@ PROPS.optical_rail = function(ctx, x, y, opt){
   ctx.restore();
 };
 
-function drawLensSprite(ctx, x, y, id, opt){
-  opt = opt || {};
-  const h = opt.h || 60, flip = opt.flip ? -1 : 1;
-  const img = PROPS.img(id);
-  const sh = h;
-  const sw = img.naturalWidth * (sh / img.naturalHeight);
-  const spriteTop = y - 0.5000 * sh;   // (x,y)=光心（垂直居中骑光轴），无底座
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(flip, 1);
-  ctx.drawImage(img, -sw / 2, spriteTop - y, sw, sh);
-  ctx.restore();
-}
-
 function drawDashedPlaceholder(ctx, x, y, w, h, label){
   ctx.save();
   ctx.setLineDash([6, 4]);
@@ -190,11 +177,6 @@ function drawDashedPlaceholder(ctx, x, y, w, h, label){
 PROPS.lens_convex = function(ctx, x, y, opt){
   opt = opt || {};
   const h = opt.h || 60, f = opt.f || 15;
-  // 未指定f时用抠图sprite;指定f时矢量绘制(凹凸程度随f联动,抠图无法变形)
-  if(opt.f === undefined && PROPS.spriteReady && PROPS.spriteReady('lens_convex')){
-    drawLensSprite(ctx, x, y, 'lens_convex', opt);
-    return;
-  }
   // PhET 实测宽高比带 0.08~0.18：宽随 f 联动（f 小更凸），fMin=1.2cm（c5s1 滑杆下限）
   // (x,y)=光心（垂直居中骑光轴，无底座）；玻璃质感配色照 glass_plate
   const fMin = 1.2;
@@ -226,7 +208,7 @@ PROPS.lens_convex = function(ctx, x, y, opt){
 PROPS.lens_concave = function(ctx, x, y, opt){
   opt = opt || {};
   const h = opt.h || 60, f = opt.f || 15;
-  // 统一矢量真圆弧(三变体同形状语言同轴高);sprite 留库作色彩参考不再渲染
+  // 统一矢量真圆弧(三变体同形状语言同轴高);旧透镜 sprite 已退役（2026-10-17 蔡总拍板），统一矢量绘制
   // 矢量凹透镜:PhET 实测 rim 带 0.06~0.14,边缘厚度随比例缩;精确圆弧
   // (x,y)=光心（垂直居中骑光轴，无底座）；玻璃质感配色照 glass_plate
   const fMin = 1.2;

@@ -56,7 +56,7 @@
   </div>
 </div>
 <script src="./props.js?v=95"></script>
-<script src="./props-optics.js?v=5"></script>
+<script src="./props-optics.js?v=8"></script>
 <script src="./sfx.js?v=1"></script>
 <script>
 // PROPS.SPRITE_BASE 默认为 'sprites/'，与 gallery.html 同目录，正确无需覆写
@@ -74,8 +74,8 @@ const PROPS_LIST=[
   {id:'desk_lamp',name:'台灯',fn:'desk_lamp',tall:true,opts:[{},{lit:false},{dir:'left'}]},
   {id:'hand_shadow',name:'手影',fn:'hand_shadow',tall:true,opts:[{},{skin:true},{dir:'left',skin:true}]},
   {id:'optical_rail',name:'光具座',fn:'optical_rail',size:{w:520,h:250},opts:[{railLen:60,scale:8,baseCount:3},{railLen:40,scale:12,baseCount:2,zero:'left'},{railLen:80,scale:6,baseCount:4}]},
-  {id:'lens_convex',name:'凸透镜',fn:'lens_convex',tall:true,opts:[{},{h:60,f:15},{h:60,f:6}]},
-  {id:'lens_concave',name:'凹透镜',fn:'lens_concave',tall:true,opts:[{},{h:60,f:15},{h:60,f:6}]},
+  {id:'lens_convex',name:'凸透镜',fn:'lens_convex',tall:true,vector:true,opts:[{},{h:60,f:15},{h:60,f:6}]},
+  {id:'lens_concave',name:'凹透镜',fn:'lens_concave',tall:true,vector:true,opts:[{},{h:60,f:15},{h:60,f:6}]},
   {id:'smoke_box',name:'浓烟盒(密闭)',fn:'smoke_box',wide:true,row:true,opts:[{},{h:120}]},
   {id:'prism',name:'三棱镜（3D可旋转）',fn:'prism',tall:true,vector:true,opts:[{h:120,angle:0},{h:100,angle:25},{h:80,angle:-20}],badge:'c4s345 新增'},
   {id:'glass_plate',name:'竖立玻璃板',fn:'glass_plate',tall:true,opts:[{},{h:120},{h:90}],badge:'c4s345 新增'},
@@ -274,7 +274,7 @@ function initDemo(){
     PROPS.optical_rail(ctx,190,y,{railLen:60,scale:6,zero:'center',ruler:true,bases:[{u:relU(-20),mount:'candle'},{u:relU(0),mount:'lens_convex'},{u:relU(20),mount:'screen'}]});
     PROPS.optical_rail(ctx,570,y,{railLen:60,scale:6,zero:'center',ruler:true,bases:[{u:relU(-15),mount:'candle'},{u:relU(10),mount:'lens_concave'},{u:relU(30),mount:null}]});
   }
-  const demoIds=['optical_rail','candle','lens_convex','screen'];
+  const demoIds=['optical_rail','candle','screen'];
   let actDm=false;
   function activateDm(){if(actDm)return;actDm=true;draw();demoIds.forEach(function(id){PROPS.onSprite(id,draw);});if(LAZY_OBS)LAZY_OBS.unobserve(cvs);}
   cvs._lazyActivate=activateDm;
