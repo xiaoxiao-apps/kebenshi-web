@@ -316,7 +316,7 @@ function drawRaysProj(){
 }
 // 天花板/右端屏上的像：对上=清晰放大倒立（倒插→正立）F；偏离=弥散（模糊度∝|v像−光程|）
 function drawProjImage(cx,cy){
-  var hpx=imgHCm2()*cmPx(),blur=Math.abs(vImg2()-pathCm2())*cmPx*0.35,s=state.proj.flipped?1:-1,sharp=isFocused2();
+  var hpx=imgHCm2()*cmPx(),blur=Math.abs(vImg2()-pathCm2())*cmPx()*0.35,s=state.proj.flipped?1:-1,sharp=isFocused2();
   ctx.save();
   if(!sharp){
     ctx.globalAlpha=0.28;
