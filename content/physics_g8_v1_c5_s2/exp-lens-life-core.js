@@ -125,8 +125,10 @@ function eyeH(){ return Math.round(H*0.11); }   // 人眼绘制高
 // J5：眼改常量固定位（拖拽/观察锥/动态默认位全删）：x=0.80W、y=轴上方 0.055H
 function xEye(){ return Math.round(W*0.80); }
 function yEye(){ return axisY-Math.round(H*0.055); }
-// J10：虚像面亮度∝1/像面积，u→f 像无穷大→趋于不可见（衔接 u=f 不成像）；alpha=clamp(1−0.55(u/f)²,0.35,1)
-function dimAlpha(){ return Math.max(0.35,Math.min(1,1-0.55*Math.pow(state.mag.u/F_CM,2))); }
+// J10/L2：虚像面亮度∝1/像面积，u→f 像无穷大→趋于不可见（衔接 u=f 不成像）；蔡总 00:31：对齐第三节虚像变虚强度（0.85 系数/底 0.15，同 c5s3 公式）
+function dimAlpha(){ return Math.max(0.15,Math.min(1,1-0.85*Math.pow(state.mag.u/F_CM,2))); }
+// L2 虚像弥散：blur=8(u/f)²（与 dimAlpha 的 0.85*Math.pow(u/f,2) 同底同源），>0.4px 才上 ctx.filter，随 save/restore 复位
+function dimBlur(){ return 8*Math.pow(state.mag.u/F_CM,2); }
 // ===== 绘制：背景/窗/桌/轴 =====
 function drawBg(){
   var g=ctx.createLinearGradient(0,0,0,H);
@@ -360,15 +362,49 @@ function drawLabelsCam(){
 function drawRightScreen(){  // H2/G9/I2：幕布固定右端 x=W*0.76、高 hScr2，屏面中心骑光轴（y=axisY+0.42h）
   PROPS.screen(ctx,xScr2(),axisY+Math.round(SCR_AX*hScr2()),{h:hScr2()});
 }
-// K2 机身（图一紧凑款，蔡总 23:23）：外壳 bodyL..bodyR 固定死（包到镜筒根、不随 u 动）+镜筒=壳右端面伸出剖面阶梯筒（上下筒壁深灰+中间通道留空=光路/透镜可见+筒口右端环）
+// L1 机身（蔡总 00:31：实心黑箱不像投影仪）：外壳改剖面壳体=左壁竖带+上壁两段横带（投影片位开插片槽口）+下壁横带，内腔留空（F 投影片/光路在腔内可见）；圆角外缘+顶缘高光+左壁散热缝+电源指示点；镜筒段（barrel 壁+口环）保持不动
 function drawProjBody(){
   var x0=bodyL(),x1=bodyR(),hh=tubeDia*1.5,r=10;
-  ctx.save();
-  ctx.fillStyle='#3f4650';
-  ctx.beginPath();
-  ctx.moveTo(x0+r,axisY-hh/2); ctx.arcTo(x1,axisY-hh/2,x1,axisY+hh/2,r); ctx.arcTo(x1,axisY+hh/2,x0,axisY+hh/2,r);
-  ctx.arcTo(x0,axisY+hh/2,x0,axisY-hh/2,r); ctx.arcTo(x0,axisY-hh/2,x1,axisY-hh/2,r); ctx.closePath(); ctx.fill();
+  var top=axisY-hh/2,bot=axisY+hh/2,wallT=Math.max(6,Math.round(hh*0.16));   // 壁厚=壳高*0.16
+  var iT=top+wallT,iB=bot-wallT,iL=x0+wallT;                                  // 内腔三缘（右侧开口接镜筒）
+  var slotX=bodyL()+6+Math.round(panelCW()*PANEL_WF/2),gap=6;                 // 插片槽口中心=投影片绘制位（drawLed2 锚），缺口宽 12（±6）
   var d=barrelDia(),bl=barrelL(),br=barrelR(),wallH=Math.round(d*0.16),yIn=Math.round(d*0.34);   // 筒壁高各=筒径*0.16、内缘 y=axisY∓筒径*0.34（通道=0.68d）
+  var bTop=axisY-yIn-wallH,bBot=axisY+yIn+wallH;                              // 镜筒外缘：壳右端面在此断开留筒口
+  ctx.save();
+  ctx.beginPath();   // 三壁 fill 全裁在圆角外轮廓内（外角不露方头）
+  ctx.moveTo(x0+r,top); ctx.arcTo(x1,top,x1,bot,r); ctx.arcTo(x1,bot,x0,bot,r);
+  ctx.arcTo(x0,bot,x0,top,r); ctx.arcTo(x0,top,x1,top,r); ctx.closePath(); ctx.clip();
+  ctx.fillStyle='#4a5560';
+  ctx.fillRect(x0,top,wallT,hh);                                  // 左壁（竖带）
+  ctx.fillRect(x0,top,Math.max(0,slotX-gap-x0),wallT);            // 上壁左段
+  ctx.fillRect(slotX+gap,top,Math.max(0,x1-slotX-gap),wallT);     // 上壁右段（中间=插片槽口）
+  ctx.fillRect(x0,bot-wallT,x1-x0,wallT);                         // 下壁（横带）
+  ctx.fillStyle='rgba(255,255,255,.18)';                          // 上壁内顶缘高光横条 2px
+  ctx.fillRect(x0+r,top+2,Math.max(0,slotX-gap-x0-r),2);
+  ctx.fillRect(slotX+gap,top+2,Math.max(0,x1-slotX-gap-r),2);
+  ctx.fillStyle='#2b323b';                                        // 左壁散热缝 3 条
+  var vy=[axisY-hh*0.22,axisY,axisY+hh*0.22];
+  for(var i=0;i<3;i++) ctx.fillRect(x0+wallT*0.3,vy[i],wallT*0.4,2);
+  ctx.restore();
+  ctx.save();   // 电源指示点（场景2 激活即亮，腔内左上角）
+  ctx.fillStyle='#fbbf24';
+  ctx.beginPath(); ctx.arc(x0+wallT+8,top+wallT+8,3,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+  ctx.save();   // 槽唇：缺口两侧 4×8 小竖矩形，突出上壁顶 4px（同壳色）
+  ctx.fillStyle='#4a5560'; ctx.strokeStyle='#2b323b'; ctx.lineWidth=1.5;
+  ctx.fillRect(slotX-gap-4,top-4,4,8); ctx.strokeRect(slotX-gap-4,top-4,4,8);
+  ctx.fillRect(slotX+gap,top-4,4,8); ctx.strokeRect(slotX+gap,top-4,4,8);
+  ctx.restore();
+  ctx.save();   // 壳体描边：外轮廓（右端面断在筒口）+内腔三边
+  ctx.strokeStyle='#2b323b'; ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.moveTo(x0+r,top); ctx.lineTo(x1-r,top); ctx.arcTo(x1,top,x1,top+r,r); ctx.lineTo(x1,bTop);
+  ctx.moveTo(x1,bBot); ctx.lineTo(x1,bot-r); ctx.arcTo(x1,bot,x1-r,bot,r);
+  ctx.lineTo(x0+r,bot); ctx.arcTo(x0,bot,x0,bot-r,r); ctx.lineTo(x0,top+r); ctx.arcTo(x0,top,x0+r,top,r);
+  ctx.closePath(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x1,iT); ctx.lineTo(iL,iT); ctx.lineTo(iL,iB); ctx.lineTo(x1,iB); ctx.stroke();
+  ctx.restore();
+  ctx.save();
   ctx.fillStyle='#2f353d'; ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=1.5;
   ctx.fillRect(bl,axisY-yIn-wallH,br-bl,wallH); ctx.strokeRect(bl,axisY-yIn-wallH,br-bl,wallH);   // 上筒壁
   ctx.fillRect(bl,axisY+yIn,br-bl,wallH); ctx.strokeRect(bl,axisY+yIn,br-bl,wallH);               // 下筒壁
@@ -472,6 +508,8 @@ function drawMagImage(){   // H3：恒正立虚像（虚线轮廓）；出画布
   ctx.save(); ctx.translate(ix,axisY);
   ctx.lineCap='round'; ctx.lineWidth=Math.max(2,hpx*0.16); ctx.strokeStyle='#f59e0b';
   ctx.setLineDash([6,5]); ctx.globalAlpha=.85*dimAlpha();   // J10：虚像变虚——面亮度∝1/像面积，u→f 越来越淡
+  var blur=dimBlur();   // L2 蔡总 00:31：对齐第三节——变淡同时走 ctx.filter 弥散（save/restore 复位）
+  if(blur>0.4&&typeof ctx.filter==='string') ctx.filter='blur('+blur.toFixed(1)+'px)';
   fPath(hpx); ctx.stroke();
   ctx.restore();
 }
@@ -498,6 +536,8 @@ function drawEyePeep(){
   ctx.globalAlpha=dimAlpha();   // J10：透明度与变虚同源
   ctx.lineCap='round'; ctx.lineWidth=Math.max(2,hp*0.16); ctx.strokeStyle='#f59e0b';
   ctx.setLineDash([6,5]);
+  var blur=dimBlur();   // L2 蔡总 00:31：窗内 F 与虚像同式弥散（save/restore 复位）
+  if(blur>0.4&&typeof ctx.filter==='string') ctx.filter='blur('+blur.toFixed(1)+'px)';
   fPath(hp); ctx.stroke();   // 正立虚像：fPath 不镜像
   ctx.restore();
   ctx.fillStyle='#b45309'; ctx.font='16px sans-serif'; ctx.textAlign='center';
