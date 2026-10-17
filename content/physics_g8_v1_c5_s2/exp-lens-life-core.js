@@ -412,30 +412,34 @@ function drawRaysProj(){
 }
 // 幕布上的像（H2 骑轴）：对上=清晰放大倒立（倒插→正立）F；偏离=弥散（模糊度∝|v像−屏距|）；J3：画像前加幕面矩形 clip 硬保证（幕面 clip 硬保证，像+弥散永在幕内）
 function drawProjImage(cx,cy){
-  var hpx=imgHCm2()*cmPx(),blur=Math.min(Math.abs(vImg2()-vScr2())*cmPx()*0.35,cmPx()*0.8),s=state.proj.flipped?1:-1,sharp=isFocused2();   // 弥散 blur 上限 0.8cm：糊而形辨不碎块（蔡总 01:06）
-  var hw=hScr2()*0.18;   // 幕半宽=0.18h（props.js geomOf fw=0.36h）
+  var hpx=imgHCm2()*cmPx(),blur=Math.min(Math.abs(vImg2()-vScr2())*cmPx()*0.35,cmPx()*0.8),s=state.proj.flipped?1:-1,sharp=isFocused2();   // 弥散 blur 上限 0.8cm（蔡总 01:06）
+  var hs=hScr2(),sg=PROPS.screenGeom(xScr2(),axisY+Math.round(SCR_AX*hs),hs),p=sg.pts;   // 幕面平行四边形（斜置，蔡总 01:29 硬4 根修：clip 跟幕面走）
+  var lineW=Math.max(2,hpx*0.16);
+  var usableH=hs*0.80,usableW=hs*0.33;   // 幕面可用高/宽（光轴偏下缘 0.42h 取短边+内缩，硬4）
+  var fit=Math.min(1,usableH/(hpx+lineW),usableW/(hpx*0.62+lineW));
+  var hd=hpx*fit,ld=Math.max(2,lineW*fit),bd=blur*fit;   // 显示层等比缩放入幕（读数/物理值不变）
   ctx.save();
-  ctx.beginPath(); ctx.rect(xScr2()-hw*0.86,axisY-hScr2()*0.46,hw*2*0.86,hScr2()*0.92); ctx.clip();
+  ctx.beginPath(); ctx.moveTo(p.TL.x,p.TL.y); ctx.lineTo(p.TR.x,p.TR.y); ctx.lineTo(p.BR.x,p.BR.y); ctx.lineTo(p.BL.x,p.BL.y); ctx.closePath(); ctx.clip();
   ctx.save();
   if(!sharp){
     ctx.globalAlpha=0.28;
-    var g=ctx.createRadialGradient(cx,cy,1,cx,cy,hpx*0.5+blur);
+    var g=ctx.createRadialGradient(cx,cy,1,cx,cy,hd*0.5+bd);
     g.addColorStop(0,'rgba(255,196,50,.9)'); g.addColorStop(1,'rgba(255,196,50,0)');
-    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,hpx*0.5+blur,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,hd*0.5+bd,0,Math.PI*2); ctx.fill();
     ctx.globalAlpha=1;
   }
   ctx.translate(cx,cy); ctx.scale(s,s);   // 实像倒立；投影片倒插时净效果=正立（常考点）
-  ctx.lineCap='round'; ctx.lineWidth=Math.max(2,hpx*0.16); ctx.strokeStyle='#f59e0b';
-  if(sharp){ fPath(hpx); ctx.stroke(); }
+  ctx.lineCap='round'; ctx.lineWidth=ld; ctx.strokeStyle='#f59e0b';
+  if(sharp){ fPath(hd); ctx.stroke(); }
   else{
     for(var i=0;i<4;i++){
       ctx.save(); ctx.globalAlpha=0.28;
-      ctx.translate((i-1.5)*blur*0.7,(i%2?1:-1)*blur*0.5);
-      fPath(hpx); ctx.stroke(); ctx.restore();
+      ctx.translate((i-1.5)*bd*0.7,(i%2?1:-1)*bd*0.5);
+      fPath(hd); ctx.stroke(); ctx.restore();
     }
   }
   ctx.restore();
-  ctx.restore();   // J3 幕面 clip 外层
+  ctx.restore();   // 幕面 clip 外层
 }
 function drawLabelsProj(){
   var xl=xLens2(),fpx=F2_CM*cmPx(),yB=axisY+tubeDia*0.75,yT=axisY-tubeDia*0.75;   // 机身下/上缘（G8 高=tubeDia*1.5）
