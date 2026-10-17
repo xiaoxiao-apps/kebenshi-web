@@ -28,12 +28,12 @@ function xOfV(v){ return xLens+v*S; }
 var st={
   u:30,f:F_DEF_CM,vSc:15,            // 初始态：u=30(>2f)、f=10、屏在清晰像位 v=15 → 进页即见倒立缩小实像
   obj:'F',lit:true,
-  screenOn:true,screenA:1,eye:false,eyeA:0,eyeOff:0,
+  screenOn:true,screenA:1,eye:false,eyeA:0,eyeOff:0,eyeX:null,
   hand:false,marks:true,rays:true,
   rows:[],anim:null,
-  fTip:false,touched:false,snapI:0
+  fTip:false,touched:false,snapI:0,wasSharp:true
 };
-var drag=null,startPt=null,toolbox=null,toastTimer=null;
+var drag=null,startPt=null,toolbox=null,toastTimer=null,glowFx=[];
 function layout(){
   axisY=Math.round(H*0.40);
   S=cmPx(); railX0=20; xLens=railX0+U_LENS_CM*S;
@@ -58,16 +58,6 @@ function resize(){
   measureCtrl(); layout();
   st.u=clampU(st.u); st.vSc=clampV(st.vSc);
   draw();
-}
-// 滑轨几何：sprite 纵横比运行时实测；底座滑块顶=器材立柱落点
-function railGeom(){
-  var w=RAIL_CM*S;
-  var img=(PROPS.spriteReady&&PROPS.spriteReady('optical_rail'))?PROPS.img('optical_rail'):null;
-  var sh=img?w*img.naturalHeight/img.naturalWidth:14;
-  var stop=axisY+Math.round(5.2*S)+8;
-  var bw=Math.max(24,sh*1.5),bh=bw*(287/881);
-  var baseBottom=stop+sh*0.30;
-  return {w:w,sh:sh,stop:stop,y:stop+sh,sliderTop:baseBottom-bh,baseBottom:baseBottom};
 }
 function showToast(msg){
   var t=document.getElementById('toast'); if(!t) return;
@@ -136,15 +126,11 @@ function drawRays(){
   }
   ctx.restore();
 }
-// ===== 绘制：亮底+wood_desk+光具座滑轨横贯+三件 mounted =====
+// ===== 绘制：亮底+光轴+cm 刻度；三件骑光轴（F3 去桌面/滑轨，排版照 c5s1） =====
 function drawBg(){
   var g=ctx.createLinearGradient(0,0,0,H);
   g.addColorStop(0,'#faf8f3'); g.addColorStop(1,'#f5f2ec');
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-}
-function drawDesk(){
-  var rg=railGeom();
-  PROPS.wood_desk(ctx,W,H,{by:Math.round(rg.y)-10,fy:H});
 }
 function drawAxis(){   // 主光轴点划线（照 c5s1）
   ctx.save();
@@ -152,46 +138,83 @@ function drawAxis(){   // 主光轴点划线（照 c5s1）
   ctx.beginPath(); ctx.moveTo(0,axisY); ctx.lineTo(W,axisY); ctx.stroke();
   ctx.restore();
 }
-function drawRail(){
-  var rg=railGeom();
-  // 承载件 opt.scale=px/cm（S）；三底座 mount:null——器材由本页按 cm 语义自绘，不透传挂载件
-  PROPS.optical_rail(ctx,railX0,rg.y,{railLen:RAIL_CM,scale:S,zero:'left',ruler:true,
-    bases:[{u:st.u,mount:null},{u:U_LENS_CM,mount:null},{u:U_LENS_CM+st.vSc,mount:null}]});
-}
-function stand(x,botY){   // 立柱：器材底 → 底座滑块顶（mountAt 同款配色）
-  var rg=railGeom(),top=rg.sliderTop,h=top-botY+6;
-  if(h<3) return;
+function drawRuler(){   // cm 刻度语义留光轴：5cm 小刻度线+20cm 数字（F/2F 点由 drawMarks 负责）
   ctx.save();
-  ctx.fillStyle='#8a8f96'; ctx.fillRect(x-2.5,botY,5,h);
-  ctx.strokeStyle='rgba(26,26,26,1)'; ctx.lineWidth=1; ctx.strokeRect(x-2.5,botY,5,h);
+  ctx.strokeStyle='rgba(90,80,60,.55)'; ctx.lineWidth=1; ctx.textAlign='center';
+  ctx.fillStyle='rgba(90,80,60,.8)';
+  ctx.font=Math.max(9,Math.round(1.05*S))+'px '+FONT;
+  for(var cm=0;cm<=RAIL_CM;cm+=5){
+    var x=railX0+cm*S;
+    if(x>W-4) break;
+    ctx.beginPath(); ctx.moveTo(x,axisY); ctx.lineTo(x,axisY+(cm%10===0?7:4.5)); ctx.stroke();
+    if(cm%20===0) ctx.fillText(String(cm),x,axisY+7+Math.max(10,1.2*S));
+  }
   ctx.restore();
 }
-function drawObject(){   // F 形 LED 光源（默认）/ 蜡烛（托盘换用）；F 图案顶=axisY−ho*cmPx
-  var x=xOfU(st.u),bot=axisY+hoPx()*0.5;
-  stand(x,bot);
-  if(st.obj==='candle') PROPS.candle(ctx,x,bot,{h:hoPx()*1.5,lit:st.lit});
-  else PROPS.f_led(ctx,x,bot,{h:hoPx()*1.5,lit:st.lit});
+function drawObject(){   // F 形 LED 光源（默认）/ 蜡烛（托盘换用）；包围盒中心骑光轴（F3）
+  var x=xOfU(st.u),bot=axisY+hoPx();
+  if(st.obj==='candle') PROPS.candle(ctx,x,bot,{h:hoPx()*2,lit:st.lit});
+  else PROPS.f_led(ctx,x,bot,{h:hoPx()*2,lit:st.lit});
 }
 function drawLens(){   // 凸透镜中固定；f 滑杆联动 opt.f 凸度；(x,axisY)=光心骑光轴
-  stand(xLens,axisY+dPxV()/2);
   PROPS.lens_convex(ctx,xLens,axisY,{h:dPxV(),f:st.f});
 }
-function drawHand(){   // 🖐 遮挡：hand_shadow 盖透镜上半（像仍完整、亮度×0.5）
+function drawHand(){   // 🖐 遮挡：hand_palm 掌心压透镜上半孔径（像仍完整、通光量 0.5，F9）
   if(!st.hand) return;
-  PROPS.hand_shadow(ctx,xLens,axisY+dPxV()*0.05,{h:dPxV()*0.58});
+  if(!(PROPS.spriteReady&&PROPS.spriteReady('hand_palm'))) return;
+  var img=PROPS.img('hand_palm');
+  var h=dPxV()*0.6,w=h*img.naturalWidth/img.naturalHeight;
+  ctx.drawImage(img,xLens-w/2,axisY-dPxV()*0.25-h/2,w,h);
 }
 function drawScreen(){
   if(st.screenA<=0.02) return;
   var x=xOfV(st.vSc),y=axisY+scHPx()/2;
   ctx.save(); ctx.globalAlpha=st.screenA;
   PROPS.screen(ctx,x,y,{h:scHPx()});
-  stand(x,y+0.08*scHPx());
   ctx.restore();
+}
+function eyeXY(){   // F7 人眼位：st.eyeX 可拖（null=默认屏位），纯观察不改像计算
+  return {x:(st.eyeX===null?xOfV(st.vSc):st.eyeX)+st.eyeOff,y:axisY-Math.round(1.2*S),h:Math.max(30,Math.round(4.5*S))};
 }
 function drawEye(){   // 撤屏后 observer_eye 飞入屏位（库件，(x,y)=包围盒中心）
   if(!st.eye||st.eyeA<=0.02) return;
+  var e=eyeXY();
   ctx.save(); ctx.globalAlpha=st.eyeA;
-  PROPS.observer_eye(ctx,xOfV(st.vSc)+st.eyeOff,axisY-Math.round(1.2*S),{h:Math.max(30,Math.round(4.5*S))});
+  PROPS.observer_eye(ctx,e.x,e.y,{h:e.h});
+  ctx.restore();
+}
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+function drawEyePeep(){   // eyePeep 眼视图窗：撤屏态实时画眼睛观察内容（F7）
+  if(!st.eye||st.eyeA<=0.6) return;
+  var e=eyeXY(),ww=150,wh=110;
+  var wx=Math.max(6,Math.min(W-ww-6,e.x-ww/2));
+  var wy=Math.max(6,e.y-e.h/2-wh-16);
+  ctx.save(); ctx.globalAlpha=Math.min(1,st.eyeA);
+  ctx.fillStyle='rgba(255,255,255,0.72)'; ctx.strokeStyle='#d97706'; ctx.lineWidth=2;
+  roundRect(wx,wy,ww,wh,12); ctx.fill(); ctx.stroke();
+  ctx.beginPath();   // 窗底箭头指眼
+  ctx.moveTo(e.x-8,wy+wh); ctx.lineTo(e.x+8,wy+wh); ctx.lineTo(e.x,wy+wh+12); ctx.closePath();
+  ctx.fillStyle='rgba(255,255,255,0.72)'; ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#b45309'; ctx.textAlign='center';
+  ctx.font='600 12px '+FONT;
+  ctx.fillText('眼视图',wx+ww/2,wy+16);
+  var k=imgKind(),cx=wx+ww/2,cy=wy+wh/2+8;
+  if(k==='none'){
+    ctx.fillStyle='#64748b'; ctx.font='13px '+FONT;
+    ctx.fillText('不成像',cx,cy+4);
+  }else if(k==='virtual'){   // 正立放大 F：高=HO_CM*|m| 按比例缩放到窗内，随 u 连续变
+    var hp=Math.min(72,HO_CM*Math.abs(mag())*S*0.9);
+    ctx.save(); ctx.translate(cx,cy+hp/2); ctx.scale(hp,hp); fPattern(ctx); ctx.restore();
+  }else{   // u≥f 撤屏态：倒立实像小图
+    var hr=Math.min(44,HO_CM*Math.abs(mag())*S*0.45);
+    ctx.save(); ctx.translate(cx,cy-hr/2-6); ctx.scale(-hr,-hr); fPattern(ctx); ctx.restore();
+    ctx.fillStyle='#b45309'; ctx.font='11px '+FONT;
+    ctx.fillText('空中实像',cx,wy+wh-8);
+  }
   ctx.restore();
 }
 // ===== 像的渲染：F 图案镜像(scale(-1,1))+上下翻转=实像；虚像正立不镜像；蜡烛→简笔火焰图案 =====
@@ -263,11 +286,28 @@ function drawTray(){
   }
 }
 function draw(){
-  drawBg(); drawDesk(); drawAxis(); drawRail(); drawMarks();
+  drawBg(); drawAxis(); drawRuler(); drawMarks();
   drawRays(); drawLens(); drawHand(); drawObject();
   drawScreen(); drawImageOnScreen(); drawEye(); drawVirtualImage();
-  drawTray();
+  drawTray(); drawGlowFx(); drawEyePeep();
   updatePanel(); updateBubblePos();
+}
+function drawGlowFx(){   // 对焦光晕（照 c5s2：300ms 渐隐，F6）
+  for(var i=glowFx.length-1;i>=0;i--){
+    var f=glowFx[i],t=(performance.now()-f.t0)/300;
+    if(t>=1){ glowFx.splice(i,1); continue; }
+    ctx.save(); ctx.globalAlpha=1-t;
+    var c0=f.c||'255,120,100';
+    var g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,18+22*t);
+    g.addColorStop(0,'rgba('+c0+',.55)'); g.addColorStop(1,'rgba('+c0+',0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(f.x,f.y,18+22*t,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+}
+function checkSharpEdge(){   // isSharp 假→真时刻 push 光晕（屏上像位）；自动寻像到位同路径触发
+  var s=isSharp();
+  if(s&&!st.wasSharp) glowFx.push({x:xOfV(st.vSc),y:axisY,t0:performance.now(),c:'255,214,120'});
+  st.wasSharp=s;
 }
 // ===== 气泡 hint 状态机（照 c5s1：分支+锚点、边缘翻转、×关闭同分支不再自动重弹） =====
 var bubbleEl=document.getElementById('bubble'),bubbleTxt=document.getElementById('bubble-txt'),bubbleArr=document.getElementById('bubble-arrow');
@@ -391,6 +431,11 @@ function hitScreen(p){
   var g=PROPS.screenGeom(xOfV(st.vSc),axisY+scHPx()/2,scHPx());   // 命中走库件几何（照 c5s1）
   return Math.abs(p.x-g.faceX)<g.fw/2+14&&p.y>g.pts.TL.y-10&&p.y<g.pts.BR.y+16;
 }
+function hitEye(p){   // F7 人眼命中区=眼包围盒（纯观察位拖拽）
+  if(!st.eye||st.eyeA<=0.5) return false;
+  var e=eyeXY();
+  return Math.abs(p.x-e.x)<e.h*0.8&&Math.abs(p.y-e.y)<e.h*0.62+6;
+}
 function inCtrlArea(p){ return toolbox.pointInCard(p)||p.y>H-ctrlBandH; }
 cv.addEventListener('pointerdown',function(e){
   if(st.anim) return;
@@ -407,6 +452,7 @@ cv.addEventListener('pointerdown',function(e){
   if(!drag){
     if(hitObj(p)) drag={k:'obj'};
     else if(hitScreen(p)) drag={k:'sc'};
+    else if(hitEye(p)) drag={k:'eye'};
   }
   if(drag){ st.touched=true; cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; updateHint(); draw(); }
 });
@@ -414,7 +460,7 @@ cv.addEventListener('pointermove',function(e){
   if(st.anim) return;
   var p=localPt(e);
   if(!drag){
-    cv.style.cursor=(hitObj(p)||hitScreen(p)||(toolbox.pointInCard(p)&&toolbox.hitSlot(p)))?'pointer':'';
+    cv.style.cursor=(hitObj(p)||hitScreen(p)||hitEye(p)||(toolbox.pointInCard(p)&&toolbox.hitSlot(p)))?'pointer':'';
     return;
   }
   if(drag.k==='obj'){
@@ -425,6 +471,8 @@ cv.addEventListener('pointermove',function(e){
     st.u=clampU(u); st.fTip=false;
   }else if(drag.k==='sc'){
     st.vSc=clampV((p.x-xLens)/S); st.fTip=false;
+  }else if(drag.k==='eye'){
+    st.eyeX=Math.max(50,Math.min(W-50,p.x));   // 眼纯观察位：不改任何像的计算
   }
   draw();
 });
@@ -485,24 +533,32 @@ function twoState(id,getv,setv,after){
 twoState('btn-marks',function(){return st.marks;},function(v){st.marks=v;});
 twoState('btn-rays',function(){return st.rays;},function(v){st.rays=v;});
 twoState('btn-hand',function(){return st.hand;},function(v){st.hand=v;if(v) showToast('练习6：像仍完整，只是变暗——通光量减少');});
-twoState('btn-read',function(){return document.getElementById('panel-read').classList.contains('show');},function(v){document.getElementById('panel-read').classList.toggle('show',v);});
-function panelToggle(btnId,panelId,xId){
-  var b=document.getElementById(btnId),pn=document.getElementById(panelId),xx=document.getElementById(xId);
-  function set(v){ if(pn) pn.classList.toggle('show',v); if(b) b.classList.toggle('on',v); }
-  if(b) b.addEventListener('click',function(){ if(st.anim) return; set(!pn.classList.contains('show')); if(window.playClick) playClick(); });
-  if(xx) xx.addEventListener('click',function(){ set(false); });
+// ===== 三浮层互斥：统一入口 openPanel（F8） =====
+function openPanel(name){   // name∈read/rec/law/null：开一个自动关另外两个，按钮 .on 同步
+  var map={read:['panel-read','btn-read'],rec:['panel-rec','btn-table'],law:['panel-law','btn-law']};
+  for(var k in map){
+    var pn=document.getElementById(map[k][0]),b=document.getElementById(map[k][1]);
+    if(pn) pn.classList.toggle('show',k===name);
+    if(b) b.classList.toggle('on',k===name);
+  }
 }
-panelToggle('btn-table','panel-rec',null);
-panelToggle('btn-law','panel-law',null);
-var recX=document.getElementById('rec-x'),lawX=document.getElementById('law-x'),pnRec=document.getElementById('panel-rec'),pnLaw=document.getElementById('panel-law');
-if(recX) recX.addEventListener('click',function(){ pnRec.classList.remove('show'); document.getElementById('btn-table').classList.remove('on'); });
-if(lawX) lawX.addEventListener('click',function(){ pnLaw.classList.remove('show'); document.getElementById('btn-law').classList.remove('on'); });
+[['btn-read','read'],['btn-table','rec'],['btn-law','law']].forEach(function(pr){
+  var b=document.getElementById(pr[0]);
+  if(b) b.addEventListener('click',function(){
+    if(st.anim) return;
+    openPanel(b.classList.contains('on')?null:pr[1]);
+    if(window.playClick) playClick();
+  });
+});
+var recX=document.getElementById('rec-x'),lawX=document.getElementById('law-x');
+if(recX) recX.addEventListener('click',function(){ openPanel(null); });
+if(lawX) lawX.addEventListener('click',function(){ openPanel(null); });
 // 记一笔 / 教材数据 / 清空
 var bRec1=document.getElementById('btn-record');
 if(bRec1) bRec1.addEventListener('click',function(){
   if(st.anim) return;
   recordCurrent();
-  if(!pnRec.classList.contains('show')){ pnRec.classList.add('show'); document.getElementById('btn-table').classList.add('on'); }
+  openPanel('rec');   // 记一笔自动开记录表（走互斥入口）
   showToast('已记录：u='+st.u.toFixed(1)+' cm，'+natureText());
   if(window.playClick) playClick();
   updateHint(); draw();
@@ -510,7 +566,7 @@ if(bRec1) bRec1.addEventListener('click',function(){
 var bTB=document.getElementById('btn-textbook');
 if(bTB) bTB.addEventListener('click',function(){
   st.rows=textbookRows(); renderRec();
-  if(!pnRec.classList.contains('show')){ pnRec.classList.add('show'); document.getElementById('btn-table').classList.add('on'); }
+  openPanel('rec');
   showToast('已载入教材练习5数据表 13 行（f=10cm）——对照找规律');
   if(window.playClick) playClick();
 });
@@ -557,14 +613,15 @@ if(bReset) bReset.addEventListener('click',function(){
   if(st.anim) return;
   st.u=30; setF(F_DEF_CM); st.vSc=15;
   st.obj='F'; st.lit=true;
-  st.screenOn=true; st.screenA=1; st.eye=false; st.eyeA=0; st.eyeOff=0;
+  st.screenOn=true; st.screenA=1; st.eye=false; st.eyeA=0; st.eyeOff=0; st.eyeX=null;
   st.hand=false; st.marks=true; st.rays=true;
   st.rows=[]; st.fTip=false; st.touched=false; st.snapI=0;
   renderRec();
   ['btn-hand'].forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.remove('on'); });
-  ['btn-marks','btn-rays','btn-read'].forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.add('on'); });
+  ['btn-marks','btn-rays'].forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.add('on'); });
   if(bNs){ bNs.textContent='撤屏观察'; bNs.classList.remove('on'); }
-  document.getElementById('panel-read').classList.add('show');
+  openPanel('read');
+  st.wasSharp=isSharp();
   var t=document.getElementById('toast'); if(t) t.classList.remove('show');
   hintSt.key=null; hintSt.dismissed=null;
   if(window.playClick) playClick();
@@ -576,7 +633,7 @@ if(btnMute) btnMute.addEventListener('click',function(){ window.muted=!window.mu
 var btnFull=document.getElementById('btn-full');
 function pickFn(el,names){for(var i=0;i<names.length;i++){var fn=el[names[i]];if(typeof fn==='function')return fn;}return null;}
 function fullEl(){return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement;}
-function syncFull(){btnFull.textContent=(fullEl()||document.documentElement.classList.contains('pseudo-fs'))?'退出全屏':'全屏';}
+function syncFull(){if(btnFull)btnFull.textContent=(fullEl()||document.documentElement.classList.contains('pseudo-fs'))?'退出全屏':'全屏';}
 function reqFull(){
   var el=document.documentElement,f=pickFn(el,['requestFullscreen','webkitRequestFullscreen','webkitRequestFullScreen','mozRequestFullScreen','msRequestFullscreen']);
   if(!f){document.documentElement.classList.add('pseudo-fs');syncFull();return;}
@@ -590,11 +647,12 @@ function exitFull(){
 if(btnFull) btnFull.addEventListener('click',function(){if(st.anim)return;if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();});
 ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){document.addEventListener(ev,function(){syncFull();setTimeout(resize,60);});});
 // ===== sprite 重绘钩子（仅注册有 sprite 文件的件；透镜矢量无 sprite） =====
-['optical_rail','optical_rail_base','f_led','f_led_off','candle','candle_unlit','hand_shadow','observer_eye'].forEach(function(id){
+['f_led','f_led_off','candle','candle_unlit','hand_palm','observer_eye'].forEach(function(id){
   PROPS.onSprite(id,function(){ draw(); });
 });
 // ===== 动画 tick：自动寻像滑屏 + 撤屏淡出/眼飞入（两向对称） =====
 function tick(){
+  checkSharpEdge();
   if(st.anim){
     var a=st.anim,t=Math.min(1,(performance.now()-a.t0)/ANIM_DUR),e=easeInOut(t);
     if(a.kind==='auto'){
@@ -605,10 +663,10 @@ function tick(){
       if(t>=1){ st.anim=null; st.screenA=0; st.eyeA=1; st.eyeOff=0; updateHint(); }
     }else if(a.kind==='in'){
       st.screenA=e; st.eyeA=1-e; st.eyeOff=(W+40-xOfV(st.vSc))*e;
-      if(t>=1){ st.anim=null; st.eye=false; st.eyeA=0; st.eyeOff=0; st.screenA=1; updateHint(); }
+      if(t>=1){ st.anim=null; st.eye=false; st.eyeA=0; st.eyeOff=0; st.screenA=1; st.eyeX=null; updateHint(); }
     }
     draw();
-  }
+  }else if(glowFx.length) draw();
   requestAnimationFrame(tick);
 }
 window.addEventListener('resize',resize);
@@ -618,7 +676,8 @@ if(window.ResizeObserver&&ctrlEl){
 // ===== 初始化：u=30cm(>2f)、f=10cm、屏在清晰像位 v=15cm——进页即见倒立缩小实像 =====
 setF(F_DEF_CM);
 layout(); resize();
-document.getElementById('panel-read').classList.add('show');
+openPanel('read');
+st.wasSharp=isSharp();
 renderRec(); syncFull();
 updateHint(); draw(); requestAnimationFrame(tick);
 window.__c5s3dbg={
