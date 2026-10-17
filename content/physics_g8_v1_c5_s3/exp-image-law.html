@@ -16,20 +16,13 @@
   .title{font-size:13px;font-weight:600;color:#2b2620;white-space:nowrap}
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
   canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
-  #bubble{display:none;position:absolute;left:0;top:0;max-width:340px;background:rgba(255,255,255,0.35);border-radius:16px;padding:10px 30px 10px 13px;font-size:14px;line-height:1.55;color:#2a2620;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:17;opacity:0;transition:opacity .15s ease}
-  #bubble.show{opacity:1}
-  #bubble-x{position:absolute;top:3px;right:8px;cursor:pointer;color:#8a7c66;font-size:16px;line-height:1;user-select:none}
-  #bubble-x:hover{color:#3d3830}
-  #bubble-arrow{position:absolute;width:0;height:0;border:9px solid transparent;left:20px}
-  #bubble.arr-b #bubble-arrow{bottom:-18px;border-top-color:rgba(255,255,255,0.35)}
-  #bubble.arr-t #bubble-arrow{top:-18px;border-bottom-color:rgba(255,255,255,0.35)}
   .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:stretch;gap:6px;padding:8px 12px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
   .ctrlbar>*{pointer-events:auto}
   .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px;transition:opacity .3s ease,transform .3s ease}
   .glabel{font-size:14px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
   .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:40px}
   .gctrl label{font-size:14px;cursor:pointer;white-space:nowrap;color:#3d3830}
-  button{border:0;border-radius:8px;padding:9px 13px;font-size:14px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
+  button{border:0;border-radius:8px;padding:9px 13px;font-size:15px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
   button:hover{background:#1d4ed8}
   button.secondary{background:#6b7280}
   button.secondary:hover{background:#4b5563}
@@ -41,32 +34,35 @@
   button#btn-table.on,button#btn-law.on,button#btn-marks.on,button#btn-rays.on,button#btn-hand.on,button#btn-read.on,button#btn-noscreen.on,button#btn-lit.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
   input#rng-f{width:150px;accent-color:#d97706}
   #lbl-f{font-size:15px;color:#854d0e;min-width:88px;text-align:right;font-variant-numeric:tabular-nums}
-  .ctrlbar.compact .glabel{font-size:12px}
+  .ctrlbar.compact .glabel{font-size:14px}
   .ctrlbar.compact .gctrl{min-height:32px}
-  .ctrlbar.compact .gctrl label{font-size:12px}
-  .ctrlbar.compact button{padding:5px 7px;font-size:13px}
+  .ctrlbar.compact .gctrl label{font-size:14px}
+  .ctrlbar.compact button{padding:5px 7px;font-size:14px}
   .ctrlbar.compact input#rng-f{width:110px}
-  .ctrlbar.compact #lbl-f{font-size:13px;min-width:0}
+  .ctrlbar.compact #lbl-f{font-size:14px;min-width:0}
   /* 幽灵化浮层（三级色阶：标题琥珀>数值>标签） */
-  .rec-panel{display:none;position:absolute;top:12px;right:12px;min-width:340px;max-width:min(560px,92vw);background:rgba(255,255,255,0.45);border-radius:16px;padding:14px 18px;z-index:15}
+  .rec-panel{display:none;position:absolute;top:12px;right:12px;min-width:340px;max-width:min(560px,92vw);background:rgba(255,255,255,0.45);border-radius:16px;padding:14px 18px;z-index:15;font-size:17px;line-height:1.7;letter-spacing:.02em}
   .rec-panel.show{display:block}
-  .rec-panel .rp-title{font-size:18px;font-weight:600;color:#b45309;margin-bottom:8px}
-  .rec-panel .rp-x{position:absolute;top:8px;right:12px;cursor:pointer;color:#8a7c66;font-size:17px;line-height:1;user-select:none}
+  .rec-panel .rp-title{font-size:22px;font-weight:600;color:#b45309;margin-bottom:8px}
+  .rec-panel .rp-x{position:absolute;top:8px;right:12px;cursor:pointer;color:#8a7c66;font-size:19px;line-height:1;user-select:none}
   .rec-panel .rp-x:hover{color:#3d3830}
-  table.rec{border-collapse:collapse;font-size:15px;background:transparent;width:100%}
+  table.rec{border-collapse:collapse;font-size:16px;background:transparent;width:100%}
   table.rec th,table.rec td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:7px 11px;text-align:left;white-space:nowrap;color:#1e293b}
   table.rec th{background:transparent;font-weight:400;color:#64748b}
   table.rec td{font-weight:600}
   #panel-rec{max-height:72vh;overflow:auto}
   #panel-rec .rp-btns{display:flex;gap:8px;margin-bottom:8px}
-  #panel-rec .rp-btns button{padding:5px 10px;font-size:13px}
-  #panel-law{max-width:min(520px,92vw);font-size:14px;line-height:1.65}
+  #panel-rec .rp-btns button{padding:5px 10px;font-size:15px}
+  #panel-law{max-width:min(520px,92vw);font-size:17px;line-height:1.7}
   #panel-law .law-blue{background:rgba(219,234,254,.75);border-left:4px solid #2563eb;border-radius:8px;padding:9px 12px;color:#1e3a8a;margin:6px 0 10px}
   #panel-law .law-kj{color:#854d0e;font-weight:600;margin-bottom:10px}
   #panel-law .law-qa{color:#334155}
   #panel-law .law-qa b{color:#0f172a}
-  #toast{display:none;position:absolute;left:50%;top:13%;transform:translateX(-50%);max-width:82%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:16;text-align:center}
+  /* I7 橙色居中解说条：hint 状态机常驻输出端（原气泡已删），× 关闭=同分支不再自动重弹 */
+  #toast{display:none;position:absolute;left:50%;top:13%;transform:translateX(-50%);max-width:82%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:17px;line-height:1.65;letter-spacing:.02em;font-weight:600;padding:12px 34px 12px 18px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:16;text-align:left}
   #toast.show{display:block}
+  #toast-x{position:absolute;top:5px;right:11px;cursor:pointer;color:#8a7c66;font-size:19px;line-height:1;user-select:none}
+  #toast-x:hover{color:#3d3830}
   html.pseudo-fs{width:100%;height:100%}
   html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
 </style>
@@ -78,11 +74,6 @@
 </header>
 <div class="scene-wrap">
 <canvas id="scene"></canvas>
-<div id="bubble">
-  <div id="bubble-txt"></div>
-  <span id="bubble-x">×</span>
-  <div id="bubble-arrow"></div>
-</div>
 <div class="rec-panel" id="panel-read">
   <div class="rp-title">读数面板</div>
   <table class="rec"><tbody>
@@ -116,7 +107,7 @@
     <div><b>想想议议④</b> 放大镜离物体越远（仍小于焦距）像越大；F 形光源比蜡烛好：像稳定、可判断左右是否相反、安全环保、高度不变。</div>
   </div>
 </div>
-<div id="toast"></div>
+<div id="toast"><span id="toast-txt"></span><span id="toast-x">×</span></div>
 </div>
 <div class="ctrlbar">
   <div class="group" id="grp-f">
@@ -160,6 +151,6 @@
 <script src="../_lib/v1/props.js?v=96"></script>
 <script src="../_lib/v1/props-optics.js?v=9"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-image-law-core.js?v=4"></script>
+<script src="exp-image-law-core.js?v=5"></script>
 </body>
 </html>
