@@ -36,9 +36,9 @@
   button.step{padding:6px 10px}
   button:disabled{opacity:.35;cursor:default}
   /* 物理按压两态钮（照 c5s1）：凸起渐变→按下内凹 */
-  button#btn-table,button#btn-law,button#btn-marks,button#btn-rays,button#btn-hand,button#btn-read,button#btn-noscreen{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
-  button#btn-table:hover,button#btn-law:hover,button#btn-marks:hover,button#btn-rays:hover,button#btn-hand:hover,button#btn-read:hover,button#btn-noscreen:hover{background:linear-gradient(#f8fafc,#d2deeb)}
-  button#btn-table.on,button#btn-law.on,button#btn-marks.on,button#btn-rays.on,button#btn-hand.on,button#btn-read.on,button#btn-noscreen.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
+  button#btn-table,button#btn-law,button#btn-marks,button#btn-rays,button#btn-hand,button#btn-read,button#btn-noscreen,button#btn-lit{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
+  button#btn-table:hover,button#btn-law:hover,button#btn-marks:hover,button#btn-rays:hover,button#btn-hand:hover,button#btn-read:hover,button#btn-noscreen:hover,button#btn-lit:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  button#btn-table.on,button#btn-law.on,button#btn-marks.on,button#btn-rays.on,button#btn-hand.on,button#btn-read.on,button#btn-noscreen.on,button#btn-lit.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
   input#rng-f{width:150px;accent-color:#d97706}
   #lbl-f{font-size:15px;color:#854d0e;min-width:88px;text-align:right;font-variant-numeric:tabular-nums}
   .ctrlbar.compact .glabel{font-size:12px}
@@ -135,6 +135,7 @@
       <button id="btn-noscreen">撤屏观察</button>
       <button id="btn-record">记一笔</button>
       <button id="btn-hand">🖐 遮挡</button>
+      <button id="btn-lit" class="on">💡 光源</button>
     </div>
   </div>
   <div class="group" id="grp-show">
@@ -159,6 +160,6 @@
 <script src="../_lib/v1/props.js?v=96"></script>
 <script src="../_lib/v1/props-optics.js?v=9"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-image-law-core.js?v=2"></script>
+<script src="exp-image-law-core.js?v=3"></script>
 </body>
 </html>
