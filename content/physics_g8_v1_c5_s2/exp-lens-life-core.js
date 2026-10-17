@@ -382,9 +382,10 @@ function drawProjBody(){
   ctx.fillStyle='rgba(255,255,255,.18)';                          // 上壁内顶缘高光横条 2px
   ctx.fillRect(x0+r,top+2,Math.max(0,slotX-gap-x0-r),2);
   ctx.fillRect(slotX+gap,top+2,Math.max(0,x1-slotX-gap-r),2);
-  ctx.fillStyle='#2b323b';                                        // 左壁散热缝 3 条
-  var vy=[axisY-hh*0.22,axisY,axisY+hh*0.22];
-  for(var i=0;i<3;i++) ctx.fillRect(x0+wallT*0.3,vy[i],wallT*0.4,2);
+  ctx.fillStyle='#2b323b';                                        // 散热缝 3 条（蔡总复验：左壁被 F 投影片遮挡→移上壁右段可见位）
+  var vy=[top+wallT*0.3,top+wallT*0.55,top+wallT*0.8];
+  var vx=slotX+gap+10,vw=Math.max(12,Math.min(wallT*2.4,x1-slotX-gap-20));
+  for(var i=0;i<3;i++) ctx.fillRect(vx,vy[i],vw,2);
   ctx.restore();
   ctx.save();   // 电源指示点（场景2 激活即亮，腔内左上角）
   ctx.fillStyle='#fbbf24';
