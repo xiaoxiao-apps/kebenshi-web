@@ -100,16 +100,17 @@ function isFocused(){ return Math.abs(state.cam.vTube-vImg())<=FOCUS_TOL_CM; }
 // I2 探针标定（/tmp/c5s23_fx2d_probe.js）：span 28cm 时对焦方程 u²−Su+5S=0 在 u∈[7,9.5] 无解（需 u=6.52 出 clamp）→ 取 S=24：u*=7.10 可对焦
 // J4 随 bodyL 语义重标：外壳左壁 bodyL=xLed2−8、F 绘制位=bodyL+6 紧贴左内壁内衬；光路 span 常量 24cm=F(xLed2)→幕布(xScr2) 不变
 function xLed2(){ return xScr2()-Math.round(24*cmPx()); }   // 投影片光路起点（span 24cm 标定，K2 不变）
-// 蔡总 01:06 图示+物理链修复：透镜位=投影片+u（真实投影仪移透镜=物距屏距反向同变，v屏=24−u 自洽，对焦点 u*≈7.1）；u∈[7,9.5]→透镜在机身 56-76% 中右段（图示位）；拖拽/滑杆双向联动经 uFromX2 不变
-function sheetBW(){ return Math.round(panelCW()*PANEL_WF)+8; }   // 投影片片框宽=板可视宽+8（蔡总 01:06 片框）
+// 蔡总 01:29 物理链保持：透镜位=投影片+u（真实投影仪移透镜=物距屏距反向同变，v屏=24−u 自洽，对焦点 u*≈7.1）；u∈[7,9.5]→透镜在筒1 通道 6.3-10.7cm 内滑动（M3）；拖拽/滑杆双向联动经 uFromX2 不变
 function lensX2(u){ return xLed2()+Math.round(u*cmPx()); }
 function uFromX2(x){ return (x-xLed2())/cmPx(); }
-function xLens2(){ return lensX2(state.proj.u); }   // 调焦=透镜在机身内滑动（物理映射）
-function bodyL(){ return xLed2()-Math.round(panelCW()*0.255+4)+Math.round(sheetBW()*0.65); }   // 蔡总 01:06 图示：投影片 65% 露在机身左缘外（片左缘=锚−0.255cw−4）
-function bodyR(){ return xLed2()+Math.round(12.5*cmPx()); }   // 蔡总 01:06 图示：机身右壁=透镜行程右缘 9.5cm+3cm 余量（透镜占机身 56-76% 中右段）；壳固定不随 u 动
-function barrelL(){ return bodyR(); }                          // 镜筒根=机身右端面（固定）
-function barrelR(){ return bodyR()+Math.round(2.6*cmPx()); }   // 筒口（两级阶梯总长 2.6cm 常量）
-function barrelDia(){ return Math.round(tubeDia*1.4); }        // 筒径基准（两级阶梯筒高=其 0.62/0.40）
+function xLens2(){ return lensX2(state.proj.u); }   // 调焦=透镜在筒1 通道内滑动（M3）
+// M2（蔡总 01:29 条2）：F 板左缘=锚 xLed2−0.255cw（cw*PANEL_WF/2），机身左壁再往外留 6px=贴左后壁不超壳
+function bodyL(){ return xLed2()-Math.round(panelCW()*0.255)-6; }
+function bodyR(){ return xLed2()+Math.round(6.3*cmPx()); }   // M3：机身右壁=筒1 根（透镜 u=7 左缘≈6.5cm 留 0.2cm 余量进筒）；壳固定不随 u 动
+function barrelL(){ return bodyR(); }                          // 筒1=调焦筒根=机身右端面（固定）
+function tube1R(){ return xLed2()+Math.round(10.7*cmPx()); }   // 筒1 右缘（透镜 u=9.5 右缘≈10cm 留 0.7cm 余量）
+function barrelR(){ return tube1R()+Math.round(2.6*cmPx()); }  // 筒2=出光筒长 2.6cm，右端=筒口
+function barrelDia(){ return Math.round(tubeDia*1.4); }        // 筒径基准（M1：筒1 高=其 0.75、筒2 高=其 0.40）
 function xScr2(){ return Math.round(W*0.70); }          // J4 构图：幕布 x=W*0.70（G9 标定骑轴；bbox 中心探针见 /tmp/c5s23_fx2e_probe）
 function hScr2(){ return Math.round(H*0.40); }          // J3 幕布加大 0.40H：全域最劣像+弥散 0.3604H≤0.92*0.40H=0.368H（探针 /tmp/c5s23_fx2e_probe）
 function vImg2(){ var u=state.proj.u; return u*F2_CM/(u-F2_CM); }
@@ -363,11 +364,16 @@ function drawLabelsCam(){
 function drawRightScreen(){  // H2/G9/I2：幕布固定右端 x=W*0.76、高 hScr2，屏面中心骑光轴（y=axisY+0.42h）
   PROPS.screen(ctx,xScr2(),axisY+Math.round(SCR_AX*hScr2()),{h:hScr2()});
 }
-// L1 机身（蔡总 00:31：实心黑箱不像投影仪）：外壳改剖面壳体=左壁竖带+上壁两段横带（投影片位开插片槽口）+下壁横带，内腔留空（F 投影片/光路在腔内可见）；圆角外缘+顶缘高光+左壁散热缝+电源指示点；镜筒段（barrel 壁+口环）保持不动
-function drawProjBody(){   // 蔡总 01:06 图示：实心深色圆角机身+右端面两级实心阶梯镜筒（光路/投影片/透镜叠在机身之上）
+// M1（蔡总 01:29 条1）：外壳像投影仪——后面=方的（实心圆角矩形机身），前面=两个圆柱形圆筒做镜头：筒1 调焦筒（剖面：上下壁+中间通道留空，透镜在通道内可见）、筒2 出光筒（实心+右端竖直椭圆口=圆柱口感）；两级阶梯矩形+方口环画法已删
+function rrectPath(x,y,w,h,rr){
+  ctx.beginPath();
+  ctx.moveTo(x+rr,y); ctx.arcTo(x+w,y,x+w,y+h,rr); ctx.arcTo(x+w,y+h,x,y+h,rr);
+  ctx.arcTo(x,y+h,x,y,rr); ctx.arcTo(x,y,x+w,y,rr); ctx.closePath();
+}
+function drawProjBody(){   // M3（蔡总 01:29 条3）：全参只依赖 xLed2 常量链、不读调焦 u——调焦时仅透镜动，其余全不动
   var x0=bodyL(),x1=bodyR(),hh=tubeDia*1.5,r=12;
   var top=axisY-hh/2,bot=axisY+hh/2;
-  ctx.save();   // 机身：实心填充+圆角+描边+顶缘高光
+  ctx.save();   // 机身：实心填充+圆角+描边+顶缘高光（「后面是方的」）
   ctx.fillStyle='#3a434e'; ctx.strokeStyle='#262c34'; ctx.lineWidth=1.5;
   ctx.beginPath();
   ctx.moveTo(x0+r,top); ctx.arcTo(x1,top,x1,bot,r); ctx.arcTo(x1,bot,x0,bot,r);
@@ -375,20 +381,20 @@ function drawProjBody(){   // 蔡总 01:06 图示：实心深色圆角机身+右
   ctx.fill(); ctx.stroke();
   ctx.fillStyle='rgba(255,255,255,.10)'; ctx.fillRect(x0+r,top+3,Math.max(0,x1-x0-2*r),2);   // 顶缘高光
   ctx.restore();
-  var d=barrelDia(),bl=barrelL(),br=barrelR();
-  var s1w=Math.round((br-bl)*0.55),h1=Math.round(d*0.62),h2=Math.round(d*0.40);   // 两级阶梯：一级高 0.62d、二级高 0.40d（二级更右伸）
+  var d=barrelDia(),bl=barrelL(),t1=tube1R(),br=barrelR();
+  var h1=Math.round(d*0.75),wall=Math.max(2,h1*0.11),h2=Math.round(d*0.40);   // 筒1 剖面上下壁各高=筒高*0.11（浮点保通道余量⊇透镜半高）
   ctx.save();
   ctx.fillStyle='#2f353d'; ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=1.5;
-  ctx.fillRect(bl,axisY-h1/2,s1w,h1); ctx.strokeRect(bl,axisY-h1/2,s1w,h1);
-  ctx.fillRect(bl+s1w,axisY-h2/2,br-bl-s1w,h2); ctx.strokeRect(bl+s1w,axisY-h2/2,br-bl-s1w,h2);
+  rrectPath(bl,axisY-h1/2,t1-bl,wall,3); ctx.fill(); ctx.stroke();          // 筒1 上壁
+  rrectPath(bl,axisY+h1/2-wall,t1-bl,wall,3); ctx.fill(); ctx.stroke();     // 筒1 下壁（中间通道留空=透镜滑轨）
+  rrectPath(t1,axisY-h2/2,br-t1,h2,3); ctx.fill(); ctx.stroke();            // 筒2 出光筒（实心）
+  ctx.beginPath(); ctx.ellipse(br,axisY,3,h2/2,0,0,Math.PI*2);              // 筒2 右端竖直椭圆口=圆柱口感
+  ctx.fillStyle='#3f4650'; ctx.fill(); ctx.strokeStyle='#1a1a1a'; ctx.stroke();
   ctx.restore();
 }
-function drawLed2(){   // 蔡总 01:06 图示：投影片半插机身左缘+深色片框（先画框再叠板）；锚=板中心=xLed2；倒插=整图翻转 180°
+function drawLed2(){   // M2（蔡总 01:29 条2）：F 投影片整体在机身内贴左后壁（片框/半插逻辑已删）；锚=板中心=xLed2；倒插=整图翻转 180°
   var x=xLed2(),yc=axisY,f=state.proj.flipped?-1:1;
-  var bw=sheetBW(),bh=hLed+10;
   ctx.save(); ctx.translate(x,yc); ctx.scale(1,f); ctx.translate(-x,-yc);
-  ctx.fillStyle='#2b323b'; ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=1.5;   // 片框（板叠其上露边框）
-  ctx.fillRect(x-bw/2,yc-bh/2,bw,bh); ctx.strokeRect(x-bw/2,yc-bh/2,bw,bh);
   drawLedCropped(x,axisY);
   ctx.restore();
 }
@@ -612,7 +618,7 @@ function toastHide(){ if(toastEl){ toastEl.classList.remove('show'); toastEl.cla
 // J7：当前场景器材包围盒（canvas 坐标，常量直算）——解说条与之相交→加 .narrow 收窄换行避让
 function sceneBBox(){
   if(state.scene==='proj'){
-    return {x0:Math.min(bodyL(),xLed2()-Math.round(sheetBW()*0.5)),x1:xScr2()+hScr2()*0.18,y0:axisY-hScr2()*0.5,y1:axisY+hScr2()*0.5};   // s2：片左缘..幕右缘（蔡总 01:06 片半插外露入 bbox）
+    return {x0:bodyL(),x1:xScr2()+hScr2()*0.18,y0:axisY-hScr2()*0.5,y1:axisY+hScr2()*0.5};   // s2：机身左缘..幕右缘（M2：半插片框已删，x0 回 bodyL）
   }
   if(state.scene==='mag'){
     var bx=Math.max(8,Math.min(W-268,xEye()-130));
@@ -946,7 +952,7 @@ window.__c5s2dbg={ get state(){return state;}, get W(){return W;}, get H(){retur
   setU2:function(v){ state.proj.u=clampU2(v); syncPfSlider(); checkFocus2(); sayHint(); draw(); },
   vImg2:vImg2, vScr2:vScr2, focused2:isFocused2,
   bodyL:bodyL, bodyR:bodyR, xScr2:xScr2, hScr2:hScr2, imgHCm2:imgHCm2, xLed2:xLed2, xLens2:xLens2,   // J2/J3/J4 探针口
-  barrelL:barrelL, barrelR:barrelR, barrelDia:barrelDia, lensX2:lensX2,   // K2 探针口（筒通道/行程映射断言用）
+  barrelL:barrelL, barrelR:barrelR, barrelDia:barrelDia, lensX2:lensX2, tube1R:tube1R,   // K2/M3 探针口（筒1 通道/行程映射断言用）
   setU3:function(v){ state.mag.u=clampU3(v); sayHint(); draw(); },
   vImg3:vImg3, xEye:xEye, yEye:yEye, dimAlpha:dimAlpha, imgHCm3:imgHCm3, sceneBBox:sceneBBox };   // J5/J10 探针口
 })();
