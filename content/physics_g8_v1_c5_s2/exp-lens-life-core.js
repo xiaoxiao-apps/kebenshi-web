@@ -268,6 +268,7 @@ function drawLedCropped(x,yc,lit){
     ctx.shadowColor='rgba(255,214,120,0.85)'; ctx.shadowBlur=ch*0.18;   // K1：shadow 沿 F 轮廓=笔画发光
     ctx.drawImage(ledLitCv,dx,dy); ctx.drawImage(ledLitCv,dx,dy);       // 叠两层增强
     ctx.restore();
+    ctx.drawImage(ledLitCv,dx,dy);   // K1 热修：光晕后 source-over 重描 F 面板，防 lighter 把奶白面板吹成纯白丢笔画
   }else{
     ctx.drawImage(img,0,0,img.naturalWidth,img.naturalHeight,dx,dy,cw,ch);
   }

@@ -180,7 +180,7 @@ function ledLitCanvas(img,dw,dh){   // K1 离屏整图：source-atop 暖罩 30%�
   oc.globalCompositeOperation='source-over';
   oc.drawImage(img,0,0,dw,dh);
   oc.globalCompositeOperation='source-atop';
-  oc.fillStyle='rgba(255,214,120,0.30)';
+  oc.fillStyle='rgba(255,214,120,0.8)';   // 整 F 形填暖色=剪影光晕源（不保原色，防板面照白；蔡总 00:05）
   oc.fillRect(0,0,ledLitCv.width,ledLitCv.height);
   return ledLitCv;
 }
@@ -190,12 +190,12 @@ function drawLedPanel(x,yc,boxH,litOn){   // K1 整图绘制+锚点：(x,yc)=F �
   var dh=boxH/PANEL_HF,dw=dh*img.naturalWidth/img.naturalHeight;
   var dx=x-dw*PANEL_XC,dy=yc-dh*PANEL_YC;
   if(litOn){
-    var lc=ledLitCanvas(img,dw,dh);
-    ctx.drawImage(lc,dx,dy);
+    var lc=ledLitCanvas(img,dw,dh);   // 剪影光晕源
     ctx.save(); ctx.globalCompositeOperation='lighter';
-    ctx.shadowColor='rgba(255,214,120,0.85)'; ctx.shadowBlur=boxH*0.30;
-    ctx.drawImage(lc,dx,dy);   // 第二层：shadow 沿 sprite alpha 轮廓（=F 笔画）发光
+    ctx.shadowColor='rgba(255,214,120,0.85)'; ctx.shadowBlur=dh*0.16;
+    ctx.drawImage(lc,dx,dy);   // 光晕层：剪影画一层，光晕贴 F 轮廓（蔡总 00:05：不照白）
     ctx.restore();
+    ctx.drawImage(img,dx,dy,dw,dh);   // 本体正常叠上：笔画清晰、内部不照白
   }else{
     ctx.drawImage(img,dx,dy,dw,dh);
   }
