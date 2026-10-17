@@ -6,13 +6,12 @@ var F_CM=8;                // 模型照相机凸透镜焦距固定 8cm（教材 
 var FOCUS_TOL_CM=0.6;      // 薄膜对焦容差：|v筒−v像|≤0.6cm 判清晰（照 c5s1 focusTol 先例）
 var U_MIN=17,U_MAX=30,U_DEF=22;   // 物距 clamp（cm，u>2f 倒立缩小实像区间）
 var V_MIN=9,V_MAX=15,V_DEF=13;    // 筒距=透镜-薄膜（cm，两筒套接伸缩行程；下限保内筒不穿出外筒前端）
-var OBJ_H_CM=4.1;          // 物高 cm=裁后 F 板可视高（2*LED_FH*hLed*LED_P/cmPx；J6 换 off 形 P=0.485/FH=0.42 重标=4.10，物点=F 板上缘与像高自洽）
-// J6 探针标定 f_led_off.png（800×800 逐行宽剖面，/tmp/c5s23_fx2e_probe）：F板顶 57、竖笔+灯座止 388、389 起立杆、569 起底座
-var LED_P=0.485;           // J6 探针标定 f_led_off.png：F 板（含灯座）下缘 388/800=0.485（精确 0.005），杆 389 起不切入。源矩形 (0,0,natW,natH*P_off)，形恒用 off 图两态统一造型（蔡总 17:56）
-var LED_CY=0.57;           // F 板竖直中心在裁切区内比例（off 图 (57+385)/2/388=0.570）
-var LED_FH=0.42;           // F 板可视半高/裁切高（off 图 (385−57)/2/388=0.423）
-var LED_XC=0.52;           // F 板水平中心比例（(315+522)/2/800）
-var LED_WF=0.285;          // F 板可视宽/natW（off 图探针板列 (527−299)/800，装配体包围盒用）
+var OBJ_H_CM=4.1;          // 物高 cm=F 板可视高（K1：hLed 语义=F 板可视高=OBJ_H_CM*cmPx 自洽，物点=F 板上缘与像高自洽）
+// K1 探针 f_led_panel.png rows105-710/cols198-606，蔡总 23:14 授权 wan2.7 重生成无底座
+var PANEL_XC=0.502;        // F 板水平中心比例（(198+606)/2/800=0.5025）
+var PANEL_YC=0.509;        // F 板竖直中心比例（(105+710)/2/800）
+var PANEL_WF=0.51;         // F 板可视宽/natW（(606-198)/800）
+var PANEL_HF=0.756;        // F 板可视高/natH（(710-105)/800）
 var F2_CM=5;               // H2 场景2 投影仪专用短焦：真实投影仪短焦强放大（f<u<2f 放大实像）
 var U2_MIN=7,U2_MAX=9.5,U2_DEF=8;   // H2 场景2 物距 clamp（I2 span 24cm 标定：u=7.1 精确对焦，默认 8=弥散起步）
 var PROJ_TOL_CM=0.6;       // H2 场景2 对焦容差：|v像−屏距|≤0.6cm 判清晰
@@ -47,7 +46,7 @@ function easeInOut(t){ return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2; }
 // H 比例缓存（proportions() 赋值）
 var hLed,tubeDia,tubeLf,tubeLb,lensH,scrH;
 function proportions(){   // G5 比例表（照 c5s1 模式，单点 H 比例法；cmPx 保持 H*0.030 场景级）
-  hLed=H*0.30;                 // F 光源裁切绘制基准高（F 板可视高=2*LED_FH*hLed*LED_P≈0.11H）
+  hLed=Math.round(OBJ_H_CM*cmPx());   // K1：hLed 语义=F 板可视高（=物高 4.1cm≈0.123H，与光路物点自洽；调用点语义不变）
   lensH=H*0.13;                // 透镜孔径
   tubeDia=H*0.16;              // 外筒直径（剖面画法）
   scrH=Math.round(H*0.32);     // 屏/幕高（场景2 光幕、场景3 光屏）
@@ -82,13 +81,13 @@ function clampU2(u){ return Math.max(U2_MIN,Math.min(U2_MAX,u)); }
 function clampU3(u){ return Math.max(U3_MIN,Math.min(U3_MAX,u)); }
 var toolboxMag=null;   // 场景3 托盘（仅备光屏一件，layout 构建）
 // ===== 场景1 几何（G2/G3）：F 固定+筒伸缩，xLens=装配体内相对量（F→透镜=u）；canvas y 向下，倒立实像画轴下方 =====
-function ledCropH(){ return hLed*LED_P; }   // G1 裁切高（源矩形 0..natH*LED_P）
-function ledCW(){                            // 裁切区绘制宽 cw=ch*natW/(natH*P)（同源比例修变形）
-  var img=PROPS.spriteReady('f_led_off')?PROPS.img('f_led_off'):null;
-  return img?ledCropH()*img.naturalWidth/(img.naturalHeight*LED_P):ledCropH()/LED_P;
+function panelCH(){ return hLed/PANEL_HF; }   // K1：整图绘制高 ch=boxH/PANEL_HF（boxH=hLed=F 板可视高，源矩形=全图不裁切）
+function panelCW(){                            // K1：整图绘制宽 cw=ch*natW/natH 同源不变形（800×800 探针→cw=ch；F 板可视宽=cw*PANEL_WF=boxH*(606-198)/(710-105) 同源宽高比）
+  var img=PROPS.spriteReady('f_led_panel')?PROPS.img('f_led_panel'):null;
+  return img?panelCH()*img.naturalWidth/img.naturalHeight:panelCH();
 }
-function ledVisW(){ return ledCW()*LED_WF; }          // F 板可视宽（装配体包围盒用）
-function ledTop(){ return axisY-ledCropH()*LED_FH; }  // F 板可视上缘
+function ledVisW(){ return panelCW()*PANEL_WF; }   // F 板可视宽（装配体包围盒用）
+function ledTop(){ return axisY-hLed/2; }          // F 板可视上缘（hLed=板可视高、中心锚）
 function xLed(){   // G2：装配体包围盒（F 板左缘→薄膜右缘）水平居中于 W*0.46（按默认 u/v 定位，F 固定）
   return Math.round(W*0.46+ledVisW()/4-((U_DEF+V_DEF)*cmPx()+tubeDia*0.14)/2);
 }
@@ -100,10 +99,16 @@ function isFocused(){ return Math.abs(state.cam.vTube-vImg())<=FOCUS_TOL_CM; }
 // ===== 场景2 投影仪几何（H2 短焦重设计；cm↔px 铁律）：投影片（机身内固定左位）→透镜（x 可拖=调焦）→幕布（固定右端） =====
 // I2 探针标定（/tmp/c5s23_fx2d_probe.js）：span 28cm 时对焦方程 u²−Su+5S=0 在 u∈[7,9.5] 无解（需 u=6.52 出 clamp）→ 取 S=24：u*=7.10 可对焦
 // J4 随 bodyL 语义重标：外壳左壁 bodyL=xLed2−8、F 绘制位=bodyL+6 紧贴左内壁内衬；光路 span 常量 24cm=F(xLed2)→幕布(xScr2) 不变
-function xLed2(){ return xScr2()-Math.round(24*cmPx()); }   // 投影片光路起点（span 24cm 标定）
-function xLens2(){ return xLed2()+Math.round(state.proj.u*cmPx()); }   // 透镜机身内可拖=调焦（u clamp 7..9.5）
+function xLed2(){ return xScr2()-Math.round(24*cmPx()); }   // 投影片光路起点（span 24cm 标定，K2 不变）
+// K2：透镜嵌镜筒内，u∈[7,9.5]↔筒内行程线性映射（边距 8px=透镜半宽 rw≈0.104*lensH≈7px 探针，保证 u=7/9.5 两档包围盒⊂筒通道）；拖拽/滑杆双向联动经 uFromX2 不变
+function lensX2(u){ return barrelL()+8+(u-U2_MIN)/(U2_MAX-U2_MIN)*(barrelR()-8-barrelL()-8); }
+function uFromX2(x){ return U2_MIN+(x-barrelL()-8)*(U2_MAX-U2_MIN)/(barrelR()-8-barrelL()-8); }
+function xLens2(){ return lensX2(state.proj.u); }   // 调焦=透镜筒内滑
 function bodyL(){ return xLed2()-14; }   // J2：外壳左壁（F 贴左内壁+6 内衬反推），外壳固定死不随透镜动；J4 调偏移常量 8→14：扁窗探针（960×520/1920×1046）中心 0.5205/0.5214 出带 → 回 0.517/0.520，F 板内光路起点仍落板内
-function bodyR(){ return xLed2()+Math.round(U2_MAX*cmPx())+Math.round(3.2*cmPx()); }   // J2：外壳右壁=u 全域 7..9.5 行程+筒长常量 3.2cm（标定，壳固定）
+function bodyR(){ return xLed2()+Math.round((U2_DEF+1.2)*cmPx()); }   // K2：外壳右壁包到镜筒根（图一紧凑款，蔡总 23:23）；壳固定不随 u 动
+function barrelL(){ return bodyR(); }                          // K2：镜筒根=壳右端面（固定）
+function barrelR(){ return bodyR()+Math.round(2.6*cmPx()); }   // K2：筒口（筒长 2.6cm 常量）
+function barrelDia(){ return Math.round(tubeDia*1.4); }        // K2：筒径（探针：通道 0.68d=0.152H≥lensH=0.13H，透镜包围盒⊂上下壁之间）
 function xScr2(){ return Math.round(W*0.70); }          // J4 构图：幕布 x=W*0.70（G9 标定骑轴；bbox 中心探针见 /tmp/c5s23_fx2e_probe）
 function hScr2(){ return Math.round(H*0.40); }          // J3 幕布加大 0.40H：全域最劣像+弥散 0.3604H≤0.92*0.40H=0.368H（探针 /tmp/c5s23_fx2e_probe）
 function vImg2(){ var u=state.proj.u; return u*F2_CM/(u-F2_CM); }
@@ -241,31 +246,30 @@ function drawLensFilm(){
   ctx.beginPath(); ctx.ellipse(fx,axisY,tubeDia*0.14,tubeDia*0.40,0,0,Math.PI*2);
   ctx.fill(); ctx.stroke(); ctx.restore();
 }
-// J6 F 两态统一造型：形恒用 f_led_off sprite（源矩形 (0,0,natW,natH*P_off) 同原裁切参数结构）；lit=off 形+离屏 source-atop 暖罩（F 板面暖亮）+主画布 lighter 径向光晕；f_led_off 以下清零不画
+// K1 F 光源=无底座灯箱 f_led_panel（蔡总 23:14 授权 wan2.7 重生成）：整图绘制不裁切；lit=①离屏 source-atop 暖罩 30%（原 0.55 降）②主画布 lighter+shadowBlur 沿 F 轮廓=笔画发光叠两层；大径向光晕已删
 var ledLitCv=null,ledLitKey='';
 function drawLedCropped(x,yc,lit){
-  var id='f_led_off';
+  var id='f_led_panel';
   if(!PROPS.spriteReady(id)) return;
-  var img=PROPS.img(id),ch=ledCropH(),cw=ch*img.naturalWidth/(img.naturalHeight*LED_P);
-  var dx=x-cw*LED_XC,dy=yc-ch*LED_CY;
+  var img=PROPS.img(id),ch=panelCH(),cw=panelCW();   // ch=boxH/PANEL_HF（boxH=hLed=F 板可视高）；cw 同源不变形
+  var dx=x-cw*PANEL_XC,dy=yc-ch*PANEL_YC;            // 锚=板中心 (x,yc)
   if(lit){
     var key=cw.toFixed(1)+'x'+ch.toFixed(1);
     if(!ledLitCv||ledLitKey!==key){
       ledLitCv=document.createElement('canvas');
       ledLitCv.width=Math.max(1,Math.round(cw)); ledLitCv.height=Math.max(1,Math.round(ch)); ledLitKey=key;
       var oc=ledLitCv.getContext('2d');
-      oc.drawImage(img,0,0,img.naturalWidth,img.naturalHeight*LED_P,0,0,cw,ch);
-      oc.globalCompositeOperation='source-atop';   // 只罩 F 板不透明像素=板面暖亮
-      oc.fillStyle='rgba(255,214,120,0.55)'; oc.fillRect(0,0,cw,ch);
+      oc.drawImage(img,0,0,img.naturalWidth,img.naturalHeight,0,0,cw,ch);
+      oc.globalCompositeOperation='source-atop';   // 只罩 F 板不透明像素=板面暖亮（K1：30%）
+      oc.fillStyle='rgba(255,214,120,0.30)'; oc.fillRect(0,0,cw,ch);
     }
-    ctx.drawImage(ledLitCv,dx,dy);
-    ctx.save(); ctx.globalCompositeOperation='lighter';   // 点灯光晕（中心=F 板心）
-    var g=ctx.createRadialGradient(x,yc,0,x,yc,hLed*0.9);
-    g.addColorStop(0,'rgba(255,214,120,.35)'); g.addColorStop(1,'rgba(255,214,120,0)');
-    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,yc,hLed*0.9,0,Math.PI*2); ctx.fill();
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+    ctx.shadowColor='rgba(255,214,120,0.85)'; ctx.shadowBlur=ch*0.18;   // K1：shadow 沿 F 轮廓=笔画发光
+    ctx.drawImage(ledLitCv,dx,dy); ctx.drawImage(ledLitCv,dx,dy);       // 叠两层增强
     ctx.restore();
   }else{
-    ctx.drawImage(img,0,0,img.naturalWidth,img.naturalHeight*LED_P,dx,dy,cw,ch);
+    ctx.drawImage(img,0,0,img.naturalWidth,img.naturalHeight,dx,dy,cw,ch);
   }
 }
 function drawLed(){ drawLedCropped(xLed(),axisY,true); }   // 场景1/3 恒点亮；场景2 投影片=断电态（无灯泡，靠强光照板成像）
@@ -355,32 +359,34 @@ function drawLabelsCam(){
 function drawRightScreen(){  // H2/G9/I2：幕布固定右端 x=W*0.76、高 hScr2，屏面中心骑光轴（y=axisY+0.42h）
   PROPS.screen(ctx,xScr2(),axisY+Math.round(SCR_AX*hScr2()),{h:hScr2()});
 }
-// J2 机身三件：外壳 bodyL..bodyR 固定死（u 全域+筒长常量标定）；镜头筒=两段筒环包透镜边缘左右各 4px（视觉=透镜嵌镜头中）；透镜随 u 在壳内右段筒区前后移，外壳不动
+// K2 机身（图一紧凑款，蔡总 23:23）：外壳 bodyL..bodyR 固定死（包到镜筒根、不随 u 动）+镜筒=壳右端面伸出剖面阶梯筒（上下筒壁深灰+中间通道留空=光路/透镜可见+筒口右端环）
 function drawProjBody(){
-  var xl=xLens2(),x0=bodyL(),x1=bodyR(),hh=tubeDia*1.5,r=10;
+  var x0=bodyL(),x1=bodyR(),hh=tubeDia*1.5,r=10;
   ctx.save();
   ctx.fillStyle='#3f4650';
   ctx.beginPath();
   ctx.moveTo(x0+r,axisY-hh/2); ctx.arcTo(x1,axisY-hh/2,x1,axisY+hh/2,r); ctx.arcTo(x1,axisY+hh/2,x0,axisY+hh/2,r);
   ctx.arcTo(x0,axisY+hh/2,x0,axisY-hh/2,r); ctx.arcTo(x0,axisY-hh/2,x1,axisY-hh/2,r); ctx.closePath(); ctx.fill();
-  var b1w=Math.round(2.0*cmPx())+8,b2w=Math.round(1.4*cmPx()),r1=hh*0.30,r2=hh*0.21;   // 筒环：后段（大径）右缘包透镜左缘内伸、口段（小径）左缘包透镜右缘 4px
+  var d=barrelDia(),bl=barrelL(),br=barrelR(),wallH=Math.round(d*0.16),yIn=Math.round(d*0.34);   // 筒壁高各=筒径*0.16、内缘 y=axisY∓筒径*0.34（通道=0.68d）
   ctx.fillStyle='#2f353d'; ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=1.5;
-  ctx.fillRect(xl-4-b1w+8,axisY-r1,b1w,r1*2); ctx.strokeRect(xl-4-b1w+8,axisY-r1,b1w,r1*2);
-  ctx.fillRect(xl+4,axisY-r2,b2w,r2*2); ctx.strokeRect(xl+4,axisY-r2,b2w,r2*2);
+  ctx.fillRect(bl,axisY-yIn-wallH,br-bl,wallH); ctx.strokeRect(bl,axisY-yIn-wallH,br-bl,wallH);   // 上筒壁
+  ctx.fillRect(bl,axisY+yIn,br-bl,wallH); ctx.strokeRect(bl,axisY+yIn,br-bl,wallH);               // 下筒壁
+  var ringH=Math.round(d*0.72),ringW=Math.max(4,Math.round(d*0.08));                              // 筒口右端环（竖矩形高=筒径*0.72）
+  ctx.fillRect(br-ringW,axisY-Math.round(ringH/2),ringW,ringH); ctx.strokeRect(br-ringW,axisY-Math.round(ringH/2),ringW,ringH);
   ctx.restore();
 }
-function drawLed2(){   // J2：投影片绘制位=bodyL+6（紧贴左内壁内衬）；倒插=整图翻转 180°（scale(1,-1) 绕 F 板中心）；断电态造型（J6）
-  var x=bodyL()+6+Math.round(ledCW()*0.146),yc=axisY,f=state.proj.flipped?-1:1;   // 轮5热修2：锚=sprite 中心 0.52cw、F 板左缘=锚−0.146cw（探针 off 图板列 299..527/800）→补 0.146cw 后左缘贴左内壁+6（热修1 误用 ledVisW 量纲不足）
+function drawLed2(){   // K1/K2：投影片=无底座灯箱断电态；锚=板中心、F 板左缘=锚−(PANEL_WF/2)cw=0.255cw（探针 f_led_panel 板列 198..606/800）→左缘贴左内壁+6（bodyL+6 语义不变）；倒插=整图翻转 180°（scale(1,-1) 绕 F 板中心）
+  var x=bodyL()+6+Math.round(panelCW()*PANEL_WF/2),yc=axisY,f=state.proj.flipped?-1:1;
   ctx.save(); ctx.translate(x,yc); ctx.scale(1,f); ctx.translate(-x,-yc);
   drawLedCropped(x,axisY);
   ctx.restore();
 }
-// H2/H8：单物点（F 板上缘）两线——平行光折射过像点+过光心直穿，出射线延长至幕布；像点=倒立（轴下方）
+// H2/H8：单物点（F 板上缘）两线——平行光折射过像点+过光心直穿；K2：入射段起点不变、透镜后段起点改筒口 barrelR（视觉=光从镜头出）延长至幕布；像点=倒立（轴下方）
 function drawRaysProj(){
-  var x0=xLed2(),xl=xLens2(),v=vImg2(),m=v/state.proj.u,half=OBJ_H_CM/2*cmPx();
+  var x0=xLed2(),xl=xLens2(),brx=barrelR(),v=vImg2(),m=v/state.proj.u,half=OBJ_H_CM/2*cmPx();
   var y0=axisY-half,yS=axisY+half*m,Sx=xl+Math.round(v*cmPx());
   beam(x0,y0,xl,y0); beam(x0,y0,xl,axisY);
-  var outs=[[xl,y0,Sx-xl,yS-y0],[xl,axisY,Sx-xl,yS-axisY]];
+  var outs=[[brx,y0,Sx-brx,yS-y0],[brx,axisY,Sx-brx,yS-axisY]];
   for(var j=0;j<2;j++){
     var ax=outs[j][0],ay=outs[j][1],dx=outs[j][2],dy=outs[j][3];
     var t=(xScr2()-ax)/dx;   // 过像点延长到幕布
@@ -720,7 +726,7 @@ cv.addEventListener('pointermove',function(e){
     cv.style.cursor=hov?'pointer':'';
     return;
   }
-  if(drag.k==='lens2'){ state.proj.u=clampU2((p.x-drag.dx-xLed2())/cmPx()); state.proj.pfSet=true; syncPfSlider(); checkFocus2(); draw(); return; }
+  if(drag.k==='lens2'){ state.proj.u=clampU2(uFromX2(p.x-drag.dx)); state.proj.pfSet=true; syncPfSlider(); checkFocus2(); draw(); return; }   // K2：拖拽 x→u 经筒内行程逆映射（双向联动不变）
   if(drag.k==='lens3'){
     var u3=clampU3((p.x-drag.dx-xLed3())/cmPx());
     state.mag.u=u3; state.mag.everDrag=true;
@@ -895,7 +901,7 @@ function exitFull(){
 if(btnFull) btnFull.addEventListener('click',function(){if(state.animating)return;if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();});
 ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){document.addEventListener(ev,function(){syncFull();setTimeout(resize,60);});});
 // ===== sprite 重绘钩子（加性回调，仅注册有 sprite 文件的件） =====
-['f_led_off','paper_tube','paper_tube_inner','observer_eye'].forEach(function(id){
+['f_led_panel','paper_tube','paper_tube_inner','observer_eye'].forEach(function(id){
   PROPS.onSprite(id,function(){ draw(); });
 });
 // ===== 动画 tick（飞入飞出 + 对焦光晕 300ms 渐隐） =====
@@ -925,6 +931,7 @@ window.__c5s2dbg={ get state(){return state;}, get W(){return W;}, get H(){retur
   setU2:function(v){ state.proj.u=clampU2(v); syncPfSlider(); checkFocus2(); sayHint(); draw(); },
   vImg2:vImg2, vScr2:vScr2, focused2:isFocused2,
   bodyL:bodyL, bodyR:bodyR, xScr2:xScr2, hScr2:hScr2, imgHCm2:imgHCm2, xLed2:xLed2, xLens2:xLens2,   // J2/J3/J4 探针口
+  barrelL:barrelL, barrelR:barrelR, barrelDia:barrelDia, lensX2:lensX2,   // K2 探针口（筒通道/行程映射断言用）
   setU3:function(v){ state.mag.u=clampU3(v); sayHint(); draw(); },
   vImg3:vImg3, xEye:xEye, yEye:yEye, dimAlpha:dimAlpha, imgHCm3:imgHCm3, sceneBBox:sceneBBox };   // J5/J10 探针口
 })();
