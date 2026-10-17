@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta http-equiv="Pragma" content="no-cache">
 <title>凸透镜的三大仪器 — 生活中的透镜</title>
 <style>
   *{box-sizing:border-box}
@@ -84,7 +86,6 @@
       <button id="btn-sc1" class="on">📷 照相机</button>
       <button id="btn-sc2">📽️ 投影仪</button>
       <button id="btn-sc3">🔍 放大镜</button>
-      <button id="btn-reset" class="secondary">重置</button>
     </div>
   </div>
   <div class="group" id="grp-act2" style="display:none">
@@ -99,12 +100,13 @@
     <div class="gctrl">
       <button id="btn-rays" class="on">光路光线</button>
       <button id="btn-labels">标注</button>
-      <button id="btn-panel">读数面板</button>
     </div>
   </div>
   <div class="group" id="grp-sys">
     <div class="glabel">系统</div>
     <div class="gctrl">
+      <button id="btn-panel">读数面板</button>
+      <button id="btn-reset" class="secondary">重置</button>
       <button id="btn-mute">🔊</button>
       <button id="btn-full" class="secondary">全屏</button>
     </div>
@@ -113,6 +115,6 @@
 <script src="../_lib/v1/props.js?v=96"></script>
 <script src="../_lib/v1/props-optics.js?v=9"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-lens-life-core.js?v=3"></script>
+<script src="exp-lens-life-core.js?v=4"></script>
 </body>
 </html>
