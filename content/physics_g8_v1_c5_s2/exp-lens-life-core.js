@@ -388,6 +388,7 @@ function drawProjBody(){   // M3（蔡总 01:29 条3）：全参只依赖 xLed2 
   rrectPath(bl,axisY-h1/2,t1-bl,wall,3); ctx.fill(); ctx.stroke();          // 筒1 上壁
   rrectPath(bl,axisY+h1/2-wall,t1-bl,wall,3); ctx.fill(); ctx.stroke();     // 筒1 下壁（中间通道留空=透镜滑轨）
   rrectPath(t1,axisY-h2/2,br-t1,h2,3); ctx.fill(); ctx.stroke();            // 筒2 出光筒（实心）
+  rrectPath(t1-4,axisY-h1/2-2,8,h1+4,3); ctx.fill(); ctx.stroke();          // 蔡总 02:21：调焦筒/出光筒接缝耦合法兰（盖缝防「漏光」感，两圆柱连成一体）
   ctx.beginPath(); ctx.ellipse(br,axisY,3,h2/2,0,0,Math.PI*2);              // 筒2 右端竖直椭圆口=圆柱口感
   ctx.fillStyle='#3f4650'; ctx.fill(); ctx.strokeStyle='#1a1a1a'; ctx.stroke();
   ctx.restore();
@@ -400,10 +401,10 @@ function drawLed2(){   // M2（蔡总 01:29 条2）：F 投影片整体在机身
 }
 // H2/H8：单物点（F 板上缘）两线——平行光折射过像点+过光心直穿；K2：入射段起点不变、透镜后段起点改筒口 barrelR（视觉=光从镜头出）延长至幕布；像点=倒立（轴下方）
 function drawRaysProj(){
-  var x0=xLed2(),xl=xLens2(),brx=barrelR(),v=vImg2(),m=v/state.proj.u,half=OBJ_H_CM/2*cmPx();
+  var x0=xLed2(),xl=xLens2(),v=vImg2(),m=v/state.proj.u,half=OBJ_H_CM/2*cmPx();
   var y0=axisY-half,yS=axisY+half*m,Sx=xl+Math.round(v*cmPx());
   beam(x0,y0,xl,y0); beam(x0,y0,xl,axisY);
-  var outs=[[brx,y0,Sx-brx,yS-y0],[brx,axisY,Sx-brx,yS-axisY]];
+  var outs=[[xl,y0,Sx-xl,yS-y0],[xl,axisY,Sx-xl,yS-axisY]];   // 蔡总 02:21：出射光自透镜面起（连续穿过调焦筒/出光筒到幕，光线断开根修）
   for(var j=0;j<2;j++){
     var ax=outs[j][0],ay=outs[j][1],dx=outs[j][2],dy=outs[j][3];
     var t=(xScr2()-ax)/dx;   // 过像点延长到幕布
