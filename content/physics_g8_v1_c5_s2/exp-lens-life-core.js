@@ -12,7 +12,7 @@ var LED_P=0.485;           // J6 探针标定 f_led_off.png：F 板（含灯座�
 var LED_CY=0.57;           // F 板竖直中心在裁切区内比例（off 图 (57+385)/2/388=0.570）
 var LED_FH=0.42;           // F 板可视半高/裁切高（off 图 (385−57)/2/388=0.423）
 var LED_XC=0.52;           // F 板水平中心比例（(315+522)/2/800）
-var LED_WF=0.26;           // F 板可视宽/natW（(522−315)/800，装配体包围盒用）
+var LED_WF=0.285;          // F 板可视宽/natW（off 图探针板列 (527−299)/800，装配体包围盒用）
 var F2_CM=5;               // H2 场景2 投影仪专用短焦：真实投影仪短焦强放大（f<u<2f 放大实像）
 var U2_MIN=7,U2_MAX=9.5,U2_DEF=8;   // H2 场景2 物距 clamp（I2 span 24cm 标定：u=7.1 精确对焦，默认 8=弥散起步）
 var PROJ_TOL_CM=0.6;       // H2 场景2 对焦容差：|v像−屏距|≤0.6cm 判清晰
@@ -370,7 +370,7 @@ function drawProjBody(){
   ctx.restore();
 }
 function drawLed2(){   // J2：投影片绘制位=bodyL+6（紧贴左内壁内衬）；倒插=整图翻转 180°（scale(1,-1) 绕 F 板中心）；断电态造型（J6）
-  var x=bodyL()+6,yc=axisY,f=state.proj.flipped?-1:1;
+  var x=bodyL()+6+Math.round(ledCW()*0.146),yc=axisY,f=state.proj.flipped?-1:1;   // 轮5热修2：锚=sprite 中心 0.52cw、F 板左缘=锚−0.146cw（探针 off 图板列 299..527/800）→补 0.146cw 后左缘贴左内壁+6（热修1 误用 ledVisW 量纲不足）
   ctx.save(); ctx.translate(x,yc); ctx.scale(1,f); ctx.translate(-x,-yc);
   drawLedCropped(x,axisY);
   ctx.restore();
@@ -595,10 +595,10 @@ function sceneBBox(){
   }
   if(state.scene==='mag'){
     var bx=Math.max(8,Math.min(W-268,xEye()-130));
-    return {x0:xLed3()-ledVisW()/2,x1:bx+260,y0:axisY-H*0.2,y1:axisY+H*0.2};   // s3：物左缘..眼视图窗右缘
+    return {x0:xLed3()-ledVisW()/2,x1:bx+260,y0:Math.min(axisY-H*0.2,Math.max(8,yEye()-eyeH()-190)),y1:axisY+H*0.2};   // s3：物左缘..眼视图窗右缘；轮5热修 y0 并入眼视图窗顶——窗被解说条压到才让路（蔡总 19:25 复验窄窗压窗不避让）
   }
   var px=Math.min(filmX()+40,W-308);
-  return {x0:xLed()-ledVisW()/2,x1:px+300,y0:axisY-tubeDia,y1:axisY+tubeDia};   // s1：F 左缘..filmPeep 窗右缘
+  return {x0:xLed()-ledVisW()/2,x1:px+300,y0:Math.min(axisY-tubeDia,Math.max(8,axisY-230)),y1:axisY+tubeDia};   // s1：F 左缘..filmPeep 窗右缘；轮5热修 y0 并入窗顶(axisY−230)——窗被解说条压到才让路
 }
 function checkToastFit(){
   if(!toastEl) return;
