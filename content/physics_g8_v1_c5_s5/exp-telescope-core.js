@@ -17,7 +17,7 @@ var st={
   fObj:20,fEye:10,L:30,near:false,   // L 初始=默认组合匹配距离 f物20+f目10（syncTubeRange 再校准）
   wasMatch:true,everMatch:false,angleSeen:false,
   flow:false,
-  showLabels:true
+  showLabels:false
 };
 var drag=null,startPt=null,glowFx=[],toastTimer=null;
 var flowT0=performance.now();
