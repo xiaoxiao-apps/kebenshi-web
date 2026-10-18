@@ -7,11 +7,10 @@ var FONT='"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif';
 // f(t) = FK_MAX - t*(FK_MAX-FK_MIN)：t=晶状体厚度 0(薄)~1(厚)；f=1×D 时平行光恰会聚视网膜
 var FK_MAX=1.25,FK_MIN=0.75,SHARP_TOL=0.03;    // R10：手动滑杆全行程 f∈[0.75D,1.25D] 盖三态与矫正组合；清晰判定 |xConv-xRet| <= SHARP_TOL*D
 var U_FAR_K=2.7;                              // 物体绘制位置（×D）；仅视觉表意，不进光路
-var GLASS_F_K={concave:-3.875,convex:7.236};   // R11 矫正镜焦距（×D）：gK≈0.68 下按串联组合 BFL 公式标定——近视 f=0.82D+凹 / 远视 f=1.18D+凸 会聚点恰拉回视网膜；四组合由追迹公式自然得出，禁写死分支
+var GLASS_F_K={concave:-3.94,convex:4.48};     // R16 重标定（u=∞ 串联 BFL：gK=(xL-xC)/D=0.83/1.34≈0.6194，Fc=[Fe(1+gK)-gK]/(Fe-1)）——近视0.82D+凹 / 远视1.35D+凸 会聚点恰回视网膜(v=D)；四组合由追迹公式自然得出，禁写死分支
 var COND_OFF={normal:0,myopia:0.25,hyper:-0.25};          // 手动档晶状体基线偏移
-// R10 自动档目标焦距（×D）：平行光清晰目标 f=D；t=(FK_MAX-COND_F)/(FK_MAX-FK_MIN) 反解
-// R11 近视 f=0.82D→会聚点视网膜前约0.18D；远视 f=1.18D→视网膜后约0.18D
-var COND_F={normal:1.00,myopia:0.82,hyper:1.18};
+// R16 自动档目标焦距（×D）：正常 f=D 清晰；近视 f=0.82D→会聚点视网膜前约0.18D；远视 f=1.35D→视网膜后约0.35D（夸张化，明确落在视网膜右侧一截）
+var COND_F={normal:1.00,myopia:0.82,hyper:1.35};
 var COND_NAME={normal:'正常眼',myopia:'近视眼',hyper:'远视眼'};
 
 var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
@@ -33,7 +32,7 @@ function layout(){
   axisY=Math.round(H*0.5);
   var R=Math.round(Math.min(H*0.28,W*0.17));
   var ex=Math.round(W*0.70),ey=axisY;
-  var xL=Math.round(ex-R*0.42),xRet=Math.round(ex+R*0.80);
+  var xL=Math.round(ex-R*0.42),xRet=Math.round(ex+R*0.92);   // R15：与 drawEyeball 视网膜弧带半径 0.92R 严格同值，吸附点=弧带中心线；D=xRet-xL 自动重算
   var D=xRet-xL;
   var xC=Math.round(ex-R*1.25);        // R4：眼球左缘外留 ~0.25R 空隙，镜片禁与巩膜圆重叠
   var lensH=Math.round(R*0.9);
@@ -61,7 +60,10 @@ function tActNow(){
   return clamp01(st.tCmd+COND_OFF[st.cond]);
 }
 function clamp01(v){ return Math.max(0,Math.min(1,v)); }
-function fEyeK(){ return FK_MAX-tActNow()*(FK_MAX-FK_MIN); }
+function fEyeK(){
+  if(st.auto) return COND_F[st.cond]||COND_F.normal;   // R16：自动档直取目标焦距（远视1.35D超手动滑杆行程；视觉厚度由 tActNow 的 clamp01 钉最薄）
+  return FK_MAX-clamp01(st.tCmd+COND_OFF[st.cond])*(FK_MAX-FK_MIN);
+}
 
 // ===== 近轴光线追迹（画布像素，y 向下；折射 m' = m - (y-axisY)/fPx） =====
 // R2：3 条水平平行光线自物体顶/中/底端出发（m 初始=0）；中端线=光轴过光心不变
@@ -182,10 +184,10 @@ function drawRays(tr){
     var yEnd=r.yL+r.m*(xEnd-G.xL);
     beamSeg(G.xL,r.yL,xEnd,yEnd);
   }
-  // R11：会聚点在视网膜后（远视自动 f=1.18D→后约0.18D）——实光线到视网膜仍未会聚，虚线延长至后方轴上会聚点
+  // R16：会聚点在视网膜后（远视自动 f=1.35D→后约0.35D）——实光线到视网膜仍未会聚，虚线延长至后方轴上会聚点（加粗当主角引线）
   var info=imgInfo(tr);
   if(!info.sharp&&info.diff>0&&isFinite(tr.xConv)&&tr.xConv<W+40){
-    ctx.save(); ctx.setLineDash([6,6]); ctx.strokeStyle='rgba(220,38,38,.55)'; ctx.lineWidth=1.5;
+    ctx.save(); ctx.setLineDash([6,6]); ctx.strokeStyle='rgba(220,38,38,.75)'; ctx.lineWidth=2;
     for(var j=0;j<tr.rays.length;j+=2){
       var rj=tr.rays[j];
       var yR=rj.yL+rj.m*(G.xRet-G.xL);
@@ -218,12 +220,24 @@ function drawRetinaImage(tr){
     ctx.beginPath(); ctx.arc(tr.xConv,axisY,2.5,0,Math.PI*2); ctx.fill();
     ctx.restore();
   }
-  // 视网膜上=模糊光斑（半径随光线散开程度）
+  // R16：会聚点在视网膜后（远视）——后方轴上会聚点补画同款黄晕+实心点当主角（与清晰态同规格）
+  var behind=isFinite(tr.xConv)&&info.diff>0;
+  if(behind){
+    ctx.save();
+    var gb=ctx.createRadialGradient(tr.xConv,axisY,0,tr.xConv,axisY,Math.max(5,G.R*0.06));
+    gb.addColorStop(0,'rgba(255,196,50,.95)'); gb.addColorStop(1,'rgba(255,176,30,0)');
+    ctx.fillStyle=gb; ctx.beginPath(); ctx.arc(tr.xConv,axisY,Math.max(5,G.R*0.06),0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#b45309';
+    ctx.beginPath(); ctx.arc(tr.xConv,axisY,3,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  // 视网膜上=模糊光斑（半径随光线散开程度）；有后方会聚点时降亮度当配角
   var yR0=tr.rays[0].yL+tr.rays[0].m*(G.xRet-G.xL);
   var yR2=tr.rays[2].yL+tr.rays[2].m*(G.xRet-G.xL);
   var spread=Math.abs(yR0-yR2)/2;
   var r=Math.max(G.R*0.05,spread*0.9);
   ctx.save();
+  if(behind) ctx.globalAlpha=0.45;
   var g2=ctx.createRadialGradient(G.xRet,axisY,1,G.xRet,axisY,r);
   g2.addColorStop(0,'rgba(255,176,30,.9)'); g2.addColorStop(.55,'rgba(255,150,40,.5)'); g2.addColorStop(1,'rgba(255,140,30,0)');
   ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(G.xRet,axisY,r,0,Math.PI*2); ctx.fill();

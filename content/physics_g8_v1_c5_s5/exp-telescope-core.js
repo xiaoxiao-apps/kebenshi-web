@@ -1,15 +1,14 @@
 (function(){
 PROPS.SPRITE_BASE='../_lib/v1/sprites/';
-// ===== 单位制：cm 语义单点换算 S=px/cm（layout 按 W 重算）；教材语义——远处物体 u≫f物，中间像在物镜焦点附近 =====
+// ===== 单位制：cm 语义单点换算 S=px/cm（layout 按 W 重算）；教材语义——远处物体 u≫f物，平行光会聚于物镜焦点 P =====
 var TUBE_STROKE_CM=5;                                // R14 滑杆动态范围=lMatch±5（行程 10cm），min/max 由 syncTubeRange 随 f物/f目/物距联动设置
 var TUBE_LMAX_CM=56;                                 // R14 比例尺换算上限=最不利组合（较近档 1.2*f物30+f目15=51）+5 行程
-var INNER_LEN_CM=10;                                 // R14 内筒（目镜段）定长 10cm，左端始终深插外筒腔内
 var MATCH_TOL_CM=0.6;                                // 对焦匹配判定带 |L−Lmatch|≤0.6cm
 var NEAR_U_K=6;                                      // 较近档物距语义 u=6*f物 → v=u*f/(u−f)=1.2*f物（匹配距离稍大）
 var COMPACT_H=600;                                   // 小窗紧凑档阈值（照 c5s1/c5s3）
 var COL_RAY='#dc2626';
 var COL_FLOW='#2563eb';
-var COL_IMG='#b45309';                               // 中间像实箭头琥珀深色
+var COL_IMG='#b45309';                               // 尺寸线/箭头琥珀深色
 var FONT='"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif';
 var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
 var ctrlEl=document.querySelector('.ctrlbar');
@@ -22,19 +21,19 @@ var st={
 var drag=null,startPt=null,glowFx=[],toastTimer=null;
 var flowT0=performance.now();
 // ===== 几何换算（cm→px 全部走 S 单点） =====
-function vObjCm(){ return st.near?(NEAR_U_K*st.fObj/(NEAR_U_K-1)):st.fObj; }   // 中间像距 v=uf/(u−f)；最远档 u→∞ ⇒ v=f物
+function vObjCm(){ return st.near?(NEAR_U_K*st.fObj/(NEAR_U_K-1)):st.fObj; }   // 像距 v=uf/(u−f)；最远档 u→∞ ⇒ v=f物（供 lMatch 用）
 function lMatchCm(){ return vObjCm()+st.fEye; }                                // 匹配镜筒距离：最远≈f物+f目；较近稍大
 function isMatch(){ return Math.abs(st.L-lMatchCm())<=MATCH_TOL_CM; }
 function magK(){ return st.fObj/st.fEye; }                                     // 放大倍率=f物÷f目
 function xEyeLens(){ return xObjLens+st.L*S; }
-function xImg(){ return xObjLens+vObjCm()*S; }
-function eyeXY(){ return {x:Math.min(W-30,xEyeLens()+eyeRoom*0.55),y:axisY,h:Math.max(34,H*0.11)}; }   // R13 眼归光轴：中线沿轴直穿入眼；加大显示高容斜射光束
+function xP(){ return xObjLens+st.fObj*S; }                                    // R17 光轴会聚点 P=物镜焦点（xObjLens+f物×S）；R18 外筒右端基准
+function innerLenCm(){ return st.fEye+5; }                                     // R18 INNER_LEN 公式：内筒（目镜段）长=(f目+5)cm，只随 f目 select 变、不随滑杆变
+function eyeXY(){ return {x:Math.min(W-30,xEyeLens()+eyeRoom*0.9),y:axisY,h:Math.max(40,H*0.15)}; }   // R18 眼距拉远 eyeRoom*0.9；R17 显示高加大——三个入眼点间距随眼高全落在眼前缘
 function objAp(){ return (tubeDiaO()-2*Math.max(3,tubeDiaO()*0.065))*0.9; }   // R14 物镜口径≈外筒腔径×0.9，嵌筒口卡圈
 function eyeAp(){ return H*0.22; }   // 目镜孔径显示高（更小）
 function tubeDiaO(){ return H*0.44; }   // R14 外筒剖面直径（定高比例，物镜口径由腔径反推）
 function tubeDiaI(){ return eyeAp()*1.2+18; }   // 内筒剖面直径（目镜段；腔径须容物镜会聚光束通过）
 function tubeBottomY(){ return axisY+tubeDiaO()/2; }   // 外壳最低点：标签/尺寸线避让
-function hImg(){ return st.near?H*0.065:H*0.05; }   // 中间像高（倒立缩小实像，显示语义）
 function groundY(){ return axisY+H*0.16; }   // R6：地面上收——物体上/中/下三端水平光线全部落在物镜孔径内
 function objScale(){ return st.near?1.15:1; }
 function objX(){ return st.near?W*0.115:W*0.07; }
@@ -131,13 +130,17 @@ function seatRing(x,halfLens,halfCav){   // ⑤ 镜座卡圈：镜片嵌在筒�
   ctx.fillRect(x-3,axisY+halfLens,6,Math.max(2,halfCav-halfLens));
   mouthRing(x,halfLens+3);
 }
-function drawTelescope(){   // R7 五件套保留（渐变/深描边/剖面线/椭圆环/卡圈）；R14 筒比例公式化
+function drawTelescope(){   // R7 五件套保留（渐变/深描边/剖面线/椭圆环/卡圈）；R18 外筒钉死+内筒随滑杆整体平移
   var Do=tubeDiaO(),Di=tubeDiaI(),hO=Do/2,hI=Di/2;
   var wo=Math.max(3,Do*0.065),wi=Math.max(2.5,Di*0.07);
-  var xo0=xObjLens-Do*0.06;                       // 外筒左端=物镜卡圈位
+  var xo0=xObjLens-Do*0.06;                       // R18 外筒左端=物镜卡圈位（钉死）
+  var xo1=xObjLens+st.fObj*S+4*S;                 // R18 外筒右端=xObjLens+f物×S+4cm（=xP()+4cm）——只随 f物 select 变、禁随镜筒滑杆变
   var xi1=xEyeLens()+Di*0.10;                     // 内筒右端=目镜卡圈位+少量
-  var xi0=xEyeLens()-INNER_LEN_CM*S;              // R14 内筒定长 10cm：左端始终深插外筒腔内
-  var xo1=Math.max(xImg()+2*S,xi0+4*S);           // R14 外筒右端=max(xI+2cm, xi0+4cm)——任意滑杆行程下内外筒搭接≥4cm 公式保证
+  var xi0=Math.min(xEyeLens()-innerLenCm()*S,xo1-4*S);   // R18 内筒长=(f目+5)cm 随滑杆整体平移（目镜动内筒动，外筒不动）；min 兜底=搭接恒≥4cm
+  // R18 约束自检（f物∈{20,30}×f目∈{10,15}×滑杆 lMatch±5 全组合，node 数值验证过）：
+  //   ① P 恒在外筒腔内：xo0<xP<xo1（xo1=xP+4cm 恒成立）
+  //   ② 内外筒搭接≥4cm：xi0≤xo1−4cm（min 兜底保证；最远档 L=lMatch+5 取等号，较近档上端由兜底接管）
+  //   ③ 目镜不埋外筒：xEyeLens>xo1 ⇔ L>f物+4；最小 L=lMatch−5 ⇒ 需 f目>9，f目∈{10,15} 恒成立（较近档 lMatch 更大）
   ctx.save();
   wallBand(xo0,xo1,axisY-hO,wo);            // 外筒上壁
   wallBand(xo0,xo1,axisY+hO-wo,wo);         // 外筒下壁
@@ -162,16 +165,6 @@ function drawObserver(){   // 眼（库内件 observer_eye）在目镜后
   var e=eyeXY();
   PROPS.observer_eye(ctx,e.x,e.y,{h:e.h});
 }
-function drawMidImage(){   // 中间像=倒立缩小实像（实箭头代码画，轴下）
-  var x=xImg(),h=hImg();
-  ctx.save();
-  ctx.strokeStyle=COL_IMG; ctx.fillStyle=COL_IMG; ctx.lineWidth=3; ctx.lineCap='round';
-  ctx.beginPath(); ctx.moveTo(x,axisY); ctx.lineTo(x,axisY+h-8); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(x,axisY+h+2); ctx.lineTo(x-6,axisY+h-9); ctx.lineTo(x+6,axisY+h-9); ctx.closePath(); ctx.fill();
-  ctx.font='13px '+FONT; ctx.textAlign='center';
-  haloText('中间像（倒立缩小实像）',x,axisY+h+20);
-  ctx.restore();
-}
 function beam(x0,y0,x1,y1){   // 照 c5s1：光流开=底线减淡+蓝虚线脉冲流动；关=静态实线
   ctx.save(); ctx.lineCap='round';
   ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1);
@@ -185,27 +178,28 @@ function beam(x0,y0,x1,y1){   // 照 c5s1：光流开=底线减淡+蓝虚线脉�
   }
   ctx.restore();
 }
-function drawRays(){   // R13 标准教材画法：物镜段三平行线会聚成倒立中间像（保留）；目镜段薄透镜作图法——像端点 a 线直穿光心方向不变 + b 线平行于轴入射折射后过像方焦点（对焦态两出射线严格平行斜射入眼，离焦微发散方向不反）；交叉只在中间像点与目镜光心两处；无悬空段（每段两端落在物体/镜面/像点/眼上）
+function drawRays(){   // R17 轴上单点会聚版（教材画法）：物体上/中/下三端水平平行光入物镜→折射后三条汇交光轴上一点 P（上端线下斜/下端线上斜/中线沿轴）→过 P 交叉后发散到目镜三个入射点→目镜折射后出射三条光线（对焦态严格平行水平入眼；离焦态微发散、传播方向不反）；9 条逻辑光线=3入射+3过P到目镜+3出射，无多余线段、无悬空段（端点全落在物体端点/物镜面/P/目镜面/眼前缘）
   var gx=objX(),ty=objTopY(),gy=groundY();
-  var xI=xImg(),yI=axisY+hImg(),xE=xEyeLens(),e=eyeXY();
-  var ex0=e.x-e.h*0.35;                    // 眼前缘（出射线终点=入眼）
-  var d=xE-xI,dy=yI-axisY,fEp=st.fEye*S;   // d=像面到目镜距离；对焦态 d=fEp
-  // ① 物镜段保留：物上/中/下三端水平平行光入物镜；中线沿轴直穿物镜→中间像面→目镜→眼
-  beam(gx,ty,xObjLens,ty);
-  beam(gx,gy,xObjLens,gy);
-  beam(gx,axisY,ex0,axisY);
-  // ② 物镜折射会聚成倒立中间像：上端线→像下端（箭头尖），下端线→像上端（轴上）
-  beam(xObjLens,ty,xI,yI);
-  beam(xObjLens,gy,xI,axisY);
-  // ③ 目镜段·像下端点 P(xI,yI) 的 a 线：直穿目镜光心，方向不变
-  beam(xI,yI,xE,axisY);
-  var sa=-dy/d;                            // a 线斜率（过光心方向不变）
-  beam(xE,axisY,ex0,axisY+sa*(ex0-xE));
-  // ④ 像下端点 P 的 b 线：平行于光轴入射目镜，折射后必过像方焦点——对焦态出射与 a 严格平行；离焦微发散、方向不反
-  beam(xI,yI,xE,yI);
-  var sb=-dy/fEp;                          // b 出射斜率（平行入射线出射过像方焦点）
-  beam(xE,yI,ex0,yI+sb*(ex0-xE));
-  // 像上端点在光轴上：其 a/b 线均与光轴重合，由①中线直穿覆盖，不画重复段
+  var xPv=xP(),xE=xEyeLens(),e=eyeXY();
+  var ex0=e.x-e.h*0.35;                      // 眼前缘（出射线终点=入眼；上/中/下三个入眼点，间距随眼高）
+  var d=xE-xPv,fEp=st.fEye*S;                // d=P 到目镜距离；对焦态（P 面=目镜焦面）d=fEp
+  var hMax=Math.min(eyeAp()*0.42,e.h*0.38);  // 目镜入射点半幅约束：落在目镜孔径内、入眼间距随眼高
+  var hs=[ty-axisY,0,gy-axisY];              // 上/中/下三端入射高度（相对轴，画布坐标上负下正）
+  for(var i=0;i<3;i++){
+    var y0=axisY+hs[i];
+    beam(gx,y0,xObjLens,y0);                 // ① 入射：水平平行光入物镜
+    if(hs[i]===0){                           // 中线沿轴：直穿 P 与目镜水平入眼
+      beam(xObjLens,axisY,xE,axisY);
+      beam(xE,axisY,ex0,axisY);
+      continue;
+    }
+    beam(xObjLens,y0,xPv,axisY);             // ② 物镜折射会聚于 P（上端线向下斜/下端线向上斜）
+    var h=-hs[i]*d/(xPv-xObjLens);           // 过 P 直线延续（交叉到轴另一侧）：目镜面处高度
+    h=Math.max(-hMax,Math.min(hMax,h));      // 极端行程钳制入射点在目镜孔径内（P 处折角微小可忽略）
+    beam(xPv,axisY,xE,axisY+h);              // ③ 过 P 发散传播到目镜入射点
+    var sp=h*(fEp-d)/(d*fEp);                // 出射斜率：对焦态=0 三条严格平行水平；离焦微发散/微会聚、传播方向不反
+    beam(xE,axisY+h,ex0,axisY+h+sp*(ex0-xE));// ④ 出射入眼
+  }
 }
 function arrowHead(x,y,dir){
   ctx.save(); ctx.translate(x,y); ctx.rotate(dir);
@@ -271,7 +265,7 @@ function drawGlowFx(){   // 对焦光晕 300ms 渐隐（照 c5s3 glowFx 先例�
 }
 function draw(){
   drawBg(); drawAxis(); drawGround(); drawObject();
-  drawTelescope(); drawRays(); drawLenses(); drawMidImage(); drawDim(); drawObserver();
+  drawTelescope(); drawRays(); drawLenses(); drawDim(); drawObserver();
   drawGlowFx(); drawEyePeep();
   updatePanel(); sayHint();
 }
@@ -321,8 +315,7 @@ function checkMatch(){
   var m=isMatch();
   if(m&&!st.wasMatch){
     st.everMatch=true;
-    glowFx.push({x:xEyeLens(),y:axisY,t0:performance.now(),c:'255,214,120'});
-    glowFx.push({x:xImg(),y:axisY,t0:performance.now(),c:'255,214,120'});
+    glowFx.push({x:xP(),y:axisY,t0:performance.now(),c:'255,214,120'});   // R17 对焦光晕画在 P 点（物镜焦点会聚处）
     if(window.playMatch) playMatch();
     showToast('对焦成功！镜筒距离 '+st.L.toFixed(1)+' cm ≈ f物+f目——从目镜后看到清晰、正立、放大的像（眼视图窗）');
   }
