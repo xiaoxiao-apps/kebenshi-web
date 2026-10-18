@@ -29,6 +29,9 @@
   .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px;transition:opacity .3s ease,transform .3s ease}
   .glabel{font-size:14px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
   .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:40px}
+  /* R21：参数卡内容自适应宽，禁被 space-between 拉满行宽；卡内滑杆-标签-步进-自动紧邻排布 */
+  #grp-t{flex:0 0 auto}
+  #grp-t .gctrl{flex:0 0 auto;gap:6px}
   .gctrl label{font-size:14px;cursor:pointer;white-space:nowrap;color:#3d3830}
   button{border:0;border-radius:8px;padding:9px 13px;font-size:14px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
   button:hover{background:#1d4ed8}
@@ -134,7 +137,7 @@
 <script src="../_lib/v1/props.js?v=96"></script>
 <script src="../_lib/v1/props-optics.js?v=9"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-eye-core.js?v=4"></script>
+<script src="exp-eye-core.js?v=5"></script>
 <script>
   const p=new URLSearchParams(location.search),cb=p.get('cb-path');
   if(cb)document.getElementById('btn-back').href='./index.html?cb-path='+encodeURIComponent(cb);

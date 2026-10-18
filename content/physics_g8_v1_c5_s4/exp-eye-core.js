@@ -9,6 +9,8 @@ var FK_MAX=1.25,FK_MIN=0.75,SHARP_TOL=0.03;    // R10：手动滑杆全行程 f�
 var U_FAR_K=2.7;                              // 物体绘制位置（×D）；仅视觉表意，不进光路
 var GLASS_F_K={concave:-3.94,convex:4.48};     // R16 重标定（u=∞ 串联 BFL：gK=(xL-xC)/D=0.83/1.34≈0.6194，Fc=[Fe(1+gK)-gK]/(Fe-1)）——近视0.82D+凹 / 远视1.35D+凸 会聚点恰回视网膜(v=D)；四组合由追迹公式自然得出，禁写死分支
 var COND_OFF={normal:0,myopia:0.25,hyper:-0.25};          // 手动档晶状体基线偏移
+// R22 手动档滑杆锁向（%）：近视锁左（有效厚度=滑杆+0.25，下限0.68>清晰带上缘0.56，永远够不着清晰，须凹透镜）；远视锁右（有效上限0.32<清晰带下缘0.44，须凸透镜）；正常不锁
+var COND_RNG={normal:[0,100],myopia:[43,100],hyper:[0,57]};
 // R16 自动档目标焦距（×D）：正常 f=D 清晰；近视 f=0.82D→会聚点视网膜前约0.18D；远视 f=1.35D→视网膜后约0.35D（夸张化，明确落在视网膜右侧一截）
 var COND_F={normal:1.00,myopia:0.82,hyper:1.35};
 var COND_NAME={normal:'正常眼',myopia:'近视眼',hyper:'远视眼'};
@@ -328,7 +330,12 @@ function updatePanel(){
   var info=imgInfo();
   var el=function(id){ return document.getElementById(id); };
   el('pr-cond').textContent=COND_NAME[st.cond];
-  el('pr-lens').textContent=lensWord()+(st.auto?'（自动调节）':'（手动）');
+  // R22：手动档锁区提示——读数面板补一句「够不着清晰」的锁向说明
+  var lockNote='';
+  if(!st.auto&&st.cond==='myopia') lockNote='（手动 · 已偏厚到极限，再薄也够不着清晰，需凹透镜）';
+  else if(!st.auto&&st.cond==='hyper') lockNote='（手动 · 已偏薄到极限，再厚也够不着清晰，需凸透镜）';
+  else lockNote=st.auto?'（自动调节）':'（手动）';
+  el('pr-lens').textContent=lensWord()+lockNote;
   el('pr-glass').textContent=glassWord();
   el('pr-img').textContent=info.sharp?'清晰像点 · 视网膜上':('模糊光斑 · 会聚在'+info.where);
 }
@@ -341,7 +348,11 @@ function hintBranch(){
   if(st.cond==='myopia'&&st.glass==='concave') return {key:'m-ok',text:'矫正成功！凹透镜使平行光先发散，再经晶状体会聚，会聚点重新拉回视网膜上——近视眼镜就是凹透镜。试试关「自动」拖滑杆，看晶状体厚薄怎样移动会聚点'};
   if(st.cond==='hyper'&&st.glass==='convex') return {key:'h-ok',text:'矫正成功！凸透镜使平行光先会聚，再经晶状体会聚，会聚点重新拉回视网膜上——远视眼镜（老花镜）就是凸透镜。试试切换眼况，或关「自动」拖滑杆'};
   if(st.glass) return {key:'g-wrong',text:'拖错镜型了：会聚点偏得离视网膜更远、光斑更散。近视要凹透镜、远视要凸透镜——把它拖回左下托盘，换另一片试试'};
-  if(!st.auto) return {key:'manual',text:'自动调节已关：睫状体不再帮忙，拖「晶状体厚度」滑杆手动控制。看会聚点在光轴上怎样于视网膜前后来回移动，找到清晰像点'};
+  if(!st.auto){
+    if(st.cond==='myopia') return {key:'manual',text:'自动调节已关：晶状体已偏厚到极限，再薄也够不着清晰——这就是近视，需要凹透镜。拖滑杆看会聚点在视网膜前来回移动'};
+    if(st.cond==='hyper') return {key:'manual',text:'自动调节已关：晶状体已偏薄到极限，再厚也够不着清晰——这就是远视，需要凸透镜。拖滑杆看会聚点在视网膜后来回移动'};
+    return {key:'manual',text:'自动调节已关：睫状体不再帮忙，拖「晶状体厚度」滑杆手动控制。看会聚点在光轴上怎样于视网膜前后来回移动，找到清晰像点'};
+  }
   if(st.cond==='myopia') return {key:'myopia',text:'近视眼：晶状体整体偏厚、折光能力太强，来自远处物体的平行光会聚在视网膜前，到达视网膜已是模糊光斑。把左下托盘的凹透镜拖到眼前试试'};
   if(st.cond==='hyper') return {key:'hyper',text:'远视眼：晶状体整体偏薄、折光能力太弱，平行光还没会聚成一点就到了视网膜（会聚点在视网膜后，虚线延长可见）。把左下托盘的凸透镜拖到眼前试试'};
   return {key:'init',text:'正常眼看远处物体：来自物体的光可看作平行光，睫状体放松、晶状体较薄，平行光恰好会聚在视网膜上成清晰像点（点眼球或物体可看知识解说）。关「自动」拖滑杆看晶状体厚薄怎样移动会聚点，或把眼况切成「近视」「远视」'};
@@ -497,18 +508,26 @@ var btnTDown=document.getElementById('btn-t-down'),btnTUp=document.getElementByI
 var btnTable=document.getElementById('btn-table'),panelRead=document.getElementById('panel-read');
 var btnReset=document.getElementById('btn-reset');
 
+// R22：按眼况设滑杆范围并把当前 tCmd 夹进新范围（切眼况/重置必走）
+function applyRng(){
+  var r=COND_RNG[st.cond]||COND_RNG.normal;
+  if(rngT){ rngT.min=r[0]; rngT.max=r[1]; }
+  st.tCmd=Math.max(r[0]/100,Math.min(r[1]/100,st.tCmd));
+}
 function syncUI(){
   if(selCond) selCond.value=st.cond;
   if(btnAuto) btnAuto.classList.toggle('on',st.auto);
   if(btnFlow) btnFlow.classList.toggle('on',st.showFlow);
   var t=tActNow();
+  var rr=COND_RNG[st.cond]||COND_RNG.normal,cur=Math.round(st.tCmd*100);
   if(rngT){ rngT.value=Math.round(clamp01(st.auto?t:(t-(COND_OFF[st.cond]||0)))*100); rngT.disabled=st.auto; }
-  if(btnTDown) btnTDown.disabled=st.auto;
-  if(btnTUp) btnTUp.disabled=st.auto;
+  if(btnTDown) btnTDown.disabled=st.auto||cur<=rr[0];              // R22：到锁向端点自动禁用
+  if(btnTUp) btnTUp.disabled=st.auto||cur>=rr[1];
   if(lblT) lblT.textContent=(t<0.34?'薄':(t>0.66?'厚':'中等'))+(st.auto?'（自动）':'');
 }
 if(selCond) selCond.addEventListener('change',function(){
   st.cond=selCond.value;
+  applyRng();                                                      // R22：切眼况→设范围+夹值，syncUI 同步滑杆与标签
   if(window.playClick) playClick();
   hideBubble(); syncUI(); sayHint(); draw();
 });
@@ -548,6 +567,7 @@ if(btnTable&&panelRead) btnTable.addEventListener('click',function(){
 if(btnReset) btnReset.addEventListener('click',function(){
   st.cond='normal'; st.auto=true; st.tCmd=0.32; st.glass=null;
   st.showFlow=false; wasSharp=true;                                // 初始态本就清晰，不触发成功音
+  applyRng();                                                      // R22：重置回正常眼不锁范围
   hideBubble(); hintSt.dismissed=null;
   if(window.playClick) playClick();
   syncUI(); sayHint(); draw();
@@ -596,6 +616,7 @@ function tick(){
 
 layout();
 wasSharp=true;                       // 初始态（正常眼+自动+远处）本就清晰，加载不触发成功音/光晕
+applyRng();                          // R22：初始化滑杆范围
 resize(); syncUI(); sayHint(); draw(); requestAnimationFrame(tick);
 
 window.__c5s4dbg={
