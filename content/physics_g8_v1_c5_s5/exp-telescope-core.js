@@ -29,16 +29,17 @@ function xEyeLens(){ return xObjLens+st.L*S; }
 function xP2(){ return xEyeLens()-st.fEye*S; }                                 // R19 光路交叉点 P2=目镜前焦点（随镜筒滑杆与 f目 select 移动）；对焦态与物镜焦点 F物 重合
 function xFobj(){ return xObjLens+st.fObj*S; }                                 // R19 物镜焦点 F物 刻度位（xObjLens+f物×S）；R18 外筒右端基准 xo1=xFobj+4cm
 function innerLenCm(){ return st.fEye+5; }                                     // R18 INNER_LEN 公式：内筒（目镜段）长=(f目+5)cm，只随 f目 select 变、不随滑杆变
-function eyeXY(){ return {x:Math.min(W-30,xEyeLens()+eyeRoom*1.3),y:axisY,h:Math.max(40,H*0.15)}; }   // R20 眼距再拉远 eyeRoom*1.3（封顶 W-30）；R17 显示高加大——三个入眼点间距随眼高全落在眼前缘
+function eyeXY(){ return {x:Math.min(W-30,xEyeLens()+eyeRoom*1.3),y:axisY,h:Math.max(40,H*0.15)}; }   // R20 眼距再拉远 eyeRoom*1.3（封顶 W-30）；R17 显示高加大——R26 后上/下两个入眼点间距随眼高全落在眼前缘
 function objAp(){ return (tubeDiaO()-2*Math.max(2.5,tubeDiaO()*0.05))*0.9; }   // R20 物镜口径=外筒腔径×0.9 公式随动（壁厚 wo=max(2.5,Do*0.05) 同步），嵌筒口卡圈
-function eyeAp(){ return H*0.14; }   // R20 瘦身：目镜孔径显示高 H×0.22→H×0.14
-function tubeDiaO(){ return H*0.17; }   // R20 瘦身：外筒剖面直径 H×0.44→H×0.17（细长筒，物镜口径由腔径反推）
-function tubeDiaI(){ return eyeAp()*1.15+8; }   // R20 内筒剖面直径=eyeAp×1.15+8（目镜段；腔径须容物镜会聚光束通过）
+function tubeDiaO(){ return H*0.17; }   // R20 瘦身保持：外筒剖面直径 Do=H×0.17（细长筒）
+function tubeDiaI(){ var Do=tubeDiaO(),wo=Math.max(2.5,Do*0.05); return Do-2*wo-3; }   // R25 嵌套直径链（由外向内推导）：内筒外径=外筒内腔−3px（每侧 1.5px 滑动间隙=贴合镶嵌）
+function eyeAp(){ var Di=tubeDiaI(),wi=Math.max(2,Di*0.06); return Di-2*wi-3; }   // R25 目镜孔径=内筒内腔−3px（wi=max(2,Di*0.06)）
 function tubeBottomY(){ return axisY+tubeDiaO()/2; }   // 外壳最低点：标签/尺寸线避让
-function groundY(){ return axisY+H*0.06; }   // R19 物体下端=轴+H×0.06（三端收拢到轴±H×0.06，删钳制后全行程装得进目镜孔径）
+function objHalf(){ return Math.max(H*0.045,Math.min(H*0.055,eyeAp()/2-2)); }   // R25 物体半幅=H×0.055（低窗随 eyeAp 收拢，下限 H×0.045）；最劣光束半高=半幅×比率 f目/(f物−5)≤1.0，+2px 余量≤eyeAp/2（全组合 f物×f目×滑杆×窗宽 node 数值验证过）
+function groundY(){ return axisY+objHalf(); }   // R25 物体下端=轴+objHalf（两端收拢，删钳制后全行程装得进目镜孔径）
 function objScale(){ return st.near?1.15:1; }
 function objX(){ return st.near?W*0.115:W*0.07; }
-function objTopY(){ return axisY-H*0.06; }   // R19 物体上端=轴−H×0.06
+function objTopY(){ return axisY-objHalf(); }   // R25 物体上端=轴−objHalf
 function clampL(v){ return Math.max(lMatchCm()-TUBE_STROKE_CM,Math.min(lMatchCm()+TUBE_STROKE_CM,Math.round(v*2)/2)); }   // R14 行程=lMatch±5
 function layout(){
   axisY=Math.round(H*0.5);
@@ -91,7 +92,7 @@ function bldgShape(c,x,baseY,h,col){   // 楼剪影（代码画）：主体+窗�
   for(var r=0;r<3;r++) for(var q=0;q<2;q++) c.fillRect(x-w*0.3+q*w*0.32,baseY-h*0.86+r*h*0.26,w*0.18,h*0.14);
   c.restore();
 }
-function drawObject(){   // 远处物体：左端树+楼剪影（物距≫f物 语义）；R19 三端收拢——树顶=objTopY(轴−H*0.06)、树基=groundY(轴+H*0.06)，上/中/下三端光线端点全落物体上
+function drawObject(){   // 远处物体：左端树+楼剪影（物距≫f物 语义）；R25 两端收拢——树顶=objTopY(轴−objHalf)、树基=groundY(轴+objHalf)，上/下两端光线端点全落物体上
   var k=objScale(),gy=groundY(),objH=gy-objTopY();
   bldgShape(ctx,objX()+H*0.10*k,gy,objH*0.78,'rgba(71,85,105,.75)');
   treeShape(ctx,objX(),gy,objH,'#3f6212');
@@ -179,19 +180,14 @@ function beam(x0,y0,x1,y1){   // 照 c5s1：光流开=底线减淡+蓝虚线脉�
   }
   ctx.restore();
 }
-function drawRays(){   // R19 光学定律版：交叉点=P2=目镜前焦点（跟目镜走）；物体上/中/下三端水平平行光入物镜→折射后三线折向 P2、直线穿过 P2 交叉（上端线穿到轴下/下端线穿到轴上/中线沿轴）→发散到目镜三个入射点→目镜折射后出射三光线恒平行于主轴水平入眼（过前焦点的光线经透镜出射平行于主轴=真实定律，对焦/离焦皆平行，禁画发散出射）；9 条逻辑光线=3入射+3过P2到目镜+3出射，无入射点钳制（三端收拢到轴±H*0.06，全滑杆行程×全 select 组合下目镜面高度恒在目镜孔径内，node 数值验证过），无多余线段、无悬空段（端点全落在物体端点/物镜面/P2/目镜面/眼前缘）
+function drawRays(){   // R19 光学定律版：交叉点=P2=目镜前焦点（跟目镜走）；物体上/下两端水平平行光入物镜→折射后两线折向 P2、直线穿过 P2 交叉（上端线穿到轴下/下端线穿到轴上）→发散到目镜两个入射点→目镜折射后出射两光线恒平行于主轴水平入眼（过前焦点的光线经透镜出射平行于主轴=真实定律，对焦/离焦皆平行，禁画发散出射）；R26 删轴上中线（与光轴虚线重合），6 条=2入射+2过P2+2出射，无入射点钳制（两端收拢到轴±objHalf，全滑杆行程×全 select 组合下目镜面高度恒在目镜孔径内，node 数值验证过），无多余线段、无悬空段（端点全落在物体端点/物镜面/P2/目镜面/眼前缘）
   var gx=objX(),xE=xEyeLens(),e=eyeXY();
-  var ex0=e.x-e.h*0.35;                      // 眼前缘（出射线终点=入眼；上/中/下三个入眼点，间距随眼高）
+  var ex0=e.x-e.h*0.35;                      // 眼前缘（出射线终点=入眼；上/下两个入眼点，间距随眼高）
   var xp=xP2(),d1=xp-xObjLens,d2=xE-xp;      // d1=物镜到 P2；d2=P2 到目镜=恒 f目×S
-  var hs=[objTopY()-axisY,0,groundY()-axisY];// 上/中/下三端入射高度=轴±H*0.06（相对轴，画布坐标上负下正）
-  for(var i=0;i<3;i++){
+  var hs=[objTopY()-axisY,groundY()-axisY];  // R26 上/下两端入射高度=轴±objHalf（相对轴，画布坐标上负下正）
+  for(var i=0;i<2;i++){
     var y0=axisY+hs[i];
     beam(gx,y0,xObjLens,y0);                 // ① 入射：水平平行光入物镜
-    if(hs[i]===0){                           // 中线沿轴：直穿 P2 与目镜水平入眼
-      beam(xObjLens,axisY,xE,axisY);
-      beam(xE,axisY,ex0,axisY);
-      continue;
-    }
     var h1=-hs[i]*d2/d1;                     // ②③ 折向 P2 并直线穿过交叉（到轴另一侧），目镜面处高度=过 P2 直线的延续
     beam(xObjLens,y0,xE,axisY+h1);
     beam(xE,axisY+h1,ex0,axisY+h1);          // ④ 出射：恒平行于主轴水平入眼（斜率恒 0）

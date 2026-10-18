@@ -54,17 +54,19 @@ function objTopY(){ return axisY-G.hObj; }
 function objBottomY(){ return axisY+G.hObj; }
 function gK(){ return (G.xL-G.xC)/G.D; }                 // 矫正镜间距（×D）
 function tActNow(){
+  // R23：返回未截断 t_eff——远视自然态 t=−0.2（f=1.35D）是凸透镜 GLASS_F_K.convex=4.48 的标定点，
+  // clamp01 会把它截成 0（f=1.25D）导致戴凸镜永远差 0.056D 进不了 SHARP_TOL；截断只留在视觉层 drawCrystal
   if(st.auto){
     // R10：自动档目标=fEyeK()=COND_F[cond]（平行光清晰目标 f=D），由 f 反解 t
     var cf=COND_F[st.cond]||COND_F.normal;
-    return clamp01((FK_MAX-cf)/(FK_MAX-FK_MIN));
+    return (FK_MAX-cf)/(FK_MAX-FK_MIN);
   }
-  return clamp01(st.tCmd+COND_OFF[st.cond]);
+  return st.tCmd+(COND_OFF[st.cond]||0);
 }
 function clamp01(v){ return Math.max(0,Math.min(1,v)); }
 function fEyeK(){
-  if(st.auto) return COND_F[st.cond]||COND_F.normal;   // R16：自动档直取目标焦距（远视1.35D超手动滑杆行程；视觉厚度由 tActNow 的 clamp01 钉最薄）
-  return FK_MAX-clamp01(st.tCmd+COND_OFF[st.cond])*(FK_MAX-FK_MIN);
+  if(st.auto) return COND_F[st.cond]||COND_F.normal;   // R16：自动档直取目标焦距（远视1.35D超手动滑杆行程）
+  return FK_MAX-tActNow()*(FK_MAX-FK_MIN);             // R23：手动档用未截断 t_eff（远视 tCmd=0 → f=1.375D 天然薄态可达）
 }
 
 // ===== 近轴光线追迹（画布像素，y 向下；折射 m' = m - (y-axisY)/fPx） =====
@@ -149,7 +151,7 @@ function drawEyeball(){
 }
 function drawCrystal(){
   // 晶状体双凸=库件矢量通道：视觉凸度随厚度参数联动（结构件规则：位置/厚度动态）
-  var t=tActNow();
+  var t=clamp01(tActNow());                                         // R23：视觉层截断——禁画负 f/超范围镜形（光路用未截断 t_eff）
   var fVis=6-5*t;                                                  // t=1→f=1 最凸；t=0→f=6 最薄
   PROPS.lens_convex(ctx,G.xL,axisY,{h:G.lensH,f:fVis});
 }
@@ -198,6 +200,15 @@ function drawRays(tr){
     ctx.restore();
   }
 }
+// R24：会聚点迷你倒立树剪影——与物体树同造型绕光轴倒转（树冠朝轴下/树根朝轴上=倒立实像语义），高≈R×0.18，代码画
+function drawImgTree(x){
+  if(!isFinite(x)) return;
+  var h=G.R*0.18;
+  ctx.save();
+  ctx.translate(0,2*axisY); ctx.scale(1,-1);                       // 绕光轴镜像
+  drawTree(x,axisY+h/2,h);
+  ctx.restore();
+}
 function drawRetinaImage(tr){
   var info=imgInfo(tr);
   if(info.sharp){
@@ -210,6 +221,7 @@ function drawRetinaImage(tr){
     ctx.fillStyle='#b45309';
     ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2); ctx.fill();      // 清晰像点
     ctx.restore();
+    drawImgTree(cx);                                                // R24：小像立视网膜线上
     return {x:cx,y:cy,r:4};
   }
   // R11：会聚点在视网膜前（近视自动 f=0.82D→前约0.18D）——轴上画会聚光斑
@@ -221,6 +233,7 @@ function drawRetinaImage(tr){
     ctx.fillStyle='#b45309';
     ctx.beginPath(); ctx.arc(tr.xConv,axisY,2.5,0,Math.PI*2); ctx.fill();
     ctx.restore();
+    drawImgTree(tr.xConv);                                          // R24：小像清晰画在视网膜前会聚点
   }
   // R16：会聚点在视网膜后（远视）——后方轴上会聚点补画同款黄晕+实心点当主角（与清晰态同规格）
   var behind=isFinite(tr.xConv)&&info.diff>0;
@@ -232,14 +245,15 @@ function drawRetinaImage(tr){
     ctx.fillStyle='#b45309';
     ctx.beginPath(); ctx.arc(tr.xConv,axisY,3,0,Math.PI*2); ctx.fill();
     ctx.restore();
+    drawImgTree(tr.xConv);                                          // R24：小像立视网膜后虚线延长交点处
   }
-  // 视网膜上=模糊光斑（半径随光线散开程度）；有后方会聚点时降亮度当配角
+  // 视网膜上=模糊光斑（半径随光线散开程度）；离焦态主角=会聚点小像，光斑降亮度当配角（R24）
   var yR0=tr.rays[0].yL+tr.rays[0].m*(G.xRet-G.xL);
   var yR2=tr.rays[2].yL+tr.rays[2].m*(G.xRet-G.xL);
   var spread=Math.abs(yR0-yR2)/2;
   var r=Math.max(G.R*0.05,spread*0.9);
   ctx.save();
-  if(behind) ctx.globalAlpha=0.45;
+  ctx.globalAlpha=0.45;
   var g2=ctx.createRadialGradient(G.xRet,axisY,1,G.xRet,axisY,r);
   g2.addColorStop(0,'rgba(255,176,30,.9)'); g2.addColorStop(.55,'rgba(255,150,40,.5)'); g2.addColorStop(1,'rgba(255,140,30,0)');
   ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(G.xRet,axisY,r,0,Math.PI*2); ctx.fill();
@@ -542,7 +556,7 @@ function setT(v){
   syncUI(); draw();
 }
 if(rngT) rngT.addEventListener('input',function(){
-  if(st.auto){ rngT.value=Math.round(tActNow()*100); return; }
+  if(st.auto){ rngT.value=Math.round(clamp01(tActNow())*100); return; }   // R23：滑杆显示层截断（远视自动 t=−0.2 显示为 0，滑杆本就禁用）
   setT(+rngT.value/100);
 });
 function nudgeT(dir){
