@@ -102,6 +102,7 @@
       <input type="range" id="rng-t" min="0" max="100" step="1" value="32">
       <span id="lbl-t">薄 ─── 厚</span>
       <button id="btn-t-up" class="secondary step">▶</button>
+      <button id="btn-auto" class="on">自动</button>
     </div>
   </div>
   <div class="group" id="grp-act">
@@ -114,7 +115,6 @@
         <option value="hyper">远视</option>
       </select>
       <button id="btn-dist">🌳 远处</button>
-      <button id="btn-auto" class="on">自动调节</button>
     </div>
   </div>
   <div class="group" id="grp-show">
@@ -136,7 +136,7 @@
 <script src="../_lib/v1/props.js?v=96"></script>
 <script src="../_lib/v1/props-optics.js?v=9"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-eye-core.js?v=1"></script>
+<script src="exp-eye-core.js?v=2"></script>
 <script>
   const p=new URLSearchParams(location.search),cb=p.get('cb-path');
   if(cb)document.getElementById('btn-back').href='./index.html?cb-path='+encodeURIComponent(cb);
