@@ -1,0 +1,558 @@
+/* ===== 本章练习题库（第五章 透镜及其应用） =====
+ * 结构：QUESTIONS 数组，每题含 section 字段（按节分组渲染）与 parts 数组。
+ * part.kind：choice=单选 / blank=填空 / open=开放题（参考答案+自评计分）。
+ * 判分：客观题提交即时判分（全对得分）；开放题查看参考答案后自评计分。
+ * 收录 22 题：第1节×6、第2节×5、第3节×7、第4节×4（第5节跨学科实践无练习栏目；P136-137 提高题 8 道不收录）。
+ * 依据：docs/c5s1-transcript.md、docs/c5s23-transcript.md、docs/c5s45-transcript.md
+ *      及 c5章级页-设计书.md §2/§5（题面/数字逐字；⚠️ 存疑处原样标注；核图结论已硬编码）。
+ */
+const QUESTIONS = [
+  { id:'c5s1q1', section:'第1节 透镜', no:'教材 P117 练习与应用 第1题（图5.1-8）', points:10,
+    stem:'我国西汉时期的《淮南万毕术》记载："削冰令圆，举以向日，以艾承其影，则火生。"这是利用冰透镜对日光会聚取火的最早记载。如图5.1-8所示，假设F为冰透镜的焦点，请你在图中完成光路。',
+    note:'本题配图（图5.1-8：平行光射向冰凸透镜、主光轴标F）不硬画，以教材印刷为准。本题为开放作图题，作答后对照参考要点自评计分。',
+    parts:[{ kind:'open',
+      ref:'参考要点：<br>① 削圆的冰透镜相当于<b>凸透镜</b>，对光有<b>会聚</b>作用；<br>② 平行于主光轴的太阳光经冰透镜折射后<b>会聚于焦点 F</b>——作图：把折射光线画成射向并会聚于 F；<br>③ "以艾承其影"即把艾草放在焦点 F 处，会聚的阳光使该处温度升高，引燃艾草，"则火生"。',
+      analysis:'凸透镜的会聚作用；三条特殊光线之「平行于主光轴的光经凸透镜折射后过焦点」。' }] },
+
+  { id:'c5s1q2', section:'第1节 透镜', no:'教材 P117 练习与应用 第2题（图5.1-9）', points:10,
+    stem:'一束光通过透镜的光路如图5.1-9所示，哪幅图是正确的？说明你的理由。',
+    note:'⚠️ 图5.1-9 甲乙丙丁四幅光路已核原书照片，下图为程序化简图复现（原图细节以教材印刷为准）。选择后对照解析中的理由自查。',
+    fig:'lensPaths4', figCap:'图5.1-9 四幅光路简图复现：甲=凸透镜，平行入射光折射后会聚于F；乙=凸透镜，过F的入射光折射后发散；丙=凹透镜，自同侧F发散的入射光折射后变平行；丁=凹透镜，平行入射光折射后实际会聚于F',
+    parts:[{ kind:'choice', q:'哪幅图的光路是正确的？',
+      opts:['甲','乙','丙','丁'], answer:0,
+      analysis:'<b>正确的是甲</b>。判据：凸透镜对光有会聚作用、凹透镜对光有发散作用 + 三条特殊光线。<br>① 甲：凸透镜，平行于主光轴的入射光折射后会聚于焦点 F——符合「平行过焦点」，<b>正确</b>；<br>② 乙：凸透镜，过焦点 F 的入射光折射后应<b>平行于主光轴</b>出射，图中却发散——错误；<br>③ 丙：凹透镜对光有发散作用，自同侧 F 发散的入射光折射后应<b>更加发散</b>，不应变平行——错误；<br>④ 丁：凹透镜，平行入射光折射后应<b>发散</b>，发散光线的反向延长线过同侧虚焦点，不能实际会聚于 F——错误。' }] },
+
+  { id:'c5s1q3', section:'第1节 透镜', no:'教材 P117 练习与应用 第3题（图5.1-10）', points:10,
+    stem:'根据入射光线和折射光线，在图5.1-10中的虚线框内画出适当类型的透镜。',
+    note:'⚠️ 图5.1-10 甲乙两图已核原书照片，下图为程序化简图复现：甲=会聚入射光过框后发散出射，乙=会聚入射光过框后平行出射（原图细节以教材印刷为准）。本题为开放作图题，作答后对照参考答案自评计分。',
+    fig:'lensBox2', figCap:'图5.1-10 简图复现：甲=会聚入射光过虚线框后发散出射；乙=会聚入射光过虚线框后平行出射',
+    parts:[{ kind:'open',
+      ref:'参考答案：<br><b>判断方法</b>：比较折射光线与入射光线——折射后比入射<b>更发散</b>（或会聚程度被削弱）→ 框内画<b>凹透镜</b>；折射后<b>更会聚</b> → 画<b>凸透镜</b>。<br>① 甲：会聚的入射光过框后变发散，折射相对入射更发散 → 画<b>凹透镜</b>；<br>② 乙：会聚的入射光过框后变平行，会聚被"顶了回去"，折射相对入射更发散 → 画<b>凹透镜</b>。',
+      analysis:'凸透镜=会聚透镜、凹透镜=发散透镜；看折射光线相对入射光线是更会聚还是更发散来定透镜类型（甲乙均画凹透镜，以教材印刷为准）。' }] },
+  { id:'c5s1q4', section:'第1节 透镜', no:'教材 P117 练习与应用 第4题（图5.1-11）', points:12,
+    stem:'同种材料制成的甲、乙两个凸透镜的焦距分别为2 cm和3 cm。如图5.1-11所示，请在图中画出平行光分别通过它们之后的光线。哪个凸透镜使光偏折得更显著些？',
+    note:'本题配图（图5.1-11）不硬画，以教材印刷为准。①为开放作图自评，②为单选即时判分。',
+    parts:[
+      { kind:'open', q:'① 作图：平行光分别通过凸透镜甲（f=2 cm）和乙（f=3 cm）后的光线。',
+        ref:'参考要点：<br>① 平行于主光轴的平行光经凸透镜折射后<b>会聚于各自的焦点</b>；<br>② 甲透镜焦距 2 cm，会聚点离透镜<b>近</b>；乙透镜焦距 3 cm，会聚点离透镜<b>远</b>；<br>③ 甲透镜的折射光线偏折角度更大（光线"拐"得更急）。',
+        analysis:'三条特殊光线之「平行过焦点」；焦距越小会聚作用越强，光线偏折越显著。' },
+      { kind:'choice', q:'② 哪个凸透镜使光偏折得更显著些？',
+        opts:['焦距2 cm的甲透镜','焦距3 cm的乙透镜','一样显著'], answer:0,
+        analysis:'f甲=2 cm < f乙=3 cm。教材 P116 结论：<b>凸透镜的焦距越小，对光的会聚作用越强</b>，所以焦距 2 cm 的甲透镜使光偏折得更显著。' }
+    ] },
+
+  { id:'c5s1q5', section:'第1节 透镜', no:'教材 P117 练习与应用 第5题', points:10,
+    stem:'要想利用凸透镜使小灯泡发出的光变成平行光，应该把小灯泡放在凸透镜的什么位置？试试看。在解决这个问题的时候，你利用了前面学过的什么知识？',
+    note:'①填空即时判分（等价写法均可）；②开放题对照参考要点自评计分。',
+    parts:[
+      { kind:'blank', q:'① 小灯泡应放在凸透镜的什么位置？', blanks:[
+        { label:'小灯泡的位置', answer:['焦点','焦点处','焦点上','焦点F','焦点F处','F','F处','F点','f处','焦点的位置','一倍焦距处'], unit:'' }],
+        analysis:'把小灯泡放在凸透镜的<b>焦点（F）</b>处：过焦点的光经凸透镜折射后平行于主光轴出射，从而得到平行光。' },
+      { kind:'open', q:'② 解决这个问题时，你利用了前面学过的什么知识？',
+        ref:'参考要点：<br>① 利用了<b>光路可逆</b>的知识；<br>② 前面学过：平行于主光轴的光经凸透镜折射后过焦点（「平行过焦点」）；把光路反过来，过焦点的光折射后<b>平行于主光轴</b>出射；<br>③ 所以把小灯泡放在焦点处即可得到平行光。',
+        analysis:'三条特殊光线之「过焦点的光折射后平行出射」+ 光路可逆。' }
+    ] },
+
+  { id:'c5s1q6', section:'第1节 透镜', no:'教材 P117 练习与应用 第6题', points:10,
+    stem:'据新闻报道，一辆家用轿车在太阳下停放在桥上时起火。调查发现，火灾是放在仪表盘上方防滑垫上的瓶装水引起的。瓶装水是怎样引发火灾的？我们在森林中游玩时应该如何处理没有喝完的瓶装水？',
+    note:'本题为开放题，作答后对照参考要点自评计分。',
+    parts:[{ kind:'open',
+      ref:'参考要点：<br>① 装水的透明水瓶<b>中间厚、边缘薄，相当于一个凸透镜</b>，对太阳光有<b>会聚</b>作用；<br>② 阳光被会聚在焦点附近，该处<b>温度很高</b>，达到可燃物燃点就会引燃车内物品，引发火灾；<br>③ 森林中游玩时，没喝完的瓶装水应<b>带走、不乱丢</b>，避免水瓶在阳光直射下会聚光线引发火灾。',
+      analysis:'与「想想做做」放大镜会聚阳光烤焦纸同理——凸透镜会聚作用的生活实例（防火）。' }] },
+
+  { id:'c5s2q1', section:'第2节 生活中的透镜', no:'教材 P121 练习与应用 第1题（图5.2-2甲）', points:10,
+    stem:'照相机的镜头相当于一个凸透镜。图5.2-2甲中在胶片上所成的像有什么特点？',
+    note:'本题配图（图5.2-2甲）不硬画，以教材印刷为准。',
+    parts:[{ kind:'choice',
+      opts:['倒立、缩小的实像','倒立、放大的实像','正立、放大的虚像','正立、缩小的实像'], answer:0,
+      analysis:'照相时物体离镜头比较远（u>2f），在胶片（传感器）上成<b>倒立、缩小的实像</b>。教材 P118：照相机所成的像"是缩小、倒立的"。' }] },
+
+  { id:'c5s2q2', section:'第2节 生活中的透镜', no:'教材 P121 练习与应用 第2题', points:10,
+    stem:'凸透镜是很多光学仪器的主光学元件。请说出照相机与投影仪所成的像有哪些相同点和不同点。',
+    note:'本题为开放题，作答后对照参考要点自评计分。',
+    parts:[{ kind:'open',
+      ref:'参考要点：<br><b>相同点</b>：都是<b>倒立的实像</b>——光实际会聚而成、能被胶片（光屏）承接、物体和像分别位于凸透镜两侧。<br><b>不同点</b>：照相机成<b>缩小</b>的像（u>2f，f<v<2f）；投影仪成<b>放大</b>的像（f<u<2f，v>2f）。',
+      analysis:'同属实像、都倒立；大小区分在物距落在哪个区（三区成像规律）。' }] },
+  { id:'c5s2q3', section:'第2节 生活中的透镜', no:'教材 P121 练习与应用 第3题（图5.2-9）', points:10,
+    stem:'许多博物馆会在较为精巧的文物前放置凸透镜，如图5.2-9所示。通过凸透镜看到的像是什么样的？',
+    note:'本题配图（图5.2-9）不硬画，以教材印刷为准。',
+    parts:[{ kind:'choice',
+      opts:['正立、放大的虚像','倒立、缩小的实像','倒立、放大的实像','正立、等大的实像'], answer:0,
+      analysis:'文物放在凸透镜焦距以内（u<f），此时凸透镜当<b>放大镜</b>用，成<b>正立、放大的虚像</b>（教材 P120）。' }] },
+
+  { id:'c5s2q4', section:'第2节 生活中的透镜', no:'教材 P121 练习与应用 第4题', points:10,
+    stem:'请你试一试，在使用本节"想想做做"中自制的模型照相机时，如果想让像变大一些，应该怎么操作？',
+    note:'本题为开放题，作答后对照参考要点自评计分。',
+    parts:[{ kind:'open',
+      ref:'参考要点：<br>① 把模型照相机<b>靠近被拍物体</b>（减小物距）；<br>② 同时<b>拉动纸筒、增大凸透镜与薄膜间的距离</b>（增大像距），直到薄膜上的像重新清晰；<br>③ 规律：成实像时"<b>物近像远像变大</b>"。',
+      analysis:'成实像时物距减小、像距增大、像变大（第3节动态规律的前置体验）。' }] },
+
+  { id:'c5s2q5', section:'第2节 生活中的透镜', no:'教材 P121 练习与应用 第5题', points:10,
+    stem:'生活中我们看到的像，有实像也有虚像。例如，电影幕布上的像是实像，镜子中的像是虚像。请你各举出一个生活中能看到的实像和虚像的例子。',
+    note:'本题为开放题，作答后对照参考要点自评计分。',
+    parts:[{ kind:'open',
+      ref:'参考要点（各举一例、合理即可）：<br><b>实像</b>——投影仪投在幕布上的像 / 照相机胶片（传感器）上的像 / 小孔成像；<br><b>虚像</b>——平面镜中的像 / 放大镜看到的像 / 平静水面中的"倒影"。',
+      analysis:'判据：光是否实际会聚、光屏能否承接——能承接的是实像，不能承接的是虚像。' }] },
+
+  { id:'c5s3q1', section:'第3节 凸透镜成像的规律', no:'教材 P124 练习与应用 第1题', points:10,
+    stem:'请分别说一说照相机、投影仪、放大镜是如何应用凸透镜成像的规律工作的。',
+    note:'本题为开放题，作答后对照参考要点自评计分。',
+    parts:[{ kind:'open',
+      ref:'参考要点：<br>① <b>照相机</b>：物体在二倍焦距以外（u>2f），镜头（凸透镜）在胶片（传感器）上成<b>倒立、缩小的实像</b>；<br>② <b>投影仪</b>：投影片在一倍焦距与二倍焦距之间（f<u<2f），成<b>倒立、放大的实像</b>在屏幕上，平面镜只改变光路方向；<br>③ <b>放大镜</b>：物体在一倍焦距以内（u<f），成<b>正立、放大的虚像</b>。',
+      analysis:'三区成像规律与三种仪器一一对应：u>2f 缩小实像、f<u<2f 放大实像、u<f 放大虚像。' }] },
+
+  { id:'c5s3q2', section:'第3节 凸透镜成像的规律', no:'教材 P124-125 练习与应用 第2题（图5.3-3）', points:10,
+    stem:'找一个圆柱形的玻璃杯，里面装入水。把一支笔放在玻璃杯的一侧，透过玻璃杯，可以看到这支笔（图5.3-3）。如果把笔由靠近玻璃杯的位置向远处慢慢地移动，你会看到什么现象？实际做一做，验证你的猜想。',
+    note:'本题配图（图5.3-3）不硬画，以教材印刷为准。本题为开放题，建议实际做一做后对照参考要点自评计分。',
+    parts:[{ kind:'open',
+      ref:'参考要点：<br>① 装水的圆柱形玻璃杯相当于一个<b>凸透镜</b>；<br>② 笔靠近杯（u<f）时：看到<b>正立、放大的虚像</b>；<br>③ 笔逐渐移远、越过焦点（u>f）后：像<b>变倒</b>（倒立的实像，先放大）；<br>④ 继续移远过二倍焦距（u>2f）：像变为<b>倒立、缩小</b>。即：正立放大虚像 → 焦点附近不成像（像模糊消失）→ 倒立实像（先放大后缩小）。',
+      analysis:'圆柱水杯=凸透镜；笔移动=物距连续增大，依次穿过三区，成像情况随之切换。' }] },
+  { id:'c5s3q3', section:'第3节 凸透镜成像的规律', no:'教材 P125 练习与应用 第3题', points:10,
+    stem:'某同学用放大镜观察景物。如果想让像变得更大一些，他应该怎样做？',
+    parts:[{ kind:'choice',
+      opts:['适当增大放大镜与景物间的距离（仍在焦距内）','减小放大镜与景物间的距离','把放大镜远离眼睛到任意距离都行','换焦距更小的放大镜贴近景物'], answer:0,
+      analysis:'放大镜成正立、放大虚像的前提是 u<f。在焦距以内<b>适当增大物距</b>（把放大镜稍稍拉远一点），虚像变大——但物距不能超过焦距，否则不再成虚像。' }] },
+
+  { id:'c5s3q4', section:'第3节 凸透镜成像的规律', no:'教材 P125 练习与应用 第4题（图5.3-2）', points:10,
+    stem:'某同学利用如图5.3-2所示的器材做实验。他先用焦距为20 cm的透镜甲进行实验，在光屏上得到了烛焰缩小的实像。接下来他想改用焦距为10 cm的透镜乙继续进行实验。如果不改变发光体和光屏的位置，还想在光屏上得到清晰的烛焰的像，透镜乙应该放在透镜甲的左侧还是右侧？',
+    note:'本题配图（图5.3-2 光具座装置）不硬画，以教材印刷为准。',
+    parts:[{ kind:'choice',
+      opts:['右侧（靠近光屏一侧）','左侧（靠近发光体一侧）'], answer:0,
+      analysis:'甲成缩小实像 → u>2f甲=40 cm，像距 20 cm<v甲<40 cm。换 f乙=10 cm 的透镜后，<b>焦距变小、会聚能力变强</b>，像会靠近透镜（v乙<v甲）；发光体与光屏位置不动，要让像重新落在光屏上，须把透镜<b>向光屏方向移</b>——即放在透镜甲的<b>右侧</b>。' }] },
+
+  { id:'c5s3q5', section:'第3节 凸透镜成像的规律', no:'教材 P125 练习与应用 第5题（图5.3-2）', points:12,
+    stem:'实验小组的同学用如图5.3-2所示的装置探究凸透镜成像的规律。实验器材有：一个凸透镜、光屏、高度为3.0 cm且带有刻度的发光物体。实验时，物距从4.0 cm开始，一次增加2.0 cm。下表是他们记录的物距、像距、像的高度和正倒情况。',
+    note:'⚠️ 本题小问句原转录缺录，已核原书照片补齐三小问；数据表已按原书修正（原转录像距/像高两行录反，经 f=10 cm 自洽与放大率 v/u×3.0 cm 双重交叉验证）。以教材印刷为准。三空各4分，即时判分。',
+    fig:'imgDataTable', figCap:'表：物距、像距、像的高度与正倒记录数据（发光物体高 3.0 cm；"/"=光屏上承接不到像，原书为空）',
+    parts:[
+      { kind:'blank', q:'(1) 怎样判断表中所成的像是放大的还是缩小的？', blanks:[
+        { label:'判断方法：把像的高度与___比较', answer:['物体高度','光源高度','光源的高度','物体的高度','物高','3.0cm','3.0','3cm','3.0厘米'], unit:'' }],
+        analysis:'把<b>像的高度与发光物体（光源）的高度 3.0 cm 比较</b>：像高>3.0 cm 为放大，像高<3.0 cm 为缩小。也可比较像距与物距：v>u 放大、v<u 缩小（如 u=12.0 时 v=60.4、像高 15.1 cm，放大）。' },
+      { kind:'blank', q:'(2) 该凸透镜的焦距 f 是多少？', blanks:[
+        { label:'焦距 f', answer:['10','10.0','10cm','10.0cm'], unit:'cm' }],
+        analysis:'表中 u=20.0 cm 时 v=20.0 cm，成倒立、等大（像高 3.0 cm）的实像，u=v=2f → f=10 cm。全表验证：1/u+1/v≈1/10（如 u=12.0、v=60.4：1/12+1/60.4≈0.1）。' },
+      { kind:'blank', q:'(3) 该凸透镜在什么条件下成虚像？', blanks:[
+        { label:'物距___时成虚像', answer:['小于10cm','小于10.0cm','小于10','小于焦距','小于1倍焦距','小于一倍焦距','小于f','u<10cm','u<10','u<f','小于10厘米'], unit:'' }],
+        analysis:'表中前三列 u=4.0/6.0/8.0 cm 时像为正立（光屏承接不到，为虚像），u=10.0 cm（=f）时不成像 → 成虚像的条件是<b>物距小于 10 cm（小于焦距 f）</b>。' }
+    ] },
+  { id:'c5s3q6', section:'第3节 凸透镜成像的规律', no:'教材 P125 练习与应用 第6题', points:10,
+    stem:'⚠️某同学在做探究凸透镜成像规律的实验时，光屏上已出现清晰的像，但他不小心用手指遮挡了凸透镜的一部分。此时光屏上会出现什么现象？三位同学各有判断：①屏上会出现手指的影；②像会变残缺；③像仍完整但变暗。你认为谁的判断正确？为什么？',
+    note:'⚠️ 本题原转录个别字句不清，三观点与正确项已核原书照片回填；以教材印刷为准。①单选即时判分，②说理对照参考答案自评。',
+    parts:[
+      { kind:'choice', q:'① 谁的判断正确？',
+        opts:['①屏上会出现手指的影','②像会变残缺','③像仍完整但变暗'], answer:2,
+        analysis:'正确判断是<b>③像仍完整但变暗</b>。凸透镜成像由物体发出的全部光线共同完成：物体上每一点发出的光经透镜<b>各部分</b>都会会聚到对应的像点；遮住一部分只是减少了透光量，像仍完整，但变暗。' },
+      { kind:'open', q:'② 为什么？请说明理由。',
+        ref:'参考要点：<br>① 物体上任一点发出的光射向透镜的<b>全部表面</b>，经透镜各部分折射后都会会聚到同一个像点；<br>② 用手指遮挡凸透镜的一部分后，<b>其余部分仍能会聚物体全部各点发出的光</b>，在原像的位置成<b>完整的像</b>；<br>③ 只是透过透镜的<b>光通量减少</b>，会聚到像上的光变少，所以像<b>变暗</b>；<br>④ 手指离透镜很近且不在物距成像位置，屏上不会出现手指的影或手指的像。',
+        analysis:'遮挡部分孔径→透光减少→像完整但变暗；不会残缺、也不会出现手指的影/像。' }
+    ] },
+
+  { id:'c5s3q7', section:'第3节 凸透镜成像的规律', no:'教材 P125 练习与应用 第7题', points:10,
+    stem:'在天安门广场某处，某同学想拍摄天安门城楼的全景，但发现在该位置无论怎样调节，都只能从取景框中看到城楼的一部分。请你利用本节学到的知识，帮他想一个办法能够拍摄到天安门城楼的全景，并说明理由。',
+    note:'⚠️ 本题原转录（"游乐场观察窗"）为错录，题干已按原书照片修正；以教材印刷为准。本题为开放题，作答后对照参考要点自评计分。',
+    parts:[{ kind:'open',
+      ref:'参考要点：<br><b>办法</b>：把相机<b>向后移、远离城楼（增大物距）</b>；或换用<b>焦距更短</b>的凸透镜（镜头）。<br><b>理由</b>：凸透镜成实像时，<b>物远像近像变小</b>——增大物距后，胶片（传感器）上所成的像变小，整个城楼的像就能全部收进取景框（胶片）内，从而拍到全景。',
+      analysis:'本质是"让像变小以收全景物"：成实像时物距增大→像距减小、像变小（拍摄时相机自动调小像距使像清晰）。' }] },
+
+  { id:'c5s4q1', section:'第4节 眼睛和眼镜', no:'教材 P129 练习与应用 第1题', points:12,
+    stem:'晶状体和角膜的共同作用相当于一个凸透镜。当我们看远处或近处的物体时，这个凸透镜的焦距有什么不同？近视眼应利用什么透镜矫正？远视眼应利用什么透镜矫正？',
+    note:'三个小问均为单选，即时判分（每空4分）。',
+    parts:[
+      { kind:'choice', q:'① 看远处物体时，晶状体（这个"凸透镜"）与看近处时相比：',
+        opts:['较薄，焦距较大','较厚，焦距较小','较薄，焦距较小','较厚，焦距较大'], answer:0,
+        analysis:'看远处物体时睫状体放松、晶状体比较<b>薄</b>，对光的偏折能力弱，<b>焦距较大</b>；看近处物体时睫状体收缩、晶状体变厚，偏折能力变大，焦距变小，近处物体的光仍能会聚在视网膜上。' },
+      { kind:'choice', q:'② 近视眼应利用什么透镜矫正？',
+        opts:['凹透镜','凸透镜'], answer:0,
+        analysis:'近视眼晶状体太厚、折光能力太强（或眼球前后方向太长），远处物体的光会聚在视网膜<b>前</b>；戴<b>凹透镜</b>使光先发散，像后移回到视网膜上。' },
+      { kind:'choice', q:'③ 远视眼应利用什么透镜矫正？',
+        opts:['凸透镜','凹透镜'], answer:0,
+        analysis:'远视眼晶状体太薄、折光能力太弱（或眼球前后方向太短），近处物体的光会聚在视网膜<b>后</b>；戴<b>凸透镜</b>使光提前会聚，像前移回到视网膜上。' }
+    ] },
+
+  { id:'c5s4q2', section:'第4节 眼睛和眼镜', no:'教材 P129 练习与应用 第2题（图5.3-2）', points:12,
+    stem:'某同学想进一步了解近视眼矫正的原理，利用探究凸透镜成像规律的装置（图5.3-2）进行实验。他将蜡烛和凸透镜的位置固定，移动光屏，在光屏上得到了清晰的像。（1）如果要模拟近视眼看不清远处物体的情况，他应该怎样移动光屏？（2）如果要模拟远视眼的矫正，他移动光屏后，保持发光物体和凸透镜的位置不变，那么在发光物体和凸透镜之间放置一个什么透镜才能使光屏上再次出现清晰的像？',
+    note:'本题配图（图5.3-2 光具座装置）不硬画，以教材印刷为准。两小问均为单选，即时判分（每空6分）。',
+    parts:[
+      { kind:'choice', q:'(1) 模拟近视眼看不清远处物体时，光屏应怎样移动？',
+        opts:['向凸透镜方向移动（靠近透镜）','远离凸透镜移动','保持不动'], answer:0,
+        analysis:'近视眼的像成在视网膜<b>前</b>。实验中蜡烛与凸透镜固定，像的位置不变，把光屏<b>向凸透镜方向移动</b>到像的位置，才能承接到清晰的像——光屏模拟"前移的视网膜"，即近视眼看远处物体时像落在视网膜前、屏（视网膜）上模糊。' },
+      { kind:'choice', q:'(2) 模拟远视眼的矫正：在发光物体和凸透镜之间放置一个什么透镜，才能使光屏上再次出现清晰的像？',
+        opts:['凸透镜','凹透镜'], answer:0,
+        analysis:'远视眼的矫正戴<b>凸透镜</b>：凸透镜对光有会聚作用，使光<b>提前会聚</b>，像前移重新落在光屏（视网膜）上，屏上再次出现清晰的像。' }
+    ] },
+
+  { id:'c5s4q3', section:'第4节 眼睛和眼镜', no:'教材 P129 练习与应用 第3题', points:10,
+    stem:'细心的小明观察到爷爷看报时会戴着眼镜，而看电视时又会摘下眼镜。因此，小明判断爷爷戴的是老花镜。请你说说小明是怎样判断的。',
+    note:'本题为开放题，作答后对照参考要点自评计分。',
+    parts:[{ kind:'open',
+      ref:'参考要点：<br>① 看报=看<b>近处</b>物体，要戴上眼镜才看得清；看电视=看<b>远处</b>物体，不戴眼镜也看得清（摘下）；<br>② 说明爷爷的眼睛<b>看清远处、看不清近处</b>——是远视眼（老花眼），近处物体的光会聚在视网膜后；<br>③ 远视眼用<b>凸透镜</b>矫正，老花镜就是凸透镜，所以小明判断爷爷戴的是老花镜。',
+      analysis:'远视眼（老花）"看清远、看不清近"+老花镜=凸透镜；与近视眼（看近清、看远糊、戴凹透镜）对照。' }] },
+
+  { id:'c5s4q4', section:'第4节 眼睛和眼镜', no:'教材 P129 练习与应用 第4题', points:10,
+    stem:'6月6日是全国爱眼日。根据你的观察和了解，生活中有哪些不当的用眼习惯会导致近视？提出两条预防近视的措施。',
+    note:'本题为开放题，言之有理即可，作答后对照参考要点自评计分。',
+    parts:[{ kind:'open',
+      ref:'参考要点：<br><b>不当用眼习惯</b>——长时间近距离看屏幕/看书；在光线过强或过暗的环境下用眼；躺卧或走路时看书；连续用眼不休息等。<br><b>预防措施（答出两条即可）</b>——①保持正确的读写姿势，眼与书本距离约 33 cm（一尺）；②连续用眼 40~50 min 后远眺休息；③不在过强/过暗的光线下看书；④认真做眼保健操、定期检查视力、增加户外活动。',
+      analysis:'护眼常识开放题；"6月6日全国爱眼日"为教材数字事实。' }] },
+
+]; // 闭合 QUESTIONS 数组（共22题：第1节×6、第2节×5、第3节×7、第4节×4）
+
+/* ===== 状态与持久化 ===== */
+const STORAGE_KEY = 'c5_practice_state_v1';
+let STATE = { scores: {}, done: {}, choice: {}, blank: {}, open: {} };
+
+function initState() {
+  const defaults = { scores: {}, done: {}, choice: {}, blank: {}, open: {} };
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    STATE = Object.assign({}, defaults, saved);
+  } catch (e) { STATE = defaults; }
+  ['scores', 'done', 'choice', 'blank', 'open'].forEach(k => { if (!STATE[k]) STATE[k] = {}; });
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); } catch (e) {}
+}
+function findQ(qid) { return QUESTIONS.find(q => q.id === qid); }
+function partPoints(q, pi) {
+  const n = q.parts && q.parts.length ? q.parts.length : 1;
+  return Math.round(q.points / n);
+}
+function norm(s) {
+  return String(s == null ? '' : s).replace(/[＋]/g, '+').replace(/[－]/g, '-').replace(/[。．]/g, '').replace(/\s/g, '').trim();
+}
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function $1(sel, el) { return (el || document).querySelector(sel); }
+function $all(sel, el) { return Array.from((el || document).querySelectorAll(sel)); }
+
+/* ===== 程序化插图 ===== */
+const FIGURES = {
+  lensPaths4: svgLensPaths4,
+  lensBox2: svgLensBox2,
+  imgDataTable: htmlImgDataTable
+};
+
+function lensShape(cx, cy, h, convex) {
+  if (convex) return `<path d="M ${cx} ${cy - h/2} Q ${cx+9} ${cy} ${cx} ${cy+h/2} Q ${cx-9} ${cy} ${cx} ${cy-h/2} Z" fill="rgba(90,215,255,.18)" stroke="#5ad7ff" stroke-width="1.5"/>`;
+  return `<path d="M ${cx-8} ${cy - h/2} Q ${cx-3} ${cy} ${cx-8} ${cy+h/2} L ${cx+8} ${cy+h/2} Q ${cx+3} ${cy} ${cx+8} ${cy-h/2} Z" fill="rgba(90,215,255,.18)" stroke="#5ad7ff" stroke-width="1.5"/>`;
+}
+function panelBox(dx, dy, title, inner) {
+  return `<g transform="translate(${dx},${dy})">`
+    + `<rect x="4" y="4" width="222" height="142" fill="none" stroke="rgba(255,255,255,.08)" rx="8"/>`
+    + `<text x="14" y="24" fill="#ffd479" font-size="14" font-weight="700">${title}</text>`
+    + inner + `</g>`;
+}
+function axis(y) {
+  return `<line x1="16" y1="${y}" x2="214" y2="${y}" stroke="#6b7686" stroke-width="1" stroke-dasharray="4 3"/>`;
+}
+function ray(pts, color) {
+  let s = '';
+  for (let i = 0; i < pts.length - 1; i++) {
+    s += `<line x1="${pts[i][0]}" y1="${pts[i][1]}" x2="${pts[i+1][0]}" y2="${pts[i+1][1]}" stroke="${color}" stroke-width="2"/>`;
+  }
+  return s;
+}
+function focal(x, y) {
+  return `<circle cx="${x}" cy="${y}" r="3" fill="#ffd479"/><text x="${x-4}" y="${y+18}" fill="#ffd479" font-size="11">F</text>`;
+}
+
+function svgLensPaths4() {
+  // 甲：凸透镜，平行入射会聚于F（正确）
+  let pA = axis(80) + lensShape(100, 80, 84, true)
+    + ray([[25,60],[100,60]], '#ff7a6e') + ray([[100,60],[200,88.6]], '#5ad7ff')
+    + ray([[25,100],[100,100]], '#ff7a6e') + ray([[100,100],[200,71.4]], '#5ad7ff')
+    + focal(170, 80) + `<text x="30" y="52" fill="#ff7a6e" font-size="10">平行光</text>`;
+  // 乙：凸透镜，过F入射折射后发散（错，应平行出射）
+  let pB = axis(80) + lensShape(120, 80, 84, true)
+    + ray([[50,80],[120,60]], '#ff7a6e') + ray([[120,60],[205,40]], '#5ad7ff')
+    + ray([[50,80],[120,100]], '#ff7a6e') + ray([[120,100],[205,120]], '#5ad7ff')
+    + focal(50, 80) + `<text x="66" y="48" fill="#ff7a6e" font-size="10">过F入射</text>`;
+  // 丙：凹透镜，自同侧F发散入射折射后平行（错，应更发散）
+  let pC = axis(80) + lensShape(110, 80, 84, false)
+    + ray([[40,80],[110,60]], '#ff7a6e') + ray([[110,60],[200,60]], '#5ad7ff')
+    + ray([[40,80],[110,100]], '#ff7a6e') + ray([[110,100],[200,100]], '#5ad7ff')
+    + focal(40, 80) + `<text x="56" y="48" fill="#ff7a6e" font-size="10">自F发散入射</text>`;
+  // 丁：凹透镜，平行入射实际会聚于F（错，应发散、反向延长过虚焦点）
+  let pD = axis(80) + lensShape(90, 80, 84, false)
+    + ray([[20,60],[90,60]], '#ff7a6e') + ray([[90,60],[200,87.5]], '#5ad7ff')
+    + ray([[20,100],[90,100]], '#ff7a6e') + ray([[90,100],[200,72.5]], '#5ad7ff')
+    + focal(170, 80) + `<text x="26" y="52" fill="#ff7a6e" font-size="10">平行光</text>`;
+  const s = panelBox(0, 0, '甲', pA) + panelBox(230, 0, '乙', pB)
+    + panelBox(0, 150, '丙', pC) + panelBox(230, 150, '丁', pD);
+  return `<svg viewBox="0 0 460 300" role="img" aria-label="图5.1-9四幅光路简图复现：甲凸透镜平行光会聚于F，乙凸透镜过F入射发散，丙凹透镜自F发散入射变平行，丁凹透镜平行入射实际会聚于F">${s}</svg>`;
+}
+
+function svgLensBox2() {
+  const box = `<rect x="95" y="28" width="30" height="100" fill="none" stroke="#9aa4b5" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  const inc = ray([[20,48],[95,64]], '#ff7a6e') + ray([[20,112],[95,96]], '#ff7a6e');
+  // 甲：会聚入射，过框后发散出射
+  let pA = box + inc + ray([[125,64],[205,38]], '#5ad7ff') + ray([[125,96],[205,122]], '#5ad7ff')
+    + `<text x="26" y="42" fill="#ff7a6e" font-size="10">会聚入射</text><text x="150" y="32" fill="#5ad7ff" font-size="10">发散出射</text>`;
+  // 乙：会聚入射，过框后平行出射
+  let pB = box + inc + ray([[125,64],[205,64]], '#5ad7ff') + ray([[125,96],[205,96]], '#5ad7ff')
+    + `<text x="26" y="42" fill="#ff7a6e" font-size="10">会聚入射</text><text x="150" y="56" fill="#5ad7ff" font-size="10">平行出射</text>`;
+  const s = panelBox(0, 0, '甲', pA) + panelBox(230, 0, '乙', pB);
+  return `<svg viewBox="0 0 460 160" role="img" aria-label="图5.1-10简图复现：甲会聚入射过虚线框后发散出射，乙会聚入射过虚线框后平行出射">${s}</svg>`;
+}
+
+function htmlImgDataTable() {
+  const u  = ['4.0','6.0','8.0','10.0','12.0','14.0','16.0','18.0','20.0','22.0','24.0','26.0','28.0'];
+  const v  = ['/','/','/','/','60.4','35.6','26.6','22.3','20.0','18.4','17.3','16.6','15.7'];
+  const h  = ['/','/','/','/','15.1','7.6','5.0','3.7','3.0','2.5','2.1','1.9','1.7'];
+  const io = ['正','正','正','/','倒','倒','倒','倒','倒','倒','倒','倒','倒'];
+  const row = (name, arr) => `<tr><th>${name}</th>${arr.map(x => `<td>${x}</td>`).join('')}</tr>`;
+  return `<table class="dtab"><tbody>`
+    + row('物距/cm', u) + row('像距/cm', v) + row('像的高度/cm', h) + row('像的正倒', io)
+    + `</tbody></table>`;
+}
+
+/* ===== 渲染引擎 ===== */
+function renderFig(fig, figCap) {
+  if (!fig || !FIGURES[fig]) return '';
+  return `<div class="figbox">${FIGURES[fig]()}<div class="figcap">${esc(figCap || '')}</div></div>`;
+}
+function renderPart(q, pi) {
+  const p = q.parts[pi];
+  const key = `${q.id}_${pi}`;
+  const head = p.q ? `<div class="pp"><b>${esc(p.q)}</b></div>` : '';
+  if (p.kind === 'choice') {
+    const opts = p.opts.map((opt, idx) =>
+      `<button class="opt" data-qid="${q.id}" data-pi="${pi}" data-idx="${idx}">${['A','B','C','D'][idx]}. ${esc(opt)}</button>`
+    ).join('');
+    return `<div class="part" data-key="${key}">${head}<div class="opts">${opts}</div><div class="fb" data-role="fb"></div></div>`;
+  }
+  if (p.kind === 'blank') {
+    const rows = p.blanks.map((b, bi) =>
+      `<div class="blankrow"><span>${esc(b.label)}：</span><input type="text" class="blank-inp" data-bi="${bi}" data-qid="${q.id}" data-pi="${pi}" placeholder="作答"${b.unit ? ` aria-label="${esc(b.label)}"` : ''}><span>${esc(b.unit || '')}</span></div>`
+    ).join('');
+    return `<div class="part" data-key="${key}">${head}${rows}<button class="btn blank-check" data-qid="${q.id}" data-pi="${pi}">提交答案</button><div class="fb" data-role="fb"></div></div>`;
+  }
+  if (p.kind === 'open') {
+    return `<div class="part" data-key="${key}">${head}
+      <button class="btn ghost ref-toggle" data-qid="${q.id}" data-pi="${pi}">查看参考答案</button>
+      <div class="ref">${p.ref}</div>
+      <div class="selfrow">
+        <button class="btn gold self-score" data-qid="${q.id}" data-pi="${pi}" data-ratio="1">满分</button>
+        <button class="btn self-score" data-qid="${q.id}" data-pi="${pi}" data-ratio="0.5">半分</button>
+        <button class="btn ghost self-score" data-qid="${q.id}" data-pi="${pi}" data-ratio="0">0分</button>
+      </div>
+      <div class="fb" data-role="fb"></div>
+    </div>`;
+  }
+  return '';
+}
+function renderQuestion(q) {
+  return `<div class="qcard" id="${q.id}">
+    <div class="qno"><b>${esc(q.no)}</b><span>(${q.points}分)</span></div>
+    <div class="stem">${esc(q.stem)}</div>
+    ${q.note ? `<div class="qnote">${esc(q.note)}</div>` : ''}
+    ${renderFig(q.fig, q.figCap)}
+    ${q.parts.map((_, pi) => renderPart(q, pi)).join('')}
+  </div>`;
+}
+function renderQuiz() {
+  const root = document.getElementById('quizRoot');
+  if (!root) return;
+  const order = [];
+  const groups = {};
+  QUESTIONS.forEach(q => {
+    if (!groups[q.section]) { groups[q.section] = []; order.push(q.section); }
+    groups[q.section].push(q);
+  });
+  root.innerHTML = order.map(sec =>
+    `<section class="sec">`
+    + `<div class="sec-head"><h2>${esc(sec)}</h2><span class="chip">${groups[sec].length} 题</span></div>`
+    + groups[sec].map(renderQuestion).join('')
+    + `</section>`
+  ).join('');
+  bindEvents();
+  restoreUI();
+  updateProgress();
+}
+
+/* ===== 判分与交互 ===== */
+function showFb(el, ok, html) {
+  const fb = $1('[data-role="fb"]', el);
+  if (!fb) return;
+  fb.className = 'fb ' + (ok ? 'ok' : 'err');
+  fb.innerHTML = (ok ? '✅ 回答正确' : '❌ 回答错误') + '<div class="an"><b>解析：</b>' + html + '</div>';
+}
+function setChoiceUI(el, part, chosenIdx) {
+  const correctIdx = part.answer;
+  $all('.opt', el).forEach(btn => {
+    const idx = +btn.dataset.idx;
+    btn.disabled = true;
+    btn.classList.remove('ok', 'err', 'dim');
+    if (idx === correctIdx) btn.classList.add('ok');
+    else if (idx === chosenIdx) btn.classList.add('err');
+    else btn.classList.add('dim');
+  });
+  showFb(el, chosenIdx === correctIdx, part.analysis);
+}
+function setBlankUI(el, part, vals) {
+  const inputs = $all('.blank-inp', el);
+  let allOk = true;
+  inputs.forEach((inp, bi) => {
+    inp.value = (vals && vals[bi]) || '';
+    const accepted = part.blanks[bi].answer.map(norm);
+    const ok = accepted.includes(norm(inp.value));
+    inp.classList.toggle('ok', ok);
+    inp.classList.toggle('err', !ok);
+    inp.readOnly = true;
+    if (!ok) allOk = false;
+  });
+  const btn = $1('.blank-check', el);
+  if (btn) btn.disabled = true;
+  showFb(el, allOk, part.analysis);
+}
+function setOpenUI(el, score, full) {
+  $1('.ref', el).classList.add('show');
+  $1('.selfrow', el).classList.add('show');
+  const tbtn = $1('.ref-toggle', el);
+  if (tbtn) tbtn.textContent = '收起参考答案';
+  const key = el.dataset.key;
+  if (key) STATE.open[key] = true;
+  const ratio = full ? score / full : 0;
+  $all('.self-score', el).forEach(btn => {
+    btn.disabled = true;
+    btn.classList.remove('done');
+    if (Math.abs(+btn.dataset.ratio - ratio) < 1e-6) btn.classList.add('done');
+  });
+  const label = score === full ? '满分' : (score === Math.round(full / 2) ? '半分' : '0分');
+  showFb(el, score > 0, '已自评：' + label + '。');
+}
+function restoreUI() {
+  Object.keys(STATE.done).forEach(key => {
+    if (!STATE.done[key]) return;
+    const sep = key.lastIndexOf('_');
+    const qid = key.slice(0, sep), pi = +key.slice(sep + 1);
+    const q = findQ(qid);
+    if (!q) return;
+    const part = q.parts[pi];
+    const el = $1(`.part[data-key="${key}"]`);
+    if (!el) return;
+    if (part.kind === 'choice') setChoiceUI(el, part, STATE.choice[key]);
+    else if (part.kind === 'blank') setBlankUI(el, part, STATE.blank[key]);
+    else if (part.kind === 'open') setOpenUI(el, (STATE.scores[qid] || {})[pi] || 0, partPoints(q, pi));
+  });
+  Object.keys(STATE.open).forEach(key => {
+    if (!STATE.open[key] || STATE.done[key]) return;
+    const el = $1(`.part[data-key="${key}"]`);
+    if (!el) return;
+    $1('.ref', el).classList.add('show');
+    $1('.selfrow', el).classList.add('show');
+    const tbtn = $1('.ref-toggle', el);
+    if (tbtn) tbtn.textContent = '收起参考答案';
+  });
+}
+
+function bindEvents() {
+  $all('.opt').forEach(btn => btn.addEventListener('click', onChoiceClick));
+  $all('.blank-check').forEach(btn => btn.addEventListener('click', onBlankCheck));
+  $all('.ref-toggle').forEach(btn => btn.addEventListener('click', onRefToggle));
+  $all('.self-score').forEach(btn => btn.addEventListener('click', onSelfScore));
+}
+function onChoiceClick(e) {
+  const btn = e.currentTarget;
+  const qid = btn.dataset.qid, pi = +btn.dataset.pi, idx = +btn.dataset.idx;
+  const q = findQ(qid), part = q.parts[pi];
+  const key = `${qid}_${pi}`;
+  STATE.choice[key] = idx;
+  STATE.done[key] = true;
+  STATE.scores[qid] = STATE.scores[qid] || {};
+  STATE.scores[qid][pi] = (idx === part.answer) ? partPoints(q, pi) : 0;
+  saveState();
+  setChoiceUI(btn.closest('.part'), part, idx);
+  updateProgress();
+}
+function onBlankCheck(e) {
+  const btn = e.currentTarget;
+  const qid = btn.dataset.qid, pi = +btn.dataset.pi;
+  const q = findQ(qid), part = q.parts[pi];
+  const el = btn.closest('.part');
+  const inputs = $all('.blank-inp', el);
+  const vals = [];
+  let allOk = true;
+  inputs.forEach((inp, bi) => {
+    vals[bi] = inp.value;
+    const accepted = part.blanks[bi].answer.map(norm);
+    const ok = accepted.includes(norm(inp.value));
+    inp.classList.toggle('ok', ok);
+    inp.classList.toggle('err', !ok);
+    inp.readOnly = true;
+    if (!ok) allOk = false;
+  });
+  const key = `${qid}_${pi}`;
+  STATE.blank[key] = vals;
+  STATE.done[key] = true;
+  STATE.scores[qid] = STATE.scores[qid] || {};
+  STATE.scores[qid][pi] = allOk ? partPoints(q, pi) : 0;
+  saveState();
+  btn.disabled = true;
+  setBlankUI(el, part, vals);
+  updateProgress();
+}
+function onRefToggle(e) {
+  const btn = e.currentTarget;
+  const qid = btn.dataset.qid, pi = +btn.dataset.pi;
+  const el = btn.closest('.part');
+  const shown = $1('.ref', el).classList.toggle('show');
+  $1('.selfrow', el).classList.toggle('show');
+  btn.textContent = shown ? '收起参考答案' : '查看参考答案';
+  STATE.open[`${qid}_${pi}`] = shown;
+  saveState();
+}
+function onSelfScore(e) {
+  const btn = e.currentTarget;
+  const qid = btn.dataset.qid, pi = +btn.dataset.pi, ratio = +btn.dataset.ratio;
+  const q = findQ(qid), part = q.parts[pi];
+  const key = `${qid}_${pi}`;
+  const full = partPoints(q, pi);
+  STATE.done[key] = true;
+  STATE.open[key] = true;
+  STATE.scores[qid] = STATE.scores[qid] || {};
+  STATE.scores[qid][pi] = Math.round(full * ratio);
+  saveState();
+  const el = btn.closest('.part');
+  $all('.self-score', el).forEach(b => { b.disabled = true; b.classList.remove('done'); });
+  btn.classList.add('done');
+  const label = ratio === 1 ? '满分' : (ratio === 0.5 ? '半分' : '0分');
+  showFb(el, ratio > 0, '自评得分：' + label + '。' + part.analysis);
+  updateProgress();
+}
+function updateProgress() {
+  let doneCount = 0, total = 0;
+  QUESTIONS.forEach(q => {
+    const allDone = q.parts.every((_, pi) => STATE.done[`${q.id}_${pi}`]);
+    if (allDone) doneCount++;
+    q.parts.forEach((_, pi) => {
+      total += ((STATE.scores[q.id] || {})[pi] || 0);
+    });
+  });
+  const progBar = document.getElementById('progBar');
+  const progTxt = document.getElementById('progTxt');
+  const totalScore = document.getElementById('totalScore');
+  if (progBar) progBar.style.width = (doneCount / QUESTIONS.length * 100) + '%';
+  if (progTxt) progTxt.textContent = `已完成 ${doneCount} / ${QUESTIONS.length} 题`;
+  if (totalScore) {
+    totalScore.style.display = 'inline';
+    totalScore.textContent = `总分 ${total} 分`;
+  }
+  const root = document.getElementById('quizRoot');
+  let summary = document.getElementById('allDoneSummary');
+  if (doneCount === QUESTIONS.length && root && !summary) {
+    summary = document.createElement('div');
+    summary.id = 'allDoneSummary';
+    summary.className = 'qcard';
+    summary.innerHTML = `<div class="stem">🎉 本章练习全部完成！</div><div class="pp">${QUESTIONS.length} / ${QUESTIONS.length} 题已作答，当前总得分 <b style="color:#ffd479">${total} 分</b>。继续加油！</div>`;
+    root.appendChild(summary);
+  } else if (summary) {
+    summary.querySelector('b').textContent = total + ' 分';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initState();
+  renderQuiz();
+});
