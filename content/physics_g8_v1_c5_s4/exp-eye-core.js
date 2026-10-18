@@ -14,6 +14,10 @@ var COND_RNG={normal:[0,100],myopia:[43,100],hyper:[0,57]};
 // R16 自动档目标焦距（×D）：正常 f=D 清晰；近视 f=0.82D→会聚点视网膜前约0.18D；远视 f=1.35D→视网膜后约0.35D（夸张化，明确落在视网膜右侧一截）
 var COND_F={normal:1.00,myopia:0.82,hyper:1.35};
 var COND_NAME={normal:'正常眼',myopia:'近视眼',hyper:'远视眼'};
+// R30 自动档目标焦距数值解的可达区间（×D）：=FK 常量与 COND_OFF 推出的现值（FK_MAX/FK_MIN/COND_OFF/COND_F 常量本身不动）
+// normal[FK_MIN,COND_F.normal]；myopia[0.625,0.82]/hyper[1.35,1.625]；k=0 时 f_need=D → clamp 结果=1.00/0.82/1.35=COND_F 原值（默认态数学不变）
+var COND_FREACH={normal:[0.75,1.00],myopia:[0.625,0.82],hyper:[1.35,1.625]};
+var U_DRAG_K=1.5;                              // R30 树拖近下限（×D）：xDragLim=xL−1.5D（命名避开 R12 已删的近景遗留 token）
 
 var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
 var ctrlEl=document.querySelector('.ctrlbar');
@@ -24,7 +28,9 @@ function measureCtrl(){ if(ctrlEl){ var r=ctrlEl.getBoundingClientRect(); if(r.h
 var st={
   cond:'normal',auto:true,tCmd:0.32,
   glass:null,            // 'concave'|'convex'|null（挂眼前）
-  showFlow:false,flowT0:0
+  showFlow:false,flowT0:0,
+  showLabels:true,       // R31：标注总开关（晶状体/视网膜/镜片标签），DOM 气泡/hint/toast/读数面板不受影响
+  xTree:null             // R30：树当前 x（null=默认远位 xFar；拖拽范围 [xFar, xDragLim=xL−1.5D]）
 };
 var drag=null,startPt=null,dragGhost=null,glowFx=[],toolbox=null,toastTimer=null;
 
@@ -40,7 +46,8 @@ function layout(){
   var lensH=Math.round(R*0.9);
   var hObj=Math.round(R*0.38);
   var xFar=Math.max(60,Math.round(xL-U_FAR_K*D));
-  G={R:R,ex:ex,ey:ey,xL:xL,xRet:xRet,D:D,xC:xC,lensH:lensH,hObj:hObj,xFar:xFar};
+  var xDragLim=Math.round(xL-U_DRAG_K*D);                          // R30：树拖近下限
+  G={R:R,ex:ex,ey:ey,xL:xL,xRet:xRet,D:D,xC:xC,lensH:lensH,hObj:hObj,xFar:xFar,xDragLim:xDragLim};
   // 托盘（toolbox 托盘件，照 c5s1）
   var cardH=132;
   var card={x:16,y:H-ctrlBandH-12-cardH,w:292,h:cardH,r:10,fill:'rgba(255,255,255,0.88)',stroke:'#c9c0ae'};
@@ -48,24 +55,73 @@ function layout(){
   var items=[{id:'lens_concave',x:card.x+78,y:card.y+72},{id:'lens_convex',x:card.x+206,y:card.y+72}];
   var fit=(H<COMPACT_H)?Math.min(100,Math.round(H*0.19)):100;
   toolbox=PROPS.toolbox.create({card:card,items:items,fit:fit,nat:nat});
+  if(st.xTree!=null) st.xTree=Math.max(G.xFar,Math.min(G.xDragLim,st.xTree));   // R30：resize 后树位夹回拖拽区间
 }
-function xObj(){ return G.xFar; }
+function xObj(){ return st.xTree==null?G.xFar:st.xTree; }          // R30：树当前 x（null=默认远位）
+function kk(){ return clamp01((xObj()-G.xFar)/(0.5*G.D)); }        // R30 入射发散淡入因子：默认位 k=0（平行光），拖近 0.5D 达 k=1
 function objTopY(){ return axisY-G.hObj; }
 function objBottomY(){ return axisY+G.hObj; }
 function gK(){ return (G.xL-G.xC)/G.D; }                 // 矫正镜间距（×D）
+// R30 自动档目标焦距数值解：convergeX(f)=xRet，与 traceRays 相同的串联追迹公式（发散入射+可选矫正镜+晶状体）
+// 返回 xConv−xRet（px）；只用上/下两条对称光线求交（中线索上不影响交点）
+function convergeXDiff(fK){
+  var fEyePx=fK*G.D,x0=xObj(),k=kk();
+  var fc=st.glass?GLASS_F_K[st.glass]*G.D:0;
+  var ys=[objTopY(),objBottomY()];
+  var ends=[];
+  for(var i=0;i<ys.length;i++){
+    var yi=ys[i];
+    var hitY=axisY+(yi-axisY)*(1+k);                               // 晶状体命中点（与 traceRays 发散分支同式）
+    var m=(hitY-yi)/(G.xL-x0),y;                                   // 树端直连命中点的发散斜率
+    if(st.glass){
+      var yC=yi+m*(G.xC-x0);                                       // 发散线在矫正镜面命中
+      m=m-(yC-axisY)/fc;                                           // 矫正镜折射
+      y=yC+m*(G.xL-G.xC);                                          // 传到晶状面
+    }else{
+      y=hitY;
+    }
+    m=m-(y-axisY)/fEyePx;                                          // 晶状体折射
+    ends.push({yL:y,m:m});
+  }
+  var a=ends[0],b=ends[1],xConv;
+  if(Math.abs(a.m-b.m)<1e-9) xConv=Infinity;
+  else xConv=G.xL+(b.yL-a.yL)/(a.m-b.m);
+  return xConv-G.xRet;
+}
+var AUTO_F_CACHE=null;                                   // R30：数值解缓存（键=工况签名，任一依赖变即重解）
+function fNeedSolve(){
+  var key=[st.auto?1:0,G.D,st.cond,st.glass||'-',Math.round(xObj())].join('|');
+  if(AUTO_F_CACHE&&AUTO_F_CACHE.key===key) return AUTO_F_CACHE.f;
+  var x0=0.9,x1=1.1;                                     // secant 初值夹住 f=D（k→0 时解→D，clamp 后=COND_F 原值）
+  for(var n=0;n<3;n++){                                  // secant 3 迭代
+    var f0=convergeXDiff(x0),f1=convergeXDiff(x1);
+    if(Math.abs(f1-f0)<1e-12) break;
+    var x2=x1-f1*(x1-x0)/(f1-f0);
+    x2=Math.max(0.5,Math.min(2,x2));                     // 搜索区间 f∈[0.5D,2D]
+    x0=x1; x1=x2;
+  }
+  AUTO_F_CACHE={key:key,f:x1};
+  return x1;
+}
+function autoFK(){                                       // R30：自动档目标焦距——k=0 走 COND_F 原路径；k>0 数值解 clamp 进眼况可达区间
+  if(kk()<=0) return COND_F[st.cond]||COND_F.normal;
+  var cf=fNeedSolve(),r=COND_FREACH[st.cond]||COND_FREACH.normal;
+  return Math.max(r[0],Math.min(r[1],cf));
+}
 function tActNow(){
   // R23：返回未截断 t_eff——远视自然态 t=−0.2（f=1.35D）是凸透镜 GLASS_F_K.convex=4.48 的标定点，
   // clamp01 会把它截成 0（f=1.25D）导致戴凸镜永远差 0.056D 进不了 SHARP_TOL；截断只留在视觉层 drawCrystal
   if(st.auto){
     // R10：自动档目标=fEyeK()=COND_F[cond]（平行光清晰目标 f=D），由 f 反解 t
-    var cf=COND_F[st.cond]||COND_F.normal;
+    // R30：拖近后目标=autoFK()（k=0 时 autoFK()≡COND_F，默认态数学不变）
+    var cf=autoFK();
     return (FK_MAX-cf)/(FK_MAX-FK_MIN);
   }
   return st.tCmd+(COND_OFF[st.cond]||0);
 }
 function clamp01(v){ return Math.max(0,Math.min(1,v)); }
 function fEyeK(){
-  if(st.auto) return COND_F[st.cond]||COND_F.normal;   // R16：自动档直取目标焦距（远视1.35D超手动滑杆行程）
+  if(st.auto) return autoFK();                                     // R16/R30：自动档直取目标焦距（k=0=COND_F，远视1.35D超手动滑杆行程；k>0=clamp 后数值解）
   return FK_MAX-tActNow()*(FK_MAX-FK_MIN);             // R23：手动档用未截断 t_eff（远视 tCmd=0 → f=1.375D 天然薄态可达）
 }
 
@@ -74,17 +130,26 @@ function fEyeK(){
 function traceRays(){
   var fEyePx=fEyeK()*G.D;
   var x0=xObj();
+  var k=kk();                                                      // R30：k=0 远区平行光（下方平行分支代码逐字保留）；k>0 近区发散（独立 if 分支）
   var ys=[objTopY(),axisY,objBottomY()];
   var fc=st.glass?GLASS_F_K[st.glass]*G.D:0;
   var rays=[];
   for(var i=0;i<ys.length;i++){
     var yi=ys[i];
+    var hitY=yi;                                                   // R30：发散分支晶状体命中点（k=0 时=yi，与平行分支命中点相同）
+    if(k>0) hitY=axisY+(yi-axisY)*(1+k);                           // 树端发散入射：命中点随 k 外扩（若按字面 ∓lensH*0.30 收进轴内=会聚入射→f_need>1D 恒成立，三条教学语义全反转，弃）
     var m=0,yC=yi,y=yi;
-    if(st.glass){
+    if(k>0) m=(hitY-yi)/(G.xL-x0);                                 // R30 发散入射斜率：树端直连晶状体命中点（k=0 保持 m=0 平行分支）
+    if(k>0&&st.glass){                                             // R30 发散分支（有镜）：树端→矫正镜命中→折射→晶状体
+      yC=yi+m*(G.xC-x0);                                           // 发散线在矫正镜面命中
+      m=m-(yC-axisY)/fc;                                           // 矫正镜折射
+      y=yC+m*(G.xL-G.xC);                                          // 传到晶状面
+    }else if(st.glass){
       yC=yi;                              // 水平线在矫正镜面命中高度=出发高度
       m=m-(yC-axisY)/fc;                  // 矫正镜折射
       y=yC+m*(G.xL-G.xC);                 // 传到晶状面
     }
+    if(k>0&&!st.glass) y=hitY;                                     // R30 发散分支（无镜）：传到晶状面命中点
     m=m-(y-axisY)/fEyePx;                 // 晶状体折射
     rays.push({yi:yi,yC:yC,yL:y,m:m});
   }
@@ -153,7 +218,8 @@ function drawCrystal(){
   // 晶状体双凸=库件矢量通道：视觉凸度随厚度参数联动（结构件规则：位置/厚度动态）
   var t=clamp01(tActNow());                                         // R23：视觉层截断——禁画负 f/超范围镜形（光路用未截断 t_eff）
   var fVis=6-5*t;                                                  // t=1→f=1 最凸；t=0→f=6 最薄
-  PROPS.lens_convex(ctx,G.xL,axisY,{h:G.lensH,f:fVis});
+  var hDraw=G.lensH*(1+0.75*kk());                                 // R30：拖近=调节时晶状体同步长大，发散光线命中点始终落在镜体上（k=0 时=lensH 默认态不变）
+  PROPS.lens_convex(ctx,G.xL,axisY,{h:hDraw,f:fVis});
 }
 function drawGlassMounted(){
   if(!st.glass) return;
@@ -263,12 +329,13 @@ function drawRetinaImage(tr){
 function drawLabels(){
   ctx.save();
   ctx.fillStyle='#1a1a1a'; ctx.font='600 15px '+FONT; ctx.textAlign='center';
-  haloText('晶状体',G.xL,axisY-G.lensH/2-10);
+  haloText('晶状体',G.xL,axisY-G.lensH*(1+0.75*kk())/2-10);        // R30：标签随调节长大的镜体走（k=0 原值）
   haloText('视网膜',G.xRet+G.R*0.10,axisY-G.R*0.55);
   if(st.glass) haloText(st.glass==='concave'?'凹透镜':'凸透镜',G.xC,axisY-G.R*0.62);
   ctx.restore();
 }
 function haloText(t,x,y){
+  if(!st.showLabels) return;                                        // R31：标注总开关
   ctx.save();
   ctx.lineWidth=4; ctx.lineJoin='round'; ctx.strokeStyle='rgba(255,255,255,.85)';
   ctx.strokeText(t,x,y); ctx.restore(); ctx.fillText(t,x,y);
@@ -339,11 +406,13 @@ function draw(){
 // ===== 读数面板 =====
 function lensWord(){ var t=tActNow(); return t<0.34?'薄':(t>0.66?'厚':'中等'); }
 function glassWord(){ return st.glass?(st.glass==='concave'?'凹透镜':'凸透镜'):'无'; }
+function distWord(){ return kk()>0?'近（拖近中）':'远（默认）'; }    // R30：物距行
 function updatePanel(){
   var pn=document.getElementById('panel-read'); if(!pn||!pn.classList.contains('show')) return;
   var info=imgInfo();
   var el=function(id){ return document.getElementById(id); };
   el('pr-cond').textContent=COND_NAME[st.cond];
+  el('pr-dist').textContent=distWord();                            // R30：物距行
   // R22：手动档锁区提示——读数面板补一句「够不着清晰」的锁向说明
   var lockNote='';
   if(!st.auto&&st.cond==='myopia') lockNote='（手动 · 已偏厚到极限，再薄也够不着清晰，需凹透镜）';
@@ -367,9 +436,11 @@ function hintBranch(){
     if(st.cond==='hyper') return {key:'manual',text:'自动调节已关：晶状体已偏薄到极限，再厚也够不着清晰——这就是远视，需要凸透镜。拖滑杆看会聚点在视网膜后来回移动'};
     return {key:'manual',text:'自动调节已关：睫状体不再帮忙，拖「晶状体厚度」滑杆手动控制。看会聚点在光轴上怎样于视网膜前后来回移动，找到清晰像点'};
   }
+  // R30：树被拖近（k>0）——自动档分支教双区光路与三眼况表现
+  if(kk()>0) return {key:'near',text:'树被拖近了：射入眼睛的光不再是平行光，而是从物体发散的光。正常眼睫状体收缩、晶状体自动变厚，仍能会聚在视网膜上看清；近视眼要把树拖到自己的远点以内才看得清；远视眼越近越模糊。拖回最左=恢复远处默认位（或点「重置」）'};
   if(st.cond==='myopia') return {key:'myopia',text:'近视眼：晶状体整体偏厚、折光能力太强，来自远处物体的平行光会聚在视网膜前，到达视网膜已是模糊光斑。把左下托盘的凹透镜拖到眼前试试'};
   if(st.cond==='hyper') return {key:'hyper',text:'远视眼：晶状体整体偏薄、折光能力太弱，平行光还没会聚成一点就到了视网膜（会聚点在视网膜后，虚线延长可见）。把左下托盘的凸透镜拖到眼前试试'};
-  return {key:'init',text:'正常眼看远处物体：来自物体的光可看作平行光，睫状体放松、晶状体较薄，平行光恰好会聚在视网膜上成清晰像点（点眼球或物体可看知识解说）。关「自动」拖滑杆看晶状体厚薄怎样移动会聚点，或把眼况切成「近视」「远视」'};
+  return {key:'init',text:'正常眼看远处物体：来自物体的光可看作平行光，睫状体放松、晶状体较薄，平行光恰好会聚在视网膜上成清晰像点（点眼球或物体可看知识解说）。按住左侧的树可水平拖近眼睛，看物距变近时晶状体怎样自动调节。关「自动」拖滑杆看晶状体厚薄怎样移动会聚点，或把眼况切成「近视」「远视」'};
 }
 function hideToast(){ if(toastEl) toastEl.classList.remove('show'); }
 function sayHint(){
@@ -426,7 +497,7 @@ if(bubbleX) bubbleX.addEventListener('click',hideBubble);
 function knowledgeTap(p){
   // 晶状体区
   if(Math.abs(p.x-G.xL)<G.R*0.30&&Math.abs(p.y-axisY)<G.lensH*0.62){
-    showBubble('眼球好像一架照相机。晶状体和角膜的共同作用相当于一个凸透镜，睫状体改变晶状体的形状来调节折光能力。正常眼的远点在无限远处：看很远处的物体时睫状体放松，晶状体最薄。',G.xL,axisY-G.lensH/2-8);
+    showBubble('眼球好像一架照相机。晶状体和角膜的共同作用相当于一个凸透镜，睫状体改变晶状体的形状来调节折光能力。正常眼的远点在无限远处：看很远处的物体时睫状体放松，晶状体最薄；近点大约在10 cm处：看近物时睫状体收缩、晶状体变厚（把树拖近可看到）。',G.xL,axisY-G.lensH/2-8);
     return true;
   }
   // 矫正镜区
@@ -437,10 +508,12 @@ function knowledgeTap(p){
     showBubble(t,G.xC,axisY-G.R*0.6);
     return true;
   }
-  // 物体区（R2：物体以光轴为垂直中心）
+  // 物体区（R2：物体以光轴为垂直中心；R30：树包围盒命中优先=可拖区即点击区，宽命中区保留）
   var xo=xObj();
-  if(Math.abs(p.x-xo)<G.R*0.5&&p.y>axisY-G.hObj*1.5&&p.y<axisY+G.hObj*1.5){
-    showBubble('正常眼的远点在无限远处：看很远处的物体时睫状体放松，晶状体最薄，平行光恰好会聚在视网膜上。',xo,axisY-G.hObj*1.2);
+  if(hitTree(p)||(Math.abs(p.x-xo)<G.R*0.5&&p.y>axisY-G.hObj*1.5&&p.y<axisY+G.hObj*1.5)){
+    showBubble(kk()>0
+      ?'物体移近后，射向眼睛的光线是发散的：睫状体收缩、晶状体变厚（折光能力变强），才能仍会聚在视网膜上。正常眼的近点大约在10 cm处；按住树左右拖动可改变物距。'
+      :'正常眼的远点在无限远处：看很远处的物体时睫状体放松，晶状体最薄，平行光恰好会聚在视网膜上。明视距离大约是25 cm；按住树可水平拖近，看晶状体怎样自动调节。',xo,axisY-G.hObj*1.2);
     return true;
   }
   return false;
@@ -449,6 +522,11 @@ function knowledgeTap(p){
 // ===== 命中检测 =====
 function localPt(e){ var r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}; }
 function hitGlassMounted(p){ return !!st.glass&&Math.abs(p.x-G.xC)<G.R*0.30&&Math.abs(p.y-axisY)<G.R*0.6; }
+// R30：树包围盒命中（宽按树冠半幅+余量，顶按冠尖、底按树干底+余量）
+function hitTree(p){
+  var x0=xObj(),hw=Math.max(26,G.hObj*0.55);
+  return Math.abs(p.x-x0)<=hw&&p.y>=axisY-G.hObj*1.35-10&&p.y<=axisY+G.hObj+10;
+}
 
 // ===== 交互 =====
 cv.addEventListener('pointerdown',function(e){
@@ -465,16 +543,20 @@ cv.addEventListener('pointerdown',function(e){
     drag={k:'glass',kind:st.glass,fromEye:true};
     dragGhost={kind:st.glass,x:p.x,y:p.y};
     if(window.playPick) playPick();
+  }else if(hitTree(p)){                                            // R30：树拖拽（命中优先级：镜片>树）
+    drag={k:'tree',dx:p.x-xObj()};                                 // 记录抓取偏移，水平拖动
+    if(window.playPick) playPick();
   }
   if(drag){ cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; draw(); }
 });
 cv.addEventListener('pointermove',function(e){
   var p=localPt(e);
   if(!drag){
-    cv.style.cursor=(hitGlassMounted(p)||(toolbox.pointInCard(p)&&toolbox.hitSlot(p)))?'pointer':'';
+    cv.style.cursor=(hitGlassMounted(p)||hitTree(p)||(toolbox.pointInCard(p)&&toolbox.hitSlot(p)))?'pointer':'';   // R30：树可拖（cursor:pointer）
     return;
   }
   if(drag.k==='glass'){ dragGhost.x=p.x; dragGhost.y=p.y; }
+  else if(drag.k==='tree'){ st.xTree=Math.max(G.xFar,Math.min(G.xDragLim,p.x-drag.dx)); }   // R30：水平拖动，范围 [xFar默认位, xL−1.5D]
   draw();
 });
 function endDrag(e){
@@ -499,6 +581,10 @@ function endDrag(e){
       }
     }
   }
+  if(drag.k==='tree'&&Math.abs(p.x-startPt.x)>=5){                 // R30：树拖过=抑制误触知识气泡
+    suppressClick=true;
+    if(window.playDrop) playDrop();
+  }
   drag=null; dragGhost=null; cv.style.cursor='';
   syncUI(); sayHint(); draw();
 }
@@ -517,6 +603,7 @@ cv.addEventListener('click',function(e){                           // 静态点�
 var selCond=document.getElementById('sel-cond');
 var btnAuto=document.getElementById('btn-auto');
 var btnFlow=document.getElementById('btn-flow');
+var btnLabels=document.getElementById('btn-labels');                // R31
 var rngT=document.getElementById('rng-t'),lblT=document.getElementById('lbl-t');
 var btnTDown=document.getElementById('btn-t-down'),btnTUp=document.getElementById('btn-t-up');
 var btnTable=document.getElementById('btn-table'),panelRead=document.getElementById('panel-read');
@@ -532,6 +619,7 @@ function syncUI(){
   if(selCond) selCond.value=st.cond;
   if(btnAuto) btnAuto.classList.toggle('on',st.auto);
   if(btnFlow) btnFlow.classList.toggle('on',st.showFlow);
+  if(btnLabels) btnLabels.classList.toggle('on',st.showLabels);     // R31
   var t=tActNow();
   var rr=COND_RNG[st.cond]||COND_RNG.normal,cur=Math.round(st.tCmd*100);
   if(rngT){ rngT.value=Math.round(clamp01(st.auto?t:(t-(COND_OFF[st.cond]||0)))*100); rngT.disabled=st.auto; }
@@ -572,6 +660,11 @@ if(btnFlow) btnFlow.addEventListener('click',function(){
   if(window.playClick) playClick();
   syncUI(); draw();
 });
+if(btnLabels) btnLabels.addEventListener('click',function(){        // R31：标注开关
+  st.showLabels=!st.showLabels;
+  if(window.playClick) playClick();
+  syncUI(); draw();
+});
 if(btnTable&&panelRead) btnTable.addEventListener('click',function(){
   var show=!panelRead.classList.contains('show');
   panelRead.classList.toggle('show',show); btnTable.classList.toggle('on',show);
@@ -580,7 +673,8 @@ if(btnTable&&panelRead) btnTable.addEventListener('click',function(){
 });
 if(btnReset) btnReset.addEventListener('click',function(){
   st.cond='normal'; st.auto=true; st.tCmd=0.32; st.glass=null;
-  st.showFlow=false; wasSharp=true;                                // 初始态本就清晰，不触发成功音
+  st.xTree=null;                                                   // R30：树回默认远位（k=0 平行光）
+  st.showFlow=false; st.showLabels=true; wasSharp=true;            // 初始态本就清晰，不触发成功音；R31 标注回默认开
   applyRng();                                                      // R22：重置回正常眼不锁范围
   hideBubble(); hintSt.dismissed=null;
   if(window.playClick) playClick();
@@ -636,6 +730,7 @@ resize(); syncUI(); sayHint(); draw(); requestAnimationFrame(tick);
 window.__c5s4dbg={
   get st(){return st;}, get G(){return G;}, get W(){return W;}, get H(){return H;},
   set:function(o){ Object.assign(st,o); syncUI(); sayHint(); draw(); },
-  info:imgInfo,tAct:tActNow,tr:traceRays,fEyeK:fEyeK
+  info:imgInfo,tAct:tActNow,tr:traceRays,fEyeK:fEyeK,
+  kk:kk,fNeed:fNeedSolve,convDiff:convergeXDiff                    // R30：拖树/数值解调试口
 };
 })();

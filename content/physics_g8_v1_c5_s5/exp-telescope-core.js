@@ -16,7 +16,8 @@ var W=960,H=520,DPR=1,axisY=260,S=10,xObjLens=288,eyeRoom=80;
 var st={
   fObj:20,fEye:10,L:30,near:false,   // L 初始=默认组合匹配距离 f物20+f目10（syncTubeRange 再校准）
   wasMatch:true,everMatch:false,angleSeen:false,
-  flow:false
+  flow:false,
+  showLabels:true
 };
 var drag=null,startPt=null,glowFx=[],toastTimer=null;
 var flowT0=performance.now();
@@ -101,7 +102,7 @@ function drawObject(){   // 远处物体：左端树+楼剪影（物距≫f物 �
   ctx.fillText(st.near?'较近的物体':'最远处的物体',objX()+H*0.05*k,gy+18);
   ctx.restore();
 }
-function haloText(t,x,y){ ctx.save(); ctx.lineWidth=4; ctx.lineJoin='round'; ctx.strokeStyle='rgba(255,255,255,.85)'; ctx.strokeText(t,x,y); ctx.restore(); ctx.fillText(t,x,y); }
+function haloText(t,x,y){ if(!st.showLabels) return; ctx.save(); ctx.lineWidth=4; ctx.lineJoin='round'; ctx.strokeStyle='rgba(255,255,255,.85)'; ctx.strokeText(t,x,y); ctx.restore(); ctx.fillText(t,x,y); }
 // ===== R7 单筒望远镜剖面外壳（程序化五件套，照 c5s2 drawTubeSection 先例）：外筒=物镜段固定，内筒=目镜段随滑杆平滑缩进/伸出；筒腔开放光路可见 =====
 var hatchP=null;
 function hatchPat(){   // ③ 剖面线：断面 45° 细斜线（离屏 pattern 缓存一次）
@@ -393,6 +394,12 @@ var bFlow=document.getElementById('btn-flow');
 if(bFlow) bFlow.addEventListener('click',function(){
   st.flow=!st.flow; bFlow.classList.toggle('on',st.flow);
   if(st.flow) flowT0=performance.now();
+  if(window.playClick) playClick(); draw();
+});
+// 显示卡：标注开关（R31）——总开关覆盖 物镜f=/目镜f=/镜筒距离L= 三条 canvas 标注；drawDim 尺寸线图形保留
+var bLabels=document.getElementById('btn-labels');
+if(bLabels) bLabels.addEventListener('click',function(){
+  st.showLabels=!st.showLabels; bLabels.classList.toggle('on',st.showLabels);
   if(window.playClick) playClick(); draw();
 });
 // 系统卡四件套：读数面板/重置/声音(sfx.js 统一绑定 btn-mute)/全屏

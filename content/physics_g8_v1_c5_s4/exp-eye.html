@@ -40,9 +40,9 @@
   button.step{padding:6px 10px}
   button:disabled{opacity:.35;cursor:default}
   /* 物理按压两态钮（照 c5s1）：凸起渐变→按下内凹 */
-  button#btn-table,button#btn-flow,button#btn-auto{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
-  button#btn-table:hover,button#btn-flow:hover,button#btn-auto:hover{background:linear-gradient(#f8fafc,#d2deeb)}
-  button#btn-table.on,button#btn-flow.on,button#btn-auto.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
+  button#btn-table,button#btn-flow,button#btn-auto,button#btn-labels{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
+  button#btn-table:hover,button#btn-flow:hover,button#btn-auto:hover,button#btn-labels:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  button#btn-table.on,button#btn-flow.on,button#btn-auto.on,button#btn-labels.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
   button#btn-auto:disabled{opacity:.4}
   select#sel-cond{border:1px solid #94a3b8;border-radius:8px;padding:7px 9px;font-size:14px;font-family:inherit;background:linear-gradient(#fdfefe,#e6edf5);color:#334155;cursor:pointer}
   input#rng-t{width:150px;accent-color:#d97706}
@@ -89,6 +89,7 @@
   <div class="rp-title">读数面板</div>
   <table class="rec"><tbody>
     <tr><th>眼况</th><td id="pr-cond">—</td></tr>
+    <tr><th>物距</th><td id="pr-dist">—</td></tr>
     <tr><th>晶状体</th><td id="pr-lens">—</td></tr>
     <tr><th>矫正镜</th><td id="pr-glass">—</td></tr>
     <tr><th>成像</th><td id="pr-img">—</td></tr>
@@ -122,6 +123,7 @@
     <div class="glabel">显示</div>
     <div class="gctrl">
       <button id="btn-flow">光流</button>
+      <button id="btn-labels" class="on">标注</button>
     </div>
   </div>
   <div class="group" id="grp-sys">
@@ -137,7 +139,7 @@
 <script src="../_lib/v1/props.js?v=96"></script>
 <script src="../_lib/v1/props-optics.js?v=9"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-eye-core.js?v=7"></script>
+<script src="exp-eye-core.js?v=8"></script>
 <script>
   const p=new URLSearchParams(location.search),cb=p.get('cb-path');
   if(cb)document.getElementById('btn-back').href='./index.html?cb-path='+encodeURIComponent(cb);
