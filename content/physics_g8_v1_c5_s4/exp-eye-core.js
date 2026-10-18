@@ -200,10 +200,10 @@ function drawRays(tr){
     ctx.restore();
   }
 }
-// R24：会聚点迷你倒立树剪影——与物体树同造型绕光轴倒转（树冠朝轴下/树根朝轴上=倒立实像语义），高≈R×0.18，代码画
+// R24：会聚点迷你倒立树剪影——与物体树同造型绕光轴倒转（树冠朝轴下/树根朝轴上=倒立实像语义），高≈R×0.28，代码画
 function drawImgTree(x){
   if(!isFinite(x)) return;
-  var h=G.R*0.18;
+  var h=G.R*0.28;
   ctx.save();
   ctx.translate(0,2*axisY); ctx.scale(1,-1);                       // 绕光轴镜像
   drawTree(x,axisY+h/2,h);

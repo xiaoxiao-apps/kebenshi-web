@@ -193,15 +193,6 @@ function drawRays(){   // R19 光学定律版：交叉点=P2=目镜前焦点（�
     beam(xE,axisY+h1,ex0,axisY+h1);          // ④ 出射：恒平行于主轴水平入眼（斜率恒 0）
   }
 }
-function drawFocalTick(){   // R19 物镜焦点小刻度：轴上 xFobj 处短竖线+小标签「F物」；|P2−F物刻度|≤容差=对焦成功（与 isMatch() 数学等价，判定复用 isMatch）
-  var x=xFobj();
-  ctx.save();
-  ctx.strokeStyle=isMatch()?'#16a34a':'rgba(180,83,9,.75)'; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.moveTo(x,axisY-7); ctx.lineTo(x,axisY+7); ctx.stroke();
-  ctx.fillStyle=isMatch()?'#16a34a':'rgba(180,83,9,.9)'; ctx.font='12px '+FONT; ctx.textAlign='center';
-  haloText('F物',x,axisY+20);
-  ctx.restore();
-}
 function arrowHead(x,y,dir){
   ctx.save(); ctx.translate(x,y); ctx.rotate(dir);
   ctx.fillStyle=COL_IMG; ctx.beginPath();
@@ -266,7 +257,7 @@ function drawGlowFx(){   // 对焦光晕 300ms 渐隐（照 c5s3 glowFx 先例�
 }
 function draw(){
   drawBg(); drawAxis(); drawGround(); drawObject();
-  drawTelescope(); drawFocalTick(); drawRays(); drawLenses(); drawDim(); drawObserver();
+  drawTelescope(); drawRays(); drawLenses(); drawDim(); drawObserver();
   drawGlowFx(); drawEyePeep();
   updatePanel(); sayHint();
 }
@@ -458,7 +449,6 @@ window.addEventListener('resize',resize);
 // ===== 初始化：两镜已在轴+最远物距+镜筒在匹配点 =====
 layout(); resize();
 syncDistUI(); syncTubeRange(); syncSlider(); syncFull();   // R14 初始滑杆范围=lMatch±5、value=lMatch
-if(panelRead&&bTable){ panelRead.classList.add('show'); bTable.classList.add('on'); }
 sayHint(); draw(); requestAnimationFrame(tick);
 window.__c5s5dbg={
   get st(){return st;}, get W(){return W;}, get H(){return H;}, get S(){return S;}, get axisY(){return axisY;}, get xObjLens(){return xObjLens;},
