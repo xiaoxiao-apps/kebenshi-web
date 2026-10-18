@@ -200,7 +200,8 @@ function arrowHead(x,y,dir){
   ctx.moveTo(0,0); ctx.lineTo(-7,-3.5); ctx.lineTo(-7,3.5); ctx.closePath(); ctx.fill();
   ctx.restore();
 }
-function drawDim(){   // 镜筒距离尺寸线（两镜之间，双箭头+读数）
+function drawDim(){   // 镜筒距离尺寸线（两镜之间，双箭头+读数）；R32：整体随标注开关（关=线+读数全隐）
+  if(!st.showLabels) return;
   var x0=xObjLens,x1=xEyeLens(),y=tubeBottomY()+40;
   ctx.save();
   ctx.strokeStyle=COL_IMG; ctx.lineWidth=1.5;
