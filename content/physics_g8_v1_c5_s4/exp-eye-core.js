@@ -3,14 +3,15 @@ PROPS.SPRITE_BASE='../_lib/v1/sprites/';
 var FONT='"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif';
 
 // ===== 光学模型（全部以 D=晶状体→视网膜距离 为单位，resize 时由像素几何重算） =====
-// R2 平行光口径：物体上/中/下三端各一条水平平行线入眼（教材图5.4-2 画法），远/近不改光路几何
+// R2 平行光口径：物体上/中/下三端各一条水平平行线入眼（教材图5.4-2 画法）
 // f(t) = FK_MAX - t*(FK_MAX-FK_MIN)：t=晶状体厚度 0(薄)~1(厚)；f=1×D 时平行光恰会聚视网膜
-var FK_MAX=1.1125,FK_MIN=0.8625,SHARP_TOL=0.06; // R3 清晰判定（轴上焦点）：|xConv-xRet| <= SHARP_TOL*D
-var U_FAR_K=2.7,U_NEAR_K=1.73;                 // 物体绘制位置（×D）；仅视觉表意远近，不进光路
-var GLASS_F_K={concave:-7.6,convex:13.8};      // 矫正镜焦距（×D），按 R4 留隙后 gK≈0.68 标定：近视 f=0.90+凹/远视 f≈1.08+凸 恰拉回视网膜
+var FK_MAX=1.25,FK_MIN=0.75,SHARP_TOL=0.03;    // R10：手动滑杆全行程 f∈[0.75D,1.25D] 盖三态与矫正组合；清晰判定 |xConv-xRet| <= SHARP_TOL*D
+var U_FAR_K=2.7;                              // 物体绘制位置（×D）；仅视觉表意，不进光路
+var GLASS_F_K={concave:-3.875,convex:7.236};   // R11 矫正镜焦距（×D）：gK≈0.68 下按串联组合 BFL 公式标定——近视 f=0.82D+凹 / 远视 f=1.18D+凸 会聚点恰拉回视网膜；四组合由追迹公式自然得出，禁写死分支
 var COND_OFF={normal:0,myopia:0.25,hyper:-0.25};          // 手动档晶状体基线偏移
-var AUTO_T={normal:{far:0.45,near:0.60},myopia:{far:0.85,near:0.62},hyper:{far:0.45,near:0.12}};
-// 自动档目标厚度（平行光模型）：正常远近皆清晰（看近更厚）；近视看远偏厚→会聚视网膜前（模糊）、看近同正常→清晰；远视看近偏薄→会聚视网膜后（模糊）、看远同正常→清晰。
+// R10 自动档目标焦距（×D）：平行光清晰目标 f=D；t=(FK_MAX-COND_F)/(FK_MAX-FK_MIN) 反解
+// R11 近视 f=0.82D→会聚点视网膜前约0.18D；远视 f=1.18D→视网膜后约0.18D
+var COND_F={normal:1.00,myopia:0.82,hyper:1.18};
 var COND_NAME={normal:'正常眼',myopia:'近视眼',hyper:'远视眼'};
 
 var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
@@ -20,7 +21,7 @@ var W=960,H=520,DPR=1,axisY=260;
 function measureCtrl(){ if(ctrlEl){ var r=ctrlEl.getBoundingClientRect(); if(r.height>0) ctrlBandH=Math.round(r.height); } }
 
 var st={
-  cond:'normal',dist:'far',auto:true,tCmd:0.32,
+  cond:'normal',auto:true,tCmd:0.32,
   glass:null,            // 'concave'|'convex'|null（挂眼前）
   showFlow:false,flowT0:0
 };
@@ -38,8 +39,7 @@ function layout(){
   var lensH=Math.round(R*0.9);
   var hObj=Math.round(R*0.38);
   var xFar=Math.max(60,Math.round(xL-U_FAR_K*D));
-  var xNear=Math.max(Math.round(W*0.14),Math.round(xL-U_NEAR_K*D));
-  G={R:R,ex:ex,ey:ey,xL:xL,xRet:xRet,D:D,xC:xC,lensH:lensH,hObj:hObj,xFar:xFar,xNear:xNear};
+  G={R:R,ex:ex,ey:ey,xL:xL,xRet:xRet,D:D,xC:xC,lensH:lensH,hObj:hObj,xFar:xFar};
   // 托盘（toolbox 托盘件，照 c5s1）
   var cardH=132;
   var card={x:16,y:H-ctrlBandH-12-cardH,w:292,h:cardH,r:10,fill:'rgba(255,255,255,0.88)',stroke:'#c9c0ae'};
@@ -48,14 +48,15 @@ function layout(){
   var fit=(H<COMPACT_H)?Math.min(100,Math.round(H*0.19)):100;
   toolbox=PROPS.toolbox.create({card:card,items:items,fit:fit,nat:nat});
 }
-function xObj(){ return st.dist==='far'?G.xFar:G.xNear; }
+function xObj(){ return G.xFar; }
 function objTopY(){ return axisY-G.hObj; }
 function objBottomY(){ return axisY+G.hObj; }
 function gK(){ return (G.xL-G.xC)/G.D; }                 // 矫正镜间距（×D）
 function tActNow(){
   if(st.auto){
-    var a=AUTO_T[st.cond]||AUTO_T.normal;
-    return clamp01(a[st.dist]);
+    // R10：自动档目标=fEyeK()=COND_F[cond]（平行光清晰目标 f=D），由 f 反解 t
+    var cf=COND_F[st.cond]||COND_F.normal;
+    return clamp01((FK_MAX-cf)/(FK_MAX-FK_MIN));
   }
   return clamp01(st.tCmd+COND_OFF[st.cond]);
 }
@@ -120,37 +121,10 @@ function drawTree(x,baseY,h){
   }
   ctx.restore();
 }
-function drawBook(x,baseY,h){
-  ctx.save();
-  var w=h*0.92;
-  ctx.translate(x,baseY);
-  ctx.fillStyle='#8a5a33';                                        // 书壳
-  ctx.beginPath();
-  ctx.moveTo(-w/2,-h*0.06); ctx.quadraticCurveTo(0,-h*0.16,w/2,-h*0.06);
-  ctx.lineTo(w/2,-h*0.78); ctx.quadraticCurveTo(0,-h*0.90,-w/2,-h*0.78);
-  ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#fdf6e3';                                        // 书页
-  ctx.beginPath();
-  ctx.moveTo(-w/2+3,-h*0.10); ctx.quadraticCurveTo(0,-h*0.20,w/2-3,-h*0.10);
-  ctx.lineTo(w/2-3,-h*0.74); ctx.quadraticCurveTo(0,-h*0.85,-w/2+3,-h*0.74);
-  ctx.closePath(); ctx.fill();
-  ctx.strokeStyle='#c9b98f'; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.moveTo(0,-h*0.15); ctx.lineTo(0,-h*0.80); ctx.stroke();   // 书脊
-  ctx.strokeStyle='#9aa5b1';
-  for(var i=1;i<=3;i++){                                          // 文字行
-    var ly=-h*(0.28+i*0.12);
-    ctx.beginPath();
-    ctx.moveTo(-w*0.32,ly); ctx.quadraticCurveTo(-w*0.16,ly-h*0.03,-w*0.05,ly-h*0.02); ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(w*0.32,ly); ctx.quadraticCurveTo(w*0.16,ly-h*0.03,w*0.05,ly-h*0.02); ctx.stroke();
-  }
-  ctx.restore();
-}
 function drawObject(){
-  // R2：树/书以光轴为垂直中心——中端在 axisY、顶端 axisY-hObj、底端 axisY+hObj
+  // R2：树以光轴为垂直中心——中端在 axisY、顶端 axisY-hObj、底端 axisY+hObj
   var x=xObj(),h=G.hObj*2;
-  if(st.dist==='far') drawTree(x,axisY+G.hObj,h);
-  else drawBook(x,axisY+G.hObj,h);
+  drawTree(x,axisY+G.hObj,h);
   ctx.save();                                                     // 三条平行光出发端点（顶/中/底）
   ctx.fillStyle='#f59e0b';
   var ys=[objTopY(),axisY,objBottomY()];
@@ -167,9 +141,6 @@ function drawEyeball(){
   // 视网膜弧（后内壁橙红感光层）
   ctx.strokeStyle='#e07b39'; ctx.lineWidth=Math.max(4,R*0.075); ctx.lineCap='round';
   ctx.beginPath(); ctx.arc(ex,ey,R*0.92,-Math.PI*0.32,Math.PI*0.32); ctx.stroke();
-  // 视神经
-  ctx.strokeStyle='#c9a86a'; ctx.lineWidth=Math.max(4,R*0.09);
-  ctx.beginPath(); ctx.moveTo(ex+R*0.96,ey); ctx.lineTo(ex+R*1.22,ey+R*0.10); ctx.stroke();
   ctx.restore();
 }
 function drawCrystal(){
@@ -211,7 +182,7 @@ function drawRays(tr){
     var yEnd=r.yL+r.m*(xEnd-G.xL);
     beamSeg(G.xL,r.yL,xEnd,yEnd);
   }
-  // R3：会聚点在视网膜后——实光线到视网膜仍未会聚，虚线延长至后方轴上会聚点
+  // R11：会聚点在视网膜后（远视自动 f=1.18D→后约0.18D）——实光线到视网膜仍未会聚，虚线延长至后方轴上会聚点
   var info=imgInfo(tr);
   if(!info.sharp&&info.diff>0&&isFinite(tr.xConv)&&tr.xConv<W+40){
     ctx.save(); ctx.setLineDash([6,6]); ctx.strokeStyle='rgba(220,38,38,.55)'; ctx.lineWidth=1.5;
@@ -226,7 +197,7 @@ function drawRays(tr){
 function drawRetinaImage(tr){
   var info=imgInfo(tr);
   if(info.sharp){
-    // R3：清晰=会聚点吸附视网膜表面交点（轴上），黄色光晕+清晰像点
+    // R10：清晰态会聚点强制吸附视网膜表面交点 G.xRet（轴上）；黄晕圆心=像点圆心=吸附点
     var cx=G.xRet,cy=axisY;
     ctx.save();
     var g=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(5,G.R*0.06));
@@ -237,7 +208,7 @@ function drawRetinaImage(tr){
     ctx.restore();
     return {x:cx,y:cy,r:4};
   }
-  // R3：会聚点在视网膜前（近视语义）——轴上画会聚光斑
+  // R11：会聚点在视网膜前（近视自动 f=0.82D→前约0.18D）——轴上画会聚光斑
   if(isFinite(tr.xConv)&&tr.xConv>G.xL&&tr.xConv<G.xRet){
     ctx.save();
     var gc=ctx.createRadialGradient(tr.xConv,axisY,0,tr.xConv,axisY,Math.max(4,G.R*0.05));
@@ -343,7 +314,6 @@ function updatePanel(){
   var info=imgInfo();
   var el=function(id){ return document.getElementById(id); };
   el('pr-cond').textContent=COND_NAME[st.cond];
-  el('pr-dist').textContent=st.dist==='far'?'远（无限远处）':'近（明视距离约 25 cm）';
   el('pr-lens').textContent=lensWord()+(st.auto?'（自动调节）':'（手动）');
   el('pr-glass').textContent=glassWord();
   el('pr-img').textContent=info.sharp?'清晰像点 · 视网膜上':('模糊光斑 · 会聚在'+info.where);
@@ -354,14 +324,13 @@ var toastEl=document.getElementById('toast'),toastTxt=document.getElementById('t
 var hintSt={key:null,dismissed:null};
 function hintBranch(){
   if(st.cond==='normal'&&st.glass) return {key:'n-glass',text:'正常眼戴上眼镜反而模糊了：凹透镜使平行光先发散、凸透镜使平行光先会聚，会聚点偏离视网膜。这就是为什么不该随便戴别人的眼镜（点镜片看解说，拖回左下托盘可取下）'};
-  if(st.cond==='myopia'&&st.glass==='concave') return {key:'m-ok',text:'矫正成功！凹透镜使平行光先发散，再经晶状体会聚，会聚点重新拉回视网膜上——近视眼镜就是凹透镜。试试切「近处」或关「自动」拖滑杆'};
-  if(st.cond==='hyper'&&st.glass==='convex') return {key:'h-ok',text:'矫正成功！凸透镜使平行光先会聚，再经晶状体会聚，会聚点重新拉回视网膜上——远视眼镜（老花镜）就是凸透镜。试试切眼况或远近'};
+  if(st.cond==='myopia'&&st.glass==='concave') return {key:'m-ok',text:'矫正成功！凹透镜使平行光先发散，再经晶状体会聚，会聚点重新拉回视网膜上——近视眼镜就是凹透镜。试试关「自动」拖滑杆，看晶状体厚薄怎样移动会聚点'};
+  if(st.cond==='hyper'&&st.glass==='convex') return {key:'h-ok',text:'矫正成功！凸透镜使平行光先会聚，再经晶状体会聚，会聚点重新拉回视网膜上——远视眼镜（老花镜）就是凸透镜。试试切换眼况，或关「自动」拖滑杆'};
   if(st.glass) return {key:'g-wrong',text:'拖错镜型了：会聚点偏得离视网膜更远、光斑更散。近视要凹透镜、远视要凸透镜——把它拖回左下托盘，换另一片试试'};
   if(!st.auto) return {key:'manual',text:'自动调节已关：睫状体不再帮忙，拖「晶状体厚度」滑杆手动控制。看会聚点在光轴上怎样于视网膜前后来回移动，找到清晰像点'};
   if(st.cond==='myopia') return {key:'myopia',text:'近视眼：晶状体整体偏厚、折光能力太强，来自远处物体的平行光会聚在视网膜前，到达视网膜已是模糊光斑。把左下托盘的凹透镜拖到眼前试试'};
   if(st.cond==='hyper') return {key:'hyper',text:'远视眼：晶状体整体偏薄、折光能力太弱，平行光还没会聚成一点就到了视网膜（会聚点在视网膜后，虚线延长可见）。把左下托盘的凸透镜拖到眼前试试'};
-  if(st.dist==='far') return {key:'init',text:'正常眼看远处物体：来自物体的光可看作平行光，睫状体放松、晶状体较薄，平行光恰好会聚在视网膜上成清晰像点（点眼球或物体可看知识解说）。切「近处」看晶状体怎样自动变厚，或把眼况切成「近视」'};
-  return {key:'near',text:'正常眼看近处物体：睫状体收缩，晶状体自动变厚、折光变强，像仍落在视网膜上。明视距离大约 25 cm。切眼况为「近视」「远视」，看谁远清晰、谁近清晰'};
+  return {key:'init',text:'正常眼看远处物体：来自物体的光可看作平行光，睫状体放松、晶状体较薄，平行光恰好会聚在视网膜上成清晰像点（点眼球或物体可看知识解说）。关「自动」拖滑杆看晶状体厚薄怎样移动会聚点，或把眼况切成「近视」「远视」'};
 }
 function hideToast(){ if(toastEl) toastEl.classList.remove('show'); }
 function sayHint(){
@@ -418,22 +387,21 @@ if(bubbleX) bubbleX.addEventListener('click',hideBubble);
 function knowledgeTap(p){
   // 晶状体区
   if(Math.abs(p.x-G.xL)<G.R*0.30&&Math.abs(p.y-axisY)<G.lensH*0.62){
-    showBubble('眼球好像一架照相机。晶状体和角膜的共同作用相当于一个凸透镜，睫状体改变晶状体的形状来调节折光能力。远点在无限远处，近点大约 10 cm，明视距离大约 25 cm。',G.xL,axisY-G.lensH/2-8);
+    showBubble('眼球好像一架照相机。晶状体和角膜的共同作用相当于一个凸透镜，睫状体改变晶状体的形状来调节折光能力。正常眼的远点在无限远处：看很远处的物体时睫状体放松，晶状体最薄。',G.xL,axisY-G.lensH/2-8);
     return true;
   }
   // 矫正镜区
   if(st.glass&&Math.abs(p.x-G.xC)<G.R*0.28&&Math.abs(p.y-axisY)<G.R*0.55){
     var t=st.glass==='concave'
       ?'近视眼看远处物体，像成在视网膜的前面，应该佩戴用凹透镜制成的近视眼镜，使像相对晶状体后移到视网膜上。'
-      :'远视眼看近处物体，像成在视网膜的后面，应该佩戴用凸透镜制成的远视眼镜，使像相对晶状体前移到视网膜上。老花镜就是凸透镜：看书报时戴、看远处电视时摘。';
+      :'远视眼折光能力太弱，像成在视网膜的后面，应该佩戴用凸透镜制成的远视眼镜，使像相对晶状体前移到视网膜上。老花镜就是凸透镜：看书报时戴、看远处电视时摘。';
     showBubble(t,G.xC,axisY-G.R*0.6);
     return true;
   }
   // 物体区（R2：物体以光轴为垂直中心）
   var xo=xObj();
   if(Math.abs(p.x-xo)<G.R*0.5&&p.y>axisY-G.hObj*1.5&&p.y<axisY+G.hObj*1.5){
-    if(st.dist==='far') showBubble('正常眼的远点在无限远处：看很远处的物体时睫状体放松，晶状体最薄，平行光恰好会聚在视网膜上。',xo,axisY-G.hObj*1.2);
-    else showBubble('正常眼的近点大约 10 cm。读书写字时眼睛离物体约 25 cm 最舒适，这个距离叫明视距离。看近处时睫状体收缩，晶状体变厚。',xo,axisY-G.hObj*1.2);
+    showBubble('正常眼的远点在无限远处：看很远处的物体时睫状体放松，晶状体最薄，平行光恰好会聚在视网膜上。',xo,axisY-G.hObj*1.2);
     return true;
   }
   return false;
@@ -508,7 +476,6 @@ cv.addEventListener('click',function(e){                           // 静态点�
 
 // ===== 控制条 =====
 var selCond=document.getElementById('sel-cond');
-var btnDist=document.getElementById('btn-dist');
 var btnAuto=document.getElementById('btn-auto');
 var btnFlow=document.getElementById('btn-flow');
 var rngT=document.getElementById('rng-t'),lblT=document.getElementById('lbl-t');
@@ -518,7 +485,6 @@ var btnReset=document.getElementById('btn-reset');
 
 function syncUI(){
   if(selCond) selCond.value=st.cond;
-  if(btnDist){ btnDist.textContent=st.dist==='far'?'🌳 远处':'📖 近处'; btnDist.classList.toggle('on',st.dist==='near'); }
   if(btnAuto) btnAuto.classList.toggle('on',st.auto);
   if(btnFlow) btnFlow.classList.toggle('on',st.showFlow);
   var t=tActNow();
@@ -529,11 +495,6 @@ function syncUI(){
 }
 if(selCond) selCond.addEventListener('change',function(){
   st.cond=selCond.value;
-  if(window.playClick) playClick();
-  hideBubble(); syncUI(); sayHint(); draw();
-});
-if(btnDist) btnDist.addEventListener('click',function(){
-  st.dist=(st.dist==='far')?'near':'far';
   if(window.playClick) playClick();
   hideBubble(); syncUI(); sayHint(); draw();
 });
@@ -571,7 +532,7 @@ if(btnTable&&panelRead) btnTable.addEventListener('click',function(){
   updatePanel();
 });
 if(btnReset) btnReset.addEventListener('click',function(){
-  st.cond='normal'; st.dist='far'; st.auto=true; st.tCmd=0.32; st.glass=null;
+  st.cond='normal'; st.auto=true; st.tCmd=0.32; st.glass=null;
   st.showFlow=false; wasSharp=true;                                // 初始态本就清晰，不触发成功音
   hideBubble(); hintSt.dismissed=null;
   if(window.playClick) playClick();
