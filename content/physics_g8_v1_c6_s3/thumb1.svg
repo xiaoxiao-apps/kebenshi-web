@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 340">
+  <rect width="520" height="340" fill="#f6f1e7"/>
+  <rect y="268" width="520" height="72" fill="#d6c294"/>
+  <rect y="268" width="520" height="4" fill="#f0e6c8"/>
+  <!-- 托盘天平（简笔） -->
+  <g stroke="#6b7280" stroke-width="4" fill="none" stroke-linecap="round">
+    <path d="M60 268 L170 268"/>
+    <path d="M115 268 L115 150"/>
+    <path d="M52 152 L178 148"/>
+    <path d="M52 152 L36 186 M52 152 L68 186"/>
+    <path d="M178 148 L162 182 M178 148 L194 182"/>
+    <ellipse cx="52" cy="190" rx="24" ry="6" fill="#b8bdc4"/>
+    <ellipse cx="178" cy="186" rx="24" ry="6" fill="#b8bdc4"/>
+  </g>
+  <circle cx="115" cy="150" r="5" fill="#dc2626"/>
+  <path d="M115 150 L115 176 L110 168 M115 176 L120 168" stroke="#dc2626" stroke-width="3" fill="none"/>
+  <!-- 量筒 -->
+  <g>
+    <rect x="248" y="96" width="56" height="172" rx="6" fill="rgba(220,240,246,0.5)" stroke="#78a0b4" stroke-width="4"/>
+    <path d="M252 176 L300 176 L300 262 Q300 264 296 264 L256 264 Q252 264 252 262 Z" fill="#7dc3eb" opacity="0.8"/>
+    <line x1="252" y1="176" x2="300" y2="176" stroke="#dff2ff" stroke-width="3"/>
+    <g stroke="#94a3b8" stroke-width="2">
+      <path d="M300 130 L288 130 M300 164 L288 164 M300 198 L288 198 M300 232 L288 232"/>
+    </g>
+    <!-- 沉底小石块 -->
+    <polygon points="262,262 268,244 284,240 294,252 290,262" fill="#8a9a94" stroke="#5d6b66" stroke-width="2.5"/>
+  </g>
+  <!-- 水位差标注 V2-V1 -->
+  <g stroke="#dc2626" stroke-width="2.5">
+    <path d="M312 176 L322 176 M312 226 L322 226 M317 176 L317 226"/>
+    <path d="M313 182 L317 176 L321 182 M313 220 L317 226 L321 220" fill="none"/>
+  </g>
+  <text x="330" y="206" font-size="15" fill="#b91c1c" font-family="sans-serif">V₂−V₁</text>
+  <!-- 台面小石块（备用） -->
+  <polygon points="392,268 398,246 418,240 434,252 430,268" fill="#9aa9a3" stroke="#5d6b66" stroke-width="3"/>
+  <polygon points="398,246 418,240 424,248 404,254" fill="#b3bfb9" stroke="#5d6b66" stroke-width="2"/>
+  <!-- 盐罐（阶段一语义） -->
+  <g>
+    <path d="M458 268 L458 208 L452 196 L500 196 L494 208 L494 268 Z" fill="rgba(220,240,246,0.5)" stroke="#78a0b4" stroke-width="3.5"/>
+    <ellipse cx="476" cy="196" rx="24" ry="5" fill="none" stroke="#78a0b4" stroke-width="3"/>
+    <path d="M460 246 Q476 238 492 246 L492 264 L460 264 Z" fill="#f7f6f0" stroke="#d6d3c4" stroke-width="1.5"/>
+  </g>
+  <!-- 标题密度读数牌 -->
+  <g>
+    <rect x="150" y="40" width="220" height="44" rx="14" fill="rgba(255,255,255,0.65)"/>
+    <text x="260" y="69" font-size="22" fill="#b45309" font-weight="bold" text-anchor="middle" font-family="sans-serif">ρ = m / V</text>
+  </g>
+</svg>

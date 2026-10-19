@@ -8,7 +8,20 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-density.js — 第六章「质量与密度」标准器材件 v8（c6s12 修复轮9，11件）
+ * props-density.js — 第六章「质量与密度」标准器材件 v9（c6s34 缺件先制，14件）
+ * v9 变更清单（2026-10-20，c6s34 任务书，蔡总 05:59 拍板：3 新件 + 2 件扩参，已有件 opt API 全向后兼容、缺省路径渲染零变化）：
+ *   + stone 小石块：不规则多面体 2.5D（投影常量同 material_block dx=0.35d/dy=-0.35d），灰青 #8a9a94 系 + sin 伪随机斑点棱角纹；
+ *     顶点轮廓 seed 确定性生成（顶点数 6~8、半径/角度扰动，同 seed 永远同形）；opt: size=60 / seed=1 / wet(0~1 湿水态加深约15%+顶面高光增强)
+ *   + salt_jar 盐罐：广口玻璃罐（玻璃族同 cylinder_grad/beaker_ice）+ 白盐堆积（sin 伪随机细颗粒）；saltLevel=80(0~100) / pour(0~1 绕底面中心倾 ~45°，
+ *     pour>0.3 罐口确定性盐粒流 4 条抛物线白点) / h=120；无 mount（主动件）；返回 {w,h,mouth:{x,y}}（罐口世界坐标）
+ *   + seed_grains 种粒（Q6 选种联动专用）：矩形液体区域内 饱满粒(#d9b36c 系,ρ≈1.3 恒沉底) + 空瘪粒(#b8975a 系,更小更扁)；
+ *     组件内常量 HOLLOW_CRIT=1.05：rho≥1.05 时空瘪粒 t=1 → 液面下缘轻微悬浮；t 浮沉 smoothstep 插值（禁回弹震荡）；opt: rho/level/w/h/count=12(饱满8+空瘪4)/t/seed
+ *   ~ beaker_ice / cylinder_grad 加 opt.liquidColor：水体渐变/水面线色改由 liquidColor 派生——{top,bottom,line} 对象或单色字符串
+ *     （单色派生：top=原样、bottom=加深、line=提亮）；缺省不传 = 现蓝系原值，c6s1/c6s2 页面不传此参数渲染完全不变（盐水入量筒与烧杯同色用）
+ *   ~ beaker_ice / cylinder_grad 加 opt.contents(ctx,rect) 绘制钩子：水体（cylinder 含 inside 占位）之后、前壁描边/竖高光/筒口（beaker 为冰块/杯口）之前调用，
+ *     页面把种粒/石块画进液体里；save/restore 组件包办、try/catch 静默失败；
+ *     rect：cylinder={x,w,inL,inR,inTop,inBot,wy}（water=0→wy=inBot）；beaker={x,w,yTop,yBot,rxT,rxB,halfAt,wy}（water≤0.01→wy=yBot）
+ *   ~ DENSITY_IDS 11→14 件（+ stone / salt_jar / seed_grains）；gallery ?v=8→9
  * v8 变更清单（2026-10-20，蔡总 R39：烧杯杯口两处残留线删除；opt API 与返回几何字段全部不变，页面零改动消费）：
  *   ~ beaker_ice R39-a 杯口中间横线：侧壁段(2) fill 与 stroke 分离——fill 用闭路径（顶弦仅填色不可见）；
  *     stroke 另开路径只描三边（左壁 moveTo→lineTo 左底→ellipse 底前弧→lineTo 右切点），不 closePath 不描顶弦（蔡总图一）
@@ -57,18 +70,22 @@ const rand = PROPS.rand || function(seed){
  *   2. weight_set     砝码组(P0)    opt: w=240 / open(盒盖开合,默认开) / pick('100'|'50'|'20'|'10'|'5' 镊子夹起) / missing(已拖出id数组)；返回 {w,boxH,slots}
  *   3. rider          游码特写(P0)  opt: pos(0-1) / scaleLen=160
  *   4. material_block 材质块(P0)    opt: size=60 / mat(aluminum|iron|wood|ice|gold|copper|wax|styrofoam|pvc|brick) / label / mystery
- *   5. cylinder_grad  量筒(P1)      opt: h=240 / cap=100 / div=10 / water(0-1) / inside(浸没块占位色)
+ *   5. cylinder_grad  量筒(P1)      opt: h=240 / cap=100 / div=10 / water(0-1) / inside(浸没块占位色) / liquidColor(v9) / contents(v9 钩子 fn(ctx,rect))
  *   6. density_scale  密度标尺(P1)  opt: w=420 / value(0-10 红标) / marks / collapsed；返回 {w,h}
  *   7. clay           橡皮泥(P2)    opt: size=70 / morph(0-2连续,shape别名)；返回 {w,h}
- *   8. beaker_ice     烧杯盛冰(P2,2.5D v7)  opt: h=140 / ice(0-100) / water(0-1，water≤0.01 不画水体)
+ *   8. beaker_ice     烧杯盛冰(P2,2.5D v7)  opt: h=140 / ice(0-100) / water(0-1，water≤0.01 不画水体) / liquidColor(v9) / contents(v9 钩子 fn(ctx,rect))
  *   9. doll           玩偶(P2)      opt: scale=1 / arm(0|1 举手)
  *  10. heat_source    通用热源(P2,2.5D v7)  opt: level(0-3档) / knob(旋钮角度°,缺省随level；false=不画旋钮与指示灯,v5)；返回 {w,h,boxTop,knob}
  *  11. weight_single  单枚砝码(v2)  opt: g∈{5,10,20,50,100} / u=44 / held / label；返回 {w,h}
+ *  12. stone          小石块(v9)    opt: size=60 / seed=1(同seed同形) / wet(0~1)；不规则多面体 2.5D，锚点底面中心
+ *  13. salt_jar       盐罐(v9)      opt: saltLevel=80(0~100) / pour(0~1 倾倒) / h=120；返回 {w,h,mouth:{x,y}}
+ *  14. seed_grains    种粒(v9)      opt: rho=1.10 / level=0.8 / w=160 / h=120 / count=12 / t(0~1 smoothstep 浮沉) / seed=1
  * 挂载白名单（第13条）：
  *   balance_pan 托盘(panL/panR 回调) ← material_block / weight_set 砝码 / weight_single / 被测物（页面层绘制）
  *   cylinder_grad.inside           ← material_block 占位色块（入筒水位=原水位+V块，页面层计算）
  *   water_tank（库内已有件）        ← material_block（入水浮沉，页面层处理）
  *   heat_source 顶盘               ← beaker_ice（页面层放置）
+ *   cylinder_grad/beaker_ice opt.contents ← stone / seed_grains（v9 钩子，页面层画进液体里）
  * ============================================================ */
 
 // ---- 内部小工具 ----
@@ -81,6 +98,45 @@ function rr(ctx, x, y, w, h, r){
   ctx.arcTo(x, y + h, x, y, r);
   ctx.arcTo(x, y, x + w, y, r);
   ctx.closePath();
+}
+// hex 色插值（stone 湿水态加深用，确定性）
+function mixHex(a, b, t){
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const ch = function(sh){
+    return Math.round(((pa >> sh) & 255) + (((pb >> sh) & 255) - ((pa >> sh) & 255)) * t);
+  };
+  return 'rgb(' + ch(16) + ',' + ch(8) + ',' + ch(0) + ')';
+}
+// ---- liquidColor 派生（c6s34 v9：beaker_ice / cylinder_grad 共用；不传 = 原蓝系缺省值，渲染零变化）----
+function parseCol(c){
+  let m = /^rgba?\(([^)]+)\)$/i.exec(c);
+  if (m){
+    const p = m[1].split(',');
+    return {r: +p[0], g: +p[1], b: +p[2], a: p.length > 3 ? +p[3] : 1};
+  }
+  m = /^#([0-9a-f]{6})$/i.exec(c);
+  if (m){
+    const v = parseInt(m[1], 16);
+    return {r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255, a: 1};
+  }
+  return null;
+}
+function colStr(c){
+  return 'rgba(' + Math.round(c.r) + ',' + Math.round(c.g) + ',' + Math.round(c.b) + ',' + (Math.round(c.a * 100) / 100) + ')';
+}
+function mixCol(c, tr, tg, tb, k){
+  return {r: c.r + (tr - c.r) * k, g: c.g + (tg - c.g) * k, b: c.b + (tb - c.b) * k, a: c.a};
+}
+// lc=null→缺省；{top,bottom,line} 对象→逐项兜底缺省；单色字符串→top=原样、bottom=加深28%、line=向白提亮60%
+function deriveLiquid(lc, defTop, defBot, defLine){
+  if (!lc) return {top: defTop, bottom: defBot, line: defLine};
+  if (typeof lc === 'object')
+    return {top: lc.top || defTop, bottom: lc.bottom || defBot, line: lc.line || defLine};
+  const c = parseCol(String(lc));
+  if (!c) return {top: defTop, bottom: defBot, line: defLine};
+  const ln = mixCol(c, 255, 255, 255, 0.6);
+  ln.a = Math.max(ln.a, 0.9);
+  return {top: colStr(c), bottom: colStr(mixCol(c, 0, 0, 0, 0.28)), line: colStr(ln)};
 }
 
 // ================= 1. balance_pan 托盘天平 =================
@@ -556,6 +612,8 @@ PROPS.cylinder_grad = function(ctx, x, y, opt){
   const h = opt.h || 240, w = Math.max(30, h * 0.18);
   const cap = opt.cap || 100, div = opt.div || 10;
   const water = Math.max(0, Math.min(1, opt.water || 0));
+  // v9: opt.liquidColor 派生水色（不传=原蓝系缺省值，页面零改动）
+  const LC = deriveLiquid(opt.liquidColor, 'rgba(125,195,235,0.78)', 'rgba(85,160,215,0.88)', 'rgba(232,247,255,0.95)');
   const wall = Math.max(2, w * 0.055);
   const inL = x - w / 2 + wall, inR = x + w / 2 - wall;
   const inTop = y - h + wall * 2.2, inBot = y - wall * 2.2;
@@ -567,8 +625,8 @@ PROPS.cylinder_grad = function(ctx, x, y, opt){
   if (water > 0.005){
     const wy = inBot - (inBot - inTop) * water;
     const gw = ctx.createLinearGradient(0, wy, 0, inBot);
-    gw.addColorStop(0, 'rgba(125,195,235,0.78)');
-    gw.addColorStop(1, 'rgba(85,160,215,0.88)');
+    gw.addColorStop(0, LC.top);
+    gw.addColorStop(1, LC.bottom);
     ctx.beginPath();
     ctx.moveTo(inL, wy);
     ctx.quadraticCurveTo(x, wy + h * 0.012, inR, wy);
@@ -576,7 +634,7 @@ PROPS.cylinder_grad = function(ctx, x, y, opt){
     ctx.fillStyle = gw; ctx.fill();
     ctx.beginPath();
     ctx.moveTo(inL, wy); ctx.quadraticCurveTo(x, wy + h * 0.012, inR, wy);
-    ctx.strokeStyle = 'rgba(232,247,255,0.95)'; ctx.lineWidth = 1.6; ctx.stroke();
+    ctx.strokeStyle = LC.line; ctx.lineWidth = 1.6; ctx.stroke();
   }
   // inside 浸没块占位色块（页面传 mat 色）
   if (opt.inside){
@@ -585,6 +643,13 @@ PROPS.cylinder_grad = function(ctx, x, y, opt){
     ctx.fillRect(x - bw / 2, inBot - bh, bw, bh);
     ctx.strokeStyle = 'rgba(0,0,0,0.28)'; ctx.lineWidth = 1;
     ctx.strokeRect(x - bw / 2, inBot - bh, bw, bh);
+  }
+  // v9: opt.contents 绘制钩子——水体/inside 之后、前壁描边之前（页面把石块/种粒画进液体里）；save/restore 组件包办，try/catch 静默失败
+  const wyC = water > 0.005 ? inBot - (inBot - inTop) * water : inBot;
+  if (typeof opt.contents === 'function'){
+    ctx.save();
+    try { opt.contents(ctx, {x: x, w: w, inL: inL, inR: inR, inTop: inTop, inBot: inBot, wy: wyC}); } catch(e){}
+    ctx.restore();
   }
   // 前壁描边 + 竖高光条
   rr(ctx, x - w / 2, y - h, w, h, w * 0.08);
@@ -715,6 +780,8 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
   const h = opt.h || 140, w = h * 0.78;      // w=杯口宽
   const ice = Math.max(0, Math.min(100, opt.ice || 0));
   const water = Math.max(0, Math.min(1, opt.water || 0));
+  // v9: opt.liquidColor 派生水色（top=水面椭圆、bottom=水体柱、line=水面亮边；不传=原蓝系缺省值，页面零改动）
+  const LC = deriveLiquid(opt.liquidColor, 'rgba(150,200,240,0.55)', 'rgba(120,180,230,0.45)', 'rgba(232,247,255,0.9)');
   const rxT = w / 2, ryT = w * 0.14;         // 杯口椭圆（ry=0.28rx 同比例，全件统一）
   const topY = y - h;                        // 杯口椭圆中心
   const botY = y - ryT * 0.2;                // 底椭圆中心
@@ -757,10 +824,17 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
     ctx.lineTo(x + rxB, botY);
     ctx.ellipse(x, botY, rxB, ryB, 0, 0, Math.PI);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(120,180,230,0.45)'; ctx.fill();
+    ctx.fillStyle = LC.bottom; ctx.fill();
     ctx.beginPath(); ctx.ellipse(x, wy, hw, ryW, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(150,200,240,0.55)'; ctx.fill();
-    ctx.strokeStyle = 'rgba(232,247,255,0.9)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = LC.top; ctx.fill();
+    ctx.strokeStyle = LC.line; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+  // 3.5) v9: opt.contents 绘制钩子——水体之后、冰块/杯口之前（页面把种粒/石块画进液体里）；save/restore 组件包办，try/catch 静默失败
+  const wyB = water > 0.01 ? botY - (botY - (topY + ryT * 0.9)) * water : botY;
+  if (typeof opt.contents === 'function'){
+    ctx.save();
+    try { opt.contents(ctx, {x: x, w: w, yTop: topY, yBot: botY, rxT: rxT, rxB: rxB, halfAt: halfAt, wy: wyB}); } catch(e){}
+    ctx.restore();
   }
   // 4) 冰块堆（确定性 rand）：堆在底椭圆中心，基线 y−ry*0.5
   const n = Math.round(ice / 20);
@@ -931,6 +1005,217 @@ PROPS.heat_source = function(ctx, x, y, opt){
   return {w: w, h: h, boxTop: boxTop, knob: {x: kx, y: ky, r: kr}};
 };
 
-PROPS.DENSITY_IDS = ['balance_pan','weight_set','rider','material_block','cylinder_grad','density_scale','clay','beaker_ice','doll','heat_source','weight_single'];
+// ================= 12. stone 小石块（c6s34 v9 新件） =================
+// 不规则多面体 2.5D（投影常量同 material_block：dx=0.35d/dy=-0.35d）；灰青岩石 #8a9a94 系 + sin 伪随机斑点与棱角纹
+// opt: size=60（基准边长 px，页面按石块体积 V∈15~20cm³ 派生）/ seed=1（整数：顶点数 6~8 + 半径/角度扰动，同 seed 永远同形）/ wet 0~1（湿水态整体加深约15%+顶面高光增强，入水后页面传 1）
+PROPS.stone = function(ctx, x, y, opt){
+  opt = opt || {};
+  const s = opt.size || 60;
+  const seed = Math.round(opt.seed == null ? 1 : opt.seed);
+  const wet = Math.max(0, Math.min(1, opt.wet || 0));
+  const n = 6 + Math.floor(rand(seed * 13 + 1) * 2.999);        // 顶点数 6~8（seed 确定性）
+  const dx = s * P25.dx * 0.6, dy = s * P25.dy * 0.6;
+  // 色板：干态灰青 / 湿态整体加深约 15%（mixHex 插值）
+  const cTop = mixHex('#9aa9a3', '#83908b', wet);
+  const cFront = mixHex('#8a9a94', '#75837e', wet);
+  const cEdge = mixHex('#5d6b66', '#4f5b57', wet);
+  const cyT = y - s * 0.62 + dy * 0.35;                         // 顶面中心（含 2.5D 上移）
+  const top = [], bot = [];
+  for (let i = 0; i < n; i++){
+    const a = i * Math.PI * 2 / n + (rand(seed * 29 + i * 7) - 0.5) * 0.6;
+    const r = s * 0.5 * (0.72 + rand(seed * 41 + i * 11) * 0.42);
+    top.push({x: x + Math.cos(a) * r + dx * 0.35, y: cyT + Math.sin(a) * r * 0.5, s: Math.sin(a)});
+    bot.push({x: x + Math.cos(a) * r * 0.82, y: Math.min(y, y - s * 0.05 + Math.sin(a) * r * 0.22)});
+  }
+  ctx.save(); ctx.lineJoin = 'round';
+  // 侧面棱面 quad（仅前面棱：sin(a) 均值 ≥ -0.2），每面明暗扰动 → 棱角感
+  for (let i = 0; i < n; i++){
+    const j = (i + 1) % n;
+    if ((top[i].s + top[j].s) / 2 < -0.2) continue;
+    ctx.beginPath();
+    ctx.moveTo(top[i].x, top[i].y); ctx.lineTo(top[j].x, top[j].y);
+    ctx.lineTo(bot[j].x, bot[j].y); ctx.lineTo(bot[i].x, bot[i].y);
+    ctx.closePath();
+    ctx.fillStyle = cFront; ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,' + (rand(seed * 67 + i * 5) * 0.16).toFixed(3) + ')';
+    ctx.fill();
+    ctx.strokeStyle = cEdge; ctx.lineWidth = 1; ctx.stroke();
+  }
+  // 顶面（不规则多边形，2.5D 投影）
+  ctx.beginPath();
+  for (let i = 0; i < n; i++){
+    if (i === 0) ctx.moveTo(top[i].x, top[i].y); else ctx.lineTo(top[i].x, top[i].y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = cTop; ctx.fill();
+  ctx.strokeStyle = cEdge; ctx.lineWidth = 1; ctx.stroke();
+  // 顶面高光（wet 增强；复用顶面路径）
+  const gsh = ctx.createLinearGradient(x - s * 0.4, cyT - s * 0.25, x + s * 0.4, cyT + s * 0.25);
+  gsh.addColorStop(0, 'rgba(255,255,255,' + (0.10 + wet * 0.22).toFixed(2) + ')');
+  gsh.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = gsh; ctx.fill();
+  // 棱角纹（前面顶点→底部落线）
+  ctx.strokeStyle = 'rgba(0,0,0,0.16)'; ctx.lineWidth = 1;
+  for (let i = 0; i < n; i++){
+    if (top[i].s < 0) continue;
+    ctx.beginPath(); ctx.moveTo(top[i].x, top[i].y); ctx.lineTo(bot[i].x, bot[i].y); ctx.stroke();
+  }
+  // 斑点纹理（sin 伪随机，同参数重绘严格同图）
+  for (let k = 0; k < 26; k++){
+    const r1 = rand(seed * 97 + k * 3 + 1), r2 = rand(seed * 97 + k * 3 + 2), r3 = rand(seed * 97 + k * 3 + 3);
+    const px = x + (r1 - 0.5) * s * 0.95;
+    const py = cyT - s * 0.1 + r2 * s * 0.62;
+    ctx.fillStyle = r3 > 0.5 ? 'rgba(255,255,255,' + (0.18 + wet * 0.12).toFixed(2) + ')' : 'rgba(40,50,45,0.25)';
+    ctx.fillRect(px, py, Math.max(1, s * 0.022), Math.max(1, s * 0.022));
+  }
+  ctx.restore();
+};
+
+// ================= 13. salt_jar 盐罐（c6s34 v9 新件） =================
+// 广口玻璃罐（玻璃族视觉语言同 cylinder_grad/beaker_ice：浅青半透明+竖高光条+口部椭圆）+ 罐内白色盐粒堆积（sin 伪随机细颗粒感）
+// opt: saltLevel=80（0~100 余盐%，堆积高度联动）/ pour=0~1（0=直立、≥1=倾斜约45°，绕底面中心旋转；pour>0.3 罐口画盐粒流：4 条抛物线轨迹确定性伪随机白点）/ h=120（罐高）
+// 无 mount（主动件，倾倒目标由页面层对准 beaker）；返回 {w,h,mouth:{x,y}}（罐口世界坐标，页面对准/盐粒流落点参考）
+PROPS.salt_jar = function(ctx, x, y, opt){
+  opt = opt || {};
+  const h = opt.h || 120;
+  const bw = h * 0.66;                        // 罐身宽
+  const mw = bw * 1.14;                       // 罐口宽（广口外扩）
+  const level = Math.max(0, Math.min(100, opt.saltLevel == null ? 80 : opt.saltLevel));
+  const pour = Math.max(0, Math.min(1, opt.pour || 0));
+  const ang = pour * Math.PI / 4;             // 倾倒 ~45°
+  const wall = Math.max(2, bw * 0.05);
+  const mouthY = -h * 0.88;                   // 罐口椭圆中心（局部坐标）
+  const mry = mw * 0.14;
+  const rb = bw * 0.12;                       // 底角圆角
+  const bodyPath = function(){
+    ctx.beginPath();
+    ctx.moveTo(-bw / 2 + rb, 0);
+    ctx.lineTo(bw / 2 - rb, 0);
+    ctx.arcTo(bw / 2, 0, bw / 2, -rb, rb);
+    ctx.lineTo(bw / 2, -h * 0.74);
+    ctx.lineTo(mw / 2, mouthY);
+    ctx.lineTo(-mw / 2, mouthY);
+    ctx.lineTo(-bw / 2, -h * 0.74);
+    ctx.lineTo(-bw / 2, -rb);
+    ctx.arcTo(-bw / 2, 0, -bw / 2 + rb, 0, rb);
+    ctx.closePath();
+  };
+  const innerPath = function(){               // 内腔（盐粒 clip 用）
+    ctx.beginPath();
+    ctx.moveTo(-bw / 2 + wall, -wall * 0.5);
+    ctx.lineTo(bw / 2 - wall, -wall * 0.5);
+    ctx.lineTo(bw / 2 - wall, -h * 0.74);
+    ctx.lineTo(mw / 2 - wall, mouthY);
+    ctx.lineTo(-mw / 2 + wall, mouthY);
+    ctx.lineTo(-bw / 2 + wall, -h * 0.74);
+    ctx.closePath();
+  };
+  ctx.save();
+  ctx.translate(x, y); ctx.rotate(ang);
+  // 1) 玻璃背层 + 罐口椭圆底
+  bodyPath();
+  ctx.fillStyle = 'rgba(220,240,246,0.30)'; ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, mouthY, mw / 2, mry, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(223,240,246,0.25)'; ctx.fill();
+  // 2) 盐堆：clip 内腔；pour 态盐面保持世界水平（反转旋转），直立态中央微拱
+  if (level > 0){
+    const hs = (h * 0.74 - wall) * level / 100;
+    ctx.save();
+    innerPath(); ctx.clip();
+    ctx.rotate(-ang);                         // 回世界朝向（原点仍在罐底中心）
+    const saltY = -hs * (1 - pour * 0.45);    // 倾倒时余盐面下降
+    const dome = hs * 0.08 * (1 - pour);
+    ctx.beginPath();
+    ctx.moveTo(-h * 1.5, saltY);
+    ctx.quadraticCurveTo(0, saltY - dome * 2, h * 1.5, saltY);
+    ctx.lineTo(h * 1.5, h * 1.5); ctx.lineTo(-h * 1.5, h * 1.5);
+    ctx.closePath();
+    ctx.fillStyle = '#f7f6f0'; ctx.fill();
+    for (let k = 0; k < 30; k++){             // 细颗粒感（sin 伪随机，确定性）
+      const r1 = rand(k * 3 + 11), r2 = rand(k * 3 + 12), r3 = rand(k * 3 + 13);
+      ctx.fillStyle = r3 > 0.5 ? 'rgba(214,211,196,0.75)' : 'rgba(255,255,255,0.9)';
+      ctx.fillRect((r1 - 0.5) * bw * 2.6, saltY + r2 * h * 0.8, Math.max(1, h * 0.014), Math.max(1, h * 0.014));
+    }
+    ctx.restore();
+  }
+  // 3) 前壁描边 + 竖高光条 + 罐口椭圆描边
+  bodyPath();
+  ctx.strokeStyle = 'rgba(120,160,180,0.9)'; ctx.lineWidth = wall * 0.5; ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = Math.max(1.5, bw * 0.05);
+  ctx.beginPath(); ctx.moveTo(-bw * 0.27, -h * 0.06); ctx.lineTo(-bw * 0.27, -h * 0.68); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(0, mouthY, mw / 2, mry, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(140,175,195,0.9)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.restore();
+  // 罐口世界坐标（旋转后）：局部 (0,mouthY) → 世界 (x−mouthY·sin a, y+mouthY·cos a)
+  const mx = x - mouthY * Math.sin(ang), my = y + mouthY * Math.cos(ang);
+  // 4) 盐粒流（pour>0.3：3~5 条抛物线轨迹上的确定性伪随机白点，世界坐标）
+  if (pour > 0.3 && level > 0){
+    for (let k = 0; k < 4; k++){
+      const jx = (rand(k * 17 + 3) - 0.5) * mw * 0.5;
+      for (let j = 0; j < 9; j++){
+        const t = (j + 1) / 9 + (rand(k * 31 + j * 7 + 5) - 0.5) * 0.06;
+        const px = mx + jx + h * 0.16 * t + (rand(k * 13 + j) - 0.5) * h * 0.03;
+        const py = my + h * 0.05 * t + h * 0.55 * t * t;
+        ctx.beginPath(); ctx.arc(px, py, h * (0.008 + rand(k * 7 + j * 3 + 1) * 0.008), 0, Math.PI * 2);
+        ctx.fillStyle = rand(k * 5 + j) > 0.5 ? 'rgba(255,255,255,0.95)' : 'rgba(240,238,228,0.9)';
+        ctx.fill();
+      }
+    }
+  }
+  return {w: bw, h: h, mouth: {x: mx, y: my}};
+};
+
+// ================= 14. seed_grains 种粒（c6s34 v9 新件，Q6 选种联动专用） =================
+// 在给定矩形液体区域内画一组种粒。锚点=区域底面中心，区域=[x±w/2]×[y−h, y]
+// 两类粒：饱满粒（饱满谷粒形椭圆、暖黄 #d9b36c 系、密度语义约 1.3 g/cm³ 永远沉底）
+//         空瘪粒（更小而扁、暗黄 #b8975a 系、密度语义约 0.95~1.05）
+// opt: rho=1.10（盐水密度 1.00~1.20；rho≥HOLLOW_CRIT=1.05 时空瘪粒目标=漂浮液面）/ level=0.8（液面高度 0~1，与宿主容器水位对齐）
+//      w=160 / h=120（区域宽高）/ count=12（饱满8+空瘪4）/ t=0~1（浮沉动画插值，页面 rAF 驱动；t=0 全在底、t=1 空瘪粒到液面下缘轻微悬浮；smoothstep 禁回弹震荡）/ seed=1（位置确定性）
+PROPS.seed_grains = function(ctx, x, y, opt){
+  opt = opt || {};
+  const HOLLOW_CRIT = 1.05;                   // 空瘪粒临界密度（组件内常量）
+  const w = opt.w || 160, h = opt.h || 120;
+  const level = Math.max(0, Math.min(1, opt.level == null ? 0.8 : opt.level));
+  const rho = opt.rho == null ? 1.10 : opt.rho;
+  const count = Math.max(2, Math.round(opt.count || 12));
+  const nHollow = Math.max(1, Math.round(count / 3));           // 12 → 4 空瘪
+  const nPlump = count - nHollow;                               // 12 → 8 饱满
+  const t = Math.max(0, Math.min(1, opt.t == null ? 1 : opt.t));
+  const ts = t * t * (3 - 2 * t);             // smoothstep 插值
+  const seed = Math.round(opt.seed == null ? 1 : opt.seed);
+  const g = Math.max(4, Math.min(w, h) * 0.055);                // 饱满粒基准半长
+  const waterY = y - h * level;
+  const L = x - w / 2;
+  const drawGrain = function(px, py, rx, ry, rot, fill, dark){
+    ctx.save(); ctx.translate(px, py); ctx.rotate(rot);
+    ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fillStyle = fill; ctx.fill();
+    ctx.strokeStyle = dark; ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-rx * 0.55, 0); ctx.quadraticCurveTo(0, -ry * 0.4, rx * 0.55, 0);
+    ctx.strokeStyle = dark; ctx.lineWidth = 0.8; ctx.stroke();  // 谷粒纵沟
+    ctx.restore();
+  };
+  ctx.save();
+  // 饱满粒：恒在底（堆底 1~2 层）
+  for (let i = 0; i < nPlump; i++){
+    const r1 = rand(seed * 17 + i * 5 + 1), r2 = rand(seed * 17 + i * 5 + 2), r3 = rand(seed * 17 + i * 5 + 3);
+    drawGrain(L + w * 0.1 + r1 * w * 0.8, y - g * 0.5 - r2 * g * 1.6,
+      g, g * 0.42, (r3 - 0.5) * 1.2, '#d9b36c', '#b08f4e');
+  }
+  // 空瘪粒：rho≥1.05 时 t 插值 → 液面下缘轻微悬浮（水平微漂移）；否则留底
+  const canFloat = rho >= HOLLOW_CRIT;
+  for (let j = 0; j < nHollow; j++){
+    const r1 = rand(seed * 23 + j * 7 + 1), r2 = rand(seed * 23 + j * 7 + 2), r3 = rand(seed * 23 + j * 7 + 3);
+    const bx = L + w * 0.12 + r1 * w * 0.76, by = y - g * 0.4 - r2 * g * 1.2;
+    const fx = bx + (r3 - 0.5) * w * 0.18;                      // 漂浮目标 x（微漂移）
+    const fy = waterY + g * 0.55 + r2 * g * 0.5;                // 液面下缘轻微悬浮
+    const px = canFloat ? bx + (fx - bx) * ts : bx;
+    const py = canFloat ? by + (fy - by) * ts : by;
+    drawGrain(px, py, g * 0.68, g * 0.26, (r3 - 0.5) * 1.6, '#b8975a', '#96793f');
+  }
+  ctx.restore();
+};
+
+PROPS.DENSITY_IDS = ['balance_pan','weight_set','rider','material_block','cylinder_grad','density_scale','clay','beaker_ice','doll','heat_source','weight_single','stone','salt_jar','seed_grains'];
 
 })(typeof window !== 'undefined' ? window : globalThis);
