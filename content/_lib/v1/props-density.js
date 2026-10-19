@@ -8,7 +8,12 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-density.js — 第六章「质量与密度」标准器材件 v7（c6s12 修复轮8，11件）
+ * props-density.js — 第六章「质量与密度」标准器材件 v8（c6s12 修复轮9，11件）
+ * v8 变更清单（2026-10-20，蔡总 R39：烧杯杯口两处残留线删除；opt API 与返回几何字段全部不变，页面零改动消费）：
+ *   ~ beaker_ice R39-a 杯口中间横线：侧壁段(2) fill 与 stroke 分离——fill 用闭路径（顶弦仅填色不可见）；
+ *     stroke 另开路径只描三边（左壁 moveTo→lineTo 左底→ellipse 底前弧→lineTo 右切点），不 closePath 不描顶弦（蔡总图一）
+ *   ~ beaker_ice R39-b 杯口外侧小斜线：删段(5)喙三角（原 moveTo(x−rxT+1,…) 三行 fill+stroke），v6「喙三角保留」注释作废；
+ *     rim 椭圆完整描边(771)与水体 guard(water>0.01)保留，返回无值不变
  * v7 变更清单（2026-10-20，蔡总 R37/R38：烧杯杯口横线删除 + 加热底座顶底弧一致；opt API 与返回几何字段全部不变，页面零改动消费）：
  *   ~ heat_source R38：底椭圆 ryB=w*0.08 → ryB=ryT(=w*0.16)，顶/底椭圆 ry 相等→台面不再视觉倾斜（蔡总图四）；
  *     底弧路径(866)/底弧描边(879)/体块渐变末端(869)均引用 ryB 变量→自动跟随，段内无第二处硬编码 0.08；
@@ -17,7 +22,7 @@ const rand = PROPS.rand || function(seed){
  *     杯口只余 rim 椭圆(771)，无「中间横线」（蔡总图三）；本轮仅 gallery 追加 ice:100/water:0 审核变体，库件守卫复用零改动
  * v6 变更清单（2026-10-19，蔡总 R33：杯底/加热底座是平面直线→两件 2.5D 化，opt API 与返回几何字段全部不变，页面零改动消费）：
  *   ~ beaker_ice 2.5D 重写：底椭圆(rx=w/2,ry=w*0.14,前弧亮线)+锥度侧壁(内收4%,左亮右暗渐变+左壁白高光竖条)
- *     +水体(水面椭圆亮边)+冰块堆底椭圆中心(基线 y−ry*0.5,确定性 rand 种子不变)+杯口椭圆描边/左喙保留；段内直线底边清零
+ *     +水体(水面椭圆亮边)+冰块堆底椭圆中心(基线 y−ry*0.5,确定性 rand 种子不变)+杯口椭圆描边/喙三角保留；段内直线底边清零
  *   ~ heat_source 2.5D 重写：顶盘椭圆(rx=w/2,ry=w*0.16,金属径向渐变,level>0 盘心橙红热晕)+前立面体块(h_body=w*0.34,
  *     #4b5563→#374151,左亮右暗两段)+底椭圆前弧落地(前弧恰落 y)+旋钮/指示灯随新立面居中；boxTop=顶盘椭圆中心 y(语义不变,数值=y−h+ryT)；
  *     返回 {w,h,boxTop,knob} 字段不变
@@ -703,7 +708,8 @@ PROPS.clay = function(ctx, x, y, opt){
 
 // ================= 8. beaker_ice 烧杯盛冰 =================
 // v6 2.5D（蔡总 R33：杯底不能是平面直线）：底椭圆+锥度侧壁+水面椭圆，禁直线底边；opt/锚点语义不变
-// 层次：底椭圆(前弧亮线)→侧壁(玻璃渐变+左壁高光)→水体(水面椭圆亮边)→冰块(rand 确定性多边形堆)→杯口描边+左喙
+// v8（蔡总 R39 2026-10-20）：侧壁 fill/stroke 分离→stroke 只描三边不闭顶弦（消杯口中间横线）；删喙三角（消杯口外侧小斜线）；rim 椭圆完整描边/水体 guard 保留
+// 层次：底椭圆(前弧亮线)→侧壁(玻璃渐变+左壁高光)→水体(水面椭圆亮边)→冰块(rand 确定性多边形堆)→杯口椭圆描边
 PROPS.beaker_ice = function(ctx, x, y, opt){
   opt = opt || {};
   const h = opt.h || 140, w = h * 0.78;      // w=杯口宽
@@ -722,6 +728,7 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
   ctx.beginPath(); ctx.ellipse(x, botY, rxB, ryB, 0, 0, Math.PI);
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = Math.max(1.5, w * 0.022); ctx.stroke();
   // 2) 侧壁：杯口切点→底椭圆切点，玻璃渐变（左亮右暗）
+  // v8 R39：fill 用闭路径（顶弦仅填色不可见）；stroke 另开路径只描三边（左壁+底前弧+右壁），不 closePath → 消杯口中间横线
   ctx.beginPath();
   ctx.moveTo(x - rxT, topY); ctx.lineTo(x - rxB, botY);
   ctx.ellipse(x, botY, rxB, ryB, 0, Math.PI, 0, true);
@@ -731,6 +738,10 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
   gg.addColorStop(0, 'rgba(210,230,240,0.55)');
   gg.addColorStop(1, 'rgba(180,210,225,0.35)');
   ctx.fillStyle = gg; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x - rxT, topY); ctx.lineTo(x - rxB, botY);
+  ctx.ellipse(x, botY, rxB, ryB, 0, Math.PI, 0, true);
+  ctx.lineTo(x + rxT, topY);
   ctx.strokeStyle = 'rgba(120,160,180,0.9)'; ctx.lineWidth = wall * 0.5; ctx.stroke();
   // 左壁白高光竖条
   ctx.beginPath();
@@ -773,17 +784,11 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
     ctx.moveTo(cxI - sz * 0.2, cyI - sz * 0.12); ctx.lineTo(cxI + sz * 0.1, cyI - sz * 0.26);
     ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 1.4; ctx.stroke();
   }
-  // 5) 杯口椭圆完整描边 + 左喙（保留）
+  // 5) 杯口椭圆完整描边（rim 正常口沿线）
+  // v8 R39：删喙三角（原 moveTo(x−rxT+1,…) 三行 fill+stroke）→ 消杯口外侧小斜线
   ctx.beginPath(); ctx.ellipse(x, topY, rxT, ryT, 0, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(223,240,246,0.25)'; ctx.fill();
   ctx.strokeStyle = 'rgba(140,175,195,0.9)'; ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x - rxT + 1, topY - wall * 0.6);
-  ctx.lineTo(x - rxT - w * 0.07, topY - wall * 1.8);
-  ctx.lineTo(x - rxT + w * 0.06, topY - wall * 0.4);
-  ctx.closePath();
-  ctx.fillStyle = 'rgba(223,240,246,0.5)'; ctx.fill();
-  ctx.strokeStyle = 'rgba(120,160,180,0.9)'; ctx.lineWidth = 1.2; ctx.stroke();
   ctx.restore();
 };
 

@@ -38,7 +38,7 @@ var state={
   onPan:false,onHeat:false,
   morph:0,kneaded:false, // 橡皮泥揉捏（0球-1饼-2条 连续）
   ice:100,meltedOnce:false,
-  heatX:0,heating:false,freezing:false,   // R22 底座可挪 x + 加热/制冰互斥布尔（heatX 初值由 layout 写）
+  heatX:0,heatMoved:false,heating:false,freezing:false,   // R22 底座可挪 x + R40 拖过锁用户位 + 加热/制冰互斥布尔（heatX 由 layout 避让位写）
   knobAng:{heat:-135,freeze:-135},        // R31 旋钮指针当前角（°，off=−135/on=+135，tick 200ms 插值）
   objPos:{x:0,y:0},
   rider:0,nut:NUT_INIT,tilt:NUT_INIT,leveled:false,matched:false,
@@ -81,7 +81,6 @@ function layout(){
   // R11 u 与 weight_set 盒内槽位同公式：u=(w−2×0.05w)/4.9=0.1837w → 盒内外同一枚砝码同尺寸
   L.wU=Math.round(L.boxW*0.1837);
   L.heatW=Math.round(H*0.16);      // 热源宽（天平右下方）
-  L.heatX=Math.min(L.balX0+Math.round(L.balH*0.66),L.boxX-L.boxW/2-12-L.heatW/2);
   L.beakerH=Math.round(H*0.17);    // 冰水烧杯高
   // 天平 x 可拖范围：底座不越出画布左右各 ≥12px，且不与砝码盒重叠（收窄 clamp）
   L.balMinX=Math.max(40,L.baseHW+12);
@@ -89,7 +88,11 @@ function layout(){
   if(!state.bal.moved){ state.bal.x=L.balX0; }
   state.bal.x=clamp(state.bal.x,L.balMinX,L.balMaxX);
   if(!state.bal.falling&&!state.drag) state.bal.y=L.seat;
-  if(!state.heatX) state.heatX=L.heatX;      // R22 首帧取布局默认位，此后跟随拖动
+  // R40 热源默认位避让天平木底座（须在 bal.x clamp 后算）：左缘 ≥ 底座右缘+16px，右缘距砝码盒左 ≥12px
+  var hMin=state.bal.x+L.baseHW+Math.round(L.heatW/2)+16;
+  var hMax=L.boxX-L.boxW/2-12-Math.round(L.heatW/2);
+  L.heatX=(hMin<=hMax)?hMin:Math.min(hMax,W-60);   // 窄屏放不下时贴右并允许压盒左（保留 12px 间距语义）
+  if(!state.heatMoved) state.heatX=L.heatX;      // R40 未拖过：resize/全屏/天平拖落都跟随避让位；拖过：尊重用户位仅 clamp
   state.heatX=clamp(state.heatX,60,W-60);
 }
 function resize(){
@@ -543,6 +546,7 @@ function startBalDrag(p){
 }
 // R22 热源底座拖动（落桌面：y 恒 seat，只挪 x）
 function startHeatDrag(p){
+  state.heatMoved=true;   // R40 拖过才锁用户位，此后 layout 不再覆盖 heatX
   state.drag={kind:'heat',dx:p.x-state.heatX,x:p.x,y:p.y,t:performance.now(),vx:0,vy:0};
   if(window.playPick) playPick();
 }
@@ -951,7 +955,7 @@ function resetAll(){
   state.g=G_EARTH;
   state.obj=null; state.onPan=false; state.onHeat=false; state.morph=0; state.kneaded=false;
   state.ice=100; state.meltedOnce=false;
-  state.heatX=L.heatX; state.heating=false; state.freezing=false;
+  state.heatX=L.heatX; state.heatMoved=false; state.heating=false; state.freezing=false;   // R40 重置回避让位并解锁跟随
   state.knobAng={heat:-135,freeze:-135};
   state.rider=0; state.nut=NUT_INIT; state.tilt=NUT_INIT; state.leveled=false; state.matched=false;
   state.panW=[]; state.loose=[]; state.falls=[]; state.wPos={};
