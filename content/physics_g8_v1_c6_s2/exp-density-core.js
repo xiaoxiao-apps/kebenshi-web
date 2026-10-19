@@ -137,11 +137,10 @@ function tankBotY(){ return L.e4.tank.y-(1-TKB)*L.e4.tank.h; }
 function e4Side(b){ return Math.max(16,L.e4.tank.h*0.30*cbrt(b.v/5)); }
 function e5Side(b){ return Math.max(14,H*0.045*cbrt(b.v)); }   // E5 未知块示意缩放（0.4×级，与量筒内一致，不再巨大）
 function e3Side(){ return Math.max(12,H*0.05*E3_BLOCK_K*cbrt(state.e3.v)); }   // E3 物块示意缩放 0.4×
-/* R32修3：摞叠接触偏移单点——material_block 顶面平行四边形中心相对「锚点正上方 s 处」的偏移向量
-   （props-density.js L4 P25={dx:0.35,dy:-0.35} / L463 dx=s*P25.dx*0.6,dy=s*P25.dy*0.6 / L469-476 顶面四点(fx,fy)(fx+dx,fy+dy)(fx+s+dx,fy+dy)(fx+s,fy)中心=(锚点x+dx/2, 锚点y−s+dy/2)） */
+/* R35 蔡总 00:08：接触面禁错位=前面共面（顶块前面与底块前面同 x 连续 y，top.x=bot.x、top.y=bot.y−sBot）；
+   6b 同心偏移（顶块底面中心坐底块顶面平行四边形中心，每层右移半格）视觉阶梯错位已废 */
 function stackOffset(s){
-  var P=PROPS.P25||{dx:0.35,dy:-0.35};
-  return {x:s*P.dx*0.6/2, y:s*P.dy*0.6/2};
+  return {x:0, y:0};
 }
 
 function reflow(){   // resize/全屏重算一切（第17条）：块位置回域
