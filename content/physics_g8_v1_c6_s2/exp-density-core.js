@@ -117,7 +117,16 @@ function layout(){
   var sHalf=Math.ceil(H*0.045*cbrt(5)/2)+10;   // 神秘块最大半宽（v≤5L）+间隙
   var spMin=L.e5.boxX+Math.round(L.e5.boxW/2)+sHalf;
   var spMax=Math.round(Math.max(spMin+20,L.e5.cyl.x-cylHalfW-sHalf));
-  L.e5.spot=[spMin,Math.round((spMin+spMax)/2),spMax];
+  L.e5.spotBounds={min:spMin,max:spMax};
+  e5ComputeSpots(e5MaxV());   // R32修4：三位等距居中，间距=本题最大块边长×1.35（域宽不足按域收窄）
+}
+function e5MaxV(){ var mv=0; state.e5.blocks.forEach(function(b){ if(b.v>mv) mv=b.v; }); return mv||5; }
+function e5ComputeSpots(maxV){
+  var bd=L.e5.spotBounds; if(!bd) return;
+  var mid=Math.round((bd.min+bd.max)/2);
+  var maxSide=Math.max(14,H*0.045*cbrt(maxV||5));   // e5Side 同式：本题最大块边长
+  var gap=Math.min(Math.round(maxSide*1.35),Math.max(20,Math.round((bd.max-bd.min)/2)));
+  L.e5.spot=[mid-gap,mid,mid+gap];
 }
 function tankSurfYAt(lvlL){   // 水位体积(L)→水面屏幕y（water_tank 内腔 frac 同源）
   var t=L.e4.tank;
@@ -128,6 +137,12 @@ function tankBotY(){ return L.e4.tank.y-(1-TKB)*L.e4.tank.h; }
 function e4Side(b){ return Math.max(16,L.e4.tank.h*0.30*cbrt(b.v/5)); }
 function e5Side(b){ return Math.max(14,H*0.045*cbrt(b.v)); }   // E5 未知块示意缩放（0.4×级，与量筒内一致，不再巨大）
 function e3Side(){ return Math.max(12,H*0.05*E3_BLOCK_K*cbrt(state.e3.v)); }   // E3 物块示意缩放 0.4×
+/* R32修3：摞叠接触偏移单点——material_block 顶面平行四边形中心相对「锚点正上方 s 处」的偏移向量
+   （props-density.js L4 P25={dx:0.35,dy:-0.35} / L463 dx=s*P25.dx*0.6,dy=s*P25.dy*0.6 / L469-476 顶面四点(fx,fy)(fx+dx,fy+dy)(fx+s+dx,fy+dy)(fx+s,fy)中心=(锚点x+dx/2, 锚点y−s+dy/2)） */
+function stackOffset(s){
+  var P=PROPS.P25||{dx:0.35,dy:-0.35};
+  return {x:s*P.dx*0.6/2, y:s*P.dy*0.6/2};
+}
 
 function reflow(){   // resize/全屏重算一切（第17条）：块位置回域
   var b3=state.e3.block;
@@ -138,7 +153,7 @@ function reflow(){   // resize/全屏重算一切（第17条）：块位置回�
   e4Blocks().forEach(function(b,i){
     if(!b) return;
     if(b.loc==='tank'){ b.x=clamp(b.x,t.x-t.innerHalf+e4Side(b)/2,t.x+t.innerHalf-e4Side(b)/2); b.y=e4RestY(b); }
-    else { b.y=L.e4.benchY; b.x=clamp(b.x,60,W-60); }
+    else { b.y=L.e4.benchY; b.benchOn=null; b.x=clamp(b.x,60,W-60); }   // resize 回位=拆台面摞（同 E5 R28 语义）
   });
   if(state.e4.stack) e4StackReflow();
   state.e5.blocks.forEach(function(b,i){
@@ -454,7 +469,7 @@ function e3Tick(){   // rAF 推进：量筒水位插值 + 箭头汇聚计时 + �
 var tankOK=false;   // water_tank sprite 就位标记（renderE4 每帧刷新）
 function mkE4Block(preset,v,m,loc){
   return {preset:preset,mat:preset==='custom'?'styrofoam':preset,v:v,m:m,
-    x:L.e4.tank.x,y:L.e4.benchY,loc:loc||'tank',tw:null};
+    x:L.e4.tank.x,y:L.e4.benchY,loc:loc||'tank',tw:null,benchOn:null};   // benchOn=台面摞叠宿主（R32修4）
 }
 function e4Rho(b){ return b.m/b.v; }   // kg/L = ρ=m/V
 /* R25 除根：浸没比一律按绘制位置派生（掉入/按住/松手/水面再动全同源，两路径不可能不一致） */
@@ -561,11 +576,9 @@ function drawE4Splash(){   // 入水微溅涟漪：3 圈外扩扁椭圆弧（水
 }
 /* ===== E4.3 双块摞叠物理（PhET 同族·实算）：刚体摞叠 ρ̄=(mA+mB)/(VA+VB)，漂浮 V排=M/ρ水、沉底整块没 ===== */
 function e4OtherBlock(b){ if(!state.e4.dual) return null; var d=state.e4.duals; return (b===d[0])?d[1]:((b===d[1])?d[0]:null); }
-function e4OnTop(A,B){   // A 底面落在 B 顶面区（水平重叠 + 竖直接近）→ 可摞
+function e4OnTop(A,B){   // R32修1：水平重叠(0.85容差) + 释放在 B 顶面上方(≤顶面+10px) → 可摞（自由落下即摞，禁精确对准；旧 nearTop 下限窗已删）
   var sA=e4Side(A),sB=e4Side(B),bTopY=B.y-sB;
-  var overlapX=Math.abs(A.x-B.x)<(sA/2+sB/2)*0.72;
-  var nearTop=A.y>bTopY-sA*1.15&&A.y<bTopY+sB*0.6;
-  return overlapX&&nearTop;
+  return Math.abs(A.x-B.x)<=(sA+sB)/2*0.85 && A.y<bTopY+10;
 }
 function e4CanStack(A,B){   // A 摞到 B 上：'float'/'sink'/false（B 已沉底且 A 漂 → 不可摞，A 滑落）
   if(e4Rho(B)>=RHO_WATER&&e4Rho(A)<RHO_WATER) return false;
@@ -579,11 +592,11 @@ function e4StackEq(lvlL){   // 摞叠平衡：底块底面屏幕 y（ybot）+ �
   var Vsub=M/RHO_WATER,hsub=(Vsub<=B.v)?sB*(Vsub/B.v):sB+sA*((Vsub-B.v)/A.v);
   return {ybot:surfY+hsub,sunk:false,surfY:surfY};
 }
-function e4StackPos(){   // 由摞叠锚点 S.y(底块底面) 派生两块位置（刚体：顶块底面=底块顶面）
+function e4StackPos(){   // 由摞叠锚点 S.y(底块底面) 派生两块位置（刚体：顶块底面中心=底块顶面平行四边形中心，R32修3 接触偏移）
   var S=state.e4.stack; if(!S) return;
-  var sB=e4Side(S.bot);
+  var sB=e4Side(S.bot),so=stackOffset(sB);
   S.bot.x=S.x; S.bot.y=S.y;
-  S.top.x=S.x; S.top.y=S.y-sB;
+  S.top.x=S.x+so.x; S.top.y=S.y-sB+so.y;
 }
 function e4StackSettle(splash){   // 摞叠落定：漂浮=每帧平衡派生+bob 偏移 / 沉底=单调；两块个体动画清零改由摞叠驱动
   var S=state.e4.stack,eq=e4StackEq(state.e4.lvl),now=performance.now();
@@ -663,7 +676,41 @@ function e4Hit(p){   // 纯命中（无副作用），返回 index 或 -1
 function E4SelSet(i){
   if(state.e4.sel!==i){ state.e4.sel=i; dirty=true; updatePanel(); syncE4Ctrl(); updateHint(); }
 }
-function e4Drop(b,px,py){   // 放手：摞到另块顶=摞叠 / 入水=浮沉(+微溅) / 台面=静置（可再拖）
+/* R32修4：E4 台面停驻禁相交——落点与已有台面块水平重叠(修1容差)→摞其上(benchOn 链式算列顶+修3接触偏移)；仅视觉重叠→推到最近不重叠侧 */
+function e4BenchTop(o){   // 台面列顶：顺 benchOn 链上溯
+  var top=o,bs=e4Blocks(),again=true;
+  while(again){ again=false;
+    for(var i=0;i<bs.length;i++){ var q=bs[i];
+      if(q&&q!==top&&q.loc==='bench'&&q.benchOn===top){ top=q; again=true; break; } } }
+  return top;
+}
+function e4BenchPlace(b){
+  var sA=e4Side(b),host=null,push=null;
+  e4Blocks().forEach(function(o){
+    if(!o||o===b||o.loc!=='bench'||o.benchOn) return;   // 只与列底比（列顶由链上溯）
+    var sO=e4Side(o),dx=Math.abs(b.x-o.x);
+    if(dx<=(sA+sO)/2*0.85) host=e4BenchTop(o);
+    else if(!push&&dx<(sA+sO)/2+2) push=o;
+  });
+  if(host){
+    b.benchOn=host;
+    var so=stackOffset(e4Side(host));
+    b.x=host.x+so.x; b.y=host.y-e4Side(host)+so.y;
+  }else{
+    b.benchOn=null; b.y=L.e4.benchY;
+    if(push){ var sP=e4Side(push);
+      b.x=clamp(push.x+(b.x<push.x?-1:1)*((sA+sP)/2+2),50,W-50); }
+  }
+}
+function e4BenchRefresh(){   // 改参数致边长变化后重摆台面摞叠链
+  e4Blocks().forEach(function(b){
+    if(!b||b.loc!=='bench'||!b.benchOn) return;
+    var h=b.benchOn;
+    if(h.loc==='bench'){ var so=stackOffset(e4Side(h)); b.x=h.x+so.x; b.y=h.y-e4Side(h)+so.y; }
+    else { b.benchOn=null; b.y=L.e4.benchY; }
+  });
+}
+function e4Drop(b,px,py){   // 放手：摞到另块顶=摞叠 / 入水=浮沉(+微溅) / 台面=静置或摞上已有台面块（R32修4，可再拖）
   var t=L.e4.tank,s=e4Side(b),other=e4OtherBlock(b);
   b.tw=null; b.bob=null;
   if(other&&other.loc==='tank'&&!state.e4.stack&&e4OnTop(b,other)){   // E4.3 摞叠判定
@@ -675,7 +722,8 @@ function e4Drop(b,px,py){   // 放手：摞到另块顶=摞叠 / 入水=浮沉(+
       if(window.playDrop) playDrop();
       updatePanel(); updateHint(); dirty=true; return;
     }
-    b.loc='tank';   // 不可摞（底块已沉底且本块漂）：侧向滑落上浮，各归各位
+    b.loc='tank';   // 唯一物理例外（R32修2）：底块已沉底且本块漂→浮力托起，侧向滑脱上浮，hint 解释一句
+    hintOverride='漂浮的块摞不到已沉底的块顶上——浮力把它托起滑脱了。其余组合都能摞：大摞小、小摞大、双浮、双沉';
     var dirx=(b.x<other.x?-1:1),sO=e4Side(other);
     b.x=clamp(other.x+dirx*(sO/2+s/2+8),t.x-t.innerHalf+s/2+2,t.x+t.innerHalf-s/2-2);
     e4Settle(b,true);
@@ -688,6 +736,7 @@ function e4Drop(b,px,py){   // 放手：摞到另块顶=摞叠 / 入水=浮沉(+
     e4Settle(b,true);
   }else{
     b.loc='bench'; b.y=L.e4.benchY; b.x=clamp(b.x,50,W-50);   // 水位每帧由 e4Tick 重算趋近，无需快照
+    e4BenchPlace(b);   // R32修4：重叠→摞其上 / 视觉相交→推开，禁相交停驻
   }
   if(window.playDrop) playDrop();
   dirty=true; updatePanel(); updateHint();
@@ -712,6 +761,7 @@ function e4AfterChange(){
   }
   if(S) e4StackSettle(false);
   else if(b.loc==='tank') e4Settle(b);   // 台面块只等每帧水位重算，无快照
+  e4BenchRefresh();   // R32修4：边长变化后台面摞叠链重摆
   syncE4Ctrl(); dirty=true; updatePanel(); updateHint();
 }
 function e4ToggleDual(){   // 单块/双块切换钮（右下常驻；命名走「场景」用语）
@@ -756,9 +806,11 @@ function genE5(){   // 出题：密度表值池随机抽3材质×随机体积(1-
   qSeed=Math.floor(Date.now()%99991)+7;
   var pool=E5_POOL.slice(),bs=[],i,j,tp;
   for(i=pool.length-1;i>0;i--){ j=Math.floor(e5Rnd()*(i+1)); tp=pool[i];pool[i]=pool[j];pool[j]=tp; }
+  var mats=[],vols=[];   // R32修4：先抽满三题体积→按本题最大块边长重算 spot 间距→再摆块
+  for(i=0;i<3;i++){ mats.push(pool[i]); vols.push(1+Math.floor(e5Rnd()*5)); }
+  e5ComputeSpots(Math.max.apply(null,vols));
   for(i=0;i<3;i++){
-    var mat=pool[i],v=1+Math.floor(e5Rnd()*5);
-    bs.push({id:i+1,mat:mat,v:v,m:Math.round(RHO[mat]*v*100)/100,
+    bs.push({id:i+1,mat:mats[i],v:vols[i],m:Math.round(RHO[mats[i]]*vols[i]*100)/100,
       mKnown:false,vKnown:false,revealed:false,solved:false,guess:'',verdict:'',vok:'',
       loc:'bench',x:L.e5.spot[i],y:L.e5.benchY,stackOn:null});
   }
@@ -793,7 +845,8 @@ function e5Anchor(b,seen){   // bench 块由 stackOn 链派生落位（宿主顶
   var o=e5ById(b.stackOn);
   if(!o||o===b||o.loc!=='bench'||(seen&&seen.indexOf(o)>=0)){ b.stackOn=null; b.y=L.e5.benchY; return; }
   e5Anchor(o,(seen||[b]).concat([o]));
-  b.x=o.x; b.y=o.y-e5Side(o);
+  var so=stackOffset(e5Side(o));   // R32修3：顶块底面中心=宿主顶面平行四边形中心
+  b.x=o.x+so.x; b.y=o.y-e5Side(o)+so.y;
 }
 function e5Hit(p){   // 纯命中（无副作用），返回 index 或 -1
   var bs=state.e5.blocks;
@@ -877,16 +930,26 @@ function e5Drop(b){   // 放手：天平区=称m / 量筒区=排水测V（优先
     e5SetCyl(e5CylTargetFrac());
     if(window.playDrop) playDrop();
   }else{
-    var sA=e5Side(b),host=null;   // R28 摞放判定：落点 x 命中另一 bench 块（列顶）且落点 y 在其顶面附近
+    var sA=e5Side(b),host=null;   // R32修1 摞放判定：水平重叠(0.85容差)+释放在列顶顶面上方(≤顶面+10px)，自由落下即摞、禁精确对准（旧 ±30px 竖窗已删）
     state.e5.blocks.forEach(function(o){
       if(host||o===b||o.loc!=='bench') return;
       var hasTop=state.e5.blocks.some(function(q){ return q!==b&&q.stackOn===o.id&&q.loc==='bench'; });
-      if(hasTop) return;
+      if(hasTop) return;   // 链式取列顶
       var sO=e5Side(o);
-      if(Math.abs(b.x-o.x)<(sA+sO)/2*0.75&&b.y>o.y-sO-30&&b.y<o.y+6) host=o;
+      if(Math.abs(b.x-o.x)<=(sA+sO)/2*0.85&&b.y<o.y-sO+10) host=o;
     });
-    if(host){ b.loc='bench'; b.stackOn=host.id; b.x=host.x; b.y=host.y-e5Side(host); }
-    else { b.loc='bench'; b.stackOn=null; b.x=clamp(b.x,50,W*0.72); b.y=B.benchY; }
+    if(host){ var so=stackOffset(e5Side(host));   // R32修3：落定=顶面平行四边形中心
+      b.loc='bench'; b.stackOn=host.id; b.x=host.x+so.x; b.y=host.y-e5Side(host)+so.y;
+    }else{
+      b.loc='bench'; b.stackOn=null; b.y=B.benchY;
+      var bx=clamp(b.x,50,W*0.72);   // R32修4：禁相交停驻——与台面列底视觉重叠→推到最近不重叠侧（两轮防连环）
+      for(var pass=0;pass<2;pass++) state.e5.blocks.forEach(function(o){
+        if(o===b||o.loc!=='bench'||o.stackOn) return;
+        var sO=e5Side(o),dx=bx-o.x;
+        if(Math.abs(dx)<(sA+sO)/2+2) bx=clamp(o.x+(dx<0?-1:1)*((sA+sO)/2+2),50,W*0.72);
+      });
+      b.x=bx;
+    }
     if(window.playDrop) playDrop();
   }
   syncE5Sel(); dirty=true; updatePanel(); updateHint();
@@ -984,6 +1047,10 @@ cv.addEventListener('pointerdown',function(ev){
       E4SelSet(i);
       var b=e4Blocks()[i];
       if(state.e4.stack&&(b===state.e4.stack.top||b===state.e4.stack.bot)) e4Unstack(b);   // E4.3 拆开摞叠
+      e4Blocks().forEach(function(o){   // R32修4：拖走台面摞叠底块→顶块塌落桌面
+        if(o&&o!==b&&o.benchOn===b){ o.benchOn=null; o.y=L.e4.benchY; if(window.playDrop) playDrop(); }
+      });
+      b.benchOn=null;   // 拖走顶块→自身脱链，松手按落点重新判定
       state.e4.drag={b:b,dx:b.x-p.x,dy:b.y-p.y};
       b.tw=null; b.bob=null;   // R25：按住中 loc 保持 tank——y 跟手、排水按 e4SubFrac 实时算（按住全浸水位连续升到 100+V）
       if(window.playPick) playPick();
