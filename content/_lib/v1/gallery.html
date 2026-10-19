@@ -57,7 +57,7 @@
 </div>
 <script src="./props.js?v=96"></script>
 <script src="./props-optics.js?v=9"></script>
-<script src="./props-density.js?v=5"></script>
+<script src="./props-density.js?v=6"></script>
 <script src="./sfx.js?v=1"></script>
 <script>
 // PROPS.SPRITE_BASE 默认为 'sprites/'，与 gallery.html 同目录，正确无需覆写
@@ -93,9 +93,9 @@ const PROPS_LIST=[
   {id:'cylinder_grad',name:'量筒',fn:'cylinder_grad',tall:true,vector:true,opts:[{},{water:0.6},{water:0.8,inside:'#5b6068'}],badge:'c6s12 新增',desc:'100mL/分度10；inside=浸没块占位色'},
   {id:'density_scale',name:'密度标尺',fn:'density_scale',wide:true,row:true,size:{w:520,h:260},vector:true,opts:[{w:300},{w:300,value:7.9},{w:300,value:2.5,collapsed:true}],badge:'c6s12 新增',desc:'0-10 kg/L幽灵化面板+实物参照+红三角标；collapsed=折叠态'},
   {id:'clay',name:'橡皮泥',fn:'clay',vector:true,opts:[{morph:0},{morph:1.5},{morph:1}],badge:'c6s12 r1',desc:'morph连续实数0-2直接揉捏（0球1饼2条，超椭圆插值）；shape为别名；返回{w,h}'},
-  {id:'beaker_ice',name:'烧杯盛冰',fn:'beaker_ice',tall:true,vector:true,opts:[{h:110},{h:110,ice:60,water:0.5},{h:110,ice:20,water:0.7}],badge:'c6s12 新增',desc:'冰量0-100+水位；玻璃杯体照glass_brick视觉语言'},
+  {id:'beaker_ice',name:'烧杯盛冰(2.5D v6)',fn:'beaker_ice',tall:true,vector:true,opts:[{h:110,ice:100,water:0.5},{h:110,ice:50,water:0.7},{h:110,ice:0,water:0.6}],badge:'c6s12 v6',desc:'R33 2.5D：底椭圆前弧亮线+锥度侧壁+水面椭圆，禁直线底边；ice 100/50/0 三态'},
   {id:'doll',name:'玩偶',fn:'doll',tall:true,vector:true,opts:[{},{arm:1},{scale:1.3}],badge:'c6s12 新增',desc:'通用圆滚简笔矢量（版权安全，非冰墩墩造型）'},
-  {id:'heat_source',name:'通用热源',fn:'heat_source',vector:true,opts:[{w:92},{w:92,level:2},{w:92,level:3}],badge:'c6s12 新增',desc:'level 0-3档热晕红光+旋钮随档；替代酒精灯（第6条）'},
+  {id:'heat_source',name:'通用热源(2.5D v6)',fn:'heat_source',vector:true,opts:[{w:92},{w:92,level:2}],badge:'c6s12 v6',desc:'R33 2.5D：顶盘椭圆+前立面体块(左亮右暗)+底椭圆前弧落地；level 0/2 两态热晕；返回{w,h,boxTop,knob}字段不变'},
   {id:'heat_source_noknob',name:'通用热源(无旋钮v5)',fn:'heat_source',vector:true,opts:[{w:92,knob:false},{w:92,level:2,knob:false},{w:92,level:3,knob:false}],badge:'c6s12 v5',desc:'R31：knob:false 跳过自绘旋钮+指示灯（页面自绘真旋钮），底座/热盘/热晕照常；返回几何不变{w,h,boxTop,knob}'},
   {id:'weight_single',name:'单枚砝码',fn:'weight_single',vector:true,opts:[{g:100},{g:20},{g:5}],badge:'c6s12 r4',desc:'v3: u默认36→44；几何调weightGeom单源=盒内槽位同公式，三档直径44.0/25.7/16.2递变；held=镊子夹持；返回{w,h}'},
   {id:'weight_set_v3',name:'砝码组(六枚直径递变)',fn:'weight_set',size:{w:520,h:260},vector:true,opts:[{},{missing:['100','20']}],badge:'c6s12 r4',desc:'v3: 盒默认w=240；六枚weightGeom单源直径+高度都随规格变（大左小右）；返回{w,boxH,slots:[{id,cx,cy,r,hgt}]}页面命中用'},

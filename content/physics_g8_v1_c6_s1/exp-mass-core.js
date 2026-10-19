@@ -52,6 +52,7 @@ var state={
   objDrop:null,          // 被测物落盘 120ms 短下坠插值 {x,y,t0}
   seen:{shape:false,state:false,pos:false},alldone:false
 };
+state.showLabels=false;   // R34 标注开关默认关（重置不清=用户偏好保持）
 function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
 function measureCtrl(){ if(ctrlEl){ var r=ctrlEl.getBoundingClientRect(); if(r.height>0) ctrlBandH=Math.round(r.height); } }
 // R11 砝码几何与盒内槽位单源（weightGeom 立方根律：w=u×(g/100)^⅓, h=w×0.55）——同一枚盒内外同尺寸
@@ -168,8 +169,10 @@ function drawPanStack(c){
 // ===== 砝码盒（missing=已拖出的 id 不画；R11 存 BOXG.slots 供盒内命中同源） =====
 function drawBox(){
   BOXG=PROPS.weight_set(ctx,L.boxX,L.seat,{w:L.boxW,open:true,missing:missingIds()});
-  ctx.fillStyle='#8a7c66'; ctx.font='13px "Yuanti SC","PingFang SC",sans-serif'; ctx.textAlign='center';
-  ctx.fillText('砝码盒（按住拖出 → 右盘）',L.boxX,L.seat+16);
+  if(state.showLabels){   // R34 器材附属说明 gate
+    ctx.fillStyle='#8a7c66'; ctx.font='13px "Yuanti SC","PingFang SC",sans-serif'; ctx.textAlign='center';
+    ctx.fillText('砝码盒（按住拖出 → 右盘）',L.boxX,L.seat+16);
+  }
 }
 // ===== 桌面停驻 / 下坠中 / 手中 砝码（全走 weight_single，同款 g 下坠物理） =====
 function drawLoose(){
@@ -296,11 +299,13 @@ function drawObjs(){
   }
   if(state.onPan||state.onHeat) return;   // 盘上=panL 回调；热源上=drawHeat
   drawObjFree(ctx,state.objPos.x,state.objPos.y,state.obj,1);
-  ctx.fillStyle='#8a7c66'; ctx.font='13px "Yuanti SC","PingFang SC",sans-serif'; ctx.textAlign='center';
-  var cap=state.obj==='clay'?'橡皮泥 '+OBJECTS.clay.g+' g（点它=放大揉捏窗；拖到左盘称量）'
-    :state.obj==='ice'?'冰水烧杯 共 '+OBJECTS.ice.g+' g（拖到热源加热 / 拖到左盘称量）'
-    :'铅笔 '+OBJECTS.pencil.g+' g（拖到左盘称量）';
-  ctx.fillText(cap,state.objPos.x,state.objPos.y+18);
+  if(state.showLabels){   // R34 器材附属说明 gate
+    ctx.fillStyle='#8a7c66'; ctx.font='13px "Yuanti SC","PingFang SC",sans-serif'; ctx.textAlign='center';
+    var cap=state.obj==='clay'?'橡皮泥 '+OBJECTS.clay.g+' g（点它=放大揉捏窗；拖到左盘称量）'
+      :state.obj==='ice'?'冰水烧杯 共 '+OBJECTS.ice.g+' g（拖到热源加热 / 拖到左盘称量）'
+      :'铅笔 '+OBJECTS.pencil.g+' g（拖到左盘称量）';
+    ctx.fillText(cap,state.objPos.x,state.objPos.y+18);
+  }
 }
 // ===== 热源（仅选中冰水烧杯时出现，天平右下方；R22 底座可拖动 + R31 正面两真旋钮 左加热/右制冰 互斥·单档） =====
 function knobPos(){   // R31 两旋钮圆心（底座前缘左右各一，r=12）
@@ -399,8 +404,10 @@ function drawHeat(){
   var kp=knobPos();
   drawKnob(kp.heat.x,kp.heat.y,kp.heat.r,state.heating,'heat');
   drawKnob(kp.freeze.x,kp.freeze.y,kp.freeze.r,state.freezing,'freeze');
-  ctx.fillStyle='#8a7c66'; ctx.font='13px "Yuanti SC","PingFang SC",sans-serif'; ctx.textAlign='center';
-  ctx.fillText('热源（拖动挪位 · 左旋钮加热 / 右旋钮制冰）　冰 '+Math.round(state.ice)+' %',state.heatX,L.seat+16);
+  if(state.showLabels){   // R34 器材附属说明 gate
+    ctx.fillStyle='#8a7c66'; ctx.font='13px "Yuanti SC","PingFang SC",sans-serif'; ctx.textAlign='center';
+    ctx.fillText('热源（拖动挪位 · 左旋钮加热 / 右旋钮制冰）　冰 '+Math.round(state.ice)+' %',state.heatX,L.seat+16);
+  }
 }
 // ===== 盒外砝码 id 汇总（weight_set missing 入参） =====
 function missingIds(){
@@ -932,6 +939,14 @@ if(btnGM) btnGM.addEventListener('click',function(){ setG(G_MOON); });
 // ===== 系统四件套：读数面板 / 重置 / 声音 / 全屏（照 c5s1 路线） =====
 var btnPanel=el('btn-panel');
 if(btnPanel) btnPanel.addEventListener('click',function(){ openPanel(); if(window.playClick) playClick(); });
+// R34 标注开关（默认关；重置不清=用户偏好保持）
+var btnLabels=el('btn-labels');
+if(btnLabels) btnLabels.addEventListener('click',function(){
+  state.showLabels=!state.showLabels;
+  btnLabels.classList.toggle('on',state.showLabels);
+  if(window.playClick) playClick();
+  draw();
+});
 function resetAll(){
   state.g=G_EARTH;
   state.obj=null; state.onPan=false; state.onHeat=false; state.morph=0; state.kneaded=false;

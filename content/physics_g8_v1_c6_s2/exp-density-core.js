@@ -60,7 +60,7 @@ function cbrt(v){ return Math.pow(v,1/3); }
 
 /* ===== 状态（三场景完全隔离，返回原样恢复） ===== */
 var state={
-  scene:'e3',animating:false,anim:null,
+  scene:'e3',animating:false,anim:null,showLabels:false,   // R34：标注开关默认关（重置不影响）
   e3:{mat:'aluminum',v:20,records:[],dropT:0,
       block:{loc:'source',x:0,y:0},mKnown:false,vKnown:false,converged:false,
       cylFrac:E3_CYL_BASE/E3_CYL_CAP,cylTw:null,arw:null,drag:null},
@@ -390,7 +390,7 @@ function renderE3(){
   if(E.block.loc==='source'||E.block.loc==='drag'){
     var sx=(E.block.loc==='drag')?E.block.x:L.e3.src.x;
     var sy=(E.block.loc==='drag')?E.block.y:(L.e3.src.y-dyOff);
-    PROPS.material_block(ctx,sx,sy,{size:side,mat:E.mat,label:MATCN[E.mat]+'块 '+E.v+'cm³'});
+    PROPS.material_block(ctx,sx,sy,{size:side,mat:E.mat,label:state.showLabels?(MATCN[E.mat]+'块 '+E.v+'cm³'):null});   // R34 gate③：E3 块标签
   }
 }
 function e3Select(mat,v){   // 换材质/体积：新块落回源位、清空双测量、量筒退水（重测入口）
@@ -622,7 +622,7 @@ function e4Unstack(grabbed){   // 拖走拆摞叠：grabbed→bench(离水)，�
 }
 function drawE4Block(b,isSel){
   var side=e4Side(b),sf=tankOK?e4SubFrac(b):0;
-  PROPS.material_block(ctx,b.x,b.y,{size:side,mat:b.mat,label:fmt(b.m,1)+' kg'});
+  PROPS.material_block(ctx,b.x,b.y,{size:side,mat:b.mat,label:state.showLabels?fmt(b.m,1)+' kg':null});   // R34 gate①：E4 块质量 label
   if(sf>0.003){   // 浸没部分叠淡蓝 tint 读作"在水中"（按实际浸没比裁剪，水槽前壁不透明素材的页面层补偿）
     var topY=b.y-side,subTop=b.y-sf*side;
     ctx.save();
@@ -905,9 +905,11 @@ function renderE5(){
 }
 function drawE5BlockOn(c,x,yb,b){   // (x,yb)=底面中心（第13条锚点），调用方决定落位
   var s=e5Side(b),E=state.e5;
-  PROPS.material_block(c,x,yb,{size:s,mat:b.mat,mystery:!b.revealed});
-  c.fillStyle='#1e293b'; c.font='600 13px sans-serif'; c.textAlign='center';
-  c.fillText('块'+b.id+(b.revealed?' · '+MATCN[b.mat]:''),x,yb-s-14);
+  PROPS.material_block(c,x,yb,{size:s,mat:b.mat,mystery:!b.revealed});   // 神秘块「?」在库内绘制，非标注不 gate（R34）
+  if(state.showLabels){   // R34 gate②：E5 块编号标签
+    c.fillStyle='#1e293b'; c.font='600 13px sans-serif'; c.textAlign='center';
+    c.fillText('块'+b.id+(b.revealed?' · '+MATCN[b.mat]:''),x,yb-s-14);
+  }
   if(E.blocks[E.sel]===b){   // R8/R9 同款轻量选中反馈（橙色包围框删净）：块体提亮 + 正下方灰蓝小三角
     c.save();
     c.fillStyle='rgba(255,255,255,.10)';
@@ -1319,6 +1321,15 @@ if(selE5matEl) selE5matEl.addEventListener('change',function(){ var b=e5Sel(); i
 var btnSubmit=document.getElementById('btn-submit');
 if(btnSubmit) btnSubmit.addEventListener('click',function(){ if(state.animating)return; submitE5(); });
 if(btnTable) btnTable.addEventListener('click',function(){ if(state.animating)return; openPanel('read'); if(window.playClick)playClick(); });
+/* R34 标注开关：默认关；toggle 两态 class 同步 + playClick + dirty（重置不影响 showLabels） */
+var btnLabels=document.getElementById('btn-labels');
+if(btnLabels) btnLabels.addEventListener('click',function(){
+  if(state.animating) return;
+  state.showLabels=!state.showLabels;
+  btnLabels.classList.toggle('on',state.showLabels);
+  if(window.playClick) playClick();
+  dirty=true;
+});
 /* E5.2 密度表右侧固定卡：固体/液体双 tab 切换（dt-solid/dt-liquid 互斥显隐，默认固体） */
 var dtTabSolid=document.getElementById('dt-tab-solid'),dtTabLiquid=document.getElementById('dt-tab-liquid');
 var dtSolid=document.getElementById('dt-solid'),dtLiquid=document.getElementById('dt-liquid');

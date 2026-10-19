@@ -8,7 +8,13 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-density.js — 第六章「质量与密度」标准器材件 v5（c6s12 修复轮6，11件）
+ * props-density.js — 第六章「质量与密度」标准器材件 v6（c6s12 修复轮7，11件）
+ * v6 变更清单（2026-10-19，蔡总 R33：杯底/加热底座是平面直线→两件 2.5D 化，opt API 与返回几何字段全部不变，页面零改动消费）：
+ *   ~ beaker_ice 2.5D 重写：底椭圆(rx=w/2,ry=w*0.14,前弧亮线)+锥度侧壁(内收4%,左亮右暗渐变+左壁白高光竖条)
+ *     +水体(水面椭圆亮边)+冰块堆底椭圆中心(基线 y−ry*0.5,确定性 rand 种子不变)+杯口椭圆描边/左喙保留；段内直线底边清零
+ *   ~ heat_source 2.5D 重写：顶盘椭圆(rx=w/2,ry=w*0.16,金属径向渐变,level>0 盘心橙红热晕)+前立面体块(h_body=w*0.34,
+ *     #4b5563→#374151,左亮右暗两段)+底椭圆前弧落地(前弧恰落 y)+旋钮/指示灯随新立面居中；boxTop=顶盘椭圆中心 y(语义不变,数值=y−h+ryT)；
+ *     返回 {w,h,boxTop,knob} 字段不变
  * v5 变更清单（2026-10-19，蔡总反馈 R31：页面自绘真旋钮，库件旋钮让位）：
  *   ~ heat_source 增加 opt.knob===false：跳过自绘旋钮与档位指示灯（底座/热盘/热晕照常画）；
  *     缺省/数值(角度°) 保持现行为，返回几何不变 {w,h,boxTop,knob:{x,y,r}}（knob 圆心坐标仍返回，页面自绘旋钮可复用定位）
@@ -43,9 +49,9 @@ const rand = PROPS.rand || function(seed){
  *   5. cylinder_grad  量筒(P1)      opt: h=240 / cap=100 / div=10 / water(0-1) / inside(浸没块占位色)
  *   6. density_scale  密度标尺(P1)  opt: w=420 / value(0-10 红标) / marks / collapsed；返回 {w,h}
  *   7. clay           橡皮泥(P2)    opt: size=70 / morph(0-2连续,shape别名)；返回 {w,h}
- *   8. beaker_ice     烧杯盛冰(P2)  opt: h=140 / ice(0-100) / water(0-1)
+ *   8. beaker_ice     烧杯盛冰(P2,2.5D v6)  opt: h=140 / ice(0-100) / water(0-1)
  *   9. doll           玩偶(P2)      opt: scale=1 / arm(0|1 举手)
- *  10. heat_source    通用热源(P2)  opt: level(0-3档) / knob(旋钮角度°,缺省随level；false=不画旋钮与指示灯,v5)；返回 {w,h,boxTop,knob}
+ *  10. heat_source    通用热源(P2,2.5D v6)  opt: level(0-3档) / knob(旋钮角度°,缺省随level；false=不画旋钮与指示灯,v5)；返回 {w,h,boxTop,knob}
  *  11. weight_single  单枚砝码(v2)  opt: g∈{5,10,20,50,100} / u=44 / held / label；返回 {w,h}
  * 挂载白名单（第13条）：
  *   balance_pan 托盘(panL/panR 回调) ← material_block / weight_set 砝码 / weight_single / 被测物（页面层绘制）
@@ -690,48 +696,63 @@ PROPS.clay = function(ctx, x, y, opt){
 };
 
 // ================= 8. beaker_ice 烧杯盛冰 =================
-// 层次：玻璃背层→水体→冰块(rand 确定性多边形堆)→前壁高光；玻璃杯体照 glass_brick 视觉语言
+// v6 2.5D（蔡总 R33：杯底不能是平面直线）：底椭圆+锥度侧壁+水面椭圆，禁直线底边；opt/锚点语义不变
+// 层次：底椭圆(前弧亮线)→侧壁(玻璃渐变+左壁高光)→水体(水面椭圆亮边)→冰块(rand 确定性多边形堆)→杯口描边+左喙
 PROPS.beaker_ice = function(ctx, x, y, opt){
   opt = opt || {};
-  const h = opt.h || 140, wt = h * 0.78;
+  const h = opt.h || 140, w = h * 0.78;      // w=杯口宽
   const ice = Math.max(0, Math.min(100, opt.ice || 0));
   const water = Math.max(0, Math.min(1, opt.water || 0));
-  const wall = Math.max(2, wt * 0.035);
-  const botHalf = wt * 0.44, topHalf = wt / 2;
-  const inBot = y - wall * 2, inTop = y - h + wall * 2.4;
-  const halfAt = function(yy){
-    const t = (y - yy) / h;
-    return topHalf - wall + (botHalf - (topHalf - wall)) * t;
-  };
+  const rxT = w / 2, ryT = w * 0.14;         // 杯口椭圆（ry=0.28rx 同比例，全件统一）
+  const topY = y - h;                        // 杯口椭圆中心
+  const botY = y - ryT * 0.2;                // 底椭圆中心
+  const rxB = rxT * 0.96, ryB = ryT;         // 底椭圆（侧壁微内收 4% 锥度）
+  const wall = Math.max(2, w * 0.035);
+  const halfAt = function(yy){ return rxT + (rxB - rxT) * (yy - topY) / (botY - topY); };
   ctx.save(); ctx.lineJoin = 'round';
-  // 玻璃背层（微收底梯形）
+  // 1) 底椭圆 + 前半弧亮线（玻璃折射感）
+  ctx.beginPath(); ctx.ellipse(x, botY, rxB, ryB, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(200,222,232,0.5)'; ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x, botY, rxB, ryB, 0, 0, Math.PI);
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = Math.max(1.5, w * 0.022); ctx.stroke();
+  // 2) 侧壁：杯口切点→底椭圆切点，玻璃渐变（左亮右暗）
   ctx.beginPath();
-  ctx.moveTo(x - topHalf, y - h); ctx.lineTo(x + topHalf, y - h);
-  ctx.lineTo(x + botHalf, y); ctx.lineTo(x - botHalf, y);
+  ctx.moveTo(x - rxT, topY); ctx.lineTo(x - rxB, botY);
+  ctx.ellipse(x, botY, rxB, ryB, 0, Math.PI, 0, true);
+  ctx.lineTo(x + rxT, topY);
   ctx.closePath();
-  ctx.fillStyle = 'rgba(223,240,246,0.28)'; ctx.fill();
-  // 水体
-  let wy = inBot;
+  const gg = ctx.createLinearGradient(x - rxT, 0, x + rxT, 0);
+  gg.addColorStop(0, 'rgba(210,230,240,0.55)');
+  gg.addColorStop(1, 'rgba(180,210,225,0.35)');
+  ctx.fillStyle = gg; ctx.fill();
+  ctx.strokeStyle = 'rgba(120,160,180,0.9)'; ctx.lineWidth = wall * 0.5; ctx.stroke();
+  // 左壁白高光竖条
+  ctx.beginPath();
+  ctx.moveTo(x - rxT * 0.78, topY + h * 0.06); ctx.lineTo(x - rxB * 0.78, botY - ryB * 0.4);
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = Math.max(1.5, w * 0.035); ctx.stroke();
+  // 3) 水体：水面椭圆→底椭圆柱体 + 水面亮边
   if (water > 0.01){
-    wy = inBot - (inBot - inTop) * water;
-    const hwT = halfAt(wy), hwB = halfAt(inBot);
-    const gw = ctx.createLinearGradient(0, wy, 0, inBot);
-    gw.addColorStop(0, 'rgba(125,195,235,0.75)');
-    gw.addColorStop(1, 'rgba(85,160,215,0.85)');
+    const wTop = topY + ryT * 0.9;           // 满水位水面 y
+    const wy = botY - (botY - wTop) * water;
+    const hw = halfAt(wy), ryW = hw * 0.28;
     ctx.beginPath();
-    ctx.moveTo(x - hwT, wy); ctx.lineTo(x + hwT, wy);
-    ctx.lineTo(x + hwB, inBot); ctx.lineTo(x - hwB, inBot);
-    ctx.closePath(); ctx.fillStyle = gw; ctx.fill();
-    ctx.beginPath(); ctx.moveTo(x - hwT, wy); ctx.lineTo(x + hwT, wy);
+    ctx.moveTo(x - hw, wy); ctx.lineTo(x + hw, wy);
+    ctx.lineTo(x + rxB, botY);
+    ctx.ellipse(x, botY, rxB, ryB, 0, 0, Math.PI);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(120,180,230,0.45)'; ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x, wy, hw, ryW, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(150,200,240,0.55)'; ctx.fill();
     ctx.strokeStyle = 'rgba(232,247,255,0.9)'; ctx.lineWidth = 1.5; ctx.stroke();
   }
-  // 冰块堆（确定性 rand）
+  // 4) 冰块堆（确定性 rand）：堆在底椭圆中心，基线 y−ry*0.5
   const n = Math.round(ice / 20);
+  const baseY = y - ryT * 0.5;
   for (let i = 0; i < n; i++){
     const r1 = rand(i * 7 + 3), r2 = rand(i * 7 + 4), r3 = rand(i * 7 + 5);
-    const sz = wt * (0.15 + r2 * 0.09);
-    const cxI = x + (r1 - 0.5) * (halfAt(water > 0.01 ? wy : inBot) * 1.1);
-    const cyI = (water > 0.01 ? wy : inBot - sz * 0.6) - sz * (0.25 + r3 * 0.5) - (i % 2) * sz * 0.35;
+    const sz = w * (0.15 + r2 * 0.09);
+    const cxI = x + (r1 - 0.5) * (halfAt(baseY) * 1.1);
+    const cyI = baseY - sz * (0.25 + r3 * 0.5) - (i % 2) * sz * 0.35;
     ctx.beginPath();
     for (let k = 0; k < 6; k++){
       const a = k * Math.PI / 3 + r3 * 0.8;
@@ -746,21 +767,14 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
     ctx.moveTo(cxI - sz * 0.2, cyI - sz * 0.12); ctx.lineTo(cxI + sz * 0.1, cyI - sz * 0.26);
     ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 1.4; ctx.stroke();
   }
-  // 前壁描边 + 高光
-  ctx.beginPath();
-  ctx.moveTo(x - topHalf, y - h); ctx.lineTo(x + topHalf, y - h);
-  ctx.lineTo(x + botHalf, y); ctx.lineTo(x - botHalf, y);
-  ctx.closePath();
-  ctx.strokeStyle = 'rgba(120,160,180,0.9)'; ctx.lineWidth = wall * 0.55; ctx.stroke();
-  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = Math.max(1.5, wt * 0.03);
-  ctx.beginPath(); ctx.moveTo(x - topHalf * 0.6, y - h * 0.92); ctx.lineTo(x - botHalf * 0.62, y - h * 0.08); ctx.stroke();
-  // 杯口 + 左喙
-  ctx.beginPath(); ctx.ellipse(x, y - h, topHalf - wall * 0.3, wall * 1.1, 0, 0, Math.PI * 2);
+  // 5) 杯口椭圆完整描边 + 左喙（保留）
+  ctx.beginPath(); ctx.ellipse(x, topY, rxT, ryT, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(223,240,246,0.25)'; ctx.fill();
   ctx.strokeStyle = 'rgba(140,175,195,0.9)'; ctx.lineWidth = 1.5; ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(x - topHalf + 1, y - h - wall * 0.6);
-  ctx.lineTo(x - topHalf - wt * 0.07, y - h - wall * 1.8);
-  ctx.lineTo(x - topHalf + wt * 0.06, y - h - wall * 0.4);
+  ctx.moveTo(x - rxT + 1, topY - wall * 0.6);
+  ctx.lineTo(x - rxT - w * 0.07, topY - wall * 1.8);
+  ctx.lineTo(x - rxT + w * 0.06, topY - wall * 0.4);
   ctx.closePath();
   ctx.fillStyle = 'rgba(223,240,246,0.5)'; ctx.fill();
   ctx.strokeStyle = 'rgba(120,160,180,0.9)'; ctx.lineWidth = 1.2; ctx.stroke();
@@ -825,15 +839,18 @@ PROPS.doll = function(ctx, x, y, opt){
 // ================= 10. heat_source 通用热源 =================
 // 可操作通用件（开发规则第6条：替代酒精灯）；与第二批热学件对齐接口：level 0=关/1-3 档，knob 随 level
 // v5: opt.knob===false 跳过自绘旋钮+指示灯（页面自绘真旋钮用），其余照常画
+// v6 2.5D（蔡总 R33：加热底座不能是平面方盒）：顶盘椭圆+前立面体块(左亮右暗)+底椭圆前弧落地；boxTop=顶盘椭圆中心 y（语义不变）
 PROPS.heat_source = function(ctx, x, y, opt){
   opt = opt || {};
   const w = opt.w || 130, h = w * 0.58;
   const level = Math.max(0, Math.min(3, opt.level || 0));
   const drawKnob = opt.knob !== false;
   const knobA = ((drawKnob && opt.knob !== undefined ? opt.knob : level * 45) - 90) * Math.PI / 180;
-  const boxTop = y - h * 0.55;
+  const rx = w / 2, ryT = w * 0.16, ryB = w * 0.08;
+  const boxTop = y - h + ryT;              // 顶盘椭圆中心（盘顶=y−h，总高 h 语义不变）
+  const botCy = boxTop + w * 0.34;         // 底椭圆中心（体块 h_body=w*0.34，前弧恰落地 y）
   ctx.save(); ctx.lineJoin = 'round';
-  // 热晕红光（自发光，level 越高越强，画在底座之上）
+  // 热晕红光（自发光，level 越高越强，自顶盘向上径向，画在底座之上）
   if (level > 0){
     const gr = ctx.createRadialGradient(x, boxTop, w * 0.05, x, boxTop, w * (0.2 + level * 0.11));
     gr.addColorStop(0, 'rgba(255,80,40,' + (0.16 + level * 0.13) + ')');
@@ -842,19 +859,28 @@ PROPS.heat_source = function(ctx, x, y, opt){
     ctx.fillStyle = gr;
     ctx.beginPath(); ctx.arc(x, boxTop, w * (0.2 + level * 0.11), 0, Math.PI * 2); ctx.fill();
   }
-  // 方形加热底座
-  const gbs = ctx.createLinearGradient(0, boxTop, 0, y);
-  gbs.addColorStop(0, '#5b6068'); gbs.addColorStop(0.5, '#454a52'); gbs.addColorStop(1, '#33373d');
-  rr(ctx, x - w / 2, boxTop, w, y - boxTop, w * 0.05);
+  // 体块：顶盘切点向下侧壁 + 底椭圆前弧（2.5D 落地感），前立面灰黑渐变
+  ctx.beginPath();
+  ctx.moveTo(x - rx, boxTop);
+  ctx.lineTo(x - rx, botCy);
+  ctx.ellipse(x, botCy, rx, ryB, 0, Math.PI, 0, true);
+  ctx.lineTo(x + rx, boxTop);
+  ctx.closePath();
+  const gbs = ctx.createLinearGradient(0, boxTop, 0, botCy + ryB);
+  gbs.addColorStop(0, '#4b5563'); gbs.addColorStop(1, '#374151');
   ctx.fillStyle = gbs; ctx.fill();
+  // 侧面明暗：左立面略亮/右略暗两段（clip 在体块内）
+  ctx.save(); ctx.clip();
+  ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fillRect(x - rx, boxTop - ryT, rx, h + ryT * 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.14)'; ctx.fillRect(x, boxTop - ryT, rx, h + ryT * 2);
+  ctx.restore();
   ctx.strokeStyle = 'rgba(20,22,26,0.8)'; ctx.lineWidth = 1.2; ctx.stroke();
-  // 底座脚
-  ctx.fillStyle = '#2b2e33';
-  ctx.fillRect(x - w * 0.42, y - h * 0.05, w * 0.12, h * 0.05);
-  ctx.fillRect(x + w * 0.30, y - h * 0.05, w * 0.12, h * 0.05);
-  // 顶面热盘
-  ctx.beginPath(); ctx.ellipse(x, boxTop, w * 0.42, h * 0.10, 0, 0, Math.PI * 2);
-  const gp = ctx.createRadialGradient(x, boxTop, w * 0.05, x, boxTop, w * 0.42);
+  // 底椭圆前半弧加深（落地描边）
+  ctx.beginPath(); ctx.ellipse(x, botCy, rx, ryB, 0, 0, Math.PI);
+  ctx.strokeStyle = 'rgba(20,22,26,0.85)'; ctx.lineWidth = 1.4; ctx.stroke();
+  // 顶盘椭圆（金属暗灰径向渐变；level>0 盘心橙红热晕加强）
+  ctx.beginPath(); ctx.ellipse(x, boxTop, rx, ryT, 0, 0, Math.PI * 2);
+  const gp = ctx.createRadialGradient(x, boxTop, w * 0.05, x, boxTop, rx);
   if (level > 0){
     gp.addColorStop(0, 'rgba(255,' + (110 - level * 20) + ',50,0.95)');
     gp.addColorStop(0.6, '#4a4e55');
@@ -865,10 +891,10 @@ PROPS.heat_source = function(ctx, x, y, opt){
   ctx.fillStyle = gp; ctx.fill();
   ctx.strokeStyle = 'rgba(20,22,26,0.85)'; ctx.lineWidth = 1.2; ctx.stroke();
   // 热盘同心环纹
-  ctx.beginPath(); ctx.ellipse(x, boxTop, w * 0.26, h * 0.06, 0, 0, Math.PI * 2);
+  ctx.beginPath(); ctx.ellipse(x, boxTop, w * 0.26, ryT * 0.5, 0, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.stroke();
-  // 旋钮（面板左下，角度随 level）；v5: opt.knob===false 时整段跳过（含指示灯）
-  const kx = x - w * 0.3, ky = y - h * 0.22, kr = w * 0.055;
+  // 旋钮（新前立面居中，角度随 level）；v5: opt.knob===false 时整段跳过（含指示灯）
+  const kx = x - w * 0.3, ky = (boxTop + botCy) / 2, kr = w * 0.055;
   if (drawKnob){
     ctx.strokeStyle = 'rgba(200,205,212,0.5)'; ctx.lineWidth = 1;
     for (let i = 0; i <= 3; i++){
@@ -890,7 +916,7 @@ PROPS.heat_source = function(ctx, x, y, opt){
     ctx.strokeStyle = 'rgba(20,22,26,0.6)'; ctx.lineWidth = 1; ctx.stroke();
   }
   ctx.restore();
-  // v3: 返回几何（页面点旋钮命中/顶盘放置避让用）
+  // v3: 返回几何（页面点旋钮命中/顶盘放置避让用）；v6 字段不变，boxTop=顶盘椭圆中心
   return {w: w, h: h, boxTop: boxTop, knob: {x: kx, y: ky, r: kr}};
 };
 
