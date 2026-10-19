@@ -59,7 +59,9 @@ const AVAILABLE = {
   'physics_g8_v1_c3_s4': { title: '第4节 升华和凝华', file: 'content/physics_g8_v1_c3_s4/index.html' },
   'physics_g8_v1_c3_summary': { title: '本章小结', file: 'content/physics_g8_v1_c3_summary/index.html' },
   'physics_g8_v1_c3_practice': { title: '本章练习', file: 'content/physics_g8_v1_c3_practice/index.html' },
-  'math_fun_chicken_rabbit': { title: '鸡兔同笼', file: 'content/math_fun_chicken_rabbit/index.html' }
+  'math_fun_chicken_rabbit': { title: '鸡兔同笼', file: 'content/math_fun_chicken_rabbit/index.html' },
+  'physics_g8_v1_c6_s1': { title: '第1节 质量', file: 'content/physics_g8_v1_c6_s1/index.html' },
+  'physics_g8_v1_c6_s2': { title: '第2节 密度', file: 'content/physics_g8_v1_c6_s2/index.html' }
 };
 
 let state = {
