@@ -8,7 +8,12 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-density.js — 第六章「质量与密度」标准器材件 v3（c6s12 修复轮4，11件）
+ * props-density.js — 第六章「质量与密度」标准器材件 v4（c6s12 修复轮5，11件）
+ * v4 变更清单（2026-10-19，蔡总四轮反馈 R24：挂载语义改盘心 + 两处导出欠账）：
+ *   + PROPS.weightGeom(g,u) 导出命名空间（v3 单源函数补挂，页面禁复制公式）
+ *   + balGeom/balance_pan 返回补 panH 字段（盘厚 =Math.max(4,h*0.03)，与 panL/panR 同级；替代页面取 G._.panH 内部量）
+ *   ~ balance_pan 挂载回调 y 语义改盘心：panL/panR 回调第三参 py-panH（盘顶）→ py（盘椭圆中心）；
+ *     挂载件底面中心=盘心 y，坐进盘里而非悬在盘沿上（R24：物体底面椭圆中心要跟托盘椭圆中心重合）；balGeom 返回对象不变（panL.y 本就是盘心）
  * v3 变更清单（2026-10-19，蔡总三轮反馈 R11/R12：砝码几何统一+几何返回补全）：
  *   + weightGeom(g,u) 砝码几何单源：{w:u×(g/100)^⅓, h:w×0.55}——直径与高度都随规格变（立方根律=同密度金属真实比例）；
  *     weight_single 与 weight_set 盒内槽位都调它，同一枚砝码两处造型一致（修「形状都变了」）
@@ -28,7 +33,7 @@ const rand = PROPS.rand || function(seed){
  * 锚点约定：一律底面中心，(x,y)=底边中点（第13条）
  * 确定性绘制：禁原生随机数，纹理/冰块用 PROPS.rand(seed) sin 伪随机
  * 组件清单：
- *   1. balance_pan    托盘天平(P0)  opt: h=220 / tilt(-8~+8°) / rider(0-5g) / riderShow / labels(false隐藏刻度数字) / panL,panR(挂载回调 fn(ctx,cx,cyTop,panR))；返回 balGeom 同构几何对象
+ *   1. balance_pan    托盘天平(P0)  opt: h=220 / tilt(-8~+8°) / rider(0-5g) / riderShow / labels(false隐藏刻度数字) / panL,panR(挂载回调 fn(ctx,cx,cy,panR)，v4 起 cy=盘椭圆中心)；返回 balGeom 同构几何对象（含 panH）
  *   2. weight_set     砝码组(P0)    opt: w=240 / open(盒盖开合,默认开) / pick('100'|'50'|'20'|'10'|'5' 镊子夹起) / missing(已拖出id数组)；返回 {w,boxH,slots}
  *   3. rider          游码特写(P0)  opt: pos(0-1) / scaleLen=160
  *   4. material_block 材质块(P0)    opt: size=60 / mat(aluminum|iron|wood|ice|gold|copper|wax|styrofoam|pvc|brick) / label / mystery
@@ -85,6 +90,7 @@ PROPS.balGeom = function(x, y, h, tilt, riderG){
     beamY: pivotY,
     panL: {x: x - armX * cosT, y: pivotY - armX * sinT + panDrop, r: panW / 2},
     panR: {x: x + armX * cosT, y: pivotY + armX * sinT + panDrop, r: panW / 2},
+    panH: panH, // v4: 盘厚显式导出（页面勿再取 _.panH）
     rider: {
       x0: rotX(-scaleW / 2, lyC), x1: rotX(scaleW / 2, lyC),
       y: rotY(gL(rg), lyC),
@@ -148,7 +154,7 @@ PROPS.balance_pan = function(ctx, x, y, opt){
     ctx.beginPath(); ctx.ellipse(ex, py - panH * 0.25, panW * 0.36, panH * 0.45, 0, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1; ctx.stroke();
     const cb = i === 0 ? opt.panL : opt.panR;
-    if (typeof cb === 'function') cb(ctx, ex, py - panH, panW / 2);
+    if (typeof cb === 'function') cb(ctx, ex, py, panW / 2); // v4: 第三参=盘椭圆中心 y（R24 挂载件底面中心与盘心重合）
   });
 
   // 白分度盘（挂立柱前方，黑刻度沿指针尖端扫过的弧）
@@ -249,6 +255,7 @@ function weightGeom(g, u){
   const w = u * Math.pow(g / 100, 1 / 3);
   return {w: w, h: w * 0.55};
 }
+PROPS.weightGeom = weightGeom; // v4: 单源导出（页面禁复制公式）
 function drawWeight(ctx, cx, by, r, hgt, label){
   const g = ctx.createLinearGradient(cx - r, 0, cx + r, 0);
   g.addColorStop(0, '#9ca3af'); g.addColorStop(0.35, '#e5e7eb'); g.addColorStop(0.65, '#d1d5db'); g.addColorStop(1, '#7d838c');

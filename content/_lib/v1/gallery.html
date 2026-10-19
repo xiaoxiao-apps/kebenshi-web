@@ -57,7 +57,7 @@
 </div>
 <script src="./props.js?v=96"></script>
 <script src="./props-optics.js?v=9"></script>
-<script src="./props-density.js?v=3"></script>
+<script src="./props-density.js?v=4"></script>
 <script src="./sfx.js?v=1"></script>
 <script>
 // PROPS.SPRITE_BASE 默认为 'sprites/'，与 gallery.html 同目录，正确无需覆写
@@ -99,6 +99,7 @@ const PROPS_LIST=[
   {id:'weight_single',name:'单枚砝码',fn:'weight_single',vector:true,opts:[{g:100},{g:20},{g:5}],badge:'c6s12 r4',desc:'v3: u默认36→44；几何调weightGeom单源=盒内槽位同公式，三档直径44.0/25.7/16.2递变；held=镊子夹持；返回{w,h}'},
   {id:'weight_set_v3',name:'砝码组(六枚直径递变)',fn:'weight_set',size:{w:520,h:260},vector:true,opts:[{},{missing:['100','20']}],badge:'c6s12 r4',desc:'v3: 盒默认w=240；六枚weightGeom单源直径+高度都随规格变（大左小右）；返回{w,boxH,slots:[{id,cx,cy,r,hgt}]}页面命中用'},
   {id:'balance_pan_h340',name:'托盘天平(大尺寸刻度)',fn:'balance_pan',size:{w:520,h:420},vector:true,opts:[{h:340,rider:2.4}],badge:'c6s12 r1',desc:'h=340验收：标尺每1g长刻度+数字每0.2g短刻度肉眼可读；labels:false隐藏数字；返回几何对象{beamY,panL,panR,rider.g2x,nutL,nutR,dial,base}'},
+  {id:'balance_pan_mount',name:'托盘天平(盘上挂载v4)',fn:'balance_pan',size:{w:520,h:420},vector:true,opts:[{h:320,rider:1.6,panL:function(ctx,cx,cy,pr){PROPS.material_block(ctx,cx,cy,{size:pr*1.2,mat:'iron'});},panR:function(ctx,cx,cy,pr){PROPS.weight_single(ctx,cx,cy,{g:20,u:pr*1.8});}}],badge:'c6s12 v4',desc:'R24挂载语义：panL/panR回调第三参cy=盘椭圆中心，挂载件底面中心与盘心重合（坐进盘里，非悬盘沿）；左盘铁块右盘20g砝码示意；panH/PROPS.weightGeom显式导出'},
   {id:'weight_set_missing',name:'砝码组(缺件态)',fn:'weight_set',vector:true,opts:[{w:150},{w:150,missing:['100','20']}],badge:'c6s12 r1',desc:'missing=已拖出id数组盒内不画（变体2缺100g与20g）；变体1满盒对照'}
 ];
 const CARD_SIZES={wide:{w:520,h:160},tall:{w:300,h:420},normal:{w:300,h:160}};
