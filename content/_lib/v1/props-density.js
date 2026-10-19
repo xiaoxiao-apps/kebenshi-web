@@ -8,7 +8,10 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-density.js — 第六章「质量与密度」标准器材件 v4（c6s12 修复轮5，11件）
+ * props-density.js — 第六章「质量与密度」标准器材件 v5（c6s12 修复轮6，11件）
+ * v5 变更清单（2026-10-19，蔡总反馈 R31：页面自绘真旋钮，库件旋钮让位）：
+ *   ~ heat_source 增加 opt.knob===false：跳过自绘旋钮与档位指示灯（底座/热盘/热晕照常画）；
+ *     缺省/数值(角度°) 保持现行为，返回几何不变 {w,h,boxTop,knob:{x,y,r}}（knob 圆心坐标仍返回，页面自绘旋钮可复用定位）
  * v4 变更清单（2026-10-19，蔡总四轮反馈 R24：挂载语义改盘心 + 两处导出欠账）：
  *   + PROPS.weightGeom(g,u) 导出命名空间（v3 单源函数补挂，页面禁复制公式）
  *   + balGeom/balance_pan 返回补 panH 字段（盘厚 =Math.max(4,h*0.03)，与 panL/panR 同级；替代页面取 G._.panH 内部量）
@@ -42,7 +45,7 @@ const rand = PROPS.rand || function(seed){
  *   7. clay           橡皮泥(P2)    opt: size=70 / morph(0-2连续,shape别名)；返回 {w,h}
  *   8. beaker_ice     烧杯盛冰(P2)  opt: h=140 / ice(0-100) / water(0-1)
  *   9. doll           玩偶(P2)      opt: scale=1 / arm(0|1 举手)
- *  10. heat_source    通用热源(P2)  opt: level(0-3档) / knob(旋钮角度°,缺省随level)；返回 {w,h,boxTop,knob}
+ *  10. heat_source    通用热源(P2)  opt: level(0-3档) / knob(旋钮角度°,缺省随level；false=不画旋钮与指示灯,v5)；返回 {w,h,boxTop,knob}
  *  11. weight_single  单枚砝码(v2)  opt: g∈{5,10,20,50,100} / u=44 / held / label；返回 {w,h}
  * 挂载白名单（第13条）：
  *   balance_pan 托盘(panL/panR 回调) ← material_block / weight_set 砝码 / weight_single / 被测物（页面层绘制）
@@ -821,11 +824,13 @@ PROPS.doll = function(ctx, x, y, opt){
 
 // ================= 10. heat_source 通用热源 =================
 // 可操作通用件（开发规则第6条：替代酒精灯）；与第二批热学件对齐接口：level 0=关/1-3 档，knob 随 level
+// v5: opt.knob===false 跳过自绘旋钮+指示灯（页面自绘真旋钮用），其余照常画
 PROPS.heat_source = function(ctx, x, y, opt){
   opt = opt || {};
   const w = opt.w || 130, h = w * 0.58;
   const level = Math.max(0, Math.min(3, opt.level || 0));
-  const knobA = ((opt.knob !== undefined ? opt.knob : level * 45) - 90) * Math.PI / 180;
+  const drawKnob = opt.knob !== false;
+  const knobA = ((drawKnob && opt.knob !== undefined ? opt.knob : level * 45) - 90) * Math.PI / 180;
   const boxTop = y - h * 0.55;
   ctx.save(); ctx.lineJoin = 'round';
   // 热晕红光（自发光，level 越高越强，画在底座之上）
@@ -862,26 +867,28 @@ PROPS.heat_source = function(ctx, x, y, opt){
   // 热盘同心环纹
   ctx.beginPath(); ctx.ellipse(x, boxTop, w * 0.26, h * 0.06, 0, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.stroke();
-  // 旋钮（面板左下，角度随 level）
+  // 旋钮（面板左下，角度随 level）；v5: opt.knob===false 时整段跳过（含指示灯）
   const kx = x - w * 0.3, ky = y - h * 0.22, kr = w * 0.055;
-  ctx.strokeStyle = 'rgba(200,205,212,0.5)'; ctx.lineWidth = 1;
-  for (let i = 0; i <= 3; i++){
-    const a = (i * 45 - 90) * Math.PI / 180;
-    ctx.beginPath();
-    ctx.moveTo(kx + Math.cos(a) * kr * 1.35, ky + Math.sin(a) * kr * 1.35);
-    ctx.lineTo(kx + Math.cos(a) * kr * 1.65, ky + Math.sin(a) * kr * 1.65);
-    ctx.stroke();
+  if (drawKnob){
+    ctx.strokeStyle = 'rgba(200,205,212,0.5)'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 3; i++){
+      const a = (i * 45 - 90) * Math.PI / 180;
+      ctx.beginPath();
+      ctx.moveTo(kx + Math.cos(a) * kr * 1.35, ky + Math.sin(a) * kr * 1.35);
+      ctx.lineTo(kx + Math.cos(a) * kr * 1.65, ky + Math.sin(a) * kr * 1.65);
+      ctx.stroke();
+    }
+    ctx.beginPath(); ctx.arc(kx, ky, kr, 0, Math.PI * 2);
+    ctx.fillStyle = '#c8ced6'; ctx.fill();
+    ctx.strokeStyle = '#5b6068'; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(kx, ky);
+    ctx.lineTo(kx + Math.cos(knobA) * kr * 0.8, ky + Math.sin(knobA) * kr * 0.8);
+    ctx.strokeStyle = level > 0 ? '#dc2626' : '#374151'; ctx.lineWidth = 2; ctx.stroke();
+    // 档位指示灯
+    ctx.beginPath(); ctx.arc(x + w * 0.32, ky, w * 0.018, 0, Math.PI * 2);
+    ctx.fillStyle = level > 0 ? '#f87171' : '#6b7280'; ctx.fill();
+    ctx.strokeStyle = 'rgba(20,22,26,0.6)'; ctx.lineWidth = 1; ctx.stroke();
   }
-  ctx.beginPath(); ctx.arc(kx, ky, kr, 0, Math.PI * 2);
-  ctx.fillStyle = '#c8ced6'; ctx.fill();
-  ctx.strokeStyle = '#5b6068'; ctx.lineWidth = 1.2; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(kx, ky);
-  ctx.lineTo(kx + Math.cos(knobA) * kr * 0.8, ky + Math.sin(knobA) * kr * 0.8);
-  ctx.strokeStyle = level > 0 ? '#dc2626' : '#374151'; ctx.lineWidth = 2; ctx.stroke();
-  // 档位指示灯
-  ctx.beginPath(); ctx.arc(x + w * 0.32, ky, w * 0.018, 0, Math.PI * 2);
-  ctx.fillStyle = level > 0 ? '#f87171' : '#6b7280'; ctx.fill();
-  ctx.strokeStyle = 'rgba(20,22,26,0.6)'; ctx.lineWidth = 1; ctx.stroke();
   ctx.restore();
   // v3: 返回几何（页面点旋钮命中/顶盘放置避让用）
   return {w: w, h: h, boxTop: boxTop, knob: {x: kx, y: ky, r: kr}};

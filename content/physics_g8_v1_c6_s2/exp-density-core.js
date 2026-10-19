@@ -33,7 +33,6 @@ var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
 var ctrlEl=document.querySelector('.ctrlbar');
 var hintEl=document.getElementById('hint');
 var W=960,H=520,DPR=1,ctrlBandH=150,COMPACT_H=600,dirty=true;
-function deskBy(){ return Math.max(40,H-ctrlBandH-DESK_BAND); }   // R27：三场景落地线单点=桌带顶线 by（与 paintBg wood_desk 同式）
 function measureCtrl(){ if(ctrlEl){ var r=ctrlEl.getBoundingClientRect(); if(r.height>0) ctrlBandH=Math.round(r.height); } }
 /* ===== 通则A：hint 逐场景选位（E3/E5 顶部居中、E4 左侧竖排；任何场景不得与控制栏矩形相交） ===== */
 function placeHint(){
@@ -79,31 +78,35 @@ function attachBalG(B){   // R19 消费 v3 + R24 消费 v4：天平几何 PROPS.
   B.g=G; B.panDx=B.x-G.panL.x; B.panTop=G.panL.y; B.panHW=G.panL.r;   // R24：panTop=盘椭圆中心（v4 挂载语义，panL.y 本就是盘心；_.panH 旧偏移用法清零）
 }
 function layout(){
-  var by=deskBy();   // R27：三场景落地线统一=桌带顶线 by（天平底座/水槽底/量筒底/砝码盒/spot 全坐 by）
+  /* R29 坐深对齐：by=桌带顶线仅供 wood_desk 绘制；器材落地/停驻线一律 L.seat=坐深居中（进深带 [by,by+64]，span=26，seat−by=45） */
+  L.fy=H-ctrlBandH;
+  L.by=Math.max(40,L.fy-DESK_BAND);
+  L.seatSpan=26;
+  L.seat=PROPS.seatY(L.by,64,L.seatSpan);
   // E3：天平(左)+物块源(台面)+量筒(排水测V)+右侧≈32%常驻绘制区（上半记录表/下半作图板）
-  var e3x0=Math.round(W*0.655),e3x1=Math.round(W*0.985),e3y0=Math.round(H*0.09),e3y1=by-16;
+  var e3x0=Math.round(W*0.655),e3x1=Math.round(W*0.985),e3y0=Math.round(H*0.09),e3y1=L.by-16;
   var e3ymid=Math.round(e3y0+(e3y1-e3y0)*0.42);
   L.e3={
-    bal:{x:Math.round(W*0.185),y:by,h:Math.round(H*0.44)},
-    src:{x:Math.round(W*0.335),y:by},
-    cyl:{x:Math.round(W*0.485),y:by,h:Math.max(160,by-Math.round(H*0.12))},
+    bal:{x:Math.round(W*0.185),y:L.seat,h:Math.round(H*0.44)},
+    src:{x:Math.round(W*0.335),y:L.seat},
+    cyl:{x:Math.round(W*0.485),y:L.seat,h:Math.max(160,L.seat-Math.round(H*0.12))},
     panel:{x0:e3x0,x1:e3x1,y0:e3y0,y1:e3y1},
     table:{x0:e3x0,x1:e3x1,y0:e3y0,y1:e3ymid},
     graph:{x0:e3x0,x1:e3x1,y0:e3ymid+10,y1:e3y1}
   };
   attachBalG(L.e3.bal);
-  var tankH=Math.max(140,by-Math.round(H*0.185));
+  var tankH=Math.max(140,L.seat-Math.round(H*0.185));
   var tankW=tankH*TANK_ASPECT;
   L.e4={
     scale:{x:Math.round(W*0.5),y:Math.round(H*0.15),w:Math.min(460,Math.round(W*0.55))},
-    tank:{x:Math.round(W*0.5),y:by,h:tankH,w:tankW,innerHalf:tankW*0.39},
-    benchY:by
+    tank:{x:Math.round(W*0.5),y:L.seat,h:tankH,w:tankW,innerHalf:tankW*0.39},
+    benchY:L.seat
   };
   // E5：密度表固定卡占画布右缘≤26%（x≳0.74W），器材一律收到 0.72W 左侧不被覆盖
   L.e5={
-    bal:{x:Math.round(W*0.155),y:by,h:Math.round(H*0.40)},
-    cyl:{x:Math.round(W*0.665),y:by,h:Math.max(170,by-Math.round(H*0.10))},
-    benchY:by
+    bal:{x:Math.round(W*0.155),y:L.seat,h:Math.round(H*0.40)},
+    cyl:{x:Math.round(W*0.665),y:L.seat,h:Math.max(170,L.seat-Math.round(H*0.10))},
+    benchY:L.seat
   };
   attachBalG(L.e5.bal);
   // R19：砝码盒改排天平底座右侧（底座半宽=0.36h，balGeom base.w 同源）+24px 间距；盒右缘不入量筒区，spot 三位随新盒位重排避让
@@ -158,7 +161,7 @@ function resize(){
 /* 背景延展绘制：飞入飞出时场景 translate，背景上下延展不留白。R27：桌面=库定版 PROPS.wood_desk（bench 禁用）；墙色三场景各自保留（E3 暖白/E4E5 天蓝） */
 function paintBg(wall,side){
   ctx.fillStyle=wall; ctx.fillRect(0,-H*2,W,H*2);
-  PROPS.wood_desk(ctx,W,H,{by:deskBy(),fy:H-ctrlBandH});
+  PROPS.wood_desk(ctx,W,H,{by:L.by,fy:L.fy});   // R29：桌带顶线仅供绘制，器材坐 L.seat
   ctx.fillStyle=side; ctx.fillRect(0,H,W,H*2);
 }
 function rrPath(x,y,w,h,r){
