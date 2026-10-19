@@ -17,8 +17,12 @@
   .title{font-size:13px;font-weight:600;color:#2b2620;white-space:nowrap}
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
   canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
-  /* hint 橙色解说条（E4 修订：移舞台底部不挡密度标尺，6s 自动淡出、新操作再唤出——淡出计时在 core） */
-  #hint{position:absolute;left:50%;bottom:112px;transform:translateX(-50%);max-width:76%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;font-weight:600;line-height:1.5;padding:9px 16px;border-radius:12px;z-index:16;text-align:center;transition:opacity .6s ease}
+  /* hint 橙色解说条（R7/R8 除根：pointer-events:none 永不吞画布拖拽；位置类逐场景由 core placeHint() 指定，禁写死 bottom） */
+  #hint{position:absolute;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;font-weight:600;line-height:1.5;padding:9px 16px;border-radius:12px;z-index:16;pointer-events:none;transition:opacity .6s ease;opacity:0}
+  /* E3/E5：顶部居中（右侧记录表/作图板/密度表卡占右，顶部空） */
+  #hint.hint-top{left:50%;top:12px;bottom:auto;transform:translateX(-50%);max-width:76%;text-align:center}
+  /* E4：左侧竖排（水槽+密度标尺占中右，左侧空；蔡总明示竖排可接受） */
+  #hint.hint-left-v{left:10px;top:50%;bottom:auto;transform:translateY(-50%);writing-mode:vertical-rl;max-height:60%;max-width:none;font-size:13px;padding:14px 8px;text-align:center}
   .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:8px;padding:8px 12px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
   .ctrlbar>*{pointer-events:auto}
   .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px}
@@ -30,6 +34,9 @@
   button.secondary{background:#6b7280}
   button.secondary:hover{background:#4b5563}
   button:disabled{opacity:.35;cursor:default}
+  /* R9 判错反馈：提交钮红光+晃两下（0.40s×2，core 820ms 后摘类） */
+  @keyframes btnWrong{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+  #btn-submit.wrong{box-shadow:0 0 0 3px rgba(220,38,38,.50),0 0 14px rgba(220,38,38,.45);border-color:#dc2626;color:#b91c1c;animation:btnWrong .40s ease 2}
   /* 引入式按钮物理按压两态（材质/大小/场景钮组） */
   button.mat,button.vol,button.scn{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s;padding:7px 11px}
   button.mat:hover,button.vol:hover,button.scn:hover{background:linear-gradient(#f8fafc,#d2deeb)}
@@ -52,8 +59,8 @@
   .ctrlbar.compact input#rng-v,.ctrlbar.compact input#rng-m{width:96px}
   .ctrlbar.compact #lbl-v,.ctrlbar.compact #lbl-m{font-size:13px;min-width:0}
   select{border:1px solid #94a3b8;border-radius:8px;padding:7px 9px;font-size:14px;font-family:inherit;background:#fdfefe;color:#334155;cursor:pointer}
-  /* 幽灵化浮层面板家族（读数面板）：rgba .45、16px 圆角、禁 blur/阴影/硬边框 */
-  .rec-panel{display:none;position:absolute;top:12px;right:12px;min-width:264px;background:rgba(255,255,255,0.45);border-radius:16px;padding:16px 20px;z-index:15}
+  /* 幽灵化浮层面板家族（读数面板）：rgba .45、16px 圆角、禁 blur/阴影/硬边框；位置不钉死——打开时由 core pickSlot() 选空位写入 left/top（蔡总通则：面板自行判定屏幕空位） */
+  .rec-panel{display:none;position:absolute;min-width:264px;background:rgba(255,255,255,0.45);border-radius:16px;padding:16px 20px;z-index:15}
   .rec-panel.show{display:block}
   .rec-panel .rp-title{font-size:18px;font-weight:600;color:#b45309;margin-bottom:10px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif}
   table.rec{border-collapse:collapse;font-size:16px;background:transparent;width:100%}
@@ -238,6 +245,6 @@
 <script src="../_lib/v1/props-optics.js?v=9"></script>
 <script src="../_lib/v1/props-density.js?v=2"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-density-core.js"></script>
+<script src="exp-density-core.js?v=3"></script>
 </body>
 </html>

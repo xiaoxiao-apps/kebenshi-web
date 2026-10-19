@@ -17,7 +17,7 @@
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
   canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
   /* hint=橙色居中解说条：6s 自动淡出，任何新操作重新唤出 */
-  #hint{position:absolute;left:50%;top:10px;transform:translateX(-50%);max-width:86%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;line-height:1.55;font-weight:600;padding:9px 16px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:16;text-align:center;transition:opacity .8s ease}
+  #hint{position:absolute;left:50%;top:10px;transform:translateX(-50%);max-width:76%;pointer-events:none;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;line-height:1.55;font-weight:600;padding:9px 16px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:16;text-align:center;transition:opacity .8s ease}
   .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:6px;padding:8px 12px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
   .ctrlbar>*{pointer-events:auto}
   .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px}
@@ -63,6 +63,16 @@
   table.rec td{font-weight:600}
   html.pseudo-fs{width:100%;height:100%}
   html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
+  /* R3 橡皮泥放大揉捏模态窗：遮罩+亮底卡片居中 */
+  #knead-mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:30;align-items:center;justify-content:center}
+  #knead-mask.show{display:flex}
+  #knead-card{position:relative;background:#fffef9;border-radius:16px;padding:16px 20px 18px;box-shadow:0 10px 34px rgba(0,0,0,.28);text-align:center}
+  #knead-title{font-size:17px;font-weight:600;color:#5b3a00;margin-bottom:6px}
+  #knead-tip{font-size:12px;color:#8a7c66;margin:6px 0 10px}
+  #knead-cv{display:block;margin:0 auto;touch-action:none;cursor:grab}
+  #knead-done{margin-top:4px;padding:9px 26px;font-size:15px}
+  #knead-x{position:absolute;top:8px;right:8px;background:transparent;color:#8a7c66;font-size:20px;line-height:1;padding:4px 9px}
+  #knead-x:hover{background:rgba(0,0,0,.06);color:#3d3830}
 </style>
 </head>
 <body>
@@ -90,7 +100,17 @@
     <tr><th>游码示数</th><td id="pe-rider">—</td></tr>
     <tr><th>物体质量 m</th><td id="pe-mass">—</td></tr>
     <tr><th>横梁状态</th><td id="pe-beam">—</td></tr>
+    <tr><th>重力环境 g</th><td id="pe-g">—</td></tr>
   </tbody></table>
+</div>
+<div id="knead-mask">
+  <div id="knead-card">
+    <button id="knead-x" title="完成并关闭">×</button>
+    <div id="knead-title">揉捏橡皮泥</div>
+    <canvas id="knead-cv"></canvas>
+    <div id="knead-tip">按住拖动揉捏：竖向拖→压成饼 · 横向拖→拉成条</div>
+    <button id="knead-done">完成</button>
+  </div>
 </div>
 </div>
 <div class="ctrlbar">
@@ -132,6 +152,6 @@
 <script src="../_lib/v1/props-optics.js?v=9"></script>
 <script src="../_lib/v1/props-density.js?v=2"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-mass-core.js?v=2"></script>
+<script src="exp-mass-core.js?v=3"></script>
 </body>
 </html>
