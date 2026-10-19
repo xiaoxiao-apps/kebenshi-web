@@ -17,10 +17,17 @@ var E3_VOLS=[10,20,30];                        // E3 大小三档（cm³，可�
 var E3_COL={aluminum:'#2563eb',iron:'#dc2626',wood:'#16a34a'};   // 描点/拟合线换材质换色
 var E4_RHO={wood:0.4,ice:0.9,aluminum:2.7,pvc:1.4,brick:2.0};    // E4 预设池：木0.4为PhET值（教材干松木0.5）；PVC/砖为PhET值非教材表值
 var E4_VMIN=1,E4_VMAX=10,E4_MMIN=0.5,E4_MMAX=20;                 // E4 滑杆范围（V 1-10L / 自定义 m 0.5-20kg）
+/* E4.2 漂浮阻尼微晃（P6 修订·蔡总已验收）：单阻尼余弦 y=yEq+(y0-yEq)e^(-t/τ)cos(ωt)，≤2 周期、≈800ms 收敛 */
+var E4_BOB_MS=800,E4_BOB_CYCLES=2,E4_BOB_TAU=0.22;               // 总时长/周期数(ω=2πf,f=cycles/T)/衰减时常
+var E4_BOB_W=2*Math.PI*E4_BOB_CYCLES/(E4_BOB_MS/1000);           // 角频率 rad/s
+var E4_SPLASH_MS=300;                                             // 入水微溅涟漪寿命（2-3 扩散弧）
 var E5_POOL=['gold','copper','iron','aluminum','ice','wood'];      // E5 出题池（教材表值；蜡与冰同密度会歧义不入池）
 var E5_CYL_CAP=8000,E5_CYL_DIV=1000,E5_CYL_BASE=1500;              // E5 量筒 mL（底水1500，最大 1500+5000<8000）
 var E3_VMAX=70,E3_MMAX=250;       // E3 作图板固定标度（兼容调试样例 V≤60/m≤30.1 与铁30cm³=237g）
 var E3_W_SET=[100,50,20,20,10,5]; // 砝码盒配置（weight_set 同源；总205g+游码5g）
+var E3_CYL_CAP=60,E3_CYL_DIV=10,E3_CYL_BASE=20;   // E3 量筒 cm³(=mL)：底水20，浸没块最大30→50<60
+var E3_CONV_MS=600,E3_BLINK_HZ=1.5;               // 箭头汇聚时长(ms)/忽闪频率(Hz)——蔡总创意：忽闪→平移汇聚→交点浮现
+var E3_BLOCK_K=0.40;              // E3 物块示意缩放系数（蔡总：左盘物块太大→0.4×）
 
 var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
 var ctrlEl=document.querySelector('.ctrlbar');
@@ -37,10 +44,14 @@ function cbrt(v){ return Math.pow(v,1/3); }
 /* ===== 状态（三场景完全隔离，返回原样恢复） ===== */
 var state={
   scene:'e3',animating:false,anim:null,
-  e3:{mat:'aluminum',v:20,records:[],dropT:0},
-  e4:{dual:false,sel:0,single:null,duals:null,lvl:TANK_BASE_L,tw:null,lvlTw:null,drag:null},
-  e5:{blocks:[],sel:0,cylTw:null,fade:null,drag:null}
+  e3:{mat:'aluminum',v:20,records:[],dropT:0,
+      block:{loc:'source',x:0,y:0},mKnown:false,vKnown:false,converged:false,
+      cylFrac:E3_CYL_BASE/E3_CYL_CAP,cylTw:null,arw:null,drag:null},
+  e4:{dual:false,sel:0,single:null,duals:null,lvl:TANK_BASE_L,tw:null,lvlTw:null,drag:null,
+      splashes:[],stack:null},
+  e5:{blocks:[],sel:0,cylTw:null,cylFrac:E5_CYL_BASE/E5_CYL_CAP,fade:null,drag:null}
 };
+var hintT0=0,HINT_LIFE=6000;   // hint 6s 自动淡出，新操作（updateHint）再唤出
 function e4Blocks(){ return state.e4.dual?state.e4.duals:[state.e4.single]; }
 
 /* ===== 布局（layout() 单点算，绘制只读） ===== */
@@ -52,10 +63,16 @@ function balGeom(bx,by,h){   // balance_pan 几何同源换算（挂盘位置，
 }
 function layout(){
   var by=benchTopY();
+  // E3：天平(左)+物块源(台面)+量筒(排水测V)+右侧≈32%常驻绘制区（上半记录表/下半作图板）
+  var e3x0=Math.round(W*0.655),e3x1=Math.round(W*0.985),e3y0=Math.round(H*0.09),e3y1=by-16;
+  var e3ymid=Math.round(e3y0+(e3y1-e3y0)*0.42);
   L.e3={
     bal:{x:Math.round(W*0.185),y:by,h:Math.round(H*0.44)},
-    meas:{x:Math.round(W*0.40),y:by},
-    graph:{x0:Math.round(W*0.575),x1:Math.round(W*0.985),y0:Math.round(H*0.10),y1:by-16}
+    src:{x:Math.round(W*0.335),y:by},
+    cyl:{x:Math.round(W*0.485),y:by,h:Math.max(160,by-Math.round(H*0.12))},
+    panel:{x0:e3x0,x1:e3x1,y0:e3y0,y1:e3y1},
+    table:{x0:e3x0,x1:e3x1,y0:e3y0,y1:e3ymid},
+    graph:{x0:e3x0,x1:e3x1,y0:e3ymid+10,y1:e3y1}
   };
   L.e3.bal.g=balGeom(L.e3.bal.x,L.e3.bal.y,L.e3.bal.h);
   var tankH=Math.max(140,by-Math.round(H*0.185));
@@ -65,10 +82,11 @@ function layout(){
     tank:{x:Math.round(W*0.5),y:by,h:tankH,w:tankW,innerHalf:tankW*0.39},
     benchY:by
   };
+  // E5：密度表固定卡占画布右缘≤26%（x≳0.74W），器材一律收到 0.72W 左侧不被覆盖
   L.e5={
-    bal:{x:Math.round(W*0.17),y:by,h:Math.round(H*0.40)},
-    cyl:{x:Math.round(W*0.84),y:by,h:Math.max(170,by-Math.round(H*0.10))},
-    spot:[Math.round(W*0.38),Math.round(W*0.50),Math.round(W*0.62)],
+    bal:{x:Math.round(W*0.155),y:by,h:Math.round(H*0.40)},
+    cyl:{x:Math.round(W*0.665),y:by,h:Math.max(170,by-Math.round(H*0.10))},
+    spot:[Math.round(W*0.335),Math.round(W*0.445),Math.round(W*0.555)],
     benchY:by
   };
   L.e5.bal.g=balGeom(L.e5.bal.x,L.e5.bal.y,L.e5.bal.h);
@@ -80,16 +98,21 @@ function tankSurfYAt(lvlL){   // 水位体积(L)→水面屏幕y（water_tank �
 }
 function tankBotY(){ return L.e4.tank.y-(1-TKB)*L.e4.tank.h; }
 function e4Side(b){ return Math.max(16,L.e4.tank.h*0.30*cbrt(b.v/5)); }
-function e5Side(b){ return Math.max(16,H*0.10*cbrt(b.v)); }
-function e3Side(){ return Math.max(14,H*0.05*cbrt(state.e3.v)); }
+function e5Side(b){ return Math.max(14,H*0.045*cbrt(b.v)); }   // E5 未知块示意缩放（0.4×级，与量筒内一致，不再巨大）
+function e3Side(){ return Math.max(12,H*0.05*E3_BLOCK_K*cbrt(state.e3.v)); }   // E3 物块示意缩放 0.4×
 
 function reflow(){   // resize/全屏重算一切（第17条）：块位置回域
+  var b3=state.e3.block,g3=L.e3.bal.g;
+  if(b3.loc==='source'){ b3.x=L.e3.src.x; b3.y=L.e3.src.y; }
+  else if(b3.loc==='pan'){ b3.x=L.e3.bal.x-g3.panDx; b3.y=g3.panTopY; }
+  else if(b3.loc==='cyl'){ b3.x=L.e3.cyl.x; b3.y=L.e3.cyl.y; }
   var t=L.e4.tank;
   e4Blocks().forEach(function(b,i){
     if(!b) return;
     if(b.loc==='tank'){ b.x=clamp(b.x,t.x-t.innerHalf+e4Side(b)/2,t.x+t.innerHalf-e4Side(b)/2); b.y=e4RestY(b); }
     else { b.y=L.e4.benchY; b.x=clamp(b.x,60,W-60); }
   });
+  if(state.e4.stack) e4StackReflow();
   state.e5.blocks.forEach(function(b,i){
     if(b.loc==='bench') b.x=L.e5.spot[i];
     if(b.loc==='cyl') b.x=L.e5.cyl.x;
@@ -149,33 +172,66 @@ function drawPanWeights(c,cx,byTop,hw,list){   // 盘上砝码堆（balance_pan 
     c.fillStyle='#e5e7eb'; c.fill(); c.stroke();
   });
 }
-function drawE3Measure(){   // 测量区：同规格块 + 刻度尺量边长（体积路径=刻度尺，报告注明）
-  var M=L.e3.meas,E=state.e3,side=e3Side(),aCm=cbrt(E.v);
-  var pxPerCm=side/aCm;
-  PROPS.material_block(ctx,M.x,M.y,{size:side,mat:E.mat,label:MATCN[E.mat]+'块'});
-  // 刻度尺（页面层简笔：库内暂无 ruler 标准件，见报告器材修改需求）
-  var rx0=M.x-side*1.6,rLen=pxPerCm*5,ry=M.y+8;
-  ctx.fillStyle='rgba(250,244,220,0.95)'; ctx.fillRect(rx0,ry,rLen,12);
-  ctx.strokeStyle='#8a7c66'; ctx.lineWidth=1; ctx.strokeRect(rx0,ry,rLen,12);
-  for(var i=0;i<=50;i++){
-    var xx=rx0+pxPerCm*i/10,major=i%10===0;
-    if(xx>rx0+rLen) break;
-    ctx.beginPath(); ctx.moveTo(xx,ry); ctx.lineTo(xx,ry+(major?7:4));
-    ctx.strokeStyle='#5b4a32'; ctx.lineWidth=major?1.2:0.8; ctx.stroke();
-  }
-  // 尺寸线（块边长）+ 读数
-  var dy=M.y-side-10;
-  ctx.strokeStyle='#b45309'; ctx.lineWidth=1.4;
-  ctx.beginPath(); ctx.moveTo(M.x-side/2,dy); ctx.lineTo(M.x+side/2,dy); ctx.stroke();
-  [-1,1].forEach(function(s){
-    ctx.beginPath(); ctx.moveTo(M.x+s*side/2,dy); ctx.lineTo(M.x+s*side/2,dy+7); ctx.stroke();
-  });
-  ctx.fillStyle='#b45309'; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('边长 a ≈ '+fmt(aCm,2)+' cm → V = a³ = '+E.v+' cm³',M.x,dy-6);
+/* ===== E3 排水法量筒（测V）+ 常驻记录表（canvas 绘制，自动入表） ===== */
+function e3CylW(){ return E3_CYL_BASE+(state.e3.block.loc==='cyl'?state.e3.v:0); }   // 筒内水量cm³=底水+入筒块体积
+function e3CylTargetFrac(){ return clamp(e3CylW()/E3_CYL_CAP,0,1); }
+function e3SetCyl(f1){ state.e3.cylTw={t0:performance.now(),f0:state.e3.cylFrac,f1:f1}; dirty=true; }
+function drawE3Cyl(){   // 体积改排水法实测（蔡总二轮拍板）：块全浸没示意→水位差=V读数（木块也按浸没处理=示意简化）
+  var C=L.e3.cyl,E=state.e3,inCyl=(E.block.loc==='cyl');
+  PROPS.cylinder_grad(ctx,C.x,C.y,{h:C.h,cap:E3_CYL_CAP,div:E3_CYL_DIV,
+    water:E.cylFrac,inside:inCyl?'#9aa7b4':null});
+  var vTxt=inCyl?('V = '+E.v+' cm³（水位差 '+E3_CYL_BASE+'→'+e3CylW()+'）'):('底水 '+E3_CYL_BASE+' cm³');
+  ghostCard(C.x-98,C.y-C.h-42,196,28);
+  ctx.fillStyle='#1e293b'; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
+  ctx.fillText(vTxt,C.x,C.y-C.h-23);
 }
-function drawE3Graph(){   // 作图板：白底浅灰网格（教材图6.2-2 语义），描点 200ms ease-out，同材质≥2点自动过原点比例线
+function drawE3Table(){   // 上半常驻记录表：材质/m g/V cm³/m÷V 四列（canvas 绘制，非浮层摆设）
+  var T=L.e3.table,E=state.e3,pw=T.x1-T.x0,ph=T.y1-T.y0;
+  ghostCard(T.x0,T.y0,pw,ph);
+  var cx=T.x0+10,cw=pw-20;
+  var colX=[cx+4,cx+cw*0.55,cx+cw*0.77,cx+cw*0.99];
+  ctx.save();
+  ctx.fillStyle='#b45309'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('记录表（自动入表）',cx,T.y0+20);
+  var headY=T.y0+38;
+  ctx.fillStyle='#64748b'; ctx.font='600 11px sans-serif';
+  ctx.textAlign='left'; ctx.fillText('材质',colX[0],headY);
+  ctx.textAlign='right'; ctx.fillText('m/g',colX[1],headY); ctx.fillText('V/cm³',colX[2],headY); ctx.fillText('m÷V',colX[3],headY);
+  ctx.strokeStyle='rgba(0,0,0,.14)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx,headY+5); ctx.lineTo(cx+cw,headY+5); ctx.stroke();
+  if(!E.records.length){
+    ctx.fillStyle='#94a3b8'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('称出 m、测出 V 后自动描点入表',cx+cw/2,headY+24);
+    ctx.restore(); return;
+  }
+  var rowH=Math.min(20,(T.y1-headY-12)/Math.max(5,E.records.length));
+  E.records.forEach(function(r,i){
+    var y=headY+17+i*rowH; if(y>T.y1-5) return;
+    ctx.beginPath(); ctx.arc(colX[0]+3,y-3,3.2,0,Math.PI*2);
+    ctx.fillStyle=E3_COL[r.mat]||'#2563eb'; ctx.fill();
+    ctx.fillStyle='#1e293b'; ctx.font='11px sans-serif';
+    ctx.textAlign='left'; ctx.fillText((r.mat==='wood')?'木':MATCN[r.mat],colX[0]+11,y);
+    ctx.textAlign='right';
+    ctx.fillText(fmt(r.m,1),colX[1],y); ctx.fillText(String(r.v),colX[2],y); ctx.fillText(fmt(r.ratio,2),colX[3],y);
+  });
+  ctx.restore();
+}
+function e3BlinkA(now){ return 0.35+0.65*(0.5+0.5*Math.sin(2*Math.PI*E3_BLINK_HZ*now/1000)); }   // 忽闪 1.5Hz
+function drawArrowH(x,y,len,a){   // 横向忽闪箭头：尖端(x,y)指向右（→交点汇聚）
+  ctx.save(); ctx.globalAlpha=a; ctx.strokeStyle='#ea580c'; ctx.fillStyle='#ea580c'; ctx.lineWidth=2.4;
+  ctx.beginPath(); ctx.moveTo(x-len,y); ctx.lineTo(x-7,y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-9,y-4.6); ctx.lineTo(x-9,y+4.6); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function drawArrowV(x,y,len,a){   // 纵向忽闪箭头：尖端(x,y)指向上（→交点汇聚）
+  ctx.save(); ctx.globalAlpha=a; ctx.strokeStyle='#ea580c'; ctx.fillStyle='#ea580c'; ctx.lineWidth=2.4;
+  ctx.beginPath(); ctx.moveTo(x,y+len); ctx.lineTo(x,y+7); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-4.6,y+9); ctx.lineTo(x+4.6,y+9); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function drawE3Graph(){   // 下半 m-V 作图板：网格+轴+描点(200ms scale-in 淡入)+过原点比例线+双箭头汇聚描点(蔡总创意)
   var G=L.e3.graph,E=state.e3,now=performance.now();
-  var pw=G.x1-G.x0,ph=G.y1-G.y0,padL=40,padB=28,padT=26,padR=12;
+  var pw=G.x1-G.x0,ph=G.y1-G.y0,padL=34,padB=26,padT=22,padR=12;
   var ox=G.x0+padL,oy=G.y1-padB,iw=pw-padL-padR,ih=ph-padB-padT;
   ghostCard(G.x0,G.y0,pw,ph);
   ctx.save();
@@ -186,82 +242,152 @@ function drawE3Graph(){   // 作图板：白底浅灰网格（教材图6.2-2 语
     ctx.beginPath(); ctx.moveTo(ox,y); ctx.lineTo(ox+iw,y); ctx.stroke(); }
   ctx.strokeStyle='#64748b'; ctx.lineWidth=1.5;
   ctx.beginPath(); ctx.moveTo(ox,oy-ih); ctx.lineTo(ox,oy); ctx.lineTo(ox+iw,oy); ctx.stroke();
-  ctx.fillStyle='#64748b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
-  for(v=0;v<=E3_VMAX;v+=10) ctx.fillText(String(v),ox+iw*v/E3_VMAX,oy+16);
+  ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+  for(v=0;v<=E3_VMAX;v+=10) ctx.fillText(String(v),ox+iw*v/E3_VMAX,oy+15);
   ctx.textAlign='right';
-  for(m=0;m<=E3_MMAX;m+=50) ctx.fillText(String(m),ox-6,oy-ih*m/E3_MMAX+4);
-  ctx.textAlign='left'; ctx.fillText('m/g',ox-30,oy-ih-8);
-  ctx.textAlign='right'; ctx.fillText('V/cm³',ox+iw,oy+16+14);
-  // 描点（逐点 200ms pop）
+  for(m=0;m<=E3_MMAX;m+=50) ctx.fillText(String(m),ox-5,oy-ih*m/E3_MMAX+4);
+  ctx.textAlign='left'; ctx.fillText('m/g',ox-24,oy-ih-6);
+  ctx.textAlign='right'; ctx.fillText('V/cm³',ox+iw,oy+27);
+  // 描点（逐点 200ms scale-in 淡入）
   E.records.forEach(function(r){
-    var p=r.t?clamp((now-r.t)/200,0,1):1,rad=4.5*easeOut(p);
+    var p=r.t?clamp((now-r.t)/200,0,1):1,rad=4.6*easeOut(p);
     var x=ox+iw*clamp(r.v,0,E3_VMAX)/E3_VMAX,y=oy-ih*clamp(r.m,0,E3_MMAX)/E3_MMAX;
+    ctx.save(); ctx.globalAlpha=p;
     ctx.beginPath(); ctx.arc(x,y,rad,0,Math.PI*2);
     ctx.fillStyle=E3_COL[r.mat]||'#2563eb'; ctx.fill();
     ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=1.2; ctx.stroke();
+    ctx.restore();
   });
-  // 同材质≥2点：自动拟合直线（最小二乘过原点比例线 m=kV，k=Σ(mV)/Σ(V²)）
+  // 同材质≥2点：最小二乘过原点比例线 m=kV，k=Σ(mV)/Σ(V²)，换材质换色
   ['aluminum','iron','wood'].forEach(function(mat){
     var rs=E.records.filter(function(r){ return r.mat===mat; });
     if(rs.length<2) return;
-    var svv=0,smv=0;
-    rs.forEach(function(r){ svv+=r.v*r.v; smv+=r.m*r.v; });
+    var svv=0,smv=0; rs.forEach(function(r){ svv+=r.v*r.v; smv+=r.m*r.v; });
     var k=smv/svv,yEnd=k*E3_VMAX;
-    ctx.save();
-    ctx.beginPath(); ctx.rect(ox,oy-ih,iw,ih); ctx.clip();
+    ctx.save(); ctx.beginPath(); ctx.rect(ox,oy-ih,iw,ih); ctx.clip();
     ctx.strokeStyle=E3_COL[mat]; ctx.lineWidth=2; ctx.globalAlpha=0.75;
     ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox+iw,oy-ih*yEnd/E3_MMAX); ctx.stroke();
     ctx.restore();
   });
   // 图例
-  var lx=G.x0+padL+6,ly=G.y0+14;
+  var lx=G.x0+padL+4,ly=G.y0+13;
   ['aluminum','iron','wood'].forEach(function(mat,i){
     var has=E.records.some(function(r){ return r.mat===mat; });
-    ctx.globalAlpha=has?1:0.35;
-    ctx.beginPath(); ctx.arc(lx+i*64,ly,4,0,Math.PI*2);
-    ctx.fillStyle=E3_COL[mat]; ctx.fill();
-    ctx.fillStyle='#1e293b'; ctx.font='12px sans-serif'; ctx.textAlign='left';
-    ctx.fillText(MATCN[mat]==='干松木'?'木':MATCN[mat],lx+i*64+8,ly+4);
+    ctx.globalAlpha=has?1:0.32;
+    ctx.beginPath(); ctx.arc(lx+i*58,ly,4,0,Math.PI*2); ctx.fillStyle=E3_COL[mat]; ctx.fill();
+    ctx.fillStyle='#1e293b'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(MATCN[mat]==='干松木'?'木':MATCN[mat],lx+i*58+7,ly+4);
     ctx.globalAlpha=1;
   });
+  // ===== 蔡总创意核心项：双箭头汇聚描点动画 =====
+  var px=ox+iw*clamp(E.v,0,E3_VMAX)/E3_VMAX, py=oy-ih*clamp(e3Mass(),0,E3_MMAX)/E3_MMAX;
+  if(E.arw){   // 汇聚阶段：两箭同时平移向交点(V,m)（600ms ease）→汇聚→箭头消失、数据点浮现
+    var e=easeInOut(clamp((now-E.arw.t0)/E3_CONV_MS,0,1));
+    var ax=(ox-3)+(px-(ox-3))*e, vy=(oy+3)+(py-(oy+3))*e;
+    drawArrowH(ax,py,26,1);
+    drawArrowV(px,vy,26,1);
+  }else if(!E.converged){   // 忽闪阶段：称出m→y轴忽闪箭头；测出V→x轴忽闪箭头（顺序无关）
+    var ba=e3BlinkA(now);
+    if(E.mKnown) drawArrowH(ox-3,py,26,ba);
+    if(E.vKnown) drawArrowV(px,oy+3,26,ba);
+  }
   ctx.restore();
 }
 function renderE3(){
   paintBg('#f9f4cd','rgb(160,160,160)','warm');
-  var b=L.e3.bal,E=state.e3,side=e3Side(),wf=weightsFor(e3Mass());
+  var b=L.e3.bal,E=state.e3,g=b.g,side=e3Side();
+  var onPan=(E.block.loc==='pan');
   var dropP=1;
   if(E.dropT){ dropP=clamp((performance.now()-E.dropT)/250,0,1); if(dropP>=1) E.dropT=0; else dirty=true; }
   var dyOff=(1-easeOut(dropP))*H*0.18;
-  drawE3Graph();
-  drawE3Measure();
+  drawE3Table();   // 常驻上半记录表
+  drawE3Graph();   // 常驻下半作图板（含双箭头汇聚）
+  drawE3Cyl();     // 排水法测V量筒
+  var wf=onPan?weightsFor(e3Mass()):{ws:[],rider:0};
   PROPS.weight_set(ctx,Math.round(W*0.055),b.y,{w:Math.round(H*0.16),open:true});
-  PROPS.balance_pan(ctx,b.x,b.y,{h:b.h,tilt:0,rider:wf.rider,riderShow:true,
-    panL:function(c,cx,pyTop){ PROPS.material_block(c,cx,pyTop-dyOff,{size:side,mat:E.mat}); },
-    panR:function(c,cx,pyTop,panR){ drawPanWeights(c,cx,pyTop,panR,wf.ws); }
+  PROPS.balance_pan(ctx,b.x,b.y,{h:b.h,tilt:0,rider:wf.rider,riderShow:onPan,
+    panL:function(c,cx,pyTop){ if(onPan) PROPS.material_block(c,cx,pyTop-dyOff,{size:side,mat:E.mat}); },
+    panR:function(c,cx,pyTop,panR){ if(onPan) drawPanWeights(c,cx,pyTop,panR,wf.ws); }
   });
-  var mTxt='称量读数  m = '+fmt(e3Mass(),1)+' g';
-  ghostCard(b.x-90,b.y+16,180,30);
-  ctx.fillStyle='#1e293b'; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
-  ctx.fillText(mTxt,b.x,b.y+36);
+  if(onPan){
+    ghostCard(b.x-92,b.y+16,184,30);
+    ctx.fillStyle='#1e293b'; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('称量读数  m = '+fmt(e3Mass(),1)+' g',b.x,b.y+36);
+  }
+  // 源位/拖拽态物块（不在盘、不在筒时）
+  if(E.block.loc==='source'||E.block.loc==='drag'){
+    var sx=(E.block.loc==='drag')?E.block.x:L.e3.src.x;
+    var sy=(E.block.loc==='drag')?E.block.y:(L.e3.src.y-dyOff);
+    PROPS.material_block(ctx,sx,sy,{size:side,mat:E.mat,label:MATCN[E.mat]+'块 '+E.v+'cm³'});
+  }
 }
-function e3Select(mat,v){
+function e3Select(mat,v){   // 换材质/体积：新块落回源位、清空双测量、量筒退水（重测入口）
   var E=state.e3;
   if(mat) E.mat=mat;
   if(v) E.v=v;
+  E.block.loc='source'; E.block.x=L.e3.src.x; E.block.y=L.e3.src.y;
+  E.mKnown=false; E.vKnown=false; E.converged=false; E.arw=null;
+  e3SetCyl(E3_CYL_BASE/E3_CYL_CAP);
   E.dropT=performance.now(); dirty=true;
   if(window.playDrop) playDrop();
   syncE3Btns(); updateHint(); updatePanel();
 }
-function e3Record(){   // 「记录」钮：m/V/m÷V 入表（同材质同体积去重替换）
+function e3CheckBoth(){   // 双测齐（顺序无关）→ 触发双箭头汇聚动画
+  var E=state.e3;
+  if(E.mKnown&&E.vKnown&&!E.converged){ E.converged=true; E.arw={t0:performance.now()}; dirty=true; }
+}
+function e3AutoRecord(){   // 汇聚完成→数据点浮现+自动入表（重测同材质同体积=覆盖旧行不重复）
   var E=state.e3,m=e3Mass();
   var rec={mat:E.mat,v:E.v,m:m,ratio:m/E.v,t:performance.now()};
   var dup=E.records.findIndex(function(r){ return r.mat===rec.mat&&r.v===rec.v; });
   if(dup>=0) E.records[dup]=rec; else E.records.push(rec);
-  e3RecRev++; dirty=true;
-  if(window.playClick) playClick();
+  dirty=true; if(window.playMatch) playMatch();
   updatePanel(); updateHint();
 }
-var e3RecRev=0,e3RecShown=-1;
+function e3BlockPos(){   // 物块绘制锚点（底面中心）按 loc
+  var b=state.e3.block,B=L.e3,g=B.bal.g;
+  if(b.loc==='pan') return {x:B.bal.x-g.panDx,y:g.panTopY};
+  if(b.loc==='cyl') return {x:B.cyl.x,y:B.cyl.y};
+  if(b.loc==='drag') return {x:b.x,y:b.y};
+  return {x:B.src.x,y:B.src.y};
+}
+function e3Hit(p){   // 纯命中：块在筒内走筒口取回区；否则块本体外扩10px（倒序无关，单块）
+  var b=state.e3.block;
+  if(b.loc==='cyl'){
+    var C=L.e3.cyl,w=Math.max(30,C.h*0.18);
+    return (Math.abs(p.x-C.x)<w/2+26&&p.y>C.y-C.h-30&&p.y<C.y+6);
+  }
+  if(b.loc==='drag') return false;
+  var pos=e3BlockPos(),s=e3Side();
+  return (p.x>=pos.x-s/2-10&&p.x<=pos.x+s/2+s*0.22+10&&p.y>=pos.y-s-10&&p.y<=pos.y+10);
+}
+function e3Drop(b){   // 放手：天平左盘=称m / 量筒=排水测V / 其它=回源位
+  var B=L.e3,g=B.bal.g,C=B.cyl,panLx=B.bal.x-g.panDx;
+  if(Math.abs(b.x-panLx)<g.panHW+34&&Math.abs(b.y-g.panTopY)<g.h*0.42){
+    b.loc='pan'; b.x=panLx; b.y=g.panTopY; e3SetCyl(e3CylTargetFrac());
+    if(!state.e3.mKnown){ state.e3.mKnown=true; if(window.playMatch)playMatch(); e3CheckBoth(); }
+    else if(window.playDrop)playDrop();
+  }else if(Math.abs(b.x-C.x)<Math.max(30,C.h*0.18)/2+28&&b.y>C.y-C.h-70&&b.y<C.y+12){
+    b.loc='cyl'; b.x=C.x; b.y=C.y; e3SetCyl(e3CylTargetFrac());
+    if(!state.e3.vKnown){ state.e3.vKnown=true; if(window.playMatch)playMatch(); e3CheckBoth(); }
+    else if(window.playDrop)playDrop();
+  }else{
+    b.loc='source'; b.x=B.src.x; b.y=B.src.y; e3SetCyl(e3CylTargetFrac());
+    if(window.playDrop)playDrop();
+  }
+  dirty=true; updatePanel(); updateHint();
+}
+function e3Tick(){   // rAF 推进：量筒水位插值 + 箭头汇聚计时 + 忽闪续帧
+  var now=performance.now(),E=state.e3,bsy=false;
+  if(E.cylTw){
+    var p=clamp((now-E.cylTw.t0)/TWEEN_MS,0,1);
+    E.cylFrac=E.cylTw.f0+(E.cylTw.f1-E.cylTw.f0)*easeInOut(p);
+    if(p>=1){ E.cylFrac=E.cylTw.f1; E.cylTw=null; } else bsy=true;
+  }
+  if(E.arw){ if(now-E.arw.t0>=E3_CONV_MS){ e3AutoRecord(); E.arw=null; } else bsy=true; }
+  if((E.mKnown||E.vKnown)&&!E.converged) bsy=true;   // 忽闪箭头需持续重绘
+  return bsy;
+}
 /* ===== 场景二 E4：密度水槽（借鉴 PhET Intro；水位=基础+排水，浮沉 P6 规格） ===== */
 var tankOK=false;   // water_tank sprite 就位标记（renderE4 每帧刷新）
 function mkE4Block(preset,v,m,loc){
@@ -271,7 +397,11 @@ function mkE4Block(preset,v,m,loc){
 function e4Rho(b){ return b.m/b.v; }   // kg/L = ρ=m/V
 function e4Displaced(b){ return b.loc==='tank'?b.v*Math.min(1,e4Rho(b)/RHO_WATER):0; }   // V排=浸没部分体积
 function e4LvlTarget(){
-  var l=TANK_BASE_L;
+  var l=TANK_BASE_L,E=state.e4;
+  if(E.stack){   // 摞叠：漂浮 V排=M/ρ水；沉底 V排=VA+VB（刚体整块）
+    var A=E.stack.top,B=E.stack.bot,M=A.m+B.m,V=A.v+B.v;
+    return l+((M/V>=RHO_WATER)?(A.v+B.v):(M/RHO_WATER));
+  }
   e4Blocks().forEach(function(b){ if(b&&b.loc==='tank') l+=e4Displaced(b); });
   return l;
 }
@@ -281,28 +411,123 @@ function e4FinalY(b,lvlL){   // 物理终态：ρ<1漂浮（底=水面+浸没比
   return tankBotY();
 }
 function e4RestY(b){ return e4FinalY(b,e4LvlTarget()); }
-function e4Settle(b){   // 放手/改参数：350ms 单调过渡（easeInOut 插值，禁回弹震荡）
-  var l1=e4LvlTarget(),now=performance.now();
-  b.tw={t0:now,y0:b.y,y1:e4FinalY(b,l1)};
+function e4Splash(x){   // 入水微溅：记录涟漪（屏幕 x，水面 y 取当前水位；tankOK 才溅）
+  if(!tankOK) return;
+  state.e4.splashes.push({x:x,y:tankSurfYAt(state.e4.lvl),t0:performance.now()});
+  if(state.e4.splashes.length>8) state.e4.splashes.shift();
+}
+function e4Settle(b,splash){   // 放手/改参数：漂浮→阻尼微晃收敛 / 沉底→350ms 单调（P6 禁回弹）
+  var l1=e4LvlTarget(),now=performance.now(),yEq=e4FinalY(b,l1);
+  b.tw=null; b.bob=null;
+  if(e4Rho(b)<RHO_WATER) b.bob={t0:now,y0:b.y,yEq:yEq};   // 漂浮：单阻尼余弦 ≤2 周期 ≈800ms
+  else b.tw={t0:now,y0:b.y,y1:yEq};                        // 沉底：单调 easeInOut 300-400ms
+  if(splash) e4Splash(b.x);
   state.e4.lvlTw={t0:now,l0:state.e4.lvl,l1:l1};
   dirty=true;
 }
-function e4Tick(){   // rAF 推进：浮沉 y 与水位同帧连续插值（P1 禁跳变、P5 读数随插值刷新）
+function e4Tick(){   // rAF 推进：沉底单调 / 漂浮阻尼微晃 / 水位插值 / 涟漪 cull（P1 禁跳变）
   var now=performance.now(),busy=false;
   e4Blocks().forEach(function(b){
-    if(b&&b.tw){
+    if(!b) return;
+    if(b.tw){
       var p=clamp((now-b.tw.t0)/TWEEN_MS,0,1);
       b.y=b.tw.y0+(b.tw.y1-b.tw.y0)*easeInOut(p);
-      if(p>=1) b.tw=null; else { busy=true; dirty=true; }
+      if(p>=1){ b.y=b.tw.y1; b.tw=null; } else { busy=true; dirty=true; }
+    }else if(b.bob){
+      var t=(now-b.bob.t0)/1000,T=E4_BOB_MS/1000;
+      if(t>=T){ b.y=b.bob.yEq; b.bob=null; }
+      else { b.y=b.bob.yEq+(b.bob.y0-b.bob.yEq)*Math.exp(-t/E4_BOB_TAU)*Math.cos(E4_BOB_W*t); busy=true; dirty=true; }
     }
   });
+  var S=state.e4.stack;   // 摞叠刚体：S.y=底块底面，漂浮阻尼微晃 / 沉底单调
+  if(S){
+    if(S.tw){
+      var sp=clamp((now-S.tw.t0)/TWEEN_MS,0,1);
+      S.y=S.tw.y0+(S.tw.y1-S.tw.y0)*easeInOut(sp);
+      if(sp>=1){ S.y=S.tw.y1; S.tw=null; } else { busy=true; dirty=true; }
+      e4StackPos();
+    }else if(S.bob){
+      var st=(now-S.bob.t0)/1000,ST=E4_BOB_MS/1000;
+      if(st>=ST){ S.y=S.bob.yEq; S.bob=null; }
+      else { S.y=S.bob.yEq+(S.bob.y0-S.bob.yEq)*Math.exp(-st/E4_BOB_TAU)*Math.cos(E4_BOB_W*st); busy=true; dirty=true; }
+      e4StackPos();
+    }
+  }
   var lt=state.e4.lvlTw;
   if(lt){
     var q=clamp((now-lt.t0)/TWEEN_MS,0,1);
     state.e4.lvl=lt.l0+(lt.l1-lt.l0)*easeInOut(q);
     if(q>=1){ state.e4.lvl=lt.l1; state.e4.lvlTw=null; } else { busy=true; dirty=true; }
   }
+  if(state.e4.splashes.length){
+    var keep=state.e4.splashes.filter(function(s){ return now-s.t0<E4_SPLASH_MS; });
+    if(keep.length!==state.e4.splashes.length) state.e4.splashes=keep;
+    if(state.e4.splashes.length){ busy=true; dirty=true; }
+  }
   return busy;
+}
+function drawE4Splash(){   // 入水微溅涟漪：3 圈外扩扁椭圆弧（水面透视），300ms 淡出
+  var now=performance.now();
+  ctx.save();
+  state.e4.splashes.forEach(function(s){
+    var p=clamp((now-s.t0)/E4_SPLASH_MS,0,1),a=1-p;
+    for(var k=0;k<3;k++){
+      var rr=(5+k*4)+p*(22+k*9);
+      ctx.strokeStyle='rgba(255,255,255,'+(0.7*a*(1-k*0.22)).toFixed(3)+')';
+      ctx.lineWidth=Math.max(0.6,1.7*(1-p)-k*0.3);
+      ctx.beginPath(); ctx.ellipse(s.x,s.y,rr,rr*0.34,0,0,Math.PI*2); ctx.stroke();
+    }
+  });
+  ctx.restore();
+}
+/* ===== E4.3 双块摞叠物理（PhET 同族·实算）：刚体摞叠 ρ̄=(mA+mB)/(VA+VB)，漂浮 V排=M/ρ水、沉底整块没 ===== */
+function e4OtherBlock(b){ if(!state.e4.dual) return null; var d=state.e4.duals; return (b===d[0])?d[1]:((b===d[1])?d[0]:null); }
+function e4OnTop(A,B){   // A 底面落在 B 顶面区（水平重叠 + 竖直接近）→ 可摞
+  var sA=e4Side(A),sB=e4Side(B),bTopY=B.y-sB;
+  var overlapX=Math.abs(A.x-B.x)<(sA/2+sB/2)*0.72;
+  var nearTop=A.y>bTopY-sA*1.15&&A.y<bTopY+sB*0.6;
+  return overlapX&&nearTop;
+}
+function e4CanStack(A,B){   // A 摞到 B 上：'float'/'sink'/false（B 已沉底且 A 漂 → 不可摞，A 滑落）
+  if(e4Rho(B)>=RHO_WATER&&e4Rho(A)<RHO_WATER) return false;
+  var M=A.m+B.m,V=A.v+B.v;
+  return (M/V<RHO_WATER)?'float':'sink';
+}
+function e4StackEq(){   // 摞叠平衡：底块底面屏幕 y（ybot）+ 是否沉底；用终态水位
+  var S=state.e4.stack,A=S.top,B=S.bot,M=A.m+B.m,V=A.v+B.v;
+  var lvl=e4LvlTarget(),surfY=tankSurfYAt(lvl),sA=e4Side(A),sB=e4Side(B);
+  if(M/V>=RHO_WATER) return {ybot:tankBotY(),sunk:true,surfY:surfY};
+  var Vsub=M/RHO_WATER,hsub=(Vsub<=B.v)?sB*(Vsub/B.v):sB+sA*((Vsub-B.v)/A.v);
+  return {ybot:surfY+hsub,sunk:false,surfY:surfY};
+}
+function e4StackPos(){   // 由摞叠锚点 S.y(底块底面) 派生两块位置（刚体：顶块底面=底块顶面）
+  var S=state.e4.stack; if(!S) return;
+  var sB=e4Side(S.bot);
+  S.bot.x=S.x; S.bot.y=S.y;
+  S.top.x=S.x; S.top.y=S.y-sB;
+}
+function e4StackSettle(splash){   // 摞叠落定：漂浮阻尼微晃 / 沉底单调；两块个体动画清零改由摞叠驱动
+  var S=state.e4.stack,eq=e4StackEq(),now=performance.now();
+  S.top.tw=S.top.bob=S.bot.tw=S.bot.bob=null; S.tw=null; S.bob=null;
+  if(eq.sunk) S.tw={t0:now,y0:S.y,y1:eq.ybot};
+  else S.bob={t0:now,y0:S.y,yEq:eq.ybot};
+  if(splash) e4Splash(S.x);
+  state.e4.lvlTw={t0:now,l0:state.e4.lvl,l1:e4LvlTarget()};
+  e4StackPos(); dirty=true;
+}
+function e4StackReflow(){   // resize：摞叠锚点回域并按新几何snap到平衡（不动画）
+  var S=state.e4.stack; if(!S) return;
+  var t=L.e4.tank,sB=e4Side(S.bot);
+  S.x=clamp(S.x,t.x-t.innerHalf+sB/2+2,t.x+t.innerHalf-sB/2-2);
+  var eq=e4StackEq(); S.y=eq.ybot; S.tw=null; S.bob=null; e4StackPos();
+}
+function e4Unstack(grabbed){   // 拖走拆摞叠：grabbed→bench(离水)，另一块原位落定（此刻水位已排除 grabbed 才正确）
+  var S=state.e4.stack; if(!S) return;
+  var other=(grabbed===S.top)?S.bot:S.top;
+  state.e4.stack=null;
+  S.top.tw=S.top.bob=S.bot.tw=S.bot.bob=null;
+  grabbed.loc='bench'; other.loc='tank';
+  e4Settle(other,false);
 }
 function drawE4Block(b,isSel){
   var side=e4Side(b),surfY=tankSurfYAt(state.e4.lvl);
@@ -326,15 +551,20 @@ function renderE4(){
   paintBg('#e8f1f8','#9aa8b8','cool');
   var t=L.e4.tank,E=state.e4,bs=e4Blocks(),sel=bs[E.sel]||bs[0];
   tankOK=PROPS.spriteReady('water_tank');   // sprite 未就位不画水面附属（tint/水位线），防悬空
-  PROPS.density_scale(ctx,L.e4.scale.x,L.e4.scale.y,{w:L.e4.scale.w,value:sel?e4Rho(sel):null});
+  if(E.stack) e4StackPos();   // 摞叠时块位由锚点派生（静态重绘也保持刚体）
+  var scaleV=E.stack?((E.stack.top.m+E.stack.bot.m)/(E.stack.top.v+E.stack.bot.v)):(sel?e4Rho(sel):null);
+  PROPS.density_scale(ctx,L.e4.scale.x,L.e4.scale.y,{w:L.e4.scale.w,value:scaleV});
   PROPS.water_tank(ctx,t.x,t.y,{h:t.h,water:clamp(E.lvl/TANK_FULL_L,0,1)});
   bs.forEach(function(b){ if(b) drawE4Block(b,b===sel); });
   if(!tankOK) return;
-  var surfY=tankSurfYAt(E.lvl);   // 水位标签：红线刻+实时读数（P1 排水通道）
+  drawE4Splash();   // 水面微溅涟漪（入水瞬间）
+  var surfY=tankSurfYAt(E.lvl);   // 水位标签：红线刻+实时读数（P1 排水通道，E4.4 x 域内 clamp 右留白≥8px）
   ctx.strokeStyle='rgba(220,38,38,0.8)'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(t.x+t.w/2+6,surfY); ctx.lineTo(t.x+t.w/2+26,surfY); ctx.stroke();
   ctx.fillStyle='#b91c1c'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
-  ctx.fillText('水位 '+fmt(E.lvl,1)+' L',t.x+t.w/2+30,surfY+5);
+  var ltxt='水位 '+fmt(E.lvl,1)+' L',lx=t.x+t.w/2+30,ltw=ctx.measureText(ltxt).width;
+  if(lx+ltw>W-8) lx=Math.max(8,W-8-ltw);
+  ctx.fillText(ltxt,lx,surfY+5);
 }
 function e4Hit(p){   // 纯命中（无副作用），返回 index 或 -1
   var bs=e4Blocks();
@@ -348,13 +578,29 @@ function e4Hit(p){   // 纯命中（无副作用），返回 index 或 -1
 function E4SelSet(i){
   if(state.e4.sel!==i){ state.e4.sel=i; dirty=true; updatePanel(); syncE4Ctrl(); updateHint(); }
 }
-function e4Drop(b,px,py){   // 放手：入水=浮沉动画 / 台面=静置（可再拖）
-  var t=L.e4.tank,s=e4Side(b);
-  b.tw=null;
+function e4Drop(b,px,py){   // 放手：摞到另块顶=摞叠 / 入水=浮沉(+微溅) / 台面=静置（可再拖）
+  var t=L.e4.tank,s=e4Side(b),other=e4OtherBlock(b);
+  b.tw=null; b.bob=null;
+  if(other&&other.loc==='tank'&&!state.e4.stack&&e4OnTop(b,other)){   // E4.3 摞叠判定
+    var kind=e4CanStack(b,other);
+    if(kind){
+      b.loc='tank';
+      state.e4.stack={top:b,bot:other,x:other.x,y:other.y};
+      e4StackSettle(true);
+      if(window.playDrop) playDrop();
+      updatePanel(); updateHint(); dirty=true; return;
+    }
+    b.loc='tank';   // 不可摞（底块已沉底且本块漂）：侧向滑落上浮，各归各位
+    var dirx=(b.x<other.x?-1:1),sO=e4Side(other);
+    b.x=clamp(other.x+dirx*(sO/2+s/2+8),t.x-t.innerHalf+s/2+2,t.x+t.innerHalf-s/2-2);
+    e4Settle(b,true);
+    if(window.playDrop) playDrop();
+    updatePanel(); updateHint(); dirty=true; return;
+  }
   if(Math.abs(b.x-t.x)<t.innerHalf&&b.y>t.y-t.h-80&&b.y<t.y+10){
     b.loc='tank';
     b.x=clamp(b.x,t.x-t.innerHalf+s/2+2,t.x+t.innerHalf-s/2-2);
-    e4Settle(b);
+    e4Settle(b,true);
   }else{
     b.loc='bench'; b.y=L.e4.benchY; b.x=clamp(b.x,50,W-50);
     var l1=e4LvlTarget();
@@ -373,8 +619,17 @@ function e4ApplyPreset(preset){   // 预设=体积自由、质量派生 m=ρV（
 }
 function e4AfterChange(){
   var b=e4Sel(); if(!b) return;
-  if(b.loc==='tank') e4Settle(b);
-  else { state.e4.lvlTw={t0:performance.now(),l0:state.e4.lvl,l1:e4LvlTarget()}; }
+  var S=state.e4.stack;
+  if(S&&e4CanStack(S.top,S.bot)===false){   // 改参数致不可摞 → 拆散，两块均留水中各自落定
+    var A=S.top,B=S.bot;
+    state.e4.stack=null; A.tw=A.bob=B.tw=B.bob=null;
+    A.loc='tank'; B.loc='tank';
+    e4Settle(A,false); e4Settle(B,false);
+    syncE4Ctrl(); dirty=true; updatePanel(); updateHint(); return;
+  }
+  if(S) e4StackSettle(false);
+  else if(b.loc==='tank') e4Settle(b);
+  else state.e4.lvlTw={t0:performance.now(),l0:state.e4.lvl,l1:e4LvlTarget()};
   syncE4Ctrl(); dirty=true; updatePanel(); updateHint();
 }
 function e4ToggleDual(){   // 单块/双块切换钮（右下常驻；命名走「场景」用语）
@@ -386,8 +641,8 @@ function e4ToggleDual(){   // 单块/双块切换钮（右下常驻；命名走�
     E.duals[0].x=L.e4.tank.x-L.e4.tank.innerHalf*0.5;
     E.duals[1].x=L.e4.tank.x+L.e4.tank.innerHalf*0.5;
     E.duals[0].y=E.duals[1].y=L.e4.benchY-L.e4.tank.h*0.75;
-    E.lvl=TANK_BASE_L; E.lvlTw=null; E.sel=0;
-    E.duals.forEach(e4Settle);
+    E.lvl=TANK_BASE_L; E.lvlTw=null; E.sel=0; E.stack=null;
+    E.duals.forEach(function(b){ e4Settle(b,true); });
   }else{
     E.duals=null;
     var b=E.single;
@@ -398,10 +653,10 @@ function e4ToggleDual(){   // 单块/双块切换钮（右下常驻；命名走�
 }
 function resetE4(){   // 初始态：单块木预设（0.4kg/L×5L=2kg）静置漂浮、水位102L
   var E=state.e4;
-  E.dual=false; E.duals=null; E.sel=0; E.drag=null;
+  E.dual=false; E.duals=null; E.sel=0; E.drag=null; E.splashes=[]; E.stack=null;
   E.single=mkE4Block('wood',5,2,'tank');
   E.lvl=TANK_BASE_L+e4Displaced(E.single); E.lvlTw=null;
-  E.single.y=e4FinalY(E.single,E.lvl); E.single.tw=null;
+  E.single.y=e4FinalY(E.single,E.lvl); E.single.tw=null; E.single.bob=null;
   syncE4Ctrl(); updatePanel(); updateHint(); dirty=true;
 }
 /* ===== 场景三 E5：物质鉴别（借鉴 PhET Mystery；单位一档 kg/L，数值=g/cm³，1 g/cm³=1×10³ kg/m³） ===== */
@@ -594,13 +849,23 @@ var lastTick=0;
 cv.addEventListener('pointerdown',function(ev){
   if(state.animating) return;
   var p=ptOf(ev);
-  if(state.scene==='e4'){
+  if(state.scene==='e3'){
+    if(e3Hit(p)){
+      var b3=state.e3.block,pos=e3BlockPos();
+      state.e3.drag={b:b3,dx:pos.x-p.x,dy:pos.y-p.y};
+      b3.loc='drag'; b3.x=pos.x; b3.y=pos.y;
+      if(window.playPick) playPick();
+      try{ cv.setPointerCapture(ev.pointerId); }catch(err){}
+      dirty=true; updateHint();
+    }
+  }else if(state.scene==='e4'){
     var i=e4Hit(p);
     if(i>=0){
       E4SelSet(i);
       var b=e4Blocks()[i];
+      if(state.e4.stack&&(b===state.e4.stack.top||b===state.e4.stack.bot)) e4Unstack(b);   // E4.3 拆开摞叠
       state.e4.drag={b:b,dx:b.x-p.x,dy:b.y-p.y};
-      b.tw=null;
+      b.tw=null; b.bob=null;
       if(b.loc==='tank'){ b.loc='bench'; state.e4.lvlTw={t0:performance.now(),l0:state.e4.lvl,l1:e4LvlTarget()}; }
       if(window.playPick) playPick();
       try{ cv.setPointerCapture(ev.pointerId); }catch(err){}
@@ -627,18 +892,19 @@ cv.addEventListener('pointerdown',function(ev){
 cv.addEventListener('pointermove',function(ev){
   if(state.animating) return;
   var p=ptOf(ev);
-  var dr=(state.scene==='e4')?state.e4.drag:(state.scene==='e5'?state.e5.drag:null);
+  var dr=(state.scene==='e3')?state.e3.drag:((state.scene==='e4')?state.e4.drag:(state.scene==='e5'?state.e5.drag:null));
   if(dr&&dr.b){
     dr.b.x=p.x+dr.dx; dr.b.y=p.y+dr.dy;
     var now=performance.now();
     if(window.playTick&&now-lastTick>110){ lastTick=now; playTick(); }
     dirty=true;
   }else{
-    var hov=(state.scene==='e4')?e4Hit(p)>=0:(state.scene==='e5'?(e5Hit(p)>=0||!!e5CylHit(p)):false);
+    var hov=(state.scene==='e3')?e3Hit(p):((state.scene==='e4')?e4Hit(p)>=0:(state.scene==='e5'?(e5Hit(p)>=0||!!e5CylHit(p)):false));
     cv.style.cursor=hov?'pointer':'default';
   }
 });
 function endDrag(){
+  if(state.e3.drag){ var b3=state.e3.drag.b; state.e3.drag=null; e3Drop(b3); }
   if(state.e4.drag){ var b=state.e4.drag.b; state.e4.drag=null; e4Drop(b); }
   if(state.e5.drag){ var b5=state.e5.drag.b; state.e5.drag=null; e5Drop(b5); }
   dirty=true;
@@ -685,27 +951,27 @@ function updatePanel(){
     setText('e3-v',E.v+' cm³');
     setText('e3-m',fmt(e3Mass(),1)+' g');
     setText('e3-ratio',fmt(e3Rho(),2)+' g/cm³');
-    if(e3RecShown!==e3RecRev){
-      e3RecShown=e3RecRev;
-      var tb=document.getElementById('rec-body');
-      if(tb){
-        if(!E.records.length) tb.innerHTML='<tr><td colspan="4" id="rec-empty">还没有记录——选好物块称量后点「记录」</td></tr>';
-        else tb.innerHTML=E.records.map(function(r,i){
-          var cn=(r.mat==='wood')?'木':MATCN[r.mat];
-          return '<tr><td>'+cn+'块'+(i+1)+'</td><td>'+fmt(r.m,1)+'</td><td>'+r.v+'</td><td>'+fmt(r.ratio,2)+'</td></tr>';
-        }).join('');
-      }
-    }
   }else if(s==='e4'){
     var b=e4Sel(); if(!b) return;
-    var rho=e4Rho(b);
-    setText('e4-badge',state.e4.dual?('块 '+('AB'[state.e4.sel]||'A')+'（双块）'):'单块');
-    setText('e4-mat',MATCN[b.preset]||b.preset);
-    setText('e4-m',fmt(b.m,1)+' kg');
-    setText('e4-v',fmt(b.v,1)+' L');
-    setText('e4-rho',fmt(rho,2)+' kg/L = '+fmt(rho*1000,0)+' kg/m³');
-    setText('e4-sub',b.loc==='tank'?fmt(Math.min(1,rho/RHO_WATER)*100,0)+' %':'—（未入水）');
-    setText('e4-level',fmt(state.e4.lvl,1)+' L');
+    var rho=e4Rho(b),S=state.e4.stack;
+    if(S){   // 摞叠读数：整块 ρ̄=(mA+mB)/(VA+VB) → 漂浮 V排=M/ρ水 / 沉底 V排=VA+VB
+      var M=S.top.m+S.bot.m,V=S.top.v+S.bot.v,rb=M/V;
+      setText('e4-badge','摞叠（顶'+(MATCN[S.top.mat]||S.top.mat)+'/底'+(MATCN[S.bot.mat]||S.bot.mat)+'）');
+      setText('e4-mat','整块平均');
+      setText('e4-m',fmt(M,1)+' kg（总）');
+      setText('e4-v',fmt(V,1)+' L（总）');
+      setText('e4-rho',fmt(rb,2)+' kg/L → '+(rb<RHO_WATER?'漂浮':'沉底'));
+      setText('e4-sub',rb<RHO_WATER?('V排=M/ρ水='+fmt(M,1)+' L'):('整块没 V排='+fmt(V,1)+' L'));
+      setText('e4-level',fmt(state.e4.lvl,1)+' L');
+    }else{
+      setText('e4-badge',state.e4.dual?('块 '+('AB'[state.e4.sel]||'A')+'（双块）'):'单块');
+      setText('e4-mat',MATCN[b.preset]||b.preset);
+      setText('e4-m',fmt(b.m,1)+' kg');
+      setText('e4-v',fmt(b.v,1)+' L');
+      setText('e4-rho',fmt(rho,2)+' kg/L = '+fmt(rho*1000,0)+' kg/m³');
+      setText('e4-sub',b.loc==='tank'?fmt(Math.min(1,rho/RHO_WATER)*100,0)+' %':'—（未入水）');
+      setText('e4-level',fmt(state.e4.lvl,1)+' L');
+    }
   }else{
     var b5=e5Sel(); if(!b5) return;
     setText('e5-blk','块 '+b5.id);
@@ -717,11 +983,14 @@ function updatePanel(){
   }
 }
 /* ===== hint 橙色居中解说条：当前可见分支教当前可做的操作 ===== */
+var hintTimer=null;
 function updateHint(){
   if(!hintEl) return;
+  clearTimeout(hintTimer);
   if(state.animating){ hintEl.style.opacity='0'; return; }
-  hintEl.style.opacity='1';
   hintEl.textContent=hintText();
+  hintEl.style.opacity='1'; hintT0=performance.now();   // 新操作唤出；6s 后自动淡出（E4.1 不挡密度标尺）
+  hintTimer=setTimeout(function(){ if(hintEl&&!state.animating) hintEl.style.opacity='0'; },HINT_LIFE);
 }
 function hintText(){
   var s=state.scene;
@@ -731,16 +1000,25 @@ function hintText(){
       return E.records.filter(function(r){ return r.mat===m; }).length>=2;
     });
     if(any2) return '结论（教材P145）：同种物质的质量与体积成正比，质量与体积之比是一定的；不同物质这个比值一般也不同。换材质对比，或去「密度水槽」场景';
-    if(E.records.length) return '打开「读数面板」点「记录」入表；作图板自动描点，同材质≥2点自动画过原点比例线。换大小再多测几块';
-    return '猜想（教材P144）：如果一个铝块的体积是另一个的2倍、3倍……它的质量也是另一个的2倍、3倍……吗？——用下方「材质/大小」钮选块，天平自动称量读数 m';
+    if(E.converged) return '双箭头已汇聚到 (V, m) 交点 → 数据点浮现并自动入表。换大小/材质再多测几块，同材质≥2点自动画过原点比例线';
+    if(E.mKnown&&E.vKnown) return '质量 m 与体积 V 都测好了，正在汇聚描点……';
+    if(E.mKnown) return '已称得质量 m（左盘）。再把物块拖入右侧量筒，用排水法测体积 V';
+    if(E.vKnown) return '已测得体积 V（量筒排水）。再把物块拖到天平左盘称质量 m';
+    return '猜想（教材P144）：铝块体积是另一个的2倍、3倍……质量也是2倍、3倍……吗？——下方「材质/大小」钮选块，先把它拖到天平左盘称 m，再拖入量筒排水测 V（顺序不限），双测齐后自动汇聚描点入表';
   }
   if(s==='e4'){
     var b=e4Sel(); if(!b) return '';
-    if(state.e4.drag) return '松手放入水中：ρ物<ρ水 漂浮（浸没体积比=ρ物/ρ水），ρ物≥ρ水 沉底';
+    var S=state.e4.stack;
+    if(state.e4.drag) return '松手放入水中：ρ物<ρ水 漂浮（浸没比=ρ物/ρ水），ρ物≥ρ水 沉底；拖到另一块顶上可摞叠——整块浮沉看 ρ̄=(mA+mB)/(VA+VB)';
+    if(S){
+      var M=S.top.m+S.bot.m,V=S.top.v+S.bot.v,rb=M/V;
+      if(rb<RHO_WATER) return '摞叠漂浮：ρ̄='+fmt(rb,2)+'<1 → 漂浮，V排=M/ρ水='+fmt(M,1)+' L（底块先全浸、顶块部分浸）。拖走顶块可拆开';
+      return '摞叠沉底：ρ̄='+fmt(rb,2)+'≥1 → 整块沉底，V排=VA+VB='+fmt(V,1)+' L。拖走任一块可拆开';
+    }
     var rho=e4Rho(b);
-    if(b.loc==='tank'&&rho<RHO_WATER) return '漂浮平衡：浸没比=ρ物/ρ水='+fmt(rho,2)+'/1.0='+fmt(rho*100,0)+'%。水位=基础100L+排水体积='+fmt(state.e4.lvl,1)+' L';
-    if(b.loc==='tank') return 'ρ='+fmt(rho,2)+' kg/L ≥ 水1.0 → 沉底静止。密度标尺红标=选中块ρ，实物参照刻度：人1 / 玻璃2.5 / 钛4.5 / 钢7.9 / 铜8.9';
-    return '把块拖入水槽看浮沉与水位变化；点击块选中（琥珀描边），下方控制栏换材质预设 / 体积 / 质量，「单块/双块」摆同体积异质量对比';
+    if(b.loc==='tank'&&rho<RHO_WATER) return '漂浮平衡：浸没比=ρ物/ρ水='+fmt(rho,2)+'/1.0='+fmt(rho*100,0)+'%。水位=基础100L+排水='+fmt(state.e4.lvl,1)+' L。可把另一块拖到它顶上摞叠';
+    if(b.loc==='tank') return 'ρ='+fmt(rho,2)+' kg/L ≥ 水1.0 → 沉底静止。密度标尺红标=选中块ρ。可把另一块摞到顶上比 ρ̄';
+    return '把块拖入水槽看浮沉与水位；点击块选中（琥珀描边），下方换材质/体积/质量，「单块/双块」摆同体积异质量对比；双块时可把一块拖到另一块顶上摞叠';
   }
   var b5=e5Sel(); if(!b5) return '';
   if(b5.solved) return '鉴别正确！块'+b5.id+'是'+MATCN[b5.mat]+'。点「重新出题」换题，或点选其它块继续鉴别';
@@ -764,12 +1042,6 @@ E3_VOLS.forEach(function(v){
   var el=document.getElementById('btn-v'+v);
   if(el) el.addEventListener('click',function(){ if(state.animating)return; if(window.playClick)playClick(); e3Select(null,v); });
 });
-document.getElementById('btn-rec').addEventListener('click',function(){ if(state.animating)return; e3Record(); });
-document.getElementById('btn-rec-clear').addEventListener('click',function(){
-  if(state.animating)return;
-  state.e3.records=[]; e3RecRev++; dirty=true; updatePanel(); updateHint();
-  if(window.playClick) playClick();
-});
 if(selE4mat) selE4mat.addEventListener('change',function(){ if(state.animating){syncE4Ctrl();return;} e4ApplyPreset(selE4mat.value); if(window.playClick)playClick(); });
 if(rngV) rngV.addEventListener('input',function(){
   if(state.animating){ syncE4Ctrl(); return; }
@@ -785,12 +1057,27 @@ if(rngM) rngM.addEventListener('input',function(){
   e4AfterChange();
 });
 if(btnDual) btnDual.addEventListener('click',function(){ if(state.animating)return; e4ToggleDual(); });
-document.getElementById('btn-newq').addEventListener('click',function(){ if(state.animating)return; newE5(); });
+var btnNewq=document.getElementById('btn-newq');
+if(btnNewq) btnNewq.addEventListener('click',function(){ if(state.animating)return; newE5(); });
 if(btnDtable) btnDtable.addEventListener('click',function(){ if(state.animating)return; openPanel('dtable'); if(window.playClick)playClick(); });
 var selE5matEl=document.getElementById('sel-e5mat');
 if(selE5matEl) selE5matEl.addEventListener('change',function(){ var b=e5Sel(); if(b){ b.guess=selE5matEl.value; b.verdict=''; b.vok=''; updatePanel(); } });
-document.getElementById('btn-submit').addEventListener('click',function(){ if(state.animating)return; submitE5(); });
+var btnSubmit=document.getElementById('btn-submit');
+if(btnSubmit) btnSubmit.addEventListener('click',function(){ if(state.animating)return; submitE5(); });
 if(btnTable) btnTable.addEventListener('click',function(){ if(state.animating)return; openPanel('read'); if(window.playClick)playClick(); });
+/* E5.2 密度表右侧固定卡：固体/液体双 tab 切换（dt-solid/dt-liquid 互斥显隐，默认固体） */
+var dtTabSolid=document.getElementById('dt-tab-solid'),dtTabLiquid=document.getElementById('dt-tab-liquid');
+var dtSolid=document.getElementById('dt-solid'),dtLiquid=document.getElementById('dt-liquid');
+function dtTab(which){
+  var solid=(which!=='liquid');
+  if(dtSolid) dtSolid.style.display=solid?'block':'none';
+  if(dtLiquid) dtLiquid.style.display=solid?'none':'block';
+  if(dtTabSolid) dtTabSolid.classList.toggle('on',solid);
+  if(dtTabLiquid) dtTabLiquid.classList.toggle('on',!solid);
+}
+if(dtTabSolid) dtTabSolid.addEventListener('click',function(){ dtTab('solid'); if(window.playClick)playClick(); });
+if(dtTabLiquid) dtTabLiquid.addEventListener('click',function(){ dtTab('liquid'); if(window.playClick)playClick(); });
+dtTab('solid');
 SCENES.forEach(function(k){
   var el=document.getElementById('btn-scene-'+k);
   if(el) el.addEventListener('click',function(){ switchScene(k); });
@@ -798,9 +1085,13 @@ SCENES.forEach(function(k){
 function resetE3(){
   var E=state.e3;
   E.mat='aluminum'; E.v=20; E.records=[]; E.dropT=performance.now();
-  e3RecRev++; syncE3Btns(); updatePanel(); updateHint(); dirty=true;
+  E.block.loc='source'; E.block.x=L.e3.src.x; E.block.y=L.e3.src.y;
+  E.mKnown=false; E.vKnown=false; E.converged=false; E.arw=null;
+  E.cylFrac=E3_CYL_BASE/E3_CYL_CAP; E.cylTw=null;
+  syncE3Btns(); updatePanel(); updateHint(); dirty=true;
 }
-document.getElementById('btn-reset').addEventListener('click',function(){
+var btnReset=document.getElementById('btn-reset');
+if(btnReset) btnReset.addEventListener('click',function(){
   if(state.animating) return;
   if(state.scene==='e3') resetE3(); else if(state.scene==='e4') resetE4(); else { genE5(); hideToast(); }
   if(window.playClick) playClick();
@@ -831,7 +1122,10 @@ function busy(){
     if(performance.now()-state.anim.t0>=ANIM_DUR){ state.animating=false; state.anim=null; updateHint(); }
     return true;
   }
-  if(state.e3.dropT) return true;
+  if(state.scene==='e3'){
+    if(state.e3.dropT) return true;
+    if(e3Tick()) return true;
+  }
   var now=performance.now();
   if(state.e3.records.some(function(r){ return r.t&&now-r.t<220; })) return true;
   if(e4Tick()) return true;
@@ -864,7 +1158,7 @@ window.__c6dbg={
     (rows||[]).forEach(function(r){
       state.e3.records.push({mat:r.mat||'wood',v:r.v,m:r.m,ratio:r.m/r.v,t:0});
     });
-    e3RecRev++; dirty=true;
+    dirty=true;
   },
   e3fitK:function(mat){
     var rs=state.e3.records.filter(function(r){ return r.mat===(mat||'wood'); });
@@ -873,6 +1167,29 @@ window.__c6dbg={
   },
   e4sub:function(i){ var b=e4Blocks()[i||0]; return (b&&b.loc==='tank')?Math.min(1,e4Rho(b)/RHO_WATER):null; },
   e4level:function(){ return state.e4.lvl; },
+  e4dual:function(p1,v1,m1,p2,v2,m2){   // 验收：摆双块(preset/V L/m kg)入水，免拖拽
+    var E=state.e4;
+    E.dual=true; E.stack=null; E.sel=0;
+    E.duals=[mkE4Block(p1,v1,m1,'tank'),mkE4Block(p2,v2,m2,'tank')];
+    E.duals[0].x=L.e4.tank.x-L.e4.tank.innerHalf*0.5; E.duals[1].x=L.e4.tank.x+L.e4.tank.innerHalf*0.5;
+    E.duals[0].y=E.duals[1].y=L.e4.benchY-L.e4.tank.h*0.75;
+    E.lvl=TANK_BASE_L; E.lvlTw=null;
+    E.duals.forEach(function(b){ e4Settle(b,false); });
+    syncE4Ctrl(); updatePanel(); dirty=true; return true;
+  },
+  e4stackMake:function(){   // 验收：把 duals[0] 摞到 duals[1] 顶（刚体），返回摞叠物理量
+    var E=state.e4; if(!E.dual) return null;
+    var A=E.duals[0],B=E.duals[1];
+    if(e4CanStack(A,B)===false) return {slid:true,note:'底块已沉底且顶块漂→滑落'};
+    A.loc='tank'; E.stack={top:A,bot:B,x:B.x,y:B.y};
+    e4StackSettle(false); updatePanel(); dirty=true;
+    var M=A.m+B.m,V=A.v+B.v,rb=M/V;
+    return {rhoBar:+rb.toFixed(4),sunk:rb>=RHO_WATER,vdisp:+((rb>=RHO_WATER)?V:M).toFixed(4),lvlTarget:+e4LvlTarget().toFixed(4),topMat:A.mat,botMat:B.mat};
+  },
+  e4stack:function(){ var S=state.e4.stack; if(!S) return null; var M=S.top.m+S.bot.m,V=S.top.v+S.bot.v,rb=M/V;
+    return {rhoBar:+rb.toFixed(4),sunk:rb>=RHO_WATER,vdisp:+((rb>=RHO_WATER)?V:M).toFixed(4),lvlTarget:+e4LvlTarget().toFixed(4)}; },
+  e4bobParam:function(){ return {ms:E4_BOB_MS,cycles:E4_BOB_CYCLES,tau:E4_BOB_TAU,w:+E4_BOB_W.toFixed(4),splashMs:E4_SPLASH_MS,tweenMs:TWEEN_MS}; },
+  e4bobY:function(t){ return Math.exp(-t/E4_BOB_TAU)*Math.cos(E4_BOB_W*t); },   // 归一阻尼曲线(t秒)：验收查单调衰减/≤2周期/收敛0
   e5blocks:function(){ return state.e5.blocks.map(function(b){ return {id:b.id,mat:b.mat,v:b.v,m:b.m,mKnown:b.mKnown,vKnown:b.vKnown,solved:b.solved}; }); },
   e5gen:function(){ genE5(); }
 };

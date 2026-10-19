@@ -2,8 +2,10 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>托盘天平与质量 — 质量</title>
+<title>天平实验室 — 质量</title>
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
@@ -14,45 +16,50 @@
   .title{font-size:13px;font-weight:600;color:#2b2620;white-space:nowrap}
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
   canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
-  /* hint=橙色居中解说条（第24条②，气泡弹窗已废止）：常驻画布顶部居中，随教学阶段换文案 */
-  #hint{position:absolute;left:50%;top:10px;transform:translateX(-50%);max-width:86%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;line-height:1.55;font-weight:600;padding:9px 16px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:16;text-align:center}
-  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:stretch;gap:6px;padding:8px 12px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
+  /* hint=橙色居中解说条：6s 自动淡出，任何新操作重新唤出 */
+  #hint{position:absolute;left:50%;top:10px;transform:translateX(-50%);max-width:86%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;line-height:1.55;font-weight:600;padding:9px 16px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:16;text-align:center;transition:opacity .8s ease}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:6px;padding:8px 12px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
   .ctrlbar>*{pointer-events:auto}
   .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px}
   .glabel{font-size:14px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
   .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:40px}
-  .gctrl label{font-size:14px;cursor:pointer;white-space:nowrap;color:#3d3830}
   button{border:0;border-radius:8px;padding:9px 13px;font-size:14px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
   button:hover{background:#1d4ed8}
   button.secondary{background:#6b7280}
   button.secondary:hover{background:#4b5563}
   button.step{padding:6px 10px}
-  button:disabled{opacity:.35;cursor:default}
   /* 引入式工具按钮=物理按压两态（凸起/凹陷 .on） */
   button.btn2{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
   button.btn2:hover{background:linear-gradient(#f8fafc,#d2deeb)}
   button.btn2.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
-  .group.flyout{opacity:0;transform:translateY(-36px);pointer-events:none;transition:opacity .3s ease,transform .3s ease}
-  .group{transition:opacity .3s ease,transform .3s ease}
   input#rng-rider{width:150px;accent-color:#d97706}
-  input#rng-heat{width:110px;accent-color:#dc2626}
   #lbl-rider{font-size:15px;color:#854d0e;min-width:86px;text-align:right;font-variant-numeric:tabular-nums}
-  #lbl-heat{font-size:15px;color:#991b1b;min-width:56px;text-align:right;font-variant-numeric:tabular-nums}
+  /* 读数卡（控制栏内联读数） */
+  .readcol{flex-direction:column;align-items:flex-start;justify-content:center;gap:2px}
+  #rd-expr{font-size:14px;color:#854d0e;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  #rd-beam{font-size:13px;color:#475569;white-space:nowrap}
+  /* 重力滑杆卡：画布右侧 DOM 幽灵化浮卡（.45 白底/16px 圆角/禁 blur） */
+  .gcard{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:158px;background:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.85);border-radius:16px;padding:12px 14px;z-index:15;display:flex;flex-direction:column;gap:8px}
+  .gcard .gtitle{font-size:14px;color:#8a7c66;letter-spacing:.5px;white-space:nowrap}
+  .gcard input#rng-g{width:100%;accent-color:#2563eb}
+  .gcard .gpres{display:flex;gap:6px}
+  .gcard .gpres button{flex:1;padding:6px 4px;font-size:12px}
+  #lbl-g{font-size:15px;color:#1e293b;font-weight:600;text-align:center;font-variant-numeric:tabular-nums}
   /* 小窗紧凑档（core resize 判定 H<600 加 .compact） */
   .ctrlbar.compact .glabel{font-size:12px}
   .ctrlbar.compact .gctrl{min-height:32px}
-  .ctrlbar.compact .gctrl label{font-size:12px}
   .ctrlbar.compact button{padding:5px 7px;font-size:13px}
   .ctrlbar.compact input#rng-rider{width:110px}
-  .ctrlbar.compact input#rng-heat{width:80px}
-  .ctrlbar.compact #lbl-rider,.ctrlbar.compact #lbl-heat{font-size:13px;min-width:0}
-  /* 读数面板（第24条④幽灵化：.45 白底/16px 圆角/禁 blur/三级色阶/无格线淡横线） */
-  .rec-panel{display:none;position:absolute;top:12px;right:12px;min-width:520px;background:rgba(255,255,255,0.45);border-radius:16px;padding:16px 20px;z-index:15}
+  .ctrlbar.compact #lbl-rider{font-size:13px;min-width:0}
+  .ctrlbar.compact #rd-expr{font-size:12px}
+  .ctrlbar.compact #rd-beam{font-size:11px}
+  /* 读数面板（幽灵化：.45 白底/16px 圆角/禁 blur/三级色阶/无格线淡横线） */
+  .rec-panel{display:none;position:absolute;top:12px;left:12px;min-width:430px;background:rgba(255,255,255,0.45);border-radius:16px;padding:16px 20px;z-index:15}
   .rec-panel.show{display:block}
-  .rec-panel .rp-title{font-size:18px;font-weight:600;color:#b45309;margin-bottom:10px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif}
+  .rec-panel .rp-title{font-size:18px;font-weight:600;color:#b45309;margin-bottom:10px}
   table.rec{border-collapse:collapse;font-size:16px;background:transparent;width:100%}
   table.rec th,table.rec td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:9px 13px;text-align:left;white-space:nowrap;color:#1e293b}
-  table.rec th{background:transparent;font-weight:400;width:128px;color:#64748b}
+  table.rec th{background:transparent;font-weight:400;width:110px;color:#64748b}
   table.rec td{font-weight:600}
   html.pseudo-fs{width:100%;height:100%}
   html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
@@ -60,26 +67,29 @@
 </head>
 <body>
 <header>
-  <div class="title">第6章 第1节 质量 · 用托盘天平测量质量</div>
+  <div class="title">第6章 第1节 质量 · 天平实验室</div>
   <a class="back" href="./index.html">← 返回实验卡页</a>
 </header>
 <div class="scene-wrap">
 <canvas id="scene"></canvas>
 <div id="hint"></div>
+<div class="gcard" id="card-g">
+  <div class="gtitle">重力环境（位置）</div>
+  <input type="range" id="rng-g" min="0.5" max="12" step="0.1" value="9.8">
+  <div class="gpres">
+    <button id="btn-g-earth" class="btn2 on">🌍 地球 9.8</button>
+    <button id="btn-g-moon" class="btn2">🌙 月球 1.6</button>
+  </div>
+  <div id="lbl-g">g = 9.8 N/kg</div>
+</div>
 <div class="rec-panel" id="panel-read">
   <div class="rp-title">读数面板</div>
-  <table class="rec" id="tb-e1"><tbody>
+  <table class="rec"><tbody>
     <tr><th>被测物</th><td id="pe-obj">—</td></tr>
     <tr><th>砝码合计</th><td id="pe-wts">—</td></tr>
     <tr><th>游码示数</th><td id="pe-rider">—</td></tr>
     <tr><th>物体质量 m</th><td id="pe-mass">—</td></tr>
     <tr><th>横梁状态</th><td id="pe-beam">—</td></tr>
-  </tbody></table>
-  <table class="rec" id="tb-e2" style="display:none"><tbody>
-    <tr><th>当前站</th><td id="p2-sta">—</td></tr>
-    <tr><th>物体</th><td id="p2-obj">—</td></tr>
-    <tr><th>天平读数</th><td id="p2-read">—</td></tr>
-    <tr><th>质量改变？</th><td id="p2-concl">—</td></tr>
   </tbody></table>
 </div>
 </div>
@@ -87,9 +97,9 @@
   <div class="group" id="grp-obj">
     <div class="glabel">被测物</div>
     <div class="gctrl">
-      <button id="btn-obj-eraser" class="btn2">橡皮</button>
-      <button id="btn-obj-pencil" class="btn2">铅笔</button>
-      <button id="btn-obj-salt" class="btn2">盐水小瓶</button>
+      <button id="btn-obj-clay" class="btn2">橡皮泥 🟤</button>
+      <button id="btn-obj-ice" class="btn2">冰水烧杯 🧊</button>
+      <button id="btn-obj-pencil" class="btn2">铅笔 ✏️</button>
     </div>
   </div>
   <div class="group" id="grp-level">
@@ -101,26 +111,11 @@
       <span id="lbl-rider">游码 0.0 g</span>
     </div>
   </div>
-  <div class="group flyout" id="grp-knead">
-    <div class="glabel">站A 形状</div>
-    <div class="gctrl">
-      <button id="btn-knead" class="btn2">✋ 捏一捏</button>
-    </div>
-  </div>
-  <div class="group flyout" id="grp-heat">
-    <div class="glabel">站B 加热</div>
-    <div class="gctrl">
-      <input type="range" id="rng-heat" min="0" max="3" step="1" value="0">
-      <span id="lbl-heat">档位 0</span>
-    </div>
-  </div>
-  <div class="group" id="grp-scene">
-    <div class="glabel">场景</div>
-    <div class="gctrl">
-      <button id="btn-e1" class="btn2 on">⚖️ 天平称量</button>
-      <button id="btn-sta" class="btn2">站A 形状</button>
-      <button id="btn-stb" class="btn2">站B 物态</button>
-      <button id="btn-stc" class="btn2">站C 位置</button>
+  <div class="group" id="grp-read">
+    <div class="glabel">读数</div>
+    <div class="gctrl readcol">
+      <span id="rd-expr">m = —</span>
+      <span id="rd-beam">横梁 —</span>
     </div>
   </div>
   <div class="group" id="grp-sys">
@@ -135,8 +130,8 @@
 </div>
 <script src="../_lib/v1/props.js?v=96"></script>
 <script src="../_lib/v1/props-optics.js?v=9"></script>
-<script src="../_lib/v1/props-density.js?v=1"></script>
+<script src="../_lib/v1/props-density.js?v=2"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-mass-core.js?v=1"></script>
+<script src="exp-mass-core.js?v=2"></script>
 </body>
 </html>

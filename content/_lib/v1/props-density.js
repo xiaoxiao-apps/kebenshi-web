@@ -8,22 +8,29 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-density.js — 第六章「质量与密度」标准器材件 v1（c6s12，10件）
+ * props-density.js — 第六章「质量与密度」标准器材件 v2（c6s12 修订轮1，11件）
+ * v2 变更清单（2026-10-19，蔡总首轮体验反馈）：
+ *   + weight_single 单枚砝码原语：g∈{5,10,20,50,100} / u(100g基准宽36) / held(镊子夹持) / label(刻字,缺省true)；返回 {w,h}
+ *   + weight_set opt.missing：已拖出盒外的砝码 id 数组（['100','50','20','20b','10','5'] 同源），盒内不画；pick 保留兼容
+ *   ~ balance_pan 大尺寸清晰刻度：标尺每1g长刻度+数字、每0.2g短刻度，全部线长/字高 ∝ h（禁固定px）；opt.labels===false 才隐藏数字；分度盘中位红色长刻度
+ *   ~ balance_pan 返回几何对象：{beamY, panL:{x,y,r}, panR:{x,y,r}, rider:{x0,x1,y,g2x}, nutL, nutR, dial, base}（g2x: g(0-5)→标尺x，含tilt旋转）
+ *   ~ clay opt.morph 连续实数0-2（0球1饼2条，超椭圆关键帧插值=直接揉捏）；shape 保留为别名；返回 {w,h}
  * 锚点约定：一律底面中心，(x,y)=底边中点（第13条）
  * 确定性绘制：禁原生随机数，纹理/冰块用 PROPS.rand(seed) sin 伪随机
  * 组件清单：
- *   1. balance_pan    托盘天平(P0)  opt: h=220 / tilt(-8~+8°) / rider(0-5g) / riderShow / panL,panR(挂载回调 fn(ctx,cx,cyTop,panR))
- *   2. weight_set     砝码组(P0)    opt: w=200 / open(盒盖开合,默认开) / pick('100'|'50'|'20'|'10'|'5' 镊子夹起)
+ *   1. balance_pan    托盘天平(P0)  opt: h=220 / tilt(-8~+8°) / rider(0-5g) / riderShow / labels(false隐藏刻度数字) / panL,panR(挂载回调 fn(ctx,cx,cyTop,panR))；返回几何对象
+ *   2. weight_set     砝码组(P0)    opt: w=200 / open(盒盖开合,默认开) / pick('100'|'50'|'20'|'10'|'5' 镊子夹起) / missing(已拖出id数组)
  *   3. rider          游码特写(P0)  opt: pos(0-1) / scaleLen=160
  *   4. material_block 材质块(P0)    opt: size=60 / mat(aluminum|iron|wood|ice|gold|copper|wax|styrofoam|pvc|brick) / label / mystery
  *   5. cylinder_grad  量筒(P1)      opt: h=240 / cap=100 / div=10 / water(0-1) / inside(浸没块占位色)
  *   6. density_scale  密度标尺(P1)  opt: w=420 / value(0-10 红标) / marks / collapsed
- *   7. clay           橡皮泥(P2)    opt: size=70 / shape(0球|1饼|2条)
+ *   7. clay           橡皮泥(P2)    opt: size=70 / morph(0-2连续,shape别名)；返回 {w,h}
  *   8. beaker_ice     烧杯盛冰(P2)  opt: h=140 / ice(0-100) / water(0-1)
  *   9. doll           玩偶(P2)      opt: scale=1 / arm(0|1 举手)
  *  10. heat_source    通用热源(P2)  opt: level(0-3档) / knob(旋钮角度°,缺省随level)
+ *  11. weight_single  单枚砝码(v2)  opt: g∈{5,10,20,50,100} / u=36 / held / label；返回 {w,h}
  * 挂载白名单（第13条）：
- *   balance_pan 托盘(panL/panR 回调) ← material_block / weight_set 砝码 / 被测物（页面层绘制）
+ *   balance_pan 托盘(panL/panR 回调) ← material_block / weight_set 砝码 / weight_single / 被测物（页面层绘制）
  *   cylinder_grad.inside           ← material_block 占位色块（入筒水位=原水位+V块，页面层计算）
  *   water_tank（库内已有件）        ← material_block（入水浮沉，页面层处理）
  *   heat_source 顶盘               ← beaker_ice（页面层放置）
@@ -76,6 +83,7 @@ PROPS.balance_pan = function(ctx, x, y, opt){
 
   // 吊挂 + 托盘（画在横梁之前，盘体恒水平）
   const cosT = Math.cos(tilt), sinT = Math.sin(tilt);
+  const panGeo = {};
   [-1, 1].forEach(function(s){
     const ex = x + s * (beamLen / 2 - h * 0.02) * cosT;
     const ey = pivotY + s * (beamLen / 2 - h * 0.02) * sinT;
@@ -90,6 +98,8 @@ PROPS.balance_pan = function(ctx, x, y, opt){
     ctx.strokeStyle = '#5b6068'; ctx.lineWidth = 1.2; ctx.stroke();
     ctx.beginPath(); ctx.ellipse(ex, py - panH * 0.25, panW * 0.36, panH * 0.45, 0, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1; ctx.stroke();
+    if (s < 0) panGeo.L = {x: ex, y: py, r: panW / 2};
+    else panGeo.R = {x: ex, y: py, r: panW / 2};
     const cb = s < 0 ? opt.panL : opt.panR;
     if (typeof cb === 'function') cb(ctx, ex, py - panH, panW / 2);
   });
@@ -99,14 +109,14 @@ PROPS.balance_pan = function(ctx, x, y, opt){
   ctx.beginPath(); ctx.arc(x, plateCy, plateR, 0, Math.PI * 2);
   ctx.fillStyle = '#fafafa'; ctx.fill();
   ctx.strokeStyle = '#374151'; ctx.lineWidth = Math.max(1.5, h * 0.008); ctx.stroke();
-  ctx.strokeStyle = '#1f2937'; ctx.lineWidth = 1.2;
   for (let t = -20; t <= 20; t += 5){
     const a = t * Math.PI / 180;
-    const r0 = t === 0 ? ptrL * 0.78 : ptrL * 0.86, r1 = ptrL * 0.97;
+    const r0 = t === 0 ? ptrL * 0.68 : ptrL * 0.86, r1 = ptrL * 0.97;
     ctx.beginPath();
     ctx.moveTo(x - r0 * Math.sin(a), pivotY + r0 * Math.cos(a));
     ctx.lineTo(x - r1 * Math.sin(a), pivotY + r1 * Math.cos(a));
-    ctx.lineWidth = t === 0 ? 1.8 : 1.1;
+    ctx.strokeStyle = t === 0 ? '#dc2626' : '#1f2937'; // v2: 中位红色长刻度，倾角归零一目了然
+    ctx.lineWidth = t === 0 ? h * 0.009 : h * 0.005;
     ctx.stroke();
   }
 
@@ -127,32 +137,41 @@ PROPS.balance_pan = function(ctx, x, y, opt){
     ctx.strokeStyle = 'rgba(70,75,82,0.7)'; ctx.lineWidth = 1; ctx.stroke();
   });
   // 标尺（横梁前侧，下层）+ 游码（上层）
-  const scaleW = h * 0.34, scaleH = Math.max(4, h * 0.022), sy = beamH / 2 + h * 0.012;
-  rr(ctx, -scaleW / 2, sy, scaleW, scaleH, 1.5);
+  // v2 大尺寸清晰刻度：每 1g 长刻度+数字、每 0.2g 短刻度，全部线长/字高 ∝ h（禁固定 px）；opt.labels===false 才隐藏数字
+  const scaleW = h * 0.40, scaleH = h * 0.075, sy = beamH / 2 + h * 0.012;
+  rr(ctx, -scaleW / 2, sy, scaleW, scaleH, h * 0.006);
   ctx.fillStyle = '#e5e7eb'; ctx.fill();
-  ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.strokeStyle = '#4b5563';
-  for (let g = 0; g <= 5; g++){
-    const gx = -scaleW / 2 + scaleW * g / 5;
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(gx, sy + 1); ctx.lineTo(gx, sy + scaleH - 1); ctx.stroke();
+  ctx.strokeStyle = '#6b7280'; ctx.lineWidth = h * 0.004; ctx.stroke();
+  const showNum = opt.labels !== false;
+  for (let i = 0; i <= 25; i++){
+    const major = i % 5 === 0;
+    const gx = -scaleW / 2 + scaleW * i / 25;
+    ctx.strokeStyle = '#374151'; ctx.lineWidth = major ? h * 0.005 : h * 0.003;
+    ctx.beginPath(); ctx.moveTo(gx, sy + h * 0.004);
+    ctx.lineTo(gx, sy + scaleH * (major ? 0.45 : 0.26)); ctx.stroke();
+    if (major && showNum){
+      ctx.fillStyle = '#1f2937';
+      ctx.font = Math.round(h * 0.034) + 'px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(String(i / 5), gx, sy + scaleH - h * 0.012);
+    }
   }
+  const riderG = Math.max(0, Math.min(5, opt.rider || 0));
   if (opt.riderShow !== false){
-    const riderG = Math.max(0, Math.min(5, opt.rider || 0));
     const rx = -scaleW / 2 + scaleW * riderG / 5;
     const rw = Math.max(7, h * 0.034);
     ctx.beginPath();
-    ctx.moveTo(rx - rw / 2, sy + scaleH + 2);
+    ctx.moveTo(rx - rw / 2, sy + scaleH + h * 0.008);
     ctx.lineTo(rx - rw / 2, sy - h * 0.035);
     ctx.lineTo(rx - rw * 0.16, sy - h * 0.05);
     ctx.lineTo(rx + rw * 0.16, sy - h * 0.05);
     ctx.lineTo(rx + rw / 2, sy - h * 0.035);
-    ctx.lineTo(rx + rw / 2, sy + scaleH + 2);
+    ctx.lineTo(rx + rw / 2, sy + scaleH + h * 0.008);
     ctx.closePath();
     ctx.fillStyle = '#ef4444'; ctx.fill();
-    ctx.strokeStyle = '#b91c1c'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.strokeStyle = '#b91c1c'; ctx.lineWidth = h * 0.004; ctx.stroke();
     ctx.beginPath(); ctx.moveTo(rx - rw * 0.2, sy - h * 0.038); ctx.lineTo(rx + rw * 0.2, sy - h * 0.038);
-    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = h * 0.004; ctx.stroke();
   }
   ctx.restore();
 
@@ -172,8 +191,28 @@ PROPS.balance_pan = function(ctx, x, y, opt){
   // 支点轴帽
   ctx.beginPath(); ctx.arc(x, pivotY, h * 0.02, 0, Math.PI * 2);
   ctx.fillStyle = '#5b6068'; ctx.fill();
-  ctx.strokeStyle = 'rgba(30,33,38,0.8)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.strokeStyle = 'rgba(30,33,38,0.8)'; ctx.lineWidth = h * 0.004; ctx.stroke();
   ctx.restore();
+
+  // v2: 返回几何对象（页面拖拽/命中检测依赖）；梁局部坐标经 tilt 绕 (x,pivotY) 旋转到画布坐标
+  const nutOff = beamLen / 2 - h * 0.025, nutR = h * 0.024;
+  const lyC = sy + scaleH / 2;
+  const rotX = function(lx, ly){ return x + lx * cosT - ly * sinT; };
+  const rotY = function(lx, ly){ return pivotY + lx * sinT + ly * cosT; };
+  const gL = function(g){ return -scaleW / 2 + scaleW * Math.max(0, Math.min(5, g)) / 5; };
+  return {
+    beamY: pivotY,
+    panL: panGeo.L, panR: panGeo.R,
+    rider: {
+      x0: rotX(-scaleW / 2, lyC), x1: rotX(scaleW / 2, lyC),
+      y: rotY(gL(riderG), lyC),
+      g2x: function(g){ return rotX(gL(g), lyC); }
+    },
+    nutL: {x: rotX(-nutOff, 0), y: rotY(-nutOff, 0), r: nutR},
+    nutR: {x: rotX(nutOff, 0), y: rotY(nutOff, 0), r: nutR},
+    dial: {x: x, y: plateCy, r: plateR},
+    base: {x: x - baseW / 2, y: y - baseH, w: baseW, h: baseH}
+  };
 };
 
 // ================= 2. weight_set 砝码组 =================
@@ -202,6 +241,7 @@ PROPS.weight_set = function(ctx, x, y, opt){
   const w = opt.w || 200, boxH = w * 0.32, lidH = w * 0.11;
   const open = opt.open !== false;
   const pick = opt.pick || null;
+  const missing = opt.missing || null; // v2: 已被页面拖出的砝码 id 数组，盒内不画
   ctx.save(); ctx.lineJoin = 'round';
 
   // 盒盖（开=向后掀开，绕左铰链）
@@ -248,6 +288,7 @@ PROPS.weight_set = function(ctx, x, y, opt){
   ];
   const inL = x - w / 2 + pad, inW = w - 2 * pad, by = y - boxH * 0.28;
   WS.forEach(function(it, i){
+    if (missing && missing.indexOf(it.id) >= 0) return;
     if (pick && it.id === pick || (pick === '20' && it.id === '20b')) return;
     const cx = inL + inW * (i + 0.5) / WS.length;
     const r = inW / WS.length * 0.34;
@@ -271,6 +312,30 @@ PROPS.weight_set = function(ctx, x, y, opt){
     ctx.lineWidth = Math.max(2, w * 0.011); ctx.stroke();
   }
   ctx.restore();
+};
+
+// ================= 2b. weight_single 单枚砝码（v2 新增，c6s1 拖拽用原语） =================
+// opt: g∈{5,10,20,50,100} / u(100g基准宽,缺省36) / held(镊子夹持态) / label(正面刻字,缺省true)
+// 各档宽 = u×(g/100)^(1/3)，高 = 宽×0.55；锚点=底面中心；返回 {w,h}
+PROPS.weight_single = function(ctx, x, y, opt){
+  opt = opt || {};
+  const g = [5, 10, 20, 50, 100].indexOf(opt.g) >= 0 ? opt.g : 100;
+  const u = opt.u || 36;
+  const w = u * Math.pow(g / 100, 1 / 3), hgt = w * 0.55;
+  const r = w / 2;
+  ctx.save(); ctx.lineJoin = 'round';
+  drawWeight(ctx, x, y, r, hgt, opt.label !== false ? g + 'g' : null);
+  if (opt.held){
+    // 镊子夹持态（weight_set pick 同款造型，尺寸随 r 缩放）：先砝码后脚，脚尖落在提钮上
+    const tipY = y - hgt - r * 0.42, topY = tipY - r * 1.7;
+    ctx.strokeStyle = '#8a9099'; ctx.lineWidth = Math.max(1.5, r * 0.16); ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x - r * 1.6, topY); ctx.lineTo(x - r * 0.25, tipY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + r * 1.6, topY); ctx.lineTo(x + r * 0.25, tipY); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, topY - r * 0.2, r * 1.62, Math.PI * 0.15, Math.PI * 0.85, true);
+    ctx.lineWidth = Math.max(1.2, r * 0.12); ctx.stroke();
+  }
+  ctx.restore();
+  return {w: w, h: hgt};
 };
 
 // ================= 3. rider 游码（独立放大演示件） =================
@@ -527,31 +592,45 @@ PROPS.density_scale = function(ctx, x, y, opt){
 };
 
 // ================= 7. clay 橡皮泥 =================
+// v2: opt.morph 连续实数 0-2（0球 1饼 2条），超椭圆轮廓关键帧线性插值=「直接揉捏」连续形变；shape 保留为 morph 别名；返回 {w,h}
 PROPS.clay = function(ctx, x, y, opt){
   opt = opt || {};
-  const s = opt.size || 70, shape = opt.shape || 0;
+  const s = opt.size || 70;
+  const m = Math.max(0, Math.min(2, opt.morph !== undefined ? opt.morph : (opt.shape || 0)));
+  // 关键帧：a/b=半宽/半高，yc=中心，n=超椭圆指数（2=椭圆，4≈圆角矩形条）
+  const K = [
+    {a: s * 0.50, b: s * 0.50, yc: y - s * 0.50, n: 2},
+    {a: s * 0.62, b: s * 0.17, yc: y - s * 0.16, n: 2},
+    {a: s * 0.65, b: s * 0.12, yc: y - s * 0.12, n: 4}
+  ];
+  const seg = m < 1 ? 0 : 1, t = m - seg;
+  const A = K[seg], B = K[seg + 1];
+  const a = A.a + (B.a - A.a) * t, b = A.b + (B.b - A.b) * t;
+  const yc = A.yc + (B.yc - A.yc) * t, n = A.n + (B.n - A.n) * t;
   ctx.save();
-  const gcl = ctx.createRadialGradient(x - s * 0.15, y - s * 0.55, s * 0.08, x, y - s * 0.4, s * 0.75);
+  const gcl = ctx.createRadialGradient(x - a * 0.3, yc - b * 0.7, Math.min(a, b) * 0.25, x, yc, Math.max(a, b) * 1.3);
   gcl.addColorStop(0, '#c4714f'); gcl.addColorStop(0.6, '#b5654a'); gcl.addColorStop(1, '#8f4a34');
   ctx.fillStyle = gcl;
   ctx.strokeStyle = 'rgba(120,58,40,0.6)'; ctx.lineWidth = 1.2;
-  if (shape === 1){
-    ctx.beginPath(); ctx.ellipse(x, y - s * 0.16, s * 0.62, s * 0.17, 0, 0, Math.PI * 2);
-    ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = Math.max(2, s * 0.05); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.ellipse(x - s * 0.08, y - s * 0.19, s * 0.3, s * 0.06, 0, Math.PI * 1.1, Math.PI * 1.75); ctx.stroke();
-  } else if (shape === 2){
-    rr(ctx, x - s * 0.65, y - s * 0.24, s * 1.3, s * 0.24, s * 0.12);
-    ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = Math.max(2, s * 0.045); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(x - s * 0.4, y - s * 0.17); ctx.lineTo(x + s * 0.1, y - s * 0.17); ctx.stroke();
-  } else {
-    ctx.beginPath(); ctx.arc(x, y - s / 2, s / 2, 0, Math.PI * 2);
-    ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = Math.max(2, s * 0.055); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.arc(x - s * 0.1, y - s * 0.56, s * 0.3, Math.PI * 1.05, Math.PI * 1.55); ctx.stroke();
+  // 超椭圆轮廓 64 点采样（对 morph 连续，插值中间态平滑）
+  const e = 2 / n;
+  ctx.beginPath();
+  for (let i = 0; i <= 64; i++){
+    const th = i / 64 * Math.PI * 2;
+    const c = Math.cos(th), sn = Math.sin(th);
+    const px = x + (c < 0 ? -1 : 1) * a * Math.pow(Math.abs(c), e);
+    const py = yc + (sn < 0 ? -1 : 1) * b * Math.pow(Math.abs(sn), e);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  // 左上高光（随轮廓插值）
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = Math.max(2, s * 0.05); ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.ellipse(x - a * 0.16, yc - b * 0.12, a * 0.52, b * 0.5, 0, Math.PI * 1.08, Math.PI * 1.62);
+  ctx.stroke();
   ctx.restore();
+  return {w: 2 * a, h: 2 * b};
 };
 
 // ================= 8. beaker_ice 烧杯盛冰 =================
@@ -753,6 +832,6 @@ PROPS.heat_source = function(ctx, x, y, opt){
   ctx.restore();
 };
 
-PROPS.DENSITY_IDS = ['balance_pan','weight_set','rider','material_block','cylinder_grad','density_scale','clay','beaker_ice','doll','heat_source'];
+PROPS.DENSITY_IDS = ['balance_pan','weight_set','rider','material_block','cylinder_grad','density_scale','clay','beaker_ice','doll','heat_source','weight_single'];
 
 })(typeof window !== 'undefined' ? window : globalThis);
