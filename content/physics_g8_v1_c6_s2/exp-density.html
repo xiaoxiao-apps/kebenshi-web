@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>密度实验室 — 密度</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;background:#f5f2ec;color:#3d3830;overflow:hidden}
+  header{position:fixed;top:0;left:0;right:0;height:34px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f5f2ec;border-bottom:1px solid rgba(0,0,0,0.12);z-index:10}
+  .back{font-size:13px;color:#2563eb;text-decoration:none;white-space:nowrap}
+  .back:hover{text-decoration:underline}
+  .title{font-size:13px;font-weight:600;color:#2b2620;white-space:nowrap}
+  .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
+  /* hint 橙色居中解说条（气泡弹窗已废止）：教当前分支可做的操作 */
+  #hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);max-width:76%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;font-weight:600;line-height:1.5;padding:9px 16px;border-radius:12px;z-index:16;text-align:center;transition:opacity .2s ease}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:stretch;gap:6px;padding:8px 12px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
+  .ctrlbar>*{pointer-events:auto}
+  .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px}
+  .glabel{font-size:14px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
+  .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:40px}
+  .gctrl label{font-size:14px;cursor:pointer;white-space:nowrap;color:#3d3830}
+  button{border:0;border-radius:8px;padding:9px 13px;font-size:14px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
+  button:hover{background:#1d4ed8}
+  button.secondary{background:#6b7280}
+  button.secondary:hover{background:#4b5563}
+  button:disabled{opacity:.35;cursor:default}
+  /* 引入式按钮物理按压两态（材质/大小/场景钮组） */
+  button.mat,button.vol,button.scn{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s;padding:7px 11px}
+  button.mat:hover,button.vol:hover,button.scn:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  button.mat.on,button.vol.on,button.scn.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
+  button#btn-table,button#btn-dtable,button#btn-dual{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
+  button#btn-table:hover,button#btn-dtable:hover,button#btn-dual:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  button#btn-table.on,button#btn-dtable.on,button#btn-dual.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
+  .group.flyout{opacity:0;transform:translateY(-36px);pointer-events:none;transition:opacity .3s ease,transform .3s ease}
+  .group{transition:opacity .3s ease,transform .3s ease}
+  input#rng-v{width:130px;accent-color:#d97706}
+  input#rng-m{width:130px;accent-color:#d97706}
+  #lbl-v{font-size:15px;color:#854d0e;min-width:74px;text-align:right;font-variant-numeric:tabular-nums}
+  #lbl-m{font-size:15px;color:#854d0e;min-width:86px;text-align:right;font-variant-numeric:tabular-nums}
+  /* 小窗紧凑档（core resize 判定 H<600 加 .compact） */
+  .ctrlbar.compact .glabel{font-size:12px}
+  .ctrlbar.compact .gctrl{min-height:32px}
+  .ctrlbar.compact .gctrl label{font-size:12px}
+  .ctrlbar.compact button{padding:5px 7px;font-size:13px}
+  .ctrlbar.compact input#rng-v,.ctrlbar.compact input#rng-m{width:96px}
+  .ctrlbar.compact #lbl-v,.ctrlbar.compact #lbl-m{font-size:13px;min-width:0}
+  select{border:1px solid #94a3b8;border-radius:8px;padding:7px 9px;font-size:14px;font-family:inherit;background:#fdfefe;color:#334155;cursor:pointer}
+  /* 幽灵化浮层面板家族（读数面板/记录表/密度表）：rgba .45、16px 圆角、禁 blur/阴影/硬边框 */
+  .rec-panel{display:none;position:absolute;top:12px;right:12px;min-width:520px;background:rgba(255,255,255,0.45);border-radius:16px;padding:16px 20px;z-index:15}
+  .rec-panel.show{display:block}
+  .rec-panel .rp-title{font-size:18px;font-weight:600;color:#b45309;margin-bottom:10px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif}
+  table.rec{border-collapse:collapse;font-size:16px;background:transparent;width:100%}
+  table.rec th,table.rec td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:7px 13px;text-align:left;white-space:nowrap;color:#1e293b}
+  table.rec th{background:transparent;font-weight:400;width:128px;color:#64748b}
+  table.rec td{font-weight:600}
+  table.rec thead th{font-weight:600;color:#64748b;width:auto}
+  .rp-sub{font-size:16px;font-weight:600;color:#b45309;margin:12px 0 6px}
+  .rp-note{font-size:13px;color:#64748b;margin-top:8px}
+  .rp-btns{display:flex;gap:8px;margin-top:10px}
+  #rec-empty{color:#64748b;font-weight:400}
+  #e5-verdict{font-weight:600}
+  #e5-verdict.ok{color:#15803d}
+  #e5-verdict.no{color:#b91c1c}
+  #toast{display:none;position:absolute;left:50%;top:13%;transform:translateX(-50%);max-width:82%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:16;text-align:center}
+  #toast.show{display:block}
+  html.pseudo-fs{width:100%;height:100%}
+  html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
+</style>
+</head>
+<body>
+<header>
+  <div class="title">第6章 第2节 密度 · 密度实验室</div>
+  <a class="back" href="./index.html">← 返回实验卡页</a>
+</header>
+<div class="scene-wrap">
+<canvas id="scene"></canvas>
+<div id="hint"></div>
+<div class="rec-panel" id="panel-read">
+  <div class="rp-title">读数面板</div>
+  <div id="sec-e3">
+    <table class="rec"><tbody>
+      <tr><th>当前块</th><td id="e3-mat">—</td></tr>
+      <tr><th>体积 V</th><td id="e3-v">—</td></tr>
+      <tr><th>质量 m</th><td id="e3-m">—</td></tr>
+      <tr><th>m÷V</th><td id="e3-ratio">—</td></tr>
+    </tbody></table>
+    <div class="rp-sub">记录表（m/g · V/cm³ · m÷V）</div>
+    <table class="rec"><thead><tr><th>被测物体</th><th>m/g</th><th>V/cm³</th><th>m÷V (g/cm³)</th></tr></thead>
+    <tbody id="rec-body"><tr><td colspan="4" id="rec-empty">还没有记录——选好物块称量后点「记录」</td></tr></tbody></table>
+    <div class="rp-btns">
+      <button id="btn-rec">记录</button>
+      <button id="btn-rec-clear" class="secondary">清除</button>
+    </div>
+  </div>
+  <div id="sec-e4" style="display:none">
+    <table class="rec"><tbody>
+      <tr><th>选中块</th><td id="e4-badge">—</td></tr>
+      <tr><th>材质</th><td id="e4-mat">—</td></tr>
+      <tr><th>质量 m</th><td id="e4-m">—</td></tr>
+      <tr><th>体积 V</th><td id="e4-v">—</td></tr>
+      <tr><th>ρ = m÷V</th><td id="e4-rho">—</td></tr>
+      <tr><th>浸没比</th><td id="e4-sub">—</td></tr>
+      <tr><th>水位</th><td id="e4-level">—</td></tr>
+    </tbody></table>
+  </div>
+  <div id="sec-e5" style="display:none">
+    <table class="rec"><tbody>
+      <tr><th>块编号</th><td id="e5-blk">—</td></tr>
+      <tr><th>质量 m</th><td id="e5-m">—</td></tr>
+      <tr><th>体积 V</th><td id="e5-v">—</td></tr>
+      <tr><th>ρ = m÷V</th><td id="e5-rho">—</td></tr>
+      <tr><th>我的鉴别</th><td><select id="sel-e5mat"><option value="">— 查密度表后选材质 —</option><option value="gold">金</option><option value="copper">铜</option><option value="iron">铁</option><option value="aluminum">铝</option><option value="ice">冰</option><option value="wood">干松木</option></select></td></tr>
+      <tr><th>判定结果</th><td><span id="e5-verdict">—</span></td></tr>
+    </tbody></table>
+    <div class="rp-note">单位一档：m/kg · V/L · ρ kg/L；换算关系 1 g/cm³ = 1×10³ kg/m³（数值上 1 kg/L = 1 g/cm³）</div>
+    <div class="rp-btns"><button id="btn-submit">提交鉴别</button></div>
+  </div>
+</div>
+<div class="rec-panel" id="panel-dtable">
+  <div class="rp-title">密度表（教材表6.2-1 / 6.2-2 照录）</div>
+  <table class="rec"><thead><tr><th>表6.2-1 一些固体的密度（常温常压）</th><th>kg/m³</th></tr></thead><tbody>
+    <tr><td>金</td><td>19.3×10³</td></tr>
+    <tr><td>铅</td><td>11.3×10³</td></tr>
+    <tr><td>银</td><td>10.5×10³</td></tr>
+    <tr><td>铜</td><td>8.9×10³</td></tr>
+    <tr><td>铁</td><td>7.9×10³</td></tr>
+    <tr><td>铝</td><td>2.7×10³</td></tr>
+    <tr><td>花岗岩</td><td>(2.6~2.8)×10³</td></tr>
+    <tr><td>冰(0℃)</td><td>0.9×10³</td></tr>
+    <tr><td>蜡</td><td>0.9×10³</td></tr>
+    <tr><td>干松木</td><td>0.5×10³</td></tr>
+  </tbody></table>
+  <table class="rec" style="margin-top:10px"><thead><tr><th>表6.2-2 一些液体的密度（常温常压）</th><th>kg/m³</th></tr></thead><tbody>
+    <tr><td>水银</td><td>13.6×10³</td></tr>
+    <tr><td>硫酸</td><td>1.8×10³</td></tr>
+    <tr><td>海水</td><td>1.03×10³</td></tr>
+    <tr><td>纯水</td><td>1.0×10³</td></tr>
+    <tr><td>植物油</td><td>0.9×10³</td></tr>
+    <tr><td>汽油</td><td>0.71×10³</td></tr>
+  </tbody></table>
+</div>
+<div id="toast"></div>
+</div>
+<div class="ctrlbar">
+  <div class="group" id="grp-mat">
+    <div class="glabel">材质</div>
+    <div class="gctrl">
+      <button id="btn-mat-aluminum" class="mat">铝</button>
+      <button id="btn-mat-iron" class="mat">铁</button>
+      <button id="btn-mat-wood" class="mat">木</button>
+    </div>
+  </div>
+  <div class="group" id="grp-size">
+    <div class="glabel">大小（体积）</div>
+    <div class="gctrl">
+      <button id="btn-v10" class="vol">10 cm³</button>
+      <button id="btn-v20" class="vol">20 cm³</button>
+      <button id="btn-v30" class="vol">30 cm³</button>
+    </div>
+  </div>
+  <div class="group" id="grp-e4mat">
+    <div class="glabel">材质预设</div>
+    <div class="gctrl">
+      <select id="sel-e4mat">
+        <option value="wood">木 0.4</option>
+        <option value="ice">冰 0.9</option>
+        <option value="aluminum">铝 2.7</option>
+        <option value="pvc">PVC 1.4</option>
+        <option value="brick">砖 2.0</option>
+        <option value="custom">自定义</option>
+      </select>
+    </div>
+  </div>
+  <div class="group" id="grp-e4mv">
+    <div class="glabel">块参数</div>
+    <div class="gctrl">
+      <input type="range" id="rng-v" min="1" max="10" step="0.5" value="5">
+      <span id="lbl-v">V = 5.0 L</span>
+      <input type="range" id="rng-m" min="0.5" max="20" step="0.1" value="2">
+      <span id="lbl-m">m = 2.0 kg</span>
+    </div>
+  </div>
+  <div class="group" id="grp-e4blk">
+    <div class="glabel">块数</div>
+    <div class="gctrl">
+      <button id="btn-dual">单块 / 双块</button>
+    </div>
+  </div>
+  <div class="group" id="grp-e5">
+    <div class="glabel">鉴别</div>
+    <div class="gctrl">
+      <button id="btn-newq" class="secondary">重新出题</button>
+      <button id="btn-dtable">密度表</button>
+    </div>
+  </div>
+  <div class="group" id="grp-sys">
+    <div class="glabel">系统</div>
+    <div class="gctrl">
+      <button id="btn-table">读数面板</button>
+      <button id="btn-reset" class="secondary">重置</button>
+      <button id="btn-mute">🔊</button>
+      <button id="btn-full" class="secondary">全屏</button>
+    </div>
+  </div>
+  <div class="group" id="grp-scene">
+    <div class="glabel">场景</div>
+    <div class="gctrl">
+      <button id="btn-scene-e3" class="scn">⚖️ 探究 m·V</button>
+      <button id="btn-scene-e4" class="scn">🌊 密度水槽</button>
+      <button id="btn-scene-e5" class="scn">🔍 物质鉴别</button>
+    </div>
+  </div>
+</div>
+<script src="../_lib/v1/props.js?v=96"></script>
+<script src="../_lib/v1/props-optics.js?v=9"></script>
+<script src="../_lib/v1/props-density.js?v=1"></script>
+<script src="../_lib/v1/sfx.js?v=1"></script>
+<script src="exp-density-core.js?v=1"></script>
+</body>
+</html>

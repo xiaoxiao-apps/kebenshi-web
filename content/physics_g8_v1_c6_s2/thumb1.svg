@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 340">
+  <rect width="520" height="340" fill="#f7fbfe"/>
+  <rect y="270" width="520" height="70" fill="#e2e8f0"/>
+  <!-- 水槽 -->
+  <path d="M150 90 L150 258 Q150 270 162 270 L358 270 Q370 270 370 258 L370 90" fill="none" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/>
+  <!-- 水体 -->
+  <path d="M156 150 L364 150 L364 256 Q364 264 356 264 L164 264 Q156 264 156 256 Z" fill="#7dc3eb" opacity="0.75"/>
+  <line x1="156" y1="150" x2="364" y2="150" stroke="#dff2ff" stroke-width="4"/>
+  <!-- 漂浮木块 -->
+  <g>
+    <rect x="196" y="122" width="56" height="56" fill="#c89b5f" stroke="#8a6739" stroke-width="3"/>
+    <polygon points="196,122 210,110 266,110 252,122" fill="#d9b379" stroke="#8a6739" stroke-width="3"/>
+    <polygon points="252,122 266,110 266,166 252,178" fill="#a87f49" stroke="#8a6739" stroke-width="3"/>
+  </g>
+  <!-- 沉底铝块 -->
+  <g>
+    <rect x="292" y="208" width="52" height="52" fill="#c9ced5" stroke="#8a9099" stroke-width="3"/>
+    <polygon points="292,208 304,198 356,198 344,208" fill="#e8ebef" stroke="#8a9099" stroke-width="3"/>
+    <polygon points="344,208 356,198 356,250 344,260" fill="#a7adb6" stroke="#8a9099" stroke-width="3"/>
+  </g>
+  <!-- 水位标记 -->
+  <line x1="382" y1="150" x2="404" y2="150" stroke="#dc2626" stroke-width="3"/>
+  <text x="410" y="155" font-size="16" fill="#475569" font-family="sans-serif">102 L</text>
+  <!-- 密度红标 -->
+  <polygon points="90,66 82,50 98,50" fill="#dc2626"/>
+  <line x1="40" y1="66" x2="140" y2="66" stroke="#64748b" stroke-width="3"/>
+</svg>

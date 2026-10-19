@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2e2410"/><stop offset="100%" stop-color="#1a1408"/></linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d8dee6"/><stop offset="100%" stop-color="#8a9099"/></linearGradient>
+  </defs>
+  <rect width="320" height="180" fill="url(#bg)"/>
+  <rect x="0" y="146" width="320" height="34" fill="#7a5c3a"/>
+  <rect x="118" y="132" width="84" height="12" rx="4" fill="#8d6e4c" stroke="#5c452c"/>
+  <path d="M160 132 L152 70 L168 70 Z" fill="#9ca3af" stroke="#5b6068"/>
+  <rect x="70" y="62" width="180" height="9" rx="4.5" fill="url(#beam)" stroke="#5b6068"/>
+  <line x1="86" y1="70" x2="86" y2="96" stroke="#b8bdc4" stroke-width="2"/>
+  <line x1="234" y1="70" x2="234" y2="96" stroke="#b8bdc4" stroke-width="2"/>
+  <ellipse cx="86" cy="100" rx="26" ry="6" fill="#c8ced6" stroke="#5b6068"/>
+  <ellipse cx="234" cy="100" rx="26" ry="6" fill="#c8ced6" stroke="#5b6068"/>
+  <circle cx="160" cy="52" r="4" fill="#dc2626"/>
+  <line x1="160" y1="56" x2="160" y2="86" stroke="#dc2626" stroke-width="3"/>
+  <circle cx="160" cy="94" r="12" fill="#fafafa" stroke="#374151" stroke-width="2"/>
+  <line x1="160" y1="84" x2="160" y2="90" stroke="#1f2937" stroke-width="2"/>
+  <rect x="216" y="86" width="16" height="12" rx="2" fill="#e5e7eb" stroke="#6b7280"/>
+  <rect x="238" y="90" width="12" height="8" rx="2" fill="#e5e7eb" stroke="#6b7280"/>
+  <text x="160" y="170" text-anchor="middle" font-size="13" fill="#e8d9b8" font-family="Arial,sans-serif">用托盘天平测量质量</text>
+</svg>
