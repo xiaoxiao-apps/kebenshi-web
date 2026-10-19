@@ -647,7 +647,8 @@ function renderE4(){
   var scaleV=E.stack?((E.stack.top.m+E.stack.bot.m)/(E.stack.top.v+E.stack.bot.v)):(sel?e4Rho(sel):null);
   PROPS.density_scale(ctx,L.e4.scale.x,L.e4.scale.y,{w:L.e4.scale.w,value:scaleV});
   PROPS.water_tank(ctx,t.x,t.y,{h:t.h,water:clamp(E.lvl/TANK_FULL_L,0,1)});
-  bs.forEach(function(b){ if(b) drawE4Block(b,b===sel); });
+  var order=bs.filter(Boolean).slice().sort(function(a,b){ return b.y-a.y; });   // R36：y 降序=屏幕下方（底块）先画，2.5D 画家算法接触面才干净
+  order.forEach(function(b){ drawE4Block(b,b===sel); });
   if(!tankOK) return;
   drawE4Splash();   // 水面微溅涟漪（入水瞬间）
   var surfY=tankSurfYAt(E.lvl);   // 水位标签：红线刻+实时读数（R8：文字抬到水面线上方16px+白底胶囊，与水面线/缸壁分离；x 域内 clamp 右留白≥8px）
@@ -893,10 +894,16 @@ function renderE5(){
   ctx.fillText(vTxt,B.cyl.x,B.cyl.y-B.cyl.h-24);
   // 台面神秘块（mystery「?」；揭晓后显真实材质色）
   ctx.save(); ctx.globalAlpha=alpha;
-  E.blocks.forEach(function(b){
+  E.blocks.forEach(function(b){   // R36：anchor 解析与绘制分离——先全部按 stackOn 链派生落位（R28 禁重合叠影）
     if(E.drag&&E.drag.b===b) return;
     if(b.loc==='pan'||b.loc==='cyl') return;   // 盘上块走 panL 挂载；筒内块由 inside 占位色呈现
-    e5Anchor(b);   // R28：bench 块位置按 stackOn 链派生后绘制（禁重合叠影）
+    e5Anchor(b);
+  });
+  var order5=E.blocks.filter(function(b){   // R36：y 降序=屏幕下方（底块）先画，颠倒摞叠接触面同正确
+    if(E.drag&&E.drag.b===b) return false;
+    return b.loc!=='pan'&&b.loc!=='cyl';
+  }).slice().sort(function(a,b){ return b.y-a.y; });
+  order5.forEach(function(b){
     drawE5BlockOn(ctx,b.x,b.y,b);
   });
   if(E.drag&&E.drag.b) drawE5BlockOn(ctx,E.drag.b.x,E.drag.b.y,E.drag.b);

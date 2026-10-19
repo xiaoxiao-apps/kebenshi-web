@@ -8,7 +8,13 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-density.js — 第六章「质量与密度」标准器材件 v6（c6s12 修复轮7，11件）
+ * props-density.js — 第六章「质量与密度」标准器材件 v7（c6s12 修复轮8，11件）
+ * v7 变更清单（2026-10-20，蔡总 R37/R38：烧杯杯口横线删除 + 加热底座顶底弧一致；opt API 与返回几何字段全部不变，页面零改动消费）：
+ *   ~ heat_source R38：底椭圆 ryB=w*0.08 → ryB=ryT(=w*0.16)，顶/底椭圆 ry 相等→台面不再视觉倾斜（蔡总图四）；
+ *     底弧路径(866)/底弧描边(879)/体块渐变末端(869)均引用 ryB 变量→自动跟随，段内无第二处硬编码 0.08；
+ *     boxTop(=y−h+ryT)/botCy(=boxTop+w*0.34)/knob 均不含 ryB → 返回 {w,h,boxTop,knob} 数值精确不变（前弧落点随 ryB 下移 w*0.08，底座略沉，锚点/boxTop 不动）
+ *   = beaker_ice R37：水体段 if(water>0.01) 守卫 v6 已在（734 行）——water=0（ice=100 全冰）时水体柱/水面线/水面椭圆整段跳过，
+ *     杯口只余 rim 椭圆(771)，无「中间横线」（蔡总图三）；本轮仅 gallery 追加 ice:100/water:0 审核变体，库件守卫复用零改动
  * v6 变更清单（2026-10-19，蔡总 R33：杯底/加热底座是平面直线→两件 2.5D 化，opt API 与返回几何字段全部不变，页面零改动消费）：
  *   ~ beaker_ice 2.5D 重写：底椭圆(rx=w/2,ry=w*0.14,前弧亮线)+锥度侧壁(内收4%,左亮右暗渐变+左壁白高光竖条)
  *     +水体(水面椭圆亮边)+冰块堆底椭圆中心(基线 y−ry*0.5,确定性 rand 种子不变)+杯口椭圆描边/左喙保留；段内直线底边清零
@@ -49,9 +55,9 @@ const rand = PROPS.rand || function(seed){
  *   5. cylinder_grad  量筒(P1)      opt: h=240 / cap=100 / div=10 / water(0-1) / inside(浸没块占位色)
  *   6. density_scale  密度标尺(P1)  opt: w=420 / value(0-10 红标) / marks / collapsed；返回 {w,h}
  *   7. clay           橡皮泥(P2)    opt: size=70 / morph(0-2连续,shape别名)；返回 {w,h}
- *   8. beaker_ice     烧杯盛冰(P2,2.5D v6)  opt: h=140 / ice(0-100) / water(0-1)
+ *   8. beaker_ice     烧杯盛冰(P2,2.5D v7)  opt: h=140 / ice(0-100) / water(0-1，water≤0.01 不画水体)
  *   9. doll           玩偶(P2)      opt: scale=1 / arm(0|1 举手)
- *  10. heat_source    通用热源(P2,2.5D v6)  opt: level(0-3档) / knob(旋钮角度°,缺省随level；false=不画旋钮与指示灯,v5)；返回 {w,h,boxTop,knob}
+ *  10. heat_source    通用热源(P2,2.5D v7)  opt: level(0-3档) / knob(旋钮角度°,缺省随level；false=不画旋钮与指示灯,v5)；返回 {w,h,boxTop,knob}
  *  11. weight_single  单枚砝码(v2)  opt: g∈{5,10,20,50,100} / u=44 / held / label；返回 {w,h}
  * 挂载白名单（第13条）：
  *   balance_pan 托盘(panL/panR 回调) ← material_block / weight_set 砝码 / weight_single / 被测物（页面层绘制）
@@ -846,9 +852,9 @@ PROPS.heat_source = function(ctx, x, y, opt){
   const level = Math.max(0, Math.min(3, opt.level || 0));
   const drawKnob = opt.knob !== false;
   const knobA = ((drawKnob && opt.knob !== undefined ? opt.knob : level * 45) - 90) * Math.PI / 180;
-  const rx = w / 2, ryT = w * 0.16, ryB = w * 0.08;
+  const rx = w / 2, ryT = w * 0.16, ryB = ryT;   // v7 R38：ryB=ryT，顶/底椭圆 ry 一致→台面不倾斜（原 w*0.08）
   const boxTop = y - h + ryT;              // 顶盘椭圆中心（盘顶=y−h，总高 h 语义不变）
-  const botCy = boxTop + w * 0.34;         // 底椭圆中心（体块 h_body=w*0.34，前弧恰落地 y）
+  const botCy = boxTop + w * 0.34;         // 底椭圆中心（体块 h_body=w*0.34；v7 ryB=ryT 后前弧落 y+w*0.08，boxTop/返回不变）
   ctx.save(); ctx.lineJoin = 'round';
   // 热晕红光（自发光，level 越高越强，自顶盘向上径向，画在底座之上）
   if (level > 0){
