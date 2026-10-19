@@ -8,27 +8,37 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-density.js — 第六章「质量与密度」标准器材件 v2（c6s12 修订轮1，11件）
+ * props-density.js — 第六章「质量与密度」标准器材件 v3（c6s12 修复轮4，11件）
+ * v3 变更清单（2026-10-19，蔡总三轮反馈 R11/R12：砝码几何统一+几何返回补全）：
+ *   + weightGeom(g,u) 砝码几何单源：{w:u×(g/100)^⅓, h:w×0.55}——直径与高度都随规格变（立方根律=同密度金属真实比例）；
+ *     weight_single 与 weight_set 盒内槽位都调它，同一枚砝码两处造型一致（修「形状都变了」）
+ *   ~ weight_single 默认 u 36→44（蔡总：砝码太小）
+ *   ~ weight_set 盒默认 w 200→240；盒内六枚按 w 降序排槽（大左小右），槽位 u=(w-2pad)/4.9 单点派生；
+ *     pick 态盒外砝码同用槽位几何；返回 {w, boxH, slots:[{id,cx,cy,r,hgt}]}（cy=底面y，r=w/2，页面命中/missing 联动，禁复制盒内公式）
+ *   + PROPS.balGeom(x,y,h,tilt[,riderG]) 导出：天平几何单源，返回与 balance_pan 绘制 return 同构对象
+ *     {beamY, panL, panR, rider:{x0,x1,y,g2x}, nutL, nutR, dial, base}；balance_pan 绘制改调它（页面本地副本应删）
+ *   ~ heat_source 返回 {w, h, boxTop, knob:{x,y,r}}（顶盘 y + 旋钮圆心/半径，页面点旋钮命中用）
+ *   ~ density_scale 返回 {w, h}（h=含标题条总高，页面避让它用；collapsed 态同样返回）
  * v2 变更清单（2026-10-19，蔡总首轮体验反馈）：
- *   + weight_single 单枚砝码原语：g∈{5,10,20,50,100} / u(100g基准宽36) / held(镊子夹持) / label(刻字,缺省true)；返回 {w,h}
+ *   + weight_single 单枚砝码原语：g∈{5,10,20,50,100} / u(100g基准宽) / held(镊子夹持) / label(刻字,缺省true)；返回 {w,h}
  *   + weight_set opt.missing：已拖出盒外的砝码 id 数组（['100','50','20','20b','10','5'] 同源），盒内不画；pick 保留兼容
  *   ~ balance_pan 大尺寸清晰刻度：标尺每1g长刻度+数字、每0.2g短刻度，全部线长/字高 ∝ h（禁固定px）；opt.labels===false 才隐藏数字；分度盘中位红色长刻度
- *   ~ balance_pan 返回几何对象：{beamY, panL:{x,y,r}, panR:{x,y,r}, rider:{x0,x1,y,g2x}, nutL, nutR, dial, base}（g2x: g(0-5)→标尺x，含tilt旋转）
+ *   ~ balance_pan 返回几何对象（v3 起由 balGeom 单源）
  *   ~ clay opt.morph 连续实数0-2（0球1饼2条，超椭圆关键帧插值=直接揉捏）；shape 保留为别名；返回 {w,h}
  * 锚点约定：一律底面中心，(x,y)=底边中点（第13条）
  * 确定性绘制：禁原生随机数，纹理/冰块用 PROPS.rand(seed) sin 伪随机
  * 组件清单：
- *   1. balance_pan    托盘天平(P0)  opt: h=220 / tilt(-8~+8°) / rider(0-5g) / riderShow / labels(false隐藏刻度数字) / panL,panR(挂载回调 fn(ctx,cx,cyTop,panR))；返回几何对象
- *   2. weight_set     砝码组(P0)    opt: w=200 / open(盒盖开合,默认开) / pick('100'|'50'|'20'|'10'|'5' 镊子夹起) / missing(已拖出id数组)
+ *   1. balance_pan    托盘天平(P0)  opt: h=220 / tilt(-8~+8°) / rider(0-5g) / riderShow / labels(false隐藏刻度数字) / panL,panR(挂载回调 fn(ctx,cx,cyTop,panR))；返回 balGeom 同构几何对象
+ *   2. weight_set     砝码组(P0)    opt: w=240 / open(盒盖开合,默认开) / pick('100'|'50'|'20'|'10'|'5' 镊子夹起) / missing(已拖出id数组)；返回 {w,boxH,slots}
  *   3. rider          游码特写(P0)  opt: pos(0-1) / scaleLen=160
  *   4. material_block 材质块(P0)    opt: size=60 / mat(aluminum|iron|wood|ice|gold|copper|wax|styrofoam|pvc|brick) / label / mystery
  *   5. cylinder_grad  量筒(P1)      opt: h=240 / cap=100 / div=10 / water(0-1) / inside(浸没块占位色)
- *   6. density_scale  密度标尺(P1)  opt: w=420 / value(0-10 红标) / marks / collapsed
+ *   6. density_scale  密度标尺(P1)  opt: w=420 / value(0-10 红标) / marks / collapsed；返回 {w,h}
  *   7. clay           橡皮泥(P2)    opt: size=70 / morph(0-2连续,shape别名)；返回 {w,h}
  *   8. beaker_ice     烧杯盛冰(P2)  opt: h=140 / ice(0-100) / water(0-1)
  *   9. doll           玩偶(P2)      opt: scale=1 / arm(0|1 举手)
- *  10. heat_source    通用热源(P2)  opt: level(0-3档) / knob(旋钮角度°,缺省随level)
- *  11. weight_single  单枚砝码(v2)  opt: g∈{5,10,20,50,100} / u=36 / held / label；返回 {w,h}
+ *  10. heat_source    通用热源(P2)  opt: level(0-3档) / knob(旋钮角度°,缺省随level)；返回 {w,h,boxTop,knob}
+ *  11. weight_single  单枚砝码(v2)  opt: g∈{5,10,20,50,100} / u=44 / held / label；返回 {w,h}
  * 挂载白名单（第13条）：
  *   balance_pan 托盘(panL/panR 回调) ← material_block / weight_set 砝码 / weight_single / 被测物（页面层绘制）
  *   cylinder_grad.inside           ← material_block 占位色块（入筒水位=原水位+V块，页面层计算）
@@ -51,14 +61,57 @@ function rr(ctx, x, y, w, h, r){
 // ================= 1. balance_pan 托盘天平 =================
 // 已知坑：横梁倾角旋转时托盘保持水平（吊挂语义：挂点随横梁端点走，盘体不转）
 // 游码层次：标尺在下层、游码在标尺上层（同组内顺序保证）
-PROPS.balance_pan = function(ctx, x, y, opt){
-  opt = opt || {};
-  const h = opt.h || 220;
-  const tilt = Math.max(-8, Math.min(8, opt.tilt || 0)) * Math.PI / 180;
+// v3: 几何单源 PROPS.balGeom(x,y,h,tilt[,riderG]) —— 返回与 balance_pan 绘制 return 同构对象
+//     {beamY, panL, panR, rider:{x0,x1,y,g2x}, nutL, nutR, dial, base}（_: 绘制内部量，页面勿依赖）
+//     balance_pan 绘制时调它取几何（禁绘制内另算）；页面命中/拖拽直接调此导出，禁本地副本
+PROPS.balGeom = function(x, y, h, tilt, riderG){
+  h = h || 220;
+  const tRad = Math.max(-8, Math.min(8, tilt || 0)) * Math.PI / 180;
+  const cosT = Math.cos(tRad), sinT = Math.sin(tRad);
   const baseW = h * 0.72, baseH = Math.max(8, h * 0.065);
   const pivotY = y - baseH - h * 0.52;
   const beamLen = h * 0.86, beamH = Math.max(5, h * 0.032);
   const panDrop = h * 0.26, panW = beamLen * 0.22, panH = Math.max(4, h * 0.03);
+  const armX = beamLen / 2 - h * 0.02;
+  const scaleW = h * 0.40, scaleH = h * 0.075, sy = beamH / 2 + h * 0.012;
+  const plateCy = pivotY + h * 0.145, plateR = h * 0.10, ptrL = h * 0.19;
+  const nutOff = beamLen / 2 - h * 0.025, nutR = h * 0.024;
+  const lyC = sy + scaleH / 2;
+  const rotX = function(lx, ly){ return x + lx * cosT - ly * sinT; };
+  const rotY = function(lx, ly){ return pivotY + lx * sinT + ly * cosT; };
+  const gL = function(g){ return -scaleW / 2 + scaleW * Math.max(0, Math.min(5, g)) / 5; };
+  const rg = Math.max(0, Math.min(5, riderG || 0));
+  return {
+    beamY: pivotY,
+    panL: {x: x - armX * cosT, y: pivotY - armX * sinT + panDrop, r: panW / 2},
+    panR: {x: x + armX * cosT, y: pivotY + armX * sinT + panDrop, r: panW / 2},
+    rider: {
+      x0: rotX(-scaleW / 2, lyC), x1: rotX(scaleW / 2, lyC),
+      y: rotY(gL(rg), lyC),
+      g2x: function(g){ return rotX(gL(g), lyC); }
+    },
+    nutL: {x: rotX(-nutOff, 0), y: rotY(-nutOff, 0), r: nutR},
+    nutR: {x: rotX(nutOff, 0), y: rotY(nutOff, 0), r: nutR},
+    dial: {x: x, y: plateCy, r: plateR},
+    base: {x: x - baseW / 2, y: y - baseH, w: baseW, h: baseH},
+    _: {tilt: tRad, pivotY: pivotY, baseH: baseH, beamLen: beamLen, beamH: beamH,
+        panDrop: panDrop, panW: panW, panH: panH, armX: armX,
+        scaleW: scaleW, scaleH: scaleH, sy: sy, plateR: plateR, ptrL: ptrL,
+        nutOff: nutOff, nutR: nutR, lyC: lyC, gL: gL}
+  };
+};
+PROPS.balance_pan = function(ctx, x, y, opt){
+  opt = opt || {};
+  const h = opt.h || 220;
+  const riderG = Math.max(0, Math.min(5, opt.rider || 0));
+  const G = PROPS.balGeom(x, y, h, opt.tilt || 0, riderG); // v3: 几何单源
+  const _ = G._;
+  const tilt = _.tilt, pivotY = _.pivotY;
+  const beamLen = _.beamLen, beamH = _.beamH;
+  const panW = _.panW, panH = _.panH;
+  const baseW = G.base.w, baseH = G.base.h;
+  const scaleW = _.scaleW, scaleH = _.scaleH, sy = _.sy;
+  const plateR = _.plateR, ptrL = _.ptrL, nutOff = _.nutOff;
   ctx.save(); ctx.lineJoin = 'round';
 
   // 木底座（暖棕，与 bench 奶油黄协调）
@@ -81,13 +134,9 @@ PROPS.balance_pan = function(ctx, x, y, opt){
   ctx.fillStyle = gc; ctx.fill();
   ctx.strokeStyle = 'rgba(40,44,50,0.55)'; ctx.lineWidth = 1; ctx.stroke();
 
-  // 吊挂 + 托盘（画在横梁之前，盘体恒水平）
-  const cosT = Math.cos(tilt), sinT = Math.sin(tilt);
-  const panGeo = {};
-  [-1, 1].forEach(function(s){
-    const ex = x + s * (beamLen / 2 - h * 0.02) * cosT;
-    const ey = pivotY + s * (beamLen / 2 - h * 0.02) * sinT;
-    const py = ey + panDrop;
+  // 吊挂 + 托盘（画在横梁之前，盘体恒水平；盘位=balGeom.panL/panR 单源）
+  [G.panL, G.panR].forEach(function(p, i){
+    const ex = p.x, py = p.y, ey = py - _.panDrop;
     ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 1.2;
     ctx.beginPath();
     ctx.moveTo(ex, ey); ctx.lineTo(ex - panW * 0.4, py);
@@ -98,14 +147,12 @@ PROPS.balance_pan = function(ctx, x, y, opt){
     ctx.strokeStyle = '#5b6068'; ctx.lineWidth = 1.2; ctx.stroke();
     ctx.beginPath(); ctx.ellipse(ex, py - panH * 0.25, panW * 0.36, panH * 0.45, 0, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1; ctx.stroke();
-    if (s < 0) panGeo.L = {x: ex, y: py, r: panW / 2};
-    else panGeo.R = {x: ex, y: py, r: panW / 2};
-    const cb = s < 0 ? opt.panL : opt.panR;
+    const cb = i === 0 ? opt.panL : opt.panR;
     if (typeof cb === 'function') cb(ctx, ex, py - panH, panW / 2);
   });
 
   // 白分度盘（挂立柱前方，黑刻度沿指针尖端扫过的弧）
-  const plateCy = pivotY + h * 0.145, plateR = h * 0.10, ptrL = h * 0.19;
+  const plateCy = G.dial.y;
   ctx.beginPath(); ctx.arc(x, plateCy, plateR, 0, Math.PI * 2);
   ctx.fillStyle = '#fafafa'; ctx.fill();
   ctx.strokeStyle = '#374151'; ctx.lineWidth = Math.max(1.5, h * 0.008); ctx.stroke();
@@ -129,8 +176,8 @@ PROPS.balance_pan = function(ctx, x, y, opt){
   ctx.strokeStyle = 'rgba(40,44,50,0.7)'; ctx.lineWidth = 1; ctx.stroke();
   // 平衡螺母（横梁两端）
   [-1, 1].forEach(function(s){
-    const nx = s * (beamLen / 2 - h * 0.025);
-    ctx.beginPath(); ctx.arc(nx, 0, h * 0.024, 0, Math.PI * 2);
+    const nx = s * nutOff;
+    ctx.beginPath(); ctx.arc(nx, 0, _.nutR, 0, Math.PI * 2);
     ctx.fillStyle = '#b8bdc4'; ctx.fill();
     ctx.strokeStyle = '#5b6068'; ctx.lineWidth = 1.2; ctx.stroke();
     ctx.beginPath(); ctx.moveTo(nx - h * 0.016, 0); ctx.lineTo(nx + h * 0.016, 0);
@@ -138,7 +185,6 @@ PROPS.balance_pan = function(ctx, x, y, opt){
   });
   // 标尺（横梁前侧，下层）+ 游码（上层）
   // v2 大尺寸清晰刻度：每 1g 长刻度+数字、每 0.2g 短刻度，全部线长/字高 ∝ h（禁固定 px）；opt.labels===false 才隐藏数字
-  const scaleW = h * 0.40, scaleH = h * 0.075, sy = beamH / 2 + h * 0.012;
   rr(ctx, -scaleW / 2, sy, scaleW, scaleH, h * 0.006);
   ctx.fillStyle = '#e5e7eb'; ctx.fill();
   ctx.strokeStyle = '#6b7280'; ctx.lineWidth = h * 0.004; ctx.stroke();
@@ -156,9 +202,8 @@ PROPS.balance_pan = function(ctx, x, y, opt){
       ctx.fillText(String(i / 5), gx, sy + scaleH - h * 0.012);
     }
   }
-  const riderG = Math.max(0, Math.min(5, opt.rider || 0));
   if (opt.riderShow !== false){
-    const rx = -scaleW / 2 + scaleW * riderG / 5;
+    const rx = _.gL(riderG);
     const rw = Math.max(7, h * 0.034);
     ctx.beginPath();
     ctx.moveTo(rx - rw / 2, sy + scaleH + h * 0.008);
@@ -194,29 +239,16 @@ PROPS.balance_pan = function(ctx, x, y, opt){
   ctx.strokeStyle = 'rgba(30,33,38,0.8)'; ctx.lineWidth = h * 0.004; ctx.stroke();
   ctx.restore();
 
-  // v2: 返回几何对象（页面拖拽/命中检测依赖）；梁局部坐标经 tilt 绕 (x,pivotY) 旋转到画布坐标
-  const nutOff = beamLen / 2 - h * 0.025, nutR = h * 0.024;
-  const lyC = sy + scaleH / 2;
-  const rotX = function(lx, ly){ return x + lx * cosT - ly * sinT; };
-  const rotY = function(lx, ly){ return pivotY + lx * sinT + ly * cosT; };
-  const gL = function(g){ return -scaleW / 2 + scaleW * Math.max(0, Math.min(5, g)) / 5; };
-  return {
-    beamY: pivotY,
-    panL: panGeo.L, panR: panGeo.R,
-    rider: {
-      x0: rotX(-scaleW / 2, lyC), x1: rotX(scaleW / 2, lyC),
-      y: rotY(gL(riderG), lyC),
-      g2x: function(g){ return rotX(gL(g), lyC); }
-    },
-    nutL: {x: rotX(-nutOff, 0), y: rotY(-nutOff, 0), r: nutR},
-    nutR: {x: rotX(nutOff, 0), y: rotY(nutOff, 0), r: nutR},
-    dial: {x: x, y: plateCy, r: plateR},
-    base: {x: x - baseW / 2, y: y - baseH, w: baseW, h: baseH}
-  };
+  return G; // v3: 直接返回 balGeom 同构对象（页面拖拽/命中检测依赖）
 };
 
 // ================= 2. weight_set 砝码组 =================
 // 木盒 + 砝码阵列(100/50/20×2/10/5g 银灰圆柱带提钮)；pick=镊子夹起画盒外上方
+// v3: 盒内槽位几何与 weight_single 单源化（weightGeom），直径+高度都随规格变（立方根律=同密度金属真实比例）
+function weightGeom(g, u){
+  const w = u * Math.pow(g / 100, 1 / 3);
+  return {w: w, h: w * 0.55};
+}
 function drawWeight(ctx, cx, by, r, hgt, label){
   const g = ctx.createLinearGradient(cx - r, 0, cx + r, 0);
   g.addColorStop(0, '#9ca3af'); g.addColorStop(0.35, '#e5e7eb'); g.addColorStop(0.65, '#d1d5db'); g.addColorStop(1, '#7d838c');
@@ -238,11 +270,30 @@ function drawWeight(ctx, cx, by, r, hgt, label){
 }
 PROPS.weight_set = function(ctx, x, y, opt){
   opt = opt || {};
-  const w = opt.w || 200, boxH = w * 0.32, lidH = w * 0.11;
+  const w = opt.w || 240, boxH = w * 0.32, lidH = w * 0.11; // v3: 盒默认 200→240（砝码变大盒随之变大）
   const open = opt.open !== false;
   const pick = opt.pick || null;
   const missing = opt.missing || null; // v2: 已被页面拖出的砝码 id 数组，盒内不画
   ctx.save(); ctx.lineJoin = 'round';
+
+  // v3: 槽位几何单源（weightGeom），六枚按 w 降序排槽：大左小右；返回 slots 供页面命中/missing 联动，禁页面复制盒内公式
+  // u 由盒宽派生单点算：六枚立方根宽和 ≈3.9u + 5 个间隙 ≈1.0u → 总占 ≈4.9u = 内腔宽 → u = (w-2*pad)/4.9
+  const WS = [
+    {id:'100', g:100, label:'100'}, {id:'50', g:50, label:'50'},
+    {id:'20', g:20, label:'20'}, {id:'20b', g:20, label:'20'},
+    {id:'10', g:10, label:'10'}, {id:'5', g:5, label:'5'}
+  ];
+  const pad = w * 0.05, inL = x - w / 2 + pad, inW = w - 2 * pad, by = y - boxH * 0.28;
+  const u = inW / 4.9;
+  const sumW = WS.reduce(function(a, it){ return a + weightGeom(it.g, u).w; }, 0);
+  const gap = (inW - sumW) / (WS.length - 1);
+  const slots = [];
+  let curL = inL;
+  WS.forEach(function(it){
+    const gm = weightGeom(it.g, u);
+    slots.push({id: it.id, g: it.g, label: it.label, cx: curL + gm.w / 2, cy: by, r: gm.w / 2, hgt: gm.h});
+    curL += gm.w + gap;
+  });
 
   // 盒盖（开=向后掀开，绕左铰链）
   if (open){
@@ -272,38 +323,29 @@ PROPS.weight_set = function(ctx, x, y, opt){
     ctx.beginPath(); ctx.arc(x, y - boxH - lidH * 0.35, lidH * 0.22, 0, Math.PI * 2);
     ctx.fillStyle = '#c9a227'; ctx.fill();
     ctx.strokeStyle = 'rgba(90,70,20,0.8)'; ctx.stroke();
-    ctx.restore(); return;
+    ctx.restore();
+    return {w: w, boxH: boxH, slots: slots};
   }
 
   // 内腔（深色衬里）
-  const pad = w * 0.05;
-  rr(ctx, x - w / 2 + pad, y - boxH + pad * 0.8, w - 2 * pad, boxH - pad * 1.5, 3);
+  rr(ctx, inL, y - boxH + pad * 0.8, inW, boxH - pad * 1.5, 3);
   ctx.fillStyle = '#54392a'; ctx.fill();
 
-  // 砝码阵列（100/50/20×2/10/5，pick 的从盒内跳过）
-  const WS = [
-    {id:'100', g:100, label:'100'}, {id:'50', g:50, label:'50'},
-    {id:'20', g:20, label:'20'}, {id:'20b', g:20, label:'20'},
-    {id:'10', g:10, label:'10'}, {id:'5', g:5, label:'5'}
-  ];
-  const inL = x - w / 2 + pad, inW = w - 2 * pad, by = y - boxH * 0.28;
-  WS.forEach(function(it, i){
-    if (missing && missing.indexOf(it.id) >= 0) return;
-    if (pick && it.id === pick || (pick === '20' && it.id === '20b')) return;
-    const cx = inL + inW * (i + 0.5) / WS.length;
-    const r = inW / WS.length * 0.34;
-    const hgt = boxH * (0.30 + 0.34 * it.g / 100);
-    drawWeight(ctx, cx, by, r, hgt, it.label);
+  // 砝码阵列（missing/pick 的从盒内跳过；几何=slots 单源）
+  slots.forEach(function(sl){
+    if (missing && missing.indexOf(sl.id) >= 0) return;
+    if (pick && sl.id === pick || (pick === '20' && sl.id === '20b')) return;
+    drawWeight(ctx, sl.cx, sl.cy, sl.r, sl.hgt, sl.label);
   });
 
-  // pick 态：盒外上方被夹砝码 + 镊子简形（金属灰两脚）
+  // pick 态：盒外上方被夹砝码 + 镊子简形（金属灰两脚）；砝码几何同槽位单源（同一枚两处造型一致）
   if (pick){
-    const it = WS.filter(function(o){ return o.id === pick || (pick === '20' && o.id === '20b'); })[0]
-      || {g: 20, label: pick};
+    const sl = slots.filter(function(o){ return o.id === pick || (pick === '20' && o.id === '20b'); })[0]
+      || slots[2];
     const px = x + w * 0.22, pby = y - boxH - w * 0.24;
-    const r = inW / WS.length * 0.42, hgt = boxH * (0.34 + 0.38 * it.g / 100);
-    // 镊子两脚（在砝码之后画会盖住提钮？先脚后砝码会遮脚——脚夹在砝码两侧：先砝码后脚，脚尖落在提钮上）
-    drawWeight(ctx, px, pby, r, hgt, it.label);
+    const r = sl.r, hgt = sl.hgt;
+    // 镊子两脚（先砝码后脚，脚尖落在提钮上）
+    drawWeight(ctx, px, pby, r, hgt, sl.label);
     const tipY = pby - hgt - r * 0.42, topY = tipY - w * 0.16;
     ctx.strokeStyle = '#8a9099'; ctx.lineWidth = Math.max(2.5, w * 0.014); ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(px - r * 1.6, topY); ctx.lineTo(px - r * 0.25, tipY); ctx.stroke();
@@ -312,16 +354,19 @@ PROPS.weight_set = function(ctx, x, y, opt){
     ctx.lineWidth = Math.max(2, w * 0.011); ctx.stroke();
   }
   ctx.restore();
+  // v3: 返回 {w, boxH, slots:[{id,cx,cy,r,hgt}]}（cy=该枚底面 y，r=w/2）——页面命中/missing 联动用
+  return {w: w, boxH: boxH, slots: slots};
 };
 
 // ================= 2b. weight_single 单枚砝码（v2 新增，c6s1 拖拽用原语） =================
-// opt: g∈{5,10,20,50,100} / u(100g基准宽,缺省36) / held(镊子夹持态) / label(正面刻字,缺省true)
-// 各档宽 = u×(g/100)^(1/3)，高 = 宽×0.55；锚点=底面中心；返回 {w,h}
+// opt: g∈{5,10,20,50,100} / u(100g基准宽,缺省44，v3:36→44 蔡总反馈砝码太小) / held(镊子夹持态) / label(正面刻字,缺省true)
+// v3: 几何调 weightGeom 单源（与 weight_set 盒内槽位同公式，同一枚两处造型一致）；锚点=底面中心；返回 {w,h}
 PROPS.weight_single = function(ctx, x, y, opt){
   opt = opt || {};
   const g = [5, 10, 20, 50, 100].indexOf(opt.g) >= 0 ? opt.g : 100;
-  const u = opt.u || 36;
-  const w = u * Math.pow(g / 100, 1 / 3), hgt = w * 0.55;
+  const u = opt.u || 44;
+  const gm = weightGeom(g, u);
+  const w = gm.w, hgt = gm.h;
   const r = w / 2;
   ctx.save(); ctx.lineJoin = 'round';
   drawWeight(ctx, x, y, r, hgt, opt.label !== false ? g + 'g' : null);
@@ -555,7 +600,7 @@ PROPS.density_scale = function(ctx, x, y, opt){
   ctx.fillStyle = '#374151';
   ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'left';
   ctx.fillText('密度 (kg/L)', x - w / 2 + 14, y - ph + 18);
-  if (collapsed){ ctx.restore(); return; }
+  if (collapsed){ ctx.restore(); return {w: w, h: ph}; } // v3: h=含标题条总高（页面避让用）
   const ax0 = x - w / 2 + 24, ax1 = x + w / 2 - 24, ay = y - 34;
   const VX = function(v){ return ax0 + (ax1 - ax0) * Math.max(0, Math.min(10, v)) / 10; };
   ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 1.5;
@@ -589,6 +634,7 @@ PROPS.density_scale = function(ctx, x, y, opt){
     ctx.beginPath(); ctx.moveTo(vx, ay - 2); ctx.lineTo(vx, ay + 4); ctx.stroke();
   }
   ctx.restore();
+  return {w: w, h: ph}; // v3: h=含标题条总高（页面避让用）
 };
 
 // ================= 7. clay 橡皮泥 =================
@@ -830,6 +876,8 @@ PROPS.heat_source = function(ctx, x, y, opt){
   ctx.fillStyle = level > 0 ? '#f87171' : '#6b7280'; ctx.fill();
   ctx.strokeStyle = 'rgba(20,22,26,0.6)'; ctx.lineWidth = 1; ctx.stroke();
   ctx.restore();
+  // v3: 返回几何（页面点旋钮命中/顶盘放置避让用）
+  return {w: w, h: h, boxTop: boxTop, knob: {x: kx, y: ky, r: kr}};
 };
 
 PROPS.DENSITY_IDS = ['balance_pan','weight_set','rider','material_block','cylinder_grad','density_scale','clay','beaker_ice','doll','heat_source','weight_single'];

@@ -58,6 +58,12 @@
   .ctrlbar.compact button{padding:5px 7px;font-size:13px}
   .ctrlbar.compact input#rng-v,.ctrlbar.compact input#rng-m{width:96px}
   .ctrlbar.compact #lbl-v,.ctrlbar.compact #lbl-m{font-size:13px;min-width:0}
+  /* R18：全屏控制栏单行紧凑（真全屏 :fullscreen + 伪全屏 html.pseudo-fs 双覆盖；nowrap 后极窄屏溢出→overflow-x 横滚兜底） */
+  :fullscreen .ctrlbar,html.pseudo-fs .ctrlbar{flex-wrap:nowrap;gap:6px;padding:6px 10px;overflow-x:auto}
+  :fullscreen .ctrlbar .glabel,html.pseudo-fs .ctrlbar .glabel{font-size:11px}
+  :fullscreen .ctrlbar button,html.pseudo-fs .ctrlbar button{padding:4px 8px;font-size:13px}
+  :fullscreen .ctrlbar input[type=range],html.pseudo-fs .ctrlbar input[type=range]{width:110px}
+  :fullscreen .ctrlbar .gctrl,html.pseudo-fs .ctrlbar .gctrl{gap:4px}
   select{border:1px solid #94a3b8;border-radius:8px;padding:7px 9px;font-size:14px;font-family:inherit;background:#fdfefe;color:#334155;cursor:pointer}
   /* 幽灵化浮层面板家族（读数面板）：rgba .45、16px 圆角、禁 blur/阴影/硬边框；位置不钉死——打开时由 core pickSlot() 选空位写入 left/top（蔡总通则：面板自行判定屏幕空位） */
   .rec-panel{display:none;position:absolute;min-width:264px;background:rgba(255,255,255,0.45);border-radius:16px;padding:16px 20px;z-index:15}
@@ -235,16 +241,16 @@
   <div class="group" id="grp-scene">
     <div class="glabel">场景</div>
     <div class="gctrl">
-      <button id="btn-scene-e3" class="scn">⚖️ 探究 m·V</button>
-      <button id="btn-scene-e4" class="scn">🌊 密度水槽</button>
-      <button id="btn-scene-e5" class="scn">🔍 物质鉴别</button>
+      <button id="btn-scene-e3" class="scn">⚖️ 探究</button>
+      <button id="btn-scene-e4" class="scn">🌊 水槽</button>
+      <button id="btn-scene-e5" class="scn">🔍 鉴别</button>
     </div>
   </div>
 </div>
 <script src="../_lib/v1/props.js?v=96"></script>
 <script src="../_lib/v1/props-optics.js?v=9"></script>
-<script src="../_lib/v1/props-density.js?v=2"></script>
+<script src="../_lib/v1/props-density.js?v=3"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-density-core.js?v=3"></script>
+<script src="exp-density-core.js?v=4"></script>
 </body>
 </html>

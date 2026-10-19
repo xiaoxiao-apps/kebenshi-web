@@ -17,7 +17,6 @@ var V_CLAMP=800;         // 抛落初速上限（px/s）
 var HINT_MS=6000;        // hint 自动淡出（ms）
 var STACK_K=90;          // 砝码堆叠重排平移时间常数（ms，≈200ms 到位）
 var WEIGHT_G={'100':100,'50':50,'20':20,'20b':20,'10':10,'5':5};
-var WEIGHT_IDS=['100','50','20','20b','10','5'];   // 与 weight_set 盒内阵列顺序一致
 // 被测物三选（蔡总二轮拍板清单；质量设定值=可配常量，非教材数值）
 var OBJECTS={
   clay:{name:'橡皮泥',g:15},
@@ -31,6 +30,7 @@ var hintEl=document.getElementById('hint');
 var W=960,H=520,DPR=1,ctrlBandH=150;
 var L={};                // 布局常量唯一写点=layout()
 var G=null;              // balance_pan 每帧返回的几何对象（命中/堆叠同源）
+var BOXG=null;           // R11 weight_set 每帧返回 {w,boxH,slots}（盒内命中同源，禁页面复制公式）
 var glowFx=[];           // 点击 300ms 光晕反馈
 var state={
   g:G_EARTH,             // 当前重力（滑杆 0.5-12.0）
@@ -48,12 +48,15 @@ var state={
   drag:null,             // {kind:'weight'|'obj'|'bal', id,x,y,vx,vy,t, sx,sy, pending,wasOnPan,wasOnHeat}
   modal:false,           // R3 揉捏窗打开=锁画布输入
   objDrop:null,          // 被测物落盘 120ms 短下坠插值 {x,y,t0}
-  refuseRing:null,       // 未调平拒落后保持可见的落点提示圈 {x,y,t0}
   seen:{shape:false,state:false,pos:false},alldone:false
 };
 function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
 function measureCtrl(){ if(ctrlEl){ var r=ctrlEl.getBoundingClientRect(); if(r.height>0) ctrlBandH=Math.round(r.height); } }
-function wSize(g){ var w=L.wU*Math.pow(g/100,1/3); return {w:w,h:w*0.55}; }   // 与 weight_single 几何同源
+// R11 砝码几何与盒内槽位单源（weightGeom 立方根律：w=u×(g/100)^⅓, h=w×0.55）——同一枚盒内外同尺寸
+function wSize(g){
+  var w=PROPS.weightGeom?PROPS.weightGeom(g,L.wU).w:L.wU*Math.pow(g/100,1/3);
+  return {w:w,h:w*0.55};
+}
 
 function layout(){
   // PROPS.bench 库桌：topRatio 避让控制栏，benchTopY=一切落物的落地线
@@ -68,9 +71,10 @@ function layout(){
   L.balH=Math.max(110,Math.round(L.availH*0.618/BAL_RENDER_K));   // 渲染总高=可用高×0.618
   L.baseHW=Math.round(L.balH*0.36);            // 底座半宽（baseW=0.72h）
   L.balX0=Math.round(W*0.36);      // 天平居中偏左
-  L.boxW=Math.max(72,Math.round(W*0.10));   // 砝码盒做小（蔡总）
+  L.boxW=Math.max(96,Math.round(W*0.13));   // R11/R12 砝码太小→盒放大（蔡总）
   L.boxX=Math.round(W*0.80);
-  L.wU=Math.max(16,Math.round(L.balH*0.055));   // weight_single 基准宽 u（蔡总：砝码小一点）
+  // R11 u 与 weight_set 盒内槽位同公式：u=(w−2×0.05w)/4.9=0.1837w → 盒内外同一枚砝码同尺寸
+  L.wU=Math.round(L.boxW*0.1837);
   L.heatW=Math.round(H*0.16);      // 热源宽（天平右下方）
   L.heatX=Math.min(L.balX0+Math.round(L.balH*0.66),L.boxX-L.boxW/2-12-L.heatW/2);
   L.beakerH=Math.round(H*0.17);    // 冰水烧杯高
@@ -94,15 +98,6 @@ function resize(){
 }
 function localPt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
 function heatBoxTop(){ return L.benchTop-L.heatW*0.58*0.55; }   // heat_source 顶盘 y（组件几何同源）
-// 砝码盒内六枚砝码位（与 weight_set v2 内部几何同源，用于拖动命中）
-function boxSlots(){
-  var w=L.boxW,x=L.boxX,y=L.benchTop;
-  var boxH=w*0.32,pad=w*0.05,inL=x-w/2+pad,inW=w-2*pad,by=y-boxH*0.28;
-  return WEIGHT_IDS.map(function(id,i){
-    return {id:id,cx:inL+inW*(i+0.5)/WEIGHT_IDS.length,r:inW/WEIGHT_IDS.length*0.34,
-      hgt:boxH*(0.30+0.34*WEIGHT_G[id]/100),by:by};
-  });
-}
 // ===== 质量算式（读数面板/读数卡共用） =====
 function massR(){ var s=0; state.panW.forEach(function(id){ s+=WEIGHT_G[id]; }); return s; }
 function massL(){ return (state.obj&&state.onPan)?OBJECTS[state.obj].g:0; }
@@ -162,9 +157,9 @@ function drawPanStack(c){
     PROPS.weight_single(c,p.x,p.y,{g:WEIGHT_G[id],u:L.wU});
   });
 }
-// ===== 砝码盒（missing=已拖出的 id 不画） =====
+// ===== 砝码盒（missing=已拖出的 id 不画；R11 存 BOXG.slots 供盒内命中同源） =====
 function drawBox(){
-  PROPS.weight_set(ctx,L.boxX,L.benchTop,{w:L.boxW,open:true,missing:missingIds()});
+  BOXG=PROPS.weight_set(ctx,L.boxX,L.benchTop,{w:L.boxW,open:true,missing:missingIds()});
   ctx.fillStyle='#8a7c66'; ctx.font='13px "Yuanti SC","PingFang SC",sans-serif'; ctx.textAlign='center';
   ctx.fillText('砝码盒（按住拖出 → 右盘）',L.boxX,L.benchTop+16);
 }
@@ -186,7 +181,7 @@ function drawHeld(){
     PROPS.weight_single(ctx,d.x,d.y,{g:WEIGHT_G[d.id],u:L.wU,held:true});
   }
 }
-// ===== R1 落点提示圈：拖动进目标列→淡色圈；未调平拒落→红调圈保持 2.5s =====
+// ===== R1 落点提示圈：拖动进目标列→淡色圈（超称量=红调） =====
 function dropRing(t,ok){
   var r=(t.r||L.heatW*0.42)*1.2;
   ctx.save();
@@ -197,19 +192,16 @@ function dropRing(t,ok){
   ctx.restore();
 }
 function drawDropHints(){
-  var d=state.drag,now=performance.now();
+  var d=state.drag;
   if(d&&!d.pending&&(d.kind==='obj'||d.kind==='weight')){
     var tgt=null,ok=false;
-    if(d.kind==='weight'&&overPan({x:d.x,y:d.y},G?G.panR:null)){ tgt=G.panR; ok=state.leveled; }
+    // R13：未调平不再拒落——落点圈只按超称量判红
+    if(d.kind==='weight'&&overPan({x:d.x,y:d.y},G?G.panR:null)){ tgt=G.panR; ok=true; }
     else if(d.kind==='obj'){
-      if(overPan({x:d.x,y:d.y},G?G.panL:null)){ tgt=G.panL; ok=state.leveled&&OBJECTS[state.obj].g<=CAP_G; }
+      if(overPan({x:d.x,y:d.y},G?G.panL:null)){ tgt=G.panL; ok=OBJECTS[state.obj].g<=CAP_G; }
       else if(overHeat({x:d.x,y:d.y})){ tgt={x:L.heatX,y:heatBoxTop()}; ok=true; }
     }
     if(tgt) dropRing(tgt,ok);
-  }
-  if(state.refuseRing){
-    if(now-state.refuseRing.t0>2500) state.refuseRing=null;
-    else dropRing(state.refuseRing,false);
   }
 }
 // ===== 被测物（橡皮泥/冰水烧杯/铅笔）：桌面+热源+左盘示意 0.4×+拖动 =====
@@ -310,12 +302,13 @@ function outsideBox(id){
   if(state.falls.some(function(f){return f.id===id;})) return true;
   var d=state.drag; return !!(d&&d.kind==='weight'&&d.id===id);
 }
+// R11 盒内命中=消费 weight_set v3 返回 slots（{id,cx,cy,r,hgt}，cy=底面y），禁页面复制盒内公式
 function boxWeightAt(p){
-  var slots=boxSlots();
-  for(var i=0;i<slots.length;i++){
-    var s=slots[i];
+  if(!BOXG||!BOXG.slots) return null;
+  for(var i=0;i<BOXG.slots.length;i++){
+    var s=BOXG.slots[i];
     if(outsideBox(s.id)) continue;
-    if(p.x>=s.cx-s.r*1.7&&p.x<=s.cx+s.r*1.7&&p.y>=s.by-s.hgt-s.r*1.2&&p.y<=s.by+s.r*0.7) return s.id;
+    if(p.x>=s.cx-s.r*1.7&&p.x<=s.cx+s.r*1.7&&p.y>=s.cy-s.hgt-s.r*1.2&&p.y<=s.cy+s.r*0.7) return s.id;
   }
   return null;
 }
@@ -394,16 +387,13 @@ function startBalDrag(p){
   b.falling=false;
   if(window.playPick) playPick();
 }
-// ===== 释放：砝码（右盘上方→按 g 下坠落盘；盒区→回盒；否则落桌面停驻） =====
+// ===== 释放：砝码（盒列吸附→回盒；右盘上方→按 g 下坠落盘；否则落桌面停驻） =====
 function startFall(id,x,y,dest){ state.falls.push({id:id,x:x,y:y,vy:0,dest:dest}); }
 function releaseWeight(p){
   var d=state.drag,id=d.id; state.drag=null;
-  var overBox=Math.abs(p.x-L.boxX)<L.boxW/2+14&&p.y>L.benchTop-L.boxW*0.32-26&&p.y<L.benchTop+14;
+  // R11 列吸附（与 overPan 同哲学）：盒列内、任意上方高度松手→回盒
+  var overBox=Math.abs(p.x-L.boxX)<L.boxW/2+14&&p.y<L.benchTop+14;
   if(overBox){ delete state.wPos[id]; if(window.playDrop) playDrop(); afterAct(); return; }   // 重置回盒
-  if(!state.leveled){
-    if(overPan(p,G?G.panR:null)) state.refuseRing={x:G.panR.x,y:G.panR.y,r:G.panR.r,t0:performance.now()};
-    sayFlash(LEVEL_MSG); delete state.wPos[id]; if(window.playDrop) playDrop(); afterAct(); return;
-  }
   if(overPan(p,G?G.panR:null)){ startFall(id,d.x,d.y,'pan'); }
   else{ startFall(id,d.x,Math.min(d.y,L.benchTop),'bench'); }
   afterAct();
@@ -416,10 +406,10 @@ function insertPan(id,landX,landY){
   if(window.playDrop) playDrop();
   afterAct();
 }
-// ===== 释放：被测物（左盘/热源/桌面） =====
+// ===== 释放：被测物（左盘/热源/桌面；R13 未调平也可放盘，读数红色警示） =====
 function releaseObj(p){
   var d=state.drag; state.drag=null;
-  if(state.leveled&&overPan(p,G?G.panL:null)&&objMassOK()){
+  if(overPan(p,G?G.panL:null)&&objMassOK()){
     state.onPan=true; state.onHeat=false;
     state.objDrop={x:d.x,y:d.y,t0:performance.now()};   // 120ms 短下坠插值增强落感
     glowFx.push({x:G.panL.x,y:G.panL.y-10,t0:performance.now(),c:'255,180,120'});
@@ -430,11 +420,7 @@ function releaseObj(p){
   }else{
     state.onPan=false; state.onHeat=false;
     state.objPos={x:clamp(p.x,Math.round(W*0.05),Math.round(W*0.95)),y:L.benchTop};
-    if(!state.leveled&&overPan(p,G?G.panL:null)){
-      state.refuseRing={x:G.panL.x,y:G.panL.y,r:G.panL.r,t0:performance.now()};
-      sayFlash(LEVEL_MSG);
-    }
-    else if(window.playDrop) playDrop();
+    if(window.playDrop) playDrop();
   }
   afterAct();
 }
@@ -447,7 +433,6 @@ function releaseBal(){
   afterAct();
 }
 // ===== 指针事件 =====
-var LEVEL_MSG='先调平天平：游码归零 + 旋转平衡螺母，使指针指在分度盘的中线处，才能开始称量。';
 cv.addEventListener('pointerdown',function(ev){
   if(!ctx||state.modal) return;
   ev.preventDefault();
@@ -541,6 +526,7 @@ function poke(){   // 任何新操作：未到期结论保持，否则教当前�
   hintOverride=null; showHint(guideText());
 }
 function guideText(){
+  if(state.obj&&state.onPan&&!state.leveled) return '未调平也能称量，但先调平再读数才准确；当前读数为红色警示值。调平：游码归零 + 点「◀ 螺母 / 螺母 ▶」使指针指在分度盘中线处。';
   if(!state.leveled) return '第一步 调平：①把游码移到标尺左端零刻度线处（滑杆归零）；②点「◀ 螺母 / 螺母 ▶」旋转平衡螺母，使指针指在分度盘的中线处。使用前三要求：被测质量不能超过称量（本天平 '+CAP_G+' g）；加减砝码要用镊子（按住拖出）、不能用手接触；潮湿的物体和化学药品不能直接放到托盘中。';
   if(!state.obj) return '调平完成 ✓ 第二步 选被测物：点下方「被测物」卡选 橡皮泥 / 冰水烧杯 / 铅笔，再把它拖到左盘。';
   if(!state.onPan){
@@ -560,7 +546,7 @@ function checkClues(){
   if(!s.state&&state.meltedOnce&&state.obj==='ice'&&state.onPan&&state.matched){
     s.state=true; sayConcl('物态变了，质量不变——杯+内容物总质量始终 '+OBJECTS.ice.g+' g。');
   }
-  if(!s.pos&&state.leveled&&Math.abs(state.g-G_EARTH)>0.05&&(!state.obj||!state.onPan||state.matched)){
+  if(!s.pos&&Math.abs(state.g-G_EARTH)>0.05&&(!state.obj||!state.onPan||state.matched)&&state.leveled){
     s.pos=true; sayConcl('重力环境（位置）变了，质量不变——托盘天平比较的是质量，m₁g = m₂g 两边把 g 约掉了。');
   }
   if(s.shape&&s.state&&s.pos&&!state.alldone){
@@ -573,13 +559,25 @@ function objMassOK(){
   return true;
 }
 function afterAct(){ updateReadouts(); updatePanel(); }
-// ===== 读数卡（控制栏内联）+ 读数面板（幽灵化浮层） =====
+// ===== 读数面板（幽灵化浮层，唯一读数出口；控制栏读数卡已删 R14） =====
 function el(id){ return document.getElementById(id); }
-function beamText(){ var t=state.tilt; return t<-0.3?'左倾（物重）':(t>0.3?'右倾（码重）':'平衡 ✓'); }
+// R10 平衡=可读数的唯一点：matched 是唯一「平衡 ✓」判据；未 matched 且倾角在 ±0.3° 内只报临界文案，禁显示平衡
+function beamText(){
+  if(state.matched) return '平衡 ✓';
+  var t=state.tilt;
+  return t<-0.3?'左倾（物重）':(t>0.3?'右倾（码重）':'接近平衡…');
+}
+// R13 未调平下的平衡=错误读数（实时算，调平后红色自动消）：bad 时读数元素加 .bad 类（CSS 在 exp-mass.html）
+function badRead(){ return !!(state.matched&&!state.leveled); }
+var BAD_SUF='（读数错误，天平初始状态未调平）';
 function updateReadouts(){
-  var re=el('rd-expr'),rb=el('rd-beam');
-  if(re) re.textContent=state.matched?'m = '+expr()+' ✓':(state.onPan?'m = 调节中…':'m = —');
-  if(rb) rb.textContent='横梁 '+beamText();
+  var bad=badRead();
+  var re=el('rd-expr'),rb=el('rd-beam');   // R14 后元素已删，null-guard 保底
+  if(re){
+    re.textContent=state.matched?(bad?'m = '+expr()+BAD_SUF:'m = '+expr()+' ✓'):(state.onPan?'m = 调节中…':'m = —');
+    re.classList.toggle('bad',bad);
+  }
+  if(rb){ rb.textContent='横梁 '+beamText(); rb.classList.toggle('bad',bad); }
 }
 var panelOn=false;
 function openPanel(){
@@ -601,12 +599,13 @@ function objStatusText(){   // R5：面板实时显示被测物+状态后缀（�
 }
 function updatePanel(){
   if(!panelOn) return;
+  var bad=badRead();   // R13：bad=matched 且未调平 → pe-mass/pe-beam 红色 .bad + 括号提示
   var o=el('pe-obj'),w=el('pe-wts'),r=el('pe-rider'),m=el('pe-mass'),bm=el('pe-beam'),gg=el('pe-g');
   if(o) o.textContent=objStatusText();
   if(w) w.textContent=state.panW.length?massR()+' g（'+state.panW.map(function(id){return WEIGHT_G[id];}).join('+')+'）':'—';
   if(r) r.textContent=state.rider.toFixed(1)+' g';
-  if(m) m.textContent=state.matched?expr():'—';
-  if(bm) bm.textContent=beamText();
+  if(m){ m.textContent=state.matched?expr()+(bad?BAD_SUF:''):'—'; m.classList.toggle('bad',bad); }
+  if(bm){ bm.textContent=beamText(); bm.classList.toggle('bad',bad); }
   if(gg) gg.textContent=state.g.toFixed(1)+' N/kg · '+gEnvName();
 }
 // ===== 动画 tick：下坠物理（a=g×PX_PER_M）/熔化/堆叠重排 lerp/横梁插值 =====
@@ -645,12 +644,13 @@ function tick(){
     if(!q){ state.wPos[o.id]={x:o.x,y:L.benchTop}; return; }
     q.x+=(o.x-q.x)*k; q.y+=(L.benchTop-q.y)*k;
   });
-  if(!state.leveled&&!state.onPan&&!state.panW.length&&state.rider===0&&Math.abs(state.nut)<LEV_EPS){
+  if(!state.onPan&&!state.panW.length&&state.rider===0&&Math.abs(state.nut)<LEV_EPS&&!state.leveled){
     state.leveled=true; if(window.playMatch) playMatch(); poke();
   }
   var tgt=clamp(diff()*K_TILT+state.nut,-8,8);
   if(Math.abs(tgt-state.tilt)>0.005) state.tilt+=(tgt-state.tilt)*Math.min(1,dt/140); else state.tilt=tgt;
-  var bal=state.leveled&&state.obj&&state.onPan&&Math.abs(diff())<=BAL_EPS;
+  // R13 matched 去掉 leveled 要求：未调平也可平衡读数（badRead 红色警示）
+  var bal=state.obj&&state.onPan&&Math.abs(diff())<=BAL_EPS;
   if(bal&&!state.matched){ state.matched=true; if(window.playMatch) playMatch(); }
   else if(!bal&&state.matched){ state.matched=false; }
   if(state.obj==='ice'&&state.onHeat&&state.heatLevel>0&&state.ice>0){
@@ -730,7 +730,7 @@ function resetAll(){
   state.rider=0; state.nut=NUT_INIT; state.tilt=NUT_INIT; state.leveled=false; state.matched=false;
   state.panW=[]; state.loose=[]; state.falls=[]; state.wPos={};
   state.bal={x:L.balX0,y:L.benchTop,vy:0,falling:false,moved:false,squash:0};
-  state.drag=null; state.objDrop=null; state.refuseRing=null;
+  state.drag=null; state.objDrop=null;
   state.seen={shape:false,state:false,pos:false}; state.alldone=false;
   hintOverride=null; glowFx=[];
   if(rngRider) rngRider.value=0;
