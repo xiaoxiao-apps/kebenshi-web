@@ -150,7 +150,7 @@ function layout(){
 function seatOf(fy){ return PROPS.seatY(Math.max(40,fy-DESK_BAND),64,26); }   // R29 坐深居中单源（seat=by+45）
 /* H1/H2/H4 packDesk 重构：桌面器材打包布局单源函数。
    顺序：天平（x=0.155W 固定不动）→ 量筒 → 烧杯 → 盐罐（阶段一）；阶段二尾件=石块位。
-   每件 x=前件右缘+gap+自身半宽；半宽单源=库件 width 公式：cyl max(30,h·0.18)/2、beaker 0.78h/2、jar (0.66h·1.14)/2、stone cmPx(19.5)+2。
+   每件 x=前件右缘+gap+自身半宽；半宽单源=库件 width 公式：cyl max(30,h·0.18)/2、beaker 0.78h/2、jar 0.78h/2（v10 J4/J5：盐杯=烧杯件，同族半宽，原 0.66h·1.14 公式删除）、stone cmPx(19.5)+2。
    H2 间隙双判据：gap=max(cmPx(3),0.10×beakerW)、收敛下限 gapMin=max(cmPx(1),0.05×beakerW)（beakerW=0.78×beaker.h 单源）——随杯宽长、矮窗不再贴脸。
    H1 k 去下限：k 定点收敛（needW(gapMin(k),k)=avail），k<0.45 → tier 切 B 重算（layout 单源）；overflow 旗仅诊断。
    H4 石块位单源：stoneSpot.x=打包序列第四件位置（cyl→beaker→jar / cyl→stone 两序列取 max 右缘），cuX0−cmPx(50) clamp 上界已删除；
@@ -165,7 +165,7 @@ function packDesk(cylH,deskRight,seat,probe){
   var avail=Math.round(deskRight)-balRight;        // 桌面可用宽（右界=deskRightFor 单源：Tier A 卡左缘/停泊表左缘、Tier B 全宽−margin）
   var stHW=cmPx(19.5)+2;                           // stone 最大半宽（stoneSize 上限 cmPx(39)）+裕量；石块绘制尺寸不随 k 缩（stoneSize 无 k）→ 足迹半宽恒=stHW 不乘 k，k 小时不咬筒
   function needW(g,k){                             // 需求宽=max(阶段一 cyl+beaker+jar, 阶段二 cyl+stone)+间隙
-    var wc=Math.max(30,cylH*k*0.18),wb=cmPx(128)*k*0.78,wj=cmPx(96)*k*0.66*1.14,ws=stHW*2;
+    var wc=Math.max(30,cylH*k*0.18),wb=cmPx(128)*k*0.78,wj=cmPx(96)*k*0.78,ws=stHW*2;   // v10：jar=烧杯族宽 0.78h
     return Math.max(wc+wb+wj,wc+ws)+g*3;
   }
   // H2+H1：先全 gap 试排 → 压 gapMin → 仍溢出 k 定点收敛（无假下限）；Tier B 垂直避让帽 kMaxB（beaker 顶≥卡底+2，jar/stone 更矮天然满足）
@@ -194,7 +194,7 @@ function packDesk(cylH,deskRight,seat,probe){
   L.cyl={x:0,y:seat,h:Math.round(cylH*k)};   // cylH 已含 Tier B 垂直避让帽（cylHeightFor 单源），k 统一缩放
   L.beaker={x:0,y:seat,h:Math.round(cmPx(128)*k)};
   L.jar={x:0,y:seat,h:Math.round(cmPx(96)*k)};
-  var hc=cylW(L.cyl)/2,hb=L.beaker.h*0.78/2,hj=L.jar.h*0.66*1.14/2,hs=stHW;   // hs 不乘 k（石块足迹 k 不变，见上）
+  var hc=cylW(L.cyl)/2,hb=L.beaker.h*0.78/2,hj=L.jar.h*0.78/2,hs=stHW;   // v10 J4/J5：盐杯半宽=烧杯族 0.78h/2 单源；hs 不乘 k（石块足迹 k 不变，见上）
   L.cyl.x=Math.round(balRight+gap+hc);
   L.beaker.x=Math.round(L.cyl.x+hc+gap+hb);
   L.jar.x=Math.round(L.beaker.x+hb+gap+hj);
@@ -266,9 +266,9 @@ function deskTweenTick(now){
   dirty=true; return true;
 }
 function cylW(C){ return Math.max(30,C.h*0.18); }   // cylinder_grad 同公式（w=max(30,h*0.18)），页面仅此处换算
-function cylInner(C){   // 量筒内腔几何（cylinder_grad 同公式：w/wall/内腔四边）
+function cylInner(C){   // 量筒内腔几何（cylinder_grad 同公式：w/wall/内腔四边；v10 J3 同步：inBot=底椭圆中心 botY=y−ryB*0.2=y−w*0.024，ryB=w*0.12）
   var w=cylW(C),wall=Math.max(2,w*0.055);
-  return {w:w,inL:C.x-w/2+wall,inR:C.x+w/2-wall,inTop:C.y-C.h+wall*2.2,inBot:C.y-wall*2.2};
+  return {w:w,inL:C.x-w/2+wall,inR:C.x+w/2-wall,inTop:C.y-C.h+wall*2.2,inBot:C.y-w*0.024};
 }
 /* ===== hint 解说条（placeHint 选位：顶部居中优先，与控制栏相交则抬起；R7：pointer-events:none 在 CSS） ===== */
 function placeHint(){
@@ -385,7 +385,22 @@ function drawBeaker(x,y,h,tiltAng){   // beaker_ice 封装单入口：盐水色 
     }});
   ctx.restore();
 }
-function drawJar(x,y){ return PROPS.salt_jar(ctx,x,y,{saltLevel:100-saltPct()*0.8,pour:s1().jar.pour,h:L.jar.h}); }
+function drawJar(x,y){ return PROPS.beaker_ice(ctx,x,y,{h:L.jar.h,salt:100-saltPct()*0.8,pour:s1().jar.pour}); }   // v10 J4/J5：盐杯统一为库内烧杯件装盐（不传 liquidColor/ice/water；件本身不画粒流，流=drawSaltStream 页面画）
+function drawSaltStream(){   // v10 J4/J5：盐杯倾倒粒流（原 salt_jar 库内粒流的页面化）；起点=旋转后杯口世界坐标 mouth=(x+h·sin(ang)·dir, y−h·cos(ang))，
+  var S=s1(),h=L.jar.h,ang=S.jar.pour*Math.PI/4,dir=1;   // dir=+1：库件 pour 顺时针旋转（同 salt_jar 语义），杯口移向 +x 侧
+  var mx=S.jar.x+h*Math.sin(ang)*dir,my=S.jar.y-h*Math.cos(ang);
+  for(var k=0;k<4;k++){   // 4 条抛物线轨迹确定性伪随机白点（rnd 单源，禁原生随机数）
+    var jx=(rnd(k*17+3)-0.5)*h*0.78*0.5;
+    for(var j=0;j<9;j++){
+      var t=(j+1)/9+(rnd(k*31+j*7+5)-0.5)*0.06;
+      var px=mx+jx+h*0.16*t+(rnd(k*13+j)-0.5)*h*0.03;
+      var py=my+h*0.05*t+h*0.55*t*t;
+      ctx.beginPath(); ctx.arc(px,py,h*(0.008+rnd(k*7+j*3+1)*0.008),0,Math.PI*2);
+      ctx.fillStyle=rnd(k*5+j)>0.5?'rgba(255,255,255,0.95)':'rgba(240,238,228,0.9)';
+      ctx.fill();
+    }
+  }
+}
 function drawStoneAt(st,x,y,size){ PROPS.stone(ctx,x,y,{size:size,seed:st.seed,wet:st.wet}); }
 function cylMlFor(stg){ return stg==='s1'?s1().cylMl:(s2().waterMl||0); }
 function cylFracFor(stg){ return clamp(cylMlFor(stg)/CYL_CAP,0,1); }
@@ -599,19 +614,24 @@ function beakerPos(){   // 烧杯当前位置（读数牌/密度牌跟随）
   if(S.beaker.loc==='pan') return {x:L.bal.g.panL.x,y:L.bal.panTop};
   return {x:S.beaker.x,y:S.beaker.y};
 }
-function brineTagRect(){   // G3b ρ牌几何单源（draw/dbg.rects 同读）
-  var p=beakerPos(),cw=cmPx(150),ch=cmPx(30);
-  // F5：基线上抬 cmPx(2)（原 cmPx(10) 净空不够，质量/密度牌压杯口椭圆）；tx 既有 clamp 保证不与特写区相交
-  var tx=clamp(p.x-cw/2,4,L.cu.x0-cw-8),ty=Math.max(38,p.y-L.beaker.h-ch-cmPx(10)-cmPx(2));
-  return {x:Math.round(tx),y:Math.round(ty),w:Math.round(cw),h:Math.round(ch)};
+function brineTagRect(){   // G3b ρ牌几何单源（draw/dbg.rects 同读）；J1 宽度收敛：牌中心恒=烧杯 x、半宽恒≤烧杯半宽 hb（宽=min(cmPx(150), 2hb)）
+  var p=beakerPos(),hb=L.beaker.h*0.78/2,ch=cmPx(30);
+  var cw=Math.min(cmPx(150),hb*2);
+  // F5：基线上抬 cmPx(2)（原 cmPx(10) 净空不够，质量/密度牌压杯口椭圆）；J1：牌⊂烧杯跨度，打包构造性保证烧杯跨度∩量筒跨度=∅ ⇒ 牌永不压量筒（旧 tx clamp 特写卡判据由 deskRightFor⊂cu.x0−cmPx(4) 构造覆盖）
+  var ty=Math.max(38,p.y-L.beaker.h-ch-cmPx(10)-cmPx(2));
+  return {x:Math.round(p.x-cw/2),y:Math.round(ty),w:Math.round(cw),h:Math.round(ch)};
 }
 function drawBrineTag(){   // 盐水密度读数牌（实时 ρ 保留 2 位小数；鲜艳色只给密度读数与液体，§4）
   if(s1().beaker.loc!=='bench') return;   // G3b①：只在烧杯位于桌面（配盐阶段）绘制；上盘后隐藏（ρ 值仍在读数面板/数据表，不丢信息）——根除盘区 m 牌/记录钮/ρ牌互压
   var r=brineTagRect();
   ghostCard(r.x,r.y,r.w,r.h);
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillStyle='#b45309'; ctx.font='bold '+Math.round(cmPx(15))+'px sans-serif';
-  ctx.fillText('ρ盐水 = '+fmt(s1().rho,2)+' g/cm³',r.x+r.w/2,r.y+r.h/2);
+  var txt='ρ盐水 = '+fmt(s1().rho,2)+' g/cm³';   // J1：牌内容文案不变
+  var fs=Math.round(cmPx(15)),fsMin=Math.round(cmPx(10)),maxW=r.w-cmPx(2);   // J1：文字超宽自动缩字号（measure 后降至宽≤2hb−cmPx(2)，下限 cmPx(10)）
+  ctx.font='bold '+fs+'px sans-serif';
+  while(fs>fsMin&&ctx.measureText(txt).width>maxW){ fs-=1; ctx.font='bold '+fs+'px sans-serif'; }
+  ctx.fillStyle='#b45309';
+  ctx.fillText(txt,r.x+r.w/2,r.y+r.h/2);
 }
 function drawDragged(){
   var S=s1(),T=s2();
@@ -642,6 +662,13 @@ function drawCaptions(a1,a2){
   }
   caption(L.cyl.x,L.seat+6+cmPx(30),'量筒：单位 mL · 最大测量值 100 mL · 分度值 5 mL');
 }
+function drawBuildStamp(){   // 构建戳（防旧标签页误判）：画布左下角灰色 10px 非交互文字（纯画布绘制，不 gate、不吞事件）
+  ctx.save();
+  ctx.fillStyle='rgba(130,130,130,0.6)'; ctx.font='10px sans-serif';
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.fillText('c6s3 r4 · lib v10',6,H-6);
+  ctx.restore();
+}
 function draw(){
   paintBg();
   drawBalance();
@@ -663,11 +690,13 @@ function draw(){
   items.sort(function(p,q){ return q.y-p.y; });   // R36：绘制前按 y 降序（画家算法）
   items.forEach(function(it){ ctx.save(); ctx.globalAlpha=it.a; it.d(); ctx.restore(); });
   if(a1>0&&s1().pouring){ ctx.save(); ctx.globalAlpha=a1; drawPourStream(); ctx.restore(); }
+  if(a1>0&&s1().jar.pour>0.3){ ctx.save(); ctx.globalAlpha=a1; drawSaltStream(); ctx.restore(); }   // v10 J4/J5：盐杯粒流页面画（原 salt_jar 库内 pour>0.3 粒流同阈值）
   drawDragged();
   drawBalReadout();
   if(a1>0){ ctx.save(); ctx.globalAlpha=a1; drawBrineTag(); ctx.restore(); }
   drawCloseup();
   drawCaptions(a1,a2);
+  drawBuildStamp();
 }
 
 /* ===== 交互层：拖拽/加盐/倾倒/浸没（P7 抓取放下语义；可拖件 cursor:pointer；禁绿箭头/虚线圈） ===== */
@@ -676,7 +705,7 @@ function beakerBox(){
   var p=beakerPos(),h=(s1().beaker.loc==='pan')?Math.min(L.beaker.h,L.bal.panHW*2.4):L.beaker.h,w=h*0.78;
   return {x:p.x-w/2,y:p.y-h,w:w,h:h};
 }
-function jarBox(){ var h=L.jar.h,w=h*0.66; return {x:s1().jar.x-w/2,y:s1().jar.y-h,w:w,h:h}; }
+function jarBox(){ var h=L.jar.h,w=h*0.78; return {x:s1().jar.x-w/2,y:s1().jar.y-h,w:w,h:h}; }   // v10：命中盒=烧杯族宽（半宽单源同 packDesk hw.jar）
 function stoneBox(){
   var st=stone(); if(!st) return null;
   if(st.loc==='pan'){ var s=Math.min(stoneSize(st),L.bal.panHW*1.7); return {x:L.bal.g.panL.x-s/2,y:L.bal.panTop-s*0.7,w:s,h:s*0.7}; }
@@ -836,7 +865,8 @@ function actionTick(now,dt){
   var S=s1(),act=false;
   if(state.stage==='s1'&&!state.animating){
     if(S.drag&&S.drag.what==='jar'){
-      var mouthNear=nearBeakerMouth({x:S.jar.x,y:S.jar.y-L.jar.h*0.85});
+      var jang=S.jar.pour*Math.PI/4;   // v10 J4/J5：悬空判定源口 y=旋转后杯口（y−h·cos(ang)；x 仍取杯位中心，判定带语义不变）
+      var mouthNear=nearBeakerMouth({x:S.jar.x,y:S.jar.y-L.jar.h*Math.cos(jang)});
       var tgtP=mouthNear?1:0;
       if(S.jar.pour!==tgtP){ S.jar.pourTw={t0:now,from:S.jar.pour,to:tgtP}; }
       if(mouthNear&&S.rho<RHO_MAX){ setSaltRho(S.rho+SALT_RATE*dt/100); act=true; }   // ρ 单调递增封顶 1.20
@@ -1221,6 +1251,7 @@ if(window.ResizeObserver&&ctrlEl){
 requestAnimationFrame(tick);
 /* ===== 调试通道（P11/P12：验收走有效通道+磁盘 grep，禁合成拖拽断言） ===== */
 window.__c6dbg={
+  build:'r4-lib10',   // 构建戳（防旧标签页误判；画布左下角文字同值）
   get state(){ return state; }, get W(){ return W; }, get H(){ return H; }, get layout(){ return L; },
   get stage(){ return state.stage; },
   setStage:function(to){ setStage(to); return state.stage; },

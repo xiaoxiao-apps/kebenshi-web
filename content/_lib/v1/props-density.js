@@ -8,7 +8,18 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-density.js — 第六章「质量与密度」标准器材件 v9（c6s34 缺件先制，14件）
+ * props-density.js — 第六章「质量与密度」标准器材件 v10（c6s34 缺件先制，14件）
+ * v10 变更清单（2026-10-20，c6s34 修复轮4 任务书，蔡总 12:51 五条反馈 J1-J5；已有件 opt API 与返回几何字段全部不变）：
+ *   ~ balance_pan 底座木→金属（蔡总 J2）：暖棕木渐变三色（旧 a3815c 系）→ 金属灰 #c9ced6/#9aa1ab/#6f747c 三段（与立柱 #9ca3af 同族）
+ *     + 顶面一条浅色高光线（金属反光语义）；形状/圆角/尺寸/锚点/返回字段全部不变；c6s1/c6s2 消费件同步变金属（蔡总意图=全库统一）
+ *   ~ cylinder_grad 筒底平面→2.5D 椭圆底（蔡总 J3，照 beaker_ice v6 底处理先例）：ryB=w*0.12 族、底椭圆中心 botY=y−ryB*0.2、
+ *     前半弧亮线、侧壁切点连到底椭圆切点、前弧落点略沉、锚点不变；水体/inside/contents 的 inBot 改=底椭圆中心 botY（v=0 刻度线在 inBot）；
+ *     刻度/筒口/高光/liquidColor/contents 回调契约（rect 字段名 inL/inR/inTop/inBot/wy 不变）全部保留
+ *   ~ beaker_ice 加 salt/pour 参数（c6s3 盐杯统一用烧杯件装盐，蔡总 J4/J5；纯新增参数，不传=渲染与 v9 逐像素等价）：
+ *     opt.salt 0~100（缺省 0=不画）杯内白色盐粒堆积——底椭圆上起、高度=salt 百分比×内腔高、sin 伪随机细颗粒、确定性同参数同图；
+ *     与 ice/water 共存时盐堆在下层；pour 态盐面保持世界水平（salt_jar 同语义）；
+ *     opt.pour 0~1（缺省 0）整体绕锚点（底面中心）旋转 pour×45°（同 salt_jar.pour 语义）；件本身不画粒流（流由页面画）
+ *   ~ DENSITY_IDS 14 件不变；gallery ?v=9→10
  * v9 变更清单（2026-10-20，c6s34 任务书，蔡总 05:59 拍板：3 新件 + 2 件扩参，已有件 opt API 全向后兼容、缺省路径渲染零变化）：
  *   + stone 小石块：不规则多面体 2.5D（投影常量同 material_block dx=0.35d/dy=-0.35d），灰青 #8a9a94 系 + sin 伪随机斑点棱角纹；
  *     顶点轮廓 seed 确定性生成（顶点数 6~8、半径/角度扰动，同 seed 永远同形）；opt: size=60 / seed=1 / wet(0~1 湿水态加深约15%+顶面高光增强)
@@ -73,7 +84,7 @@ const rand = PROPS.rand || function(seed){
  *   5. cylinder_grad  量筒(P1)      opt: h=240 / cap=100 / div=10 / water(0-1) / inside(浸没块占位色) / liquidColor(v9) / contents(v9 钩子 fn(ctx,rect))
  *   6. density_scale  密度标尺(P1)  opt: w=420 / value(0-10 红标) / marks / collapsed；返回 {w,h}
  *   7. clay           橡皮泥(P2)    opt: size=70 / morph(0-2连续,shape别名)；返回 {w,h}
- *   8. beaker_ice     烧杯盛冰(P2,2.5D v7)  opt: h=140 / ice(0-100) / water(0-1，water≤0.01 不画水体) / liquidColor(v9) / contents(v9 钩子 fn(ctx,rect))
+ *   8. beaker_ice     烧杯盛冰(P2,2.5D v7)  opt: h=140 / ice(0-100) / water(0-1，water≤0.01 不画水体) / liquidColor(v9) / contents(v9 钩子 fn(ctx,rect)) / salt(v10,0~100 白盐堆积,缺省0不画) / pour(v10,0~1 绕底面中心倾 pour×45°,缺省0)
  *   9. doll           玩偶(P2)      opt: scale=1 / arm(0|1 举手)
  *  10. heat_source    通用热源(P2,2.5D v7)  opt: level(0-3档) / knob(旋钮角度°,缺省随level；false=不画旋钮与指示灯,v5)；返回 {w,h,boxTop,knob}
  *  11. weight_single  单枚砝码(v2)  opt: g∈{5,10,20,50,100} / u=44 / held / label；返回 {w,h}
@@ -196,12 +207,17 @@ PROPS.balance_pan = function(ctx, x, y, opt){
   const plateR = _.plateR, ptrL = _.ptrL, nutOff = _.nutOff;
   ctx.save(); ctx.lineJoin = 'round';
 
-  // 木底座（暖棕，与 bench 奶油黄协调）
+  // v10 J2 金属灰底座（与立柱 #9ca3af 同族；原暖棕木纹删除，蔡总 J2）；形状/圆角/尺寸/锚点/返回字段全部不变
   const gb = ctx.createLinearGradient(0, y - baseH, 0, y);
-  gb.addColorStop(0, '#a3815c'); gb.addColorStop(0.5, '#8d6e4c'); gb.addColorStop(1, '#75593c');
+  gb.addColorStop(0, '#c9ced6'); gb.addColorStop(0.5, '#9aa1ab'); gb.addColorStop(1, '#6f747c');
   rr(ctx, x - baseW / 2, y - baseH, baseW, baseH, baseH * 0.3);
   ctx.fillStyle = gb; ctx.fill();
-  ctx.strokeStyle = 'rgba(60,42,26,0.6)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.strokeStyle = 'rgba(45,50,58,0.6)'; ctx.lineWidth = 1; ctx.stroke();
+  // 顶面浅色高光线（金属反光语义）
+  ctx.beginPath();
+  ctx.moveTo(x - baseW / 2 + baseH * 0.35, y - baseH + 1.5);
+  ctx.lineTo(x + baseW / 2 - baseH * 0.35, y - baseH + 1.5);
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1; ctx.stroke();
 
   // 立柱（金属灰，下宽上窄）
   const colWb = h * 0.10, colWt = h * 0.05;
@@ -607,6 +623,8 @@ PROPS.material_block = function(ctx, x, y, opt){
 
 // ================= 5. cylinder_grad 量筒 =================
 // 层次：玻璃背层→水体→浸没块(inside)→前壁高光→刻度数字（块在水体之下、筒壁反光之上）
+// v10 J3（蔡总：筒底平面→2.5D 椭圆底，照 beaker_ice v6 底处理先例）：底椭圆 ryB=w*0.12、中心 botY=y−ryB*0.2、前半弧亮线、
+//   侧壁切点连到底椭圆切点、前弧落点略沉（y+ryB*0.8）、锚点不变；inBot=botY（v=0 刻度线在底椭圆中心）；rect 字段名/回调契约全部不变
 PROPS.cylinder_grad = function(ctx, x, y, opt){
   opt = opt || {};
   const h = opt.h || 240, w = Math.max(30, h * 0.18);
@@ -616,12 +634,18 @@ PROPS.cylinder_grad = function(ctx, x, y, opt){
   const LC = deriveLiquid(opt.liquidColor, 'rgba(125,195,235,0.78)', 'rgba(85,160,215,0.88)', 'rgba(232,247,255,0.95)');
   const wall = Math.max(2, w * 0.055);
   const inL = x - w / 2 + wall, inR = x + w / 2 - wall;
-  const inTop = y - h + wall * 2.2, inBot = y - wall * 2.2;
+  const ryB = w * 0.12, botY = y - ryB * 0.2;   // v10 J3: 底椭圆（2.5D，beaker_ice v6 同族）；inBot=botY
+  const inTop = y - h + wall * 2.2, inBot = botY;
   ctx.save();
-  // 玻璃背层（浅青半透明，glass_brick 同族）
-  rr(ctx, x - w / 2, y - h, w, h, w * 0.08);
+  // 玻璃背层（浅青半透明，glass_brick 同族）：侧壁切点连到底椭圆切点+前弧闭合（禁直线底边）
+  ctx.beginPath();
+  ctx.moveTo(x - w / 2, y - h);
+  ctx.lineTo(x - w / 2, botY);
+  ctx.ellipse(x, botY, w / 2, ryB, 0, Math.PI, 0, true);
+  ctx.lineTo(x + w / 2, y - h);
+  ctx.closePath();
   ctx.fillStyle = 'rgba(220,240,246,0.30)'; ctx.fill();
-  // 水体（蓝水面线+弯月面）
+  // 水体（蓝水面线+弯月面；底=内底椭圆前弧）
   if (water > 0.005){
     const wy = inBot - (inBot - inTop) * water;
     const gw = ctx.createLinearGradient(0, wy, 0, inBot);
@@ -630,7 +654,9 @@ PROPS.cylinder_grad = function(ctx, x, y, opt){
     ctx.beginPath();
     ctx.moveTo(inL, wy);
     ctx.quadraticCurveTo(x, wy + h * 0.012, inR, wy);
-    ctx.lineTo(inR, inBot); ctx.lineTo(inL, inBot); ctx.closePath();
+    ctx.lineTo(inR, botY);
+    ctx.ellipse(x, botY, w / 2 - wall, ryB, 0, 0, Math.PI);
+    ctx.closePath();
     ctx.fillStyle = gw; ctx.fill();
     ctx.beginPath();
     ctx.moveTo(inL, wy); ctx.quadraticCurveTo(x, wy + h * 0.012, inR, wy);
@@ -651,11 +677,17 @@ PROPS.cylinder_grad = function(ctx, x, y, opt){
     try { opt.contents(ctx, {x: x, w: w, inL: inL, inR: inR, inTop: inTop, inBot: inBot, wy: wyC}); } catch(e){}
     ctx.restore();
   }
-  // 前壁描边 + 竖高光条
-  rr(ctx, x - w / 2, y - h, w, h, w * 0.08);
+  // 前壁描边（侧壁+底前弧，不闭顶弦——beaker_ice v8 同法）+ 底前弧亮线 + 竖高光条
+  ctx.beginPath();
+  ctx.moveTo(x - w / 2, y - h);
+  ctx.lineTo(x - w / 2, botY);
+  ctx.ellipse(x, botY, w / 2, ryB, 0, Math.PI, 0, true);
+  ctx.lineTo(x + w / 2, y - h);
   ctx.strokeStyle = 'rgba(120,160,180,0.9)'; ctx.lineWidth = wall * 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(x, botY, w / 2, ryB, 0, 0, Math.PI);
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = Math.max(1.5, w * 0.022); ctx.stroke();
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = Math.max(1.5, w * 0.045);
-  ctx.beginPath(); ctx.moveTo(x - w * 0.27, y - h * 0.94); ctx.lineTo(x - w * 0.27, y - h * 0.06); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - w * 0.27, y - h * 0.94); ctx.lineTo(x - w * 0.27, botY - ryB * 0.4); ctx.stroke();
   // 筒口
   ctx.beginPath(); ctx.ellipse(x, y - h + wall * 0.6, w / 2 - wall * 0.3, wall * 0.9, 0, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(140,175,195,0.9)'; ctx.lineWidth = 1.5; ctx.stroke();
@@ -774,12 +806,18 @@ PROPS.clay = function(ctx, x, y, opt){
 // ================= 8. beaker_ice 烧杯盛冰 =================
 // v6 2.5D（蔡总 R33：杯底不能是平面直线）：底椭圆+锥度侧壁+水面椭圆，禁直线底边；opt/锚点语义不变
 // v8（蔡总 R39 2026-10-20）：侧壁 fill/stroke 分离→stroke 只描三边不闭顶弦（消杯口中间横线）；删喙三角（消杯口外侧小斜线）；rim 椭圆完整描边/水体 guard 保留
-// 层次：底椭圆(前弧亮线)→侧壁(玻璃渐变+左壁高光)→水体(水面椭圆亮边)→冰块(rand 确定性多边形堆)→杯口椭圆描边
+// v10（蔡总 J4/J5 2026-10-20，c6s3 盐杯统一用烧杯件装盐）：+opt.salt 0~100（缺省 0=不画，白盐粒堆积：底椭圆上起、高度=salt%×内腔高、sin 伪随机细颗粒、
+//   确定性同参数同图、与 ice/water 共存时盐堆在下层、pour 态盐面保持世界水平）；+opt.pour 0~1（缺省 0，整体绕锚点(底面中心)旋转 pour×45°，同 salt_jar.pour 语义；
+//   件本身不画粒流——流由页面画）；不传 salt/pour = 渲染与 v9 逐像素等价（ang=0 跳过变换、salt=0 跳过盐堆）
+// 层次：底椭圆(前弧亮线)→盐堆(v10)→侧壁(玻璃渐变+左壁高光)→水体(水面椭圆亮边)→冰块(rand 确定性多边形堆)→杯口椭圆描边
 PROPS.beaker_ice = function(ctx, x, y, opt){
   opt = opt || {};
   const h = opt.h || 140, w = h * 0.78;      // w=杯口宽
   const ice = Math.max(0, Math.min(100, opt.ice || 0));
   const water = Math.max(0, Math.min(1, opt.water || 0));
+  const salt = Math.max(0, Math.min(100, opt.salt || 0));   // v10 J4: 白盐堆积 %（缺省 0=不画）
+  const pour = Math.max(0, Math.min(1, opt.pour || 0));     // v10 J5: 倾倒 0~1（缺省 0=直立）
+  const ang = pour * Math.PI / 4;                           // 绕锚点（底面中心）旋转 pour×45°（同 salt_jar.pour 语义）
   // v9: opt.liquidColor 派生水色（top=水面椭圆、bottom=水体柱、line=水面亮边；不传=原蓝系缺省值，页面零改动）
   const LC = deriveLiquid(opt.liquidColor, 'rgba(150,200,240,0.55)', 'rgba(120,180,230,0.45)', 'rgba(232,247,255,0.9)');
   const rxT = w / 2, ryT = w * 0.14;         // 杯口椭圆（ry=0.28rx 同比例，全件统一）
@@ -789,11 +827,39 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
   const wall = Math.max(2, w * 0.035);
   const halfAt = function(yy){ return rxT + (rxB - rxT) * (yy - topY) / (botY - topY); };
   ctx.save(); ctx.lineJoin = 'round';
+  if (ang){ ctx.translate(x, y); ctx.rotate(ang); ctx.translate(-x, -y); }   // v10 J5: ang=0 不进变换（v9 逐像素等价）
   // 1) 底椭圆 + 前半弧亮线（玻璃折射感）
   ctx.beginPath(); ctx.ellipse(x, botY, rxB, ryB, 0, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(200,222,232,0.5)'; ctx.fill();
   ctx.beginPath(); ctx.ellipse(x, botY, rxB, ryB, 0, 0, Math.PI);
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = Math.max(1.5, w * 0.022); ctx.stroke();
+  // 1.5) v10 J4: 白盐粒堆积（clip 内腔；pour 态盐面保持世界水平——反转旋转，同 salt_jar 语义；确定性 sin 伪随机细颗粒）
+  if (salt > 0){
+    const hs = (botY - topY) * salt / 100;   // 高度=salt 百分比×内腔高（底椭圆上起）
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x - rxT + wall, topY);
+    ctx.lineTo(x - rxB + wall, botY);
+    ctx.ellipse(x, botY, Math.max(1, rxB - wall), ryB, 0, Math.PI, 0, true);
+    ctx.lineTo(x + rxT - wall, topY);
+    ctx.closePath();
+    ctx.clip();
+    ctx.translate(x, y); ctx.rotate(-ang); ctx.translate(-x, -y);   // 盐面回世界水平（原点仍在杯底中心锚点）
+    const saltY = botY - hs * (1 - pour * 0.45);   // 倾倒时余盐面下降（salt_jar 同式）
+    const dome = hs * 0.08 * (1 - pour);
+    ctx.beginPath();
+    ctx.moveTo(x - w, saltY);
+    ctx.quadraticCurveTo(x, saltY - dome * 2, x + w, saltY);
+    ctx.lineTo(x + w, y + h); ctx.lineTo(x - w, y + h);
+    ctx.closePath();
+    ctx.fillStyle = '#f7f6f0'; ctx.fill();
+    for (let k = 0; k < 30; k++){              // 细颗粒感（sin 伪随机，同参数重绘严格同图）
+      const r1 = rand(k * 3 + 41), r2 = rand(k * 3 + 42), r3 = rand(k * 3 + 43);
+      ctx.fillStyle = r3 > 0.5 ? 'rgba(214,211,196,0.75)' : 'rgba(255,255,255,0.9)';
+      ctx.fillRect(x + (r1 - 0.5) * w * 2.2, saltY + r2 * h * 0.6, Math.max(1, h * 0.014), Math.max(1, h * 0.014));
+    }
+    ctx.restore();
+  }
   // 2) 侧壁：杯口切点→底椭圆切点，玻璃渐变（左亮右暗）
   // v8 R39：fill 用闭路径（顶弦仅填色不可见）；stroke 另开路径只描三边（左壁+底前弧+右壁），不 closePath → 消杯口中间横线
   ctx.beginPath();
