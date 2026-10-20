@@ -165,7 +165,7 @@ function packDesk(cylH,deskRight,seat,probe){
   var avail=Math.round(deskRight)-balRight;        // 桌面可用宽（右界=deskRightFor 单源：Tier A 卡左缘/停泊表左缘、Tier B 全宽−margin）
   var stHW=cmPx(19.5)+2;                           // stone 最大半宽（stoneSize 上限 cmPx(39)）+裕量；石块绘制尺寸不随 k 缩（stoneSize 无 k）→ 足迹半宽恒=stHW 不乘 k，k 小时不咬筒
   function needW(g,k){                             // 需求宽=max(阶段一 cyl+beaker+jar, 阶段二 cyl+stone)+间隙
-    var wc=Math.max(30,cylH*k*0.18),wb=cmPx(128)*k*0.78,wj=cmPx(96)*k*0.78,ws=stHW*2;   // v10：jar=烧杯族宽 0.78h
+    var wc=Math.max(30,cylH*k*0.18)+2*tickOverhang(Math.max(30,cylH*k*0.18)),wb=cmPx(128)*k*0.78,wj=cmPx(96)*k*0.78,ws=stHW*2;   // v10：jar=烧杯族宽 0.78h；K1：wc=视觉宽=筒身+2×刻度外伸（与 hc=w/2+overhang 对称：打包跨距消耗两个 hc，任务书单项公式少计一侧致 Tier B 盐杯被右界 clamp，探针红，故取 2×）
     return Math.max(wc+wb+wj,wc+ws)+g*3;
   }
   // H2+H1：先全 gap 试排 → 压 gapMin → 仍溢出 k 定点收敛（无假下限）；Tier B 垂直避让帽 kMaxB（beaker 顶≥卡底+2，jar/stone 更矮天然满足）
@@ -194,7 +194,7 @@ function packDesk(cylH,deskRight,seat,probe){
   L.cyl={x:0,y:seat,h:Math.round(cylH*k)};   // cylH 已含 Tier B 垂直避让帽（cylHeightFor 单源），k 统一缩放
   L.beaker={x:0,y:seat,h:Math.round(cmPx(128)*k)};
   L.jar={x:0,y:seat,h:Math.round(cmPx(96)*k)};
-  var hc=cylW(L.cyl)/2,hb=L.beaker.h*0.78/2,hj=L.jar.h*0.78/2,hs=stHW;   // v10 J4/J5：盐杯半宽=烧杯族 0.78h/2 单源；hs 不乘 k（石块足迹 k 不变，见上）
+  var hc=cylW(L.cyl)/2+tickOverhang(cylW(L.cyl)),hb=L.beaker.h*0.78/2,hj=L.jar.h*0.78/2,hs=stHW;   // K1：hc=量筒视觉半宽（含刻度外伸，只进打包/断言层，本体绘制/命中仍用 cylW）；v10 J4/J5：盐杯半宽=烧杯族 0.78h/2 单源；hs 不乘 k（石块足迹 k 不变，见上）
   L.cyl.x=Math.round(balRight+gap+hc);
   L.beaker.x=Math.round(L.cyl.x+hc+gap+hb);
   L.jar.x=Math.round(L.beaker.x+hb+gap+hj);
@@ -266,6 +266,7 @@ function deskTweenTick(now){
   dirty=true; return true;
 }
 function cylW(C){ return Math.max(30,C.h*0.18); }   // cylinder_grad 同公式（w=max(30,h*0.18)），页面仅此处换算
+function tickOverhang(w){ return Math.round(1.8*Math.max(9,w*0.21)+4); }   // K1 刻度数字列外伸宽：1.8×font（三字符"100"宽估计）+4px 偏移，font=max(9,w*0.21) 与库件 cylinder_grad 刻度字体公式同源（props-density.js fillText x+w/2+4）
 function cylInner(C){   // 量筒内腔几何（cylinder_grad 同公式：w/wall/内腔四边；v10 J3 同步：inBot=底椭圆中心 botY=y−ryB*0.2=y−w*0.024，ryB=w*0.12）
   var w=cylW(C),wall=Math.max(2,w*0.055);
   return {w:w,inL:C.x-w/2+wall,inR:C.x+w/2-wall,inTop:C.y-C.h+wall*2.2,inBot:C.y-w*0.024};
@@ -1341,12 +1342,12 @@ window.__c6dbg={
   },
   rects:function(){   // G/H 轮验收：命名矩形表（画布坐标；tablePanel=停泊单源 tableRect；null=当前态不绘制）
     function rd(r){ return r?{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.w),h:Math.round(r.h)}:null; }
-    var e=eyePos(),band=cuBandRect(),G=panUIRects(),cw=cylW(L.cyl);
+    var e=eyePos(),band=cuBandRect(),G=panUIRects(),cw=cylW(L.cyl),cwv=cw+2*tickOverhang(cw);   // K1：dbg cyl 矩形=视觉宽（含刻度外伸，与 packDesk hc/hw.cyl 同源）
     var tp=(openP==='table')?tableRect():null;   // H3b：表矩形=停泊单源（draw/dbg 同读，非 DOM 快照）
     return {
       tier:L.tier,twActive:!!deskTween,deskRight:L.desk.right,
       card:rd({x:L.cu.x0,y:L.cu.y0,w:L.cu.x1-L.cu.x0,h:L.cu.y1-L.cu.y0}),
-      cyl:rd({x:L.cyl.x-cw/2,y:L.cyl.y-L.cyl.h,w:cw,h:L.cyl.h}),
+      cyl:rd({x:L.cyl.x-cwv/2,y:L.cyl.y-L.cyl.h,w:cwv,h:L.cyl.h}),
       beaker:rd(beakerBox()),
       jar:rd(jarBox()),
       stone:rd(stoneBox()),
