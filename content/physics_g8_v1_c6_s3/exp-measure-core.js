@@ -10,6 +10,7 @@ var INJECT_MS=1000;               // 阶段二注水约 1s（连续插值）
 var SINK_MS=420;                  // 石块沉底单调插值（终态严格=筒底不回弹）
 var GRAIN_MS=1200;                // 空瘪粒上浮 t 0→1 约 1.2s（seed_grains 内部 smoothstep，页面线性驱动 t）
 var DESK_BAND=109;                // wood_desk 桌带厚度锁 109px（蔡总 10-09 定版；by=fy−109，fy=H−ctrlBandH）
+var TAG_LIFT=3;                   // 轮7 L2：ρ牌/质量牌绘制基线再上抬 cmPx(3)（单源，累加进既有上抬量；断言：牌矩形底缘 ≥ 杯口椭圆顶缘 + cmPx(2)，构造成立——ρ牌基线=杯顶−ch−cmPx(10)−cmPx(2)−cmPx(3)，净空 cmPx(5)>cmPx(2)）
 var CUP_MASS=58.0;                // 空烧杯质量 g（样例自洽：ρ=1.04 Vb=100 → m₁=162.0）
 var BEAKER_CAP=140,BEAKER_INIT_ML=100;   // 烧杯容量/初始清水体积 mL（water frac=vol/140）
 var CYL_CAP=100,CYL_DIV=10;       // 量筒规格（任务书契约：cap=100 div=10）
@@ -392,7 +393,7 @@ function drawBeaker(x,y,h,tiltAng){   // beaker_ice 封装单入口：盐水色 
     }});
   ctx.restore();
 }
-function drawJar(x,y){ return PROPS.beaker_ice(ctx,x,y,{h:L.jar.h,salt:100-saltPct()*0.8,pour:s1().jar.pour}); }   // v10 J4/J5：盐杯统一为库内烧杯件装盐（不传 liquidColor/ice/water；件本身不画粒流，流=drawSaltStream 页面画）
+function drawJar(x,y){ return PROPS.beaker_ice(ctx,x,y,{h:L.jar.h,salt:Math.max(10,66-saltPct()*0.56),pour:s1().jar.pour}); }   // v10 J4/J5：盐杯统一为库内烧杯件装盐（不传 liquidColor/ice/water；件本身不画粒流，流=drawSaltStream 页面画）；轮7 L1 蔡总「装 2/3 就可以」：初始 saltPct=0→66（约2/3满），用盐线性降至 10
 function drawSaltStream(){   // v10 J4/J5：盐杯倾倒粒流（原 salt_jar 库内粒流的页面化）；起点=旋转后杯口世界坐标 mouth=(x+h·sin(ang)·dir, y−h·cos(ang))，
   var S=s1(),h=L.jar.h,ang=S.jar.pour*Math.PI/4,dir=1;   // dir=+1：库件 pour 顺时针旋转（同 salt_jar 语义），杯口移向 +x 侧
   var mx=S.jar.x+h*Math.sin(ang)*dir,my=S.jar.y-h*Math.cos(ang);
@@ -456,7 +457,7 @@ function panUIRects(){
   var tw=Math.round(cmPx(176)),th=Math.round(cmPx(34)),gapV=cmPx(2),bw=Math.round(cmPx(120)),bh=Math.round(cmPx(30));
   var stackH=th+(rec?gapV+bh:0);
   var x=clamp(Math.round(B.x-tw/2),4,Math.max(4,Math.round(W-tw-4)));
-  var y=Math.max(4,Math.round(B.y-B.h-cmPx(8)-stackH));
+  var y=Math.max(4,Math.round(B.y-B.h-cmPx(8)-cmPx(TAG_LIFT)-stackH));   // 轮7 L2：质量牌基线同步再上抬 cmPx(TAG_LIFT)（与 ρ牌单源同量）
   return {rec:rec,tag:{x:x,y:y,w:tw,h:th},
           btn:rec?{x:x+tw/2,y:Math.round(y+th+gapV+bh/2),w:bw,h:bh}:null};   // btn.x/.y=中心（同确认钮语义）
 }
@@ -624,8 +625,8 @@ function beakerPos(){   // 烧杯当前位置（读数牌/密度牌跟随）
 function brineTagRect(){   // G3b ρ牌几何单源（draw/dbg.rects 同读）；J1 宽度收敛：牌中心恒=烧杯 x、半宽恒≤烧杯半宽 hb（宽=min(cmPx(150), 2hb)）
   var p=beakerPos(),hb=L.beaker.h*0.78/2,ch=cmPx(30);
   var cw=Math.min(cmPx(150),hb*2);
-  // F5：基线上抬 cmPx(2)（原 cmPx(10) 净空不够，质量/密度牌压杯口椭圆）；J1：牌⊂烧杯跨度，打包构造性保证烧杯跨度∩量筒跨度=∅ ⇒ 牌永不压量筒（旧 tx clamp 特写卡判据由 deskRightFor⊂cu.x0−cmPx(4) 构造覆盖）
-  var ty=Math.max(38,p.y-L.beaker.h-ch-cmPx(10)-cmPx(2));
+  // F5：基线上抬 cmPx(2)（原 cmPx(10) 净空不够，质量/密度牌压杯口椭圆）；轮7 L2：再上抬 cmPx(TAG_LIFT)=cmPx(3)，断言：牌矩形底缘 ≥ 杯口椭圆顶缘 + cmPx(2)；J1：牌⊂烧杯跨度，打包构造性保证烧杯跨度∩量筒跨度=∅ ⇒ 牌永不压量筒（旧 tx clamp 特写卡判据由 deskRightFor⊂cu.x0−cmPx(4) 构造覆盖）
+  var ty=Math.max(38,p.y-L.beaker.h-ch-cmPx(10)-cmPx(2)-cmPx(TAG_LIFT));
   return {x:Math.round(p.x-cw/2),y:Math.round(ty),w:Math.round(cw),h:Math.round(ch)};
 }
 function drawBrineTag(){   // 盐水密度读数牌（实时 ρ 保留 2 位小数；鲜艳色只给密度读数与液体，§4）
@@ -633,7 +634,7 @@ function drawBrineTag(){   // 盐水密度读数牌（实时 ρ 保留 2 位小�
   var r=brineTagRect();
   ghostCard(r.x,r.y,r.w,r.h);
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  var txt='ρ盐水 = '+fmt(s1().rho,2)+' g/cm³';   // J1：牌内容文案不变
+  var txt=(saltPct()>0.5?'盐水':'水')+': ρ = '+fmt(s1().rho,2)+' g/cm³';   // 轮7 L3 蔡总原话语义：加盐前=「水: ρ = 1.00 g/cm³」，加盐后=「盐水: ρ = X.XX g/cm³」（配盐阶段 hint 仍说盐水语义不变，仅牌文案切换）
   var fs=Math.round(cmPx(15)),fsMin=Math.round(cmPx(10)),maxW=r.w-cmPx(2);   // J1：文字超宽自动缩字号（measure 后降至宽≤2hb−cmPx(2)，下限 cmPx(10)）
   ctx.font='bold '+fs+'px sans-serif';
   while(fs>fsMin&&ctx.measureText(txt).width>maxW){ fs-=1; ctx.font='bold '+fs+'px sans-serif'; }
@@ -774,7 +775,9 @@ cv.addEventListener('pointerdown',function(ev){
         var T=s2();
         if(T.cur.v1!=null){ s2SetWater(T.cur.v1,TWEEN_MS*2); }
         else if(st.vBase!=null){ s2SetWater(st.vBase,TWEEN_MS*2); }   // 未读 V₁ 就取出：回落到浸没前基准（排水量消失）
-        T.cur.v2=null; st.sinkP=1; st.sinkTw=null;
+        // 轮7 L5 记录即持久：仅 v2 未确认（==null）才清浸没基准（回落水位语义照旧）；v2 已记录则保留 v2 与表内 V/ρ（水位仍回落 V₁，物理正确）
+        if(T.cur.v2==null){ st.vBase=null; }
+        st.sinkP=1; st.sinkTw=null;
         renderS2Table(-1);
       }
       s2().drag={dx:(st.loc==='pan'?L.bal.g.panL.x:st.x)-p.x,dy:(st.loc==='pan'?L.bal.panTop:st.y)-p.y};
@@ -873,7 +876,9 @@ function actionTick(now,dt){
   if(state.stage==='s1'&&!state.animating){
     if(S.drag&&S.drag.what==='jar'){
       var jang=S.jar.pour*Math.PI/4;   // v10 J4/J5：悬空判定源口 y=旋转后杯口（y−h·cos(ang)；x 仍取杯位中心，判定带语义不变）
-      var mouthNear=nearBeakerMouth({x:S.jar.x,y:S.jar.y-L.jar.h*Math.cos(jang)});
+      // 轮7 L4 加盐锁（蔡总两复现路径堵死）：①烧杯在天平上/拖拽中（loc!=='bench'）禁加盐——堵「盘上加盐质量当场变」；②m₁ 记录后盐度锁定——堵「记录后加盐、量筒水变盐水但数据是旧 ρ」，ρ 锁定后量筒 liquidColor/ρ牌/种粒浮沉全部不再变（自洽）
+      var canSalt=(S.beaker.loc==='bench')&&(S.m1===null);
+      var mouthNear=canSalt&&nearBeakerMouth({x:S.jar.x,y:S.jar.y-L.jar.h*Math.cos(jang)});
       var tgtP=mouthNear?1:0;
       if(S.jar.pour!==tgtP){ S.jar.pourTw={t0:now,from:S.jar.pour,to:tgtP}; }
       if(mouthNear&&S.rho<RHO_MAX){ setSaltRho(S.rho+SALT_RATE*dt/100); act=true; }   // ρ 单调递增封顶 1.20
@@ -916,7 +921,7 @@ function measureTick(){   // 由 balTick 归零瞬间/endDrag 触发（事件驱
   if(effStage()==='s1'){ updateHint(); dirty=true; return; }   // F2：读数稳定→「记录」按钮出现（recTarget 判定），点击才入表
   var st=stone(),T=s2();
   if(st&&st.loc==='pan'&&T.cur.m===null){
-    T.cur.m=st.m; renderS2Table([0]); openTable();
+    T.cur.m=st.m; renderS2Table([0]); s2TryFinish(); openTable();   // 轮7 L5 顺序自由：先 V 后 m 时，m 落格即结算（s2TryFinish/s2CurCalc 只依赖 cur.m/v1/v2 三值齐全，与石块当前位置无关）
     if(window.playTick)playTick(); updatePanel(); updateHint();
   }
 }
@@ -1087,7 +1092,11 @@ function updateHint(){
 function hintText(){
   if(state.stage==='s1'){
     var S=s1();
-    if(S.drag&&S.drag.what==='jar') return '把盐罐悬空在烧杯口正上方加盐（口部高于杯口才算数，贴桌面平移经过不会加盐）：加盐越多 ρ盐水 越大（1.00→1.20 g/cm³）。ρ≥1.05 后空瘪粒上浮、饱满粒沉底——「清除水面漂浮的空粒、瘪粒，就可以选出较好的种子」（教材 P149 选种）';
+    if(S.drag&&S.drag.what==='jar'){   // 轮7 L4 hint 同步：两锁分支先于通用配盐文案
+      if(S.m1!==null) return '盐度已锁定（测量开始后不再加盐）；要重新配盐请按「重置」';
+      if(S.beaker.loc!=='bench') return '把盐水烧杯放回桌面才能加盐';
+      return '把盐罐悬空在烧杯口正上方加盐（口部高于杯口才算数，贴桌面平移经过不会加盐）：加盐越多 ρ盐水 越大（1.00→1.20 g/cm³）。ρ≥1.05 后空瘪粒上浮、饱满粒沉底——「清除水面漂浮的空粒、瘪粒，就可以选出较好的种子」（教材 P149 选种）';
+    }
     if(S.drag&&S.drag.what==='beaker'&&S.m1===null) return '先把烧杯放上天平左盘，读数稳定后点「记录 m₁」入表（教材 P149 顺序：先测出杯和盐水的总质量 m₁，再倒入量筒）——m₁ 未记录前，悬于筒口上方不会倾倒';
     if(S.pouring) return '倾倒中……松开或把烧杯移离筒口即停止；倒入约 40~60 mL 为宜';
     if(S.done) return '完成（教材 P149 思路）：首先测出盐水的质量和体积，然后通过公式 ρ=m/V 就能计算出盐水的密度。可继续倒液/重记 m₂ 复测（后记覆盖前记），或切「测石块」阶段，或按重置再测一遍';
@@ -1105,7 +1114,7 @@ function hintText(){
   if(st&&st.loc!=='cyl'&&T.cur.v2===null) return '第3步：把小石块拖入量筒——ρ石>ρ水，石块沉底且不吸水，水位升高的体积就是石块的体积（排水法，教材 P150 图6.3-3）';
   if(T.cur.v2===null) return '石块已浸没沉底。在特写区平视读出「水和小石块的总体积 V₂」并确认——V=V₂−V₁ 自动算出';
   if(T.cur.m!==null&&T.cur.v2!==null&&!T.cur.done) return '把石块拖上天平左盘补测质量 m，即可算出 ρ=m/V';
-  return '完成（教材 P150 三步）：测质量 m → 排水法测体积 V=V₂−V₁ → ρ=m/V。按「换石块」再测一块：同种物质密度一定（呼应第2节）';
+  return '数据已记录完整，ρ=m/V 已算出（取出石块不抹记录，先测 V 或先测 m 都行）。完成（教材 P150 三步）：测质量 m → 排水法测体积 V=V₂−V₁ → ρ=m/V。按「换石块」再测一块：同种物质密度一定（呼应第2节）';
 }
 var toastT=null;
 function toast(msg){
@@ -1291,7 +1300,8 @@ window.__c6dbg={
         var T=s2();
         if(T.cur.v1!=null) s2SetWater(T.cur.v1,TWEEN_MS*2);
         else if(st.vBase!=null) s2SetWater(st.vBase,TWEEN_MS*2);
-        T.cur.v2=null; st.sinkTw=null; st.sinkP=1;
+        if(T.cur.v2==null){ st.vBase=null; }   // 轮7 L5：与 pointerdown 取出路径同语义——仅 v2 未确认才清浸没基准；已记录则保留 v2 与表内 V/ρ
+        st.sinkTw=null; st.sinkP=1;
       }
       if(where==='pan'){ st.loc='pan'; balSettle(); }
       else if(where==='cyl'){ submergeStone(); }
