@@ -306,7 +306,13 @@ function resize(){
   cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
   ctx.setTransform(DPR,0,0,DPR,0,0);
   if(ctrlEl) ctrlEl.classList.toggle('compact',H<COMPACT_H);
-  measureCtrl(); layout(); reflow(); placeHint(); repositionPanels();
+  measureCtrl(); layout();
+  // J1 真根因热修：state 层台面件 snap 回新布局目标（reflow 的 clamp 只收越界、不收错位）
+  (function(){ var S=s1(),T=s2(),st=T.stone;
+    if(S.beaker.loc==='bench'){ S.beaker.x=L.beaker.x; S.beaker.y=L.seat; }
+    if(S.jar.loc==='bench'){ S.jar.x=L.jar.x; S.jar.y=L.seat; }
+    if(st&&st.loc==='bench'){ st.x=L.stoneSpot.x; st.y=L.seat; } })();
+  reflow(); placeHint(); repositionPanels();
   dirty=true;
 }
 /* ===== 物理单源（ρ=m/V 及派生全在此处，禁第二套公式；数据表/读数牌/密度牌同读这些函数） ===== */
