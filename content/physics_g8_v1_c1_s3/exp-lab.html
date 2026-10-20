@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>速度实验室</title>
+  <link rel="stylesheet" href="lab.css" />
+</head>
+<body>
+  <header id="shell-header">
+    <a id="back-to-index" href="index.html">‹ 返回本节</a>
+    <div class="header-mid">
+      <div class="header-title">速度实验室</div>
+      <nav id="mode-tabs">
+        <button class="mode-tab active" data-mode="motion">① 双车运动对比</button>
+        <button class="mode-tab" data-mode="calc">② 速度计算器</button>
+        <button class="mode-tab" data-mode="speed">③ 速度全景图</button>
+        <button class="mode-tab" data-mode="unit">④ 单位换算器</button>
+      </nav>
+      <div id="mode-subtitle">甲车匀速、乙车变速，看每 10 s 间隔里两车各跑了多远。</div>
+    </div>
+    <button id="shell-fullscreen" title="全屏">⛶</button>
+  </header>
+
+  <main id="shell-content">
+    <div class="frame-card">
+      <iframe class="mode-frame active" data-mode="motion" data-src="exp-motion.html" title="双车运动对比"></iframe>
+      <iframe class="mode-frame" data-mode="calc"  data-src="exp-calc.html"  title="速度计算器"></iframe>
+      <iframe class="mode-frame" data-mode="speed" data-src="exp-speed.html" title="速度全景图"></iframe>
+      <iframe class="mode-frame" data-mode="unit"  data-src="exp-unit.html"  title="单位换算器"></iframe>
+    </div>
+  </main>
+
+  <script src="lab.js"></script>
+</body>
+</html>
