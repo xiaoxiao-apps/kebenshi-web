@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>声的利用实验室</title>
+  <link rel="stylesheet" href="lab.css" />
+</head>
+<body>
+  <header id="shell-header">
+    <a id="back-to-index" href="index.html">‹ 返回本节</a>
+    <div class="header-mid">
+      <div class="header-title">声的利用实验室</div>
+      <nav id="mode-tabs">
+        <button class="mode-tab active" data-mode="candle">① 扬声器与烛焰</button>
+        <button class="mode-tab" data-mode="echo">② 回声定位测距</button>
+        <button class="mode-tab" data-mode="huanqiu">③ 圜丘回声</button>
+      </nav>
+      <div id="mode-subtitle">声波能传递能量：扬声器播放音乐时，烛焰会随声波颤动。</div>
+    </div>
+    <button id="shell-fullscreen" title="全屏">⛶</button>
+  </header>
+
+  <main id="shell-content">
+    <div class="frame-card">
+      <iframe class="mode-frame active" data-mode="candle"  data-src="exp-candle.html"  title="扬声器与烛焰"></iframe>
+      <iframe class="mode-frame" data-mode="echo"     data-src="exp-echo.html"     title="回声定位测距"></iframe>
+      <iframe class="mode-frame" data-mode="huanqiu" data-src="exp-huanqiu.html" title="圜丘回声"></iframe>
+    </div>
+  </main>
+
+  <script src="lab.js"></script>
+</body>
+</html>

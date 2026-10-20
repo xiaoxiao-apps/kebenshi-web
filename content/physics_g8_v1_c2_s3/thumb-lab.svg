@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#5ad7ff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#5ad7ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 深底 -->
+  <rect x="0" y="0" width="600" height="360" fill="#0b0e13"/>
+  <rect x="0" y="0" width="600" height="360" fill="url(#glow)"/>
+
+  <!-- ==== 上半区：扬声器 → 声波 → 烛焰 ==== -->
+  <!-- 扬声器箱体 + 喇叭口 -->
+  <g>
+    <rect x="52" y="88" width="52" height="84" rx="10" fill="#1a2233" stroke="#2f3c58" stroke-width="2"/>
+    <circle cx="78" cy="118" r="12" fill="#0f1522" stroke="#5ad7ff" stroke-width="2.5"/>
+    <circle cx="78" cy="118" r="4" fill="#5ad7ff"/>
+    <circle cx="78" cy="152" r="7" fill="#0f1522" stroke="#4a9eff" stroke-width="2"/>
+    <polygon points="104,104 148,78 148,182 104,156" fill="#2a3550" stroke="#3d4d70" stroke-width="2" stroke-linejoin="round"/>
+  </g>
+  <!-- 声波弧线（向烛焰传播） -->
+  <g fill="none" stroke="#5ad7ff" stroke-width="3" stroke-linecap="round">
+    <path d="M172 100 Q188 130 172 160" opacity="0.9"/>
+    <path d="M196 86 Q220 130 196 174" opacity="0.6"/>
+    <path d="M220 72 Q252 130 220 188" opacity="0.35"/>
+  </g>
+  <!-- 蜡烛 + 颤动烛焰 -->
+  <g>
+    <rect x="288" y="122" width="24" height="62" rx="5" fill="#e8d5b0"/>
+    <rect x="288" y="122" width="24" height="10" rx="5" fill="#d4bd94"/>
+    <line x1="300" y1="122" x2="300" y2="110" stroke="#8a94a8" stroke-width="3" stroke-linecap="round"/>
+    <!-- 火焰（向声波侧倾斜颤动） -->
+    <path d="M300 108 Q286 92 292 74 Q298 84 302 82 Q300 72 308 64 Q318 82 310 100 Q306 108 300 108 Z" fill="#ffb347"/>
+    <path d="M300 104 Q294 94 298 84 Q304 92 306 88 Q308 98 300 104 Z" fill="#ffe08a"/>
+    <!-- 桌面 -->
+    <rect x="252" y="184" width="120" height="8" rx="4" fill="#2a3550"/>
+  </g>
+  <!-- 圜丘回声小示意（右上：圆形栏板 + 人 + 回声弧） -->
+  <g>
+    <circle cx="510" cy="106" r="46" fill="none" stroke="#2f3c58" stroke-width="6"/>
+    <circle cx="510" cy="106" r="34" fill="#131a2a"/>
+    <circle cx="510" cy="106" r="6" fill="#5ad7ff"/>
+    <g fill="none" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round">
+      <path d="M524 92 Q544 106 524 120" opacity="0.85"/>
+      <path d="M496 92 Q476 106 496 120" opacity="0.5"/>
+    </g>
+  </g>
+
+  <!-- ==== 下半区：海底声呐回声定位 ==== -->
+  <!-- 海面 -->
+  <path d="M0 232 Q40 224 80 232 T160 232 T240 232 T320 232 T400 232 T480 232 T560 232 T640 232 V240 H0 Z" fill="#123047" opacity="0.9"/>
+  <rect x="0" y="240" width="600" height="120" fill="#0e1f30"/>
+  <!-- 船体 + 声呐换能器 -->
+  <g>
+    <path d="M96 214 H184 L170 236 H110 Z" fill="#2a3550" stroke="#3d4d70" stroke-width="2" stroke-linejoin="round"/>
+    <rect x="128" y="196" width="24" height="18" rx="4" fill="#1a2233" stroke="#3d4d70" stroke-width="2"/>
+    <rect x="132" y="236" width="16" height="8" rx="3" fill="#5ad7ff"/>
+  </g>
+  <!-- 声呐下行波束与返回回声（虚线锥） -->
+  <g fill="none" stroke-width="2.5" stroke-linecap="round">
+    <line x1="140" y1="248" x2="286" y2="326" stroke="#5ad7ff" opacity="0.85" stroke-dasharray="7 6"/>
+    <line x1="146" y1="252" x2="322" y2="322" stroke="#4a9eff" opacity="0.5" stroke-dasharray="7 6"/>
+  </g>
+  <!-- 海底 + 目标（礁石/鱼群） -->
+  <path d="M0 336 Q80 322 170 334 T340 332 T500 336 T600 330 V360 H0 Z" fill="#16283c"/>
+  <g>
+    <path d="M288 332 Q302 306 322 332 Z" fill="#2f3c58" stroke="#3d4d70" stroke-width="2" stroke-linejoin="round"/>
+    <!-- 小鱼 -->
+    <g fill="#5ad7ff">
+      <ellipse cx="352" cy="316" rx="10" ry="5"/>
+      <polygon points="362,316 372,310 372,322"/>
+    </g>
+    <circle cx="352" cy="315" r="1.6" fill="#0b0e13"/>
+  </g>
+  <!-- 目标处回声涟漪 -->
+  <g fill="none" stroke="#5ad7ff" stroke-linecap="round">
+    <path d="M292 322 Q305 312 318 322" stroke-width="2.5" opacity="0.8"/>
+    <path d="M284 314 Q305 298 326 314" stroke-width="2" opacity="0.45"/>
+  </g>
+
+  <!-- 点缀星芒 -->
+  <g fill="#5ad7ff" opacity="0.7">
+    <circle cx="420" cy="70" r="3"/>
+    <circle cx="248" cy="52" r="2.5"/>
+    <circle cx="556" cy="286" r="2.5"/>
+  </g>
+</svg>
