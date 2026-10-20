@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#5ad7ff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#5ad7ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 深底 -->
+  <rect x="0" y="0" width="600" height="360" rx="0" fill="#0b0e13"/>
+  <rect x="0" y="0" width="600" height="360" fill="url(#glow)"/>
+
+  <!-- 音叉击水（左） -->
+  <g>
+    <!-- 音叉：双齿 + 底连 + 手柄 -->
+    <rect x="108" y="58" width="11" height="112" rx="5.5" fill="#8fa2c0"/>
+    <rect x="141" y="58" width="11" height="112" rx="5.5" fill="#8fa2c0"/>
+    <rect x="108" y="150" width="44" height="16" rx="6" fill="#8fa2c0"/>
+    <rect x="123" y="164" width="14" height="88" rx="4" fill="#5a6a85"/>
+    <!-- 烧杯 -->
+    <rect x="83" y="212" width="94" height="90" rx="7" fill="none" stroke="#2f3c58" stroke-width="3"/>
+    <!-- 水 -->
+    <rect x="87" y="242" width="86" height="56" rx="4" fill="rgba(74,158,255,0.30)"/>
+    <line x1="87" y1="242" x2="173" y2="242" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- 溅起的水花 -->
+    <g fill="#5ad7ff">
+      <circle cx="110" cy="228" r="4"/>
+      <circle cx="152" cy="224" r="3.2"/>
+      <circle cx="130" cy="212" r="2.4"/>
+    </g>
+    <path d="M98 240 q-6 -10 -2 -18" stroke="#5ad7ff" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M164 240 q7 -11 3 -19" stroke="#5ad7ff" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- 向外扩散的声波同心弧（中） -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M185 79 A70 70 0 0 1 185 201" stroke="#5ad7ff" stroke-width="3.5" opacity="0.85"/>
+    <path d="M200 53 A100 100 0 0 1 200 227" stroke="#5ad7ff" stroke-width="3" opacity="0.55"/>
+    <path d="M215 27 A130 130 0 0 1 215 253" stroke="#4a9eff" stroke-width="2.5" opacity="0.32"/>
+  </g>
+
+  <!-- 真空罩里的闹钟（右） -->
+  <g>
+    <!-- 底座 -->
+    <rect x="358" y="282" width="184" height="16" rx="5" fill="#1a2233" stroke="#2f3c58" stroke-width="2"/>
+    <!-- 罩体 -->
+    <path d="M370 282 V182 A80 80 0 0 1 530 182 V282" fill="rgba(90,215,255,0.05)" stroke="#5ad7ff" stroke-width="3" opacity="0.75"/>
+    <!-- 罩顶钮 -->
+    <circle cx="450" cy="96" r="6" fill="#5ad7ff" opacity="0.8"/>
+    <!-- 闹钟剪影 -->
+    <g>
+      <circle cx="431" cy="196" r="9" fill="#131a2a" stroke="#4a9eff" stroke-width="2.5"/>
+      <circle cx="469" cy="196" r="9" fill="#131a2a" stroke="#4a9eff" stroke-width="2.5"/>
+      <line x1="450" y1="188" x2="450" y2="180" stroke="#4a9eff" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="450" cy="227" r="27" fill="#131a2a" stroke="#5ad7ff" stroke-width="3"/>
+      <line x1="450" y1="227" x2="450" y2="210" stroke="#5ad7ff" stroke-width="3" stroke-linecap="round"/>
+      <line x1="450" y1="227" x2="463" y2="234" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="450" cy="227" r="3.2" fill="#5ad7ff"/>
+      <line x1="437" y1="250" x2="431" y2="280" stroke="#4a9eff" stroke-width="3" stroke-linecap="round"/>
+      <line x1="463" y1="250" x2="469" y2="280" stroke="#4a9eff" stroke-width="3" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- 点缀星芒 -->
+  <g fill="#5ad7ff" opacity="0.7">
+    <circle cx="308" cy="58" r="3"/>
+    <circle cx="562" cy="212" r="2.5"/>
+    <circle cx="52" cy="128" r="2.5"/>
+  </g>
+</svg>

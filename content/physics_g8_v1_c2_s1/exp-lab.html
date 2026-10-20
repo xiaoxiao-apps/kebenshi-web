@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>声音实验室</title>
+  <link rel="stylesheet" href="lab.css" />
+</head>
+<body>
+  <header id="shell-header">
+    <a id="back-to-index" href="index.html">‹ 返回本节</a>
+    <div class="header-mid">
+      <div class="header-title">声音实验室</div>
+      <nav id="mode-tabs">
+        <button class="mode-tab active" data-mode="vibrate">① 发声体振动台</button>
+        <button class="mode-tab" data-mode="amp">② 振动放大器</button>
+        <button class="mode-tab" data-mode="wave">③ 声波可视化</button>
+        <button class="mode-tab" data-mode="vacuum">④ 真空罩模拟</button>
+        <button class="mode-tab" data-mode="medium">⑤ 介质传声对比台</button>
+        <button class="mode-tab" data-mode="dual">⑥ 双声到达模拟</button>
+        <button class="mode-tab" data-mode="speed">⑦ 声速排序游戏</button>
+        <button class="mode-tab" data-mode="echo">⑧ 回声测距计算器</button>
+      </nav>
+      <div id="mode-subtitle">一切发声体都在振动——看音叉击水溅起水花。</div>
+    </div>
+    <button id="shell-fullscreen" title="全屏">⛶</button>
+  </header>
+
+  <main id="shell-content">
+    <div class="frame-card">
+      <iframe class="mode-frame active" data-mode="vibrate" data-src="exp-vibrate.html" title="发声体振动台"></iframe>
+      <iframe class="mode-frame" data-mode="amp"    data-src="exp-amp.html"    title="振动放大器"></iframe>
+      <iframe class="mode-frame" data-mode="wave"   data-src="exp-wave.html"   title="声波可视化"></iframe>
+      <iframe class="mode-frame" data-mode="vacuum" data-src="exp-vacuum.html" title="真空罩模拟"></iframe>
+      <iframe class="mode-frame" data-mode="medium" data-src="exp-medium.html" title="介质传声对比台"></iframe>
+      <iframe class="mode-frame" data-mode="dual"   data-src="exp-dual.html"   title="双声到达模拟"></iframe>
+      <iframe class="mode-frame" data-mode="speed"  data-src="exp-speed.html"  title="声速排序游戏"></iframe>
+      <iframe class="mode-frame" data-mode="echo"   data-src="exp-echo.html"   title="回声测距计算器"></iframe>
+    </div>
+  </main>
+
+  <script src="lab.js"></script>
+</body>
+</html>
