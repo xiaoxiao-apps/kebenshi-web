@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#5ad7ff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#5ad7ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dbScale" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4caf7d"/>
+      <stop offset="50%" stop-color="#d9a441"/>
+      <stop offset="100%" stop-color="#e06a6a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 深底 -->
+  <rect x="0" y="0" width="600" height="360" fill="#0b0e13"/>
+  <rect x="0" y="0" width="600" height="360" fill="url(#glow)"/>
+
+  <!-- 上：规则正弦波（乐音） -->
+  <text x="72" y="34" font-family="-apple-system,'PingFang SC',sans-serif" font-size="15" font-weight="700" fill="#5ad7ff">乐音 · 波形有规则</text>
+  <path d="M70,84 C100,38 130,38 160,84 S220,130 250,84 S310,38 340,84 S400,130 430,84 S490,38 520,84"
+        fill="none" stroke="#5ad7ff" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- 下：杂乱噪声波 -->
+  <text x="72" y="152" font-family="-apple-system,'PingFang SC',sans-serif" font-size="15" font-weight="700" fill="#e06a6a">噪声 · 波形杂乱无章</text>
+  <polyline points="70,206 86,172 102,238 118,160 134,246 150,184 166,254 182,168 198,226 214,158 230,244 246,180 262,256 278,166 294,232 310,160 326,248 342,178 358,238 374,164 390,252 406,174 422,230 438,160 454,246 470,186 486,254 502,168 518,240 530,206"
+        fill="none" stroke="#e06a6a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- 分贝刻度条 -->
+  <g>
+    <text x="66" y="312" font-family="Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#5ad7ff" text-anchor="end">dB</text>
+    <rect x="90" y="298" width="420" height="16" rx="8" fill="url(#dbScale)"/>
+    <rect x="90" y="298" width="420" height="16" rx="8" fill="none" stroke="#2f3c58" stroke-width="2"/>
+    <!-- 刻度线与数值 -->
+    <g stroke="#5a6a85" stroke-width="2">
+      <line x1="90" y1="318" x2="90" y2="326"/>
+      <line x1="195" y1="318" x2="195" y2="326"/>
+      <line x1="300" y1="318" x2="300" y2="326"/>
+      <line x1="405" y1="318" x2="405" y2="326"/>
+      <line x1="510" y1="318" x2="510" y2="326"/>
+    </g>
+    <g font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#7d8aa0" text-anchor="middle">
+      <text x="90" y="344">0</text>
+      <text x="195" y="344">30</text>
+      <text x="300" y="344">60</text>
+      <text x="405" y="344">90</text>
+      <text x="510" y="344">120</text>
+    </g>
+    <!-- 青色指针：当前等级 -->
+    <polygon points="328,288 342,288 335,298" fill="#5ad7ff"/>
+    <line x1="335" y1="294" x2="335" y2="318" stroke="#5ad7ff" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- 点缀星芒 -->
+  <g fill="#5ad7ff" opacity="0.7">
+    <circle cx="556" cy="52" r="3"/>
+    <circle cx="44" cy="128" r="2.5"/>
+    <circle cx="560" cy="238" r="2.5"/>
+  </g>
+</svg>

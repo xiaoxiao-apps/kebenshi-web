@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>噪声实验室</title>
+  <link rel="stylesheet" href="lab.css" />
+</head>
+<body>
+  <header id="shell-header">
+    <a id="back-to-index" href="index.html">‹ 返回本节</a>
+    <div class="header-mid">
+      <div class="header-title">噪声实验室</div>
+      <nav id="mode-tabs">
+        <button class="mode-tab active" data-mode="wave">① 观察噪声的波形</button>
+        <button class="mode-tab" data-mode="decibel">② 声音强弱的感觉</button>
+        <button class="mode-tab" data-mode="control">③ 控制噪声三途径</button>
+      </nav>
+      <div id="mode-subtitle">看波形对比：乐音的波形有规则，噪声的波形杂乱无章。</div>
+    </div>
+    <button id="shell-fullscreen" title="全屏">⛶</button>
+  </header>
+
+  <main id="shell-content">
+    <div class="frame-card">
+      <iframe class="mode-frame active" data-mode="wave"    data-src="exp-wave.html"    title="观察噪声的波形"></iframe>
+      <iframe class="mode-frame" data-mode="decibel" data-src="exp-decibel.html" title="声音强弱的感觉"></iframe>
+      <iframe class="mode-frame" data-mode="control" data-src="exp-control.html" title="控制噪声三途径"></iframe>
+    </div>
+  </main>
+
+  <script src="lab.js"></script>
+</body>
+</html>
