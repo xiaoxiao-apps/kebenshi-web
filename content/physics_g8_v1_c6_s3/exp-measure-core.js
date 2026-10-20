@@ -10,6 +10,7 @@ var INJECT_MS=1000;               // 阶段二注水约 1s（连续插值）
 var SINK_MS=420;                  // 石块沉底单调插值（终态严格=筒底不回弹）
 var GRAIN_MS=1200;                // 空瘪粒上浮 t 0→1 约 1.2s（seed_grains 内部 smoothstep，页面线性驱动 t）
 var DESK_BAND=109;                // wood_desk 桌带厚度锁 109px（蔡总 10-09 定版；by=fy−109，fy=H−ctrlBandH）
+var SEAT_MID=34;                  // P5 坐深单源（蔡总修复轮10「上沿下沿中间」）：器材足迹≈[seat−13,seat+9]（底椭圆前弧下探）→ 足迹中心=seat−2；seat=by+34 使足迹中心=by+32=桌面带正中。c6s3 页面自有常量，库件 seatY 调用清零（c6s1/c6s2 不受影响）
 var TAG_LIFT=3;                   // 轮7 L2：ρ牌/质量牌绘制基线再上抬 cmPx(3)（单源，累加进既有上抬量；断言：牌矩形底缘 ≥ 杯口椭圆顶缘 + cmPx(2)，构造成立——ρ牌基线=杯顶−ch−cmPx(10)−cmPx(2)−cmPx(3)，净空 cmPx(5)>cmPx(2)）
 var CUP_MASS=58.0;                // 空烧杯质量 g（样例自洽：ρ=1.04 Vb=100 → m₁=162.0）
 var BEAKER_CAP=140,BEAKER_INIT_ML=100;   // 烧杯容量/初始清水体积 mL（water frac=vol/140）
@@ -26,6 +27,7 @@ var EYE_RANGE=13*Math.PI/180;     // F4 眼睛弧线半角 ±13°（42°→13°�
 var EYE_MAX_DEV=0.5;              // F4 最大视线偏差 ±0.5 mL（6→0.5，严格小数位级、不超一个分度值 5 mL 的 1/10）
 var ALIGN_TOL=2*Math.PI/180;      // F4 平视判定容差 ±2°（3°→2°；|θ|≤2° 时「看到的读数」=「真实读数」完全相等）
 var EYE_R_K=0.2250;               // sin(13°)=0.22495…≈0.2250（偏差换算单点常量：dev=EYE_MAX_DEV·sinθ/EYE_R_K，θ=±13° 时 |dev|=0.5·sin13°/0.2250≈±0.500）
+var EYE_INIT=0.25;                // P1P2 观察眼初始非平视单源（蔡总修复轮10）：eyeT=0.25 → θ=(0.25*2−1)*13°=−6.5° 俯视态；按场景隔离（s1/s2 各持一份），切场景返回眼位原样恢复
 /* ===== H 轮常量（2026-10-20 修复轮3：响应式两档 Tier A/B + 特写卡紧凑化 + 数据表两行网格停泊/通栏） ===== */
 var EYE_ARC_R=60;                 // G2 单源：特写眼弧半径 cm（原 0.40×bc.h 随卡高漂移→固定；任意液位×θ 眼盒不触文字带）
 var EYE_SPRITE_HALF=22;           // observer_eye sprite 半高 cm（h=cmPx(44)）
@@ -58,16 +60,16 @@ function rgba(c,al){ return 'rgba('+Math.round(c[0])+','+Math.round(c[1])+','+Ma
 /* ===== 状态（两阶段完全隔离、返回原样恢复：切走再切回，数据表/水位/加盐量/石块位置全部原样） ===== */
 var state={
   stage:'s1',animating:false,anim:null,showLabels:false,   // R34：标注默认关（重置不影响）
-  eyeT:0.5,eyeDrag:false,eyeAlignBeep:false,               // 三视线组件共用（两阶段同一组件）
+  eyeDrag:false,eyeAlignBeep:false,                        // 拖动/对齐蜂鸣旗标全局；eyeT 按场景隔离（P1P2，见 s1/s2）
   bal:{tilt:0,tw:null},                                    // 天平横梁倾角（简化读数态：放置后单调归零）
-  s1:{rho:RHO_MIN,beakerVol:BEAKER_INIT_ML,cylMl:0,
+  s1:{rho:RHO_MIN,beakerVol:BEAKER_INIT_ML,cylMl:0,eyeT:EYE_INIT,
       m1:null,m2:null,vConf:null,done:false,
       beaker:{loc:'bench',x:0,y:0},jar:{loc:'bench',x:0,y:0,pour:0,pourTw:null},
       pouring:false,grainT:0,grainT0:0,grainFrom:0,grainTo:0,drag:null},
-  s2:{seed:7,stone:null,rows:[],cur:{m:null,v1:null,v2:null,done:false},injected:false,waterMl:0,
+  s2:{seed:7,stone:null,rows:[],cur:{m:null,v1:null,v2:null,done:false},injected:false,waterMl:0,eyeT:EYE_INIT,
       waterTw:null,drag:null,firstHintShown:false}
 };
-/* ===== 布局（layout() 单点算，绘制只读；R29 坐深居中：器材停驻线一律 L.seat=PROPS.seatY(by,64,26)） ===== */
+/* ===== 布局（layout() 单点算，绘制只读；R29→P5 坐深居中：器材停驻线一律 L.seat=seatOf(fy)=by+SEAT_MID，足迹中心=桌面带正中） ===== */
 /* H3 响应式两档单源：tier()——先按 Tier A 试排（k≥0.45 成立）→ Tier A；否则 Tier B（窄窗/竖屏全屏）。
    Tier A（宽窗）：特写卡右上紧凑锚定；数据表右下停泊（宽=min(44%W,cmPx(240))，控制栏上方 cmPx(2)），表开时桌面右界=tableLeft−cmPx(2)；
    Tier B（窄窗）：特写卡同 A 紧凑形态；数据表底部通栏（宽=96%W 居中），表开时底部带预留=seat 上移表实测高+cmPx(2)、桌面可用宽=全宽−左右 margin。
@@ -136,7 +138,7 @@ function layout(){
   attachBalG(L.bal);   // panDx/panHW 仅依赖 h（与 tier/seat 无关）→ probe 与终排 balRight 同源；y 待 seat 定后回填
   L.tier='A';
   var fyA=L.fyBase,seatA=seatOf(fyA);
-  var fit=packDesk(cylHeightFor('A',seatA),deskRightFor('A',open),seatA,true);
+  var fit=packDesk(cylHeightFor('A',seatA),deskRightFor('A',open),seatA,true,state.stage);
   if(fit.k<K_FLOOR){
     L.tier='B';
     // Tier B 底部带预留：表开时整桌前缘上移=表实测高+cmPx(2)（seat 上移同量；表关不预留）
@@ -146,9 +148,9 @@ function layout(){
   L.fy=fyA; L.by=Math.max(40,L.fy-DESK_BAND); L.seat=seatA;
   L.seatSpan=26;
   L.bal.y=L.seat; attachBalG(L.bal);
-  packDesk(cylHeightFor(L.tier,L.seat),deskRightFor(L.tier,open),L.seat,false);
+  packDesk(cylHeightFor(L.tier,L.seat),deskRightFor(L.tier,open),L.seat,false,state.stage);
 }
-function seatOf(fy){ return PROPS.seatY(Math.max(40,fy-DESK_BAND),64,26); }   // R29 坐深居中单源（seat=by+45）
+function seatOf(fy){ return Math.max(40,fy-DESK_BAND)+SEAT_MID; }   // P5 坐深单源（seat=by+SEAT_MID=by+34，足迹中心落桌面带正中；原库件 seatY(by,64,26)=by+45 贴下沿，调用已清零）
 /* H1/H2/H4 packDesk 重构：桌面器材打包布局单源函数。
    顺序：天平（x=0.155W 固定不动）→ 量筒 → 烧杯 → 盐罐（阶段一）；阶段二尾件=石块位。
    每件 x=前件右缘+gap+自身半宽；半宽单源=库件 width 公式：cyl max(30,h·0.18)/2、beaker 0.78h/2、jar 0.78h/2（v10 J4/J5：盐杯=烧杯件，同族半宽，原 0.66h·1.14 公式删除）、stone cmPx(19.5)+2。
@@ -161,7 +163,7 @@ function seatOf(fy){ return PROPS.seatY(Math.max(40,fy-DESK_BAND),64,26); }   //
    石块 vs 烧杯/盐罐不查：分属阶段二/阶段一，各自阶段对方隐藏（仅 300ms 交叉淡入淡出瞬时同屏，可接受） */
 function deskGapOf(k){ var bw=cmPx(128)*k*0.78; return Math.max(cmPx(DESK_GAP_CM),Math.round(0.10*bw)); }      // beakerW=0.78×beaker.h 单源
 function deskGapMinOf(k){ var bw=cmPx(128)*k*0.78; return Math.max(cmPx(DESK_GAP_MIN_CM),Math.round(0.05*bw)); }
-function packDesk(cylH,deskRight,seat,probe){
+function packDesk(cylH,deskRight,seat,probe,scene){
   var balRight=Math.round(L.bal.x+L.bal.panDx+L.bal.panHW+6);   // 天平右缘（balAvoidRect 同源；layout 已先立 L.bal 几何）
   var avail=Math.round(deskRight)-balRight;        // 桌面可用宽（右界=deskRightFor 单源：Tier A 卡左缘/停泊表左缘、Tier B 全宽−margin）
   var stHW=cmPx(19.5)+2;                           // stone 最大半宽（stoneSize 上限 cmPx(39)）+裕量；石块绘制尺寸不随 k 缩（stoneSize 无 k）→ 足迹半宽恒=stHW 不乘 k，k 小时不咬筒
@@ -196,9 +198,38 @@ function packDesk(cylH,deskRight,seat,probe){
   L.beaker={x:0,y:seat,h:Math.round(cmPx(128)*k)};
   L.jar={x:0,y:seat,h:Math.round(cmPx(96)*k)};
   var hc=cylW(L.cyl)/2+tickOverhang(cylW(L.cyl)),hb=L.beaker.h*0.78/2,hj=L.jar.h*0.78/2,hs=stHW;   // K1：hc=量筒视觉半宽（含刻度外伸，只进打包/断言层，本体绘制/命中仍用 cylW）；v10 J4/J5：盐杯半宽=烧杯族 0.78h/2 单源；hs 不乘 k（石块足迹 k 不变，见上）
+  if(scene==='s2'){
+    /* P4 场景二独立打包（蔡总修复轮10：天平+量筒+石块三件在可用域水平居中，不再沿用场景一偏左布局）：
+       total=2*hbBal+gap+2*hc+gap+2*hs（hbBal=panDx+panHW+6 与 balRight 同源；hc=视觉半宽含刻度外伸 K1 同源；hs=石块足迹半宽不乘 k）；
+       可用域=[deskLeft,deskRight]（deskLeft=cmPx(4)、deskRight=deskRightFor 单源）→ left=(deskLeft+deskRight−total)/2；
+       balX=left+hbBal、cylX=balX+hbBal+gap+hc、stoneX=cylX+hc+gap+hs（left 下界 clamp deskLeft、stoneX 上界 clamp deskRight−hs，溢出时贴边不越界）。
+       断言（构造成立）：三件包围盒中心=(balX−hbBal+stoneX+hs)/2 与可用域中心=(deskLeft+deskRight)/2 差 ≤2px（仅逐项 Math.round ±0.5×3 累积，未触 clamp 时成立）。
+       隐藏的烧杯/盐罐仍按序列锚新 balRight 排布（仅供 sceneAvoidRects 避让；切回场景一走 else 原布局同源归位）。
+       场景切换平滑：setStage 恒调 startRepack → 既有 repack tween（snapDesk/applyDeskSnap 已扩展 balX，每帧 attachBalG 重算盘几何，禁跳变）。 */
+    var deskLeft=Math.round(cmPx(4)),deskR=Math.round(deskRight);
+    var hbBal=L.bal.panDx+L.bal.panHW+6;
+    var total=2*hbBal+gap+2*hc+gap+2*hs;
+    var left2=Math.max(deskLeft,(deskLeft+deskR-total)/2);
+    var balX2=Math.round(left2+hbBal);
+    var cylX2=Math.round(balX2+hbBal+gap+hc);
+    var stoneX2=Math.round(Math.min(cylX2+hc+gap+hs,Math.max(0,deskR-hs)));
+    L.bal.x=balX2; attachBalG(L.bal);
+    var balRight2=Math.round(L.bal.x+L.bal.panDx+L.bal.panHW+6);
+    L.cyl.x=cylX2;
+    L.beaker.x=Math.round(L.cyl.x+hc+gap+hb);
+    L.jar.x=Math.round(L.beaker.x+hb+gap+hj);
+    L.stoneSpot={x:stoneX2,y:seat};
+    L.desk={balRight:balRight2,gap:gap,k:k,overflow:overflow,right:deskR,
+            hw:{cyl:hc,beaker:hb,jar:hj,stone:hs}};
+    return {k:kRaw,gap:gap,avail:avail,balRight:balRight2};
+  }
   L.cyl.x=Math.round(balRight+gap+hc);
   L.beaker.x=Math.round(L.cyl.x+hc+gap+hb);
   L.jar.x=Math.round(L.beaker.x+hb+gap+hj);
+  /* P5 副作用修：逐项 Math.round 累计可使 jar 右缘越 deskRight 1~2px（seat 34 后 k 变、A/D 流程 jar.x+hj=right+1 → reflow clamp 致 S≠L 探针红）——
+     链式越界时整体左移同量（相邻 gap 与 ov 不变；左端富余=gap≥cmPx(1)>2px 恒足），修后 jar.x+hj≤right 与 benchClampX 上界一致 → S==L */
+  var chainOver=Math.ceil((L.jar.x+hj)-Math.round(deskRight));   // 整数化取移量（clampXTo 上界=Math.round(right−hw) 同源取整，禁小数 x 致 S≠L）
+  if(chainOver>0&&chainOver<=Math.floor(gap)){ L.cyl.x-=chainOver; L.beaker.x-=chainOver; L.jar.x-=chainOver; }
   // H4 石块位单源=打包序列第四件（两序列 max 右缘）；上界=桌面右界−hs（cuX0−cmPx(50) clamp 已删）
   var spotRaw=Math.max(L.jar.x+hj,L.cyl.x+hc)+gap+hs;
   L.stoneSpot={x:Math.round(Math.min(spotRaw,Math.max(0,deskRight-hs))),y:seat};
@@ -215,14 +246,14 @@ function clampXTo(right,balRight,hw,x){
 function benchClampX(hw,x){ return clampXTo(L.desk.right,L.desk.balRight,hw,x); }
 /* ===== H3b repack tween（数据表开/关 250ms：桌面几何+器材+台面件平滑让位，禁跳变；lerp 几何恒成立 → tween 中任意帧断言不破） ===== */
 function snapDesk(){
-  return {fy:L.fy,by:L.by,seat:L.seat,balY:L.bal?L.bal.y:L.seat,
+  return {fy:L.fy,by:L.by,seat:L.seat,balX:L.bal?L.bal.x:0,balY:L.bal?L.bal.y:L.seat,
     cylX:L.cyl.x,cylH:L.cyl.h,bkX:L.beaker.x,bkH:L.beaker.h,jarX:L.jar.x,jarH:L.jar.h,stX:L.stoneSpot.x,
     right:L.desk.right,balRight:L.desk.balRight,gap:L.desk.gap,k:L.desk.k,
     hwc:L.desk.hw.cyl,hwb:L.desk.hw.beaker,hwj:L.desk.hw.jar,hws:L.desk.hw.stone};
 }
 function applyDeskSnap(s){   // 把快照写回 L（tween 每帧插值调用；attachBalG 随 bal.y 重算=盘上件同步平移）
   L.fy=s.fy; L.by=s.by; L.seat=s.seat;
-  if(L.bal){ L.bal.y=s.balY; attachBalG(L.bal); }
+  if(L.bal){ L.bal.x=s.balX; L.bal.y=s.balY; attachBalG(L.bal); }   // P4：balX 入插值（场景二天平移位），attachBalG 每帧重算盘几何
   L.cyl.x=s.cylX; L.cyl.h=s.cylH; L.cyl.y=s.seat;
   L.beaker.x=s.bkX; L.beaker.h=s.bkH; L.beaker.y=s.seat;
   L.jar.x=s.jarX; L.jar.h=s.jarH; L.jar.y=s.seat;
@@ -236,21 +267,21 @@ function lerpSnap(a,b,t){
   return s;
 }
 var deskTween=null,deskItemsFrom=null,deskItemsTo=null;
-function itemTargets(snap){   // 台面件（bench 态）在快照几何下的回域目标 x（clampXTo 纯函数，与 benchClampX 同界）
+function itemTargets(snap,toSlots){   // 台面件（bench 态）在快照几何下的回域目标 x。toSlots=true（P4 场景切换）：一律回新场景打包槽位（snap.bkX/jarX/stX，J1 同语义，禁隐藏件被异场景 balRight 推离）；toSlots=false（表开/关重排）：clampXTo 纯函数收越界、保用户拖放位
   var S=s1(),st=stone(),o={};
-  o.beaker=(S.beaker.loc==='bench')?clampXTo(snap.right,snap.balRight,snap.hwb,S.beaker.x):null;
-  o.jar=(S.jar.loc==='bench')?clampXTo(snap.right,snap.balRight,snap.hwj,S.jar.x):null;
-  o.stone=(st&&st.loc==='bench')?clampXTo(snap.right,snap.balRight,snap.hws,st.x):null;
+  o.beaker=(S.beaker.loc==='bench')?(toSlots?snap.bkX:clampXTo(snap.right,snap.balRight,snap.hwb,S.beaker.x)):null;
+  o.jar=(S.jar.loc==='bench')?(toSlots?snap.jarX:clampXTo(snap.right,snap.balRight,snap.hwj,S.jar.x)):null;
+  o.stone=(st&&st.loc==='bench')?(toSlots?snap.stX:clampXTo(snap.right,snap.balRight,snap.hws,st.x)):null;
   return o;
 }
-function startRepack(){   // openPanel 表开/关唯一入口调用：快照当前→layout 重算目标→250ms 插值
+function startRepack(toSlots){   // openPanel 表开/关(false)+setStage 切场景(true，P4)调用：快照当前→layout 重算目标→250ms 插值
   if(!L.cyl||!L.desk) return;
   var from=snapDesk();
   layout();
   var to=snapDesk();
   var S=s1(),st=stone();
   deskItemsFrom={beaker:S.beaker.x,jar:S.jar.x,stone:st?st.x:0};
-  deskItemsTo=itemTargets(to);
+  deskItemsTo=itemTargets(to,toSlots);
   applyDeskSnap(from);   // 先回旧几何，tween 逐帧逼近新几何（首帧无跳变）
   deskTween={t0:performance.now(),from:from,to:to};
   dirty=true;
@@ -310,7 +341,7 @@ function resize(){
   if(ctrlEl) ctrlEl.classList.toggle('compact',H<COMPACT_H);
   measureCtrl(); layout();
   // J1 真根因热修：state 层台面件 snap 回新布局目标（reflow 的 clamp 只收越界、不收错位）
-  (function(){ var S=s1(),T=s2(),st=T.stone;
+  (function(){ var S=s1(),T=s2(),st=T.stone;   // J1 语义保留（P4 后仍无条件）：bench 件 snap 回当前场景布局目标（隐藏件也有确定槽位，S==L 恒等；场景切换的槽位迁移走 repack tween）
     if(S.beaker.loc==='bench'){ S.beaker.x=L.beaker.x; S.beaker.y=L.seat; }
     if(S.jar.loc==='bench'){ S.jar.x=L.jar.x; S.jar.y=L.seat; }
     if(st&&st.loc==='bench'){ st.x=L.stoneSpot.x; st.y=L.seat; } })();
@@ -540,7 +571,8 @@ function stageAlpha(stg){   // 阶段包络：交叉淡入淡出 300ms（前半�
   if(stg!==cur) return 0;
   return t<0.5?(1-2*t):(2*t-1);
 }
-function eyeTheta(){ return (state.eyeT*2-1)*EYE_RANGE; }
+function eyeScene(){ return effStage()==='s1'?state.s1:state.s2; }   // P1P2 eyeT 场景隔离单源（effStage 同源；eyeTheta/eyePos/eyeAligned/eyeApparent/eyeDrag 写回/dbg 全走此处）
+function eyeTheta(){ return (eyeScene().eyeT*2-1)*EYE_RANGE; }
 function cuSurf(){   // 特写大筒液面点（water=0 时 wy=inBot，与 cylinder_grad 同源公式）
   var bc=L.cu.bc,gi=cylInner(bc),f=cylFracFor(effStage());
   return {x:bc.x,y:f>0.005?gi.inBot-(gi.inBot-gi.inTop)*f:gi.inBot,gi:gi};
@@ -794,7 +826,7 @@ cv.addEventListener('pointermove',function(ev){
   if(state.eyeDrag){   // 方案乙：眼沿弧线上下拖动，视线实时随动（θ=atan2 投影回 eyeT）
     var s=cuSurf(),dx=s.x-p.x,dy=p.y-s.y;
     var th=(dx>1)?Math.atan2(dy,dx):(dy>0?EYE_RANGE:-EYE_RANGE);
-    state.eyeT=clamp((clamp(th,-EYE_RANGE,EYE_RANGE)/EYE_RANGE+1)/2,0,1);
+    eyeScene().eyeT=clamp((clamp(th,-EYE_RANGE,EYE_RANGE)/EYE_RANGE+1)/2,0,1);
     if(eyeAligned()&&!state.eyeAlignBeep){ state.eyeAlignBeep=true; if(window.playTick)playTick(); }   // 平视对齐轻微反馈
     if(!eyeAligned()) state.eyeAlignBeep=false;
     dirty=true; return;
@@ -974,7 +1006,7 @@ function renderS2Table(flashCols){   // H3b 记录表两行网格：当前记录
 }
 function doConfirm(){   // 特写区「确认读数」：视线与液面相平才有效（不出题不判分，现象自己说话）
   var tg=confirmTarget(); if(!tg) return;
-  if(!eyeAligned()){ toast('读数时视线要与液面相平——俯视读数偏大、仰视读数偏小（教材 P149）'); return; }
+  if(!eyeAligned()){ toast('读数时视线要与液面相平——俯视读数偏大、仰视读数偏小'); return; }
   if(window.playTick)playTick();
   if(tg==='s1v'){
     var S=s1(); S.vConf=S.cylMl;
@@ -1045,7 +1077,7 @@ function syncPanelSections(){   // 面板内容随阶段切换（两阶段各自
   var t1=document.getElementById('tbl-s1'),t2=document.getElementById('tbl-s2');
   if(t1) t1.style.display=s1on?'block':'none';
   if(t2) t2.style.display=s1on?'none':'block';
-  setText('tb-title-s1',s1on?'数据表（教材 P149）':'');   // H3b 表题移入两行网格空位单元格（tb-title 顶题已删）
+  setText('tb-title-s1',s1on?'数据表':'');   // H3b 表题移入两行网格空位单元格（tb-title 顶题已删）；P6 去页码出处字眼
   setText('tb-title-s2',s1on?'':'记录表（自己设计的表格）');
 }
 function openPanel(name){
@@ -1059,7 +1091,7 @@ function openPanel(name){
   syncPanelSections();
   if(openP==='read'){ updatePanel(); placePanel('panel-read'); }
   if(openP==='table') renderS2Table([]);
-  if(wasTable||openP==='table') startRepack();   // H3b：表可见性任何变化（开/关/被读数面板顶掉）都走重测表高+tier 重算+250ms repack tween（器材平滑让位，禁跳变）
+  if(wasTable||openP==='table') startRepack(false);   // H3b：表可见性任何变化（开/关/被读数面板顶掉）都走重测表高+tier 重算+250ms repack tween（器材平滑让位，禁跳变；toSlots=false 保用户拖放位）
 }
 function openTable(){ if(openP!=='table') openPanel('table'); }   // 首次落格自动打开数据表（落格高亮可见）
 function setText(id,t){ var el=document.getElementById(id); if(el&&el.textContent!==t) el.textContent=t; }
@@ -1095,26 +1127,26 @@ function hintText(){
     if(S.drag&&S.drag.what==='jar'){   // 轮7 L4 hint 同步：两锁分支先于通用配盐文案
       if(S.m1!==null) return '盐度已锁定（测量开始后不再加盐）；要重新配盐请按「重置」';
       if(S.beaker.loc!=='bench') return '把盐水烧杯放回桌面才能加盐';
-      return '把盐罐悬空在烧杯口正上方加盐（口部高于杯口才算数，贴桌面平移经过不会加盐）：加盐越多 ρ盐水 越大（1.00→1.20 g/cm³）。ρ≥1.05 后空瘪粒上浮、饱满粒沉底——「清除水面漂浮的空粒、瘪粒，就可以选出较好的种子」（教材 P149 选种）';
+      return '把盐罐悬空在烧杯口正上方加盐（口部高于杯口才算数，贴桌面平移经过不会加盐）：加盐越多 ρ盐水 越大（1.00→1.20 g/cm³）。ρ≥1.05 后空瘪粒上浮、饱满粒沉底——「清除水面漂浮的空粒、瘪粒，就可以选出较好的种子」';
     }
-    if(S.drag&&S.drag.what==='beaker'&&S.m1===null) return '先把烧杯放上天平左盘，读数稳定后点「记录 m₁」入表（教材 P149 顺序：先测出杯和盐水的总质量 m₁，再倒入量筒）——m₁ 未记录前，悬于筒口上方不会倾倒';
+    if(S.drag&&S.drag.what==='beaker'&&S.m1===null) return '先把烧杯放上天平左盘，读数稳定后点「记录 m₁」入表（顺序：先测出杯和盐水的总质量 m₁，再倒入量筒）——m₁ 未记录前，悬于筒口上方不会倾倒';
     if(S.pouring) return '倾倒中……松开或把烧杯移离筒口即停止；倒入约 40~60 mL 为宜';
-    if(S.done) return '完成（教材 P149 思路）：首先测出盐水的质量和体积，然后通过公式 ρ=m/V 就能计算出盐水的密度。可继续倒液/重记 m₂ 复测（后记覆盖前记），或切「测石块」阶段，或按重置再测一遍';
+    if(S.done) return '完成：首先测出盐水的质量和体积，然后通过公式 ρ=m/V 就能计算出盐水的密度。可继续倒液/重记 m₂ 复测（后记覆盖前记），或切「测石块」场景，或按重置再测一遍';
     if(S.m1!==null&&S.m2!==null&&S.vConf!==null) return '正在算 ρ=m/V……';
     if(S.m1!==null&&S.vConf!==null&&S.m2===null) return 'V 已读。把烧杯（含剩余盐水）放回天平左盘，读数稳定后点「记录 m₂」——量筒中盐水的质量 m=m₁−m₂ 自动算出（差值法；m₂ 可多次记录，后记覆盖前记）';
     if(S.m1!==null&&S.cylMl>0.05&&S.vConf===null) return '读 V（量筒使用②：读数时视线要与液面相平）：在右侧特写区上下拖动眼睛，俯视读数偏大、仰视偏小；平视后按「✓ 确认读数」';
     if(S.m1!==null&&S.cylMl<=0.05) return 'm₁ 已记录。把烧杯拖到量筒口正上方悬空倾倒盐水——按住持续倒、移开即停，倒入约 40~60 mL';
     if(S.rho>RHO_MIN) return '盐水已配好（ρ='+fmt(S.rho,2)+' g/cm³'+(S.rho>=HOLLOW_CRIT?'，可完成选种':'，未到选种临界 1.05，可继续加盐')+'）。把烧杯拖到天平左盘，读数稳定后点「记录 m₁」';
-    return '阶段一（教材 P149）：自己用盐和水配制一杯盐水，测出它的质量和体积。① 拖盐罐悬空到烧杯口上方加盐配盐水（选种：ρ≥1.05 空瘪粒上浮）② 拖烧杯上天平左盘，读数稳定后点「记录 m₁」入表';
+    return '场景一：自己用盐和水配制一杯盐水，测出它的质量和体积。① 拖盐罐悬空到烧杯口上方加盐配盐水（选种：ρ≥1.05 空瘪粒上浮）② 拖烧杯上天平左盘，读数稳定后点「记录 m₁」入表';
   }
   var T=s2(),st=stone();
-  if(T.cur.m===null) return '第1步（教材 P150）：用天平测量小石块的质量——把石块拖到天平左盘，读数稳定后自动记录在自己设计的表格中';
+  if(T.cur.m===null) return '第1步：用天平测量小石块的质量——把石块拖到天平左盘，读数稳定后自动记录在自己设计的表格中';
   if(!T.injected) return '第2步：点击量筒注水（约 60 mL 适量水），然后在右侧特写区读 V₁';
   if(T.cur.v1===null) return '读 V₁：上下拖动眼睛使视线与液面相平（量筒使用②），按「✓ 确认读数」记录量筒中水的体积 V₁';
-  if(st&&st.loc!=='cyl'&&T.cur.v2===null) return '第3步：把小石块拖入量筒——ρ石>ρ水，石块沉底且不吸水，水位升高的体积就是石块的体积（排水法，教材 P150 图6.3-3）';
+  if(st&&st.loc!=='cyl'&&T.cur.v2===null) return '第3步：把小石块拖入量筒——ρ石>ρ水，石块沉底且不吸水，水位升高的体积就是石块的体积（排水法）';
   if(T.cur.v2===null) return '石块已浸没沉底。在特写区平视读出「水和小石块的总体积 V₂」并确认——V=V₂−V₁ 自动算出';
   if(T.cur.m!==null&&T.cur.v2!==null&&!T.cur.done) return '把石块拖上天平左盘补测质量 m，即可算出 ρ=m/V';
-  return '数据已记录完整，ρ=m/V 已算出（取出石块不抹记录，先测 V 或先测 m 都行）。完成（教材 P150 三步）：测质量 m → 排水法测体积 V=V₂−V₁ → ρ=m/V。按「换石块」再测一块：同种物质密度一定（呼应第2节）';
+  return '数据已记录完整，ρ=m/V 已算出（取出石块不抹记录，先测 V 或先测 m 都行）。完成（三步）：测质量 m → 排水法测体积 V=V₂−V₁ → ρ=m/V。按「换石块」再测一块：同种物质密度一定（呼应第2节）';
 }
 var toastT=null;
 function toast(msg){
@@ -1129,10 +1161,10 @@ function setStage(to){
   state.anim={from:state.stage,to:to,t0:performance.now()};
   state.stage=to; state.animating=true;
   hideToast(); syncGroups(); placeHint(); repositionPanels();
-  if(openP==='table') startRepack();   // H3b：两阶段表体高度不同（s2 多行对比）→ 表开时切阶段同样走 repack tween（seat 预留/停泊位平滑过渡）
+  startRepack(true);   // P4：场景二独立打包（bal/cyl/stone 居中）→ 切场景恒走 repack tween 平滑滑动（toSlots=true：台面件回新场景槽位；state.stage 已更新，layout 按新场景打包）
   if(to==='s2'&&!s2().firstHintShown){   // 首次切到阶段二：教材 P150 原句过渡
     s2().firstHintShown=true;
-    hintOverride='想一想：对于形状不规则的固体，又该如何测量它的密度呢？（教材 P150）——第1步：把小石块拖到天平左盘测质量 m';
+    hintOverride='想一想：对于形状不规则的固体，又该如何测量它的密度呢？——第1步：把小石块拖到天平左盘测质量 m';
   }
   updateHint();
   if(window.playClick) playClick();
@@ -1150,7 +1182,7 @@ function syncGroups(){
 function resetS1(){
   var S=s1();
   S.rho=RHO_MIN; S.beakerVol=BEAKER_INIT_ML; S.cylMl=0;
-  S.m1=null; S.m2=null; S.vConf=null; S.done=false; S.pouring=false; S.drag=null;
+  S.m1=null; S.m2=null; S.vConf=null; S.done=false; S.pouring=false; S.drag=null; S.eyeT=EYE_INIT;   // P1P2：重置回初始俯视角
   S.beaker.loc='bench'; S.beaker.x=L.beaker.x; S.beaker.y=L.seat;
   S.jar.loc='bench'; S.jar.x=L.jar.x; S.jar.y=L.seat; S.jar.pour=0; S.jar.pourTw=null;
   S.grainT=0; S.grainFrom=0; S.grainTo=0; S.grainT0=0;
@@ -1163,7 +1195,7 @@ function resetS1(){
 function resetS2(){
   var T=s2();
   T.rows=[]; T.cur={m:null,v1:null,v2:null,done:false};
-  T.injected=false; T.waterMl=0; T.waterTw=null; T.drag=null; T.firstHintShown=false;
+  T.injected=false; T.waterMl=0; T.waterTw=null; T.drag=null; T.firstHintShown=false; T.eyeT=EYE_INIT;   // P1P2：重置回初始俯视角
   T.seed=7; T.stone=mkStone(7); T.stone.x=L.stoneSpot.x; T.stone.y=L.stoneSpot.y;
   state.bal.tilt=0; state.bal.tw=null;
   renderS2Table([]); updatePanel(); updateHint(); dirty=true;
@@ -1241,6 +1273,7 @@ function busy(now){
   var act=false;
   if(state.animating){
     if(now-state.anim.t0>=XFADE_MS){ state.animating=false; state.anim=null; updateHint(); }
+    deskTweenTick(now);   // P4：切场景 repack tween 与交叉淡入淡出并行推进（否则 REPACK_MS<XFADE_MS 暂停后首帧 t≥1 直接落终位=跳变）
     return true;   // 切换窗口内锁全部输入（animating 门在 pointerdown/move 与各钮）
   }
   if(balTick(now)) act=true;
@@ -1319,7 +1352,7 @@ window.__c6dbg={
     var tg=recTarget(); doRecord();
     return {target:tg,m1:s1().m1==null?null:+s1().m1.toFixed(1),m2:s1().m2==null?null:+s1().m2.toFixed(1)};
   },
-  eyeTo:function(t){ state.eyeT=clamp(t,0,1); dirty=true;
+  eyeTo:function(t){ eyeScene().eyeT=clamp(t,0,1); dirty=true;
     return {thetaDeg:+(eyeTheta()*180/Math.PI).toFixed(2),aligned:eyeAligned(),apparent:+eyeApparent().toFixed(2),trueV:+cylMlFor(effStage()).toFixed(2)}; },
   confirmRead:function(){ doConfirm(); return {target:confirmTarget(),aligned:eyeAligned()}; },
   reset:function(stg){ if((stg||state.stage)==='s1') resetS1(); else resetS2(); dirty=true; return true; },
@@ -1332,7 +1365,7 @@ window.__c6dbg={
                 v:r.v!=null?+r.v.toFixed(2):null,rho:r.rho!=null?+r.rho.toFixed(3):null}}};
   },
   grab:function(item){   // 件位置/状态直读（验收免合成拖拽）
-    if(item==='eye') return {eyeT:state.eyeT,thetaDeg:+(eyeTheta()*180/Math.PI).toFixed(2),aligned:eyeAligned(),apparent:+eyeApparent().toFixed(2),trueV:+cylMlFor(effStage()).toFixed(2)};
+    if(item==='eye') return {eyeT:eyeScene().eyeT,thetaDeg:+(eyeTheta()*180/Math.PI).toFixed(2),aligned:eyeAligned(),apparent:+eyeApparent().toFixed(2),trueV:+cylMlFor(effStage()).toFixed(2)};
     if(item==='beaker'){ var b=beakerPos(); return {loc:s1().beaker.loc,x:Math.round(b.x),y:Math.round(b.y),volMl:+s1().beakerVol.toFixed(1)}; }
     if(item==='jar') return {loc:s1().jar.loc,x:Math.round(s1().jar.x),y:Math.round(s1().jar.y),pour:+s1().jar.pour.toFixed(2),saltPct:+saltPct().toFixed(1)};
     if(item==='stone'){ var st=stone(); return st?{loc:st.loc,x:Math.round(st.x),y:Math.round(st.y),seed:st.seed,V:+st.V.toFixed(2),rho:+st.rho.toFixed(3),m:+st.m.toFixed(1),sinkP:+st.sinkP.toFixed(3),wet:+st.wet.toFixed(2)}:null; }
