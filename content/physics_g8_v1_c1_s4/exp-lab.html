@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>测速实验室</title>
+  <link rel="stylesheet" href="lab.css" />
+</head>
+<body>
+  <header id="shell-header">
+    <a id="back-to-index" href="index.html">‹ 返回本节</a>
+    <div class="header-mid">
+      <div class="header-title">测速实验室</div>
+      <nav id="mode-tabs">
+        <button class="mode-tab active" data-mode="slope">① 斜面小车测平均速度</button>
+        <button class="mode-tab" data-mode="sensor">② 超声波传感器测速</button>
+      </nav>
+      <div id="mode-subtitle">按教材 5 步完成实验，体会“测路程、测时间、再求平均速度”。</div>
+    </div>
+    <button id="shell-fullscreen" title="全屏">⛶</button>
+  </header>
+
+  <main id="shell-content">
+    <div class="frame-card">
+      <iframe class="mode-frame active" data-mode="slope"  data-src="exp-slope.html"  title="斜面小车测平均速度"></iframe>
+      <iframe class="mode-frame" data-mode="sensor" data-src="exp-sensor.html" title="超声波传感器测速"></iframe>
+    </div>
+  </main>
+
+  <script src="lab.js"></script>
+</body>
+</html>

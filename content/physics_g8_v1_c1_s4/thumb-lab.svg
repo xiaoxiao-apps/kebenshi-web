@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#5ad7ff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#5ad7ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ramp" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1a2233"/>
+      <stop offset="100%" stop-color="#232e45"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 深底 -->
+  <rect x="0" y="0" width="600" height="360" fill="#0b0e13"/>
+  <rect x="0" y="0" width="600" height="360" fill="url(#glow)"/>
+
+  <!-- 斜面（左高右低）+ 支撑腿 -->
+  <g>
+    <polygon points="60,120 430,268 430,290 60,290" fill="url(#ramp)" stroke="#2f3c58" stroke-width="2"/>
+    <!-- 斜面刻度线（分程标记） -->
+    <g stroke="#5a6a85" stroke-width="2">
+      <line x1="152" y1="157" x2="152" y2="171"/>
+      <line x1="245" y1="194" x2="245" y2="208"/>
+      <line x1="337" y1="231" x2="337" y2="245"/>
+    </g>
+    <!-- 青色高亮：中点分程标记 -->
+    <line x1="245" y1="190" x2="245" y2="210" stroke="#5ad7ff" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- 斜面下滑小车（车身 + 轮子），位于斜面上部 -->
+  <g transform="rotate(21.8 190 158)">
+    <rect x="150" y="126" width="80" height="24" rx="7" fill="#e06a6a"/>
+    <rect x="168" y="112" width="44" height="16" rx="5" fill="#4a9eff"/>
+    <circle cx="170" cy="154" r="9" fill="#0f1522" stroke="#8fa2c0" stroke-width="3"/>
+    <circle cx="210" cy="154" r="9" fill="#0f1522" stroke="#8fa2c0" stroke-width="3"/>
+    <!-- 运动方向箭头（青色点缀） -->
+    <line x1="238" y1="138" x2="264" y2="138" stroke="#5ad7ff" stroke-width="3" stroke-linecap="round"/>
+    <polygon points="264,131 276,138 264,145" fill="#5ad7ff"/>
+  </g>
+
+  <!-- 金属片挡板（斜面底端，竖立） -->
+  <g>
+    <rect x="426" y="216" width="10" height="74" rx="3" fill="#d9a441"/>
+    <rect x="426" y="216" width="10" height="10" rx="3" fill="#e8bb5e"/>
+    <rect x="412" y="286" width="38" height="8" rx="3" fill="#2a3550"/>
+  </g>
+
+  <!-- 机械停表（右上，双表盘） -->
+  <g>
+    <rect x="471" y="34" width="16" height="14" rx="4" fill="#2a3550"/>
+    <line x1="518" y1="62" x2="533" y2="49" stroke="#2a3550" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="479" cy="110" r="56" fill="#131a2a" stroke="#2a3550" stroke-width="5"/>
+    <circle cx="479" cy="110" r="46" fill="none" stroke="rgba(90,215,255,0.35)" stroke-width="2"/>
+    <g stroke="#5a6a85" stroke-width="2">
+      <line x1="479" y1="68" x2="479" y2="76"/>
+      <line x1="521" y1="110" x2="513" y2="110"/>
+      <line x1="479" y1="152" x2="479" y2="144"/>
+      <line x1="437" y1="110" x2="445" y2="110"/>
+    </g>
+    <circle cx="479" cy="87" r="14" fill="#0f1522" stroke="#5ad7ff" stroke-width="2"/>
+    <line x1="479" y1="87" x2="486" y2="80" stroke="#5ad7ff" stroke-width="2" stroke-linecap="round"/>
+    <line x1="479" y1="110" x2="507" y2="126" stroke="#5ad7ff" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="479" y1="110" x2="464" y2="90" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="479" cy="110" r="4.5" fill="#5ad7ff"/>
+  </g>
+
+  <!-- 地面基准线 -->
+  <line x1="40" y1="294" x2="560" y2="294" stroke="#2f3c58" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- 公式点缀 v = s / t -->
+  <text x="300" y="336" font-family="Helvetica,Arial,sans-serif" font-size="20" font-style="italic" fill="#7d8aa0" text-anchor="middle">v = s / t</text>
+
+  <!-- 点缀星芒 -->
+  <g fill="#5ad7ff" opacity="0.7">
+    <circle cx="380" cy="60" r="3"/>
+    <circle cx="560" cy="196" r="2.5"/>
+    <circle cx="52" cy="66" r="2.5"/>
+  </g>
+</svg>
