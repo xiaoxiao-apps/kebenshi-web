@@ -20,10 +20,11 @@ var POUR_RATE=45;                 // 倾倒速率 mL/s（学生控量，约 40~6
 var INJECT_ML=60;                 // 阶段二注水目标 V₁（合理区间中部）
 var STONE_RHO_MIN=2.5,STONE_RHO_MAX=2.8; // 石块密度区间（花岗岩族教材表值邻域）
 var STONE_V_MIN=15,STONE_V_MAX=20;       // 石块体积默认区间 cm³ → m 约 40~55 g
-var EYE_RANGE=42*Math.PI/180;     // 眼睛弧线半角 ±42°（0=水平=平视）
-var EYE_MAX_DEV=6;                // 最大视线偏差 mL（θ=±42° 时 |看到−真实|=6）
-var ALIGN_TOL=3*Math.PI/180;      // 平视判定容差 ±3°
-var EYE_R_K=0.669;                // sin(42°)≈0.669（偏差换算单点常量）
+var STONE_IN_CYL_K=0.75;                 // F6 石块入筒态绘制压缩系数：绘制 size=内腔宽×0.75（≤内腔宽不穿壁）；仅绘制层，体积/水位/ρ 按真实 V
+var EYE_RANGE=13*Math.PI/180;     // F4 眼睛弧线半角 ±13°（42°→13°，蔡总拍板「4选a」：弧线收窄、视觉仍是上下移动）
+var EYE_MAX_DEV=0.5;              // F4 最大视线偏差 ±0.5 mL（6→0.5，严格小数位级、不超一个分度值 5 mL 的 1/10）
+var ALIGN_TOL=2*Math.PI/180;      // F4 平视判定容差 ±2°（3°→2°；|θ|≤2° 时「看到的读数」=「真实读数」完全相等）
+var EYE_R_K=0.2250;               // sin(13°)=0.22495…≈0.2250（偏差换算单点常量：dev=EYE_MAX_DEV·sinθ/EYE_R_K，θ=±13° 时 |dev|=0.5·sin13°/0.2250≈±0.500）
 
 var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
 var ctrlEl=document.querySelector('.ctrlbar');
@@ -67,7 +68,14 @@ function layout(){
   L.cyl={x:Math.round(W*0.40),y:L.seat,h:Math.max(160,Math.round(L.seat-H*0.14))};
   L.beaker={x:Math.round(W*0.545),y:L.seat,h:Math.round(cmPx(128))};
   L.jar={x:Math.round(W*0.622),y:L.seat,h:Math.round(cmPx(96))};
-  L.stoneSpot={x:Math.round(W*0.56),y:L.seat};
+  /* F6 几何断言（运行时 clamp 保证，任意 W/H 成立）：石块台面包围盒与量筒包围盒水平间距 ≥cmPx(1)。
+     stoneSpot 目标位 W×0.645（≥任务书下限 W×0.62），clamp 下界=筒右缘+石块最大半宽+cmPx(1)，
+     上界=特写区左缘−cmPx(50)（reflow 拖拽回域同界，初始位与拖后位一致）；
+     石块 vs 烧杯/盐罐不查：三者分属阶段二/阶段一，各自阶段对方隐藏（仅 300ms 交叉淡入淡出瞬时半透明同屏，可接受） */
+  var stHalf=cmPx(19.5)+2;   // stoneSize 上限 cmPx(39) 的半宽 + 裕量
+  var stMin=Math.round(L.cyl.x+cylW(L.cyl)/2+stHalf+cmPx(1));
+  var stMax=Math.round(W*0.668)-Math.round(cmPx(50));   // 特写区 x0 同公式现算（layout 内 L.cu 在此之后才赋值）
+  L.stoneSpot={x:clamp(Math.round(W*0.645),stMin,Math.max(stMin,stMax)),y:L.seat};
   // 三视线读数特写区（右侧浮层幽灵卡，两阶段共用同一组件；不与桌面器材相交）
   var x0=Math.round(W*0.668),x1=Math.round(W*0.988),y0=Math.round(H*0.075);
   var y1=Math.min(Math.round(H*0.74),L.by-14);
@@ -209,7 +217,7 @@ function drawMainCyl(stg){   // 主量筒：阶段一装盐水（liquidColor ρ 
   PROPS.cylinder_grad(ctx,L.cyl.x,L.cyl.y,{h:L.cyl.h,cap:CYL_CAP,div:CYL_DIV,water:cylFracFor(stg),
     liquidColor:stg==='s1'?brineLC(s1().rho):undefined,
     contents:inCyl?function(c,rect){   // 石块画在 contents：水体之下、筒壁高光之上（沉底终态严格=inBot 不回弹）
-      var size=(rect.inR-rect.inL)*1.05;
+      var size=(rect.inR-rect.inL)*STONE_IN_CYL_K;   // F6 入筒态压缩绘制：size=内腔宽×0.75 不穿壁；仅绘制层压缩——体积/水位/ρ 仍按真实 st.V（排水恒等式不受影响）
       var sinkY=rect.wy+(rect.inBot-rect.wy)*st.sinkP;
       PROPS.stone(c,rect.x,sinkY,{size:size,seed:st.seed,wet:st.wet});
     }:null});
@@ -229,24 +237,61 @@ function drawBalance(){   // 天平本体（共用器材常驻，不参与阶段
   var B=L.bal;
   PROPS.balance_pan(ctx,B.x,B.y,{h:B.h,tilt:state.bal.tilt,rider:0,riderShow:true});
 }
+/* F2/F3 显式「记录」按钮家族（参照 hitConfirm/doConfirm 与 L.cu.btn 机制）：烧杯上盘且横梁水平才绘制（未上盘/未平衡=不出现，非置灰）；
+   按钮附在天平读数幽灵卡下方（可见时整卡上移 cmPx(6)+按钮高，避免压横梁）；文案随当前该记哪个动态换「记录 m₁ / 记录 m₂」 */
+function recTarget(){   // 'm1'|'m2'|null：m₁ 未记→'m1'；m₁ 已记且量筒已有盐水→'m2'（F3 覆盖式重记，后记覆盖前记）
+  if(state.animating||effStage()!=='s1') return null;
+  var S=s1();
+  if(S.beaker.loc!=='pan'||!balLeveled()) return null;
+  if(S.m1===null) return 'm1';
+  return S.cylMl>0.05?'m2':null;
+}
+function balCardGeom(){   // 读数卡+记录按钮几何单源（draw/hit 同读，禁第二套坐标）
+  var B=L.bal,cw=cmPx(176),ch=cmPx(34),gap=cmPx(6),bh=cmPx(30),rec=recTarget();
+  var cx=clamp(B.x-cw/2,4,W-cw-4);
+  var cy=Math.max(rec?6:38,B.y-B.h-cmPx(40)-(rec?gap+bh:0));
+  return {cx:cx,cy:cy,cw:cw,ch:ch,rec:rec,btn:rec?{x:cx+cw/2,y:cy+ch+gap+bh/2,w:cmPx(120),h:bh}:null};
+}
 function drawBalReadout(){   // 天平读数牌（幽灵卡）：R13 未调平=红字+括号说明；R10/R20 横梁实际倾角归零的唯一点才显示平衡读数
-  var B=L.bal,mOn=massOnPanFor(effStage());
-  var cw=cmPx(176),cx=clamp(B.x-cw/2,4,W-cw-4),cy=Math.max(38,B.y-B.h-cmPx(40));
-  ghostCard(cx,cy,cw,cmPx(34));
+  var G=balCardGeom(),mOn=massOnPanFor(effStage());
+  ghostCard(G.cx,G.cy,G.cw,G.ch);
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  var my=cy+cmPx(17);
+  var my=G.cy+cmPx(17);
   if(mOn===null){
     ctx.fillStyle='#64748b'; ctx.font=Math.round(cmPx(13))+'px sans-serif';
-    ctx.fillText('托盘天平（简化读数态）',cx+cw/2,my);
+    ctx.fillText('托盘天平（简化读数态）',G.cx+G.cw/2,my);
   }else if(!balLeveled()){
     ctx.fillStyle='#dc2626'; ctx.font='bold '+Math.round(cmPx(14))+'px sans-serif';
-    ctx.fillText('横梁调平中…（读数未稳定）',cx+cw/2,my);
+    ctx.fillText('横梁调平中…（读数未稳定）',G.cx+G.cw/2,my);
   }else{
-    var S=s1();
-    var tag=(effStage()==='s1')?((S.m2!==null||(S.m1!==null&&S.cylMl>0.05))?'m₂':'m₁'):'m';
+    var tag=(effStage()==='s1')?(G.rec==='m2'?'m₂':'m₁'):'m';
     ctx.fillStyle='#1e293b'; ctx.font='bold '+Math.round(cmPx(16))+'px sans-serif';
-    ctx.fillText(tag+' = '+fmt(mOn,1)+' g',cx+cw/2,my);
+    ctx.fillText(tag+' = '+fmt(mOn,1)+' g',G.cx+G.cw/2,my);
   }
+  drawRecordBtn(G);
+}
+function drawRecordBtn(G){   // F2 记录按钮（确认钮同族样式：绿底可点）
+  if(!G.rec||!G.btn) return;
+  var b=G.btn;
+  rrPath(b.x-b.w/2,b.y-b.h/2,b.w,b.h,8);
+  ctx.fillStyle='rgba(22,163,74,0.9)'; ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='bold '+Math.round(cmPx(14))+'px sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(G.rec==='m1'?'记录 m₁':'记录 m₂',b.x,b.y);
+}
+function hitRecord(p){ var G=balCardGeom(); return !!G.btn&&inRect(p,G.btn.x-G.btn.w/2,G.btn.y-G.btn.h/2,G.btn.w,G.btn.h); }
+function doRecord(){   // F2 入表唯一路径：点「记录」→ fillCell + playTick + 落格高亮 300ms（flash 在 fillCell 内置）
+  var tg=recTarget(); if(!tg) return;
+  var S=s1();
+  if(window.playTick)playTick();
+  if(tg==='m1'){
+    S.m1=brineMass(S.beakerVol);
+    fillCell('s1-c1',fmt(S.m1,1)); openTable();
+  }else{   // F3 m₂ 覆盖式重记：重算 m=m₁−m₂ 与 ρ=(m₁−m₂)/V（V 取当前已确认读数，s1TryFinish 单源）
+    S.m2=brineMass(S.beakerVol);
+    fillCell('s1-c2',fmt(S.m2,1)); s1TryFinish(); openTable();
+  }
+  updatePanel(); updateHint(); dirty=true;
 }
 function drawPourStream(){   // 倾倒盐水流（beaker 口→量筒口，确定性伪随机液滴；禁随机数）
   var S=s1(),b=S.beaker;
@@ -271,9 +316,9 @@ function caption(x,y,txt){   // 器材附属说明文字（R34：标注开关 ga
 }
 
 /* ===== 三视线读数特写区（方案乙=拖动眼睛，蔡总拍板；两阶段共用同一组件） =====
-   几何模型（单点，特写/确认动作同源）：眼在大量筒左侧弧线上，θ=(eyeT*2−1)*42°（0=水平=平视）；
-   看到的读数 = 真实读数 − EYE_MAX_DEV·sinθ/sin42° → θ<0（眼高于液面=俯视）读数偏大、θ>0（仰视）偏小；
-   偏差方向恒为 俯>真>仰，任意液位采样成立（trueV 只平移不缩放） */
+   几何模型（单点，特写/确认动作同源）：眼在大量筒左侧弧线上，θ=(eyeT*2−1)*13°（0=水平=平视；F4 蔡总拍板「4选a」最大偏差 ±0.5 mL）；
+   看到的读数 = 真实读数 − EYE_MAX_DEV·sinθ/sin13° → θ<0（眼高于液面=俯视）读数偏大、θ>0（仰视）偏小；|θ|≤2° 平视合一（eyeApparent 早退分支）；
+   偏差方向恒为 俯>真>仰，任意液位采样成立（trueV 只平移不缩放；θ=±13° 时偏差=±0.5·sin13°/0.2250≈±0.500 mL） */
 function effStage(){
   if(!state.anim) return state.stage;
   var t=clamp((performance.now()-state.anim.t0)/XFADE_MS,0,1);
@@ -298,6 +343,7 @@ function eyePos(){
 function eyeAligned(){ return Math.abs(eyeTheta())<=ALIGN_TOL; }
 function eyeApparent(){
   var trueV=cylMlFor(effStage());
+  if(Math.abs(eyeTheta())<=ALIGN_TOL) return trueV;   // F4 平视合一：|θ|≤2° 时「看到的读数」=「真实读数」（两值完全相等）
   return clamp(trueV-EYE_MAX_DEV*Math.sin(eyeTheta())/EYE_R_K,0,CYL_CAP);
 }
 function confirmTarget(){   // 当前待确认读数的阶段步骤（null=不显示确认钮）
@@ -319,7 +365,7 @@ function drawCloseup(){
   PROPS.cylinder_grad(ctx,bc.x,bc.y,{h:bc.h,cap:CYL_CAP,div:CYL_DIV,water:cylFracFor(effStage()),
     liquidColor:effStage()==='s1'?brineLC(s1().rho):undefined,
     contents:inCyl?function(c,rect){
-      var size=(rect.inR-rect.inL)*1.05;
+      var size=(rect.inR-rect.inL)*STONE_IN_CYL_K;   // F6 同主筒：入筒态压缩绘制系数单源
       var sinkY=rect.wy+(rect.inBot-rect.wy)*st.sinkP;
       PROPS.stone(c,rect.x,sinkY,{size:size,seed:st.seed,wet:st.wet});
     }:null});
@@ -365,7 +411,8 @@ function beakerPos(){   // 烧杯当前位置（读数牌/密度牌跟随）
 }
 function drawBrineTag(){   // 盐水密度读数牌（实时 ρ 保留 2 位小数；鲜艳色只给密度读数与液体，§4）
   var p=beakerPos(),cw=cmPx(150),ch=cmPx(30);
-  var tx=clamp(p.x-cw/2,4,L.cu.x0-cw-8),ty=Math.max(38,p.y-L.beaker.h-ch-cmPx(10));
+  // F5：基线上抬 cmPx(2)（原 cmPx(10) 净空不够，质量/密度牌压杯口椭圆）；上移只远离控制栏，tx 既有 clamp 保证不与特写区相交
+  var tx=clamp(p.x-cw/2,4,L.cu.x0-cw-8),ty=Math.max(38,p.y-L.beaker.h-ch-cmPx(10)-cmPx(2));
   ghostCard(tx,ty,cw,ch);
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillStyle='#b45309'; ctx.font='bold '+Math.round(cmPx(15))+'px sans-serif';
@@ -381,18 +428,20 @@ function drawDragged(){
   if(T.drag){ var st=stone(); if(st) drawStoneAt(st,st.x,st.y,stoneSize(st)); }
 }
 function drawCaptions(a1,a2){
+  /* F5 caption 排布：量筒 caption 很长（居中 0.40W 时右缘可达 ~0.55W），与第一行的烧杯/石块 caption 相撞——
+     烧杯与小石块 caption 下移第二行（L.seat+6+cmPx(15)）；托盘天平/食盐 caption 短，第一行不冲突保持原位 */
   caption(L.cyl.x,L.seat+6,'量筒：单位 mL · 最大测量值 100 mL · 分度值 5 mL');
   caption(L.bal.x,L.seat+6,'托盘天平');
   if(a1>0){
     ctx.save(); ctx.globalAlpha=a1;
-    if(s1().beaker.loc==='bench') caption(s1().beaker.x,L.seat+6,'烧杯 · 盐水（选种用）');
+    if(s1().beaker.loc==='bench') caption(s1().beaker.x,L.seat+6+cmPx(15),'烧杯 · 盐水（选种用）');
     if(s1().jar.loc==='bench') caption(s1().jar.x,L.seat+6,'食盐');
     ctx.restore();
   }
   if(a2>0){
     ctx.save(); ctx.globalAlpha=a2;
     var st=stone();
-    if(st&&st.loc==='bench') caption(st.x,L.seat+6,'小石块（形状不规则 · 不吸水）');
+    if(st&&st.loc==='bench') caption(st.x,L.seat+6+cmPx(15),'小石块（形状不规则 · 不吸水）');
     ctx.restore();
   }
 }
@@ -434,7 +483,7 @@ function jarBox(){ var h=L.jar.h,w=h*0.66; return {x:s1().jar.x-w/2,y:s1().jar.y
 function stoneBox(){
   var st=stone(); if(!st) return null;
   if(st.loc==='pan'){ var s=Math.min(stoneSize(st),L.bal.panHW*1.7); return {x:L.bal.g.panL.x-s/2,y:L.bal.panTop-s*0.7,w:s,h:s*0.7}; }
-  if(st.loc==='cyl'){ var gi=cylInner(L.cyl),sw=(gi.inR-gi.inL)*1.05; return {x:gi.inL,y:gi.inBot-sw*0.7,w:gi.inR-gi.inL,h:sw*0.7}; }
+  if(st.loc==='cyl'){ var gi=cylInner(L.cyl),sw=(gi.inR-gi.inL)*STONE_IN_CYL_K; return {x:gi.inL,y:gi.inBot-sw*0.7,w:gi.inR-gi.inL,h:sw*0.7}; }   // F6 命中盒与压缩绘制同系数
   var sz=stoneSize(st); return {x:st.x-sz/2,y:st.y-sz*0.7,w:sz,h:sz*0.7};
 }
 function hitBeaker(p){ return state.stage==='s1'&&!state.animating&&inRect(p,beakerBox().x,beakerBox().y,beakerBox().w,beakerBox().h); }
@@ -447,17 +496,24 @@ function hitCylEmpty(p){   // 阶段二点空量筒=注水（水位连续插值�
   return Math.abs(p.x-L.cyl.x)<cylW(L.cyl)&&p.y>L.cyl.y-L.cyl.h&&p.y<L.cyl.y;
 }
 function overPan(p){ return Math.abs(p.x-L.bal.g.panL.x)<L.bal.panHW+cmPx(14)&&Math.abs(p.y-L.bal.panTop)<cmPx(46); }
-function overCylMouth(p){   // 倾倒区：烧杯口悬于量筒口上方
-  return Math.abs(p.x-L.cyl.x)<cylW(L.cyl)*1.1&&p.y<L.cyl.y-L.cyl.h*0.30&&p.y>L.cyl.y-L.cyl.h-cmPx(90);
+/* F1 悬空判定（两处语义一致）：源容器口 y 必须高于目标容器口 y 至少 cmPx(MOUTH_LIFT)=悬空于口部上方；
+   水平=源口中心 x 落在目标口部范围内（烧杯口±0.45倍杯口宽 / 量筒口±0.6倍筒口宽）；
+   贴桌面平移经过一律不触发（源口与目标口几乎同高时垂直条件天然不满足）；MOUTH_BAND=悬空带上限，超出视为非口部上方；
+   触发/停止仍走连续插值（pour 角 tween、液面连续），禁跳变 */
+var MOUTH_LIFT=3,MOUTH_BAND=70;   // 悬空阈值 cm / 悬空带上限 cm（均经 cmPx() 随 H 缩放）
+function overCylMouth(p){   // 倾倒区：烧杯口悬空于量筒口上方（p=烧杯口近似点）
+  var my=L.cyl.y-L.cyl.h;   // 量筒口 y
+  return p.y<my-cmPx(MOUTH_LIFT)&&p.y>my-cmPx(MOUTH_BAND)&&Math.abs(p.x-L.cyl.x)<cylW(L.cyl)*0.6;
 }
-function nearBeakerMouth(p){   // 加盐区：盐罐口接近烧杯口
-  var b=beakerBox();
-  return Math.abs(p.x-(b.x+b.w/2))<b.w*0.9&&Math.abs(p.y-b.y)<cmPx(60);
+function nearBeakerMouth(p){   // 加盐区：盐罐口悬空于烧杯口上方（p=盐罐口近似点）
+  var b=beakerBox(),mx=b.x+b.w/2;   // 烧杯口中心/口宽=b.w
+  return p.y<b.y-cmPx(MOUTH_LIFT)&&p.y>b.y-cmPx(MOUTH_BAND)&&Math.abs(p.x-mx)<b.w*0.45;
 }
 function ptOf(ev){ var r=cv.getBoundingClientRect(); return {x:ev.clientX-r.left,y:ev.clientY-r.top}; }
 cv.addEventListener('pointerdown',function(ev){
   if(state.animating) return;
   var p=ptOf(ev);
+  if(hitRecord(p)){ doRecord(); return; }   // F2 记录按钮（画布按钮家族，先于拖拽命中）
   if(hitConfirm(p)){ doConfirm(); return; }
   if(hitEye(p)){ state.eyeDrag=true; if(window.playPick)playPick(); try{cv.setPointerCapture(ev.pointerId);}catch(e){} dirty=true; return; }
   if(hitCylEmpty(p)){ s2().injected=true; s2SetWater(INJECT_ML,INJECT_MS); if(window.playDrop)playDrop(); updateHint(); return; }
@@ -520,7 +576,7 @@ cv.addEventListener('pointermove',function(ev){
     if(window.playTick&&now-lastMoveT>130){ lastMoveT=now; playTick(); }
     dirty=true; return;
   }
-  var hov=hitConfirm(p)||hitEye(p)||hitCylEmpty(p)||(state.stage==='s1'?(hitBeaker(p)||hitJar(p)):hitStone(p));
+  var hov=hitConfirm(p)||hitRecord(p)||hitEye(p)||hitCylEmpty(p)||(state.stage==='s1'?(hitBeaker(p)||hitJar(p)):hitStone(p));
   cv.style.cursor=hov?'pointer':'default';
 });
 function endDrag(){
@@ -542,7 +598,6 @@ function endDrag(){
       S.beaker.x=clamp(p.x,cmPx(60),L.cu.x0-cmPx(60)); S.beaker.y=L.seat;
       if(window.playDrop)playDrop();
     }
-    s1TryFinish();
   }
   if(s2().drag){
     var st=stone(); s2().drag=null;
@@ -596,12 +651,14 @@ function actionTick(now,dt){
       act=true;
     }
     if(S.drag&&S.drag.what==='beaker'){
-      var canPour=!S.done&&overCylMouth({x:S.beaker.x,y:S.beaker.y-L.beaker.h*0.8})&&S.beakerVol>0.05;
+      // F3 前置锁：m₁ 未记录 → 悬于筒口也不触发倾倒（教材 P149 顺序：先测杯和盐水总质量 m₁，再倒入量筒）
+      var canPour=(S.m1!==null)&&overCylMouth({x:S.beaker.x,y:S.beaker.y-L.beaker.h*0.8})&&S.beakerVol>0.05;
       if(canPour!==S.pouring){ S.pouring=canPour; updateHint(); }
       if(canPour){
         var mv=Math.min(POUR_RATE*dt,S.beakerVol);
         S.beakerVol-=mv; S.cylMl+=mv; act=true;
-        if(S.vConf!==null){ S.vConf=null; fillCell('s1-c4','—',true); fillCell('s1-c5','—',true); }   // 读数后又加液→V/ρ 作废重读
+        // 读数后又加液→V/ρ 作废重读；F3：done 一并撤销（重记 m₂+重读 V 再闭环，分次倒液场景 m 与 V 天然对齐）
+        if(S.vConf!==null||S.done){ S.vConf=null; S.done=false; fillCell('s1-c4','—',true); fillCell('s1-c5','—',true); updateHint(); }
       }
     }
     if(S.grainTo!==S.grainT){   // 种粒浮沉 t 线性驱动（组件内 smoothstep，约 1.2s，禁回弹震荡 P6）
@@ -613,7 +670,7 @@ function actionTick(now,dt){
   }
   return act;
 }
-/* ===== 测量落格（简化读数态：放置+横梁调平后自动读数入表；平衡判据 R10/R20=倾角归零唯一点） ===== */
+/* ===== 测量落格（F2：阶段一=显式「记录」按钮入表，放上托盘只稳读数不入表；阶段二石块保留自动落格；平衡判据 R10/R20=倾角归零唯一点） ===== */
 function fillCell(id,val,empty){
   var el=document.getElementById(id); if(!el) return;
   el.textContent=val;
@@ -622,35 +679,23 @@ function fillCell(id,val,empty){
 }
 function measureTick(){   // 由 balTick 归零瞬间/endDrag 触发（事件驱动，不进 busy 循环）
   if(!balLeveled()) return;
-  if(effStage()==='s1'){
-    var S=s1();
-    if(S.beaker.loc!=='pan') return;
-    if(S.m1===null&&S.cylMl<=0.05){   // 未倒出时上盘=m₁（杯和盐水的质量）
-      S.m1=brineMass(S.beakerVol);
-      fillCell('s1-c1',fmt(S.m1,1)); openTable();
-      if(window.playTick)playTick(); updatePanel(); updateHint();
-    }else if(S.m1!==null&&S.cylMl>0.05&&S.m2===null){   // 倒出后上盘=m₂（杯和剩余盐水的质量）
-      S.m2=brineMass(S.beakerVol);
-      fillCell('s1-c2',fmt(S.m2,1)); s1TryFinish(); openTable();
-      if(window.playTick)playTick(); updatePanel(); updateHint();
-    }
-  }else{
-    var st=stone(),T=s2();
-    if(st&&st.loc==='pan'&&T.cur.m===null){
-      T.cur.m=st.m; renderS2Table([0]); openTable();
-      if(window.playTick)playTick(); updatePanel(); updateHint();
-    }
+  if(effStage()==='s1'){ updateHint(); dirty=true; return; }   // F2：读数稳定→「记录」按钮出现（recTarget 判定），点击才入表
+  var st=stone(),T=s2();
+  if(st&&st.loc==='pan'&&T.cur.m===null){
+    T.cur.m=st.m; renderS2Table([0]); openTable();
+    if(window.playTick)playTick(); updatePanel(); updateHint();
   }
 }
-/* 差值法 m=m₁−m₂ 与 ρ=m/V（单源：m₂=brineMass(Vb−V倒) → m₁−m₂=ρ配·V倒 → ρ表=ρ配 恒等，|ρ表−ρ配|≤0.01） */
+/* 差值法 m=m₁−m₂ 与 ρ=m/V（单源：m₂=brineMass(Vb−V倒) → m₁−m₂=ρ配·V倒 → ρ表=ρ配 恒等，|ρ表−ρ配|≤0.01）
+   F3：m₂ 覆盖式重记 → 每次记录/确认都重算 c3=m₁−m₂ 与 c5=ρ（V 取当前已确认读数）；toast 只在首次完成时报一次 */
 function s1TryFinish(){
   var S=s1();
   if(S.m1!==null&&S.m2!==null) fillCell('s1-c3',fmt(S.m1-S.m2,1));
-  if(S.m1!==null&&S.m2!==null&&S.vConf!==null&&!S.done){
-    var m=S.m1-S.m2,rho=m/S.vConf;
+  if(S.m1!==null&&S.m2!==null&&S.vConf!==null){
+    var m=S.m1-S.m2,rho=m/S.vConf,first=!S.done;
     fillCell('s1-c5',fmt(rho,2));
     S.done=true;
-    toast('测得盐水密度 ρ=m/V='+fmt(m,1)+' g ÷ '+fmt(S.vConf,1)+' cm³ = '+fmt(rho,2)+' g/cm³');
+    if(first) toast('测得盐水密度 ρ=m/V='+fmt(m,1)+' g ÷ '+fmt(S.vConf,1)+' cm³ = '+fmt(rho,2)+' g/cm³');
     updateHint();
   }
 }
@@ -792,15 +837,16 @@ function updateHint(){
 function hintText(){
   if(state.stage==='s1'){
     var S=s1();
-    if(S.drag&&S.drag.what==='jar') return '把盐罐悬在烧杯口上方加盐：加盐越多 ρ盐水 越大（1.00→1.20 g/cm³）。ρ≥1.05 后空瘪粒上浮、饱满粒沉底——「清除水面漂浮的空粒、瘪粒，就可以选出较好的种子」（教材 P149 选种）';
+    if(S.drag&&S.drag.what==='jar') return '把盐罐悬空在烧杯口正上方加盐（口部高于杯口才算数，贴桌面平移经过不会加盐）：加盐越多 ρ盐水 越大（1.00→1.20 g/cm³）。ρ≥1.05 后空瘪粒上浮、饱满粒沉底——「清除水面漂浮的空粒、瘪粒，就可以选出较好的种子」（教材 P149 选种）';
+    if(S.drag&&S.drag.what==='beaker'&&S.m1===null) return '先把烧杯放上天平左盘，读数稳定后点「记录 m₁」入表（教材 P149 顺序：先测出杯和盐水的总质量 m₁，再倒入量筒）——m₁ 未记录前，悬于筒口上方不会倾倒';
     if(S.pouring) return '倾倒中……松开或把烧杯移离筒口即停止；倒入约 40~60 mL 为宜';
-    if(S.done) return '完成（教材 P149 思路）：首先测出盐水的质量和体积，然后通过公式 ρ=m/V 就能计算出盐水的密度。可切「测石块」阶段，或按重置再测一遍';
+    if(S.done) return '完成（教材 P149 思路）：首先测出盐水的质量和体积，然后通过公式 ρ=m/V 就能计算出盐水的密度。可继续倒液/重记 m₂ 复测（后记覆盖前记），或切「测石块」阶段，或按重置再测一遍';
     if(S.m1!==null&&S.m2!==null&&S.vConf!==null) return '正在算 ρ=m/V……';
-    if(S.m1!==null&&S.vConf!==null&&S.m2===null) return 'V 已读。把烧杯（含剩余盐水）放回天平左盘测 m₂——量筒中盐水的质量 m=m₁−m₂ 自动算出（差值法）';
+    if(S.m1!==null&&S.vConf!==null&&S.m2===null) return 'V 已读。把烧杯（含剩余盐水）放回天平左盘，读数稳定后点「记录 m₂」——量筒中盐水的质量 m=m₁−m₂ 自动算出（差值法；m₂ 可多次记录，后记覆盖前记）';
     if(S.m1!==null&&S.cylMl>0.05&&S.vConf===null) return '读 V（量筒使用②：读数时视线要与液面相平）：在右侧特写区上下拖动眼睛，俯视读数偏大、仰视偏小；平视后按「✓ 确认读数」';
-    if(S.m1!==null&&S.cylMl<=0.05) return 'm₁ 已测得。把烧杯拖到量筒口上方倾倒盐水——按住持续倒、移开即停，倒入约 40~60 mL';
-    if(S.rho>RHO_MIN) return '盐水已配好（ρ='+fmt(S.rho,2)+' g/cm³'+(S.rho>=HOLLOW_CRIT?'，可完成选种':'，未到选种临界 1.05，可继续加盐')+'）。把烧杯拖到天平左盘测「杯和盐水的质量 m₁」';
-    return '阶段一（教材 P149）：自己用盐和水配制一杯盐水，测出它的质量和体积。① 拖盐罐到烧杯口加盐配盐水（选种：ρ≥1.05 空瘪粒上浮）② 拖烧杯上天平左盘测 m₁';
+    if(S.m1!==null&&S.cylMl<=0.05) return 'm₁ 已记录。把烧杯拖到量筒口正上方悬空倾倒盐水——按住持续倒、移开即停，倒入约 40~60 mL';
+    if(S.rho>RHO_MIN) return '盐水已配好（ρ='+fmt(S.rho,2)+' g/cm³'+(S.rho>=HOLLOW_CRIT?'，可完成选种':'，未到选种临界 1.05，可继续加盐')+'）。把烧杯拖到天平左盘，读数稳定后点「记录 m₁」';
+    return '阶段一（教材 P149）：自己用盐和水配制一杯盐水，测出它的质量和体积。① 拖盐罐悬空到烧杯口上方加盐配盐水（选种：ρ≥1.05 空瘪粒上浮）② 拖烧杯上天平左盘，读数稳定后点「记录 m₁」入表';
   }
   var T=s2(),st=stone();
   if(T.cur.m===null) return '第1步（教材 P150）：用天平测量小石块的质量——把石块拖到天平左盘，读数稳定后自动记录在自己设计的表格中';
@@ -908,6 +954,15 @@ if(btnReset) btnReset.addEventListener('click',function(){
   if(window.playClick) playClick();
   dirty=true;
 });
+/* F3 阶段一重置钮（与「重置」并存，语义差异：「重置」=只重置当前所选阶段（阶段二时含石块/多行表）；
+   「重置阶段一」=不论当前在哪个阶段，都把阶段一回初始态（清水 ρ=1.00、种粒全沉、空量筒、空数据表、盐罐/烧杯回初始位），阶段二数据不动 */
+var btnResetS1=document.getElementById('btn-reset-s1');
+if(btnResetS1) btnResetS1.addEventListener('click',function(){
+  if(state.animating) return;
+  resetS1(); hideToast();
+  if(window.playClick) playClick();
+  dirty=true;
+});
 var btnMute=document.getElementById('btn-mute');
 if(btnMute) btnMute.addEventListener('click',function(){ if(state.animating)return; window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick)playClick(); });
 /* 全屏（c5s1/c6s2 路线：documentElement + html.pseudo-fs 降级） */
@@ -999,11 +1054,15 @@ window.__c6dbg={
     }else return false;
     dirty=true; return true;
   },
-  pour:function(ml){   // 阶段一免拖拽倾倒：从烧杯转移 ml 到量筒（连续插值同 tick 路径的终态）
+  pour:function(ml){   // 阶段一免拖拽倾倒：从烧杯转移 ml 到量筒（连续插值同 tick 路径的终态；F3 前置锁不在调试通道生效——验收直灌用）
     var S=s1(),mv=clamp(ml,0,S.beakerVol);
     S.beakerVol-=mv; S.cylMl+=mv;
-    if(S.vConf!==null){ S.vConf=null; fillCell('s1-c4','—',true); fillCell('s1-c5','—',true); }
+    if(S.vConf!==null||S.done){ S.vConf=null; S.done=false; fillCell('s1-c4','—',true); fillCell('s1-c5','—',true); }
     updateHint(); dirty=true; return +S.cylMl.toFixed(2);
+  },
+  record:function(){   // F2 记录按钮免点击通道：等价 doRecord（recTarget 判定同按钮可见性）
+    var tg=recTarget(); doRecord();
+    return {target:tg,m1:s1().m1==null?null:+s1().m1.toFixed(1),m2:s1().m2==null?null:+s1().m2.toFixed(1)};
   },
   eyeTo:function(t){ state.eyeT=clamp(t,0,1); dirty=true;
     return {thetaDeg:+(eyeTheta()*180/Math.PI).toFixed(2),aligned:eyeAligned(),apparent:+eyeApparent().toFixed(2),trueV:+cylMlFor(effStage()).toFixed(2)}; },
@@ -1025,6 +1084,13 @@ window.__c6dbg={
     return null;
   },
   hintText:function(){ return hintEl?hintEl.textContent:null; },
+  geoProbe:function(){   // F6 几何探针：石块初始位间距断言 + 入筒压缩系数数值（桩测走有效通道）
+    var gi=cylInner(L.cyl),cylR=L.cyl.x+cylW(L.cyl)/2,stHalfMax=cmPx(19.5);
+    return {stoneSpotX:L.stoneSpot.x,stoneSizeMax:+cmPx(39).toFixed(1),cylRight:+cylR.toFixed(1),
+            gapSpotVsCyl:+(L.stoneSpot.x-stHalfMax-cylR).toFixed(1),gapMinRequired:+cmPx(1).toFixed(1),
+            cuX0:L.cu.x0,innerW:+(gi.inR-gi.inL).toFixed(1),inCylDrawW:+((gi.inR-gi.inL)*STONE_IN_CYL_K).toFixed(1),K:STONE_IN_CYL_K,
+            inTop:+gi.inTop.toFixed(1),inBot:+gi.inBot.toFixed(1)};
+  },
   pickSlotProbe:function(needW,needH){
     var w=needW||300,h=needH||240,rs=sceneAvoidRects();
     return {need:{w:w,h:h},slot:pickSlot(w,h,rs),avoidRects:rs};
