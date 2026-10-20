@@ -268,9 +268,9 @@ function deskTweenTick(now){
 }
 function cylW(C){ return Math.max(30,C.h*0.18); }   // cylinder_grad 同公式（w=max(30,h*0.18)），页面仅此处换算
 function tickOverhang(w){ return Math.round(1.8*Math.max(9,w*0.21)+4); }   // K1 刻度数字列外伸宽：1.8×font（三字符"100"宽估计）+4px 偏移，font=max(9,w*0.21) 与库件 cylinder_grad 刻度字体公式同源（props-density.js fillText x+w/2+4）
-function cylInner(C){   // 量筒内腔几何（cylinder_grad 同公式：w/wall/内腔四边；v10 J3 同步：inBot=底椭圆中心 botY=y−ryB*0.2=y−w*0.024，ryB=w*0.12）
-  var w=cylW(C),wall=Math.max(2,w*0.055);
-  return {w:w,inL:C.x-w/2+wall,inR:C.x+w/2-wall,inTop:C.y-C.h+wall*2.2,inBot:C.y-w*0.024};
+function cylInner(C){   // 量筒内腔几何（与 props-density v11 cylinder_grad 同公式：w/wall/内腔四边；v11 M3 同步：ry=ryB=w*0.14，inTop=y−h+ry+wall，inBot=底椭圆中心 botY=y−ryB*0.2=y−w*0.028）
+  var w=cylW(C),wall=Math.max(2,w*0.055),ry=w*0.14;
+  return {w:w,inL:C.x-w/2+wall,inR:C.x+w/2-wall,inTop:C.y-C.h+ry+wall,inBot:C.y-w*0.028};
 }
 /* ===== hint 解说条（placeHint 选位：顶部居中优先，与控制栏相交则抬起；R7：pointer-events:none 在 CSS） ===== */
 function placeHint(){
@@ -674,7 +674,7 @@ function drawBuildStamp(){   // 构建戳（防旧标签页误判）：画布左
   ctx.save();
   ctx.fillStyle='rgba(130,130,130,0.6)'; ctx.font='10px sans-serif';
   ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-  ctx.fillText('c6s3 r4 · lib v10',6,H-6);
+  ctx.fillText('c6s3 r5 · lib v11',6,H-6);
   ctx.restore();
 }
 function draw(){
@@ -1267,7 +1267,7 @@ if(window.ResizeObserver&&ctrlEl){
 requestAnimationFrame(tick);
 /* ===== 调试通道（P11/P12：验收走有效通道+磁盘 grep，禁合成拖拽断言） ===== */
 window.__c6dbg={
-  build:'r4-lib10',   // 构建戳（防旧标签页误判；画布左下角文字同值）
+  build:'r5-lib11',   // 构建戳（防旧标签页误判；画布左下角文字同值）
   get state(){ return state; }, get W(){ return W; }, get H(){ return H; }, get layout(){ return L; },
   get stage(){ return state.stage; },
   setStage:function(to){ setStage(to); return state.stage; },
