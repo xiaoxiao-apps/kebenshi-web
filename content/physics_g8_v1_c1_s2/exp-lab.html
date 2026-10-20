@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>参照物实验室</title>
+  <link rel="stylesheet" href="lab.css" />
+</head>
+<body>
+  <header id="shell-header">
+    <a id="back-to-index" href="index.html">‹ 返回本节</a>
+    <div class="header-mid">
+      <div class="header-title">参照物实验室</div>
+      <nav id="mode-tabs">
+        <button class="mode-tab active" data-mode="motion">① 位置在变吗</button>
+        <button class="mode-tab" data-mode="reference">② 点谁谁是标准</button>
+        <button class="mode-tab" data-mode="train">③ 列车错觉</button>
+        <button class="mode-tab" data-mode="harvester">④ 收割机与运稻车</button>
+      </nav>
+      <div id="mode-subtitle">看画面里的物体位置变没变，先学会判断“动”与“静”。</div>
+    </div>
+    <button id="shell-fullscreen" title="全屏">⛶</button>
+  </header>
+
+  <main id="shell-content">
+    <div class="frame-card">
+      <iframe class="mode-frame active" data-mode="motion"    data-src="exp-motion.html"    title="位置在变吗"></iframe>
+      <iframe class="mode-frame" data-mode="reference" data-src="exp-reference.html" title="点谁谁是标准"></iframe>
+      <iframe class="mode-frame" data-mode="train"     data-src="exp-train.html"     title="列车错觉"></iframe>
+      <iframe class="mode-frame" data-mode="harvester" data-src="exp-harvester.html" title="收割机与运稻车"></iframe>
+    </div>
+  </main>
+
+  <script src="lab.js"></script>
+</body>
+</html>
