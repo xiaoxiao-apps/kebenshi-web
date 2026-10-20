@@ -8,7 +8,17 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-density.js — 第六章「质量与密度」标准器材件 v11（c6s34 修复轮8，14件）
+ * props-density.js — 第六章「质量与密度」标准器材件 v12（c6s34 修复轮9，14件）
+ * v12 变更清单（2026-10-20，c6s34 修复轮9 任务书，蔡总 18:55 反馈 N1；已有件 opt API 与返回几何字段名零变化）：
+ *   ~ beaker_ice 杯口椭圆内部上下分色根治（蔡总 N1）：v11 侧壁填充 path 顶边=水平直弦，弦以下（含杯口椭圆下半内部）叠玻璃渐变、
+ *     弦以上（杯口椭圆上半内部）无填充露页面底色 → 杯口内部被顶弦切两截色；
+ *     改：①绘制第一步先 fill 整个杯口椭圆（与侧壁共用同一水平渐变 gg → 边界无缝）②侧壁填充 path 顶边改杯口下半弧
+ *     （moveTo 左切点 → ellipse(topY, π→0, ccw) 经下弧到右切点 → lineTo 右壁底 → 底椭圆前弧 → lineTo 左壁回 topY → closePath）；
+ *     次序总表：①杯口内壁填充(gg) → ②侧壁+底填充(gg) → ③内容物(盐/水/冰) → ④液面/盐面顶面椭圆 → ⑤所有描边最后（v11 M2 描边最后次序不变）；
+ *     salt/pour/liquidColor/contents/返回几何零改动
+ *   ~ cylinder_grad 同族同治（背层色浅、色差较轻）：先 fill 口内壁椭圆 (x, yc, w/2−wall, ry) 用背层色 rgba(220,240,246,0.30)，
+ *     背层主体 path 顶边改口椭圆下半弧（beaker 同手法）再下到底；水体/inside/contents/刻度/rect 契约零改动、描边最后次序保持
+ *   = 其余件零改动；DENSITY_IDS 14 件不变；gallery ?v=11→12
  * v11 变更清单（2026-10-20，c6s34 修复轮8 任务书，蔡总 18:13 三条反馈 M1-M3；已有件 opt API 与返回几何字段名零变化）：
  *   ~ beaker_ice 盐堆 2.5D 化（蔡总 M1）：旧盐堆顶=quadraticCurveTo 拱线+近白平 fill(#f7f6f0) 与上方浅玻璃渐变几乎同色 → 直立态看成"满杯"；
  *     改与水体同族画法——盐体 fill(略深米白 #efece2) + 盐面顶面椭圆 fill(亮米白 #fbfaf5，ry=该高度半宽×0.28 与水面同族) + 盐面椭圆描边(rgba(170,165,150,0.85))；
@@ -651,14 +661,17 @@ PROPS.cylinder_grad = function(ctx, x, y, opt){
   const inTop = yc + wall, inBot = botY;        // v11 M3: inTop=y−h+ry+wall 随新几何单源重算（rect 字段名与回调契约不变）
   const rxW = w / 2 - wall, ryW = rxW * 0.28;   // 水面顶面椭圆（烧杯族同比例）
   ctx.save();
-  // v11 M2 全族绘制次序：①筒体半透明 fill → ②内容物(水体/inside/contents)体 fill → ③水面顶面椭圆 fill → ④所有椭圆与轮廓描边最后画
-  // ①) 玻璃背层（浅青半透明，glass_brick 同族）：侧壁切点连口/底椭圆切点，顶缘走上半弧闭合（fill 不描边）
+  // v11 M2 全族绘制次序：①筒体半透明 fill（v12 N1 起含口内壁预填充）→ ②内容物(水体/inside/contents)体 fill → ③水面顶面椭圆 fill → ④所有椭圆与轮廓描边最后画
+  // ①-0) v12 N1 口内壁填充：整个口椭圆（内腔半宽 w/2−wall）用背层色先填 → 口内部不再上下两截色（beaker_ice 同族同治）
+  ctx.beginPath(); ctx.ellipse(x, yc, rxW, ry, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(220,240,246,0.30)'; ctx.fill();
+  // ①) 玻璃背层（浅青半透明，glass_brick 同族）：v12 N1 顶边改口椭圆下半弧（旧上半弧闭合=口下半内部无背层，同族两截色根因；fill 不描边）
   ctx.beginPath();
   ctx.moveTo(x - w / 2, yc);
-  ctx.lineTo(x - w / 2, botY);
-  ctx.ellipse(x, botY, w / 2, ryB, 0, Math.PI, 0, true);
-  ctx.lineTo(x + w / 2, yc);
-  ctx.ellipse(x, yc, w / 2, ry, 0, 0, Math.PI, true);
+  ctx.ellipse(x, yc, w / 2, ry, 0, Math.PI, 0, true);   // 左切点经口下弧到右切点
+  ctx.lineTo(x + w / 2, botY);
+  ctx.ellipse(x, botY, w / 2, ryB, 0, 0, Math.PI);        // 底椭圆前弧（右→左）
+  ctx.lineTo(x - w / 2, yc);
   ctx.closePath();
   ctx.fillStyle = 'rgba(220,240,246,0.30)'; ctx.fill();
   // ②-a) 水体 fill（v11 M2：顶边贴合水面椭圆下半弧，旧 quadratic 拱线顶弦切过已画椭圆=两截色根因）
@@ -854,7 +867,8 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
   const halfAt = function(yy){ return rxT + (rxB - rxT) * (yy - topY) / (botY - topY); };
   ctx.save(); ctx.lineJoin = 'round';
   if (ang){ ctx.translate(x, y); ctx.rotate(ang); ctx.translate(-x, -y); }   // v10 J5: ang=0 不进变换（v9 逐像素等价）
-  // v11 M2 全族绘制次序：①杯体半透明 fill → ②内容物(盐/水/冰块/contents)体 fill → ③液面/盐面/杯口顶面椭圆 fill → ④所有椭圆与轮廓描边最后画
+  // v12 N1 次序总表：①杯口内壁填充(gg) → ②侧壁+底填充(gg) → ③内容物(盐/水/冰块/contents)体 fill → ④液面/盐面/杯口顶面椭圆 fill → ⑤所有描边最后画
+  // v11 M2 全族绘制次序：杯体半透明 fill 在内容物前、所有椭圆与轮廓描边最后画（v12 保持）
   // v11 M1 盐堆几何：盐面顶面椭圆与水面同族（ry=该高度半宽×0.28）；pour 态沿用反转世界水平语义；初始 2/3 高度语义不变
   const hs = salt > 0 ? (botY - topY) * salt / 100 : 0;      // 高度=salt 百分比×内腔高（底椭圆上起）
   const saltY = botY - hs * (1 - pour * 0.45);               // 倾倒时余盐面下降（salt_jar 同式）
@@ -870,19 +884,24 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
     ctx.clip();
   };
   const saltFrame = function(){ ctx.translate(x, y); ctx.rotate(-ang); ctx.translate(-x, -y); };   // 盐面回世界水平（原点仍在杯底中心锚点）
-  // ①) 杯体半透明 fill：底椭圆 fill + 侧壁玻璃渐变 fill（描边全部推迟到 ④）
-  ctx.beginPath(); ctx.ellipse(x, botY, rxB, ryB, 0, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(200,222,232,0.5)'; ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(x - rxT, topY); ctx.lineTo(x - rxB, botY);
-  ctx.ellipse(x, botY, rxB, ryB, 0, Math.PI, 0, true);
-  ctx.lineTo(x + rxT, topY);
-  ctx.closePath();
+  // ①) v12 N1 杯口内壁填充：整个杯口椭圆用与侧壁同一 gg（先建 gg 两处共用 → 边界无缝，杯口内部不再上下两截色）
   const gg = ctx.createLinearGradient(x - rxT, 0, x + rxT, 0);
   gg.addColorStop(0, 'rgba(210,230,240,0.55)');
   gg.addColorStop(1, 'rgba(180,210,225,0.35)');
+  ctx.beginPath(); ctx.ellipse(x, topY, rxT, ryT, 0, 0, Math.PI * 2);
   ctx.fillStyle = gg; ctx.fill();
-  // ②-a) v10 J4 盐体 fill（v11 M1：略深米白 #efece2 与盐面顶面亮米白对比 → 直立态可见 2/3 盐面边界不再"满杯"）+ 颗粒点缀
+  // ②) 侧壁+底填充：底椭圆 fill + 侧壁玻璃渐变 fill（v12 N1：顶边改杯口下半弧，旧水平直弦切杯口=两截色根因；描边全部推迟到 ⑤）
+  ctx.beginPath(); ctx.ellipse(x, botY, rxB, ryB, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(200,222,232,0.5)'; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x - rxT, topY);
+  ctx.ellipse(x, topY, rxT, ryT, 0, Math.PI, 0, true);   // 左切点经杯口下弧到右切点
+  ctx.lineTo(x + rxB, botY);
+  ctx.ellipse(x, botY, rxB, ryB, 0, 0, Math.PI);          // 底椭圆前弧（右→左）
+  ctx.lineTo(x - rxT, topY);
+  ctx.closePath();
+  ctx.fillStyle = gg; ctx.fill();
+  // ③-a) v10 J4 盐体 fill（v11 M1：略深米白 #efece2 与盐面顶面亮米白对比 → 直立态可见 2/3 盐面边界不再"满杯"）+ 颗粒点缀
   if (salt > 0){
     ctx.save();
     saltClip();
@@ -900,7 +919,7 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
     }
     ctx.restore();
   }
-  // ②-b) 水体 fill（v11 M2：顶边贴合液面椭圆下半弧，旧平直顶弦切过已画椭圆=两截色根因）
+  // ③-b) 水体 fill（v11 M2：顶边贴合液面椭圆下半弧，旧平直顶弦切过已画椭圆=两截色根因）
   let wy = botY, hw = rxT, ryW = ryT;
   if (water > 0.01){
     const wTop = topY + ryT * 0.9;             // 满水位水面 y
@@ -914,14 +933,14 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
     ctx.closePath();
     ctx.fillStyle = LC.bottom; ctx.fill();
   }
-  // ②-c) v9: opt.contents 绘制钩子（页面把种粒/石块画进液体里）；save/restore 组件包办，try/catch 静默失败
+  // ③-c) v9: opt.contents 绘制钩子（页面把种粒/石块画进液体里）；save/restore 组件包办，try/catch 静默失败
   const wyB = water > 0.01 ? wy : botY;
   if (typeof opt.contents === 'function'){
     ctx.save();
     try { opt.contents(ctx, {x: x, w: w, yTop: topY, yBot: botY, rxT: rxT, rxB: rxB, halfAt: halfAt, wy: wyB}); } catch(e){}
     ctx.restore();
   }
-  // ②-d) 冰块堆（确定性 rand）：堆在底椭圆中心，基线 y−ry*0.5
+  // ③-d) 冰块堆（确定性 rand）：堆在底椭圆中心，基线 y−ry*0.5
   const n = Math.round(ice / 20);
   const baseY = y - ryT * 0.5;
   for (let i = 0; i < n; i++){
@@ -943,7 +962,7 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
     ctx.moveTo(cxI - sz * 0.2, cyI - sz * 0.12); ctx.lineTo(cxI + sz * 0.1, cyI - sz * 0.26);
     ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 1.4; ctx.stroke();
   }
-  // ③) 顶面椭圆 fill：盐面 → 液面 → 杯口（全部在内容物之上、描边之下）
+  // ④) 顶面椭圆 fill：盐面 → 液面 → 杯口（全部在内容物之上、描边之下）
   if (salt > 0){
     ctx.save();
     saltClip();
@@ -958,7 +977,7 @@ PROPS.beaker_ice = function(ctx, x, y, opt){
   }
   ctx.beginPath(); ctx.ellipse(x, topY, rxT, ryT, 0, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(223,240,246,0.25)'; ctx.fill();
-  // ④) 所有描边最后画（v11 M2：最上层，单一 strokeStyle 不被任何半透明层叠色 → 椭圆一周颜色均匀）
+  // ⑤) 所有描边最后画（v11 M2：最上层，单一 strokeStyle 不被任何半透明层叠色 → 椭圆一周颜色均匀）
   // 侧壁三边描边（v8 R39：不闭顶弦，消杯口中间横线）
   ctx.beginPath();
   ctx.moveTo(x - rxT, topY); ctx.lineTo(x - rxB, botY);

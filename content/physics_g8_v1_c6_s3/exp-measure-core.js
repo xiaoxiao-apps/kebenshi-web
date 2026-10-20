@@ -674,7 +674,7 @@ function drawBuildStamp(){   // 构建戳（防旧标签页误判）：画布左
   ctx.save();
   ctx.fillStyle='rgba(130,130,130,0.6)'; ctx.font='10px sans-serif';
   ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-  ctx.fillText('c6s3 r5 · lib v11',6,H-6);
+  ctx.fillText('c6s3 r5 · lib v12',6,H-6);
   ctx.restore();
 }
 function draw(){
@@ -1267,7 +1267,7 @@ if(window.ResizeObserver&&ctrlEl){
 requestAnimationFrame(tick);
 /* ===== 调试通道（P11/P12：验收走有效通道+磁盘 grep，禁合成拖拽断言） ===== */
 window.__c6dbg={
-  build:'r5-lib11',   // 构建戳（防旧标签页误判；画布左下角文字同值）
+  build:'r5-lib12',   // 构建戳（防旧标签页误判；画布左下角文字同值）
   get state(){ return state; }, get W(){ return W; }, get H(){ return H; }, get layout(){ return L; },
   get stage(){ return state.stage; },
   setStage:function(to){ setStage(to); return state.stage; },
