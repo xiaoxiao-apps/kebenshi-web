@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>测量工坊</title>
+  <link rel="stylesheet" href="measure-lab.css" />
+</head>
+<body>
+  <header id="shell-header">
+    <a id="back-to-index" href="index.html">‹ 返回本节</a>
+    <div class="header-mid">
+      <div class="header-title">测量工坊</div>
+      <nav id="mode-tabs">
+        <button class="mode-tab active" data-mode="warmup">① 错觉热身</button>
+        <button class="mode-tab" data-mode="ruler">② 刻度尺读数</button>
+        <button class="mode-tab" data-mode="stopwatch">③ 停表读数</button>
+        <button class="mode-tab" data-mode="estimate">④ 估测挑战</button>
+        <button class="mode-tab" data-mode="task">⑤ 实测任务单</button>
+      </nav>
+      <div id="mode-subtitle">感觉总是可靠吗？先看图判断，再用“尺”验证。</div>
+    </div>
+    <button id="shell-fullscreen" title="全屏">⛶</button>
+  </header>
+
+  <main id="shell-content">
+    <div class="frame-card">
+      <iframe class="mode-frame active" data-mode="warmup"    data-src="exp-warmup.html"    title="错觉热身"></iframe>
+      <iframe class="mode-frame" data-mode="ruler"     data-src="exp-ruler.html"     title="刻度尺读数"></iframe>
+      <iframe class="mode-frame" data-mode="stopwatch" data-src="exp-stopwatch.html" title="停表读数"></iframe>
+      <iframe class="mode-frame" data-mode="estimate"  data-src="exp-estimate.html"  title="估测挑战"></iframe>
+      <iframe class="mode-frame" data-mode="task"      data-src="exp-task.html"      title="实测任务单"></iframe>
+    </div>
+  </main>
+
+  <script src="measure-lab.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#5ad7ff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#5ad7ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 深底 -->
+  <rect x="0" y="0" width="600" height="360" rx="0" fill="#0b0e13"/>
+  <rect x="0" y="0" width="600" height="360" fill="url(#glow)"/>
+
+  <!-- 铅笔（左上，斜置） -->
+  <g transform="rotate(-16 165 112)">
+    <rect x="72" y="100" width="18" height="24" rx="5" fill="#e06a6a"/>
+    <rect x="90" y="100" width="12" height="24" fill="#8a94a8"/>
+    <rect x="102" y="100" width="112" height="24" fill="#d9a441"/>
+    <rect x="102" y="100" width="112" height="8" fill="#e8bb5e"/>
+    <polygon points="214,100 214,124 244,112" fill="#e8d5b0"/>
+    <polygon points="234,105.5 234,118.5 244,112" fill="#2b3242"/>
+  </g>
+
+  <!-- 机械停表（双表盘，右上） -->
+  <g>
+    <!-- 表冠与侧钮 -->
+    <rect x="421" y="40" width="18" height="16" rx="4" fill="#2a3550"/>
+    <line x1="474" y1="72" x2="492" y2="56" stroke="#2a3550" stroke-width="9" stroke-linecap="round"/>
+    <!-- 主表盘 -->
+    <circle cx="430" cy="126" r="68" fill="#131a2a" stroke="#2a3550" stroke-width="5"/>
+    <circle cx="430" cy="126" r="57" fill="none" stroke="rgba(90,215,255,0.35)" stroke-width="2"/>
+    <!-- 主表盘刻度 -->
+    <g stroke="#5a6a85" stroke-width="2">
+      <line x1="430" y1="74" x2="430" y2="84"/>
+      <line x1="482" y1="126" x2="472" y2="126"/>
+      <line x1="430" y1="178" x2="430" y2="168"/>
+      <line x1="378" y1="126" x2="388" y2="126"/>
+    </g>
+    <!-- 小子表盘 -->
+    <circle cx="430" cy="98" r="17" fill="#0f1522" stroke="#5ad7ff" stroke-width="2"/>
+    <line x1="430" y1="98" x2="438" y2="90" stroke="#5ad7ff" stroke-width="2" stroke-linecap="round"/>
+    <!-- 主指针 -->
+    <line x1="430" y1="126" x2="464" y2="146" stroke="#5ad7ff" stroke-width="4" stroke-linecap="round"/>
+    <line x1="430" y1="126" x2="412" y2="102" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="430" cy="126" r="5" fill="#5ad7ff"/>
+  </g>
+
+  <!-- 刻度尺（横贯下方） -->
+  <g>
+    <rect x="48" y="238" width="504" height="60" rx="9" fill="#1a2233" stroke="#2f3c58" stroke-width="2"/>
+    <!-- 整厘米长刻度 + 半厘米短刻度 -->
+    <g stroke="#8fa2c0" stroke-width="2">
+      <line x1="70" y1="240" x2="70" y2="264"/>
+      <line x1="120" y1="240" x2="120" y2="264"/>
+      <line x1="170" y1="240" x2="170" y2="264"/>
+      <line x1="220" y1="240" x2="220" y2="264"/>
+      <line x1="270" y1="240" x2="270" y2="264"/>
+      <line x1="320" y1="240" x2="320" y2="264"/>
+      <line x1="370" y1="240" x2="370" y2="264"/>
+      <line x1="420" y1="240" x2="420" y2="264"/>
+      <line x1="470" y1="240" x2="470" y2="264"/>
+      <line x1="520" y1="240" x2="520" y2="264"/>
+    </g>
+    <g stroke="#5a6a85" stroke-width="1.5">
+      <line x1="95" y1="240" x2="95" y2="253"/>
+      <line x1="145" y1="240" x2="145" y2="253"/>
+      <line x1="195" y1="240" x2="195" y2="253"/>
+      <line x1="245" y1="240" x2="245" y2="253"/>
+      <line x1="295" y1="240" x2="295" y2="253"/>
+      <line x1="345" y1="240" x2="345" y2="253"/>
+      <line x1="395" y1="240" x2="395" y2="253"/>
+      <line x1="445" y1="240" x2="445" y2="253"/>
+      <line x1="495" y1="240" x2="495" y2="253"/>
+    </g>
+    <!-- 数字（cm） -->
+    <g font-family="Helvetica,Arial,sans-serif" font-size="14" fill="#7d8aa0" text-anchor="middle">
+      <text x="70" y="286">0</text>
+      <text x="120" y="286">1</text>
+      <text x="170" y="286">2</text>
+      <text x="220" y="286">3</text>
+      <text x="270" y="286">4</text>
+      <text x="320" y="286">5</text>
+      <text x="370" y="286">6</text>
+      <text x="420" y="286">7</text>
+      <text x="470" y="286">8</text>
+      <text x="520" y="286">9</text>
+    </g>
+    <!-- 单位标注 -->
+    <text x="540" y="286" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#5ad7ff" text-anchor="middle">cm</text>
+    <!-- 青色高亮点缀：读数位置 -->
+    <line x1="345" y1="234" x2="345" y2="264" stroke="#5ad7ff" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- 点缀星芒 -->
+  <g fill="#5ad7ff" opacity="0.7">
+    <circle cx="322" cy="66" r="3"/>
+    <circle cx="552" cy="208" r="2.5"/>
+    <circle cx="60" cy="180" r="2.5"/>
+  </g>
+</svg>
