@@ -62,7 +62,9 @@ const AVAILABLE = {
   'math_fun_chicken_rabbit': { title: '鸡兔同笼', file: 'content/math_fun_chicken_rabbit/index.html' },
   'physics_g8_v1_c6_s1': { title: '第1节 质量', file: 'content/physics_g8_v1_c6_s1/index.html' },
   'physics_g8_v1_c6_s2': { title: '第2节 密度', file: 'content/physics_g8_v1_c6_s2/index.html' },
-  'physics_g8_v1_c6_s3': { title: '第3节 测量液体和固体的密度', file: 'content/physics_g8_v1_c6_s3/index.html' }
+  'physics_g8_v1_c6_s3': { title: '第3节 测量液体和固体的密度', file: 'content/physics_g8_v1_c6_s3/index.html' },
+  'physics_g8_v1_c6_summary': { title: '本章小结', file: 'content/physics_g8_v1_c6_summary/index.html' },
+  'physics_g8_v1_c6_practice': { title: '本章练习', file: 'content/physics_g8_v1_c6_practice/index.html' }
 };
 
 let state = {
