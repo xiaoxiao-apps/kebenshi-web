@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>隔音房间实验室</title>
+  <link rel="stylesheet" href="lab.css" />
+</head>
+<body>
+  <header id="shell-header">
+    <a id="back-to-index" href="index.html">‹ 返回本节</a>
+    <div class="header-mid">
+      <div class="header-title">隔音房间模型</div>
+      <div id="mode-subtitle">用鞋盒充当“房间”，给内壁贴材料，测处理前后的分贝差，评估隔音性能。</div>
+    </div>
+    <button id="shell-fullscreen" title="全屏">⛶</button>
+  </header>
+
+  <main id="shell-content">
+    <div class="frame-card">
+      <iframe class="mode-frame active" data-mode="room" data-src="exp-room.html" title="隔音房间模型"></iframe>
+    </div>
+  </main>
+
+  <script src="lab.js"></script>
+</body>
+</html>

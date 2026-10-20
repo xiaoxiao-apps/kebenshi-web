@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#5ad7ff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#5ad7ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 深底 -->
+  <rect x="0" y="0" width="600" height="360" fill="#0b0e13"/>
+  <rect x="0" y="0" width="600" height="360" fill="url(#glow)"/>
+
+  <!-- 鞋盒隔音房间模型（剖面） -->
+  <g>
+    <!-- 掀开的盒盖 -->
+    <rect x="206" y="52" width="328" height="20" rx="8" fill="#24304a" stroke="#2f3c58" stroke-width="2" transform="rotate(-7 206 76)"/>
+    <!-- 盒壁 -->
+    <rect x="210" y="76" width="320" height="214" rx="10" fill="#1a2233" stroke="#2f3c58" stroke-width="3"/>
+    <!-- 内部空腔 -->
+    <rect x="228" y="94" width="284" height="178" rx="4" fill="#101624"/>
+    <!-- 内壁隔音材料（虚线贴层） -->
+    <rect x="234" y="100" width="272" height="166" rx="4" fill="none" stroke="#5ad7ff" stroke-opacity="0.5" stroke-width="6" stroke-dasharray="12 7"/>
+  </g>
+
+  <!-- 盒内闹钟（声源） -->
+  <g>
+    <circle cx="350" cy="152" r="9" fill="#2a3550"/>
+    <circle cx="390" cy="152" r="9" fill="#2a3550"/>
+    <line x1="352" y1="208" x2="344" y2="221" stroke="#2a3550" stroke-width="5" stroke-linecap="round"/>
+    <line x1="388" y1="208" x2="396" y2="221" stroke="#2a3550" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="370" cy="183" r="30" fill="#131a2a" stroke="#5ad7ff" stroke-width="3"/>
+    <circle cx="370" cy="183" r="23" fill="none" stroke="rgba(90,215,255,0.30)" stroke-width="2"/>
+    <line x1="370" y1="183" x2="386" y2="173" stroke="#5ad7ff" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="370" y1="183" x2="360" y2="167" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="370" cy="183" r="3.5" fill="#5ad7ff"/>
+  </g>
+
+  <!-- 盒内声波（强） -->
+  <g fill="none" stroke="#5ad7ff" stroke-width="3" stroke-linecap="round">
+    <path d="M 336.3 211.3 A 44 44 0 0 1 336.3 154.7" opacity="0.75"/>
+    <path d="M 325.3 221.4 A 58 58 0 0 1 325.3 144.6" opacity="0.55"/>
+    <path d="M 314.7 229.3 A 72 72 0 0 1 314.7 136.7" opacity="0.35"/>
+  </g>
+
+  <!-- 穿墙后外侧声波（弱、断续 = 被阻挡） -->
+  <g fill="none" stroke="#5ad7ff" stroke-width="2.5" stroke-dasharray="6 8" stroke-linecap="round">
+    <path d="M 196.1 229.6 A 180 180 0 0 1 196.1 136.4" opacity="0.22"/>
+    <path d="M 164.6 226.7 A 210 210 0 0 1 164.6 139.3" opacity="0.16"/>
+    <path d="M 133.6 224.7 A 240 240 0 0 1 133.6 141.3" opacity="0.10"/>
+  </g>
+
+  <!-- 墙面上的“衰减”标记 -->
+  <g stroke="#e06a6a" stroke-width="3" stroke-linecap="round" opacity="0.85">
+    <line x1="199" y1="176" x2="213" y2="190"/>
+    <line x1="213" y1="176" x2="199" y2="190"/>
+  </g>
+
+  <!-- 外侧测量：麦克风 + 分贝下降 -->
+  <g>
+    <rect x="88" y="158" width="22" height="42" rx="11" fill="#1a2233" stroke="#5ad7ff" stroke-width="2.5"/>
+    <g stroke="#5a6a85" stroke-width="2">
+      <line x1="93" y1="170" x2="105" y2="170"/>
+      <line x1="93" y1="178" x2="105" y2="178"/>
+      <line x1="93" y1="186" x2="105" y2="186"/>
+    </g>
+    <line x1="99" y1="200" x2="99" y2="222" stroke="#2a3550" stroke-width="4"/>
+    <line x1="85" y1="224" x2="113" y2="224" stroke="#2a3550" stroke-width="5" stroke-linecap="round"/>
+    <rect x="52" y="240" width="96" height="26" rx="13" fill="rgba(90,215,255,0.12)" stroke="rgba(90,215,255,0.40)"/>
+    <text x="100" y="258" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#5ad7ff" text-anchor="middle">外部 dB ↓</text>
+  </g>
+
+  <!-- 可选隔音材料色样 -->
+  <g stroke="rgba(255,255,255,0.18)" stroke-width="1.5">
+    <rect x="424" y="306" width="26" height="26" rx="7" fill="#d980a0"/>
+    <rect x="460" y="306" width="26" height="26" rx="7" fill="#80c5d9"/>
+    <rect x="496" y="306" width="26" height="26" rx="7" fill="#d9c580"/>
+  </g>
+  <line x1="410" y1="319" x2="416" y2="319" stroke="#5ad7ff" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- 点缀星芒 -->
+  <g fill="#5ad7ff" opacity="0.7">
+    <circle cx="168" cy="76" r="3"/>
+    <circle cx="558" cy="128" r="2.5"/>
+    <circle cx="56" cy="112" r="2.5"/>
+  </g>
+</svg>
