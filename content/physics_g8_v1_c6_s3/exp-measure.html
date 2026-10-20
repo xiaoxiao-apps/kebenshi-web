@@ -59,16 +59,22 @@
   table.rec th{background:transparent;font-weight:400;color:#64748b}
   table.rec td{font-weight:600;font-variant-numeric:tabular-nums}
   .rp-note{font-size:13px;color:#64748b;margin-top:8px;line-height:1.5}
-  /* 数据表面板：教材 5 列表，min-width 520px（任务书幽灵化浮层规格） */
-  #panel-table{min-width:520px;max-width:92vw}
-  table.dt5{border-collapse:collapse;font-size:14px;width:100%;background:transparent}
-  table.dt5 th,table.dt5 td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:7px 10px;text-align:center;color:#1e293b;white-space:nowrap}
-  table.dt5 thead th{font-weight:600;color:#64748b;font-size:13px;white-space:normal;line-height:1.4}
-  table.dt5 td{font-weight:600;font-variant-numeric:tabular-nums}
-  table.dt5 td.empty{font-weight:400;color:#94a3b8}
-  /* 落格高亮 300ms（教材 5 列表逐格自动填入反馈） */
+  /* H3b 数据表：两行三列紧凑网格（宽/位由 core dockTable 内联写入：Tier A 右下停泊 min(44%W,cmPx(240)) / Tier B 底部通栏 96%W；旧 min-width:520px+顶部标题已删——表题移入网格空位单元格） */
+  #panel-table{width:auto;padding:8px 10px}
+  table.dtg{border-collapse:collapse;width:100%;table-layout:fixed;background:transparent}
+  table.dtg td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:4px 6px;text-align:center;vertical-align:top;color:#1e293b}
+  table.dtg tr:last-child td{border-bottom:none}
+  table.dtg .dth{font-size:11px;font-weight:400;color:#64748b;line-height:1.25;white-space:normal;word-break:break-all}
+  table.dtg .dtv{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:#1e293b;margin-top:1px}
+  table.dtg .dtv.empty{font-weight:400;color:#94a3b8}
+  table.dtg .dtt{font-size:11px;color:#b45309;font-weight:600;vertical-align:middle;line-height:1.3}
+  /* 换石块历史对比紧凑行（数值逐字同 fmt 格式：1位/2位小数） */
+  table.dtg .hist td{padding:2px 6px;text-align:left}
+  table.dtg .hseed{font-size:10px;color:#94a3b8;font-weight:400;margin-right:5px}
+  table.dtg .hvals{font-size:11px;color:#475569;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  /* 落格高亮 300ms（两行网格数值格自动填入反馈） */
   @keyframes cellFlash{0%{background:rgba(224,162,10,.45)}100%{background:transparent}}
-  table.dt5 td.flash{animation:cellFlash .3s ease 1}
+  table.dtg .flash{animation:cellFlash .3s ease 1}
   #toast{display:none;position:absolute;left:50%;top:13%;transform:translateX(-50%);max-width:82%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;z-index:16;text-align:center;pointer-events:none}
   #toast.show{display:block}
   html.pseudo-fs{width:100%;height:100%}
@@ -109,35 +115,35 @@
   </div>
 </div>
 <div class="rec-panel" id="panel-table">
-  <div class="rp-title" id="tb-title">数据表</div>
   <div id="tbl-s1">
-    <table class="dt5">
-      <thead><tr>
-        <th>杯和盐水的质量 m₁/g</th>
-        <th>杯和剩余盐水的质量 m₂/g</th>
-        <th>量筒中盐水的质量 m(=m₁−m₂)/g</th>
-        <th>量筒中盐水的体积 V/cm³</th>
-        <th>盐水的密度 ρ/(g·cm⁻³)</th>
-      </tr></thead>
-      <tbody><tr>
-        <td id="s1-c1" class="empty">—</td>
-        <td id="s1-c2" class="empty">—</td>
-        <td id="s1-c3" class="empty">—</td>
-        <td id="s1-c4" class="empty">—</td>
-        <td id="s1-c5" class="empty">—</td>
-      </tr></tbody>
+    <table class="dtg">
+      <tr>
+        <td><div class="dth">杯和盐水的质量 m₁/g</div><div class="dtv empty" id="s1-c1">—</div></td>
+        <td><div class="dth">杯和剩余盐水的质量 m₂/g</div><div class="dtv empty" id="s1-c2">—</div></td>
+        <td><div class="dth">量筒中盐水的质量 m(=m₁−m₂)/g</div><div class="dtv empty" id="s1-c3">—</div></td>
+      </tr>
+      <tr>
+        <td><div class="dth">量筒中盐水的体积 V/cm³</div><div class="dtv empty" id="s1-c4">—</div></td>
+        <td><div class="dth">盐水的密度 ρ/(g·cm⁻³)</div><div class="dtv empty" id="s1-c5">—</div></td>
+        <td class="dtt" id="tb-title-s1">数据表（教材 P149）</td>
+      </tr>
     </table>
   </div>
   <div id="tbl-s2" style="display:none">
-    <table class="dt5">
-      <thead><tr>
-        <th>小石块的质量 m/g</th>
-        <th>量筒中水的体积 V₁/cm³</th>
-        <th>水和小石块的总体积 V₂/cm³</th>
-        <th>小石块的体积 V(=V₂−V₁)/cm³</th>
-        <th>小石块的密度 ρ/(g·cm⁻³)</th>
-      </tr></thead>
-      <tbody id="s2-rows"></tbody>
+    <table class="dtg">
+      <tbody id="s2-hist"></tbody>
+      <tbody>
+      <tr>
+        <td><div class="dth">小石块的质量 m/g</div><div class="dtv empty" id="s2-c1">—</div></td>
+        <td><div class="dth">量筒中水的体积 V₁/cm³</div><div class="dtv empty" id="s2-c2">—</div></td>
+        <td><div class="dth">水和小石块的总体积 V₂/cm³</div><div class="dtv empty" id="s2-c3">—</div></td>
+      </tr>
+      <tr>
+        <td><div class="dth">小石块的体积 V(=V₂−V₁)/cm³</div><div class="dtv empty" id="s2-c4">—</div></td>
+        <td><div class="dth">小石块的密度 ρ/(g·cm⁻³)</div><div class="dtv empty" id="s2-c5">—</div></td>
+        <td class="dtt" id="tb-title-s2">记录表（自己设计的表格）</td>
+      </tr>
+      </tbody>
     </table>
     <div class="rp-note">换石块重测：同种物质密度一定（呼应第2节）——多行对比 ρ 值</div>
   </div>
@@ -150,7 +156,6 @@
     <div class="gctrl">
       <button id="btn-stage-s1" class="stg">🧂 测盐水</button>
       <button id="btn-stage-s2" class="stg">🪨 测石块</button>
-      <button id="btn-reset-s1" class="secondary">重置阶段一</button>
     </div>
   </div>
   <div class="group" id="grp-rec">
@@ -180,6 +185,6 @@
 <script src="../_lib/v1/props-optics.js?v=9"></script>
 <script src="../_lib/v1/props-density.js?v=9"></script>
 <script src="../_lib/v1/sfx.js?v=1"></script>
-<script src="exp-measure-core.js?v=3"></script>
+<script src="exp-measure-core.js?v=4"></script>
 </body>
 </html>

@@ -25,14 +25,20 @@ var EYE_RANGE=13*Math.PI/180;     // F4 眼睛弧线半角 ±13°（42°→13°�
 var EYE_MAX_DEV=0.5;              // F4 最大视线偏差 ±0.5 mL（6→0.5，严格小数位级、不超一个分度值 5 mL 的 1/10）
 var ALIGN_TOL=2*Math.PI/180;      // F4 平视判定容差 ±2°（3°→2°；|θ|≤2° 时「看到的读数」=「真实读数」完全相等）
 var EYE_R_K=0.2250;               // sin(13°)=0.22495…≈0.2250（偏差换算单点常量：dev=EYE_MAX_DEV·sinθ/EYE_R_K，θ=±13° 时 |dev|=0.5·sin13°/0.2250≈±0.500）
-/* ===== G 轮常量（2026-10-20 修复轮2：布局单源+成对不相交） ===== */
+/* ===== H 轮常量（2026-10-20 修复轮3：响应式两档 Tier A/B + 特写卡紧凑化 + 数据表两行网格停泊/通栏） ===== */
 var EYE_ARC_R=60;                 // G2 单源：特写眼弧半径 cm（原 0.40×bc.h 随卡高漂移→固定；任意液位×θ 眼盒不触文字带）
 var EYE_SPRITE_HALF=22;           // observer_eye sprite 半高 cm（h=cmPx(44)）
 var CU_BAND_H=50;                 // G2 特写卡顶部文字带高 cm（标题14+看到19+真实12 三行+行距，左对齐塞带内）
 var CU_TOP_CLEAR=EYE_ARC_R*Math.sin(EYE_RANGE)+EYE_SPRITE_HALF+2.5;   // G2 筒顶距文字带底净空 cm=13.5+22+2.5=38（单源派生自 EYE_ARC_R）
-var TABLE_BAND=118;               // G3a 数据表面板顶部预留带基准 cm（面板顶槽12px+实测高+余量；init 实测更大取实测）
-var DESK_GAP=2,DESK_GAP_MIN=1,DESK_K_MIN=0.7;   // G1 packDesk：间隙起步/溢出压缩后最小间隙 cm / 高度收敛系数下限
-var TABLE_PANEL_H=0;              // G3a init getBoundingClientRect 实测 panel-table 高 px（0=未测到，走 TABLE_BAND 基准）
+var CU_CYL_H=96;                  // H3a 特写量筒固定高 cm（紧凑卡内容单源：蔡总「量筒观察不需要占那么大画布」）
+var CU_CARD_PAD=8;                // H3a 特写卡上下 padding cm
+var CU_CARD_H=CU_BAND_H+CU_CYL_H+CU_CARD_PAD*2;   // H3a 卡总高 cm=50+96+16=162（高度自适应，不再 7.5%→74% 整列）
+var CU_CARD_W=200;                // H3a 卡宽 cm（文字带最宽行「看到的 100.0 mL」19px+左距12 实测上限≈cm183，留裕量）
+var CU_CARD_W_MAX=0.32;           // H3a 卡宽上限=0.32W（宽窗防过宽；窄窗 cmPx(200) 优先）
+var DESK_GAP_CM=3,DESK_GAP_MIN_CM=1;   // H2 间隙双判据 cm：gap=max(cmPx(3),0.10×beakerW)、gapMin=max(cmPx(1),0.05×beakerW)，beakerW=0.78×beaker.h 单源（矮窗下不再≈2px 视觉贴脸）
+var K_FLOOR=0.45;                 // H1 k 收敛下限（旧 0.7 假下限已除——跌破只记旗不收敛是 H1 重叠根因）：Tier A k<0.45 → 强制切 Tier B 重算；overflow 旗仅诊断、不再作为允许重叠的出口
+var REPACK_MS=250;                // H3b 数据表开/关桌面重排 tween ms（器材平滑让位，禁跳变）
+var TABLE_PANEL_H=0;              // H3b layout 每轮实测 panel-table 高 px（Tier B 底部带预留/Tier A 停泊矩形高单源；0=表关）
 
 var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
 var ctrlEl=document.querySelector('.ctrlbar');
@@ -61,79 +67,203 @@ var state={
       waterTw:null,drag:null,firstHintShown:false}
 };
 /* ===== 布局（layout() 单点算，绘制只读；R29 坐深居中：器材停驻线一律 L.seat=PROPS.seatY(by,64,26)） ===== */
+/* H3 响应式两档单源：tier()——先按 Tier A 试排（k≥0.45 成立）→ Tier A；否则 Tier B（窄窗/竖屏全屏）。
+   Tier A（宽窗）：特写卡右上紧凑锚定；数据表右下停泊（宽=min(44%W,cmPx(240))，控制栏上方 cmPx(2)），表开时桌面右界=tableLeft−cmPx(2)；
+   Tier B（窄窗）：特写卡同 A 紧凑形态；数据表底部通栏（宽=96%W 居中），表开时底部带预留=seat 上移表实测高+cmPx(2)、桌面可用宽=全宽−左右 margin。
+   两档通用：量筒高度解封（撤旧数据表顶部预留带，cyl h=min(seat−H*0.10, 原公式)）；表默认收起、首条记录自动展开。 */
 var L={};
 function attachBalG(B){   // 天平几何 PROPS.balGeom 单源（c6s2 R19/R24 先例）：panTop=盘椭圆中心，挂载件底面中心与盘心重合
   var G=PROPS.balGeom(B.x,B.y,B.h,0);
   B.g=G; B.panDx=B.x-G.panL.x; B.panTop=G.panL.y; B.panHW=G.panL.r;
 }
+function measureTableH(){   // H3b：panel-table 实测高（两表叠放量上限；隐藏测完还原）。表关时不测=0（不预留）
+  var el=document.getElementById('panel-table'); if(!el||openP!=='table') return 0;
+  var t1=document.getElementById('tbl-s1'),t2=document.getElementById('tbl-s2');
+  var d1=t1?t1.style.display:'',d2=t2?t2.style.display:'';
+  el.style.visibility='hidden'; el.classList.add('show');
+  if(t1) t1.style.display='block';
+  if(t2) t2.style.display='block';
+  var h=el.getBoundingClientRect().height||0;
+  if(t1) t1.style.display=d1;
+  if(t2) t2.style.display=d2;
+  if(openP!=='table') el.classList.remove('show');
+  el.style.visibility='';
+  return h;
+}
+function tableRect(){   // H3b 数据表停泊矩形单源（dockTable 定位/dbg.rects/桌面右界同读，禁第二套坐标）
+  var th=Math.round(L.tableH||0);
+  if(L.tier==='B'){
+    var wb=Math.round(W*0.96);
+    return {x:Math.round((W-wb)/2),y:Math.round(L.fyBase-cmPx(2)-th),w:wb,h:th};
+  }
+  var wa=Math.min(Math.round(W*0.44),Math.round(cmPx(240)));
+  return {x:Math.round(W-12-wa),y:Math.round(L.fyBase-cmPx(2)-th),w:wa,h:th};
+}
+function deskRightFor(tierName,open){   // 桌面右界单源（packDesk/benchClampX/tableRect 同读）
+  if(tierName==='B') return Math.round(W-cmPx(4));                       // Tier B：全宽−右 margin
+  if(open&&L.tableH>0) return Math.round(tableRect().x-cmPx(2));         // Tier A 表开：tableLeft−cmPx(2)（器材让位停泊表）
+  return Math.round(L.cu.x0-cmPx(4));                                    // Tier A 表关：特写卡左缘−cmPx(4)
+}
+function cylHeightFor(tierName,seat){   // H3a 量筒高度解封：min(seat−H*0.10, 原公式 max(160,seat−H*0.14))；Tier B 另加特写卡垂直避让帽（卡∩器材=∅ 断言的构造保证）
+  var h=Math.min(Math.round(seat-H*0.10),Math.max(160,Math.round(seat-H*0.14)));
+  if(tierName==='B'){
+    var cap=Math.floor(seat-(L.cu.y1+cmPx(2)));   // 器材顶 ≥ 卡底+cmPx(2)（Tier B 卡横跨桌面 x 域，垂直分离单源）
+    h=Math.min(h,Math.max(40,cap));
+  }
+  return Math.max(40,h);
+}
 function layout(){
-  L.fy=H-ctrlBandH;
-  L.by=Math.max(40,L.fy-DESK_BAND);
-  L.seatSpan=26;
-  L.seat=PROPS.seatY(L.by,64,L.seatSpan);
-  L.bal={x:Math.round(W*0.155),y:L.seat,h:Math.round(H*0.42)};
-  attachBalG(L.bal);
-  // 三视线读数特写区（右侧浮层幽灵卡，两阶段共用同一组件；先算——packDesk 右界依赖 cu.x0）
-  var x0=Math.round(W*0.668),x1=Math.round(W*0.988),y0=Math.round(H*0.075);
-  var y1=Math.min(Math.round(H*0.74),L.by-14);
+  deskTween=null;   // resize/重排直接落新几何：作废进行中 tween（防旧插值回写覆盖新 layout；startRepack 在本调用之后才立新 tween）
+  L.fyBase=H-ctrlBandH;
+  L.tableH=measureTableH(); TABLE_PANEL_H=L.tableH;
+  // H3a 特写卡紧凑化：右上锚定（x1=0.988W 不变），高=cmPx(162) 自适应、宽=min(0.32W,cmPx(200))；G2 文字带/eyeR 常量机制保留
+  var cardW=Math.min(Math.round(W*CU_CARD_W_MAX),Math.round(cmPx(CU_CARD_W)));
+  var x1=Math.round(W*0.988),x0=Math.max(4,x1-cardW);
+  var y0=Math.round(H*0.075),y1=y0+Math.round(cmPx(CU_CARD_H));
   L.cu={x0:x0,y0:y0,x1:x1,y1:y1};
   /* G2 特写卡：顶部文字带 bandH=cmPx(50)（标题+看到的+真实读数三行，绘制层塞带内）；
      筒顶下移 bandH+cmPx(CU_TOP_CLEAR=38)，CU_TOP_CLEAR=EYE_ARC_R·sin13°(13.5)+sprite 半高(22)+2.5（单源派生）；
      几何断言（构造成立，任意液位×任意 θ）：眼顶最高=液面−cmPx(13.5+22)=液面−cmPx(35.5)
        ≥ 筒顶−cmPx(35.5) ≥ 文字带底+cmPx(38−35.5)=文字带底+cmPx(2.5) → 眼包围盒∩文字带=∅ */
-  var bandH=Math.round(cmPx(CU_BAND_H));
-  var bcY=y1-Math.round(cmPx(16));
-  L.cu.bc={x:Math.round(x0+(x1-x0)*0.66),y:bcY,
-           h:Math.max(100,Math.round(bcY-(y0+bandH+Math.round(cmPx(CU_TOP_CLEAR)))))};
+  var bcY=y1-Math.round(cmPx(CU_CARD_PAD));
+  L.cu.bc={x:Math.round(x0+(x1-x0)*0.66),y:bcY,h:Math.max(60,Math.round(cmPx(CU_CYL_H)))};
   L.cu.eyeR=Math.round(cmPx(EYE_ARC_R));   // G2 固定半径单源（原 0.40×bc.h）
   L.cu.btn={x:Math.round(x0+(x1-x0)*0.26),y:Math.round(y1-cmPx(34)),w:Math.round(cmPx(96)),h:Math.round(cmPx(28))};
-  /* G3a 顶部预留带：数据表面板（pickSlot 顶槽 y=12，DOM px 不随 H 缩放）实测高单源预留；
-     面板未打开也预留（禁实验中跳变）；实测+余量 > cmPx(118) 取实测。
-     断言：量筒顶=L.seat−L.cyl.h ≥ tableBand+cmPx(2) ≥ 12+面板实测高+cmPx(6) → 筒身不穿面板，任意 W/H */
-  L.tableBand=Math.max(Math.round(cmPx(TABLE_BAND)),Math.round(12+TABLE_PANEL_H+cmPx(6)));
-  var cylH0=Math.max(160,Math.round(L.seat-H*0.14));
-  var cylH=Math.max(90,Math.min(cylH0,Math.round(L.seat-(L.tableBand+cmPx(2)))));
-  packDesk(cylH,x0);
+  // H3 档位判定单源 tier()：先按 Tier A 试排，k≥K_FLOOR 成立→A；否则强制 Tier B 重算（B 桌面可用宽大得多，通常 k 回到 ≥0.6）
+  var open=(openP==='table');
+  L.bal={x:Math.round(W*0.155),y:0,h:Math.round(H*0.42)};
+  attachBalG(L.bal);   // panDx/panHW 仅依赖 h（与 tier/seat 无关）→ probe 与终排 balRight 同源；y 待 seat 定后回填
+  L.tier='A';
+  var fyA=L.fyBase,seatA=seatOf(fyA);
+  var fit=packDesk(cylHeightFor('A',seatA),deskRightFor('A',open),seatA,true);
+  if(fit.k<K_FLOOR){
+    L.tier='B';
+    // Tier B 底部带预留：表开时整桌前缘上移=表实测高+cmPx(2)（seat 上移同量；表关不预留）
+    fyA=open?Math.round(L.fyBase-(L.tableH+cmPx(2))):L.fyBase;
+    seatA=seatOf(fyA);
+  }
+  L.fy=fyA; L.by=Math.max(40,L.fy-DESK_BAND); L.seat=seatA;
+  L.seatSpan=26;
+  L.bal.y=L.seat; attachBalG(L.bal);
+  packDesk(cylHeightFor(L.tier,L.seat),deskRightFor(L.tier,open),L.seat,false);
 }
-/* G1 packDesk：桌面器材打包布局单源函数（除根：旧 0.40/0.545/0.622 固定 W 比例 x 与 H 比例宽度独立缩放必撞）。
+function seatOf(fy){ return PROPS.seatY(Math.max(40,fy-DESK_BAND),64,26); }   // R29 坐深居中单源（seat=by+45）
+/* H1/H2/H4 packDesk 重构：桌面器材打包布局单源函数。
    顺序：天平（x=0.155W 固定不动）→ 量筒 → 烧杯 → 盐罐（阶段一）；阶段二尾件=石块位。
    每件 x=前件右缘+gap+自身半宽；半宽单源=库件 width 公式：cyl max(30,h·0.18)/2、beaker 0.78h/2、jar (0.66h·1.14)/2、stone cmPx(19.5)+2。
-   溢出收敛：打包总右缘 > cu.x0−cmPx(4) 时先压 gap 至 cmPx(1)，仍溢出对桌面器材高度统一乘 k=min(1,可用宽/需求宽)（下限 0.7，触底记 L.desk.overflow）。
-   几何断言（构造成立）：任意相邻两件水平间距=gap ≥ cmPx(1)，任意 W/H；
-   F6 断言保留：石块位=筒右缘+gap+石块半宽 → 石块包围盒与量筒包围盒水平间距=gap ≥ cmPx(1)；
+   H2 间隙双判据：gap=max(cmPx(3),0.10×beakerW)、收敛下限 gapMin=max(cmPx(1),0.05×beakerW)（beakerW=0.78×beaker.h 单源）——随杯宽长、矮窗不再贴脸。
+   H1 k 去下限：k 定点收敛（needW(gapMin(k),k)=avail），k<0.45 → tier 切 B 重算（layout 单源）；overflow 旗仅诊断。
+   H4 石块位单源：stoneSpot.x=打包序列第四件位置（cyl→beaker→jar / cyl→stone 两序列取 max 右缘），cuX0−cmPx(50) clamp 上界已删除；
+     上界=桌面右界−hs（deskRightFor 单源）。断言（构造成立）：stoneSpot.x−(cyl.x+hc) ≥ gap+hs 恒成立——max(jar右缘,cyl右缘)+gap+hs 差值 ≥ gap+hs。
+   几何断言（构造成立）：任意相邻两件水平间距=gap ≥ cmPx(1)（双判据下限），任意 W/H；
+   F6 断言保留：石块包围盒与量筒包围盒水平间距 ≥ gap ≥ cmPx(1)；
    石块 vs 烧杯/盐罐不查：分属阶段二/阶段一，各自阶段对方隐藏（仅 300ms 交叉淡入淡出瞬时同屏，可接受） */
-function packDesk(cylH,cuX0){
-  var balRight=L.bal.x+L.bal.panDx+L.bal.panHW+6;    // 天平右缘（balAvoidRect 同源）
-  var avail=Math.round(cuX0-cmPx(4))-balRight;       // 桌面可用宽（右界=特写区左缘−cmPx(4)）
-  var stHW=cmPx(19.5)+2;                             // stone 最大半宽（stoneSize 上限 cmPx(39)）+裕量
-  function needW(g,k){                               // 需求宽=max(阶段一 cyl+beaker+jar, 阶段二 cyl+stone)+间隙
-    var wc=Math.max(30,cylH*k*0.18),wb=cmPx(128)*k*0.78,wj=cmPx(96)*k*0.66*1.14,ws=stHW*k*2;
+function deskGapOf(k){ var bw=cmPx(128)*k*0.78; return Math.max(cmPx(DESK_GAP_CM),Math.round(0.10*bw)); }      // beakerW=0.78×beaker.h 单源
+function deskGapMinOf(k){ var bw=cmPx(128)*k*0.78; return Math.max(cmPx(DESK_GAP_MIN_CM),Math.round(0.05*bw)); }
+function packDesk(cylH,deskRight,seat,probe){
+  var balRight=Math.round(L.bal.x+L.bal.panDx+L.bal.panHW+6);   // 天平右缘（balAvoidRect 同源；layout 已先立 L.bal 几何）
+  var avail=Math.round(deskRight)-balRight;        // 桌面可用宽（右界=deskRightFor 单源：Tier A 卡左缘/停泊表左缘、Tier B 全宽−margin）
+  var stHW=cmPx(19.5)+2;                           // stone 最大半宽（stoneSize 上限 cmPx(39)）+裕量；石块绘制尺寸不随 k 缩（stoneSize 无 k）→ 足迹半宽恒=stHW 不乘 k，k 小时不咬筒
+  function needW(g,k){                             // 需求宽=max(阶段一 cyl+beaker+jar, 阶段二 cyl+stone)+间隙
+    var wc=Math.max(30,cylH*k*0.18),wb=cmPx(128)*k*0.78,wj=cmPx(96)*k*0.66*1.14,ws=stHW*2;
     return Math.max(wc+wb+wj,wc+ws)+g*3;
   }
-  var gap=cmPx(DESK_GAP),k=1,overflow=false;
+  // H2+H1：先全 gap 试排 → 压 gapMin → 仍溢出 k 定点收敛（无假下限）；Tier B 垂直避让帽 kMaxB（beaker 顶≥卡底+2，jar/stone 更矮天然满足）
+  var gap=deskGapOf(1),k=1,kRaw=1,overflow=false;
   if(needW(gap,k)>avail){
-    gap=cmPx(DESK_GAP_MIN);
-    k=Math.min(1,avail/needW(gap,1));
-    if(k<DESK_K_MIN){ k=DESK_K_MIN; overflow=true; }
+    gap=deskGapMinOf(1);
+    if(needW(gap,1)>avail){
+      var i;
+      for(i=0;i<8;i++){                            // 定点：k·avail/needW(gapMin(k),k) 收敛（max(30,·) 底宽非线性，8 轮足够）
+        var nd=needW(deskGapMinOf(k),k); if(nd<=0) break;
+        var nk=Math.min(1,k*avail/nd);
+        if(Math.abs(nk-k)<0.002){ k=nk; break; }
+        k=nk;
+      }
+      gap=deskGapMinOf(k);
+    }
   }
-  L.cyl={x:0,y:L.seat,h:Math.round(cylH*k)};
-  L.beaker={x:0,y:L.seat,h:Math.round(cmPx(128)*k)};
-  L.jar={x:0,y:L.seat,h:Math.round(cmPx(96)*k)};
-  var hc=cylW(L.cyl)/2,hb=L.beaker.h*0.78/2,hj=L.jar.h*0.66*1.14/2,hs=stHW*k;
+  kRaw=k;
+  if(L.tier==='B'){
+    var capH=Math.max(40,Math.floor(seat-(L.cu.y1+cmPx(2))));
+    k=Math.min(k,capH/cmPx(128));                  // beaker 高帽（cmPx(128)k ≤ capH）；cylH 已在 cylHeightFor 同帽
+  }
+  k=clamp(k,K_FLOOR,1);
+  overflow=(kRaw<K_FLOOR);                         // H1：仅诊断旗，不再作为「允许重叠」的出口
+  if(probe) return {k:kRaw,gap:gap,avail:avail,balRight:balRight};
+  L.cyl={x:0,y:seat,h:Math.round(cylH*k)};   // cylH 已含 Tier B 垂直避让帽（cylHeightFor 单源），k 统一缩放
+  L.beaker={x:0,y:seat,h:Math.round(cmPx(128)*k)};
+  L.jar={x:0,y:seat,h:Math.round(cmPx(96)*k)};
+  var hc=cylW(L.cyl)/2,hb=L.beaker.h*0.78/2,hj=L.jar.h*0.66*1.14/2,hs=stHW;   // hs 不乘 k（石块足迹 k 不变，见上）
   L.cyl.x=Math.round(balRight+gap+hc);
   L.beaker.x=Math.round(L.cyl.x+hc+gap+hb);
   L.jar.x=Math.round(L.beaker.x+hb+gap+hj);
-  var stMax=Math.round(cuX0-cmPx(50));               // 石块位上界=特写区左缘−cmPx(50)（拖拽回域同界）
-  L.stoneSpot={x:clamp(Math.round(L.cyl.x+hc+gap+hs),0,Math.max(0,stMax)),y:L.seat};
-  L.desk={balRight:Math.round(balRight),gap:gap,k:k,overflow:overflow,
-          hw:{cyl:hc,beaker:hb,jar:hj,stone:hs}};    // 半宽单源导出（拖拽回域 clamp/dbg 同读）
+  // H4 石块位单源=打包序列第四件（两序列 max 右缘）；上界=桌面右界−hs（cuX0−cmPx(50) clamp 已删）
+  var spotRaw=Math.max(L.jar.x+hj,L.cyl.x+hc)+gap+hs;
+  L.stoneSpot={x:Math.round(Math.min(spotRaw,Math.max(0,deskRight-hs))),y:seat};
+  L.desk={balRight:balRight,gap:gap,k:k,overflow:overflow,right:Math.round(deskRight),
+          hw:{cyl:hc,beaker:hb,jar:hj,stone:hs}};  // 半宽单源导出（拖拽回域 clamp/dbg 同读）
+  return {k:kRaw,gap:gap,avail:avail,balRight:balRight};
 }
-/* G1 拖拽回域 clamp 单源（endDrag/reflow 共用；禁旧比例常量）：
-   下界=天平右缘+自身半宽+cmPx(1)（不落天平上），上界=特写区左缘−自身半宽（石块沿用 −cmPx(50) 与 stoneSpot 上界同源） */
-function benchClampX(hw,x,useStoneHi){
-  var lo=Math.round(L.desk.balRight+hw+cmPx(1));
-  var hi=Math.round(useStoneHi?(L.cu.x0-cmPx(50)):(L.cu.x0-hw-1));
-  return clamp(x,lo,Math.max(lo,hi));
+/* H1/H4 拖拽回域 clamp 单源（endDrag/reflow/repack tween 共用；禁旧比例常量）：
+   下界=天平右缘+自身半宽+cmPx(1)（不落天平上），上界=桌面右界−自身半宽（deskRightFor 单源，石块与 stoneSpot 上界同源——cuX0−cmPx(50) 旧界已删） */
+function clampXTo(right,balRight,hw,x){
+  var lo=Math.round(balRight+hw+cmPx(1));
+  return clamp(x,lo,Math.max(lo,Math.round(right-hw)));
+}
+function benchClampX(hw,x){ return clampXTo(L.desk.right,L.desk.balRight,hw,x); }
+/* ===== H3b repack tween（数据表开/关 250ms：桌面几何+器材+台面件平滑让位，禁跳变；lerp 几何恒成立 → tween 中任意帧断言不破） ===== */
+function snapDesk(){
+  return {fy:L.fy,by:L.by,seat:L.seat,balY:L.bal?L.bal.y:L.seat,
+    cylX:L.cyl.x,cylH:L.cyl.h,bkX:L.beaker.x,bkH:L.beaker.h,jarX:L.jar.x,jarH:L.jar.h,stX:L.stoneSpot.x,
+    right:L.desk.right,balRight:L.desk.balRight,gap:L.desk.gap,k:L.desk.k,
+    hwc:L.desk.hw.cyl,hwb:L.desk.hw.beaker,hwj:L.desk.hw.jar,hws:L.desk.hw.stone};
+}
+function applyDeskSnap(s){   // 把快照写回 L（tween 每帧插值调用；attachBalG 随 bal.y 重算=盘上件同步平移）
+  L.fy=s.fy; L.by=s.by; L.seat=s.seat;
+  if(L.bal){ L.bal.y=s.balY; attachBalG(L.bal); }
+  L.cyl.x=s.cylX; L.cyl.h=s.cylH; L.cyl.y=s.seat;
+  L.beaker.x=s.bkX; L.beaker.h=s.bkH; L.beaker.y=s.seat;
+  L.jar.x=s.jarX; L.jar.h=s.jarH; L.jar.y=s.seat;
+  L.stoneSpot.x=s.stX; L.stoneSpot.y=s.seat;
+  L.desk.right=s.right; L.desk.balRight=s.balRight; L.desk.gap=s.gap; L.desk.k=s.k;
+  L.desk.hw={cyl:s.hwc,beaker:s.hwb,jar:s.hwj,stone:s.hws};
+}
+function lerpSnap(a,b,t){
+  var s={},kk;
+  for(kk in a){ s[kk]=(typeof a[kk]==='number')?(a[kk]+(b[kk]-a[kk])*t):b[kk]; }
+  return s;
+}
+var deskTween=null,deskItemsFrom=null,deskItemsTo=null;
+function itemTargets(snap){   // 台面件（bench 态）在快照几何下的回域目标 x（clampXTo 纯函数，与 benchClampX 同界）
+  var S=s1(),st=stone(),o={};
+  o.beaker=(S.beaker.loc==='bench')?clampXTo(snap.right,snap.balRight,snap.hwb,S.beaker.x):null;
+  o.jar=(S.jar.loc==='bench')?clampXTo(snap.right,snap.balRight,snap.hwj,S.jar.x):null;
+  o.stone=(st&&st.loc==='bench')?clampXTo(snap.right,snap.balRight,snap.hws,st.x):null;
+  return o;
+}
+function startRepack(){   // openPanel 表开/关唯一入口调用：快照当前→layout 重算目标→250ms 插值
+  if(!L.cyl||!L.desk) return;
+  var from=snapDesk();
+  layout();
+  var to=snapDesk();
+  var S=s1(),st=stone();
+  deskItemsFrom={beaker:S.beaker.x,jar:S.jar.x,stone:st?st.x:0};
+  deskItemsTo=itemTargets(to);
+  applyDeskSnap(from);   // 先回旧几何，tween 逐帧逼近新几何（首帧无跳变）
+  deskTween={t0:performance.now(),from:from,to:to};
+  dirty=true;
+}
+function deskTweenTick(now){
+  if(!deskTween) return false;
+  var t=clamp((now-deskTween.t0)/REPACK_MS,0,1),e=easeInOut(t);
+  applyDeskSnap(lerpSnap(deskTween.from,deskTween.to,e));
+  var S=s1(),st=stone();
+  if(deskItemsTo.beaker!=null&&S.beaker.loc==='bench') S.beaker.x=deskItemsFrom.beaker+(deskItemsTo.beaker-deskItemsFrom.beaker)*e;
+  if(deskItemsTo.jar!=null&&S.jar.loc==='bench') S.jar.x=deskItemsFrom.jar+(deskItemsTo.jar-deskItemsFrom.jar)*e;
+  if(deskItemsTo.stone!=null&&st&&st.loc==='bench') st.x=deskItemsFrom.stone+(deskItemsTo.stone-deskItemsFrom.stone)*e;
+  if(t>=1){ deskTween=null; reflow(); dockTable(); }   // 终帧=精确目标位（reflow 落域+dockTable 落位，消除累计误差）
+  dirty=true; return true;
 }
 function cylW(C){ return Math.max(30,C.h*0.18); }   // cylinder_grad 同公式（w=max(30,h*0.18)），页面仅此处换算
 function cylInner(C){   // 量筒内腔几何（cylinder_grad 同公式：w/wall/内腔四边）
@@ -676,7 +806,7 @@ function endDrag(){
       submergeStone();   // 拖入量筒→沉底（ρ石>ρ水，不漂浮不吸水）
     }else{
       st.loc='bench';
-      st.x=benchClampX(L.desk.hw.stone,p2.x,true); st.y=L.seat;   // G1：回域=packDesk 半宽单源（上界与 stoneSpot 同源）
+      st.x=benchClampX(L.desk.hw.stone,p2.x); st.y=L.seat;   // H1/H4：回域=packDesk 半宽+桌面右界单源（上界与 stoneSpot 同源，cuX0−50 旧界已删）
       if(window.playDrop)playDrop();
     }
   }
@@ -779,18 +909,25 @@ function s2TryFinish(){
     updateHint();
   }
 }
-function renderS2Table(flashCols){   // 记录表（教材「记录在自己设计的表格中」→ 五列；换石块多行对比）
-  var tb=document.getElementById('s2-rows'); if(!tb) return;
-  var rows=s2().rows.map(function(r){ return {m:r.m,v1:r.v1,v2:r.v2,v:r.v2-r.v1,rho:r.m/(r.v2-r.v1)}; });
+function renderS2Table(flashCols){   // H3b 记录表两行网格：当前记录=5 数据位（s2-c1..c5 行1 m|V₁|V₂、行2 V|ρ）；历史换石块对比行=紧凑单行（数值逐字同 fmt 1位/2位；换石块多行对比语义保留）
+  var hb=document.getElementById('s2-hist');
+  if(hb){
+    var hh='';
+    s2().rows.forEach(function(r){
+      hh+='<tr class="hist"><td colspan="3"><span class="hseed">石块 #'+r.seed+'</span><span class="hvals">m '+fmt(r.m,1)+' g · V₁ '+fmt(r.v1,1)+' · V₂ '+fmt(r.v2,1)+' · V '+fmt(r.v2-r.v1,1)+' cm³ · ρ '+fmt(r.m/(r.v2-r.v1),2)+' g/cm³</span></td></tr>';
+    });
+    hb.innerHTML=hh;
+  }
   var c=s2().cur,rc=s2CurCalc();
-  rows.push({m:c.m,v1:c.v1,v2:c.v2,v:rc.v,rho:rc.rho});
-  function cell(v,n){ return v==null?'<td class="empty">—</td>':'<td>'+fmt(v,n)+'</td>'; }
-  var html='';
-  rows.forEach(function(r){ html+='<tr>'+cell(r.m,1)+cell(r.v1,1)+cell(r.v2,1)+cell(r.v,1)+cell(r.rho,2)+'</tr>'; });
-  tb.innerHTML=html;
-  var tr=tb.rows[tb.rows.length-1];
-  if(tr&&(flashCols||[]).length) flashCols.forEach(function(ci){
-    if(tr.cells[ci]){ tr.cells[ci].classList.remove('flash'); void tr.cells[ci].offsetWidth; tr.cells[ci].classList.add('flash'); }
+  var vals=[c.m!=null?fmt(c.m,1):'—',c.v1!=null?fmt(c.v1,1):'—',c.v2!=null?fmt(c.v2,1):'—',rc.v!=null?fmt(rc.v,1):'—',rc.rho!=null?fmt(rc.rho,2):'—'];
+  var empt=[c.m==null,c.v1==null,c.v2==null,rc.v==null,rc.rho==null];
+  var fc=(flashCols&&flashCols.length)?flashCols:[];
+  vals.forEach(function(v,i){
+    var el=document.getElementById('s2-c'+(i+1)); if(!el) return;
+    var changed=(el.textContent!==v)||(empt[i]!==el.classList.contains('empty'));
+    el.textContent=v;
+    if(empt[i]) el.classList.add('empty'); else el.classList.remove('empty');
+    if(changed||fc.indexOf(i)>=0){ el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }   // 落格高亮 300ms
   });
 }
 function doConfirm(){   // 特写区「确认读数」：视线与液面相平才有效（不出题不判分，现象自己说话）
@@ -850,7 +987,13 @@ function placePanel(id){
   el.style.left=slot.x+'px'; el.style.top=slot.y+'px';
   return slot;
 }
-function repositionPanels(){ if(openP==='read') placePanel('panel-read'); if(openP==='table') placePanel('panel-table'); }
+function dockTable(){   // H3b 数据表停泊定位单源（tableRect：Tier A 右下停泊 / Tier B 底部通栏；不再走 pickSlot 浮桌占位）
+  var el=document.getElementById('panel-table'); if(!el) return;
+  var r=tableRect();
+  el.style.right='auto'; el.style.bottom='auto';
+  el.style.left=r.x+'px'; el.style.top=r.y+'px';
+}
+function repositionPanels(){ if(openP==='read') placePanel('panel-read'); if(openP==='table') dockTable(); }
 var openP=null;
 function syncPanelSections(){   // 面板内容随阶段切换（两阶段各自独立表，互不清空）
   var s1on=(state.stage==='s1');
@@ -860,9 +1003,11 @@ function syncPanelSections(){   // 面板内容随阶段切换（两阶段各自
   var t1=document.getElementById('tbl-s1'),t2=document.getElementById('tbl-s2');
   if(t1) t1.style.display=s1on?'block':'none';
   if(t2) t2.style.display=s1on?'none':'block';
-  setText('tb-title',s1on?'数据表（教材 P149）':'记录表（自己设计的表格）');
+  setText('tb-title-s1',s1on?'数据表（教材 P149）':'');   // H3b 表题移入两行网格空位单元格（tb-title 顶题已删）
+  setText('tb-title-s2',s1on?'':'记录表（自己设计的表格）');
 }
 function openPanel(name){
+  var wasTable=(openP==='table');
   openP=(openP===name)?null:name;
   document.getElementById('panel-read').classList.toggle('show',openP==='read');
   document.getElementById('panel-table').classList.toggle('show',openP==='table');
@@ -871,7 +1016,8 @@ function openPanel(name){
   if(bt) bt.classList.toggle('on',openP==='table');
   syncPanelSections();
   if(openP==='read'){ updatePanel(); placePanel('panel-read'); }
-  if(openP==='table'){ renderS2Table([]); placePanel('panel-table'); }
+  if(openP==='table') renderS2Table([]);
+  if(wasTable||openP==='table') startRepack();   // H3b：表可见性任何变化（开/关/被读数面板顶掉）都走重测表高+tier 重算+250ms repack tween（器材平滑让位，禁跳变）
 }
 function openTable(){ if(openP!=='table') openPanel('table'); }   // 首次落格自动打开数据表（落格高亮可见）
 function setText(id,t){ var el=document.getElementById(id); if(el&&el.textContent!==t) el.textContent=t; }
@@ -937,6 +1083,7 @@ function setStage(to){
   state.anim={from:state.stage,to:to,t0:performance.now()};
   state.stage=to; state.animating=true;
   hideToast(); syncGroups(); placeHint(); repositionPanels();
+  if(openP==='table') startRepack();   // H3b：两阶段表体高度不同（s2 多行对比）→ 表开时切阶段同样走 repack tween（seat 预留/停泊位平滑过渡）
   if(to==='s2'&&!s2().firstHintShown){   // 首次切到阶段二：教材 P150 原句过渡
     s2().firstHintShown=true;
     hintOverride='想一想：对于形状不规则的固体，又该如何测量它的密度呢？（教材 P150）——第1步：把小石块拖到天平左盘测质量 m';
@@ -987,12 +1134,12 @@ function changeStone(){
   if(window.playClick) playClick();
   dirty=true;
 }
-function reflow(){   // resize/全屏重算一切：台面件回域（G1：clamp 界=packDesk 半宽单源，禁写死像素/旧比例常量）
+function reflow(){   // resize/全屏重算一切：台面件回域（H1/H4：clamp 界=packDesk 半宽+桌面右界单源，禁写死像素/旧比例常量）
   var S=s1();
   if(S.beaker.loc==='bench'){ S.beaker.x=benchClampX(L.desk.hw.beaker,S.beaker.x||L.beaker.x); S.beaker.y=L.seat; }
   if(S.jar.loc==='bench'){ S.jar.x=benchClampX(L.desk.hw.jar,S.jar.x||L.jar.x); S.jar.y=L.seat; }
   var st=stone();
-  if(st&&st.loc==='bench'){ st.x=benchClampX(L.desk.hw.stone,st.x||L.stoneSpot.x,true); st.y=L.seat; }
+  if(st&&st.loc==='bench'){ st.x=benchClampX(L.desk.hw.stone,st.x||L.stoneSpot.x); st.y=L.seat; }
 }
 /* ===== 控制栏接线 ===== */
 var btnStageS1=document.getElementById('btn-stage-s1'),btnStageS2=document.getElementById('btn-stage-s2');
@@ -1021,15 +1168,7 @@ if(btnReset) btnReset.addEventListener('click',function(){
   if(window.playClick) playClick();
   dirty=true;
 });
-/* F3 阶段一重置钮（与「重置」并存，语义差异：「重置」=只重置当前所选阶段（阶段二时含石块/多行表）；
-   「重置阶段一」=不论当前在哪个阶段，都把阶段一回初始态（清水 ρ=1.00、种粒全沉、空量筒、空数据表、盐罐/烧杯回初始位），阶段二数据不动 */
-var btnResetS1=document.getElementById('btn-reset-s1');
-if(btnResetS1) btnResetS1.addEventListener('click',function(){
-  if(state.animating) return;
-  resetS1(); hideToast();
-  if(window.playClick) playClick();
-  dirty=true;
-});
+/* H5：「重置阶段一」按钮已删（蔡总 10-20 拍板）——系统卡「重置」语义不变=重置当前阶段；resetS1() 保留（系统卡重置在 s1 时仍调、dbg.reset 同用） */
 var btnMute=document.getElementById('btn-mute');
 if(btnMute) btnMute.addEventListener('click',function(){ if(state.animating)return; window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick)playClick(); });
 /* 全屏（c5s1/c6s2 路线：documentElement + html.pseudo-fs 降级） */
@@ -1062,6 +1201,7 @@ function busy(now){
   if(s2WaterTween(now)) act=true;
   if(stoneSinkTick(now)) act=true;
   if(actionTick(now,dt)) act=true;
+  if(deskTweenTick(now)) act=true;   // H3b repack tween（表开/关 250ms 器材平滑让位）
   return act;
 }
 function tick(now){
@@ -1070,21 +1210,6 @@ function tick(now){
   requestAnimationFrame(tick);
 }
 /* ===== init ===== */
-function measureTablePanel(){   // G3a：init 实测数据表面板高（display:none→临时显示隐藏测），供 TABLE_BAND 预留；面板未打开也预留禁跳变
-  var el=document.getElementById('panel-table'); if(!el) return 0;
-  var t1=document.getElementById('tbl-s1'),t2=document.getElementById('tbl-s2');
-  var wasShow=el.classList.contains('show'),d1=t1?t1.style.display:'',d2=t2?t2.style.display:'';
-  el.style.visibility='hidden'; el.classList.add('show');
-  if(t1) t1.style.display='block';
-  if(t2) t2.style.display='block';   // 两表叠放量上限（s2 多行+注脚更高，预留取最不利）
-  var h=el.getBoundingClientRect().height||0;
-  if(t1) t1.style.display=d1;
-  if(t2) t2.style.display=d2;
-  if(!wasShow) el.classList.remove('show');
-  el.style.visibility='';
-  return h;
-}
-TABLE_PANEL_H=measureTablePanel();
 layout();
 resetS1(); resetS2();
 resize();
@@ -1177,13 +1302,13 @@ window.__c6dbg={
     var w=needW||300,h=needH||240,rs=sceneAvoidRects();
     return {need:{w:w,h:h},slot:pickSlot(w,h,rs),avoidRects:rs};
   },
-  rects:function(){   // G 轮验收：命名矩形表（画布坐标；tablePanel=DOM 实测换算；null=当前态不绘制）
+  rects:function(){   // G/H 轮验收：命名矩形表（画布坐标；tablePanel=停泊单源 tableRect；null=当前态不绘制）
     function rd(r){ return r?{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.w),h:Math.round(r.h)}:null; }
     var e=eyePos(),band=cuBandRect(),G=panUIRects(),cw=cylW(L.cyl);
-    var tp=null,el=document.getElementById('panel-table');
-    if(el){ var r=el.getBoundingClientRect(),wr=cv.getBoundingClientRect();
-      if(r.width&&r.height) tp={x:r.left-wr.left,y:r.top-wr.top,w:r.width,h:r.height}; }
+    var tp=(openP==='table')?tableRect():null;   // H3b：表矩形=停泊单源（draw/dbg 同读，非 DOM 快照）
     return {
+      tier:L.tier,twActive:!!deskTween,deskRight:L.desk.right,
+      card:rd({x:L.cu.x0,y:L.cu.y0,w:L.cu.x1-L.cu.x0,h:L.cu.y1-L.cu.y0}),
       cyl:rd({x:L.cyl.x-cw/2,y:L.cyl.y-L.cyl.h,w:cw,h:L.cyl.h}),
       beaker:rd(beakerBox()),
       jar:rd(jarBox()),
@@ -1195,7 +1320,8 @@ window.__c6dbg={
       mTag:rd(G.tag),
       recBtn:G.btn?rd({x:G.btn.x-G.btn.w/2,y:G.btn.y-G.btn.h/2,w:G.btn.w,h:G.btn.h}):null,
       rhoTag:(effStage()==='s1'&&s1().beaker.loc==='bench')?rd(brineTagRect()):null,
-      desk:{balRight:L.desk.balRight,gap:+L.desk.gap.toFixed(1),k:+L.desk.k.toFixed(3),overflow:L.desk.overflow,tableBand:L.tableBand,panelH:TABLE_PANEL_H}
+      desk:{balRight:L.desk.balRight,gap:+L.desk.gap.toFixed(1),k:+L.desk.k.toFixed(3),overflow:L.desk.overflow,
+            right:L.desk.right,tableH:Math.round(L.tableH||0),seat:Math.round(L.seat),fy:Math.round(L.fy)}
     };
   }
 };
