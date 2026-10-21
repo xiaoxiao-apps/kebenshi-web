@@ -613,7 +613,7 @@ function hintBranch(){
     if(!Mg.everScreen) return {key:'m-screen',text:'虚像能用光屏承接吗？从托盘把光屏拖到透镜左侧虚像的位置试试'};
     return {key:'m-done',text:'屏上没有像：虚像处光并没有实际会聚，屏承接不了，且物像同在透镜一侧。放大镜=u<f 成正立放大虚像'};
   }
-  if(!C.everFocused) return {key:'c-focus',text:'模型照相机：前纸筒嵌凸透镜、后纸筒蒙半透明薄膜。拖后纸筒（或调「相机焦距」滑杆）改薄膜到透镜的距离，直到薄膜上的 F 变清晰（想想做做：拉筒调距=调像距）'};
+  if(!C.everFocused) return {key:'c-focus',text:'模型照相机：前纸筒嵌凸透镜、后纸筒蒙半透明薄膜。拖后纸筒（或调「筒距」滑杆）改薄膜到透镜的距离，直到薄膜上的 F 变清晰（想想做做：拉筒调距=调像距）'};
   if(!C.everDragLed) return {key:'c-led',text:'对上焦了！拖整个相机改物距 u：物近（u 小）→像变大、像距也变大，要拉长后筒才能重新对上'};
   if(!C.chalDone){ return {key:'c-chal',text:'挑战：想让薄膜上的像变大一些，应该怎么操作？先移物、再调筒，做对会有确认'}; }
   if(hintSt.dismissed!=='c-done') return {key:'c-done',text:'做对了！物近（u 小）像变大、像距变大，拉长后筒（v筒 变大）承接清晰像——这就是挑战的答案'};
@@ -816,7 +816,7 @@ if(btnPanel&&panelRead) btnPanel.addEventListener('click',function(){
   if(window.playClick) playClick();
   updatePanel();
 });
-// G3「相机焦距」滑杆（range=vTube V_MIN..V_MAX step0.1）↔ 画布拖后筒双向联动
+// G3「筒距（像距）」滑杆（range=vTube V_MIN..V_MAX step0.1）↔ 画布拖后筒双向联动；焦距恒 F_CM=8 不可调
 var rngCamf=document.getElementById('rng-camf'),lblCamf=document.getElementById('lbl-camf');
 function syncCamSlider(){ if(rngCamf) rngCamf.value=state.cam.vTube.toFixed(1); }
 if(rngCamf){
@@ -894,7 +894,7 @@ function syncSceneUI(){
   for(var k in btnSc){ if(btnSc[k]) btnSc[k].classList.toggle('on',state.scene===k); }
   var g2=document.getElementById('grp-act2');
   if(g2) g2.style.display=(state.scene==='proj')?'':'none';   // 动作卡仅场景2 出现
-  if(lblCamf) lblCamf.style.display=(state.scene==='cam')?'':'none';   // G3 相机焦距滑杆仅场景1 出现
+  if(lblCamf) lblCamf.style.display=(state.scene==='cam')?'':'none';   // G3 筒距（像距）滑杆仅场景1 出现
   syncProjBtns(); syncCamSlider(); syncPfSlider();
 }
 function switchScene(to){

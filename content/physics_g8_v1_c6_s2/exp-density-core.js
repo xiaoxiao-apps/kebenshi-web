@@ -1260,13 +1260,13 @@ function hintText(){
     var any2=['aluminum','iron','wood'].some(function(m){
       return E.records.filter(function(r){ return r.mat===m; }).length>=2;
     });
-    if(any2) return '结论（教材P145）：同种物质的质量与体积成正比，质量与体积之比是一定的；不同物质这个比值一般也不同。换材质对比，或去「水槽」场景';
+    if(any2) return '结论：同种物质的质量与体积成正比，质量与体积之比是一定的；不同物质这个比值一般也不同。换材质对比，或去「水槽」场景';   // 结论出处：教材P145（页码仅入注释，不进用户可见串，P6新规）
     var tNote=(E.block.loc==='cyl'&&RHO[E.mat]<RHO_WATER)?'筒底细线把木块拽住全浸——木块自己会浮，不系线就测不准排水体积。':'';
     if(E.converged) return tNote+'双箭头已汇聚到 (V, m) 交点 → 数据点浮现并自动入表。换大小/材质再多测几块，同材质≥2点自动画过原点比例线';
     if(E.mKnown&&E.vKnown) return tNote+'质量 m 与体积 V 都测好了，正在汇聚描点……';
     if(E.mKnown) return '已称得质量 m（左盘）。再把物块拖入右侧量筒，用排水法测体积 V';
     if(E.vKnown) return tNote+'已测得体积 V（量筒排水）。再把物块拖到天平左盘称质量 m';
-    return '猜想（教材P144）：铝块体积是另一个的2倍、3倍……质量也是2倍、3倍……吗？——下方「材质/大小」钮选块，先把它拖到天平左盘称 m，再拖入量筒排水测 V（顺序不限），双测齐后自动汇聚描点入表';
+    return '猜想：铝块体积是另一个的2倍、3倍……质量也是2倍、3倍……吗？——下方「材质/大小」钮选块，先把它拖到天平左盘称 m，再拖入量筒排水测 V（顺序不限），双测齐后自动汇聚描点入表';   // 猜想出处：教材P144（页码仅入注释，不进用户可见串，P6新规）
   }
   if(s==='e4'){
     var b=e4Sel(); if(!b) return '';

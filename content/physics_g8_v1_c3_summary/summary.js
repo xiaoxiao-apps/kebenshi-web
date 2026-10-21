@@ -8,7 +8,7 @@
 const SUMMARIES = [
   {
     section: '第1节 温度',
-    chip: '教材 P58~P63',
+    chip: '摄氏温度 · 温度计 · 体温计',   // 原页码范围 P58~P63（仅入注释，P6 新规）
     blocks: [
       {
         title: '温度的概念',
@@ -57,7 +57,7 @@ const SUMMARIES = [
   },
   {
     section: '第2节 熔化和凝固',
-    chip: '教材 P64~P69',
+    chip: '晶体 · 熔点 · 吸放热',   // 原页码范围 P64~P69（仅入注释，P6 新规）
     blocks: [
       {
         title: '物态变化',
@@ -118,7 +118,7 @@ const SUMMARIES = [
   },
   {
     section: '第3节 汽化和液化',
-    chip: '教材 P70~P76',
+    chip: '沸腾 · 蒸发 · 液化',   // 原页码范围 P70~P76（仅入注释，P6 新规）
     blocks: [
       {
         title: '汽化与液化',
@@ -197,7 +197,7 @@ const SUMMARIES = [
   // =====【追加位】第4/5节：完成后在上方逗号后直接新增节对象，页面自动渲染 =====
   {
     section: '第4节 升华和凝华',
-    chip: '教材 P77~P80',
+    chip: '升华吸热 · 干冰 · 水循环',   // 原页码范围 P77~P80（仅入注释，P6 新规）
     blocks: [
       {
         title: '升华与凝华',
@@ -288,7 +288,7 @@ const SUMMARIES = [
   },
   {
     section: '第5节 跨学科实践：厨房中的物态变化',
-    chip: '教材 P81~P83',
+    chip: '厨房物态变化 · 项目记录',   // 原页码范围 P81~P83（仅入注释，P6 新规）
     blocks: [
       {
         title: '项目提出与分析',
@@ -395,9 +395,10 @@ function renderBlock(b){
       + '</table>';
   }
   if (b.figure && FIGURES[b.figure]){
+    // 图注出处：摄氏温度规定见原书 P59；熔化图像见原书图 3.2-5（页码/图号仅入注释，不进用户可见串，P6 新规）
     const cap = b.figure === 'celsius'
-      ? '摄氏温度的规定（依据教材 P59，示意图）'
-      : '晶体（甲）与非晶体（乙）的熔化图像（依据教材图 3.2-5，示意图）';
+      ? '摄氏温度的规定（示意图）'
+      : '晶体（甲）与非晶体（乙）的熔化图像（示意图）';
     inner += `<div class="fig"><div class="figbox">${FIGURES[b.figure]()}`
       + `<div class="figcap">${cap}</div></div></div>`;
   }
