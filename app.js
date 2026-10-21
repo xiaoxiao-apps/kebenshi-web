@@ -1,258 +1,394 @@
-const SUBJECT_FILES = {
-  '物理': 'data/physics_renjiao.json',
-  '数学': 'data/math_renjiao.json',
-  '化学': 'data/chemistry_renjiao.json'
-};
+/* Q-D0 根壳应用：学科大卡 → 卡片流+筛选 → 覆盖页 → 全视口实验壳 */
+(function () {
+  'use strict';
 
-const VOLUME_COVERS = {
-  'physics_g8_v1': 'assets/covers/physics_g8_v1.jpg',
-  'physics_g8_v2': 'assets/covers/physics_g8_v2.jpg',
-  'physics_g9_v1': 'assets/covers/physics_g9_v1.jpg',
-  'math_g1_v1': 'assets/covers/math_g1_v1.jpg',
-  'math_g1_v2': 'assets/covers/math_g1_v2.jpg',
-  'math_g2_v1': 'assets/covers/math_g2_v1.jpg',
-  'math_g2_v2': 'assets/covers/math_g2_v2.jpg',
-  'math_g3_v1': 'assets/covers/math_g3_v1.jpg',
-  'math_g3_v2': 'assets/covers/math_g3_v2.jpg',
-  'math_g4_v1': 'assets/covers/math_g4_v1.jpg',
-  'math_g5_v1': 'assets/covers/math_g5_v1.jpg',
-  'math_g6_v1': 'assets/covers/math_g6_v1.jpg',
-  'math_g7_v1': 'assets/covers/math_g7_v1.jpg',
-  'math_g7_v2': 'assets/covers/math_g7_v2.jpg',
-  'math_g8_v1': 'assets/covers/math_g8_v1.jpg',
-  'math_g8_v2': 'assets/covers/math_g8_v2.jpg',
-  'math_g9_v1': 'assets/covers/math_g9_v1.jpg',
-  'chemistry_g9_v1': 'assets/covers/chem_g9_v1.jpg',
-  'chemistry_g9_v2': 'assets/covers/chem_g9_v2.jpg'
-};
+  // 学科元信息（描述中性化，无教材字样）
+  var SUBJECTS = [
+    { key: 'physics', name: '物理', icon: '⚡', desc: '八年级物理互动实验' },
+    { key: 'math', name: '数学', icon: '📐', desc: '趣味数学探究' },
+    { key: 'chemistry', name: '化学', icon: '🧪', desc: '化学互动实验' }
+  ];
+  var TYPE_EMOJI = { '实验': '🧪', '讲解': '📖', '小结': '📋', '练习': '✏️', '趣味': '🎲' };
+  var FILTER_GROUPS = [
+    { key: 'grade', label: '年级', param: 'g', field: 'grade' },
+    { key: 'volume', label: '册', param: 'v', field: 'volume' },
+    { key: 'chapter', label: '章', param: 'c', field: 'chapter' },
+    { key: 'type', label: '类型', param: 't', field: 'type' }
+  ];
+  // 注入内容页时隐藏其内部返回按钮，防止双层导航
+  var HIDE_BACK_CSS = '.back-btn,[data-back],a.back,button.back{display:none!important}';
 
-const SUBJECT_ICONS = {'物理': '🔬', '数学': '📐', '化学': '🧪'};
-const SUBJECT_DESC = {'物理': '八至九年级人教版物理互动实验', '数学': '一至九年级人教版数学互动探索', '化学': '九年级人教版化学互动实验'};
+  var catalog = null; // {physics:[],math:[],chemistry:[]}
+  var state = {
+    subject: null,
+    filters: { grade: [], volume: [], chapter: [], type: [] }, // 组内多选=OR，全空=不过滤
+    cardId: null,
+    play: false
+  };
+  var savedScrollY = 0;      // 打开覆盖页前的滚动位置
+  var drawerOpen = false;    // 窄屏筛选抽屉
+  var applyingHash = false;  // 防 hashchange 回环
 
-const AVAILABLE = {
-  'physics_g8_v1_c4_s1': { title: '第1节 光的直线传播', file: 'content/physics_g8_v1_c4_s1/index.html' },
-  'physics_g8_v1_c4_s2': { title: '光的反射', file: 'content/physics_g8_v1_c4_s2/index.html' },
-  'physics_g8_v1_c4_s3': { title: '第3节 平面镜成像', file: 'content/physics_g8_v1_c4_s3/index.html' },
-  'physics_g8_v1_c4_s4': { title: '第4节 光的折射', file: 'content/physics_g8_v1_c4_s4/index.html' },
-  'physics_g8_v1_c4_s5': { title: '第5节 光的色散', file: 'content/physics_g8_v1_c4_s5/index.html' },
-  'physics_g8_v1_c4_summary': { title: '本章小结', file: 'content/physics_g8_v1_c4_summary/index.html' },
-  'physics_g8_v1_c4_practice': { title: '本章练习', file: 'content/physics_g8_v1_c4_practice/index.html' },
-  'physics_g8_v1_c5_s1': { title: '第1节 透镜', file: 'content/physics_g8_v1_c5_s1/index.html' },
-  'physics_g8_v1_c5_s2': { title: '第2节 生活中的透镜', file: 'content/physics_g8_v1_c5_s2/index.html' },
-  'physics_g8_v1_c5_s3': { title: '第3节 凸透镜成像的规律', file: 'content/physics_g8_v1_c5_s3/index.html' },
-  'physics_g8_v1_c5_s4': { title: '第4节 眼睛和眼镜', file: 'content/physics_g8_v1_c5_s4/index.html' },
-  'physics_g8_v1_c5_s5': { title: '第5节 跨学科实践：制作望远镜', file: 'content/physics_g8_v1_c5_s5/index.html' },
-  'physics_g8_v1_c5_summary': { title: '本章小结', file: 'content/physics_g8_v1_c5_summary/index.html' },
-  'physics_g8_v1_c5_practice': { title: '本章练习', file: 'content/physics_g8_v1_c5_practice/index.html' },
-  'physics_g8_v1_c1_s1': { title: '长度和时间的测量', file: 'content/physics_g8_v1_c1_s1/index.html' },
-  'physics_g8_v1_c1_s2': { title: '运动的描述', file: 'content/physics_g8_v1_c1_s2/index.html' },
-  'physics_g8_v1_c1_s3': { title: '运动的快慢', file: 'content/physics_g8_v1_c1_s3/index.html' },
-  'physics_g8_v1_c1_s4': { title: '第4节 速度的测量', file: 'content/physics_g8_v1_c1_s4/index.html' },
-  'physics_g8_v1_c1_summary': { title: '本章小结', file: 'content/physics_g8_v1_c1_summary/index.html' },
-  'physics_g8_v1_c1_practice': { title: '本章练习', file: 'content/physics_g8_v1_c1_practice/index.html' },
-  'physics_g8_v1_c2_s1': { title: '声音的产生与传播', file: 'content/physics_g8_v1_c2_s1/index.html' },
-  'physics_g8_v1_c2_s2': { title: '声音的特性', file: 'content/physics_g8_v1_c2_s2/index.html' },
-  'physics_g8_v1_c2_s3': { title: '声的利用', file: 'content/physics_g8_v1_c2_s3/index.html' },
-  'physics_g8_v1_c2_s4': { title: '噪声的危害和控制', file: 'content/physics_g8_v1_c2_s4/index.html' },
-  'physics_g8_v1_c2_s5': { title: '跨学科实践：制作隔音房间模型', file: 'content/physics_g8_v1_c2_s5/index.html' },
-  'physics_g8_v1_c2_summary': { title: '本章小结', file: 'content/physics_g8_v1_c2_summary/index.html' },
-  'physics_g8_v1_c2_practice': { title: '本章练习', file: 'content/physics_g8_v1_c2_practice/index.html' },
-  'physics_g8_v1_c3_s1': { title: '温度', file: 'content/physics_g8_v1_c3_s1/index.html' },
-  'physics_g8_v1_c3_s2': { title: '第2节 熔化和凝固', file: 'content/physics_g8_v1_c3_s2/index.html' },
-  'physics_g8_v1_c3_s3': { title: '第3节 汽化和液化', file: 'content/physics_g8_v1_c3_s3/index.html' },
-  'physics_g8_v1_c3_s4': { title: '第4节 升华和凝华', file: 'content/physics_g8_v1_c3_s4/index.html' },
-  'physics_g8_v1_c3_summary': { title: '本章小结', file: 'content/physics_g8_v1_c3_summary/index.html' },
-  'physics_g8_v1_c3_practice': { title: '本章练习', file: 'content/physics_g8_v1_c3_practice/index.html' },
-  'math_fun_chicken_rabbit': { title: '鸡兔同笼', file: 'content/math_fun_chicken_rabbit/index.html' },
-  'physics_g8_v1_c6_s1': { title: '第1节 质量', file: 'content/physics_g8_v1_c6_s1/index.html' },
-  'physics_g8_v1_c6_s2': { title: '第2节 密度', file: 'content/physics_g8_v1_c6_s2/index.html' },
-  'physics_g8_v1_c6_s3': { title: '第3节 测量液体和固体的密度', file: 'content/physics_g8_v1_c6_s3/index.html' },
-  'physics_g8_v1_c6_summary': { title: '本章小结', file: 'content/physics_g8_v1_c6_summary/index.html' },
-  'physics_g8_v1_c6_practice': { title: '本章练习', file: 'content/physics_g8_v1_c6_practice/index.html' }
-};
+  var $app = document.getElementById('app');
+  var $overlay = document.getElementById('overlay');
+  var $shell = document.getElementById('shell');
+  var $frame = document.getElementById('shell-frame');
 
-let state = {
-  subjects: [],
-  current: null,
-  data: null,
-  path: []
-};
-
-function $(sel){ return document.getElementById('app') || document.querySelector(sel); }
-
-async function loadSubjects(){
-  state.subjects = Object.keys(SUBJECT_FILES).map(name => ({name, icon: SUBJECT_ICONS[name], desc: SUBJECT_DESC[name]}));
-  renderSubjects();
-}
-
-function renderSubjects(){
-  const app = $('#app');
-  app.innerHTML = '<div class="section-title">选择学科</div>' +
-    '<div class="cards">' +
-    state.subjects.map(s => `
-      <div class="card subject-${s.name}" data-subject="${s.name}">
-        <div class="card-row">
-          <div class="card-icon">${s.icon}</div>
-          <div class="card-body">
-            <div class="card-title">${s.name}</div>
-            <div class="card-desc">${s.desc}</div>
-          </div>
-          <div class="card-arrow">›</div>
-        </div>
-      </div>
-    `).join('') +
-    '</div>';
-  app.querySelectorAll('.card').forEach(c => {
-    c.addEventListener('click', () => selectSubject(c.dataset.subject));
-  });
-}
-
-async function selectSubject(name){
-  const app = $('#app');
-  app.innerHTML = '<div class="loading">加载目录中…</div>';
-  try {
-    const resp = await fetch(SUBJECT_FILES[name]);
-    const data = await resp.json();
-    state.data = data;
-    state.current = name;
-    state.path = [];
-    renderGrades(data);
-  } catch (e) {
-    app.innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
-  }
-}
-
-function renderGrades(data){
-  const app = $('#app');
-  const rows = data.grades.map((g, gi) => {
-    const volumes = g.volumes.map((v, vi) => {
-      const cover = VOLUME_COVERS[v.id];
-      if (cover) {
-        return `<div class="volume-card" data-gi="${gi}" data-vi="${vi}">
-          <img src="${cover}" alt="${v.volume}" loading="lazy" decoding="async">
-          <div class="vc-title">${v.volume}</div>
-        </div>`;
+  /* ---------- hash 编解码 ---------- */
+  function stateToHash() {
+    if (!state.subject) return '#/';
+    var qs = [];
+    FILTER_GROUPS.forEach(function (g) {
+      if (state.filters[g.key].length) {
+        qs.push(g.param + '=' + encodeURIComponent(state.filters[g.key].join(',')));
       }
-      return `<span class="volume-pill" data-gi="${gi}" data-vi="${vi}">${v.volume}</span>`;
-    }).join('');
-    return `<div class="grade-item" data-gi="${gi}">
-      <div class="name">${g.grade}</div>
-      <div class="volumes">${volumes}</div>
-    </div>`;
-  }).join('');
-  app.innerHTML = `<button class="back" onclick="loadSubjects()">‹ 返回学科</button>
-    <div class="hero" style="padding:8px 0 16px;text-align:left">
-      <h1 style="font-size:22px">${data.subject}</h1>
-      <p class="sub">${data.publisher || ''} ${data.edition || ''}</p>
-    </div>
-    <div class="grade-list">${rows}</div>`;
-
-  app.querySelectorAll('.volume-pill, .volume-card').forEach(p => {
-    p.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const gi = parseInt(p.dataset.gi);
-      const vi = parseInt(p.dataset.vi);
-      state.path = [gi, vi];
-      renderVolume(data.grades[gi].volumes[vi], data.grades[gi].grade);
     });
-  });
-  app.querySelectorAll('.grade-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const gi = parseInt(item.dataset.gi);
-      const vi = 0;
-      state.path = [gi, vi];
-      renderVolume(data.grades[gi].volumes[vi], data.grades[gi].grade);
+    if (state.cardId) qs.push('card=' + encodeURIComponent(state.cardId));
+    if (state.play) qs.push('play=1');
+    return '#/' + state.subject + (qs.length ? '?' + qs.join('&') : '');
+  }
+  function hashToState(h) {
+    var m = (h || '').replace(/^#\/?/, '').split('?');
+    var subject = m[0] || null;
+    var st = {
+      subject: SUBJECTS.some(function (s) { return s.key === subject; }) ? subject : null,
+      filters: { grade: [], volume: [], chapter: [], type: [] },
+      cardId: null, play: false
+    };
+    if (!st.subject) return st;
+    var params = new URLSearchParams(m[1] || '');
+    FILTER_GROUPS.forEach(function (g) {
+      var v = params.get(g.param);
+      if (v) st.filters[g.key] = v.split(',').filter(Boolean);
     });
-  });
-}
+    st.cardId = params.get('card');
+    st.play = params.get('play') === '1';
+    return st;
+  }
+  // push=true 记入历史（覆盖页/壳开合），否则仅替换（筛选变更）
+  function syncHash(push) {
+    var h = stateToHash();
+    if (location.hash === h) return;
+    applyingHash = true;
+    if (push) history.pushState(null, '', h);
+    else history.replaceState(null, '', h);
+    setTimeout(function () { applyingHash = false; }, 0);
+  }
 
-function renderVolume(volume, gradeName){
-  const app = $('#app');
-  const subject = state.data.subject;
-  const rows = volume.chapters.map(ch => {
-    const sections = ch.sections.map(s => {
-      const isAvail = !!AVAILABLE[s.id];
-      return `<div class="section ${isAvail ? '' : 'offline'}" data-id="${s.id}">
-        <span>${s.title}</span>
-        ${isAvail ? '' : '<span class="soon">即将上线</span>'}
-      </div>`;
-    }).join('');
-    return `<div class="chapter">
-      <div class="chapter-name">${ch.chapter}</div>
-      <div class="sections">${sections}</div>
-    </div>`;
-  }).join('');
-
-  const volumeLabel = volume && volume.volume ? volume.volume : '';
-  app.innerHTML = `<button class="back" onclick="renderGrades(state.data)">‹ 返回${gradeName || '年级'}</button>
-    <div class="section-title">${subject} · ${gradeName} · ${volumeLabel}</div>
-    <div class="chapter-tree">${rows}</div>`;
-
-  app.querySelectorAll('.section:not(.offline)').forEach(sec => {
-    sec.addEventListener('click', () => {
-      const id = sec.dataset.id;
-      openContent(id);
-    });
-  });
-}
-
-function buildFlatList(){
-  const list = [];
-  const data = state.data;
-  data.grades.forEach((g, gi) => {
-    g.volumes.forEach((v, vi) => {
-      v.chapters.forEach(ch => {
-        ch.sections.forEach(s => {
-          list.push({
-            id: s.id,
-            title: s.title,
-            grade: g.grade,
-            volume: v.volume,
-            chapter: ch.chapter,
-            available: !!AVAILABLE[s.id]
-          });
-        });
+  /* ---------- 数据 ---------- */
+  function cardsOf(subject) { return (catalog && catalog[subject]) || []; }
+  function findCard(id) {
+    var list = cardsOf(state.subject);
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
+  }
+  function chapterShort(c) { return c ? String(c).replace(/^第\d+章\s*/, '') : ''; }
+  function filteredCards() {
+    return cardsOf(state.subject).filter(function (card) {
+      return FILTER_GROUPS.every(function (g) {
+        var sel = state.filters[g.key];
+        return !sel.length || sel.indexOf(card[g.field]) !== -1; // 组内 OR，组间 AND
       });
     });
+  }
+
+  /* ---------- 视图渲染 ---------- */
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function esc(s) { return String(s == null ? '' : s); }
+
+  function thumbNode(card, big) {
+    if (card.thumb) {
+      var img = el('img', big ? '' : 'qd-thumb');
+      img.loading = 'lazy';
+      img.alt = card.title;
+      img.src = card.thumb;
+      img.onerror = function () { // 图挂了退回 emoji 兜底
+        var fb = fallbackNode(card);
+        img.replaceWith(fb);
+      };
+      return img;
+    }
+    return fallbackNode(card);
+  }
+  function fallbackNode(card) {
+    var fb = el('div', 'qd-thumb-fallback', TYPE_EMOJI[card.type] || '📄');
+    fb.setAttribute('data-t', card.type);
+    return fb;
+  }
+
+  function renderHome() {
+    $app.innerHTML = '';
+    var hero = el('div', 'qd-hero');
+    hero.appendChild(el('div', 'qd-logo', '📚'));
+    hero.appendChild(el('h1', null, '可交互教材'));
+    hero.appendChild(el('p', 'qd-sub', '知识变动画，动手学科学'));
+    $app.appendChild(hero);
+
+    var grid = el('div', 'qd-subjects');
+    SUBJECTS.forEach(function (s) {
+      var count = cardsOf(s.key).length;
+      var btn = el('button', 'qd-subject' + (count ? '' : ' qd-empty'));
+      btn.setAttribute('data-k', s.key);
+      btn.appendChild(el('span', 'qd-s-icon', s.icon));
+      btn.appendChild(el('span', 'qd-s-name', s.name));
+      btn.appendChild(el('span', 'qd-s-desc', count ? s.desc + ' · ' + count + ' 个互动内容' : s.desc));
+      if (!count) {
+        btn.appendChild(el('span', 'qd-soon', '建设中'));
+        btn.disabled = true;
+      } else {
+        btn.onclick = function () {
+          state.subject = s.key;
+          state.filters = { grade: [], volume: [], chapter: [], type: [] };
+          state.cardId = null; state.play = false;
+          syncHash(true); render();
+          window.scrollTo(0, 0);
+        };
+      }
+      grid.appendChild(btn);
+    });
+    $app.appendChild(grid);
+  }
+
+  function renderSubject() {
+    $app.innerHTML = '';
+    var cards = cardsOf(state.subject);
+    var meta = SUBJECTS.filter(function (s) { return s.key === state.subject; })[0];
+
+    var bar = el('div', 'qd-topbar');
+    var home = el('button', 'qd-home-link', '‹ 全部学科');
+    home.onclick = function () {
+      state.subject = null; state.cardId = null; state.play = false;
+      syncHash(true); render();
+    };
+    bar.appendChild(home);
+    bar.appendChild(el('h1', null, meta.icon + ' ' + meta.name));
+    $app.appendChild(bar);
+
+    var main = el('div', 'qd-main');
+
+    // 窄屏抽屉开关
+    var toggle = el('button', 'qd-ftoggle', (drawerOpen ? '收起筛选 ▲' : '筛选 ▼'));
+    toggle.onclick = function () {
+      drawerOpen = !drawerOpen;
+      toggle.textContent = drawerOpen ? '收起筛选 ▲' : '筛选 ▼';
+      aside.classList.toggle('qd-open', drawerOpen);
+    };
+    main.appendChild(toggle);
+
+    // 筛选栏：选项从当前学科卡片动态提取
+    var aside = el('aside', 'qd-filters' + (drawerOpen ? ' qd-open' : ''));
+    aside.appendChild(el('h2', null, '筛选'));
+    FILTER_GROUPS.forEach(function (g) {
+      var vals = [];
+      cards.forEach(function (c) {
+        var v = c[g.field];
+        if (v && vals.indexOf(v) === -1) vals.push(v);
+      });
+      if (!vals.length) return;
+      var fs = document.createElement('fieldset');
+      fs.className = 'qd-fgroup';
+      fs.appendChild(el('legend', null, g.label));
+      vals.forEach(function (v) {
+        var lab = el('label');
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = state.filters[g.key].indexOf(v) !== -1;
+        cb.onchange = function () {
+          var arr = state.filters[g.key];
+          var i = arr.indexOf(v);
+          if (cb.checked && i === -1) arr.push(v);
+          if (!cb.checked && i !== -1) arr.splice(i, 1);
+          syncHash(false); // 筛选变化只替换 hash，不堆历史
+          renderGrid();
+        };
+        lab.appendChild(cb);
+        lab.appendChild(el('span', null, v));
+        fs.appendChild(lab);
+      });
+      aside.appendChild(fs);
+    });
+    var reset = el('button', 'qd-freset', '清空筛选');
+    reset.onclick = function () {
+      state.filters = { grade: [], volume: [], chapter: [], type: [] };
+      syncHash(false); render();
+    };
+    aside.appendChild(reset);
+    main.appendChild(aside);
+
+    var gridWrap = el('div');
+    var countLine = el('p', 'qd-count');
+    gridWrap.appendChild(countLine);
+    var grid = el('div', 'qd-grid');
+    gridWrap.appendChild(grid);
+    main.appendChild(gridWrap);
+    $app.appendChild(main);
+
+    function renderGrid() {
+      var list = filteredCards();
+      grid.innerHTML = '';
+      countLine.textContent = '共 ' + list.length + ' 个内容';
+      if (!list.length) {
+        grid.appendChild(el('div', 'qd-empty-tip', '没有符合筛选条件的内容'));
+        return;
+      }
+      list.forEach(function (card) {
+        var btn = el('button', 'qd-card');
+        btn.appendChild(thumbNode(card, false));
+        var body = el('div', 'qd-card-body');
+        body.appendChild(el('h3', 'qd-card-title', card.title));
+        var badges = el('div', 'qd-badges');
+        badges.appendChild(el('span', 'qd-badge', chapterShort(card.chapter) || card.chapter));
+        badges.appendChild(el('span', 'qd-badge qd-type', card.type));
+        body.appendChild(badges);
+        btn.appendChild(body);
+        btn.onclick = function () { openOverlay(card.id); };
+        grid.appendChild(btn);
+      });
+    }
+    renderGrid();
+  }
+
+  function render() {
+    closeShell();
+    $overlay.hidden = true;
+    document.body.classList.remove('qd-in-shell');
+    if (!state.subject) renderHome();
+    else renderSubject();
+    if (state.cardId) {
+      var card = findCard(state.cardId);
+      if (card) {
+        showOverlay(card);
+        if (state.play) openShell(card);
+      } else {
+        state.cardId = null; state.play = false;
+      }
+    }
+  }
+
+  /* ---------- 覆盖页（卡片详情） ---------- */
+  function introOf(card) {
+    var ch = chapterShort(card.chapter);
+    switch (card.type) {
+      case '实验': return '「' + (card.section || ch) + '」互动实验 · ' + ch + ' · 动手操作，观察现象背后的规律';
+      case '讲解': return '「' + (card.section || ch) + '」知识讲解 · ' + ch + ' · 动画演示，一步步建立概念';
+      case '小结': return ch + '知识梳理 · 把整章内容串成一张网';
+      case '练习': return ch + '闯关练习 · 即时判分，边练边巩固';
+      case '趣味': return '趣味探究 · 在动手尝试中发现数学规律';
+      default: return card.chapter || '';
+    }
+  }
+  function showOverlay(card) {
+    var media = document.getElementById('overlay-media');
+    media.innerHTML = '';
+    if (card.thumb) {
+      var img = el('img');
+      img.src = card.thumb; img.alt = card.title;
+      img.onerror = function () { media.replaceChild(fallbackNode(card), img); };
+      media.appendChild(img);
+    } else {
+      media.appendChild(fallbackNode(card));
+    }
+    document.getElementById('overlay-title').textContent = card.title;
+    document.getElementById('overlay-intro').textContent = introOf(card);
+    document.getElementById('overlay-play').onclick = function () { openShell(card); };
+    $overlay.hidden = false;
+  }
+  function openOverlay(id) {
+    savedScrollY = window.scrollY;
+    state.cardId = id; state.play = false;
+    var card = findCard(id);
+    showOverlay(card);
+    syncHash(true);
+  }
+  function closeOverlay() {
+    $overlay.hidden = true;
+    state.cardId = null; state.play = false;
+    closeShell();
+    syncHash(true);
+    requestAnimationFrame(function () { window.scrollTo(0, savedScrollY); }); // 恢复滚动位置
+  }
+  document.getElementById('overlay-close').onclick = closeOverlay;
+  $overlay.addEventListener('click', function (e) { if (e.target === $overlay) closeOverlay(); });
+
+  /* ---------- 全视口实验壳 ---------- */
+  var injectTimer = null;
+  function injectHideBack() {
+    // 同源注入 CSS 隐藏内部返回按钮；失败/超时不阻塞展示
+    try {
+      var doc = $frame.contentDocument;
+      if (!doc) return;
+      if (doc.getElementById('qd-hide-back')) return;
+      var st = doc.createElement('style');
+      st.id = 'qd-hide-back';
+      st.textContent = HIDE_BACK_CSS;
+      (doc.head || doc.documentElement).appendChild(st);
+    } catch (e) { /* 跨域或时机未到，静默 */ }
+  }
+  function openShell(card) {
+    document.getElementById('shell-title').textContent = card.title;
+    $frame.src = card.path;
+    $shell.hidden = false;
+    document.body.classList.add('qd-in-shell');
+    $overlay.hidden = true;
+    state.play = true;
+    syncHash(true);
+    injectHideBack(); // 立即尝试（about:blank 阶段无害）
+    clearTimeout(injectTimer);
+    injectTimer = setTimeout(injectHideBack, 3000); // 超时兜底
+  }
+  function closeShell() {
+    clearTimeout(injectTimer);
+    if (!$shell.hidden) {
+      $shell.hidden = true;
+      $frame.src = 'about:blank';
+      document.body.classList.remove('qd-in-shell');
+    }
+  }
+  $frame.addEventListener('load', function () {
+    injectHideBack();
+    clearTimeout(injectTimer);
+    injectTimer = setTimeout(injectHideBack, 800); // 动态插入的按钮二次兜底
   });
-  return list;
-}
-
-function openContent(id){
-  const meta = AVAILABLE[id];
-  if (!meta) return;
-  const flat = buildFlatList();
-  const idx = flat.findIndex(x => x.id === id);
-  const prev = flat.slice(0, idx).reverse().find(x => x.available);
-  const next = flat.slice(idx + 1).find(x => x.available);
-
-  const shell = document.createElement('div');
-  shell.className = 'content-shell';
-  shell.id = 'contentShell';
-  shell.innerHTML = `
-    <iframe class="content-frame" src="${meta.file}" allowfullscreen></iframe>
-    <div class="content-nav">
-      <button class="ghost" id="prevBtn" ${prev ? '' : 'disabled'}>上一节</button>
-      <button class="ghost" id="tocBtn">返回目录</button>
-      <button class="primary" id="nextBtn" ${next ? '' : 'disabled'}>下一节</button>
-    </div>
-  `;
-  document.body.appendChild(shell);
-  // 锁住外层页面滚动，避免外层+iframe 出现双滚动条
-  document.documentElement.style.overflow = 'hidden';
-
-  const closeShell = () => {
-    document.documentElement.style.overflow = '';
-    shell.remove();
+  document.getElementById('shell-back').onclick = function () {
+    // 返回卡片流（连同覆盖页一起关），保留筛选与滚动位置
+    closeShell();
+    $overlay.hidden = true;
+    state.play = false; state.cardId = null;
+    syncHash(true);
+    requestAnimationFrame(function () { window.scrollTo(0, savedScrollY); });
   };
-  shell.querySelector('#tocBtn').addEventListener('click', closeShell);
-  shell.querySelector('#prevBtn').addEventListener('click', () => {
-    if (prev) { closeShell(); openContent(prev.id); }
-  });
-  shell.querySelector('#nextBtn').addEventListener('click', () => {
-    if (next) { closeShell(); openContent(next.id); }
-  });
-}
 
-function init(){ loadSubjects(); }
-init();
+  /* ---------- 路由 ---------- */
+  window.addEventListener('popstate', onHash);
+  window.addEventListener('hashchange', onHash);
+  function onHash() {
+    if (applyingHash) return;
+    var st = hashToState(location.hash);
+    var subjectChanged = st.subject !== state.subject;
+    state = st;
+    if (subjectChanged) savedScrollY = 0;
+    render();
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (!$shell.hidden) document.getElementById('shell-back').click();
+    else if (!$overlay.hidden) closeOverlay();
+  });
+
+  /* ---------- 启动 ---------- */
+  fetch('data/catalog.json')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      catalog = data.subjects || {};
+      state = hashToState(location.hash);
+      render();
+    })
+    .catch(function () {
+      $app.innerHTML = '<div class="qd-loading">目录加载失败，请刷新重试</div>';
+    });
+})();

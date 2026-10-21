@@ -2,24 +2,36 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>可交互教材 · 首页</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="wrap">
-  <header class="hero">
-    <div class="logo">📚</div>
-    <h1>可交互教材</h1>
-    <p class="sub">课本变动画，动手学知识</p>
-  </header>
-  <main id="app">
-    <div class="loading">加载中…</div>
-  </main>
-  <footer class="site-footer">
-    <p>全部内容免费开放</p>
-  </footer>
+<!-- 主视图：首页学科大卡 / 学科卡片流 -->
+<div id="app"><div class="qd-loading">加载中…</div></div>
+
+<!-- 卡片详情覆盖页 -->
+<div id="overlay" class="qd-overlay" hidden>
+  <div class="qd-overlay-panel" role="dialog" aria-modal="true">
+    <button class="qd-overlay-close" id="overlay-close" aria-label="关闭">×</button>
+    <div class="qd-overlay-media" id="overlay-media"></div>
+    <h2 class="qd-overlay-title" id="overlay-title"></h2>
+    <p class="qd-overlay-intro" id="overlay-intro"></p>
+    <button class="qd-play" id="overlay-play" aria-label="开始互动">▶</button>
+  </div>
 </div>
+
+<!-- 全视口实验壳 -->
+<div id="shell" class="qd-shell" hidden>
+  <div class="qd-shell-bar">
+    <button class="qd-shell-back" id="shell-back">‹ 返回</button>
+    <span class="qd-shell-title" id="shell-title"></span>
+  </div>
+  <iframe id="shell-frame" class="qd-shell-frame" allowfullscreen
+          allow="autoplay; fullscreen; gyroscope; accelerometer"></iframe>
+</div>
+
+<footer class="qd-footer" id="site-footer"><p>全部内容免费开放</p></footer>
 <script src="app.js"></script>
 </body>
 </html>
