@@ -18,20 +18,8 @@
     <text x="272" y="192" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#5a6a85">t</text>
     <!-- 甲：匀速直线 -->
     <line x1="70" y1="185" x2="250" y2="72" stroke="#5ad7ff" stroke-width="3" stroke-linecap="round"/>
-    <g fill="#5ad7ff">
-      <circle cx="106" cy="162" r="3"/>
-      <circle cx="142" cy="140" r="3"/>
-      <circle cx="178" cy="117" r="3"/>
-      <circle cx="214" cy="95" r="3"/>
-    </g>
     <!-- 乙：变速曲线 -->
     <path d="M70,185 C128,172 170,132 250,96" fill="none" stroke="#4a9eff" stroke-width="3" stroke-linecap="round"/>
-    <g fill="#4a9eff">
-      <circle cx="106" cy="177" r="3"/>
-      <circle cx="142" cy="163" r="3"/>
-      <circle cx="178" cy="141" r="3"/>
-      <circle cx="214" cy="114" r="3"/>
-    </g>
   </g>
 
   <!-- 右上：速度表刻度弧 -->
@@ -45,12 +33,6 @@
       <line x1="381" y1="165" x2="393" y2="165"/>
       <line x1="455" y1="91" x2="455" y2="103"/>
       <line x1="529" y1="165" x2="517" y2="165"/>
-    </g>
-    <g stroke="#5a6a85" stroke-width="2">
-      <line x1="390.9" y1="128" x2="401.3" y2="134"/>
-      <line x1="418" y1="100.9" x2="424" y2="111.3"/>
-      <line x1="492" y1="100.9" x2="486" y2="111.3"/>
-      <line x1="519.1" y1="128" x2="508.7" y2="134"/>
     </g>
     <!-- 指针 -->
     <line x1="455" y1="165" x2="497.4" y2="122.6" stroke="#5ad7ff" stroke-width="5" stroke-linecap="round"/>
@@ -67,14 +49,12 @@
 
   <!-- 乙车（后，变速）：尾迹间距不等 -->
   <g stroke="#4a9eff" stroke-width="3" stroke-linecap="round" opacity="0.55">
-    <line x1="16" y1="290" x2="28" y2="290"/>
-    <line x1="42" y1="290" x2="54" y2="290"/>
-    <line x1="74" y1="290" x2="86" y2="290"/>
+    <line x1="30" y1="290" x2="48" y2="290"/>
+    <line x1="66" y1="290" x2="84" y2="290"/>
   </g>
   <text x="142" y="246" font-family="Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#4a9eff" text-anchor="middle">乙</text>
   <g transform="translate(96,252)">
     <path d="M20,20 L30,6 L62,6 L72,20 Z" fill="#4a9eff" opacity="0.8"/>
-    <path d="M33,9 L45,9 L45,18 L26,18 Z" fill="#0b0e13" opacity="0.45"/>
     <rect x="2" y="18" width="88" height="18" rx="7" fill="#4a9eff"/>
     <rect x="82" y="22" width="7" height="6" rx="2" fill="#ffe9a8"/>
     <circle cx="24" cy="38" r="8" fill="#0b0e13" stroke="#4a9eff" stroke-width="3"/>
@@ -83,14 +63,12 @@
 
   <!-- 甲车（前，匀速）：尾迹间距相等 -->
   <g stroke="#5ad7ff" stroke-width="3" stroke-linecap="round" opacity="0.55">
-    <line x1="228" y1="290" x2="240" y2="290"/>
-    <line x1="258" y1="290" x2="270" y2="290"/>
-    <line x1="288" y1="290" x2="300" y2="290"/>
+    <line x1="246" y1="290" x2="264" y2="290"/>
+    <line x1="282" y1="290" x2="300" y2="290"/>
   </g>
   <text x="364" y="246" font-family="Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#5ad7ff" text-anchor="middle">甲</text>
   <g transform="translate(318,252)">
     <path d="M20,20 L30,6 L62,6 L72,20 Z" fill="#5ad7ff" opacity="0.8"/>
-    <path d="M33,9 L45,9 L45,18 L26,18 Z" fill="#0b0e13" opacity="0.45"/>
     <rect x="2" y="18" width="88" height="18" rx="7" fill="#5ad7ff"/>
     <rect x="82" y="22" width="7" height="6" rx="2" fill="#ffe9a8"/>
     <circle cx="24" cy="38" r="8" fill="#0b0e13" stroke="#5ad7ff" stroke-width="3"/>
@@ -100,7 +78,5 @@
   <!-- 点缀星芒 -->
   <g fill="#5ad7ff" opacity="0.7">
     <circle cx="300" cy="52" r="3"/>
-    <circle cx="566" cy="252" r="2.5"/>
-    <circle cx="42" cy="222" r="2.5"/>
   </g>
 </svg>

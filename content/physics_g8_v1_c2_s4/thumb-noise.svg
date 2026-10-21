@@ -17,12 +17,22 @@
 
   <!-- 上：规则正弦波（乐音） -->
   <text x="72" y="34" font-family="-apple-system,'PingFang SC',sans-serif" font-size="15" font-weight="700" fill="#5ad7ff">乐音 · 波形有规则</text>
-  <path d="M70,84 C100,38 130,38 160,84 S220,130 250,84 S310,38 340,84 S400,130 430,84 S490,38 520,84"
+  <path d="M70,84 C100,38 130,38 160,84 S220,130 250,84 S310,38 340,84 S400,130 430,84"
         fill="none" stroke="#5ad7ff" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- 右上：禁鸣标志（与 F2 img/no-horn.svg 同风格：白底红圈斜杠 + 喇叭剪影） -->
+  <g>
+    <rect x="460" y="50" width="100" height="100" rx="16" fill="#f5f5f5"/>
+    <rect x="487" y="92" width="11" height="16" rx="3" fill="#2c2c2c"/>
+    <path d="M498 94 L516 83 Q521 80 521 86 L521 114 Q521 120 516 117 L498 106 Z" fill="#2c2c2c"/>
+    <path d="M529 90 Q536 100 529 110" fill="none" stroke="#2c2c2c" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="510" cy="100" r="35" fill="none" stroke="#c0392b" stroke-width="8"/>
+    <line x1="485" y1="75" x2="535" y2="125" stroke="#c0392b" stroke-width="8"/>
+  </g>
 
   <!-- 下：杂乱噪声波 -->
   <text x="72" y="152" font-family="-apple-system,'PingFang SC',sans-serif" font-size="15" font-weight="700" fill="#e06a6a">噪声 · 波形杂乱无章</text>
-  <polyline points="70,206 86,172 102,238 118,160 134,246 150,184 166,254 182,168 198,226 214,158 230,244 246,180 262,256 278,166 294,232 310,160 326,248 342,178 358,238 374,164 390,252 406,174 422,230 438,160 454,246 470,186 486,254 502,168 518,240 530,206"
+  <polyline points="70,206 86,172 102,238 118,160 134,246 150,184 166,254 182,168 198,226 214,158 230,244 246,180 262,256 278,166 294,232 310,160 326,248 342,178 358,238 374,164 390,252 406,174 422,230 430,206"
         fill="none" stroke="#e06a6a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
 
   <!-- 分贝刻度条 -->
@@ -52,8 +62,8 @@
 
   <!-- 点缀星芒 -->
   <g fill="#5ad7ff" opacity="0.7">
-    <circle cx="556" cy="52" r="3"/>
     <circle cx="44" cy="128" r="2.5"/>
     <circle cx="560" cy="238" r="2.5"/>
+    <circle cx="452" cy="196" r="2.5"/>
   </g>
 </svg>
