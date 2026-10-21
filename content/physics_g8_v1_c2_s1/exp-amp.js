@@ -386,4 +386,10 @@
   window.addEventListener('resize', resize);
   resize();
   requestAnimationFrame(loop);
+
+  /* F11：壳切tab通知→冻结短促敲击声（幂等；show 不自动恢复） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    if (audio && audio.ctx.state === 'running') audio.ctx.suspend();
+  });
 })();

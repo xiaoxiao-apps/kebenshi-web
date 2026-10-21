@@ -115,4 +115,10 @@
   FullscreenHelper.bind(document.getElementById('fsScopeWrap'), document.getElementById('fsScopeBtn'), resize);
   window.addEventListener('resize', resize);
   updateReadout(); updateUI(); resize(); requestAnimationFrame(loop);
+
+  /* F11：壳切tab通知→停循环音叉采样（stop() 幂等；show 不自动恢复播放） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    stop();
+  });
 })();

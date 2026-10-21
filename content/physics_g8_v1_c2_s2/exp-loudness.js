@@ -147,4 +147,11 @@
   FullscreenHelper.bind(document.getElementById('fsLoudWrap'), document.getElementById('fsLoudBtn'), resize);
   window.addEventListener('resize', resize);
   updatePerson(); updateReadout(); resize(); requestAnimationFrame(loop);
+
+  /* F11：壳切tab通知→停当前敲击声+冻结 ctx（stopCurrent/suspend 幂等；playBuffer 会自行 resume，show 不自动恢复） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    stopCurrent();
+    if (audioCtx && audioCtx.state === 'running') audioCtx.suspend();
+  });
 })();

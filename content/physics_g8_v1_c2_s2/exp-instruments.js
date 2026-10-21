@@ -127,4 +127,11 @@
     card.addEventListener('click', function(){ card.classList.toggle('flipped'); });
   });
 
+  /* F11：壳切tab通知→停循环试听+鼓/钟单击声（stopLoop/pause 幂等；show 不自动恢复播放） */
+  window.addEventListener('message', function(e){
+    if(!e.data || e.data.kind !== 'sound-lab-hide') return;
+    stopLoop();
+    if(drumAudio){ try{ drumAudio.pause(); }catch(err){} }
+    if(bellAudio){ try{ bellAudio.pause(); }catch(err){} }
+  });
 })();

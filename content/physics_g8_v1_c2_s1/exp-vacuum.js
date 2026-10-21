@@ -400,4 +400,11 @@
   window.addEventListener('resize', resize);
   updateState(); resize();
   requestAnimationFrame(loop);
+
+  /* F11：壳切tab通知→停闹铃（常驻 osc 静音+冻结，setPlaying 幂等；show 不自动恢复） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    setPumping(false); setPlaying(false);
+    if (audio && audio.ctx.state === 'running') audio.ctx.suspend();
+  });
 })();

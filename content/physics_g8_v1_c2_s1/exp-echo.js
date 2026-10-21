@@ -198,4 +198,11 @@
   });
 
   update();
+
+  /* F11：壳切tab通知→清回声动画/定时器+冻结已排程人声（幂等；show 不自动恢复） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    clearAnim();
+    if (actx && actx.state === 'running') actx.suspend();
+  });
 })();

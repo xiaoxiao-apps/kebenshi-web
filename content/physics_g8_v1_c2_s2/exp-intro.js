@@ -78,4 +78,11 @@
   function loop(){ draw(); requestAnimationFrame(loop); }
   FullscreenHelper.bind(document.getElementById('fsIntroWrap'), document.getElementById('fsIntroBtn'), resize);
   window.addEventListener('resize', resize); resize(); requestAnimationFrame(loop);
+
+  /* F11：壳切tab通知→停蚊子 mp3（幂等；show 不自动恢复播放） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    if (audioEl) { audioEl.pause(); }
+    mosqPlaying = false;
+  });
 })();

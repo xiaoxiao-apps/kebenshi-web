@@ -71,4 +71,10 @@
   revealBtn.addEventListener('click', function(){ answerBox.style.display = 'block'; });
   function loop(){ draw(); requestAnimationFrame(loop); }
   window.addEventListener('resize', resize); updatePlayHz(false); resize(); requestAnimationFrame(loop);
+
+  /* F11：壳切tab通知→停连续纯音 osc（stopTone 幂等；show 不自动恢复播放） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    stopTone();
+  });
 })();

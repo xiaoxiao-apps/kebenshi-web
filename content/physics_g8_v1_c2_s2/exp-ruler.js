@@ -140,4 +140,11 @@
   FullscreenHelper.bind(document.getElementById('fsRulerWrap'), document.getElementById('fsRulerBtn'), resize);
   window.addEventListener('resize', resize);
   initAudio(); updateReadout(); resize(); requestAnimationFrame(loop);
+
+  /* F11：壳切tab通知→冻结拨尺采样声+停兜底 Audio（幂等；playPluck 会自行 resume，show 不自动恢复） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    if (audioEl) { audioEl.pause(); }
+    if (actx && actx.state === 'running') actx.suspend();
+  });
 })();

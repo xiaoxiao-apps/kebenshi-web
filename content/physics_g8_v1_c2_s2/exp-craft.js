@@ -136,4 +136,10 @@
   pipeStage.addEventListener('pointerleave', function(e) { dragging = false; });
   pipePiston.addEventListener('pointerdown', function(e) { e.stopPropagation(); dragging = true; pipeStage.setPointerCapture(e.pointerId); });
 
+  /* F11：壳切tab通知→停水瓶琴采样+停吹气 osc（stopBottle/stopBlow 均幂等；show 不自动恢复播放） */
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    stopBottle();
+    stopBlow();
+  });
 })();

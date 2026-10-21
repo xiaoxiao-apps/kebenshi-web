@@ -109,4 +109,10 @@
       if (all) conceptBox.style.display = 'block';
     });
   });
+
+  /* F11：壳切tab通知→冻结敲击声（幂等；show 不自动恢复） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    if (actx && actx.state === 'running') actx.suspend();
+  });
 })();

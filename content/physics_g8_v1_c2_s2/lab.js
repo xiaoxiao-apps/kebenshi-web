@@ -39,6 +39,14 @@
     }
   }
 
+  /* F11：display:none 的 iframe 内 document.hidden 仍为 false，浏览器不停 WebAudio/Audio——
+     壳切 tab 时主动 postMessage 通知子页自停（hide）；show 只作状态通知，子页不自动恢复播放 */
+  function postToFrame(frame, kind) {
+    try {
+      if (frame.contentWindow) frame.contentWindow.postMessage({ kind: kind }, '*');
+    } catch (e) { /* 投递失败不影响切换 */ }
+  }
+
   function activate(mode) {
     tabs.forEach(function (tab) {
       tab.classList.toggle('active', tab.dataset.mode === mode);
@@ -47,9 +55,14 @@
       var on = frame.dataset.mode === mode;
       frame.classList.toggle('active', on);
       if (on && !frame.src) {
-        frame.addEventListener('load', function () { injectQuietCss(frame); });
+        frame.addEventListener('load', function () {
+          injectQuietCss(frame);
+          /* 加载期间已被切走：load 后补发 hide（子页监听可能错过切换瞬间的消息） */
+          if (!frame.classList.contains('active')) postToFrame(frame, 'sound-lab-hide');
+        });
         frame.src = frame.dataset.src; /* 首次激活才赋 src，之后常驻不重载 */
       }
+      if (frame.src) postToFrame(frame, on ? 'sound-lab-show' : 'sound-lab-hide');
     });
     subtitleEl.textContent = SUBTITLES[mode] || '';
   }

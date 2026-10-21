@@ -149,4 +149,12 @@
   hitBtn.addEventListener('click', hit);
 
   update();
+
+  /* F11：壳切tab通知→清序列定时器+冻结已排程 ping（幂等；show 不自动恢复） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    clearTimers();
+    if (animId) { cancelAnimationFrame(animId); animId = null; }
+    if (actx && actx.state === 'running') actx.suspend();
+  });
 })();

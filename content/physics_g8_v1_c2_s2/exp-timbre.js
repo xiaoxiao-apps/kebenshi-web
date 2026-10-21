@@ -132,4 +132,11 @@
   FullscreenHelper.bind(document.getElementById('fsTimbreWrap'), document.getElementById('fsTimbreBtn'), resize);
   window.addEventListener('resize', resize);
   resize(); requestAnimationFrame(loop);
+
+  /* F11：壳切tab通知→停乐器采样并回落直线（幂等；show 不自动恢复播放） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    if (audioEl) { audioEl.pause(); }
+    playing = false; current = ''; updateButtons();
+  });
 })();

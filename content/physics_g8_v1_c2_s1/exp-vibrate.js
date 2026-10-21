@@ -258,4 +258,11 @@
   window.addEventListener('resize', resize);
   onAmp(); onTension(); updateState(); resize();
   requestAnimationFrame(loop);
+
+  /* F11：壳切tab通知→自停音频（幂等；show 不自动恢复播放） */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.kind !== 'sound-lab-hide') return;
+    stopAudio(); plucked = false; curAmp = 0;
+    if (audio && audio.ctx.state === 'running') audio.ctx.suspend();
+  });
 })();
