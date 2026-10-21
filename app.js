@@ -16,7 +16,7 @@
     { key: 'type', label: '类型', param: 't', field: 'type' }
   ];
   // 注入内容页时隐藏其内部返回按钮，防止双层导航
-  var HIDE_BACK_CSS = '.back-btn,[data-back],a.back,button.back{display:none!important}';
+  var HIDE_BACK_CSS = '.back-btn,[data-back],a.back,button.back,#back-to-index{display:none!important}';
 
   var catalog = null; // {physics:[],math:[],chemistry:[]}
   var state = {
