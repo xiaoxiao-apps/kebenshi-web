@@ -292,6 +292,17 @@ function checkEvapToasts() {
   }
 }
 
-setInterval(checkEvapToasts, 400);
+/* F13-P2: 常驻间隔改可见性感知（隐藏暂停、回显恢复、pagehide 清理） */
+var evapToastTimer = setInterval(checkEvapToasts, 400);
+document.addEventListener('visibilitychange', function () {
+  if (document.hidden) {
+    if (evapToastTimer) { clearInterval(evapToastTimer); evapToastTimer = null; }
+  } else if (!evapToastTimer) {
+    evapToastTimer = setInterval(checkEvapToasts, 400);
+  }
+});
+window.addEventListener('pagehide', function () {
+  if (evapToastTimer) { clearInterval(evapToastTimer); evapToastTimer = null; }
+});
 
 window.addEventListener('DOMContentLoaded', init);

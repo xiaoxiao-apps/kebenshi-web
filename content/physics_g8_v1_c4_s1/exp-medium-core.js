@@ -287,7 +287,8 @@ function draw(){
   drawPulse(segs);
 }
 
-function loop(){ if(paused) return; draw(); rafId=requestAnimationFrame(loop); }
+/* F13: 双 rAF 合并为单循环（物理+绘制同帧） */
+function loop(){ var act=stepPhysics(); if(!paused||act) draw(); rafId=requestAnimationFrame(loop); }
 
 function supportY(m){
   var support=benchTopY(),b=bbox(m);
@@ -375,7 +376,7 @@ function maybeFromQuery(){ /* 2026-10-04 下线:初始空台,复验用 __c4s1dbg
 
 var cbRay=document.getElementById('cb-ray'); if(cbRay) cbRay.addEventListener('change',function(){ showRay=cbRay.checked; });
 var btnPlay=document.getElementById('btn-play'); if(btnPlay) btnPlay.addEventListener('click',function(){ pen.on=true; pulse.on=true; pulse.t0=performance.now(); if(window.playClick) playClick(); });
-var btnPause=document.getElementById('btn-pause'); if(btnPause) btnPause.addEventListener('click',function(){ paused=!paused; btnPause.textContent=paused?'继续':'暂停'; if(window.playClick) playClick(); if(!paused) rafId=requestAnimationFrame(loop); });
+var btnPause=document.getElementById('btn-pause'); if(btnPause) btnPause.addEventListener('click',function(){ paused=!paused; btnPause.textContent=paused?'继续':'暂停'; if(window.playClick) playClick(); });
 var btnReset=document.getElementById('btn-reset'); if(btnReset) btnReset.addEventListener('click',function(){ angle=initialAngle; lastDeg=99; pen.on=false; pulse.on=false; pen.x=150; pen.y=benchTopY()-14; resetMedia(); if(window.playClick) playClick(); });
 var btnMute=document.getElementById('btn-mute'); if(btnMute) btnMute.addEventListener('click',function(){ window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick) playClick(); });
 var btnFull=document.getElementById('btn-full'); if(btnFull) btnFull.addEventListener('click',function(){ var el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen(); else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen(); if(window.playClick) playClick(); });
@@ -386,9 +387,9 @@ document.addEventListener('fullscreenchange',function(){ setTimeout(resize,60); 
 });
 
 window.addEventListener('resize',resize);
-initMedia(); resize(); pen.y=benchTopY()-14; maybeFromQuery(); rafId=requestAnimationFrame(loop); requestAnimationFrame(tick);
+initMedia(); resize(); pen.y=benchTopY()-14; maybeFromQuery(); rafId=requestAnimationFrame(loop);
 
-function tick(){
+function stepPhysics(){
   var now=performance.now(),act=false,dt=1/60;
   for(var i=0;i<media.length;i++){
     var m=media[i];
@@ -414,8 +415,7 @@ function tick(){
     if(m.liftT && now-m.liftT<120) act=true;
     if(m.t==='smoke' && (m.state==='active'||m.state==='falling')) act=true;
   }
-  if(act) draw();
-  requestAnimationFrame(tick);
+  return act;
 }
 
 window.__c4s1dbg={ get media(){return media;}, get pen(){return pen;}, get W(){return W;}, get H(){return H;}, get benchY(){return benchTopY();}, emitPt:emitPt, computePath:computePath, rectOf:rectOf, segs:function(){return computePath(emitPt(),angle);}, place:function(id){ for(var i=0;i<media.length;i++) if(media[i].id===id){ var m=media[i]; m.state='active'; setActiveSize(m); m.x=Math.round(W/2); m.y=benchTopY(); constrain(m); return true; } return false; }, penOn:function(v){ pen.on=!!v; } };

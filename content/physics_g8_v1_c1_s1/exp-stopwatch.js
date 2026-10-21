@@ -6,12 +6,11 @@
   var g = fitCanvas(cv, getCssH(cv));
   var running = false, startTime = 0, frozen = 0;
   var targetMin = 0, targetSec = 0, passedHalf = false;
-  var autoTimer = null, targetTotalSec = 0, hasTarget = false;
-
-  function clearAutoTimer(){ if(autoTimer){ clearTimeout(autoTimer); autoTimer = null; } }
+  var targetTotalSec = 0, hasTarget = false;
+  var runGen = 0;
 
   function initZero(){
-    frozen = 0; running = false; clearAutoTimer();
+    frozen = 0; running = false;
     targetMin = 0; targetSec = 0; passedHalf = false; targetTotalSec = 0; hasTarget = false;
     document.getElementById('swMin').value = '';
     document.getElementById('swSec').value = '';
@@ -23,7 +22,9 @@
     running = true; startTime = performance.now();
     var total = targetMin * 60 + targetSec;
     var t0 = performance.now();
+    var gen = ++runGen;
     function step(){
+      if(gen !== runGen) return;
       if(!running) return;
       var k = Math.min(1, (performance.now() - t0) / 900);
       frozen = total * k;
@@ -35,7 +36,6 @@
   }
 
   function resetTarget(){
-    clearAutoTimer();
     targetMin = Math.floor(1 + Math.random() * 2);
     targetSec = Math.round(Math.random() * 599) / 10;
     passedHalf = targetSec >= 30;
@@ -234,7 +234,6 @@
     } else { px = e.offsetX; py = e.offsetY; }
     var h = cv.clientHeight;
     if(insideBtn(px, py, cv.clientWidth * 0.22, h - 40, 88, 44)){
-      clearAutoTimer();
       if(!running){ running = true; startTime = performance.now(); }
       else { running = false; frozen += (performance.now() - startTime) / 1000; }
     } else if(insideBtn(px, py, cv.clientWidth * 0.50, h - 40, 88, 44)){

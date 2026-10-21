@@ -416,6 +416,7 @@ function draw(){
   drawTooltipHint();
 }
 function loop(){
+  stepPhysics();
   try{ draw(); }catch(err){
     if(!loop._errSeen||loop._errSeen!==String(err&&err.message)){ loop._errSeen=String(err&&err.message); console.error('draw error:',err); }
   }
@@ -489,7 +490,7 @@ document.addEventListener('fullscreenchange',function(){ setTimeout(resize,60); 
 });
 window.addEventListener('resize',resize);
 
-function tick(){
+function stepPhysics(){
   var now=performance.now(),act=false,dt=1/60;
   for(var fi=fx.length-1;fi>=0;fi--){ if(now-fx[fi].t0>=300) fx.splice(fi,1); }
   if(fx.length) act=true;
@@ -533,8 +534,6 @@ function tick(){
     }
     if(m.liftT&&now-m.liftT<120) act=true;
   }
-  if(act) draw();
-  requestAnimationFrame(tick);
 }
 
 window.__c4s2dbg={
@@ -544,5 +543,5 @@ window.__c4s2dbg={
   get u(){ var l=findById('desk_lamp'),h=findById('hand_shadow'); if(!l||l.state!=='active'||!h||h.state!=='active') return null; return Math.hypot(handCenter(h).x-bulbPos(l).x, handCenter(h).y-bulbPos(l).y); },
   get v(){ var l=findById('desk_lamp'),s=findById('screen'); if(!l||l.state!=='active'||!s||s.state!=='active') return null; return screenPlane(s).sx-bulbPos(l).x; }
 };
-initMedia(); setDefaultLayout(); resize(); syncFullBtn(); rafId=requestAnimationFrame(loop); requestAnimationFrame(tick);
+initMedia(); setDefaultLayout(); resize(); syncFullBtn(); rafId=requestAnimationFrame(loop);
 })();

@@ -331,3 +331,23 @@ function setHeating(on) {
   if (flameMesh) flameMesh.visible = on;
   if (flameDisc) flameDisc.visible = on;
 }
+
+/* F13-P2: pagehide 释放 WebGL 资源，防上下文滞留（bfcache 保留态不动） */
+window.addEventListener('pagehide', function (e) {
+  if (e && e.persisted) return;
+  try {
+    if (scene && scene.traverse) {
+      scene.traverse(function (o) {
+        if (o.geometry && o.geometry.dispose) o.geometry.dispose();
+        var mats = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
+        for (var i = 0; i < mats.length; i++) {
+          if (mats[i] && mats[i].dispose) mats[i].dispose();
+        }
+      });
+    }
+    if (renderer) {
+      renderer.dispose();
+      if (renderer.forceContextLoss) renderer.forceContextLoss();
+    }
+  } catch (err) { /* 清理路径不抛错 */ }
+});
