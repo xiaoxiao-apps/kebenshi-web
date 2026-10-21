@@ -409,11 +409,11 @@ function setOpenUI(el, score, full) {
   if (tbtn) tbtn.textContent = '收起参考答案';
   const key = el.dataset.key;
   if (key) STATE.open[key] = true;
-  const ratio = full ? score / full : 0;
+  // F12：恢复匹配改整数分比较 score===Math.round(full*ratio)（替代浮点 ratio 比较；full=5 时半分=3，旧式 0.6≠0.5 丢失「半分」done 高亮）
   $all('.self-score', el).forEach(btn => {
     btn.disabled = true;
     btn.classList.remove('done');
-    if (Math.abs(+btn.dataset.ratio - ratio) < 1e-6) btn.classList.add('done');
+    if (score === Math.round(full * (+btn.dataset.ratio))) btn.classList.add('done');
   });
   const label = score === full ? '满分' : (score === Math.round(full / 2) ? '半分' : '0分');
   showFb(el, score > 0, '已自评：' + label + '。');

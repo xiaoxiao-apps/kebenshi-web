@@ -52,6 +52,8 @@
   .ctrlbar.compact input#rng-d{width:80px}
   .ctrlbar.compact #lbl-f,.ctrlbar.compact #lbl-d{font-size:13px;min-width:0}
   .rec-panel{display:none;position:absolute;top:12px;right:12px;min-width:520px;background:rgba(255,255,255,0.45);border-radius:16px;padding:16px 20px;z-index:15}
+  /* F12 窄屏分级响应（参照 c6s3 dockTable）：≤560px 取消 520px 硬下限，改 92vw，防横向溢出 */
+  @media(max-width:560px){.rec-panel{min-width:auto;width:92vw}}
   .rec-panel.show{display:block}
   .rec-panel .rp-title{font-size:18px;font-weight:600;color:#b45309;margin-bottom:10px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif}
   table.rec{border-collapse:collapse;font-size:16px;background:transparent;width:100%}
