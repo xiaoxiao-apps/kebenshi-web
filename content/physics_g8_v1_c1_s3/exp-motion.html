@@ -95,7 +95,7 @@
       // 每10s位置标尺
       for (var k = 0; k <= 4; k++) {
         var tt = k * 10;
-        var p = L.name.charAt(0) === '甲' ? 15 * tt : posB[k]; // 甲车标尺固定按15m/s，不随滑块变
+        var p = L.name.charAt(0) === '甲' ? Math.min(vARun * tt, MAXS) : posB[k]; // 甲车标尺随运行速度重画，与车位/表格一致
         var px = x(p);
         ctx.strokeStyle = 'rgba(0,0,0,.25)';
         ctx.beginPath(); ctx.moveTo(px, L.y + 8); ctx.lineTo(px, L.y + 18); ctx.stroke();

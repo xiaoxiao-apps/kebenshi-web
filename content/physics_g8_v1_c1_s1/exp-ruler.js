@@ -67,6 +67,8 @@
     var maxLen = r - state.startCm;
     var lenBase = 1.50 + Math.random() * Math.min(4.30, maxLen - 1.50);
     var mm = Math.round(lenBase * 100) / 100;
+    // 钳位：小量程（如2cm）时铅笔末端不得超出量程，同时保留至少0.5cm可测长度
+    mm = Math.min(mm, Math.max(0.5, Math.round(maxLen * 100) / 100));
     state.lengthCm = mm;
     state.feedback = ''; state.correct = false;
     document.getElementById('rulerAns').value = '';
