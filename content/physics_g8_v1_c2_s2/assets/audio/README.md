@@ -40,6 +40,7 @@
 | slide-tone.wav | freesound 517632 CC0 滑哨，取稳态1s（实测975Hz） | 活塞哨子持续音色（循环+playbackRate变调） |
 | dizi-note.mp3 | freesound 384960 CC0 笛子单音（实测882Hz≈A5，7.6s稳定） | 乐器百科「试听笛子」单音样本 |
 | ruler-fixed.wav | 自 ruler-on-table.mp3 截取最响0.4s定音段+淡出 | 钢尺拨动定音音效（每次音高固定，playbackRate表长度） |
+| fork-a4-light-trim.m4a | 自 fork-a4-440hz-2.mp3（freesound 331038 CC0）裁去 3.74s 前导静音后转 AAC 128kbps（2026-10-21 F2 修复轮） | 响度实验「轻敲」真实轻敲采样（RMS≈297 vs 重敲 5638，叠 0.5 倍音量） |
 
 ## 五、说明
 - 活塞哨子连续滑音无法用采样实现，该处音调用 WebAudio 合成（哨音本就接近纯音）

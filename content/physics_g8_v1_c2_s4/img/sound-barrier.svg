@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 630" width="1000" height="630">
+  <!-- 高架桥声屏障示意图（自绘 flat 图标风）：路面 + 立板 + 透明屏段，噪声被阻挡 -->
+  <rect x="0" y="0" width="1000" height="630" fill="#e8f4fd"/>
+  <!-- 远处住宅（受保护对象） -->
+  <g>
+    <rect x="60" y="300" width="120" height="150" rx="6" fill="#c8d2e8" stroke="#5a5a5a" stroke-width="2"/>
+    <polygon points="50,300 120,250 190,300" fill="#8a8a8a"/>
+    <rect x="84" y="330" width="26" height="30" rx="3" fill="#faf8f5"/>
+    <rect x="130" y="330" width="26" height="30" rx="3" fill="#faf8f5"/>
+    <rect x="84" y="384" width="26" height="30" rx="3" fill="#faf8f5"/>
+    <rect x="130" y="384" width="26" height="30" rx="3" fill="#faf8f5"/>
+  </g>
+  <!-- 高架桥体 -->
+  <g>
+    <rect x="230" y="440" width="740" height="34" rx="4" fill="#8a8a8a"/>
+    <rect x="300" y="474" width="40" height="120" fill="#6b6b6b"/>
+    <rect x="560" y="474" width="40" height="120" fill="#6b6b6b"/>
+    <rect x="820" y="474" width="40" height="120" fill="#6b6b6b"/>
+    <rect x="230" y="594" width="740" height="16" fill="#5a5a5a"/>
+    <!-- 路面 -->
+    <rect x="230" y="404" width="740" height="36" fill="#4a4a4a"/>
+    <g stroke="#faf8f5" stroke-width="4" stroke-dasharray="26 22">
+      <line x1="240" y1="422" x2="960" y2="422"/>
+    </g>
+  </g>
+  <!-- 汽车（噪声源） -->
+  <g>
+    <path d="M560 344 L600 344 L622 372 L692 372 Q706 372 706 386 L706 398 L546 398 L546 386 Q546 372 560 372 L560 344 Z" fill="#2980b9"/>
+    <rect x="566" y="350" width="30" height="22" rx="4" fill="#e8f4fd"/>
+    <rect x="604" y="350" width="16" height="22" rx="4" fill="#e8f4fd"/>
+    <circle cx="584" cy="398" r="14" fill="#2c2c2c"/>
+    <circle cx="672" cy="398" r="14" fill="#2c2c2c"/>
+  </g>
+  <!-- 声屏障：外侧立板（不透明）+ 中段透明屏 -->
+  <g>
+    <!-- 左侧不透明立板 -->
+    <rect x="270" y="284" width="150" height="120" rx="6" fill="#8b6914"/>
+    <g stroke="#6b4f0e" stroke-width="3">
+      <line x1="300" y1="284" x2="300" y2="404"/>
+      <line x1="340" y1="284" x2="340" y2="404"/>
+      <line x1="380" y1="284" x2="380" y2="404"/>
+    </g>
+    <!-- 中段透明屏（带框架） -->
+    <rect x="420" y="284" width="180" height="120" rx="6" fill="#9fd4f2" opacity="0.55" stroke="#2980b9" stroke-width="4"/>
+    <line x1="480" y1="284" x2="480" y2="404" stroke="#2980b9" stroke-width="4"/>
+    <line x1="540" y1="284" x2="540" y2="404" stroke="#2980b9" stroke-width="4"/>
+    <!-- 右侧不透明立板 -->
+    <rect x="600" y="284" width="330" height="120" rx="6" fill="#8b6914"/>
+    <g stroke="#6b4f0e" stroke-width="3">
+      <line x1="660" y1="284" x2="660" y2="404"/>
+      <line x1="720" y1="284" x2="720" y2="404"/>
+      <line x1="780" y1="284" x2="780" y2="404"/>
+      <line x1="840" y1="284" x2="840" y2="404"/>
+      <line x1="900" y1="284" x2="900" y2="404"/>
+    </g>
+    <!-- 屏体顶部折边 -->
+    <rect x="270" y="276" width="660" height="12" rx="6" fill="#c4a35a"/>
+  </g>
+  <!-- 声波被屏障阻挡（车→屏 入射；屏外仅微弱残余） -->
+  <g fill="none" stroke="#c0392b" stroke-width="4" stroke-linecap="round">
+    <path d="M548 356 Q528 330 540 300" opacity="0.9"/>
+    <path d="M540 366 Q500 336 498 296" opacity="0.6"/>
+  </g>
+  <g fill="none" stroke="#2980b9" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 9">
+    <path d="M440 270 Q400 240 380 200" opacity="0.7"/>
+    <path d="M250 250 Q225 230 214 200" opacity="0.35"/>
+  </g>
+  <text x="130" y="200" text-anchor="middle" font-size="17" fill="#2980b9" font-family="sans-serif">传入住宅的噪声明显减弱</text>
+  <text x="500" y="176" text-anchor="middle" font-size="18" fill="#5a5a5a" font-family="sans-serif">高架桥两侧安装声屏障：立板 + 透明屏段</text>
+</svg>

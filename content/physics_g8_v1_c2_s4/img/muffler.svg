@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <!-- 摩托车消声器图标（自绘 flat 风，无品牌标识；透明底适配卡片渐变） -->
+  <!-- 排气管前段（接发动机） -->
+  <path d="M64 196 Q120 196 150 232 L182 268" fill="none" stroke="#5a5a5a" stroke-width="26" stroke-linecap="round"/>
+  <!-- 消声器筒体 -->
+  <g>
+    <rect x="170" y="248" width="230" height="86" rx="40" fill="#8a8a8a"/>
+    <rect x="170" y="248" width="230" height="30" rx="15" fill="#a8a8a8"/>
+    <!-- 筒体隔热纹 -->
+    <g stroke="#6b6b6b" stroke-width="5">
+      <line x1="220" y1="256" x2="220" y2="326"/>
+      <line x1="256" y1="256" x2="256" y2="326"/>
+      <line x1="292" y1="256" x2="292" y2="326"/>
+      <line x1="328" y1="256" x2="328" y2="326"/>
+    </g>
+    <!-- 尾口 -->
+    <ellipse cx="400" cy="291" rx="16" ry="42" fill="#4a4a4a"/>
+    <ellipse cx="403" cy="291" rx="8" ry="30" fill="#2c2c2c"/>
+  </g>
+  <!-- 内部消声结构剖视（多孔腔室示意） -->
+  <g fill="#6b6b6b" opacity="0.75">
+    <circle cx="238" cy="291" r="6"/>
+    <circle cx="274" cy="278" r="6"/>
+    <circle cx="274" cy="304" r="6"/>
+    <circle cx="310" cy="291" r="6"/>
+    <circle cx="346" cy="278" r="6"/>
+    <circle cx="346" cy="304" r="6"/>
+  </g>
+  <!-- 排气声（经消声后微弱、平缓） -->
+  <g fill="none" stroke="#4a8c3f" stroke-width="5" stroke-linecap="round">
+    <path d="M436 262 Q450 276 436 291 Q450 306 436 320" opacity="0.8"/>
+    <path d="M462 250 Q480 276 462 291 Q480 316 462 336" opacity="0.4"/>
+  </g>
+  <text x="250" y="410" text-anchor="middle" font-size="21" fill="#5a5a5a" font-family="sans-serif">消声器：在声源处减弱排气噪声</text>
+</svg>

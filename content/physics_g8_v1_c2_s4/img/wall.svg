@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <!-- 隔音通道（声屏障围合的人行通道）图标（自绘 flat 风，无品牌标识；透明底适配卡片渐变） -->
+  <!-- 通道立板（左右两侧） -->
+  <g>
+    <rect x="80" y="140" width="34" height="270" rx="6" fill="#8b6914"/>
+    <rect x="386" y="140" width="34" height="270" rx="6" fill="#8b6914"/>
+    <!-- 立板竖纹 -->
+    <g stroke="#6b4f0e" stroke-width="3">
+      <line x1="90" y1="146" x2="90" y2="404"/>
+      <line x1="104" y1="146" x2="104" y2="404"/>
+      <line x1="396" y1="146" x2="396" y2="404"/>
+      <line x1="410" y1="146" x2="410" y2="404"/>
+    </g>
+    <!-- 顶棚（半透明隔音罩） -->
+    <path d="M70 140 Q250 60 430 140 L430 168 Q250 92 70 168 Z" fill="#9fd4f2" opacity="0.75" stroke="#2980b9" stroke-width="4"/>
+    <!-- 顶棚骨架 -->
+    <g stroke="#2980b9" stroke-width="3" opacity="0.6">
+      <line x1="130" y1="122" x2="130" y2="150"/>
+      <line x1="190" y1="106" x2="190" y2="134"/>
+      <line x1="250" y1="100" x2="250" y2="128"/>
+      <line x1="310" y1="106" x2="310" y2="134"/>
+      <line x1="370" y1="122" x2="370" y2="150"/>
+    </g>
+  </g>
+  <!-- 通道地面 -->
+  <rect x="70" y="404" width="360" height="18" rx="6" fill="#8a8a8a"/>
+  <!-- 行人（通道内安静） -->
+  <g>
+    <circle cx="250" cy="266" r="16" fill="#2c2c2c"/>
+    <rect x="236" y="286" width="28" height="58" rx="10" fill="#2c2c2c"/>
+    <rect x="240" y="344" width="9" height="52" rx="4" fill="#2c2c2c"/>
+    <rect x="252" y="344" width="9" height="52" rx="4" fill="#2c2c2c"/>
+    <rect x="222" y="292" width="10" height="44" rx="5" fill="#2c2c2c" transform="rotate(14 227 292)"/>
+    <rect x="268" y="292" width="10" height="44" rx="5" fill="#2c2c2c" transform="rotate(-14 273 292)"/>
+  </g>
+  <!-- 外部噪声被挡（左侧入射红波被立板阻断） -->
+  <g fill="none" stroke="#c0392b" stroke-width="5" stroke-linecap="round">
+    <path d="M28 210 Q44 240 28 270" opacity="0.9"/>
+    <path d="M10 190 Q34 240 10 290" opacity="0.55"/>
+  </g>
+  <g fill="none" stroke="#c0392b" stroke-width="5" stroke-linecap="round">
+    <path d="M472 230 Q456 260 472 290" opacity="0.9"/>
+    <path d="M490 210 Q466 260 490 310" opacity="0.55"/>
+  </g>
+  <!-- 通道内安静（无波纹），点明阻断效果 -->
+  <text x="250" y="462" text-anchor="middle" font-size="20" fill="#5a5a5a" font-family="sans-serif">立板+顶棚围合，噪声被阻断在外</text>
+</svg>

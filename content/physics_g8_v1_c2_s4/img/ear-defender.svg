@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <!-- 防噪声耳罩图标（自绘 flat 风，无品牌标识；透明底适配卡片渐变） -->
+  <!-- 头梁 -->
+  <path d="M110 240 Q110 70 250 70 Q390 70 390 240 L390 262 L352 262 L352 240 Q352 116 250 116 Q148 116 148 240 L148 262 L110 262 Z" fill="#2980b9"/>
+  <!-- 左耳罩 -->
+  <g>
+    <rect x="86" y="248" width="86" height="140" rx="34" fill="#c0392b"/>
+    <rect x="104" y="268" width="50" height="100" rx="24" fill="#e57368"/>
+    <rect x="164" y="262" width="22" height="112" rx="10" fill="#8b6914" opacity="0.85"/>
+  </g>
+  <!-- 右耳罩 -->
+  <g>
+    <rect x="328" y="248" width="86" height="140" rx="34" fill="#c0392b"/>
+    <rect x="346" y="268" width="50" height="100" rx="24" fill="#e57368"/>
+    <rect x="314" y="262" width="22" height="112" rx="10" fill="#8b6914" opacity="0.85"/>
+  </g>
+  <!-- 噪声被挡在罩外 -->
+  <g fill="none" stroke="#5a5a5a" stroke-width="6" stroke-linecap="round">
+    <path d="M34 260 Q50 290 34 320" opacity="0.9"/>
+    <path d="M14 240 Q38 290 14 340" opacity="0.5"/>
+    <path d="M466 260 Q450 290 466 320" opacity="0.9"/>
+    <path d="M486 240 Q462 290 486 340" opacity="0.5"/>
+  </g>
+  <text x="250" y="452" text-anchor="middle" font-size="21" fill="#5a5a5a" font-family="sans-serif">护耳罩：阻挡噪声入耳</text>
+</svg>

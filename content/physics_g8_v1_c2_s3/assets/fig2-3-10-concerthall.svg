@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- 音乐厅声学设计示意图（自绘 flat 图标风）：舞台 + 扇形观众席 + 顶棚反射板 -->
+  <defs>
+    <marker id="rayArrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#2980b9"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="800" height="600" fill="#faf8f5"/>
+
+  <!-- 顶棚 -->
+  <rect x="30" y="26" width="740" height="14" rx="7" fill="#c4a35a" opacity="0.55"/>
+  <!-- 顶棚反射板（角度交错） -->
+  <g stroke="#6b4f0e" stroke-width="1.5">
+    <rect x="80" y="70" width="110" height="13" rx="6" fill="#8b6914" transform="rotate(8 135 76)"/>
+    <rect x="230" y="58" width="110" height="13" rx="6" fill="#c4a35a" transform="rotate(-6 285 64)"/>
+    <rect x="380" y="70" width="110" height="13" rx="6" fill="#8b6914" transform="rotate(7 435 76)"/>
+    <rect x="530" y="56" width="110" height="13" rx="6" fill="#c4a35a" transform="rotate(-8 585 62)"/>
+    <rect x="655" y="72" width="100" height="13" rx="6" fill="#8b6914" transform="rotate(6 705 78)"/>
+  </g>
+  <text x="400" y="18" text-anchor="middle" font-size="15" fill="#5a5a5a" font-family="sans-serif">顶棚反射板</text>
+
+  <!-- 扇形观众席（阶梯扇形，圆心在舞台前沿） -->
+  <g>
+    <path d="M300 500 L343 193 A310 310 0 0 1 610 484 Z" fill="#e8f4fd"/>
+    <!-- 四排弧形座席线 -->
+    <g fill="none" stroke="#c4a35a" stroke-width="3" opacity="0.85">
+      <path d="M318.1 371.3 A130 130 0 0 1 429.8 493.2"/>
+      <path d="M326.4 311.9 A190 190 0 0 1 489.7 490.1"/>
+      <path d="M334.8 252.5 A250 250 0 0 1 549.7 486.9"/>
+      <path d="M343.1 193.1 A310 310 0 0 1 609.6 483.8"/>
+    </g>
+    <!-- 座位（沿弧线每 13° 一个，绕圆心 (300,500) 旋转排布） -->
+    <g fill="#2980b9">
+      <g><rect x="293" y="364" width="14" height="12" rx="3" transform="rotate(15 300 500)"/><rect x="293" y="364" width="14" height="12" rx="3" transform="rotate(28 300 500)"/><rect x="293" y="364" width="14" height="12" rx="3" transform="rotate(41 300 500)"/><rect x="293" y="364" width="14" height="12" rx="3" transform="rotate(54 300 500)"/><rect x="293" y="364" width="14" height="12" rx="3" transform="rotate(67 300 500)"/><rect x="293" y="364" width="14" height="12" rx="3" transform="rotate(80 300 500)"/></g>
+      <g><rect x="293" y="304" width="14" height="12" rx="3" transform="rotate(15 300 500)"/><rect x="293" y="304" width="14" height="12" rx="3" transform="rotate(28 300 500)"/><rect x="293" y="304" width="14" height="12" rx="3" transform="rotate(41 300 500)"/><rect x="293" y="304" width="14" height="12" rx="3" transform="rotate(54 300 500)"/><rect x="293" y="304" width="14" height="12" rx="3" transform="rotate(67 300 500)"/><rect x="293" y="304" width="14" height="12" rx="3" transform="rotate(80 300 500)"/></g>
+      <g><rect x="293" y="244" width="14" height="12" rx="3" transform="rotate(15 300 500)"/><rect x="293" y="244" width="14" height="12" rx="3" transform="rotate(28 300 500)"/><rect x="293" y="244" width="14" height="12" rx="3" transform="rotate(41 300 500)"/><rect x="293" y="244" width="14" height="12" rx="3" transform="rotate(54 300 500)"/><rect x="293" y="244" width="14" height="12" rx="3" transform="rotate(67 300 500)"/><rect x="293" y="244" width="14" height="12" rx="3" transform="rotate(80 300 500)"/></g>
+      <g><rect x="293" y="184" width="14" height="12" rx="3" transform="rotate(15 300 500)"/><rect x="293" y="184" width="14" height="12" rx="3" transform="rotate(28 300 500)"/><rect x="293" y="184" width="14" height="12" rx="3" transform="rotate(41 300 500)"/><rect x="293" y="184" width="14" height="12" rx="3" transform="rotate(54 300 500)"/><rect x="293" y="184" width="14" height="12" rx="3" transform="rotate(67 300 500)"/><rect x="293" y="184" width="14" height="12" rx="3" transform="rotate(80 300 500)"/></g>
+    </g>
+    <text x="520" y="330" text-anchor="middle" font-size="15" fill="#2980b9" font-family="sans-serif">扇形观众席</text>
+  </g>
+
+  <!-- 舞台 -->
+  <g>
+    <rect x="50" y="452" width="250" height="108" rx="6" fill="#e8dcc0" stroke="#8b6914" stroke-width="2.5"/>
+    <rect x="50" y="452" width="250" height="10" rx="4" fill="#c4a35a"/>
+    <text x="175" y="530" text-anchor="middle" font-size="15" fill="#8b6914" font-family="sans-serif">舞台</text>
+    <!-- 三角钢琴（剪影） -->
+    <path d="M100 448 L100 424 Q100 408 122 405 L168 399 Q184 397 184 412 L184 448 Z" fill="#2c2c2c"/>
+    <line x1="108" y1="448" x2="108" y2="452" stroke="#2c2c2c" stroke-width="4"/>
+    <line x1="176" y1="448" x2="176" y2="452" stroke="#2c2c2c" stroke-width="4"/>
+    <!-- 演奏者 -->
+    <circle cx="212" cy="410" r="9" fill="#2c2c2c"/>
+    <rect x="204" y="420" width="16" height="28" rx="6" fill="#2c2c2c"/>
+  </g>
+  <rect x="30" y="560" width="740" height="8" rx="4" fill="#8a8a8a"/>
+
+  <!-- 声线：舞台 → 反射板 → 观众席 -->
+  <g fill="none" stroke="#2980b9" stroke-width="2.5" stroke-dasharray="8 7" marker-end="url(#rayArrow)">
+    <path d="M216 392 L400 88 L452 300"/>
+    <path d="M224 398 L560 80 L596 258"/>
+  </g>
+</svg>

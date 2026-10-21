@@ -7,9 +7,9 @@
   var W = 640, H = 360, k = 1, t0 = performance.now();
 
   /* ---------- 音频：预解码缓存 ---------- */
-  /* 轻敲也用重敲采样（原 fork-2 文件带 3.5s 前导静音导致延迟），仅用更低音量区分 */
+  /* 轻敲用真实轻敲采样 fork-a4-light-trim.m4a（自 CC0 源件裁去 3.7s 前导静音，见 assets/audio/README），叠 0.5 倍音量与重敲区分 */
   var HARD_SRC = 'assets/audio/fork-a4-440hz-1.mp3',
-      LIGHT_SRC = 'assets/audio/fork-a4-440hz-1.mp3';
+      LIGHT_SRC = 'assets/audio/fork-a4-light-trim.m4a';
   var audioCtx = null, buffers = { hard: null, light: null },
       curSrc = null, curGain = null, curMul = 1;
   function ensureCtx(){

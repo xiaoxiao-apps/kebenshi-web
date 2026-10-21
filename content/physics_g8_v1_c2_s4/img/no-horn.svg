@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- 禁止鸣喇叭标志（自绘 flat 图标风）：白底红圈斜杠 + 喇叭剪影，无品牌标识 -->
+  <rect x="0" y="0" width="600" height="600" fill="#ffffff"/>
+  <!-- 喇叭剪影 -->
+  <g>
+    <rect x="196" y="268" width="52" height="64" rx="8" fill="#2c2c2c"/>
+    <path d="M248 276 L330 222 Q340 216 340 228 L340 372 Q340 384 330 378 L248 324 Z" fill="#2c2c2c"/>
+    <!-- 声波弧 -->
+    <g fill="none" stroke="#2c2c2c" stroke-width="12" stroke-linecap="round">
+      <path d="M374 252 Q400 300 374 348" opacity="0.85"/>
+      <path d="M410 218 Q452 300 410 382" opacity="0.55"/>
+    </g>
+  </g>
+  <!-- 红圈 + 斜杠（禁令标志） -->
+  <circle cx="300" cy="300" r="228" fill="none" stroke="#c0392b" stroke-width="44"/>
+  <line x1="139" y1="139" x2="461" y2="461" stroke="#c0392b" stroke-width="44" stroke-linecap="butt"/>
+</svg>

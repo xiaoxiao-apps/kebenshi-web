@@ -134,7 +134,7 @@
 
   /* 驻波包络 sin(π·u)：静止下垂量与振动位移都乘它 → 左右两端点(u=0/1)恒在 yBase */
   function drawBand(x1, x2, yBase, dy){
-    var sag = SAG * k * Math.sin(0.01 * tension);
+    var sag = SAG * k * (1 - tension / 100);   /* 越紧下垂越小：tension=0 时 8px，tension=100 时拉直 */
     ctx.beginPath();
     var N = 24;
     for(var i = 0; i <= N; i++){
