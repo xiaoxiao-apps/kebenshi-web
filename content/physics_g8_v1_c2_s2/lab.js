@@ -10,8 +10,7 @@
     timbre: '同一首曲子，不同乐器演奏——波形形状不同，音色就不同。',
     range: '人耳能听到多高、多低的声音？动手测一测听觉频率范围。',
     craft: '动手做一件“乐器”：仿真调音，理解音调可以改变的道理。',
-    instruments: '常见乐器的发声部分是什么？它们靠什么振动发声？',
-    ultrasound: '高于 20000 Hz 与低于 20 Hz 的声音，各有什么本领？'
+    instruments: '常见乐器的发声部分是什么？它们靠什么振动发声？'
   };
 
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.mode-tab'));
@@ -19,7 +18,7 @@
   var subtitleEl = document.getElementById('mode-subtitle');
 
   /* 原页面头部降噪：只注入 CSS，不改原文件。
-     本节 9 页返回按钮均为 a.back-btn（7 页带 data-back，exp-ultrasound/exp-instruments 不带，故不用 [data-back] 限定）；
+     本节 8 页返回按钮均为 a.back-btn（7 页带 data-back，exp-instruments 不带，故不用 [data-back] 限定）；
      .page-header 原 padding 24px 0 8px（common.css:43），约减半。 */
   var QUIET_CSS =
     'a.back-btn{display:none !important;}' +
