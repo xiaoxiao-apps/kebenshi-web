@@ -56,17 +56,6 @@ body { display: flex; flex-direction: column; }
   min-height: 18px;
 }
 
-#shell-fullscreen {
-  flex: 0 0 auto;
-  margin-top: 4px; width: 36px; height: 36px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.07);
-  color: #e8ecf4; font-size: 17px; cursor: pointer;
-  transition: background .15s, border-color .15s;
-}
-#shell-fullscreen:hover { background: rgba(90,215,255,.16); border-color: rgba(90,215,255,.45); }
-
 /* ---- 内容区：圆角卡片包住 iframe ---- */
 #shell-content {
   flex: 1 1 auto; min-height: 0;
@@ -94,7 +83,6 @@ body { display: flex; flex-direction: column; }
 @media (max-width: 720px) {
   #shell-header { flex-wrap: wrap; justify-content: center; padding: 8px 10px 6px; }
   #back-to-index { order: 1; }
-  #shell-fullscreen { order: 2; }
   .header-mid { order: 3; flex-basis: 100%; }
   .mode-tab { font-size: 12px; padding: 5px 10px; }
   #shell-content { padding: 8px; }

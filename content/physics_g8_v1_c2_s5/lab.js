@@ -1,4 +1,4 @@
-/* lab.js — 隔音房间实验室整合壳：单模式（iframe 常驻懒加载）+ 头部降噪注入 + 壳全屏 */
+/* lab.js — 隔音房间实验室整合壳：单模式（iframe 常驻懒加载）+ 头部降噪注入 */
 (function () {
   'use strict';
 
@@ -50,26 +50,5 @@
   tabs.forEach(function (tab) {
     tab.addEventListener('click', function () { activate(tab.dataset.mode); });
   });
-
-  /* 壳全屏：独立实现，不依赖 fullscreen.js */
-  var fsBtn = document.getElementById('shell-fullscreen');
-  fsBtn.addEventListener('click', function () {
-    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
-    if (fsEl) {
-      if (document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    } else {
-      var el = document.documentElement;
-      if (el.requestFullscreen) el.requestFullscreen();
-      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    }
-  });
-  document.addEventListener('fullscreenchange', syncFsIcon);
-  document.addEventListener('webkitfullscreenchange', syncFsIcon);
-  function syncFsIcon() {
-    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
-    fsBtn.textContent = fsEl ? '🗗' : '⛶';
-  }
-
   activate('room'); /* 单模式，直接激活 */
 })();
