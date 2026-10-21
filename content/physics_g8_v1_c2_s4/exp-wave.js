@@ -70,7 +70,7 @@
       ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
     }
     ctx.fillStyle = '#fff'; ctx.font = 'bold ' + (12 * k) + 'px sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText('图 2.4-1 噪声的波形（示意）', 12 * k, 22 * k);
+    ctx.fillText('噪声的波形（示意）', 12 * k, 22 * k);
   }
 
   function sampleSine(t){ return Math.sin(t * Math.PI * 2) * amp; }

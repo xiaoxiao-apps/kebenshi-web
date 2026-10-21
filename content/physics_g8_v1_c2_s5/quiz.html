@@ -40,7 +40,7 @@
 <div class="container">
   <div class="page-header">
     <h1 class="page-title">✍️ 小练习 · 跨学科实践：制作隔音房间模型</h1>
-    <p class="page-subtitle">本章知识梳理 —— 依据教材 P54「章小结示例二」</p>
+    <p class="page-subtitle">本章知识梳理</p>
   </div>
   <div><span class="scorebar" id="score">已答 0/8</span><button class="reset-btn" id="resetBtn" type="button">🔄 重置</button></div>
   <div class="done-banner" id="doneBanner"></div>
@@ -82,7 +82,7 @@
     <div class="feedback" id="q2Fb"></div>
     <button class="reveal-btn" type="button">💡 揭晓讲解</button>
     <div class="answer">
-      <div class="line">教材原文：声速跟介质的种类和温度有关；声音在传播过程中遇到障碍物会发生反射。第二题把“会反射”说成“不会反射”，所以错误。</div>
+      <div class="line">要点：声速跟介质的种类和温度有关；声音在传播过程中遇到障碍物会发生反射。第二题把“会反射”说成“不会反射”，所以错误。</div>
     </div>
   </div>
 
@@ -135,7 +135,7 @@
     <div class="feedback" id="q4Fb"></div>
     <button class="reveal-btn" type="button">💡 揭晓讲解</button>
     <div class="answer">
-      <div class="line">教材原文：<b>响度：声音的强弱，与发声体振动的幅度以及距发声体的远近有关。</b></div>
+      <div class="line">要点：<b>响度：声音的强弱，与发声体振动的幅度以及距发声体的远近有关。</b></div>
     </div>
   </div>
 
@@ -182,8 +182,8 @@
     <div class="feedback" id="q5Fb"></div>
     <button class="reveal-btn" type="button">💡 揭晓讲解</button>
     <div class="answer">
-      <div class="line">教材原文：<b>声可以传递信息：如回声定位、B超、超声检测等。</b></div>
-      <div class="line">教材原文：<b>声可以传递能量：如超声波清洗、超声波碎石等。</b></div>
+      <div class="line">要点：<b>声可以传递信息：如回声定位、B超、超声检测等。</b></div>
+      <div class="line">要点：<b>声可以传递能量：如超声波清洗、超声波碎石等。</b></div>
     </div>
   </div>
 
@@ -199,7 +199,7 @@
     <div class="feedback" id="q6Fb"></div>
     <button class="reveal-btn" type="button">💡 揭晓讲解</button>
     <div class="answer">
-      <div class="line">教材原文：<b>控制噪声可以从防止噪声产生、阻断噪声传播和防止噪声进入耳朵三个方面着手。</b></div>
+      <div class="line">要点：<b>控制噪声可以从防止噪声产生、阻断噪声传播和防止噪声进入耳朵三个方面着手。</b></div>
     </div>
   </div>
 
@@ -292,7 +292,7 @@
     var okA = a === '振动';
     var okB = b === '介质';
     var fb = document.getElementById('q1Fb');
-    if (!okA && !okB) { fb.className = 'feedback show err'; fb.textContent = '❌ 两空都不对，再想想教材原文。'; }
+    if (!okA && !okB) { fb.className = 'feedback show err'; fb.textContent = '❌ 两空都不对，再想想知识要点。'; }
     else if (!okA || !okB) { fb.className = 'feedback show err'; fb.textContent = '❌ 还有一空不对。'; }
     else { q1Correct = true; fb.className = 'feedback show ok'; fb.textContent = '✅ 正确！声音由振动产生，传播需要介质。'; }
     if (okA && okB) markAnswered('q1');
@@ -342,7 +342,7 @@
       q4Correct = (b.dataset.v === '响度');
       b.classList.add(q4Correct ? 'right' : 'wrong');
       var fb = document.getElementById('q4Fb'); fb.className = 'feedback show ' + (q4Correct?'ok':'err');
-      fb.innerHTML = q4Correct ? '✅ 正确！描述的是响度。' : '❌ 再读一遍教材原文。';
+      fb.innerHTML = q4Correct ? '✅ 正确！描述的是响度。' : '❌ 再读一遍知识要点。';
       markAnswered('q4');
     });
   });
