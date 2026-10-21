@@ -412,7 +412,7 @@ function hintBranch(){
   if(k==='real'&&vImg()>vMaxDyn()) return {key:'vover',text:'像距 v='+vImg().toFixed(1)+' cm 超出光屏行程，屏上是弥散像——真实光台也受台面长度限制，数据见记录表'};
   if(k==='none') return {key:'nof',text:'u=f：折射光线平行射出，不成像——实像与虚像的分界（一倍焦距分虚实）。向两侧再拖一点点看看。'};
   if(k==='virtual'&&st.u>=st.f*0.85) return {key:'vdim',text:'虚像越来越大、也越来越淡：同样的光摊到更大的像面上，面亮度下降；u=f 不成像。'};   // J10 近焦解说
-  if(k==='virtual') return {key:'vgo',text:'u＜f，屏上接不到像。教材原句：「当在光屏上看不到发光物体的像时，可以撤去光屏，从光屏一侧向凸透镜方向看去，观察发光物体的像。」点「撤屏观察」试试。'};
+  if(k==='virtual') return {key:'vgo',text:'u＜f，屏上接不到像。此时可以撤去光屏，从光屏一侧向凸透镜方向看去，就能观察到发光物体的虚像。点「撤屏观察」试试。'};
   if(Math.abs(st.u-2*st.f)<=EPS_CM) return {key:'e2f',text:'u=2f：v=2f，成倒立、等大的实像——大小的分界（二倍焦距分大小）。'};
   if(!isSharp()) return {key:'sharp',text:'屏上像模糊：|v屏−v像|＞0.6cm。拖光屏或点「自动寻像」找清晰像。当前理论像距 v='+vImg().toFixed(1)+' cm。'};
   if(st.rows.length===0) return {key:'rec1',text:'清晰像到手！点「记一笔」把 u、v 与像的性质写进记录表；再拖光源跨 u＞2f、f＜u＜2f、u＜f 三区，每区记一笔。「💡 光源」按钮或点画布 F 可关灯/开灯；换蜡烛后点蜡烛可点亮/熄灭。'};
@@ -676,7 +676,7 @@ var bTB=document.getElementById('btn-textbook');
 if(bTB) bTB.addEventListener('click',function(){
   st.rows=textbookRows(); renderRec();
   openPanel('rec');
-  showToast('已载入教材数据表 13 行（f=10cm）——对照找规律');
+  showToast('已载入参考数据表 13 行（f=10cm）——对照找规律');
   if(window.playClick) playClick();
 });
 var bClr=document.getElementById('btn-clear');
@@ -708,7 +708,7 @@ if(bNs) bNs.addEventListener('click',function(){
   if(st.screenOn){
     st.screenOn=false; bNs.textContent='装回光屏'; bNs.classList.add('on');
     st.anim={kind:'out',t0:performance.now()};
-    if(imgKind()==='virtual') showToast('教材操作：撤去光屏，从光屏一侧向凸透镜方向看去');
+    if(imgKind()==='virtual') showToast('实验操作：撤去光屏，从光屏一侧向凸透镜方向看去');
   }else{
     st.screenOn=true; bNs.textContent='撤屏观察'; bNs.classList.remove('on');
     st.anim={kind:'in',t0:performance.now()};
