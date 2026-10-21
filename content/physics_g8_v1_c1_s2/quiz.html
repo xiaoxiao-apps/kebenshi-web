@@ -81,15 +81,15 @@
 <div class="container">
   <a class="back-btn" href="index.html">‹ 返回本节</a>
   <div class="page-header">
-    <h1 class="page-title">✏️ 练习与应用</h1>
-    <p class="page-subtitle">教材 4 题动手联动 + 3 道基础选择，一次一题，点着玩着就会了。</p>
+    <h1 class="page-title">✏️ 本节练习</h1>
+    <p class="page-subtitle">4 道动手联动 + 3 道基础选择，一次一题，点着玩着就会了。</p>
   </div>
 
   <div class="qnav" id="qnav"></div>
 
   <!-- ============ 题1 行李架上的物品（教材①） ============ -->
   <div class="card qcard" id="qc1" data-q="1">
-    <span class="src-tag">教材 练习与应用 ①</span>
+    <span class="src-tag">本节练习 ①</span>
     <div class="stem">列车在平直的轨道上行驶。若分别以火车头、车厢的座椅、树木、房屋为参照物，行李架上的物品相对于哪些参照物是静止的，相对于哪些参照物是运动的？<br><span style="font-size:13.5px;font-weight:400;color:var(--ink2);">👉 逐行点「静止」或「运动」做出判断，物品徽章会实时跟着变。</span></div>
     <div class="q1-stage">
       <span class="q1-item">🧳</span>
@@ -102,7 +102,7 @@
 
   <!-- ============ 题2 《社戏》连山（教材②） ============ -->
   <div class="card qcard" id="qc2" data-q="2">
-    <span class="src-tag">教材 练习与应用 ②</span>
+    <span class="src-tag">本节练习 ②</span>
     <div class="stem">鲁迅的《社戏》中有这样的描写：「淡黑的起伏的连山，仿佛是踊跃的铁的兽脊似的，都远远地向船尾跑去了……」其中「山……向船尾跑去了」所选的参照物是什么？</div>
     <div class="scene-hint">🛶 情境提示：船在前进中……乘客坐在船里，看着两岸的连山「往后跑」。想一想：乘客觉得谁没有动？</div>
     <div class="q3-pills" id="q2Pills"></div>
@@ -114,7 +114,7 @@
 
   <!-- ============ 题3 空间站对接（教材③） ============ -->
   <div class="card qcard" id="qc3" data-q="3">
-    <span class="src-tag">教材 练习与应用 ③ · 空间站对接</span>
+    <span class="src-tag">本节练习 ③ · 空间站对接</span>
     <div class="stem">中国空间站的梦天实验舱与天和核心舱成功对接，转位后形成空间站「T」字基本构型。拖动滑条重播对接过程，再逐个回答三个问题。</div>
     <div class="q3-wrap" id="q3FsWrap">
       <button class="fullscreen-btn" id="q3FsBtn" title="全屏">⛶</button>
@@ -136,7 +136,7 @@
 
   <!-- ============ 题4 观光电梯（教材④） ============ -->
   <div class="card qcard" id="qc4" data-q="4">
-    <span class="src-tag">教材 练习与应用 ④</span>
+    <span class="src-tag">本节练习 ④</span>
     <div class="stem">当你乘坐观光电梯观察电梯外的建筑物时，你是如何判断观光电梯是在上行还是在下行的？请利用参照物的概念，说出你判断的根据。</div>
     <div class="scene-hint">🏙️ 先自己想一想，把判断依据在脑子里说一遍，再揭晓参考答案对照。</div>
     <div class="cover-card" id="q4Cover">
@@ -201,7 +201,7 @@
   function checkAllDone(){
     if(doneCount >= navDefs.length) {
       document.getElementById('doneRow').style.display = '';
-      document.getElementById('scoreTxt').textContent = '🎉 全部完成！教材 4 题联动 + 基础选择都过关了。';
+      document.getElementById('scoreTxt').textContent = '🎉 全部完成！4 题联动 + 基础选择都过关了。';
     }
   }
   showCard('qc1');
