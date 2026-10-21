@@ -685,7 +685,7 @@ const POINT_INFO = {
   'freeze-c': {
     E: { title: 'E 点 · 液态放热降温', temp: '不断降低', heat: '放热', phase: '液态' },
     F: { title: 'F 点 · 达到凝固点，开始凝固', temp: '保持不变', heat: '放热', phase: '固液共存' },
-    G: { title: 'G 点 · 凝固结束，全部变固态', temp: '保持不变', heat: '放热', phase: '固态' },
+    G: { title: 'G 点 · 凝固结束，全部变固态', temp: '即将下降', heat: '放热', phase: '固态' },
     H: { title: 'H 点 · 固态放热继续降温', temp: '不断降低', heat: '放热', phase: '固态' }
   }
 };

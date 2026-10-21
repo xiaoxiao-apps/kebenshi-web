@@ -556,6 +556,9 @@ function updateThermometerVisual(t) {
 // ===== UI updates =====
 function updateUI() {
   document.getElementById('r-water-temp').textContent = state.waterTemp.toFixed(1) + ' ℃';
+  // F7：无冰时水温低于 0℃ 仍为液态 → 显示模拟局限补注（过冷/无凝固建模说明）
+  const subzeroNote = document.getElementById('subzero-note');
+  if (subzeroNote) subzeroNote.style.display = (state.iceMass <= 0 && state.waterTemp < 0) ? 'block' : 'none';
   document.getElementById('r-amb-temp').textContent = state.ambTemp.toFixed(1) + ' ℃';
   document.getElementById('r-sim-time').textContent = state.simTime.toFixed(1) + ' s';
   document.getElementById('r-ice-mass').textContent = state.iceMass.toFixed(1) + ' g';

@@ -30,6 +30,7 @@
         <div class="panel-section">
           <div class="panel-title">读数面板</div>
           <div class="readout"><span>当前水温</span><span class="value" id="r-water-temp">20.0 ℃</span></div>
+          <div class="panel-note" id="subzero-note" style="display:none">注：本模拟未建模凝固过程。实际纯水在 0℃ 会凝固放热、温度保持不变；低于 0℃ 的液态水只在过冷等特殊条件下短暂存在。</div>
           <div class="readout"><span>环境温度</span><span class="value" id="r-amb-temp">20.0 ℃</span></div>
           <div class="readout"><span>模拟时间</span><span class="value" id="r-sim-time">0.0 s</span></div>
           <div class="readout"><span>冰剩余质量</span><span class="value" id="r-ice-mass">0.0 g</span></div>
@@ -75,6 +76,7 @@
             <button class="btn primary" id="btn-heat">加热：关</button>
             <button class="btn" id="btn-ice">加冰</button>
           </div>
+          <div class="panel-note">注：实验室温度计刻度为模拟简化（分度 2℃，实物分度值 1℃），读数面板数值不受影响。</div>
         </div>
       </div>
 
