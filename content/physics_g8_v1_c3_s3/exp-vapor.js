@@ -29,7 +29,7 @@ function bindUI() {
   bindCustomSelect('fire', v => { state.fire = v; updateFlame(); });
   bindCustomSelect('amount', v => { state.amount = v; });
   bindCustomSelect('timescale', v => { state.timeScale = parseFloat(v); });
-  bindCustomSelect('lid', v => { switchLid(state, v); updateCoverVisual(); if (v === 'sealed') showToast('盖上密封盖后水蒸气不易跑出，杯内液面上方气压增大，沸点升高'); });
+  bindCustomSelect('lid', v => { switchLid(state, v); updateCoverVisual(); if (v === 'sealed') showToast('盖上密封盖后水蒸气不易跑出，杯内液面上方气压增大，沸点升高（本实验取102.5℃，为模拟值）'); });
   bindSlider('amb', v => { state.ambTemp = v; state.waterTemp = v; state.evap.cooling.withTemp = v; state.evap.cooling.withoutTemp = v; state.evap.paper.waterTemp = v; state.evap.paper.paperTemp = v; if (state.simTime === 0) { clearTable(); } updateUI(); }, '℃');
 
   bindEvapUI();
@@ -278,7 +278,7 @@ function checkEvapToasts() {
   const f = state.evap.factors;
   if (state.evapSub === 'factors' && f.fastShown && !f._fastToast) {
     f._fastToast = true;
-    showToast('要加快液体的蒸发，可以升高液体的温度，增大液体的表面积，加快液体表面上的空气流动；而要减慢蒸发，应该采取相反的措施。');
+    showToast('小结：温度越高、表面积越大、空气流动越快，蒸发就越旺盛；让这三个条件反过来，蒸发就会减慢。');
   }
   const c = state.evap.cooling;
   if (state.evapSub === 'cooling' && c.conclusionShown && !c._toast) {

@@ -106,7 +106,7 @@ function updateHint(){
   if(R.beamMode==='beam'){hintEl.textContent=(!R.laserOn?'点太阳开关平行光':'平行光束：太阳光平行入射；滑杆改入射角'); return;}
   if(R.fold>0){hintEl.textContent='纸板折起：反射光不在折后纸板上——三线共面'; return;}
   if(R.pulse.reverse){hintEl.textContent='光路可逆：光沿原反射路射入，沿原入射路射出'; return;}
-  if(R.rough>0){hintEl.textContent='粗糙面：逐点 obey 局部反射定律'; return;}
+  if(R.rough>0){hintEl.textContent='粗糙面：逐点遵循局部反射定律'; return;}
   if(!R.laserOn){hintEl.textContent=(R.beamMode==='beam'?'点太阳开关平行光':'激光已关：点激光笔红钮可重新开启'); return;}
   hintEl.textContent='点激光笔红钮开关激光；拖笔身改入射角';
 }
