@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 质量</title>
+<style>
+:root{--ink:#3d3830;--ink2:#6f6455;--green:#3a7d44;--green-bg:#e9f4ea;--brown:#b45309;--brown-bg:#fff4d6;--cyan:#0e7490;--cyan-bg:#e2f3fa;--card:#fffdf7;--card2:#f7f2e8;--line:rgba(0,0,0,.08)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100dvh;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f2ec;color:var(--ink);font-size:15px;line-height:1.85}
+.back-btn{display:inline-flex;align-items:center;margin:12px 0 0 14px;padding:8px 14px;min-height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+.container{max-width:720px;margin:0 auto;padding:6px 14px 40px}
+.page-header{text-align:center;padding:14px 0 4px}
+.page-title{margin:0;font-size:22px}
+.page-subtitle{margin:6px 0 0;color:var(--ink2);font-size:13px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;padding:10px 14px;min-height:44px;border-radius:10px;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.tab-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:panelIn .25s ease}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(60,50,30,.05)}
+.card h2{font-size:17px;margin:4px 0 10px}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:2px}
+.chip.brown{background:var(--brown-bg);color:var(--brown)}
+.chip.green{background:var(--green-bg);color:var(--green)}
+.key-point{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.key-point p{margin:4px 0}
+.kp-title{font-weight:800;color:var(--green);margin:0 0 6px}
+.question-box{background:var(--brown-bg);border-left:4px solid var(--brown);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.question-box h4{margin:0 0 6px;color:var(--brown);font-size:14px}
+.question-box p{margin:4px 0}
+.reveal-btn{margin-top:8px;padding:10px 14px;min-height:44px;border-radius:10px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+.reveal-ans{display:none;margin-top:10px;background:#fff;border:1px dashed var(--green);border-radius:10px;padding:10px 12px;font-size:14px}
+.question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+.steps{list-style:none;padding:0;margin:10px 0;counter-reset:st}
+.steps li{margin:8px 0}
+.st-head{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;min-height:44px;background:var(--card2);border:1px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit}
+.st-head::before{counter-increment:st;content:counter(st);flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}
+.st-body{display:none;padding:10px 14px 10px 46px;font-size:14px;color:var(--ink2)}
+.steps li.open .st-body{display:block;animation:panelIn .25s ease}
+.ex-step{display:none;background:var(--green-bg);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+.ex-step.show{display:block;animation:panelIn .25s ease}
+.btn-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:10px 14px;min-height:44px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.primary{background:var(--green);color:#fff}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink2)}
+.btn:disabled{opacity:.4;cursor:default}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.data-table th,.data-table td{border:1px solid var(--line);padding:7px 8px;text-align:center}
+.data-table th{background:var(--card2)}
+.note{font-size:13px;color:var(--ink2);background:var(--cyan-bg);border-left:4px solid var(--cyan);border-radius:0 10px 10px 0;padding:10px 12px;margin:12px 0}
+.summary-box{background:var(--card2);border-radius:12px;padding:12px 14px;margin:12px 0}
+.summary-box ul{margin:6px 0;padding-left:20px}
+.summary-box li{margin:4px 0}
+@media (max-width:375px){body{font-size:14px}}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">质量与单位 · 质量是物体的属性 · 天平的使用</p>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="e1">质量与单位</button>
+    <button class="tab-btn" data-tab="e2">质量是物体的属性</button>
+    <button class="tab-btn" data-tab="e3">天平的使用</button>
+  </div>
+
+  <!-- E1 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、从「称一称」说起 <span class="chip brown">导入</span></h2>
+      <p>去市场买菜，售货员要用秤称一称。一把铁锤比一枚铁钉含的铁多，一桶水比一杯水含的水多——物体所含物质的多少，在物理学中叫作<strong>质量</strong>（mass），通常用字母 <strong>m</strong> 表示。人们很早就学会用天平来测量物质的多少，今天我们就来把这件事弄清楚。</p>
+      <div class="key-point">
+        <p class="kp-title">质量的单位</p>
+        <p>基本单位：<strong>千克</strong>，符号 <strong>kg</strong>。比千克大的有吨（t），小的有克（g）、毫克（mg）。</p>
+        <p>换算关系：<strong>1 t = 10³ kg；1 g = 10⁻³ kg；1 mg = 10⁻³ g = 10⁻⁶ kg</strong>。</p>
+      </div>
+      <p>建立一点「量级感」很有必要，下表是一些常见物体的质量：</p>
+      <table class="data-table">
+        <tr><th>物体</th><th>质量/kg</th><th>物体</th><th>质量/kg</th></tr>
+        <tr><td>大头针</td><td>约 8.0×10⁻⁵</td><td>排球</td><td>约 2.6×10⁻¹</td></tr>
+        <tr><td>一枚鸡蛋</td><td>约 5×10⁻²</td><td>蓝鲸</td><td>可达 1.8×10⁵</td></tr>
+        <tr><td>一位中学生</td><td>约 50</td><td>地球</td><td>约 6.0×10²⁴</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- E2 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、质量不随形状、物态、位置改变 <span class="chip brown">核心概念</span></h2>
+      <p>先看三个情景：钢锭被轧成钢板，<strong>形状</strong>变了；冰块熔化成水，<strong>物态</strong>变了；「冰墩墩」从地面被带上空间站，<strong>位置</strong>变了。这三种情况下，物体所含物质的多少都没有增减。</p>
+      <div class="key-point">
+        <p class="kp-title">关键结论</p>
+        <p>物体的质量不随它的<strong>形状、物态和位置</strong>而改变。质量是物体本身的一种属性，只由所含物质的多少决定。</p>
+      </div>
+      <div class="question-box">
+        <h4>💬 思考讨论</h4>
+        <p>航天员从地球进入太空轨道出舱行走时，他的质量有没有改变？为什么？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>没有改变。</strong>质量不随位置改变：航天员只是位置从地面变到了太空，身体所含物质的多少没有变化，所以质量不变。（在太空中「飘起来」是失重现象，改变的不是质量。）</p>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>💬 再想一步</h4>
+        <p>把一块橡皮泥用天平称量后捏成碎块，再称量，总质量变不变？这说明什么？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>不变。</strong>形状改变（整块→碎块）不改变所含物质的多少，前后两次称量结果相同，说明质量是物体的属性，与形状无关。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E3 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、托盘天平的使用 <span class="chip brown">实验技能</span></h2>
+      <p>实验室里常用托盘天平测质量。为了不把天平弄坏，操作前必须记住三条要求：</p>
+      <div class="key-point">
+        <p class="kp-title">使用前的三条要求</p>
+        <p>① 被测物体的质量不能超过天平的<strong>称量</strong>（所能称的最大质量）；② 加减砝码要用<strong>镊子</strong>，不能用手接触砝码，不能把砝码弄湿、弄脏；③ 潮湿的物体和化学药品不能直接放到托盘中。</p>
+      </div>
+      <p>操作步骤共四步，点击每一步查看细节：</p>
+      <ul class="steps" id="balSteps">
+        <li><button class="st-head" type="button">放水平台</button><div class="st-body">把托盘天平放在水平台上，这是横梁能正常摆动的前提。</div></li>
+        <li><button class="st-head" type="button">游码归零，调节平衡</button><div class="st-body">把游码移到标尺左端的零刻度线处，再调节横梁上的平衡螺母，使指针指在分度盘的中线处，这时横梁平衡。</div></li>
+        <li><button class="st-head" type="button">左物右码，加减砝码</button><div class="st-body">被测物体放在<strong>左盘</strong>，用镊子向<strong>右盘</strong>加减砝码，并调节游码在标尺上的位置，直到横梁恢复平衡。</div></li>
+        <li><button class="st-head" type="button">读数：砝码总质量 + 游码示数</button><div class="st-body">被测物体的质量 = 右盘中砝码的总质量 + 游码在标尺上所对应的质量。读游码时以游码左侧边缘对准的刻度为准。</div></li>
+      </ul>
+      <div class="question-box">
+        <h4>✏️ 例题 1 · 读数</h4>
+        <p>用托盘天平测一块橡皮的质量，横梁平衡时，右盘中有 20 g、5 g 砝码各一个，游码在标尺上对应的示数为 1.4 g。橡皮的质量是多少？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>m = 砝码总质量 + 游码示数 = 20 g + 5 g + 1.4 g = <strong>26.4 g</strong>。</p>
+        </div>
+      </div>
+      <div class="card" style="background:var(--card2)" data-stepper>
+        <h2 style="font-size:15px;">例题 2 · 测瓶中水的质量 <span class="chip green">分步揭晓</span></h2>
+        <p>潮湿的水不能直接倒进托盘，怎样用天平测出小瓶中水的质量？已知空瓶质量为 25 g。</p>
+        <div class="ex-step show">思路：液体不能直接放托盘，可以先测容器，再测「容器 + 液体」，两者相减。</div>
+        <div class="ex-step">第 1 步：测出空瓶的质量 m₁ = 25 g。</div>
+        <div class="ex-step">第 2 步：把水装入瓶中，测出瓶和水的总质量 m₂ = 73.6 g。</div>
+        <div class="ex-step">第 3 步：瓶中水的质量 m = m₂ − m₁ = 73.6 g − 25 g = 48.6 g。</div>
+        <div class="btn-row"><button class="btn primary st-next" type="button">下一步</button><button class="btn ghost st-reset" type="button">重置</button></div>
+      </div>
+      <p class="note">📌 拓展：现在也常用电子天平测量质量。有的电子天平精确度很高，对 5×10⁻⁵ kg 大小的质量（相当于一个红细胞的质量）都能反映出来。</p>
+      <div class="summary-box">
+        <p><strong>本节小结</strong></p>
+        <ul>
+          <li>物体所含物质的多少叫质量，符号 m，基本单位千克（kg）。</li>
+          <li>质量不随形状、物态、位置改变，是物体的属性。</li>
+          <li>天平使用：水平台 → 游码归零调平衡 → 左物右码 → 读数。</li>
+          <li>读数公式：m = 砝码总质量 + 游码示数。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+document.querySelectorAll('#tabs .tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('#tabs .tab-btn').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+document.querySelectorAll('.reveal-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var box=btn.closest('.question-box');
+    var open=box.classList.toggle('open');
+    btn.textContent=open?'🙈 收起答案':'💡 点击揭晓答案';
+  });
+});
+document.querySelectorAll('.steps .st-head').forEach(function(h){
+  h.addEventListener('click',function(){h.parentElement.classList.toggle('open')});
+});
+document.querySelectorAll('[data-stepper]').forEach(function(wrap){
+  var steps=wrap.querySelectorAll('.ex-step');
+  var next=wrap.querySelector('.st-next');
+  var reset=wrap.querySelector('.st-reset');
+  var idx=1;
+  function sync(){if(next){next.disabled=idx>=steps.length;next.textContent=idx>=steps.length?'步骤已全部展开':'下一步'}}
+  if(next)next.addEventListener('click',function(){if(idx<steps.length){steps[idx].classList.add('show');idx++;sync()}});
+  if(reset)reset.addEventListener('click',function(){steps.forEach(function(s,i){if(i>0)s.classList.remove('show')});idx=1;sync()});
+  sync();
+});
+})();
+</script>
+</body>
+</html>

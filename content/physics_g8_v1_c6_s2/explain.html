@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 密度</title>
+<style>
+:root{--ink:#3d3830;--ink2:#6f6455;--green:#3a7d44;--green-bg:#e9f4ea;--brown:#b45309;--brown-bg:#fff4d6;--cyan:#0e7490;--cyan-bg:#e2f3fa;--card:#fffdf7;--card2:#f7f2e8;--line:rgba(0,0,0,.08)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100dvh;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f2ec;color:var(--ink);font-size:15px;line-height:1.85}
+.back-btn{display:inline-flex;align-items:center;margin:12px 0 0 14px;padding:8px 14px;min-height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+.container{max-width:720px;margin:0 auto;padding:6px 14px 40px}
+.page-header{text-align:center;padding:14px 0 4px}
+.page-title{margin:0;font-size:22px}
+.page-subtitle{margin:6px 0 0;color:var(--ink2);font-size:13px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;padding:10px 14px;min-height:44px;border-radius:10px;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.tab-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:panelIn .25s ease}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(60,50,30,.05)}
+.card h2{font-size:17px;margin:4px 0 10px}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:2px}
+.chip.brown{background:var(--brown-bg);color:var(--brown)}
+.chip.green{background:var(--green-bg);color:var(--green)}
+.key-point{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.key-point p{margin:4px 0}
+.kp-title{font-weight:800;color:var(--green);margin:0 0 6px}
+.question-box{background:var(--brown-bg);border-left:4px solid var(--brown);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.question-box h4{margin:0 0 6px;color:var(--brown);font-size:14px}
+.question-box p{margin:4px 0}
+.reveal-btn{margin-top:8px;padding:10px 14px;min-height:44px;border-radius:10px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+.reveal-ans{display:none;margin-top:10px;background:#fff;border:1px dashed var(--green);border-radius:10px;padding:10px 12px;font-size:14px}
+.question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+.formula{text-align:center;font-size:26px;font-weight:800;color:var(--green);margin:14px 0;letter-spacing:1px}
+.ex-step{display:none;background:var(--green-bg);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+.ex-step.show{display:block;animation:panelIn .25s ease}
+.btn-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:10px 14px;min-height:44px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.primary{background:var(--green);color:#fff}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink2)}
+.btn:disabled{opacity:.4;cursor:default}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.data-table th,.data-table td{border:1px solid var(--line);padding:7px 8px;text-align:center}
+.data-table th{background:var(--card2)}
+.data-table td.name{font-weight:700}
+.note{font-size:13px;color:var(--ink2);background:var(--cyan-bg);border-left:4px solid var(--cyan);border-radius:0 10px 10px 0;padding:10px 12px;margin:12px 0}
+.summary-box{background:var(--card2);border-radius:12px;padding:12px 14px;margin:12px 0}
+.summary-box ul{margin:6px 0;padding-left:20px}
+.summary-box li{margin:4px 0}
+@media (max-width:375px){body{font-size:14px}.formula{font-size:22px}}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">ρ = m/V · 密度表 · 用密度鉴别物质</p>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="e1">质量与体积的关系</button>
+    <button class="tab-btn" data-tab="e2">密度</button>
+    <button class="tab-btn" data-tab="e3">密度表与鉴别</button>
+  </div>
+
+  <!-- E1 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、谁更「重」？ <span class="chip brown">导入</span></h2>
+      <p>「铁比棉花重」——这句话你一定听过。可一小枚铁钉能比一大包棉花重吗？可见生活中说的「重」，其实是指<strong>相同体积下铁含的物质比棉花多</strong>。再想一个更实际的问题：长度和粗细都相同的铝柱和钢柱，哪个质量大？如果一根巨大的钢柱不方便直接上秤，我们还能间接算出它的质量吗？要回答这些问题，得先研究物质的质量与体积之间有没有确定的关系。</p>
+      <div class="key-point">
+        <p class="kp-title">探究：同种物质的质量与体积</p>
+        <p>取大小不同、外形规则的铝块，用天平测出各铝块的质量，再算出它们的体积，把数据描在以体积 V 为横坐标、质量 m 为纵坐标的坐标系中。结果发现：这些点大致落在一条过原点的直线上。</p>
+        <p>体积变为原来的 2 倍、3 倍，质量也变为原来的 2 倍、3 倍——<strong>同种物质的质量与它的体积成正比</strong>，质量与体积的比值是一定的。换用铁块、木块重做实验，比值同样各自一定，但铝、铁、木的比值互不相同。</p>
+      </div>
+      <p>也就是说，「质量与体积之比」这个数值，恰好能把不同物质区分开来——它是一个只跟物质种类有关的量。物理学中给它起了名字：<strong>密度</strong>。</p>
+    </div>
+  </div>
+
+  <!-- E2 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、密度：物质的「身份数值」 <span class="chip brown">核心概念</span></h2>
+      <p>某种物质组成的物体的<strong>质量与它的体积之比</strong>，叫作这种物质的<strong>密度</strong>（density），用 ρ 表示：</p>
+      <div class="formula">ρ = m / V</div>
+      <p style="text-align:center;color:var(--ink2);font-size:13px;">ρ 表示密度，m 表示质量，V 表示体积</p>
+      <div class="key-point">
+        <p class="kp-title">单位与换算</p>
+        <p>国际单位制中密度的单位是<strong>千克每立方米</strong>，符号 <strong>kg/m³</strong>；实验室常用<strong>克每立方厘米</strong>（g/cm³）。</p>
+        <p>换算关系：<strong>1 g/cm³ = 1×10³ kg/m³</strong>。</p>
+        <p>水的密度 ρ<sub>水</sub> = 1.0×10³ kg/m³，它的物理意义是：<strong>1 m³ 的水，质量是 1000 kg</strong>。</p>
+      </div>
+      <div class="question-box">
+        <h4>💬 思考讨论</h4>
+        <p>学了公式 ρ = m/V 后，有同学推出结论：「物体的质量越大，密度越大；物体的体积越大，密度越小。」这种推论正确吗？为什么？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>不正确。</strong>密度是物质本身的性质，由物质的种类（以及状态、温度）决定，与单个物体的 m、V 无关。对同种物质，体积增大几倍，质量也增大几倍，比值 ρ 保持不变。公式 ρ = m/V 只是密度的<strong>量度式</strong>，不是<strong>决定式</strong>。</p>
+        </div>
+      </div>
+      <p class="note">📌 科学视野：温度能改变物质的密度。气体热胀冷缩最显著，密度受温度影响最大；固体、液体受影响较小。水很特殊：4 ℃ 时密度最大，低于 4 ℃ 再降温密度反而变小，凝固成冰时体积变大、密度变小——所以冬天湖面结冰，较深的湖底仍能保持约 4 ℃，鱼儿照样游动。</p>
+    </div>
+  </div>
+
+  <!-- E3 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、密度表与物质鉴别 <span class="chip brown">应用</span></h2>
+      <p>人们把常见物质的密度测定出来列成密度表。记住几个典型值，解题和估测都方便（固体、液体单位均为 ×10³ kg/m³，常温常压）：</p>
+      <table class="data-table">
+        <tr><th>物质</th><th>密度</th><th>物质</th><th>密度</th></tr>
+        <tr><td class="name">金</td><td>19.3</td><td class="name">纯水</td><td>1.0</td></tr>
+        <tr><td class="name">铅</td><td>11.3</td><td class="name">海水</td><td>1.03</td></tr>
+        <tr><td class="name">铜</td><td>8.9</td><td class="name">植物油</td><td>0.9</td></tr>
+        <tr><td class="name">铁</td><td>7.9</td><td class="name">冰（0 ℃）</td><td>0.9</td></tr>
+        <tr><td class="name">铝</td><td>2.7</td><td class="name">干松木</td><td>0.5</td></tr>
+      </table>
+      <p>气体的密度小得多：空气约 1.29 kg/m³，氧气约 1.43 kg/m³，氢气约 0.09 kg/m³（0 ℃、标准大气压）。<strong>用密度鉴别物质</strong>的思路：测出物体的密度，与密度表对照，就能初步判断它由什么物质构成。</p>
+      <div class="question-box">
+        <h4>✏️ 例题 1 · 鉴别物质</h4>
+        <p>一个金属块的质量是 89 g，体积是 10 cm³。它可能是由什么金属制成的？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>ρ = m/V = 89 g ÷ 10 cm³ = 8.9 g/cm³ = 8.9×10³ kg/m³。对照密度表，铜的密度正是 8.9×10³ kg/m³，所以这个金属块<strong>可能是铜制成的</strong>。（注意：不同物质密度可能相同，准确鉴别常需多种方法并用。）</p>
+        </div>
+      </div>
+      <div class="card" style="background:var(--card2)" data-stepper>
+        <h2 style="font-size:15px;">例题 2 · 由密度求质量 <span class="chip green">分步揭晓</span></h2>
+        <p>一个澡盆大致是长方体，长、宽、高分别约为 1.2 m、0.5 m、0.3 m。它最多能装多少千克的水？</p>
+        <div class="ex-step show">已知：ρ<sub>水</sub> = 1.0×10³ kg/m³；求装满水的质量 m。</div>
+        <div class="ex-step">先求容积：V = 1.2 m × 0.5 m × 0.3 m = 0.18 m³。</div>
+        <div class="ex-step">由 ρ = m/V 得 m = ρV = 1.0×10³ kg/m³ × 0.18 m³ = 180 kg。</div>
+        <div class="ex-step">答：它最多能装 180 kg 的水——差不多是三位中学生的质量，可见水「密度不大、质量不小」。</div>
+        <div class="btn-row"><button class="btn primary st-next" type="button">下一步</button><button class="btn ghost st-reset" type="button">重置</button></div>
+      </div>
+      <div class="summary-box">
+        <p><strong>本节小结</strong></p>
+        <ul>
+          <li>同种物质质量与体积成正比，质量与体积的比值一定。</li>
+          <li>密度 ρ = m/V，单位 kg/m³ 或 g/cm³，1 g/cm³ = 10³ kg/m³。</li>
+          <li>密度是物质的性质，与物体的质量、体积无关。</li>
+          <li>水的密度 1.0×10³ kg/m³：1 m³ 水的质量是 1000 kg。</li>
+          <li>测出密度、对照密度表，可以鉴别物质。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+document.querySelectorAll('#tabs .tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('#tabs .tab-btn').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+document.querySelectorAll('.reveal-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var box=btn.closest('.question-box');
+    var open=box.classList.toggle('open');
+    btn.textContent=open?'🙈 收起答案':'💡 点击揭晓答案';
+  });
+});
+document.querySelectorAll('[data-stepper]').forEach(function(wrap){
+  var steps=wrap.querySelectorAll('.ex-step');
+  var next=wrap.querySelector('.st-next');
+  var reset=wrap.querySelector('.st-reset');
+  var idx=1;
+  function sync(){if(next){next.disabled=idx>=steps.length;next.textContent=idx>=steps.length?'步骤已全部展开':'下一步'}}
+  if(next)next.addEventListener('click',function(){if(idx<steps.length){steps[idx].classList.add('show');idx++;sync()}});
+  if(reset)reset.addEventListener('click',function(){steps.forEach(function(s,i){if(i>0)s.classList.remove('show')});idx=1;sync()});
+  sync();
+});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 测量液体和固体的密度</title>
+<style>
+:root{--ink:#3d3830;--ink2:#6f6455;--green:#3a7d44;--green-bg:#e9f4ea;--brown:#b45309;--brown-bg:#fff4d6;--cyan:#0e7490;--cyan-bg:#e2f3fa;--card:#fffdf7;--card2:#f7f2e8;--line:rgba(0,0,0,.08)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100dvh;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f2ec;color:var(--ink);font-size:15px;line-height:1.85}
+.back-btn{display:inline-flex;align-items:center;margin:12px 0 0 14px;padding:8px 14px;min-height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+.container{max-width:720px;margin:0 auto;padding:6px 14px 40px}
+.page-header{text-align:center;padding:14px 0 4px}
+.page-title{margin:0;font-size:22px}
+.page-subtitle{margin:6px 0 0;color:var(--ink2);font-size:13px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;padding:10px 14px;min-height:44px;border-radius:10px;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.tab-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:panelIn .25s ease}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(60,50,30,.05)}
+.card h2{font-size:17px;margin:4px 0 10px}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:2px}
+.chip.brown{background:var(--brown-bg);color:var(--brown)}
+.chip.green{background:var(--green-bg);color:var(--green)}
+.key-point{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.key-point p{margin:4px 0}
+.kp-title{font-weight:800;color:var(--green);margin:0 0 6px}
+.question-box{background:var(--brown-bg);border-left:4px solid var(--brown);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.question-box h4{margin:0 0 6px;color:var(--brown);font-size:14px}
+.question-box p{margin:4px 0}
+.reveal-btn{margin-top:8px;padding:10px 14px;min-height:44px;border-radius:10px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+.reveal-ans{display:none;margin-top:10px;background:#fff;border:1px dashed var(--green);border-radius:10px;padding:10px 12px;font-size:14px}
+.question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+.steps{list-style:none;padding:0;margin:10px 0;counter-reset:st}
+.steps li{margin:8px 0}
+.st-head{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;min-height:44px;background:var(--card2);border:1px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit}
+.st-head::before{counter-increment:st;content:counter(st);flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}
+.st-body{display:none;padding:10px 14px 10px 46px;font-size:14px;color:var(--ink2)}
+.steps li.open .st-body{display:block;animation:panelIn .25s ease}
+.ex-step{display:none;background:var(--green-bg);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+.ex-step.show{display:block;animation:panelIn .25s ease}
+.btn-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:10px 14px;min-height:44px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.primary{background:var(--green);color:#fff}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink2)}
+.btn:disabled{opacity:.4;cursor:default}
+.note{font-size:13px;color:var(--ink2);background:var(--cyan-bg);border-left:4px solid var(--cyan);border-radius:0 10px 10px 0;padding:10px 12px;margin:12px 0}
+.summary-box{background:var(--card2);border-radius:12px;padding:12px 14px;margin:12px 0}
+.summary-box ul{margin:6px 0;padding-left:20px}
+.summary-box li{margin:4px 0}
+@media (max-width:375px){body{font-size:14px}}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">测盐水的密度 · 测小石块的密度 · 误差分析</p>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="e1">测盐水的密度</button>
+    <button class="tab-btn" data-tab="e2">测小石块的密度</button>
+    <button class="tab-btn" data-tab="e3">精确测量的价值</button>
+  </div>
+
+  <!-- E1 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、盐水选种引出的问题 <span class="chip brown">导入</span></h2>
+      <p>选种时，农民会配制适当密度的盐水：把种粒浸没搅拌，静置后清除水面漂浮的空粒、瘪粒，沉底的才是饱满好种子。盐水太淡或太咸都选不好种——怎样测出盐水的密度呢？</p>
+      <p>密度不能直接测，但质量和体积可以：<strong>先测出 m 和 V，再用 ρ = m/V 计算</strong>。质量用天平测，液体的体积用量筒直接测。</p>
+      <div class="key-point">
+        <p class="kp-title">量筒的使用（两条）</p>
+        <p>① 使用前观察：标度单位（mL，1 mL = 1 cm³）、最大测量值、分度值；</p>
+        <p>② 读数时视线与液面相平，凹液面以最低处为准；俯视读数偏大，仰视读数偏小。</p>
+      </div>
+      <p>测盐水密度的实验步骤如下，点击每一步查看细节：</p>
+      <ul class="steps" id="saltSteps">
+        <li><button class="st-head" type="button">测杯和盐水的总质量 m₁</button><div class="st-body">用天平测出烧杯和盐水的总质量 m₁。</div></li>
+        <li><button class="st-head" type="button">倒一部分盐水入量筒，读体积 V</button><div class="st-body">把一部分盐水倒入量筒，读出体积 V。沿壁缓倒，避免溅出。</div></li>
+        <li><button class="st-head" type="button">测杯和剩余盐水的质量 m₂</button><div class="st-body">用天平测出烧杯和剩余盐水的总质量 m₂。</div></li>
+        <li><button class="st-head" type="button">算质量 m = m₁ − m₂</button><div class="st-body">量筒中盐水的质量 m 等于前后两次总质量之差。</div></li>
+        <li><button class="st-head" type="button">计算 ρ = m/V</button><div class="st-body">代入 ρ = m/V 求出密度，记录在自己设计的表格中。</div></li>
+      </ul>
+      <div class="card" style="background:var(--card2)" data-stepper>
+        <h2 style="font-size:15px;">例题 · 数据处理 <span class="chip green">分步揭晓</span></h2>
+        <p>某同学测盐水密度，得到数据：m₁ = 104 g，m₂ = 62.4 g，量筒中盐水的体积 V = 40 cm³。盐水的密度是多少？</p>
+        <div class="ex-step show">量筒中盐水的质量：m = m₁ − m₂ = 104 g − 62.4 g = 41.6 g。</div>
+        <div class="ex-step">ρ = m/V = 41.6 g ÷ 40 cm³ = 1.04 g/cm³。</div>
+        <div class="ex-step">换算单位：ρ = 1.04×10³ kg/m³，略大于纯水，合理。</div>
+        <div class="btn-row"><button class="btn primary st-next" type="button">下一步</button><button class="btn ghost st-reset" type="button">重置</button></div>
+      </div>
+      <div class="question-box">
+        <h4>💬 思考讨论 · 误差分析</h4>
+        <p>为什么要「先测总质量，再倒出测体积」？若先全部倒入量筒测 V，再测质量，结果会怎样？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>倒液体时总有一部分<strong>残留在烧杯内壁</strong>上。若先全部倒入量筒再称质量，残留部分没被称进去，m 偏小，ρ <strong>偏小</strong>。差值法中残留部分计入 m₂，m 准确，ρ 也准确——顺序不能颠倒。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E2 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、测小石块的密度：排水法 <span class="chip brown">实验</span></h2>
+      <p>液体的体积可以直接用量筒测，形状不规则的小石块呢？可以用<strong>排水法</strong>：石块浸没在水中时，排开水的体积等于石块自身的体积。</p>
+      <div class="key-point">
+        <p class="kp-title">排水法测体积</p>
+        <p>① 在量筒中倒入<strong>适量</strong>的水，读出水的体积 V₁；② 用细线拴好小石块，把它<strong>完全浸没</strong>在水中，读出此时水面对应的总体积 V₂；③ 小石块的体积 <strong>V = V₂ − V₁</strong>。</p>
+        <p>「适量」指：水能浸没石块，且放入后不超过量筒最大测量值。</p>
+      </div>
+      <p>实验顺序：先用天平测质量 m，再用排水法测体积 V，最后由 ρ = m/V 求出密度并记录。</p>
+      <div class="question-box">
+        <h4>💬 思考讨论 · 顺序之谜</h4>
+        <p>为什么必须「先质量、后体积」？若先浸水测体积，再拿出测质量，会出什么问题？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>石块从水中取出时表面会<strong>沾水</strong>，带着水上秤，测得的 m 偏大，V 是准的，算出的 ρ 就<strong>偏大</strong>。先测干燥石块的质量就没有这个问题，所以顺序是：先质量、后体积。</p>
+        </div>
+      </div>
+      <div class="card" style="background:var(--card2)" data-stepper>
+        <h2 style="font-size:15px;">例题 · 完整流程 <span class="chip green">分步揭晓</span></h2>
+        <p>用天平测得小石块的质量 m = 39 g；量筒中水的体积 V₁ = 25 mL，浸没后总体积 V₂ = 30 mL。求石块的密度，并对照密度表判断其材质。</p>
+        <div class="ex-step show">石块的体积：V = V₂ − V₁ = 30 mL − 25 mL = 5 mL = 5 cm³。</div>
+        <div class="ex-step">石块的密度：ρ = m/V = 39 g ÷ 5 cm³ = 7.8 g/cm³ = 7.8×10³ kg/m³。</div>
+        <div class="ex-step">对照密度表，铁的密度 7.9×10³ kg/m³ 与测量值最接近，这块石块很可能是铁矿石。</div>
+        <div class="btn-row"><button class="btn primary st-next" type="button">下一步</button><button class="btn ghost st-reset" type="button">重置</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E3 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、细微差别中的重大发现 <span class="chip brown">科学视野</span></h2>
+      <p>误差尽量小不只是考试要求——科学史上，不放过微小差异的精确测量曾催生新元素的发现。</p>
+      <p>19 世纪末，瑞利精确测量气体密度时发现：从空气中取得的氮密度是 1.2572 kg/m³，从氨中取得的氮却是 1.2505 kg/m³，差异始终存在。他没有放过它，与化学家拉姆塞合作研究，于 1894 年从空气中的氮里分离出一种未知气体——<strong>氩</strong>：氩密度较大，混有氩的「氮」密度才偏大一点。瑞利因此荣获 1904 年诺贝尔物理学奖。</p>
+      <div class="summary-box">
+        <p><strong>本节小结</strong></p>
+        <ul>
+          <li>测密度总思路：测出 m 和 V，用 ρ = m/V 计算。</li>
+          <li>测盐水：m₁ → 倒出测 V → m₂，m = m₁ − m₂；差值法避免杯壁残留使密度偏小。</li>
+          <li>测石块：排水法 V = V₂ − V₁；先质量后体积，否则沾水使密度偏大。</li>
+          <li>量筒读数视线与液面平齐；俯视偏大、仰视偏小。</li>
+          <li>精确测量是科学发现的基础——瑞利由密度差异发现氩。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+document.querySelectorAll('#tabs .tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('#tabs .tab-btn').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+document.querySelectorAll('.reveal-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var box=btn.closest('.question-box');
+    var open=box.classList.toggle('open');
+    btn.textContent=open?'🙈 收起答案':'💡 点击揭晓答案';
+  });
+});
+document.querySelectorAll('.steps .st-head').forEach(function(h){
+  h.addEventListener('click',function(){h.parentElement.classList.toggle('open')});
+});
+document.querySelectorAll('[data-stepper]').forEach(function(wrap){
+  var steps=wrap.querySelectorAll('.ex-step');
+  var next=wrap.querySelector('.st-next');
+  var reset=wrap.querySelector('.st-reset');
+  var idx=1;
+  function sync(){if(next){next.disabled=idx>=steps.length;next.textContent=idx>=steps.length?'步骤已全部展开':'下一步'}}
+  if(next)next.addEventListener('click',function(){if(idx<steps.length){steps[idx].classList.add('show');idx++;sync()}});
+  if(reset)reset.addEventListener('click',function(){steps.forEach(function(s,i){if(i>0)s.classList.remove('show')});idx=1;sync()});
+  sync();
+});
+})();
+</script>
+</body>
+</html>
