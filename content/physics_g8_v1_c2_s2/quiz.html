@@ -55,7 +55,7 @@
 
   <div class="card qcard" data-q="q1">
     <span class="qtag">本节练习 · 第 1 题</span><span class="qtag extra">计算题</span>
-    <div class="qtext">某种昆虫靠翅膀的振动发声。若它的翅膀在 2 s 内完成了 700 次振动，振动频率是多少？人耳能听到这种声音吗？</div>
+    <div class="qtext">某种昆虫靠翅膀的振动发声。若它的翅膀在 2 s 内完成了 660 次振动，振动频率是多少？人耳能听到这种声音吗？</div>
     <div class="input-line calc">
       <input type="text" id="q1Freq" inputmode="decimal" placeholder="?" aria-label="翅振动频率">
       <span class="unit">Hz</span>
@@ -68,8 +68,8 @@
     <div class="feedback" id="q1Fb"></div>
     <button class="reveal-btn" type="button">💡 揭晓讲解（作答后可点）</button>
     <div class="answer">
-      <div class="line">频率 = 振动次数 ÷ 时间 = 700 次 ÷ 2 s = <b>350 Hz</b>。</div>
-      <div class="line">人耳能听到的频率范围多为 <b>20~20 000 Hz</b>，350 Hz 恰好落在这一范围内，所以 <b>能听到</b>。</div>
+      <div class="line">频率 = 振动次数 ÷ 时间 = 660 次 ÷ 2 s = <b>330 Hz</b>。</div>
+      <div class="line">人耳能听到的频率范围多为 <b>20~20 000 Hz</b>，330 Hz 恰好落在这一范围内，所以 <b>能听到</b>。</div>
     </div>
   </div>
 
@@ -255,7 +255,7 @@
     if (!raw) { q1Fb.className = 'feedback show err'; q1Fb.textContent = '请先输入频率。'; return; }
     var num = raw.replace(/[^0-9.]/g, '');
     var val = parseFloat(num);
-    if (!isNaN(val) && Math.abs(val - 350) < 1) { q1FreqCorrect = true; }
+    if (!isNaN(val) && Math.abs(val - 330) < 1) { q1FreqCorrect = true; }
     else { q1FreqCorrect = false; }
     updateQ1Feedback();
   });

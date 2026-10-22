@@ -51,7 +51,7 @@
 
   <div class="card qcard" data-q="q1">
     <span class="qtag">本节练习 · 第 1 题</span><span class="qtag extra">计算题</span>
-    <div class="qtext">用超声测位仪向海底垂直发射声波，从发射到收到回波经过 4 s。已知声音在海水中的平均传播速度为 1 500 m/s，此处海水约有多深？</div>
+    <div class="qtext">用超声测位仪向海底垂直发射声波，从发射到收到回波经过 5 s。已知声音在海水中的平均传播速度为 1 500 m/s，此处海水约有多深？</div>
     <div class="input-line calc">
       <input type="text" id="q1Depth" inputmode="decimal" placeholder="?" aria-label="海水深度">
       <span class="unit">m</span>
@@ -60,9 +60,9 @@
     <div class="feedback" id="q1Fb"></div>
     <button class="reveal-btn" type="button">💡 揭晓讲解（作答后可点）</button>
     <div class="answer">
-      <div class="line">注意：4 s 是声波<b>往返</b>（海面→海底→海面）的总时间，计算深度时只能用单程时间。</div>
-      <div class="line">s = v·t/2 = 1 500 m/s × 4 s ÷ 2 = <b>3 000 m</b>。</div>
-      <div class="line">⚠️ 关键：回声测距时必须把往返时间<b>除以 2</b>，不然会错算成 6 000 m。</div>
+      <div class="line">注意：5 s 是声波<b>往返</b>（海面→海底→海面）的总时间，计算深度时只能用单程时间。</div>
+      <div class="line">s = v·t/2 = 1 500 m/s × 5 s ÷ 2 = <b>3 750 m</b>。</div>
+      <div class="line">⚠️ 关键：回声测距时必须把往返时间<b>除以 2</b>，不然会错算成 7 500 m。</div>
     </div>
   </div>
 
@@ -134,7 +134,7 @@
 
   <div class="card qcard" data-q="q5">
     <span class="qtag">本节练习 · 第 5 题</span><span class="qtag extra">计算题</span>
-    <div class="qtext">我国有些地方修筑了“音乐公路”：当汽车以规定速度匀速驶过时，就会奏出一段悦耳的乐曲。音乐公路的路面上分布着许多横向凹槽，汽车每经过一个凹槽，就会上下振动一次；凹槽分布较密的地方，汽车行进时振动很快，于是就发出了声音。凹槽的疏密可以根据乐曲的音调高低来设计。假设某音乐公路规定的行驶速度是 54 km/h，设定乐曲为《歌唱祖国》，第一个音符“sol”的频率为 392 Hz，汽车发出这个音时，所对应的相邻凹槽之间的距离是多少？</div>
+    <div class="qtext">我国有些地方修筑了“音乐公路”：当汽车以规定速度匀速驶过时，就会奏出一段悦耳的乐曲。音乐公路的路面上分布着许多横向凹槽，汽车每经过一个凹槽，就会上下振动一次；凹槽分布较密的地方，汽车行进时振动很快，于是就发出了声音。凹槽的疏密可以根据乐曲的音调高低来设计。假设某音乐公路规定的行驶速度是 36 km/h，设定乐曲中第一个音符的频率为 400 Hz，汽车发出这个音时，所对应的相邻凹槽之间的距离是多少？</div>
     <div class="input-line calc">
       <input type="text" id="q5Dist" inputmode="decimal" placeholder="?" aria-label="相邻凹槽之间的距离">
       <button class="btn btn-primary" id="q5Check" type="button">提交判分</button>
@@ -150,7 +150,7 @@
       <div class="line"><b>发声原理：</b>音乐公路的路面布有一系列横向凹槽。汽车匀速驶过时，每压过一个凹槽就上下振动一次；连续经过凹槽便形成周期性振动，从而发出声音，相当于把汽车变成了一个“振动源”。</div>
       <div class="line"><b>频率与间距的关系：</b>振动频率 = 车速 ÷ 相邻凹槽间距，即 <b>f = v / λ</b>。间距越小（凹槽越密），单位时间内经过的凹槽越多，振动频率越高，音调就越高。</div>
       <div class="line"><b>音调控制：</b>凹槽的疏密是按乐曲的音调高低设计的。音调高（频率大）的音符对应较密的凹槽；音调低的音符对应较疏的凹槽。</div>
-      <div class="line"><b>本题计算：</b>汽车速度 v = 54 km/h = 54 ÷ 3.6 m/s = <b>15 m/s</b>。已知音符“sol”的频率 f = 392 Hz，由 f = v / λ 得：λ = v / f = 15 / 392 m ≈ 0.038 m ≈ <b>3.8 cm</b>。</div>
+      <div class="line"><b>本题计算：</b>汽车速度 v = 36 km/h = 36 ÷ 3.6 m/s = <b>10 m/s</b>。已知第一个音符的频率 f = 400 Hz，由 f = v / λ 得：λ = v / f = 10 / 400 m = <b>0.025 m = 2.5 cm</b>。</div>
       <div class="line"><b>本质：</b>音乐公路其实是把“乐曲的音符序列”编码成“凹槽间距序列”；而匀速行驶的汽车就是读取这段“编码”的<b>播放器</b>。</div>
     </div>
   </div>
@@ -218,9 +218,9 @@
     if (!raw) { q1Fb.className = 'feedback show err'; q1Fb.textContent = '请先输入深度。'; return; }
     var val = parseFloat(raw.replace(/[^0-9.]/g, ''));
     if (isNaN(val)) { q1Fb.className = 'feedback show err'; q1Fb.textContent = '请输入数字。'; return; }
-    q1Correct = Math.abs(val - 3000) <= 10;
+    q1Correct = Math.abs(val - 3750) <= 10;
     q1Fb.className = 'feedback show ' + (q1Correct ? 'ok' : 'err');
-    q1Fb.innerHTML = q1Correct ? '✅ 正确！3 000 m。记住：4 s 是往返时间，要除以 2。' : '❌ 再想想：4 s 是声波往返的总时间，算深度该用几秒？';
+    q1Fb.innerHTML = q1Correct ? '✅ 正确！3 750 m。记住：5 s 是往返时间，要除以 2。' : '❌ 再想想：5 s 是声波往返的总时间，算深度该用几秒？';
     markAnswered('q1');
   }
   document.getElementById('q1Check').addEventListener('click', checkQ1);
@@ -272,9 +272,9 @@
     if (!raw) { q5Fb.className = 'feedback show err'; q5Fb.textContent = '请先输入距离。'; return; }
     var val = parseFloat(raw.replace(/[^0-9.]/g, ''));
     if (isNaN(val)) { q5Fb.className = 'feedback show err'; q5Fb.textContent = '请输入数字。'; return; }
-    q5Correct = (q5Unit === 'm') ? (Math.abs(val - 0.038) <= 0.002) : (Math.abs(val - 3.8) <= 0.2);
+    q5Correct = (q5Unit === 'm') ? (Math.abs(val - 0.025) <= 0.002) : (Math.abs(val - 2.5) <= 0.2);
     q5Fb.className = 'feedback show ' + (q5Correct ? 'ok' : 'err');
-    q5Fb.innerHTML = q5Correct ? '✅ 正确！15 m/s ÷ 392 Hz ≈ 0.038 m ≈ 3.8 cm。' : '❌ 再想想：先把 54 km/h 换成 m/s，再用 v ÷ f。';
+    q5Fb.innerHTML = q5Correct ? '✅ 正确！10 m/s ÷ 400 Hz = 0.025 m = 2.5 cm。' : '❌ 再想想：先把 36 km/h 换成 m/s，再用 v ÷ f。';
     markAnswered('q5');
   }
   document.getElementById('q5Check').addEventListener('click', checkQ5);

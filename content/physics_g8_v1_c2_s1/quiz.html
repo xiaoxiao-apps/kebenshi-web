@@ -106,7 +106,7 @@
 
   <div class="card qcard" data-q="q6">
     <span class="qtag">本节练习 · 第 6 题</span><span class="qtag extra">计算题</span>
-    <div class="qtext">向前传播的声音遇到障碍物能反射回来。一个同学向着远处的山崖大喊一声，约 1.5 s 后听到回声（空气中声速取 340 m/s），那么该同学距山崖大约多少米？</div>
+    <div class="qtext">向前传播的声音遇到障碍物能反射回来。一个同学向着远处的山崖大喊一声，约 1.8 s 后听到回声（空气中声速取 340 m/s），那么该同学距山崖大约多少米？</div>
     <div class="input-line calc">
       <input type="text" id="q6Input" inputmode="decimal" placeholder="?" aria-label="该同学距山崖大约多少米">
       <span class="unit">m</span>
@@ -115,9 +115,9 @@
     <div class="feedback" id="q6Fb"></div>
     <button class="reveal-btn" type="button">💡 揭晓算式讲解（作答后可点）</button>
     <div class="answer">
-      <div class="line">声音从同学传到山崖再<b>反射回来</b>，1.5 s 内声音走过的总路程是同学到山崖距离的 <b>2 倍</b>。</div>
-      <div class="line">v = 340 m/s（空气中的声速），t = 1.5 s。</div>
-      <div class="line">s = v·t ÷ 2 = 340 m/s × 1.5 s ÷ 2 = <b>约 255 m</b>。</div>
+      <div class="line">声音从同学传到山崖再<b>反射回来</b>，1.8 s 内声音走过的总路程是同学到山崖距离的 <b>2 倍</b>。</div>
+      <div class="line">v = 340 m/s（空气中的声速），t = 1.8 s。</div>
+      <div class="line">s = v·t ÷ 2 = 340 m/s × 1.8 s ÷ 2 = <b>约 306 m</b>。</div>
       <div class="line">🔬 想玩回声测距？去 <a href="exp-echo.html?from=quiz" style="color:var(--cyan)">回声测距计算器</a>。</div>
     </div>
   </div>
@@ -181,7 +181,7 @@
     });
   });
 
-  // ⑥ 计算题：接受 255 / 255m / 约255 / 约255米 等
+  // ⑥ 计算题：接受 306 / 306m / 约306 / 约306米 等
   var q6Input = document.getElementById('q6Input');
   var q6Fb = document.getElementById('q6Fb');
   document.getElementById('q6Check').addEventListener('click', function () {
@@ -190,10 +190,10 @@
     var num = raw.replace(/[^0-9.]/g, '');
     var val = parseFloat(num);
     q6Fb.className = 'feedback show';
-    if (!isNaN(val) && Math.abs(val - 255) < 1) {
+    if (!isNaN(val) && Math.abs(val - 306) < 1) {
       q6Correct = true;
       q6Fb.classList.remove('err'); q6Fb.classList.add('ok');
-      q6Fb.innerHTML = '✅ 正确！s = v·t ÷ 2 = 340 × 1.5 ÷ 2 = <b>255 m</b>。可点下方按钮看完整讲解。';
+      q6Fb.innerHTML = '✅ 正确！s = v·t ÷ 2 = 340 × 1.8 ÷ 2 = <b>306 m</b>。可点下方按钮看完整讲解。';
     } else {
       q6Correct = false;
       q6Fb.classList.remove('ok'); q6Fb.classList.add('err');
