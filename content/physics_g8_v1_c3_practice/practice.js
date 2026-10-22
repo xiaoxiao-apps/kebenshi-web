@@ -19,9 +19,9 @@ const QUESTIONS = [
     note:'配图为程序化简图，供温度计读数训练使用。',
     fig:'thermPair1', figCap:'温度计读数简图（甲、乙分度值均为 2℃）',
     parts:[{ kind:'blank', blanks:[
-      { label:'甲温度计示数', answer:['24'], unit:'℃' },
-      { label:'乙温度计示数', answer:['-6'], unit:'℃' }],
-      analysis:'读数先认清分度值：两支温度计每小格都代表 2℃。甲的液柱面停在 0℃ 上方第 12 小格处，示数为 24℃，读作“24摄氏度”；乙的液柱面在 0℃ 下方第 3 小格处，示数为 -6℃，读作“负6摄氏度”或“零下6摄氏度”。读数时视线要与液柱面相平。' }] },
+      { label:'甲温度计示数', answer:['26'], unit:'℃' },
+      { label:'乙温度计示数', answer:['-4'], unit:'℃' }],
+      analysis:'读数先认清分度值：两支温度计每小格都代表 2℃。甲的液柱面停在 0℃ 上方第 13 小格处，示数为 26℃，读作“26摄氏度”；乙的液柱面在 0℃ 下方第 2 小格处，示数为 -4℃，读作“负4摄氏度”或“零下4摄氏度”。读数时视线要与液柱面相平。' }] },
 
   { id:'c3s1q3', section:'第1节 温度', no:'第3题', points:10,
     stem:'小诺家有一支电子体温计：笔状机身的前端是金属测温探头，测温结果显示在液晶屏幕上。请参照实验室用液体温度计的使用要点，为这支电子体温计编写一份使用注意事项。',
@@ -48,8 +48,8 @@ const QUESTIONS = [
         { label:'熔点', answer:['80'], unit:'℃' }],
         analysis:'晶体熔化时保持不变的那个温度就是熔点。读图可知，水平平台段对应的温度为 80℃，所以熔点为 80℃。' },
       { kind:'blank', q:'③ 从开始熔化到完全熔化，大约持续了多长时间？', blanks:[
-        { label:'熔化持续时间', answer:['4'], unit:'min' }],
-        analysis:'平台起点在第 3 min（开始熔化），终点在第 7 min（完全熔化），熔化过程大约持续 7 min - 3 min = 4 min。' } ] },
+        { label:'熔化持续时间', answer:['6'], unit:'min' }],
+        analysis:'平台起点在第 2 min（开始熔化），终点在第 8 min（完全熔化），熔化过程大约持续 8 min - 2 min = 6 min。' } ] },
 
   { id:'c3s2q2', section:'第2节 熔化和凝固', no:'第2题', points:12,
     stem:'下图中，甲是同一种物质的熔化图像，乙是它的凝固图像。仔细观察两条曲线，你能从中获得哪些物理信息？请尽量多写几条。',
@@ -64,9 +64,9 @@ const QUESTIONS = [
     note:'配图为程序化简图。注意两支温度计的分度值并不相同。',
     fig:'thermPair2', figCap:'温度计读数简图（甲实验室温度计分度值 1℃；乙体温计分度值 0.1℃）',
     parts:[{ kind:'blank', blanks:[
-      { label:'甲温度计示数', answer:['38'], unit:'℃' },
-      { label:'乙体温计示数', answer:['36.5','36.50'], unit:'℃' }],
-      analysis:'甲的分度值是 1℃，液柱面正对 38 刻线，示数为 38℃；乙是体温计，分度值为 0.1℃，液柱面停在 36℃ 之后第 5 小格处，示数为 36.5℃。体温计的玻璃泡上方有一段很细的缩口，离开人体后液柱不会自行退回，所以可以拿下来从容读数。' }] },
+      { label:'甲温度计示数', answer:['39'], unit:'℃' },
+      { label:'乙体温计示数', answer:['37.2','37.20'], unit:'℃' }],
+      analysis:'甲的分度值是 1℃，液柱面正对 39 刻线，示数为 39℃；乙是体温计，分度值为 0.1℃，液柱面停在 37℃ 之后第 2 小格处，示数为 37.2℃。体温计的玻璃泡上方有一段很细的缩口，离开人体后液柱不会自行退回，所以可以拿下来从容读数。' }] },
 
   { id:'c3s2q4', section:'第2节 熔化和凝固', no:'第4题', points:8,
     stem:'熔化要吸热，凝固要放热。请从日常生活或生产中，举出人们利用这两个热效应的例子，并简单说明其中的道理。',
@@ -76,10 +76,10 @@ const QUESTIONS = [
       analysis:'判断标准：所举例子中确实发生了熔化（固态→液态，吸热）或凝固（液态→固态，放热），并且人们正是利用了这一吸热/放热效应。' }] },
 
   { id:'c3s2q5', section:'第2节 熔化和凝固', no:'第5题', points:8,
-    stem:'隆冬的一个夜晚，气温降到约 -5℃，院子里的水洼都结了冰。小杰把一杯酒精与水的混合液放在院子里，过了很久取回来，却发现混合液丝毫没有凝固。针对这个现象，你能提出什么猜想？再根据你的猜想举出一个可能的应用实例。',
+    stem:'隆冬的一个夜晚，气温降到约 -8℃，院子里的水洼都结了冰。小杰把一杯酒精与水的混合液放在院子里，过了很久取回来，却发现混合液丝毫没有凝固。针对这个现象，你能提出什么猜想？再根据你的猜想举出一个可能的应用实例。',
     note:'本题为开放题（给参考思路），作答后对照自评计分。',
     parts:[{ kind:'open',
-      ref:'参考思路：<br><b>猜想</b>：酒精掺入水中后，混合液的凝固点比纯水（0℃）更低——夜里约 -5℃ 仍高于混合液的凝固点，所以水洼结了冰，混合液却长时间不凝固。（支撑：固态酒精的熔点约为 -117℃，酒精本身极难凝固，掺进水中会拉低整体的凝固点）<br><b>应用实例</b>：寒冬给汽车发动机水箱加注酒精-水混合防冻液，把冷却液的凝固点降到环境温度以下，防止冷却液结冰膨胀而胀裂水箱。<br>（其他合理的猜想与应用，只要自洽即可得分）',
+      ref:'参考思路：<br><b>猜想</b>：酒精掺入水中后，混合液的凝固点比纯水（0℃）更低——夜里约 -8℃ 仍高于混合液的凝固点，所以水洼结了冰，混合液却长时间不凝固。（支撑：固态酒精的熔点约为 -117℃，酒精本身极难凝固，掺进水中会拉低整体的凝固点）<br><b>应用实例</b>：寒冬给汽车发动机水箱加注酒精-水混合防冻液，把冷却液的凝固点降到环境温度以下，防止冷却液结冰膨胀而胀裂水箱。<br>（其他合理的猜想与应用，只要自洽即可得分）',
       analysis:'本题指向“凝固点可以改变”的拓展认识：同一种纯净物的熔点/凝固点是固定的，混合物却不同——掺入别的物质会改变其凝固点，道理类似冬天在冰雪路面上撒盐促熔。' }] },
 
   { id:'c3s3q1', section:'第3节 汽化和液化', no:'第1题', points:8,
@@ -111,10 +111,10 @@ const QUESTIONS = [
       analysis:'罐壁变湿的本质：空气中的水蒸气遇冷液化。液化发生的条件是水蒸气接触到温度明显更低的物体；只要罐壁仍比室温低得多，液化就持续进行，擦干只是暂时的。' }] },
 
   { id:'c3s3q5', section:'第3节 汽化和液化', no:'第5题', points:12,
-    stem:'新疆吐鲁番素有“火洲”之称，夏季酷热、常年少雨，寸水寸金。当地先民修建了巧妙的引水工程——坎儿井，把天山的冰雪融水引到绿洲，输水途中水的蒸发和渗漏都大大减少。坎儿井由竖井、暗渠和明渠组成：暗渠是主体，即开凿在地下的输水通道，宽约 1.2 m；竖井的深浅随地势和地下水位而定，最深的超过 90 m；夏季暗渠中的水温比外界低 5~10 ℃。请结合影响蒸发快慢的因素，分析坎儿井为什么能减少输水过程中水的蒸发。',
+    stem:'新疆吐鲁番素有“火洲”之称，夏季酷热、常年少雨，寸水寸金。当地先民修建了巧妙的引水工程——坎儿井，把天山的冰雪融水引到绿洲，输水途中水的蒸发和渗漏都大大减少。坎儿井由竖井、暗渠和明渠组成：暗渠是主体，即开凿在地下的输水通道，宽约 1.5 m；竖井的深浅随地势和地下水位而定，最深的超过 70 m；夏季暗渠中的水温比外界低 4~9 ℃。请结合影响蒸发快慢的因素，分析坎儿井为什么能减少输水过程中水的蒸发。',
     note:'结构示意（文字描述）：从山脚到绿洲，一排竖井向下贯通一条倾斜的地下暗渠，暗渠引地下水顺坡流淌，出地面后经明渠灌入农田。本题为简答题，作答后对照参考答案自评计分。',
     parts:[{ kind:'open',
-      ref:'参考答案：<br>坎儿井靠地下暗渠输水，从三方面抑制蒸发：<br>① 暗渠深埋地下，阳光晒不到，水温比外界低 5~10 ℃——液体温度低，蒸发就慢；<br>② 暗渠是狭窄封闭的地下通道，水面上的空气几乎不流动——液面空气流动越慢，蒸发越慢；<br>③ 暗渠内不见阳光、通道封闭，水面与干燥热空气的接触也大为减少。三个因素共同作用，使输水途中的蒸发损失大大减小。',
+      ref:'参考答案：<br>坎儿井靠地下暗渠输水，从三方面抑制蒸发：<br>① 暗渠深埋地下，阳光晒不到，水温比外界低 4~9 ℃——液体温度低，蒸发就慢；<br>② 暗渠是狭窄封闭的地下通道，水面上的空气几乎不流动——液面空气流动越慢，蒸发越慢；<br>③ 暗渠内不见阳光、通道封闭，水面与干燥热空气的接触也大为减少。三个因素共同作用，使输水途中的蒸发损失大大减小。',
       analysis:'蒸发快慢由液体温度、液体表面积和液面上方空气流动速度共同决定。坎儿井对应地做到了：水温低（地下避晒）、空气流动慢（封闭通道）、暴露的水面小，因此蒸发被显著抑制。' }] },
 
   { id:'c3s4q1', section:'第4节 升华和凝华', no:'第1题', points:10,
@@ -143,7 +143,7 @@ const QUESTIONS = [
     ] },
 
   { id:'c3s4q4', section:'第4节 升华和凝华', no:'第4题', points:12,
-    stem:'做一个小实验：往易拉罐里装入碎冰块，再撒入适量的盐，用筷子搅拌大约半分钟；用温度计测量罐内冰盐混合物的温度，会发现它低于 0 ℃。静置一会儿再观察易拉罐的外壁，罐的下部和底部竟然挂上了一层白霜。',
+    stem:'做一个小实验：往易拉罐里装入碎冰块，再撒入适量的盐，用筷子搅拌大约 20 秒；用温度计测量罐内冰盐混合物的温度，会发现它低于 0 ℃。静置一会儿再观察易拉罐的外壁，罐的下部和底部竟然挂上了一层白霜。',
     note:'实验情景（文字描述）：易拉罐内装冰块与食盐，搅拌后罐内温度低于 0℃，罐外壁下部与底部结出白霜。本题含填空与简答，作答后对照参考答案自评计分。',
     parts:[
       { kind:'blank', q:'① 冰与盐混合物的温度______ 0 ℃（选填“高于”“等于”或“低于”）。', blanks:[
@@ -268,16 +268,16 @@ function svgThermometer(cx, label, value, step, min, max, opts) {
 }
 
 function svgThermPair1() {
-  return `<svg viewBox="0 0 520 240" role="img" aria-label="温度计读数简图：甲24℃，乙-6℃，分度值2℃">
-    ${svgThermometer(120, '甲', 24, 2, -10, 40)}
-    ${svgThermometer(380, '乙', -6, 2, -10, 40)}
+  return `<svg viewBox="0 0 520 240" role="img" aria-label="温度计读数简图：甲26℃，乙-4℃，分度值2℃">
+    ${svgThermometer(120, '甲', 26, 2, -10, 40)}
+    ${svgThermometer(380, '乙', -4, 2, -10, 40)}
   </svg>`;
 }
 
 function svgThermPair2() {
-  return `<svg viewBox="0 0 520 240" role="img" aria-label="温度计读数简图：甲38℃，乙36.5℃">
-    ${svgThermometer(120, '甲 实验室温度计', 38, 1, 35, 42)}
-    ${svgThermometer(380, '乙 体温计', 36.5, 0.1, 35, 42)}
+  return `<svg viewBox="0 0 520 240" role="img" aria-label="温度计读数简图：甲39℃，乙37.2℃">
+    ${svgThermometer(120, '甲 实验室温度计', 39, 1, 35, 42)}
+    ${svgThermometer(380, '乙 体温计', 37.2, 0.1, 35, 42)}
   </svg>`;
 }
 
@@ -302,10 +302,10 @@ function svgMeltCurve() {
     s += `<line x1="${x0}" y1="${y}" x2="${x0 - (T % 10 === 0 ? 6 : 3)}" y2="${y}" stroke="#6b7686" opacity="${T % 10 === 0 ? 1 : .5}"/>`;
     if (T % 10 === 0) s += `<text x="${x0 - 10}" y="${y + 4}" fill="#9aa4b5" font-size="10" text-anchor="end">${T}</text>`;
   }
-  const p0 = [xFor(0), yFor(30)], p1 = [xFor(3), yFor(80)], p2 = [xFor(7), yFor(80)], p3 = [xFor(10), yFor(95)];
+  const p0 = [xFor(0), yFor(25)], p1 = [xFor(2), yFor(80)], p2 = [xFor(8), yFor(80)], p3 = [xFor(10), yFor(90)];
   s += `<polyline points="${p0.join(',')} ${p1.join(',')} ${p2.join(',')} ${p3.join(',')}" fill="none" stroke="#ffd479" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
   s += `<line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}" stroke="#5ad7ff" stroke-width="1" stroke-dasharray="3 3"/>`;
-  s += `<text x="${xFor(5)}" y="${yFor(80) - 10}" fill="#5ad7ff" font-size="11" text-anchor="middle">熔点 80℃（3~7 min）</text>`;
+  s += `<text x="${xFor(5)}" y="${yFor(80) - 10}" fill="#5ad7ff" font-size="11" text-anchor="middle">熔点 80℃（2~8 min）</text>`;
   s += `<circle cx="${p1[0]}" cy="${p1[1]}" r="3" fill="#ffd479"/><circle cx="${p2[0]}" cy="${p2[1]}" r="3" fill="#ffd479"/>`;
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="熔化曲线简图：80℃水平平台">${s}</svg>`;
 }
@@ -330,9 +330,9 @@ function svgMeltFreeze() {
     s += `<line x1="${off1 + padL}" y1="${y}" x2="${off1 + padL - 5}" y2="${y}" stroke="#6b7686" opacity=".7"/>`;
     s += `<text x="${off1 + padL - 8}" y="${y + 3}" fill="#9aa4b5" font-size="9" text-anchor="end">${T}</text>`;
   }
-  const ptsA = [[0, 30], [3, 80], [7, 80], [10, 95]].map(([t, T]) => `${xFor(t, off1 + padL)},${yFor(T)}`).join(' ');
+  const ptsA = [[0, 25], [2, 80], [8, 80], [10, 90]].map(([t, T]) => `${xFor(t, off1 + padL)},${yFor(T)}`).join(' ');
   s += `<polyline points="${ptsA}" fill="none" stroke="#ffd479" stroke-width="2.5" stroke-linejoin="round"/>`;
-  s += `<line x1="${xFor(3, off1 + padL)}" y1="${yFor(80)}" x2="${xFor(7, off1 + padL)}" y2="${yFor(80)}" stroke="#5ad7ff" stroke-width="1" stroke-dasharray="3 3"/>`;
+  s += `<line x1="${xFor(2, off1 + padL)}" y1="${yFor(80)}" x2="${xFor(8, off1 + padL)}" y2="${yFor(80)}" stroke="#5ad7ff" stroke-width="1" stroke-dasharray="3 3"/>`;
   s += `<text x="${xFor(5, off1 + padL)}" y="${yFor(80) - 8}" fill="#5ad7ff" font-size="10" text-anchor="middle">80℃</text>`;
   s += `<text x="${xFor(5, off1 + padL)}" y="${yFor(0) + 30}" fill="#d7dee9" font-size="12" text-anchor="middle" font-weight="700">甲 熔化图像</text>`;
   const off2 = 240;
@@ -347,9 +347,9 @@ function svgMeltFreeze() {
     s += `<line x1="${off2 + padL}" y1="${y}" x2="${off2 + padL - 5}" y2="${y}" stroke="#6b7686" opacity=".7"/>`;
     s += `<text x="${off2 + padL - 8}" y="${y + 3}" fill="#9aa4b5" font-size="9" text-anchor="end">${T}</text>`;
   }
-  const ptsB = [[0, 95], [3, 80], [7, 80], [10, 30]].map(([t, T]) => `${xFor(t, off2 + padL)},${yFor(T)}`).join(' ');
+  const ptsB = [[0, 90], [2, 80], [8, 80], [10, 25]].map(([t, T]) => `${xFor(t, off2 + padL)},${yFor(T)}`).join(' ');
   s += `<polyline points="${ptsB}" fill="none" stroke="#5ad7ff" stroke-width="2.5" stroke-linejoin="round"/>`;
-  s += `<line x1="${xFor(3, off2 + padL)}" y1="${yFor(80)}" x2="${xFor(7, off2 + padL)}" y2="${yFor(80)}" stroke="#ffd479" stroke-width="1" stroke-dasharray="3 3"/>`;
+  s += `<line x1="${xFor(2, off2 + padL)}" y1="${yFor(80)}" x2="${xFor(8, off2 + padL)}" y2="${yFor(80)}" stroke="#ffd479" stroke-width="1" stroke-dasharray="3 3"/>`;
   s += `<text x="${xFor(5, off2 + padL)}" y="${yFor(80) - 8}" fill="#ffd479" font-size="10" text-anchor="middle">80℃</text>`;
   s += `<text x="${xFor(5, off2 + padL)}" y="${yFor(0) + 30}" fill="#d7dee9" font-size="12" text-anchor="middle" font-weight="700">乙 凝固图像</text>`;
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="熔化与凝固双图">${s}</svg>`;
