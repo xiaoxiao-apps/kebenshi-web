@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-21",
+ "generated": "2026-10-22",
  "subjects": {
   "physics": [
    {
@@ -23,20 +23,8 @@
     "section": "第1节 长度和时间的测量",
     "type": "讲解",
     "title": "长度和时间的测量",
-    "path": "content/physics_g8_v1_c1_s1/index.html",
-    "thumb": "content/physics_g8_v1_c1_s1/thumb-measure.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s1/exp-estimate",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第1节 长度和时间的测量",
-    "type": "实验",
-    "title": "实验三：身上的尺",
-    "path": "content/physics_g8_v1_c1_s1/exp-estimate.html",
-    "thumb": "content/physics_g8_v1_c1_s1/thumb-measure.svg"
+    "path": "content/physics_g8_v1_c1_s1/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c1_s1/exp-measure-lab",
@@ -51,54 +39,6 @@
     "thumb": "content/physics_g8_v1_c1_s1/thumb-measure.svg"
    },
    {
-    "id": "physics_g8_v1_c1_s1/exp-ruler",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第1节 长度和时间的测量",
-    "type": "实验",
-    "title": "实验一：刻度尺读数",
-    "path": "content/physics_g8_v1_c1_s1/exp-ruler.html",
-    "thumb": "content/physics_g8_v1_c1_s1/thumb-measure.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s1/exp-stopwatch",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第1节 长度和时间的测量",
-    "type": "实验",
-    "title": "实验二：停表读数",
-    "path": "content/physics_g8_v1_c1_s1/exp-stopwatch.html",
-    "thumb": "content/physics_g8_v1_c1_s1/thumb-measure.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s1/exp-task",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第1节 长度和时间的测量",
-    "type": "实验",
-    "title": "实验四：实测任务单",
-    "path": "content/physics_g8_v1_c1_s1/exp-task.html",
-    "thumb": "content/physics_g8_v1_c1_s1/thumb-measure.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s1/exp-warmup",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第1节 长度和时间的测量",
-    "type": "实验",
-    "title": "热身实验：视错觉",
-    "path": "content/physics_g8_v1_c1_s1/exp-warmup.html",
-    "thumb": "content/physics_g8_v1_c1_s1/thumb-measure.svg"
-   },
-   {
     "id": "physics_g8_v1_c1_s2/index",
     "subject": "物理",
     "grade": "八年级",
@@ -107,20 +47,8 @@
     "section": "第2节 运动的描述",
     "type": "讲解",
     "title": "运动的描述",
-    "path": "content/physics_g8_v1_c1_s2/index.html",
-    "thumb": "content/physics_g8_v1_c1_s2/thumb-reference.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s2/exp-harvester",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第2节 运动的描述",
-    "type": "实验",
-    "title": "实验：收割机与运稻车",
-    "path": "content/physics_g8_v1_c1_s2/exp-harvester.html",
-    "thumb": "content/physics_g8_v1_c1_s2/thumb-reference.svg"
+    "path": "content/physics_g8_v1_c1_s2/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c1_s2/exp-lab",
@@ -135,42 +63,6 @@
     "thumb": "content/physics_g8_v1_c1_s2/thumb-reference.svg"
    },
    {
-    "id": "physics_g8_v1_c1_s2/exp-motion",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第2节 运动的描述",
-    "type": "实验",
-    "title": "实验：位置在变吗",
-    "path": "content/physics_g8_v1_c1_s2/exp-motion.html",
-    "thumb": "content/physics_g8_v1_c1_s2/thumb-reference.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s2/exp-reference",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第2节 运动的描述",
-    "type": "实验",
-    "title": "实验：点谁谁是标准",
-    "path": "content/physics_g8_v1_c1_s2/exp-reference.html",
-    "thumb": "content/physics_g8_v1_c1_s2/thumb-reference.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s2/exp-train",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第2节 运动的描述",
-    "type": "实验",
-    "title": "实验：列车错觉",
-    "path": "content/physics_g8_v1_c1_s2/exp-train.html",
-    "thumb": "content/physics_g8_v1_c1_s2/thumb-reference.svg"
-   },
-   {
     "id": "physics_g8_v1_c1_s3/index",
     "subject": "物理",
     "grade": "八年级",
@@ -179,20 +71,8 @@
     "section": "第3节 运动的快慢",
     "type": "讲解",
     "title": "运动的快慢",
-    "path": "content/physics_g8_v1_c1_s3/index.html",
-    "thumb": "content/physics_g8_v1_c1_s3/thumb-speed.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s3/exp-calc",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第3节 运动的快慢",
-    "type": "实验",
-    "title": "速度计算器 v=s/t",
-    "path": "content/physics_g8_v1_c1_s3/exp-calc.html",
-    "thumb": "content/physics_g8_v1_c1_s3/thumb-speed.svg"
+    "path": "content/physics_g8_v1_c1_s3/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c1_s3/exp-lab",
@@ -207,42 +87,6 @@
     "thumb": "content/physics_g8_v1_c1_s3/thumb-speed.svg"
    },
    {
-    "id": "physics_g8_v1_c1_s3/exp-motion",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第3节 运动的快慢",
-    "type": "实验",
-    "title": "双车运动对比",
-    "path": "content/physics_g8_v1_c1_s3/exp-motion.html",
-    "thumb": "content/physics_g8_v1_c1_s3/thumb-speed.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s3/exp-speed",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第3节 运动的快慢",
-    "type": "实验",
-    "title": "速度全景图",
-    "path": "content/physics_g8_v1_c1_s3/exp-speed.html",
-    "thumb": "content/physics_g8_v1_c1_s3/thumb-speed.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s3/exp-unit",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第3节 运动的快慢",
-    "type": "实验",
-    "title": "单位换算器",
-    "path": "content/physics_g8_v1_c1_s3/exp-unit.html",
-    "thumb": "content/physics_g8_v1_c1_s3/thumb-speed.svg"
-   },
-   {
     "id": "physics_g8_v1_c1_s4/index",
     "subject": "物理",
     "grade": "八年级",
@@ -251,8 +95,8 @@
     "section": "第4节 速度的测量",
     "type": "讲解",
     "title": "速度的测量",
-    "path": "content/physics_g8_v1_c1_s4/index.html",
-    "thumb": "content/physics_g8_v1_c1_s4/thumb-slope.svg"
+    "path": "content/physics_g8_v1_c1_s4/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c1_s4/exp-lab",
@@ -264,30 +108,6 @@
     "type": "实验",
     "title": "测速实验室",
     "path": "content/physics_g8_v1_c1_s4/exp-lab.html",
-    "thumb": "content/physics_g8_v1_c1_s4/thumb-slope.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s4/exp-sensor",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第4节 速度的测量",
-    "type": "实验",
-    "title": "超声波传感器测速度",
-    "path": "content/physics_g8_v1_c1_s4/exp-sensor.html",
-    "thumb": "content/physics_g8_v1_c1_s4/thumb-slope.svg"
-   },
-   {
-    "id": "physics_g8_v1_c1_s4/exp-slope",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第1章 机械运动",
-    "section": "第4节 速度的测量",
-    "type": "实验",
-    "title": "斜面小车测平均速度",
-    "path": "content/physics_g8_v1_c1_s4/exp-slope.html",
     "thumb": "content/physics_g8_v1_c1_s4/thumb-slope.svg"
    },
    {
@@ -323,44 +143,8 @@
     "section": "第1节 声音的产生与传播",
     "type": "讲解",
     "title": "声音的产生与传播",
-    "path": "content/physics_g8_v1_c2_s1/index.html",
-    "thumb": "content/physics_g8_v1_c2_s1/thumb-sound.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s1/exp-amp",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第1节 声音的产生与传播",
-    "type": "实验",
-    "title": "实验：振动放大器",
-    "path": "content/physics_g8_v1_c2_s1/exp-amp.html",
-    "thumb": "content/physics_g8_v1_c2_s1/thumb-sound.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s1/exp-dual",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第1节 声音的产生与传播",
-    "type": "实验",
-    "title": "双声到达模拟",
-    "path": "content/physics_g8_v1_c2_s1/exp-dual.html",
-    "thumb": "content/physics_g8_v1_c2_s1/thumb-sound.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s1/exp-echo",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第1节 声音的产生与传播",
-    "type": "实验",
-    "title": "回声测距计算器",
-    "path": "content/physics_g8_v1_c2_s1/exp-echo.html",
-    "thumb": "content/physics_g8_v1_c2_s1/thumb-sound.svg"
+    "path": "content/physics_g8_v1_c2_s1/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c2_s1/exp-lab",
@@ -375,66 +159,6 @@
     "thumb": "content/physics_g8_v1_c2_s1/thumb-sound.svg"
    },
    {
-    "id": "physics_g8_v1_c2_s1/exp-medium",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第1节 声音的产生与传播",
-    "type": "实验",
-    "title": "介质传声对比台",
-    "path": "content/physics_g8_v1_c2_s1/exp-medium.html",
-    "thumb": "content/physics_g8_v1_c2_s1/thumb-sound.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s1/exp-speed",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第1节 声音的产生与传播",
-    "type": "实验",
-    "title": "声速排序游戏",
-    "path": "content/physics_g8_v1_c2_s1/exp-speed.html",
-    "thumb": "content/physics_g8_v1_c2_s1/thumb-sound.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s1/exp-vacuum",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第1节 声音的产生与传播",
-    "type": "实验",
-    "title": "实验：真空罩模拟",
-    "path": "content/physics_g8_v1_c2_s1/exp-vacuum.html",
-    "thumb": "content/physics_g8_v1_c2_s1/thumb-sound.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s1/exp-vibrate",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第1节 声音的产生与传播",
-    "type": "实验",
-    "title": "实验：发声体振动台",
-    "path": "content/physics_g8_v1_c2_s1/exp-vibrate.html",
-    "thumb": "content/physics_g8_v1_c2_s1/thumb-sound.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s1/exp-wave",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第1节 声音的产生与传播",
-    "type": "实验",
-    "title": "实验：声波可视化",
-    "path": "content/physics_g8_v1_c2_s1/exp-wave.html",
-    "thumb": "content/physics_g8_v1_c2_s1/thumb-sound.svg"
-   },
-   {
     "id": "physics_g8_v1_c2_s2/index",
     "subject": "物理",
     "grade": "八年级",
@@ -443,44 +167,8 @@
     "section": "第2节 声音的特性",
     "type": "讲解",
     "title": "声音的特性",
-    "path": "content/physics_g8_v1_c2_s2/index.html",
-    "thumb": "content/physics_g8_v1_c2_s2/thumb-waveform.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s2/exp-craft",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第2节 声音的特性",
-    "type": "实验",
-    "title": "自制乐器仿真",
-    "path": "content/physics_g8_v1_c2_s2/exp-craft.html",
-    "thumb": "content/physics_g8_v1_c2_s2/thumb-waveform.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s2/exp-instruments",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第2节 声音的特性",
-    "type": "实验",
-    "title": "乐音和乐器",
-    "path": "content/physics_g8_v1_c2_s2/exp-instruments.html",
-    "thumb": "content/physics_g8_v1_c2_s2/thumb-waveform.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s2/exp-intro",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第2节 声音的特性",
-    "type": "实验",
-    "title": "问题导入：蚊子与蝴蝶",
-    "path": "content/physics_g8_v1_c2_s2/exp-intro.html",
-    "thumb": "content/physics_g8_v1_c2_s2/thumb-waveform.svg"
+    "path": "content/physics_g8_v1_c2_s2/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c2_s2/exp-lab",
@@ -495,66 +183,6 @@
     "thumb": "content/physics_g8_v1_c2_s2/thumb-waveform.svg"
    },
    {
-    "id": "physics_g8_v1_c2_s2/exp-loudness",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第2节 声音的特性",
-    "type": "实验",
-    "title": "实验：响度与振幅",
-    "path": "content/physics_g8_v1_c2_s2/exp-loudness.html",
-    "thumb": "content/physics_g8_v1_c2_s2/thumb-waveform.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s2/exp-range",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第2节 声音的特性",
-    "type": "实验",
-    "title": "实验：听觉频率范围",
-    "path": "content/physics_g8_v1_c2_s2/exp-range.html",
-    "thumb": "content/physics_g8_v1_c2_s2/thumb-waveform.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s2/exp-ruler",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第2节 声音的特性",
-    "type": "实验",
-    "title": "实验：钢尺振动",
-    "path": "content/physics_g8_v1_c2_s2/exp-ruler.html",
-    "thumb": "content/physics_g8_v1_c2_s2/thumb-waveform.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s2/exp-scope",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第2节 声音的特性",
-    "type": "实验",
-    "title": "实验：示波器波形",
-    "path": "content/physics_g8_v1_c2_s2/exp-scope.html",
-    "thumb": "content/physics_g8_v1_c2_s2/thumb-waveform.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s2/exp-timbre",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第2节 声音的特性",
-    "type": "实验",
-    "title": "实验：音色对比",
-    "path": "content/physics_g8_v1_c2_s2/exp-timbre.html",
-    "thumb": "content/physics_g8_v1_c2_s2/thumb-waveform.svg"
-   },
-   {
     "id": "physics_g8_v1_c2_s3/index",
     "subject": "物理",
     "grade": "八年级",
@@ -563,44 +191,8 @@
     "section": "第3节 声的利用",
     "type": "讲解",
     "title": "声的利用",
-    "path": "content/physics_g8_v1_c2_s3/index.html",
-    "thumb": "content/physics_g8_v1_c2_s3/thumb-echo.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s3/exp-candle",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第3节 声的利用",
-    "type": "实验",
-    "title": "实验：扬声器与烛焰",
-    "path": "content/physics_g8_v1_c2_s3/exp-candle.html",
-    "thumb": "content/physics_g8_v1_c2_s3/thumb-echo.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s3/exp-echo",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第3节 声的利用",
-    "type": "实验",
-    "title": "实验：回声定位测距",
-    "path": "content/physics_g8_v1_c2_s3/exp-echo.html",
-    "thumb": "content/physics_g8_v1_c2_s3/thumb-echo.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s3/exp-huanqiu",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第3节 声的利用",
-    "type": "实验",
-    "title": "实验：圜丘回声",
-    "path": "content/physics_g8_v1_c2_s3/exp-huanqiu.html",
-    "thumb": "content/physics_g8_v1_c2_s3/thumb-echo.svg"
+    "path": "content/physics_g8_v1_c2_s3/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c2_s3/exp-lab",
@@ -623,32 +215,8 @@
     "section": "第4节 噪声的危害和控制",
     "type": "讲解",
     "title": "噪声的危害和控制",
-    "path": "content/physics_g8_v1_c2_s4/index.html",
-    "thumb": "content/physics_g8_v1_c2_s4/thumb-noise.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s4/exp-control",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第4节 噪声的危害和控制",
-    "type": "实验",
-    "title": "实验：控制噪声的三个途径",
-    "path": "content/physics_g8_v1_c2_s4/exp-control.html",
-    "thumb": "content/physics_g8_v1_c2_s4/thumb-noise.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s4/exp-decibel",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第4节 噪声的危害和控制",
-    "type": "实验",
-    "title": "实验：人对不同强度的声音的感觉",
-    "path": "content/physics_g8_v1_c2_s4/exp-decibel.html",
-    "thumb": "content/physics_g8_v1_c2_s4/thumb-noise.svg"
+    "path": "content/physics_g8_v1_c2_s4/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c2_s4/exp-lab",
@@ -663,18 +231,6 @@
     "thumb": "content/physics_g8_v1_c2_s4/thumb-noise.svg"
    },
    {
-    "id": "physics_g8_v1_c2_s4/exp-wave",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第4节 噪声的危害和控制",
-    "type": "实验",
-    "title": "实验：观察噪声的波形",
-    "path": "content/physics_g8_v1_c2_s4/exp-wave.html",
-    "thumb": "content/physics_g8_v1_c2_s4/thumb-noise.svg"
-   },
-   {
     "id": "physics_g8_v1_c2_s5/index",
     "subject": "物理",
     "grade": "八年级",
@@ -683,8 +239,8 @@
     "section": "第5节 跨学科实践：制作隔音房间模型",
     "type": "讲解",
     "title": "跨学科实践：制作隔音房间模型",
-    "path": "content/physics_g8_v1_c2_s5/index.html",
-    "thumb": "content/physics_g8_v1_c2_s5/thumb-room.svg"
+    "path": "content/physics_g8_v1_c2_s5/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c2_s5/exp-lab",
@@ -696,18 +252,6 @@
     "type": "实验",
     "title": "隔音房间实验室",
     "path": "content/physics_g8_v1_c2_s5/exp-lab.html",
-    "thumb": "content/physics_g8_v1_c2_s5/thumb-room.svg"
-   },
-   {
-    "id": "physics_g8_v1_c2_s5/exp-room",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "上册",
-    "chapter": "第2章 声现象",
-    "section": "第5节 跨学科实践：制作隔音房间模型",
-    "type": "实验",
-    "title": "实验：隔音房间模型",
-    "path": "content/physics_g8_v1_c2_s5/exp-room.html",
     "thumb": "content/physics_g8_v1_c2_s5/thumb-room.svg"
    },
    {

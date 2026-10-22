@@ -31,8 +31,6 @@
 
   var $app = document.getElementById('app');
   var $overlay = document.getElementById('overlay');
-  var $shell = document.getElementById('shell');
-  var $frame = document.getElementById('shell-frame');
 
   /* ---------- hash 编解码 ---------- */
   function stateToHash() {
@@ -254,7 +252,7 @@
   }
 
   function render() {
-    closeShell();
+    destroyShell();
     $overlay.hidden = true;
     document.body.classList.remove('qd-in-shell');
     if (!state.subject) renderHome();
@@ -263,7 +261,7 @@
       var card = findCard(state.cardId);
       if (card) {
         showOverlay(card);
-        if (state.play) openShell(card);
+        if (state.play) revealShell(); // 直达链接 play=1：立即揭开（无手势，不进全屏）
       } else {
         state.cardId = null; state.play = false;
       }
@@ -295,8 +293,13 @@
     }
     document.getElementById('overlay-title').textContent = card.title;
     document.getElementById('overlay-intro').textContent = introOf(card);
-    document.getElementById('overlay-play').onclick = function () { openShell(card); };
+    document.getElementById('overlay-play').onclick = function () {
+      enterFullscreen(); // 必须在用户手势的同步调用栈内
+      if (!shell) prepareShell(card);
+      revealShell();
+    };
     $overlay.hidden = false;
+    prepareShell(card); // modal 出现即后台预加载内容
   }
   function openOverlay(id) {
     savedScrollY = window.scrollY;
@@ -308,60 +311,212 @@
   function closeOverlay() {
     $overlay.hidden = true;
     state.cardId = null; state.play = false;
-    closeShell();
+    destroyShell(); // 移除整个壳覆盖层，中止预加载
     syncHash(true);
     requestAnimationFrame(function () { window.scrollTo(0, savedScrollY); }); // 恢复滚动位置
   }
   document.getElementById('overlay-close').onclick = closeOverlay;
   $overlay.addEventListener('click', function (e) { if (e.target === $overlay) closeOverlay(); });
 
-  /* ---------- 全视口实验壳 ---------- */
-  var injectTimer = null;
-  function injectHideBack() {
-    // 同源注入 CSS 隐藏内部返回按钮；失败/超时不阻塞展示
+  /* ---------- 全视口实验壳（modal 出现即预加载，点▶揭开） ---------- */
+  var shell = null; // 每个 modal 一个壳覆盖层；关 modal 即销毁中止预加载
+
+  function injectHideBack(doc) {
+    // 同源注入 CSS 隐藏内部返回按钮；失败静默
     try {
-      var doc = $frame.contentDocument;
-      if (!doc) return;
-      if (doc.getElementById('qd-hide-back')) return;
+      if (!doc || doc.getElementById('qd-hide-back')) return;
       var st = doc.createElement('style');
       st.id = 'qd-hide-back';
       st.textContent = HIDE_BACK_CSS;
       (doc.head || doc.documentElement).appendChild(st);
     } catch (e) { /* 跨域或时机未到，静默 */ }
   }
-  function openShell(card) {
-    document.getElementById('shell-title').textContent = card.title;
-    $frame.src = card.path;
-    $shell.hidden = false;
+  function injectAll(doc) {
+    if (!doc) return;
+    injectHideBack(doc);
+    var frames = doc.getElementsByTagName('iframe');
+    for (var i = 0; i < frames.length; i++) {
+      try { injectAll(frames[i].contentDocument); } catch (e) { /* 跨域静默 */ }
+    }
+  }
+  // 就绪判定：document 完成 + 全部 img.complete + 已赋 src 的嵌套 iframe 递归同规则
+  function docAllReady(doc) {
+    if (!doc || doc.readyState !== 'complete') return false;
+    var i;
+    var imgs = doc.getElementsByTagName('img');
+    for (i = 0; i < imgs.length; i++) if (!imgs[i].complete) return false;
+    var frames = doc.getElementsByTagName('iframe');
+    for (i = 0; i < frames.length; i++) {
+      var s = frames[i].getAttribute('src');
+      if (!s || s === 'about:blank') continue;
+      try { if (!docAllReady(frames[i].contentDocument)) return false; }
+      catch (e) { /* 跨域无法探测，视为就绪 */ }
+    }
+    return true;
+  }
+
+  function prepareShell(card) {
+    destroyShell();
+    var s = { timers: [], pollTimer: null, toTimer: null, readySince: 0, done: false, card: card };
+
+    var root = el('div', 'qd-shell qd-pre');
+    var bar = el('div', 'qd-shell-bar');
+    var back = el('button', 'qd-shell-back', '‹ 返回');
+    back.onclick = closeShellByBack;
+    bar.appendChild(back);
+    bar.appendChild(el('span', 'qd-shell-title', card.title));
+    root.appendChild(bar);
+
+    var frame = document.createElement('iframe');
+    frame.className = 'qd-shell-frame';
+    frame.setAttribute('allowfullscreen', '');
+    frame.setAttribute('allow', 'autoplay; fullscreen; gyroscope; accelerometer');
+    root.appendChild(frame);
+    s.frame = frame;
+
+    var curtain = el('div', 'qd-curtain');
+    var prog = el('div', 'qd-prog');
+    var track = el('div', 'qd-prog-track');
+    var fill = el('div', 'qd-prog-fill');
+    track.appendChild(fill);
+    prog.appendChild(track);
+    var num = el('div', 'qd-prog-num', '0%');
+    prog.appendChild(num);
+    curtain.appendChild(prog);
+    var toBox = el('div', 'qd-curtain-timeout');
+    toBox.hidden = true;
+    toBox.appendChild(el('p', null, '网络不佳，内容仍在加载'));
+    var btns = el('div', 'qd-curtain-btns');
+    var bReload = el('button', null, '重新加载');
+    var bSkip = el('button', null, '不等待，直接查看');
+    btns.appendChild(bReload);
+    btns.appendChild(bSkip);
+    toBox.appendChild(btns);
+    curtain.appendChild(toBox);
+    root.appendChild(curtain);
+    s.curtain = curtain; s.prog = prog; s.toBox = toBox;
+
+    document.body.appendChild(root);
+    s.el = root;
+    shell = s;
+
+    function setProgress(p) {
+      fill.style.width = p + '%';
+      num.textContent = Math.floor(p) + '%';
+    }
+    function fadeCurtain() {
+      curtain.classList.add('qd-fade');
+      s.timers.push(setTimeout(function () {
+        if (curtain.parentNode) curtain.parentNode.removeChild(curtain);
+      }, 350));
+    }
+    function markReady() {
+      if (s.done) return;
+      s.done = true;
+      setProgress(100);
+      s.timers.push(setTimeout(fadeCurtain, 150)); // 让 100% 停留一瞬再淡出
+    }
+    // 伪进度：前8秒缓动爬至90%，之后减速徘徊
+    s.t0 = Date.now();
+    s.timers.push(setInterval(function () {
+      if (s.done) return;
+      var t = (Date.now() - s.t0) / 1000;
+      var p;
+      if (t < 8) { var k = 1 - t / 8; p = 90 * (1 - k * k * k); }
+      else p = 90 + 7 * (1 - Math.exp(-(t - 8) / 8));
+      setProgress(p);
+    }, 100));
+    // 超时兜底：15秒未就绪
+    function armTimeout() {
+      clearTimeout(s.toTimer);
+      s.toTimer = setTimeout(function () {
+        if (s.done) return;
+        prog.hidden = true;
+        toBox.hidden = false;
+      }, 15000);
+      s.timers.push(s.toTimer);
+    }
+    armTimeout();
+    bReload.onclick = function () {
+      s.done = false; s.readySince = 0; s.t0 = Date.now();
+      toBox.hidden = true; prog.hidden = false;
+      if (s.pollTimer) { clearInterval(s.pollTimer); s.pollTimer = null; }
+      armTimeout();
+      frame.src = card.path; // 重设 src 触发重载
+    };
+    bSkip.onclick = function () {
+      if (s.pollTimer) { clearInterval(s.pollTimer); s.pollTimer = null; }
+      clearTimeout(s.toTimer);
+      s.done = true;
+      fadeCurtain();
+    };
+    frame.addEventListener('load', function () {
+      injectAll(frame.contentDocument);
+      if (s.pollTimer) clearInterval(s.pollTimer);
+      s.pollTimer = setInterval(function () { // 就绪轮询 200ms
+        var ok = false;
+        try { ok = docAllReady(frame.contentDocument); } catch (e) { ok = false; }
+        if (ok) {
+          injectAll(frame.contentDocument);
+          if (!s.readySince) s.readySince = Date.now();
+          else if (Date.now() - s.readySince >= 300) { // 连续300ms无新增未就绪项
+            clearInterval(s.pollTimer);
+            s.pollTimer = null;
+            clearTimeout(s.toTimer);
+            markReady();
+          }
+        } else s.readySince = 0;
+      }, 200);
+    });
+    frame.src = card.path; // 后台开始加载（壳处于 visibility:hidden 仍可加载）
+  }
+
+  function revealShell() {
+    if (!shell) return;
+    shell.el.classList.remove('qd-pre'); // 提到最上层并可见；iframe 节点不动，复用预加载
     document.body.classList.add('qd-in-shell');
     $overlay.hidden = true;
     state.play = true;
     syncHash(true);
-    injectHideBack(); // 立即尝试（about:blank 阶段无害）
-    clearTimeout(injectTimer);
-    injectTimer = setTimeout(injectHideBack, 3000); // 超时兜底
   }
-  function closeShell() {
-    clearTimeout(injectTimer);
-    if (!$shell.hidden) {
-      $shell.hidden = true;
-      $frame.src = 'about:blank';
-      document.body.classList.remove('qd-in-shell');
-    }
+
+  function destroyShell() {
+    if (!shell) return;
+    shell.timers.forEach(function (t) { clearInterval(t); clearTimeout(t); });
+    if (shell.pollTimer) clearInterval(shell.pollTimer);
+    clearTimeout(shell.toTimer);
+    if (shell.el.parentNode) shell.el.parentNode.removeChild(shell.el); // 移除即中止加载
+    shell = null;
   }
-  $frame.addEventListener('load', function () {
-    injectHideBack();
-    clearTimeout(injectTimer);
-    injectTimer = setTimeout(injectHideBack, 800); // 动态插入的按钮二次兜底
-  });
-  document.getElementById('shell-back').onclick = function () {
-    // 返回卡片流（连同覆盖页一起关），保留筛选与滚动位置
-    closeShell();
+
+  function closeShellByBack() {
+    exitFullscreen();
+    destroyShell();
     $overlay.hidden = true;
+    document.body.classList.remove('qd-in-shell');
     state.play = false; state.cardId = null;
     syncHash(true);
     requestAnimationFrame(function () { window.scrollTo(0, savedScrollY); });
-  };
+  }
+
+  /* ---------- 原生全屏（点▶手势同步栈内调用；不支持则静默） ---------- */
+  function enterFullscreen() {
+    var de = document.documentElement;
+    if (de && de.requestFullscreen) {
+      try {
+        var p = de.requestFullscreen();
+        if (p && p.catch) p.catch(function () {});
+      } catch (e) { /* 静默 */ }
+    }
+  }
+  function exitFullscreen() {
+    if (document.fullscreenElement && document.exitFullscreen) {
+      try {
+        var p = document.exitFullscreen();
+        if (p && p.catch) p.catch(function () {});
+      } catch (e) { /* 静默 */ }
+    }
+  }
 
   /* ---------- 路由 ---------- */
   window.addEventListener('popstate', onHash);
@@ -376,7 +531,7 @@
   }
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
-    if (!$shell.hidden) document.getElementById('shell-back').click();
+    if (shell && !shell.el.classList.contains('qd-pre')) closeShellByBack();
     else if (!$overlay.hidden) closeOverlay();
   });
 
