@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>光的折射</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100dvh;background:#f0f5fa;color:#1f2937;line-height:1.85;padding:14px 14px 40px}
+  .back-btn{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:10px;background:#fff;border:1px solid #cbd5e1;color:#2563eb;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px}
+  .container{max-width:640px;margin:0 auto}
+  .page-header{text-align:center;margin:6px 0 14px}
+  .page-header h1{font-size:22px;color:#111827}
+  .page-header p{font-size:13px;color:#64748b;margin-top:4px}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab-btn{flex:0 0 auto;min-height:42px;padding:9px 14px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#334155;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .tab-btn.active{background:#2563eb;border-color:#2563eb;color:#fff}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block;animation:panelIn .25s ease}
+  @keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(30,41,59,.06)}
+  .card h2{font-size:17px;color:#111827;margin-bottom:10px}
+  .card h3{font-size:15px;color:#1e3a5f;margin:12px 0 6px}
+  .card p{font-size:14.5px;margin-bottom:8px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:8px;background:#e0eaff;color:#2563eb;vertical-align:middle;margin-left:6px}
+  .key-point{background:#eaf6ec;border-left:4px solid #2f9e44;border-radius:0 10px 10px 0;padding:10px 14px;margin:10px 0;font-size:14px}
+  .key-point b{color:#2b8a3e}
+  .question-box{background:#fdf3e7;border-left:4px solid #e8940c;border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+  .question-box h4{font-size:14px;color:#b06f04;margin-bottom:6px}
+  .question-box p{font-size:14px;margin-bottom:4px}
+  .reveal-btn{margin-top:8px;min-height:42px;padding:9px 14px;border-radius:10px;border:1.5px solid #2f9e44;background:#fff;color:#2b8a3e;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .reveal-btn:active{background:#eaf6ec}
+  .reveal-ans{display:none;margin-top:8px;background:#eaf6ec;border-radius:10px;padding:10px 12px;font-size:14px}
+  .question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+  .example-step{display:none;background:#eef4fb;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+  .example-step.show{display:block;animation:panelIn .25s ease}
+  .step-btns{display:flex;gap:8px;margin-top:8px}
+  .btn{min-height:42px;padding:9px 16px;border:0;border-radius:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;background:#2563eb;color:#fff}
+  .btn:disabled{background:#c3cad6;cursor:default}
+  .btn.secondary{background:#e2e8f0;color:#334155}
+  ul.points{list-style:none;padding:0}
+  ul.points li{padding:6px 0 6px 24px;position:relative;font-size:14px;border-bottom:1px dashed #e2e8f0}
+  ul.points li:last-child{border-bottom:0}
+  ul.points li::before{content:"✔";position:absolute;left:0;color:#2f9e44;font-weight:700}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1>光的折射</h1>
+    <p>折射规律 · 空气侧角大 · 筷子弯折 · 池水变浅 · 海市蜃楼</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">折射现象</button>
+    <button class="tab-btn" data-tab="e2">折射规律</button>
+    <button class="tab-btn" data-tab="e3">生活现象</button>
+    <button class="tab-btn" data-tab="e4">例题与小结</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、光为什么会「拐弯」 <span class="chip">导入</span></h2>
+      <p>筷子斜插进水杯，从侧面看好像在水面处「折断」了；空碗底的硬币本来看不见，倒水后又「浮」了上来。共同原因是：光从一种介质进入另一种介质时方向偏折。</p>
+      <p>光从一种介质<strong>斜射</strong>入另一种介质时方向偏折，这叫<strong>光的折射</strong>。到达界面时，折射与反射<strong>同时发生</strong>。</p>
+      <div class="key-point">
+        <p><b>折射光路中的角色</b></p>
+        <p>入射点 O：光线打在界面处；法线 ON：过入射点垂直于界面的虚线；<b>入射角 i</b> 与 <b>折射角 r</b> 分别是两条光线与法线的夹角，都以法线为基准。</p>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 1</h4>
+        <p>光垂直射向水面时方向改变吗？入射角、折射角各是多少？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><b>不改变</b>。垂直入射时光线与法线重合，入射角与折射角都为 0°，光沿原方向直线进入水中。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、折射的规律 <span class="chip">核心规律</span></h2>
+      <p>实验：激光束斜射入滴了几滴牛奶的水，可清楚看到光路在水面处偏折。增大入射角多做几次，比较两角大小；换成玻璃砖，偏折更明显——玻璃的偏折本领比水更强。</p>
+      <div class="key-point">
+        <p><b>折射规律四条</b></p>
+        <p>① 折射光线、入射光线与法线在同一平面内，折射与入射光线分居法线两侧；</p>
+        <p>② 光从空气<b>斜射</b>入水或玻璃时，向法线偏折，折射角<b>小于</b>入射角；斜射入空气时，折射角<b>大于</b>入射角——<b>空气侧的角总是大的</b>；</p>
+        <p>③ 入射角增大时，折射角也随着增大；垂直入射时方向不变；</p>
+        <p>④ 折射现象中<b>光路可逆</b>：光逆着原折射光线射入，将逆着原入射光线射出。</p>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 2</h4>
+        <p>光从空气斜射入水中，入射角为 45°，折射角可能等于 45° 吗？为什么？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><b>不可能</b>。光从空气斜射入水中向法线偏折，折射角一定<b>小于</b>入射角，故小于 45°（按水的折射本领算约 32°）。只有垂直入射时两角才相等。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、生活中的折射现象 <span class="chip">学以致用</span></h2>
+      <h3>筷子「弯折」</h3>
+      <p>水下部分筷子反射的光，出水面进入空气时偏离法线偏折；眼睛逆着折射光看去，水下部分是抬高的<strong>虚像</strong>，筷子好像在水面处弯折了。</p>
+      <h3>池水变浅</h3>
+      <p>池底反射的光斜射入空气时偏离法线，逆着折射光看去，池底视位置<strong>偏高</strong>，池水「变浅」。竖直向下看时，视深约为实际深度的 3/4。</p>
+      <div class="key-point">
+        <p><b>安全提示</b></p>
+        <p>看起来齐腰深的池水，实际可能没过头顶。不会游泳的人<b>千万不要贸然下水</b>——水底比看到的更深，这是溺水隐患。</p>
+      </div>
+      <h3>叉鱼要瞄下方 · 海市蜃楼</h3>
+      <p>叉鱼时看到的鱼是位置偏高的虚像，真鱼在其<strong>下方</strong>，所以要瞄向看到的鱼的下方。夏天海面或沙漠上，空气冷热不同、密度不均匀，远处物体的光传播中逐渐弯曲进入人眼，出现悬浮或倒立的幻象——海市蜃楼，本质也是折射现象。</p>
+      <div class="question-box">
+        <h4>思考讨论 3</h4>
+        <p>空碗里的硬币刚好看不见，人保持不动，向碗里倒水，硬币又看见了。为什么？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>没水时，硬币的光沿直线传播被碗壁挡住。加水后，硬币的光在水面折射、<b>偏离法线</b>弯向眼睛，看到位置抬高的虚像，所以「又看见」了。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>四、例题与小结 <span class="chip">实战演练</span></h2>
+      <div class="card" style="background:#f8fafc">
+        <h3 style="margin-top:0">例题 · 分步揭晓</h3>
+        <p>一束光从空气斜射向水面，入射角 60°。折射角比 60° 大还是小？按水的折射率约 4/3 估算折射角。</p>
+        <div class="steps-wrap">
+          <div class="example-step">光从空气斜射入水，向法线偏折 → 折射角<b>小于</b> 60°。</div>
+          <div class="example-step">估算：sin r = sin i ÷ n，n ≈ 4/3。</div>
+          <div class="example-step">代入：sin r = sin 60° ÷ (4/3) ≈ 0.866 × 0.75 ≈ 0.65。</div>
+          <div class="example-step">得 r ≈ 40.5°，确实小于 60°。</div>
+          <div class="step-btns">
+            <button class="btn step-next" type="button">下一步</button>
+            <button class="btn secondary step-reset" type="button">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>例题 2 · 思考讨论 4</h4>
+        <p>某水池实际水深 1.8 m，竖直向下看，看到的「深度」大约是多少？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>视深度约为实际深度的 3/4：1.8 m × 0.75 = <b>1.35 m</b>，比实际浅约 0.45 m，下水前务必以实际深度为准。</p>
+        </div>
+      </div>
+      <div class="key-point">
+        <p><b>本节小结</b></p>
+        <ul class="points">
+          <li>光斜射入另一种介质时方向偏折；空气侧的角总是大的</li>
+          <li>折射角随入射角增大而增大；垂直入射方向不变，两角均为 0°</li>
+          <li>折射现象中光路可逆；界面处折射与反射同时发生</li>
+          <li>现象：筷子弯折、池水变浅、叉鱼瞄下方、海市蜃楼，都源于折射</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var tabs=document.querySelectorAll('.tab-btn');
+  Array.prototype.forEach.call(tabs,function(b){
+    b.addEventListener('click',function(){
+      Array.prototype.forEach.call(tabs,function(x){x.classList.remove('active')});
+      Array.prototype.forEach.call(document.querySelectorAll('.tab-panel'),function(p){p.classList.remove('active')});
+      b.classList.add('active');
+      document.getElementById('panel-'+b.getAttribute('data-tab')).classList.add('active');
+      window.scrollTo(0,0);
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.reveal-btn'),function(btn){
+    btn.addEventListener('click',function(){
+      var box=btn.closest('.question-box');
+      if(!box)return;
+      var open=box.classList.toggle('open');
+      btn.textContent=open?'收起答案':'点击揭晓答案';
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.steps-wrap'),function(wrap){
+    var steps=wrap.querySelectorAll('.example-step');
+    var idx=0;
+    var next=wrap.querySelector('.step-next');
+    var reset=wrap.querySelector('.step-reset');
+    next.addEventListener('click',function(){
+      if(idx<steps.length){steps[idx].classList.add('show');idx++;}
+      if(idx>=steps.length){next.disabled=true;}
+    });
+    reset.addEventListener('click',function(){
+      Array.prototype.forEach.call(steps,function(s){s.classList.remove('show')});
+      idx=0;next.disabled=false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

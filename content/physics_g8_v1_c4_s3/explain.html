@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>平面镜成像</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100dvh;background:#f0f5fa;color:#1f2937;line-height:1.85;padding:14px 14px 40px}
+  .back-btn{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:10px;background:#fff;border:1px solid #cbd5e1;color:#2563eb;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px}
+  .container{max-width:640px;margin:0 auto}
+  .page-header{text-align:center;margin:6px 0 14px}
+  .page-header h1{font-size:22px;color:#111827}
+  .page-header p{font-size:13px;color:#64748b;margin-top:4px}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab-btn{flex:0 0 auto;min-height:42px;padding:9px 14px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#334155;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .tab-btn.active{background:#2563eb;border-color:#2563eb;color:#fff}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block;animation:panelIn .25s ease}
+  @keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(30,41,59,.06)}
+  .card h2{font-size:17px;color:#111827;margin-bottom:10px}
+  .card h3{font-size:15px;color:#1e3a5f;margin:12px 0 6px}
+  .card p{font-size:14.5px;margin-bottom:8px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:8px;background:#e0eaff;color:#2563eb;vertical-align:middle;margin-left:6px}
+  .key-point{background:#eaf6ec;border-left:4px solid #2f9e44;border-radius:0 10px 10px 0;padding:10px 14px;margin:10px 0;font-size:14px}
+  .key-point b{color:#2b8a3e}
+  .question-box{background:#fdf3e7;border-left:4px solid #e8940c;border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+  .question-box h4{font-size:14px;color:#b06f04;margin-bottom:6px}
+  .question-box p{font-size:14px;margin-bottom:4px}
+  .reveal-btn{margin-top:8px;min-height:42px;padding:9px 14px;border-radius:10px;border:1.5px solid #2f9e44;background:#fff;color:#2b8a3e;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .reveal-btn:active{background:#eaf6ec}
+  .reveal-ans{display:none;margin-top:8px;background:#eaf6ec;border-radius:10px;padding:10px 12px;font-size:14px}
+  .question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+  .example-step{display:none;background:#eef4fb;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+  .example-step.show{display:block;animation:panelIn .25s ease}
+  .step-btns{display:flex;gap:8px;margin-top:8px}
+  .btn{min-height:42px;padding:9px 16px;border:0;border-radius:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;background:#2563eb;color:#fff}
+  .btn:disabled{background:#c3cad6;cursor:default}
+  .btn.secondary{background:#e2e8f0;color:#334155}
+  ul.points{list-style:none;padding:0}
+  ul.points li{padding:6px 0 6px 24px;position:relative;font-size:14px;border-bottom:1px dashed #e2e8f0}
+  ul.points li:last-child{border-bottom:0}
+  ul.points li::before{content:"✔";position:absolute;left:0;color:#2f9e44;font-weight:700}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1>平面镜成像</h1>
+    <p>等大等距的虚像 · 对称 · 探究实验方法 · 球面镜常识</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">成像特点</button>
+    <button class="tab-btn" data-tab="e2">探究实验</button>
+    <button class="tab-btn" data-tab="e3">虚像与球面镜</button>
+    <button class="tab-btn" data-tab="e4">例题与小结</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、镜中的「另一个你」 <span class="chip">导入</span></h2>
+      <p>对着穿衣镜整理衣冠，镜中有一个「你」在同步动作；你举右手，镜中的「你」却举左手。平静的水面、光亮的金属表面都能近似看作平面镜，它成的像有什么特点？</p>
+      <div class="key-point">
+        <p><b>平面镜成像特点：等大、等距、对称、虚像</b></p>
+        <p>① 像与物<b>大小相等</b>；② 像到镜面的距离与物到镜面的距离<b>相等</b>；③ 像与物的连线与镜面<b>垂直</b>，即像与物关于镜面<b>对称</b>；④ 成的是<b>虚像</b>，不能用光屏承接。</p>
+      </div>
+      <p>特别注意：像的大小只由物体本身决定，与物距<strong>无关</strong>。人走近镜子时像也走近，但大小始终和人一样大——「近大远小」只是视角错觉。</p>
+      <div class="question-box">
+        <h4>思考讨论 1</h4>
+        <p>「人离平面镜越近，看到的像越大」，这种说法对吗？为什么？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><b>不对</b>。像与物始终等大，人走近镜子时像的大小不变。只是视角变大产生错觉，像本身并没有变大。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、探究：平面镜成像的特点 <span class="chip">实验方法</span></h2>
+      <p>探究实验的巧妙全在器材选择，逐条点开看道理。</p>
+      <div class="steps-wrap">
+        <div class="example-step"><b>第一步</b>：用<b>薄玻璃板</b>代替平面镜。玻璃既反光成像又透光，能同时看到蜡烛的像和板后空间，便于确定像的位置。</div>
+        <div class="example-step"><b>第二步</b>：取<b>两支完全相同</b>的蜡烛。点燃一支放板前，未点燃的在板后移动，直到与像<b>完全重合</b>——重合说明像与物等大，它的位置就是像的位置（等效替代法）。</div>
+        <div class="example-step"><b>第三步</b>：改变点燃蜡烛的位置<b>多做几次</b>，分别量出物与像到玻璃板的距离，避免偶然性。</div>
+        <div class="example-step"><b>第四步</b>：移去板后的蜡烛，在原像的位置竖直放一张白纸（光屏），屏上<b>承接不到像</b>——证明平面镜成的是虚像。</div>
+        <div class="step-btns">
+          <button class="btn step-next" type="button">下一步</button>
+          <button class="btn secondary step-reset" type="button">重置</button>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 2</h4>
+        <p>为什么要用薄玻璃板而不用厚的？玻璃板为什么必须与桌面垂直放置？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>厚玻璃板前后两个表面都会反射成像，出现<b>两个像</b>干扰观察。玻璃板若倾斜，像偏高或偏低，板后蜡烛<b>无法与像重合</b>，测不出等距关系，所以必须竖直放置。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、虚像是怎样形成的 <span class="chip">原理深化</span></h2>
+      <p>烛焰上一点 S 发出的光经镜面反射后进入眼睛。反射光是发散的，眼睛习惯沿直线追溯，觉得光来自反射光线<strong>反向延长线</strong>的交点 S′——S′ 就是 S 的像。</p>
+      <p>S′ 处并没有光真正到达，不是实际光线的会聚点，所以叫<strong>虚像</strong>，光屏承接不到。</p>
+      <div class="key-point">
+        <p><b>作图方法：对称法</b></p>
+        <p>从物体端点向镜面作垂线，延长到镜后<b>等距离</b>处得像点，用<b>虚线</b>连接即得虚像。像与物关于镜面对称，这是作图核心。</p>
+      </div>
+      <h3>球面镜常识</h3>
+      <p><strong>凹面镜</strong>会聚光：太阳灶把阳光会聚到焦点加热；手电筒、汽车前灯的反光罩把灯泡放焦点附近，反射出近似平行的强光束。<strong>凸面镜</strong>发散光，成正立缩小的虚像、视野宽，用于汽车后视镜、山路转弯处的广角镜。</p>
+      <div class="question-box">
+        <h4>思考讨论 3</h4>
+        <p>汽车的后视镜为什么用凸面镜而不用平面镜？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>凸面镜成缩小的像，同样大小的镜面能照到<b>更大范围</b>景物，司机视野更宽更安全；平面镜成等大的像，视野窄。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>四、例题与小结 <span class="chip">实战演练</span></h2>
+      <div class="card" style="background:#f8fafc">
+        <h3 style="margin-top:0">例题 · 分步揭晓</h3>
+        <p>身高 1.7 m 的人站在竖直的穿衣镜前 2 m 处。求：像的高度；像与人之间的距离。</p>
+        <div class="steps-wrap">
+          <div class="example-step">已知：物高 1.7 m，物距 2 m。</div>
+          <div class="example-step">像与物等大 → 像高 = 1.7 m。</div>
+          <div class="example-step">像距等于物距 → 像在镜后 2 m 处。</div>
+          <div class="example-step">像与人的距离 = 2 m + 2 m = 4 m。</div>
+          <div class="step-btns">
+            <button class="btn step-next" type="button">下一步</button>
+            <button class="btn secondary step-reset" type="button">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>例题 2 · 思考讨论 4</h4>
+        <p>这个人向镜面走近 0.5 m，像的大小变不变？像距变为多少？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>像的大小<b>不变</b>，仍是 1.7 m——像与物等大，与距离无关。物距变为 2 − 0.5 = 1.5 m，像距也变为 <b>1.5 m</b>。</p>
+        </div>
+      </div>
+      <div class="key-point">
+        <p><b>本节小结</b></p>
+        <ul class="points">
+          <li>平面镜成虚像：等大、等距、像物连线与镜面垂直、左右对调</li>
+          <li>像的大小与物距无关，只与物本身大小有关</li>
+          <li>探究用薄玻璃板 + 等效替代法定像位、比大小；虚像不能用光屏承接</li>
+          <li>凹面镜会聚光（太阳灶、反光罩）；凸面镜发散光、视野宽（后视镜）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var tabs=document.querySelectorAll('.tab-btn');
+  Array.prototype.forEach.call(tabs,function(b){
+    b.addEventListener('click',function(){
+      Array.prototype.forEach.call(tabs,function(x){x.classList.remove('active')});
+      Array.prototype.forEach.call(document.querySelectorAll('.tab-panel'),function(p){p.classList.remove('active')});
+      b.classList.add('active');
+      document.getElementById('panel-'+b.getAttribute('data-tab')).classList.add('active');
+      window.scrollTo(0,0);
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.reveal-btn'),function(btn){
+    btn.addEventListener('click',function(){
+      var box=btn.closest('.question-box');
+      if(!box)return;
+      var open=box.classList.toggle('open');
+      btn.textContent=open?'收起答案':'点击揭晓答案';
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.steps-wrap'),function(wrap){
+    var steps=wrap.querySelectorAll('.example-step');
+    var idx=0;
+    var next=wrap.querySelector('.step-next');
+    var reset=wrap.querySelector('.step-reset');
+    next.addEventListener('click',function(){
+      if(idx<steps.length){steps[idx].classList.add('show');idx++;}
+      if(idx>=steps.length){next.disabled=true;}
+    });
+    reset.addEventListener('click',function(){
+      Array.prototype.forEach.call(steps,function(s){s.classList.remove('show')});
+      idx=0;next.disabled=false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

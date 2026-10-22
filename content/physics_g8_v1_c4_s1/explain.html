@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>光的直线传播</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100dvh;background:#f0f5fa;color:#1f2937;line-height:1.85;padding:14px 14px 40px}
+  .back-btn{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:10px;background:#fff;border:1px solid #cbd5e1;color:#2563eb;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px}
+  .container{max-width:640px;margin:0 auto}
+  .page-header{text-align:center;margin:6px 0 14px}
+  .page-header h1{font-size:22px;color:#111827}
+  .page-header p{font-size:13px;color:#64748b;margin-top:4px}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab-btn{flex:0 0 auto;min-height:42px;padding:9px 14px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#334155;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .tab-btn.active{background:#2563eb;border-color:#2563eb;color:#fff}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block;animation:panelIn .25s ease}
+  @keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(30,41,59,.06)}
+  .card h2{font-size:17px;color:#111827;margin-bottom:10px}
+  .card h3{font-size:15px;color:#1e3a5f;margin:12px 0 6px}
+  .card p{font-size:14.5px;margin-bottom:8px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:8px;background:#e0eaff;color:#2563eb;vertical-align:middle;margin-left:6px}
+  .key-point{background:#eaf6ec;border-left:4px solid #2f9e44;border-radius:0 10px 10px 0;padding:10px 14px;margin:10px 0;font-size:14px}
+  .key-point b{color:#2b8a3e}
+  .question-box{background:#fdf3e7;border-left:4px solid #e8940c;border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+  .question-box h4{font-size:14px;color:#b06f04;margin-bottom:6px}
+  .question-box p{font-size:14px;margin-bottom:4px}
+  .reveal-btn{margin-top:8px;min-height:42px;padding:9px 14px;border-radius:10px;border:1.5px solid #2f9e44;background:#fff;color:#2b8a3e;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .reveal-btn:active{background:#eaf6ec}
+  .reveal-ans{display:none;margin-top:8px;background:#eaf6ec;border-radius:10px;padding:10px 12px;font-size:14px}
+  .question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+  .example-step{display:none;background:#eef4fb;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+  .example-step.show{display:block;animation:panelIn .25s ease}
+  .step-btns{display:flex;gap:8px;margin-top:8px}
+  .btn{min-height:42px;padding:9px 16px;border:0;border-radius:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;background:#2563eb;color:#fff}
+  .btn:disabled{background:#c3cad6;cursor:default}
+  .btn.secondary{background:#e2e8f0;color:#334155}
+  ul.points{list-style:none;padding:0}
+  ul.points li{padding:6px 0 6px 24px;position:relative;font-size:14px;border-bottom:1px dashed #e2e8f0}
+  ul.points li:last-child{border-bottom:0}
+  ul.points li::before{content:"✔";position:absolute;left:0;color:#2f9e44;font-weight:700}
+  .formula{text-align:center;font-size:22px;font-weight:700;color:#2563eb;margin:12px 0;letter-spacing:1px}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1>光的直线传播</h1>
+    <p>光源 · 直线传播条件 · 光线模型 · 小孔成像 · 光速</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">光源</button>
+    <button class="tab-btn" data-tab="e2">直线传播</button>
+    <button class="tab-btn" data-tab="e3">小孔成像</button>
+    <button class="tab-btn" data-tab="e4">光速与例题</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、导入与光源 <span class="chip">基础</span></h2>
+      <p>夜幕降临，街边的霓虹灯次第亮起；日食发生时，太阳像被一只看不见的嘴咬掉了一块。光究竟是怎样传播的？它跑得有多快？这一节就从身边最常见的现象出发，揭开光的行进路线。</p>
+      <p>能够自行发光的物体叫做<strong>光源</strong>。太阳、恒星、点燃的蜡烛、通电的电灯都是光源。月亮不是光源——它自身并不发光，我们看到的皎洁月光，其实是月亮反射的太阳光。</p>
+      <div class="key-point">
+        <p><b>光源的分类与判断标准</b></p>
+        <p>按来源分：天然光源（太阳、恒星、萤火虫）与人造光源（电灯、蜡烛）。判断标准只有一条：<b>正在自行发光</b>。反光的镜子、月亮、银幕都不算光源。</p>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 1</h4>
+        <p>月亮、电影银幕、萤火虫，这三个物体哪些是光源？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>只有<b>萤火虫</b>是光源。月亮和电影银幕自身都不发光，进入我们眼睛的是它们反射的光，所以都不是光源。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、光是怎样传播的 <span class="chip">核心概念</span></h2>
+      <p>光在<strong>同种均匀介质</strong>中沿直线传播。实验可以验证：激光笔射入有薄雾的空气，光的路径是一条直线；射入滴了几滴牛奶的水中，水中的光路仍是直线；射入玻璃砖，光路照样笔直。</p>
+      <p>注意前提：介质不仅要同种，还要<strong>均匀</strong>。介质不均匀时，光不一定沿直线走——海市蜃楼就是光在密度不均匀的空气中发生弯曲形成的。</p>
+      <div class="key-point">
+        <p><b>光线模型</b></p>
+        <p>为了描述光的传播路径，我们用一条<b>带箭头的直线</b>表示光线，箭头指光的传播方向。光线是一种理想化的物理模型，实际并不存在，但能简洁准确地表达光的行进路线。</p>
+      </div>
+      <p>直线传播的应用随处可见：影子的形成、射击瞄准的「三点一线」、日食和月食，道理都是光沿直线传播、被不透明物体挡住。</p>
+      <div class="question-box">
+        <h4>思考讨论 2</h4>
+        <p>影子和像有什么不同？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>影子是光被不透明物体挡住后，光照不到的<b>黑暗区域</b>；像是光实际到达后形成的明亮图案。一个「缺光」，一个「有光」，成因刚好相反。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、小孔成像 <span class="chip">重点实验</span></h2>
+      <p>在带小孔的板前放一支点燃的蜡烛，板后的屏上会出现一个<strong>倒立</strong>的火焰像。这就是著名的小孔成像。</p>
+      <p>原理仍然是光沿直线传播：烛焰顶端发出的光穿过小孔后射到屏的下端，底端的光射到屏的上端，光路在小孔处交叉，所以像上下颠倒。</p>
+      <div class="key-point">
+        <p><b>成像特点</b></p>
+        <p>倒立的<b>实像</b>，能用屏承接；像的形状只由物体决定，与孔的形状无关——孔是圆的、三角的、方的，像都是火焰形；物离孔越近、屏离孔越远，像越大。</p>
+      </div>
+      <div class="card" style="background:#f8fafc">
+        <h3 style="margin-top:0">例题 · 分步揭晓</h3>
+        <p>烛焰高 8 cm，蜡烛距小孔 30 cm，光屏距小孔 15 cm。求屏上火焰像的高度，并说明像的正倒。</p>
+        <div class="steps-wrap">
+          <div class="example-step">已知：物高 8 cm，物距 30 cm，像距 15 cm。</div>
+          <div class="example-step">由光路交叉的相似关系：像高 = 物高 × 像距 ÷ 物距。</div>
+          <div class="example-step">代入：像高 = 8 × 15 ÷ 30 = 4 cm。</div>
+          <div class="example-step">结论：屏上成<b>倒立</b>的实像，高 4 cm，比烛焰缩小。</div>
+          <div class="step-btns">
+            <button class="btn step-next" type="button">下一步</button>
+            <button class="btn secondary step-reset" type="button">重置</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>四、光的传播速度 <span class="chip">核心数据</span></h2>
+      <p>光在真空中的传播速度最大，通常取：</p>
+      <div class="formula">c = 3 × 10⁸ m/s = 3 × 10⁵ km/s</div>
+      <p>空气中的光速非常接近真空中的值；水中约为真空中的四分之三；玻璃中约为三分之二。</p>
+      <p>光在一年内传播的距离叫做<strong>光年</strong>，它是长度单位，约等于 9.46 × 10¹² km，天文学上用它衡量恒星之间的距离。</p>
+      <div class="question-box">
+        <h4>例题 · 思考讨论 3</h4>
+        <p>太阳到地球的距离约 1.5 × 10¹¹ m，太阳光传到地球需要多长时间？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>t = s ÷ v = 1.5 × 10¹¹ m ÷ 3 × 10⁸ m/s = <b>500 s</b>，约 8.3 分钟。也就是说，我们此刻看到的阳光，是太阳大约 8 分钟前发出的。</p>
+        </div>
+      </div>
+      <div class="key-point">
+        <p><b>本节小结</b></p>
+        <ul class="points">
+          <li>光源：正在自行发光的物体，月亮不是光源</li>
+          <li>光在同种均匀介质中沿直线传播，介质不均匀会弯曲</li>
+          <li>光线是带箭头的直线，属理想化模型</li>
+          <li>小孔成像：倒立实像，形状与孔形无关，像高 = 物高 × 像距 ÷ 物距</li>
+          <li>真空光速 c = 3 × 10⁸ m/s；光年是长度单位</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var tabs=document.querySelectorAll('.tab-btn');
+  Array.prototype.forEach.call(tabs,function(b){
+    b.addEventListener('click',function(){
+      Array.prototype.forEach.call(tabs,function(x){x.classList.remove('active')});
+      Array.prototype.forEach.call(document.querySelectorAll('.tab-panel'),function(p){p.classList.remove('active')});
+      b.classList.add('active');
+      document.getElementById('panel-'+b.getAttribute('data-tab')).classList.add('active');
+      window.scrollTo(0,0);
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.reveal-btn'),function(btn){
+    btn.addEventListener('click',function(){
+      var box=btn.closest('.question-box');
+      if(!box)return;
+      var open=box.classList.toggle('open');
+      btn.textContent=open?'收起答案':'点击揭晓答案';
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.steps-wrap'),function(wrap){
+    var steps=wrap.querySelectorAll('.example-step');
+    var idx=0;
+    var next=wrap.querySelector('.step-next');
+    var reset=wrap.querySelector('.step-reset');
+    next.addEventListener('click',function(){
+      if(idx<steps.length){steps[idx].classList.add('show');idx++;}
+      if(idx>=steps.length){next.disabled=true;}
+    });
+    reset.addEventListener('click',function(){
+      Array.prototype.forEach.call(steps,function(s){s.classList.remove('show')});
+      idx=0;next.disabled=false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

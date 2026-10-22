@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>光的色散</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100dvh;background:#f0f5fa;color:#1f2937;line-height:1.85;padding:14px 14px 40px}
+  .back-btn{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:10px;background:#fff;border:1px solid #cbd5e1;color:#2563eb;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px}
+  .container{max-width:640px;margin:0 auto}
+  .page-header{text-align:center;margin:6px 0 14px}
+  .page-header h1{font-size:22px;color:#111827}
+  .page-header p{font-size:13px;color:#64748b;margin-top:4px}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab-btn{flex:0 0 auto;min-height:42px;padding:9px 14px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#334155;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .tab-btn.active{background:#2563eb;border-color:#2563eb;color:#fff}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block;animation:panelIn .25s ease}
+  @keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(30,41,59,.06)}
+  .card h2{font-size:17px;color:#111827;margin-bottom:10px}
+  .card h3{font-size:15px;color:#1e3a5f;margin:12px 0 6px}
+  .card p{font-size:14.5px;margin-bottom:8px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:8px;background:#e0eaff;color:#2563eb;vertical-align:middle;margin-left:6px}
+  .key-point{background:#eaf6ec;border-left:4px solid #2f9e44;border-radius:0 10px 10px 0;padding:10px 14px;margin:10px 0;font-size:14px}
+  .key-point b{color:#2b8a3e}
+  .question-box{background:#fdf3e7;border-left:4px solid #e8940c;border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+  .question-box h4{font-size:14px;color:#b06f04;margin-bottom:6px}
+  .question-box p{font-size:14px;margin-bottom:4px}
+  .reveal-btn{margin-top:8px;min-height:42px;padding:9px 14px;border-radius:10px;border:1.5px solid #2f9e44;background:#fff;color:#2b8a3e;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .reveal-btn:active{background:#eaf6ec}
+  .reveal-ans{display:none;margin-top:8px;background:#eaf6ec;border-radius:10px;padding:10px 12px;font-size:14px}
+  .question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+  .example-step{display:none;background:#eef4fb;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+  .example-step.show{display:block;animation:panelIn .25s ease}
+  .step-btns{display:flex;gap:8px;margin-top:8px}
+  .btn{min-height:42px;padding:9px 16px;border:0;border-radius:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;background:#2563eb;color:#fff}
+  .btn:disabled{background:#c3cad6;cursor:default}
+  .btn.secondary{background:#e2e8f0;color:#334155}
+  ul.points{list-style:none;padding:0}
+  ul.points li{padding:6px 0 6px 24px;position:relative;font-size:14px;border-bottom:1px dashed #e2e8f0}
+  ul.points li:last-child{border-bottom:0}
+  ul.points li::before{content:"✔";position:absolute;left:0;color:#2f9e44;font-weight:700}
+  .spectrum{height:16px;border-radius:8px;margin:10px 0;background:linear-gradient(to right,#e03131,#f08c00,#f5d90a,#2f9e44,#1c7ed6,#3b3fa0,#7048e8)}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1>光的色散</h1>
+    <p>白光色散 · 色光三原色 · 物体颜色的成因</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">白光色散</button>
+    <button class="tab-btn" data-tab="e2">色光的混合</button>
+    <button class="tab-btn" data-tab="e3">物体的颜色</button>
+    <button class="tab-btn" data-tab="e4">例题与小结</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、彩虹从哪里来 <span class="chip">导入</span></h2>
+      <p>雨过天晴，天空有时挂起一道七彩圆弧——彩虹。太阳光明明是白色的，七彩颜色从哪儿来？三百多年前，牛顿用一个玻璃三棱柱给出了答案。</p>
+      <p>1666 年，牛顿让一束窄窄的太阳光通过三棱镜，屏上的光带展开成<strong>红、橙、黄、绿、蓝、靛、紫</strong>七色。太阳光通过棱镜被分解成各种色光的现象，叫<strong>光的色散</strong>。</p>
+      <div class="spectrum" aria-hidden="true"></div>
+      <div class="key-point">
+        <p><b>色散告诉我们两件事</b></p>
+        <p>① 白光<b>不是单色光</b>，而是多种色光混合成的<b>复色光</b>；② 色散的本质是折射——不同色光通过棱镜偏折程度不同，<b>紫光偏折最大、红光最小</b>，白光因此被「拆开」。</p>
+      </div>
+      <p>彩虹成因相同：雨后空气中的无数小水滴都像小棱镜，把阳光折射、色散成七彩光弧。</p>
+      <div class="question-box">
+        <h4>思考讨论 1</h4>
+        <p>让白光先通过三棱镜色散，再让七色光全部通过另一个倒置的三棱镜，屏上会看到什么？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>看到<b>白光</b>。倒置棱镜把偏折「反着来」一遍，各色光重新复合——这说明白光是复色光。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、色光的混合与三原色 <span class="chip">核心概念</span></h2>
+      <p>把<strong>红、绿、蓝</strong>三种色光按不同比例混合，能得到几乎所有颜色的光，它们叫<strong>色光的三原色</strong>。彩色电视和手机屏幕就靠这三种像素点的亮度配比显示万千色彩。</p>
+      <div class="key-point">
+        <p><b>色光混合速查</b></p>
+        <p>红 + 绿 = <b>黄</b>；红 + 蓝 = <b>品红</b>；绿 + 蓝 = <b>青</b>；红 + 绿 + 蓝 = <b>白</b>。注意区分：颜料三原色是<b>品红、黄、青</b>，越混越暗，规律与色光相反。</p>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 2</h4>
+        <p>舞台上只用绿色灯光照一位演员，她穿红上衣、白裙子。观众看到她的上衣和裙子各是什么颜色？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>上衣呈<b>黑色</b>：红上衣只反射红光，绿光被吸收，几乎没有光进入眼睛；裙子呈<b>绿色</b>：白色能反射各种色光，照来绿光就反射绿光。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、物体的颜色由什么决定 <span class="chip">原理讲透</span></h2>
+      <h3>透明物体</h3>
+      <p>透明物体的颜色由<strong>透过</strong>的色光决定：红色玻璃只透过红光、吸收其他色光；无色透明物体各种色光都能透过。</p>
+      <h3>不透明物体</h3>
+      <p>不透明物体的颜色由<strong>反射</strong>的色光决定：红苹果反射红光、吸收其他色光，绿叶反射绿光。<strong>白色</strong>物体反射各种色光，照什么光呈什么色；<strong>黑色</strong>物体吸收各种色光，几乎无光反射。</p>
+      <div class="key-point">
+        <p><b>一句话抓住本质</b></p>
+        <p>物体的颜色 = 它能<b>反射或透过</b>的那种色光。照射光的颜色变了，物体呈现的颜色也会跟着变；照上去的光若被全部吸收，物体就呈黑色。</p>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 3</h4>
+        <p>夏天人们爱穿浅色衣服，冬天晒太阳爱穿深色衣服，这里面有什么科学道理？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>白色等浅色衣服<b>反射</b>大部分色光，吸收的光能少，夏天穿凉快；黑色等深色衣服<b>吸收</b>各种色光，光能转化为内能多，冬天穿晒太阳更暖和。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>四、例题与小结 <span class="chip">实战演练</span></h2>
+      <div class="card" style="background:#f8fafc">
+        <h3 style="margin-top:0">例题 · 分步揭晓</h3>
+        <p>一朵红色的玫瑰花，在阳光下呈什么颜色？在只有绿光的暗室里又呈什么颜色？</p>
+        <div class="steps-wrap">
+          <div class="example-step">阳光是白光，包含红、橙、黄、绿、蓝、靛、紫各种色光。</div>
+          <div class="example-step">红花瓣只反射红光、吸收其他色光 → 阳光下呈<b>红色</b>。</div>
+          <div class="example-step">绿光中没有红光成分，红花瓣把绿光吸收，几乎无光反射。</div>
+          <div class="example-step">结论：绿光暗室里玫瑰呈<b>黑色</b>。</div>
+          <div class="step-btns">
+            <button class="btn step-next" type="button">下一步</button>
+            <button class="btn secondary step-reset" type="button">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>例题 2 · 思考讨论 4</h4>
+        <p>一张白纸，在红光照射下呈红色，在蓝光照射下呈蓝色。为什么白纸的颜色会「变来变去」？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>白色物体能<b>反射各种色光</b>：照红光反射红光呈红色，照蓝光反射蓝光呈蓝色。呈现什么颜色完全取决于照射它的光。</p>
+        </div>
+      </div>
+      <div class="key-point">
+        <p><b>本节小结</b></p>
+        <ul class="points">
+          <li>白光经棱镜色散成七色光 → 白光是复色光；紫光偏折最大、红光最小</li>
+          <li>色光三原色：红、绿、蓝；颜料三原色：品红、黄、青</li>
+          <li>透明物体的颜色由透过的色光决定，不透明物体由反射的色光决定</li>
+          <li>白色反射各种色光，黑色吸收各种色光</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var tabs=document.querySelectorAll('.tab-btn');
+  Array.prototype.forEach.call(tabs,function(b){
+    b.addEventListener('click',function(){
+      Array.prototype.forEach.call(tabs,function(x){x.classList.remove('active')});
+      Array.prototype.forEach.call(document.querySelectorAll('.tab-panel'),function(p){p.classList.remove('active')});
+      b.classList.add('active');
+      document.getElementById('panel-'+b.getAttribute('data-tab')).classList.add('active');
+      window.scrollTo(0,0);
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.reveal-btn'),function(btn){
+    btn.addEventListener('click',function(){
+      var box=btn.closest('.question-box');
+      if(!box)return;
+      var open=box.classList.toggle('open');
+      btn.textContent=open?'收起答案':'点击揭晓答案';
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.steps-wrap'),function(wrap){
+    var steps=wrap.querySelectorAll('.example-step');
+    var idx=0;
+    var next=wrap.querySelector('.step-next');
+    var reset=wrap.querySelector('.step-reset');
+    next.addEventListener('click',function(){
+      if(idx<steps.length){steps[idx].classList.add('show');idx++;}
+      if(idx>=steps.length){next.disabled=true;}
+    });
+    reset.addEventListener('click',function(){
+      Array.prototype.forEach.call(steps,function(s){s.classList.remove('show')});
+      idx=0;next.disabled=false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

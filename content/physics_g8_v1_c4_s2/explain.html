@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>光的反射</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100dvh;background:#f0f5fa;color:#1f2937;line-height:1.85;padding:14px 14px 40px}
+  .back-btn{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:10px;background:#fff;border:1px solid #cbd5e1;color:#2563eb;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px}
+  .container{max-width:640px;margin:0 auto}
+  .page-header{text-align:center;margin:6px 0 14px}
+  .page-header h1{font-size:22px;color:#111827}
+  .page-header p{font-size:13px;color:#64748b;margin-top:4px}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab-btn{flex:0 0 auto;min-height:42px;padding:9px 14px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#334155;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .tab-btn.active{background:#2563eb;border-color:#2563eb;color:#fff}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block;animation:panelIn .25s ease}
+  @keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(30,41,59,.06)}
+  .card h2{font-size:17px;color:#111827;margin-bottom:10px}
+  .card h3{font-size:15px;color:#1e3a5f;margin:12px 0 6px}
+  .card p{font-size:14.5px;margin-bottom:8px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:8px;background:#e0eaff;color:#2563eb;vertical-align:middle;margin-left:6px}
+  .key-point{background:#eaf6ec;border-left:4px solid #2f9e44;border-radius:0 10px 10px 0;padding:10px 14px;margin:10px 0;font-size:14px}
+  .key-point b{color:#2b8a3e}
+  .question-box{background:#fdf3e7;border-left:4px solid #e8940c;border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+  .question-box h4{font-size:14px;color:#b06f04;margin-bottom:6px}
+  .question-box p{font-size:14px;margin-bottom:4px}
+  .reveal-btn{margin-top:8px;min-height:42px;padding:9px 14px;border-radius:10px;border:1.5px solid #2f9e44;background:#fff;color:#2b8a3e;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .reveal-btn:active{background:#eaf6ec}
+  .reveal-ans{display:none;margin-top:8px;background:#eaf6ec;border-radius:10px;padding:10px 12px;font-size:14px}
+  .question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+  .example-step{display:none;background:#eef4fb;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+  .example-step.show{display:block;animation:panelIn .25s ease}
+  .step-btns{display:flex;gap:8px;margin-top:8px}
+  .btn{min-height:42px;padding:9px 16px;border:0;border-radius:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;background:#2563eb;color:#fff}
+  .btn:disabled{background:#c3cad6;cursor:default}
+  .btn.secondary{background:#e2e8f0;color:#334155}
+  ul.points{list-style:none;padding:0}
+  ul.points li{padding:6px 0 6px 24px;position:relative;font-size:14px;border-bottom:1px dashed #e2e8f0}
+  ul.points li:last-child{border-bottom:0}
+  ul.points li::before{content:"✔";position:absolute;left:0;color:#2f9e44;font-weight:700}
+  .formula{text-align:center;font-size:20px;font-weight:700;color:#2563eb;margin:12px 0;letter-spacing:1px}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1>光的反射</h1>
+    <p>反射定律 · 入射角与反射角 · 镜面反射与漫反射 · 光路可逆</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">反射现象</button>
+    <button class="tab-btn" data-tab="e2">反射定律</button>
+    <button class="tab-btn" data-tab="e3">两种反射</button>
+    <button class="tab-btn" data-tab="e4">例题与小结</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、我们怎样看见不发光的物体 <span class="chip">导入</span></h2>
+      <p>书本、墙壁自己都不发光，为什么我们仍然看得见？因为它们反射的光进入了眼睛。光射到物体表面时被反射回去的现象，叫做<strong>光的反射</strong>。</p>
+      <h3>认识反射光路中的角色</h3>
+      <p><strong>入射光线</strong>：射向表面的那条光；<strong>入射点 O</strong>：光线打在表面上的位置；<strong>法线 ON</strong>：过入射点、垂直于反射面的虚线，是量角的基准；<strong>反射光线</strong>：被反射回去的那条光。</p>
+      <div class="key-point">
+        <p><b>角从哪里量？</b></p>
+        <p><b>入射角</b>是入射光线与<b>法线</b>的夹角，<b>反射角</b>是反射光线与法线的夹角——都以法线为基准，不以反射面为基准。法线是辅助线，画成虚线。</p>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 1</h4>
+        <p>一束光垂直射向镜面，入射角是多少度？光沿什么方向反射回去？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>垂直入射时光线与法线重合，入射角为 <b>0°</b>，反射角也为 0°，光<b>沿原路返回</b>。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、光的反射定律 <span class="chip">核心规律</span></h2>
+      <p>实验：白纸板竖直立在平面镜上，用激光笔贴着纸板把光射向镜面上的入射点 O，入射与反射光线都清晰呈现在纸板上。改变入射方向多做几次，记录每次的两个角。</p>
+      <div class="key-point">
+        <p><b>反射定律三条</b></p>
+        <p>① 反射光线、入射光线与法线在<b>同一平面</b>内（三线共面）；</p>
+        <p>② 反射光线和入射光线<b>分居法线两侧</b>；</p>
+        <p>③ <b>反射角等于入射角</b>。</p>
+      </div>
+      <p>「三线共面」这样验证：把呈现反射光线的那半块纸板向后折起，折起的纸板上看不到反射光线——说明反射光线只出现在入射光线和法线所在的平面里。</p>
+      <p>在反射现象中，<strong>光路是可逆的</strong>：让光逆着原来反射光线的方向射入，它必沿着原来入射光线的方向反射出去。</p>
+      <div class="question-box">
+        <h4>思考讨论 2</h4>
+        <p>甲同学通过平面镜看到了乙同学的眼睛，乙同学能否通过同一面镜子看到甲的眼睛？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><b>能</b>。甲能看到乙，说明乙的光经镜面到达了甲眼；光路可逆，这条路径反向走同样成立，所以乙也能看到甲。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、镜面反射与漫反射 <span class="chip">对比理解</span></h2>
+      <p><strong>镜面反射</strong>：平行光射到光滑的镜面上，反射光仍平行地射向同一方向。迎着反射光看会刺眼，黑板「反光」看不清字就是它造成的。</p>
+      <p><strong>漫反射</strong>：平行光射到粗糙表面，反射光射向四面八方——我们因此能从各个方向看到桌子、书本等不发光的物体。</p>
+      <div class="key-point">
+        <p><b>关键辨析</b></p>
+        <p>镜面反射和漫反射<b>都遵守反射定律</b>。漫反射并非「乱反射」——粗糙面上每一条光线仍满足反射角等于入射角，只是表面凹凸不平，各点法线方向不同，反射光才不再平行。</p>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 3</h4>
+        <p>雨后的夜晚，迎着路灯走，积水处看起来是亮还是暗？背着路灯走呢？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><b>迎着路灯</b>：水面发生镜面反射，反射光大量进入眼睛，积水处显得<b>亮</b>；<b>背着路灯</b>：水面的镜面反射光射向前方，进不了眼睛，而粗糙地面的漫反射光能进入眼睛，于是积水处反而显<b>暗</b>。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>四、例题与小结 <span class="chip">实战演练</span></h2>
+      <div class="card" style="background:#f8fafc">
+        <h3 style="margin-top:0">例题 · 分步揭晓</h3>
+        <p>一束光线与镜面成 30° 角射到镜面上，求入射角和反射角各是多少度？</p>
+        <div class="steps-wrap">
+          <div class="example-step">已知：光线与<b>镜面</b>的夹角是 30°。</div>
+          <div class="example-step">入射角是与<b>法线</b>的夹角，而法线垂直于镜面，所以入射角 = 90° − 30° = 60°。</div>
+          <div class="example-step">由反射定律：反射角 = 入射角 = 60°。</div>
+          <div class="example-step">结论：入射角 60°，反射角 60°。易错提醒：题给的是与镜面的夹角，千万别当成入射角。</div>
+          <div class="step-btns">
+            <button class="btn step-next" type="button">下一步</button>
+            <button class="btn secondary step-reset" type="button">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>例题 2 · 思考讨论 4</h4>
+        <p>入射光线方向不变，把镜面绕入射点转动使入射角增大 15°，反射光线与入射光线的夹角增大多少度？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>反射角始终等于入射角，两者同时增大 15°，夹角增大 15° + 15° = <b>30°</b>。</p>
+        </div>
+      </div>
+      <div class="key-point">
+        <p><b>本节小结</b></p>
+        <ul class="points">
+          <li>反射定律：三线共面、法线居中两侧分、反射角等于入射角</li>
+          <li>入射角与反射角都以法线为基准；垂直入射时两角均为 0°</li>
+          <li>镜面反射与漫反射都遵守反射定律</li>
+          <li>反射现象中光路可逆</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var tabs=document.querySelectorAll('.tab-btn');
+  Array.prototype.forEach.call(tabs,function(b){
+    b.addEventListener('click',function(){
+      Array.prototype.forEach.call(tabs,function(x){x.classList.remove('active')});
+      Array.prototype.forEach.call(document.querySelectorAll('.tab-panel'),function(p){p.classList.remove('active')});
+      b.classList.add('active');
+      document.getElementById('panel-'+b.getAttribute('data-tab')).classList.add('active');
+      window.scrollTo(0,0);
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.reveal-btn'),function(btn){
+    btn.addEventListener('click',function(){
+      var box=btn.closest('.question-box');
+      if(!box)return;
+      var open=box.classList.toggle('open');
+      btn.textContent=open?'收起答案':'点击揭晓答案';
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.steps-wrap'),function(wrap){
+    var steps=wrap.querySelectorAll('.example-step');
+    var idx=0;
+    var next=wrap.querySelector('.step-next');
+    var reset=wrap.querySelector('.step-reset');
+    next.addEventListener('click',function(){
+      if(idx<steps.length){steps[idx].classList.add('show');idx++;}
+      if(idx>=steps.length){next.disabled=true;}
+    });
+    reset.addEventListener('click',function(){
+      Array.prototype.forEach.call(steps,function(s){s.classList.remove('show')});
+      idx=0;next.disabled=false;
+    });
+  });
+})();
+</script>
+</body>
+</html>
