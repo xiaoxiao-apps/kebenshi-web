@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 升华和凝华</title>
+<style>
+  :root { --ink:#2c2c2c; --ink2:#6b6b6b; --green:#2e9e5b; --green-bg:#e9f7ef; --brown:#a9713d; --brown-bg:#faf1e6; --cyan:#2b8a9e; --cyan-bg:#e6f6f9; --purple:#7048a6; --purple-bg:#f1eaf9; --card2:#f7f5f0; }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100dvh; background:#f3f0ea; color:var(--ink); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; line-height:1.7; font-size:15px; }
+  .back-btn { display:inline-flex; align-items:center; gap:4px; margin:12px 0 0 12px; padding:8px 14px; border-radius:999px; background:#fff; color:var(--green); text-decoration:none; font-weight:700; font-size:14px; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .container { max-width:720px; margin:0 auto; padding:8px 14px 48px; }
+  .page-header { text-align:center; padding:14px 0 4px; }
+  .page-title { font-size:22px; margin:0 0 4px; }
+  .page-subtitle { color:var(--ink2); font-size:13px; margin:0; }
+  .card { background:#fff; border-radius:14px; padding:16px; margin:12px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .card h2 { font-size:17px; margin:0 0 10px; }
+  .chip { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; vertical-align:2px; }
+  .chip.brown { background:var(--brown-bg); color:var(--brown); }
+  .chip.green { background:var(--green-bg); color:var(--green); }
+  .chip.purple { background:var(--purple-bg); color:var(--purple); }
+  .tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin:12px 0 4px; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab-btn { flex:0 0 auto; padding:10px 14px; border-radius:10px; border:1px solid rgba(0,0,0,.1); background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; min-height:44px; }
+  .tab-btn.active { background:var(--green); color:#fff; border-color:var(--green); }
+  .tab-panel { display:none; animation:panelIn .25s ease; }
+  .tab-panel.active { display:block; }
+  @keyframes panelIn { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:none;} }
+  .question-box { background:var(--brown-bg); border-left:4px solid var(--brown); border-radius:0 12px 12px 0; padding:14px 16px; margin:12px 0; }
+  .question-box h4 { margin:0 0 8px; color:var(--brown); font-size:15px; }
+  .key-point { background:var(--green-bg); border-left:4px solid var(--green); border-radius:0 12px 12px 0; padding:12px 14px; margin:12px 0; }
+  .key-point.extra-box { background:var(--cyan-bg); border-left-color:var(--cyan); }
+  .reveal-btn { margin-top:8px; padding:10px 14px; min-height:44px; border-radius:10px; border:1.5px solid var(--green); background:#fff; color:var(--green); font-weight:800; font-size:14px; cursor:pointer; }
+  .reveal-btn:hover { background:var(--green-bg); }
+  .reveal-ans { display:none; margin-top:10px; background:#fff; border-left:4px solid var(--green); border-radius:0 10px 10px 0; padding:10px 12px; font-size:14px; }
+  .question-box.open .reveal-ans { display:block; animation:panelIn .25s ease; }
+  .step-item { border:1px solid rgba(0,0,0,.08); border-radius:10px; margin:8px 0; overflow:hidden; }
+  .step-head { display:flex; align-items:center; gap:8px; padding:12px 14px; font-weight:700; cursor:pointer; background:#fff; min-height:44px; }
+  .step-head .num { flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--green); color:#fff; font-size:12px; display:flex; align-items:center; justify-content:center; }
+  .step-head .arrow { margin-left:auto; color:var(--ink2); transition:transform .2s; }
+  .step-item.open .step-head .arrow { transform:rotate(90deg); }
+  .step-body { display:none; padding:0 14px 12px; background:var(--card2); font-size:14px; }
+  .step-item.open .step-body { display:block; animation:panelIn .25s ease; }
+  .example-step { display:none; background:var(--green-bg); border-radius:10px; padding:12px 14px; margin:10px 0; font-size:14px; }
+  .example-step.show { display:block; animation:panelIn .25s ease; }
+  .anim-btns { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .btn { padding:10px 16px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; border:1.5px solid transparent; min-height:44px; }
+  .btn-primary { background:var(--green); color:#fff; }
+  .btn-secondary { background:#fff; color:var(--green); border-color:var(--green); }
+  .note { color:var(--ink2); font-size:13px; }
+  table.simple { width:100%; border-collapse:collapse; font-size:13px; text-align:center; margin:10px 0; }
+  table.simple th, table.simple td { border:1px solid rgba(0,0,0,.08); padding:7px 4px; }
+  table.simple th { background:var(--card2); }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 升华和凝华</h1>
+    <p class="page-subtitle">碘的奇妙变化 · 霜与冰花 · 干冰 · 水循环</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">升华与凝华</button>
+    <button class="tab-btn" data-tab="e2">身边的现象</button>
+    <button class="tab-btn" data-tab="e3">干冰与水循环</button>
+  </div>
+
+  <!-- E1 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、碘的奇妙变化 <span class="chip brown">导入实验</span></h2>
+      <p>封闭容器里放少量深紫色的碘颗粒。浇热水：固态碘没化成液体，直接冒出紫色的碘蒸气；浇冷水：碘蒸气不经液态，直接在容器壁上变回固态碘。</p>
+      <div class="key-point">
+        <p><strong>升华与凝华</strong></p>
+        <p>物质从<strong>固态直接变成气态</strong>叫<strong>升华</strong>，升华要<strong>吸热</strong>；从<strong>气态直接变成固态</strong>叫<strong>凝华</strong>，凝华要<strong>放热</strong>。注意「直接」——中间不经过液态。</p>
+      </div>
+      <p>这样，三态间的六种物态变化凑齐了：熔化与凝固、汽化与液化、升华与凝华，两两互逆。</p>
+      <table class="simple">
+        <thead><tr><th>方向</th><th>名称</th><th>吸/放热</th></tr></thead>
+        <tbody>
+          <tr><td>固 → 气</td><td>升华</td><td>吸热</td></tr>
+          <tr><td>气 → 固</td><td>凝华</td><td>放热</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- E2 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、升华和凝华在身边 <span class="chip brown">逐条点开</span></h2>
+      <p class="note">点击每一条，展开现象背后的道理。</p>
+      <div class="step-item open">
+        <div class="step-head"><span class="num">升</span>樟脑片慢慢变小<span class="arrow">›</span></div>
+        <div class="step-body">衣柜里的樟脑片过段时间变小甚至消失，不留液体痕迹——直接从固态升华为气态，顺便驱赶蛀虫。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">升</span>冻硬的衣服也能变干<span class="arrow">›</span></div>
+        <div class="step-body">寒冬室外结冰的湿衣服过几天也干了：冰没先化成水，直接升华为水蒸气。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">凝</span>霜<span class="arrow">›</span></div>
+        <div class="step-body">深秋清晨地面草叶现出白色冰晶：夜间气温骤降，空气中水蒸气直接凝华成小冰晶。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">凝</span>窗上冰花与雾凇<span class="arrow">›</span></div>
+        <div class="step-body">严冬窗玻璃内侧的冰花，是屋内水蒸气碰到冰冷玻璃直接凝华形成的，长在<b>室内一侧</b>；枝头雾凇也是水蒸气凝华的冰晶。</div>
+      </div>
+      <div class="question-box">
+        <h4>💬 思考讨论 1</h4>
+        <p>把冰块和盐装进易拉罐混合，罐内温度可降到 -10℃ 以下，过一会儿罐外壁出现一层白霜。霜是怎样形成的？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">冰盐混合使罐壁温度远低于 0℃，<b>空气中的水蒸气</b>碰到极冷罐壁，没有先液化，而是<b>直接凝华</b>成小冰晶附在外壁，形成白霜。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E3 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、干冰的大用途 <span class="chip brown">升华吸热</span></h2>
+      <p>固态二氧化碳俗称<strong>干冰</strong>，常温常压下直接升华为气体，不留液体，吸收大量热使周围骤冷。人工降雨：干冰撒进云层升华吸热，云中水蒸气遇冷液化成小水滴或凝华成小冰晶，聚大落下成雨。舞台白雾也是它的杰作；冷链中干冰给食品保鲜降温。</p>
+      <div class="question-box">
+        <h4>💬 思考讨论 2</h4>
+        <p>舞台上干冰制造出的「白雾」，是干冰升华出来的二氧化碳气体吗？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">不是。二氧化碳气体无色透明，看不见。</div>
+          <div class="line">干冰<b>升华吸热</b>使空气温度骤降，<b>水蒸气</b>遇冷<b>液化</b>成大量小水滴悬浮在低空——白雾其实是小水滴，不是二氧化碳。</div>
+        </div>
+      </div>
+      <div class="card" style="background:var(--card2);">
+        <h2 style="font-size:15px;">例题 · 分步揭晓 <span class="chip brown">物态变化辨析</span></h2>
+        <p>装有干冰的密封罐静置在室温下：罐外壁渐结白霜；打开罐子发现干冰变少了。分别说出这两个现象的物态变化名称和吸放热情况。</p>
+        <div class="example-step show" id="s4step1">第一步：罐外壁的白霜。霜是固态冰晶，来源只能是空气中的水蒸气——气态直接变固态，是<b>凝华</b>，<b>放热</b>。</div>
+        <div class="example-step" id="s4step2">第二步：罐内干冰变少。减少的部分没有变成液体，直接变成了气态——固态直接变气态，是<b>升华</b>，<b>吸热</b>。</div>
+        <div class="example-step" id="s4step3">第三步：串联因果。干冰升华不断吸热，罐壁温度很低，水蒸气才会在罐外凝华成霜。</div>
+        <div class="example-step" id="s4step4">结论：罐外白霜是水蒸气的凝华（放热），罐内干冰变少是升华（吸热）。判断时认准初末态，对照六种物态变化。</div>
+        <div class="anim-btns">
+          <button class="btn btn-primary" id="s4next">下一步</button>
+          <button class="btn btn-secondary" id="s4reset">重置</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>四、水循环与节水 <span class="chip brown">联系生活</span></h2>
+      <p>地球上的水不停循环：海洋河湖的水蒸发升空，高空遇冷液化成小水滴或凝华成小冰晶聚成云，水滴冰晶长大后以雨雪等形式落回地面，汇入江河入海。水借助熔化、凝固、汽化、液化、升华、凝华六种物态变化，周而复始地运动着。</p>
+      <div class="key-point extra-box">
+        <p><span class="chip purple">珍惜</span> <strong>可利用的淡水很少</strong></p>
+        <p>地球表面约 70% 被水覆盖，但绝大部分是海水，淡水仅约 2.5%，能方便利用的更少。推广节水灌溉、一水多用，守护这份稀缺。</p>
+      </div>
+      <div class="key-point">
+        <p><strong>本节小结</strong></p>
+        <p>① 升华：固→气，吸热；凝华：气→固，放热；② 樟脑变小、冻衣变干属升华，霜、冰花、雾凇属凝华；③ 干冰升华吸热，用于人工降雨、舞台白雾、冷链保鲜；④ 水循环串起六种物态变化，淡水稀缺须节约。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var tabs = document.querySelectorAll('#explainTabs .tab-btn');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.question-box');
+      var open = box.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : '💡 点击揭晓答案';
+    });
+  });
+  document.querySelectorAll('.step-item .step-head').forEach(function(head){
+    head.addEventListener('click', function(){
+      head.parentElement.classList.toggle('open');
+    });
+  });
+  (function(){
+    var ids = ['s4step1','s4step2','s4step3','s4step4'];
+    var idx = 1;
+    var nextBtn = document.getElementById('s4next');
+    function refresh(){
+      nextBtn.style.display = idx >= ids.length ? 'none' : 'inline-block';
+    }
+    nextBtn.addEventListener('click', function(){
+      if(idx < ids.length){ document.getElementById(ids[idx]).classList.add('show'); idx++; refresh(); }
+    });
+    document.getElementById('s4reset').addEventListener('click', function(){
+      ids.forEach(function(id,i){ if(i>0) document.getElementById(id).classList.remove('show'); });
+      idx = 1; refresh();
+    });
+    refresh();
+  })();
+})();
+</script>
+</body>
+</html>

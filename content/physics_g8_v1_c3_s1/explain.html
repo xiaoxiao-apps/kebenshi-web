@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 温度</title>
+<style>
+  :root { --ink:#2c2c2c; --ink2:#6b6b6b; --green:#2e9e5b; --green-bg:#e9f7ef; --brown:#a9713d; --brown-bg:#faf1e6; --cyan:#2b8a9e; --cyan-bg:#e6f6f9; --card2:#f7f5f0; }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100dvh; background:#f3f0ea; color:var(--ink); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; line-height:1.7; font-size:15px; }
+  .back-btn { display:inline-flex; align-items:center; gap:4px; margin:12px 0 0 12px; padding:8px 14px; border-radius:999px; background:#fff; color:var(--green); text-decoration:none; font-weight:700; font-size:14px; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .container { max-width:720px; margin:0 auto; padding:8px 14px 48px; }
+  .page-header { text-align:center; padding:14px 0 4px; }
+  .page-title { font-size:22px; margin:0 0 4px; }
+  .page-subtitle { color:var(--ink2); font-size:13px; margin:0; }
+  .card { background:#fff; border-radius:14px; padding:16px; margin:12px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .card h2 { font-size:17px; margin:0 0 10px; }
+  .chip { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; vertical-align:2px; }
+  .chip.brown { background:var(--brown-bg); color:var(--brown); }
+  .chip.green { background:var(--green-bg); color:var(--green); }
+  .tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin:12px 0 4px; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab-btn { flex:0 0 auto; padding:10px 14px; border-radius:10px; border:1px solid rgba(0,0,0,.1); background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; min-height:44px; }
+  .tab-btn.active { background:var(--green); color:#fff; border-color:var(--green); }
+  .tab-panel { display:none; animation:panelIn .25s ease; }
+  .tab-panel.active { display:block; }
+  @keyframes panelIn { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:none;} }
+  .question-box { background:var(--brown-bg); border-left:4px solid var(--brown); border-radius:0 12px 12px 0; padding:14px 16px; margin:12px 0; }
+  .question-box h4 { margin:0 0 8px; color:var(--brown); font-size:15px; }
+  .key-point { background:var(--green-bg); border-left:4px solid var(--green); border-radius:0 12px 12px 0; padding:12px 14px; margin:12px 0; }
+  .key-point.extra-box { background:var(--cyan-bg); border-left-color:var(--cyan); }
+  .reveal-btn { margin-top:8px; padding:10px 14px; min-height:44px; border-radius:10px; border:1.5px solid var(--green); background:#fff; color:var(--green); font-weight:800; font-size:14px; cursor:pointer; }
+  .reveal-btn:hover { background:var(--green-bg); }
+  .reveal-ans { display:none; margin-top:10px; background:#fff; border-left:4px solid var(--green); border-radius:0 10px 10px 0; padding:10px 12px; font-size:14px; }
+  .question-box.open .reveal-ans { display:block; animation:panelIn .25s ease; }
+  .step-item { border:1px solid rgba(0,0,0,.08); border-radius:10px; margin:8px 0; overflow:hidden; }
+  .step-head { display:flex; align-items:center; gap:8px; padding:12px 14px; font-weight:700; cursor:pointer; background:#fff; min-height:44px; }
+  .step-head .num { flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--green); color:#fff; font-size:12px; display:flex; align-items:center; justify-content:center; }
+  .step-head .arrow { margin-left:auto; color:var(--ink2); transition:transform .2s; }
+  .step-item.open .step-head .arrow { transform:rotate(90deg); }
+  .step-body { display:none; padding:0 14px 12px; background:var(--card2); font-size:14px; }
+  .step-item.open .step-body { display:block; animation:panelIn .25s ease; }
+  .example-step { display:none; background:var(--green-bg); border-radius:10px; padding:12px 14px; margin:10px 0; font-size:14px; }
+  .example-step.show { display:block; animation:panelIn .25s ease; }
+  .anim-btns { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .btn { padding:10px 16px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; border:1.5px solid transparent; min-height:44px; }
+  .btn-primary { background:var(--green); color:#fff; }
+  .btn-secondary { background:#fff; color:var(--green); border-color:var(--green); }
+  .note { color:var(--ink2); font-size:13px; }
+  table.simple { width:100%; border-collapse:collapse; font-size:13px; text-align:center; margin:10px 0; }
+  table.simple th, table.simple td { border:1px solid rgba(0,0,0,.08); padding:7px 4px; }
+  table.simple th { background:var(--card2); }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 温度</h1>
+    <p class="page-subtitle">冷热程度 · 摄氏温度 · 温度计的使用 · 各种测温工具</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">冷热与温度</button>
+    <button class="tab-btn" data-tab="e2">温度计的使用</button>
+    <button class="tab-btn" data-tab="e3">各种温度计</button>
+  </div>
+
+  <!-- E1 冷热与温度 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、凭感觉靠得住吗 <span class="chip brown">导入</span></h2>
+      <p>把左手泡进热水、右手泡进冷水，过一会儿再同时放进同一盆温水里：左手觉得凉，右手却觉得热。同一盆水，两只手的感觉竟然相反！</p>
+      <p>这说明<strong>凭感觉判断冷热并不可靠</strong>，要准确知道物体的冷热程度，需要温度计。物理学中用<strong>温度</strong>表示物体的冷热程度：热的物体温度高，冷的物体温度低。</p>
+      <div class="key-point">
+        <p><strong>液体温度计的原理</strong></p>
+        <p>装满带颜色水的小瓶塞上插有细管的橡皮塞，放入热水，细管中液柱上升；放入冷水，液柱下降。液体<strong>热胀冷缩</strong>，常用温度计就是靠这个性质工作的。</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>二、摄氏温度 <span class="chip brown">核心概念</span></h2>
+      <p>摄氏温度这样规定：标准大气压下，<strong>冰水混合物的温度为 0℃</strong>，<strong>沸水的温度为 100℃</strong>，其间分成 100 等份，每份代表 1 摄氏度。</p>
+      <p>37℃ 读作「37 摄氏度」；黑龙江漠河实测过 -53℃ 的低温，读作「零下 53 摄氏度」。液态氮的温度可低于 -196℃，接触它必须戴防冻手套。</p>
+      <div class="key-point extra-box">
+        <p><span class="chip green">视野</span> <strong>温度的下限</strong></p>
+        <p>自然界的最低温度是 -273.15℃，叫绝对零度，只能接近，无法到达。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- E2 温度计的使用 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>三、使用温度计五个要点 <span class="chip brown">逐条点开</span></h2>
+      <p class="note">点击每一条，展开具体要求。</p>
+      <div class="step-item open">
+        <div class="step-head"><span class="num">1</span>看清量程<span class="arrow">›</span></div>
+        <div class="step-body">被测温度超过量程，温度计可能胀破；低于量程则测不出来。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">2</span>看清分度值<span class="arrow">›</span></div>
+        <div class="step-body">分度值是一小格代表的温度值，看清它才能读得准。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">3</span>玻璃泡全部浸入<span class="arrow">›</span></div>
+        <div class="step-body">玻璃泡要全部浸入被测液体中，并且不能碰到容器底或容器壁，否则测的不是液体的温度。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">4</span>待示数稳定再读<span class="arrow">›</span></div>
+        <div class="step-body">玻璃泡浸入后要等一会儿，液柱不再升降时才读数。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">5</span>读数时泡不离液、视线相平<span class="arrow">›</span></div>
+        <div class="step-body">读数时玻璃泡要继续留在液体中，视线与液面相平，仰视或俯视都会读错。</div>
+      </div>
+      <div class="question-box">
+        <h4>💬 思考讨论 1</h4>
+        <p>三位同学测水温：甲让玻璃泡碰到了杯底，乙的玻璃泡只浸入了一半，丙的玻璃泡全部浸入且不碰底不碰壁。谁的做法正确？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">只有<b>丙</b>正确。</div>
+          <div class="line">甲：杯底被火直接加热，温度比水高，读数偏大；乙：玻璃泡未全浸入，测的不是水温；丙满足「全浸入、不碰底壁」。</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>例题 · 分步揭晓 <span class="chip brown">读数练习</span></h2>
+      <p>一支温度计量程 -30℃ ~ 50℃、分度值 1℃，放入冰箱冷藏室的一杯水中，液面停在 0℃ 刻度线下方第 9 小格。它能测标准大气压下沸水的温度吗？水温是多少？怎么读？</p>
+      <div class="example-step show" id="s1step1">第一步：看量程。沸水 100℃ 超过 50℃ 上限，<b>不能</b>用它测沸水，强行测量会胀破温度计。</div>
+      <div class="example-step" id="s1step2">第二步：定正负。液面在 0℃ 刻度线下方，说明温度为负值。</div>
+      <div class="example-step" id="s1step3">第三步：数格数。分度值 1℃，往下数 9 小格，即 -9℃。</div>
+      <div class="example-step" id="s1step4">结论：水温为 -9℃，读作「零下 9 摄氏度」。</div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="s1next">下一步</button>
+        <button class="btn btn-secondary" id="s1reset">重置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- E3 各种温度计 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>四、形形色色的测温工具 <span class="chip brown">拓展</span></h2>
+      <table class="simple">
+        <thead><tr><th>种类</th><th>特点</th><th>典型用途</th></tr></thead>
+        <tbody>
+          <tr><td>实验室温度计</td><td>液体热胀冷缩</td><td>测水温等实验</td></tr>
+          <tr><td>寒暑表</td><td>量程适合气温</td><td>室内外气温</td></tr>
+          <tr><td>体温计</td><td>35~42℃，有缩口</td><td>测人体温度</td></tr>
+          <tr><td>热电偶温度计</td><td>两种金属线组成闭合回路，两端温差越大电流越强</td><td>炼钢炉约 1400℃ 以上高温</td></tr>
+          <tr><td>红外测温枪</td><td>不接触，接收红外辐射</td><td>耳温、额温快速筛查</td></tr>
+        </tbody>
+      </table>
+      <div class="question-box">
+        <h4>💬 思考讨论 2</h4>
+        <p>体温计的玻璃泡和细管之间有一段特别细的「缩口」。有了它，为什么能离体读数？使用前为什么要用力甩？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">测体温时水银受热膨胀，挤过缩口升入细管；离开人体后水银遇冷收缩，却在缩口处断开，细管里的水银退不回去，于是<b>示数保持不变</b>，可以离体读数。</div>
+          <div class="line">正因水银不会自动退回泡内，再次使用前必须<b>用力向下甩</b>，把水银甩回泡内，否则读数只偏高不偏低。</div>
+        </div>
+      </div>
+      <div class="key-point">
+        <p><strong>本节小结</strong></p>
+        <p>① 温度表示冷热程度，凭感觉不可靠；② 标准大气压下冰水混合物 0℃、沸水 100℃；③ 温度计利用热胀冷缩；④ 使用五要点：量程、分度值、全浸入不碰底壁、稳定后读、视线相平；⑤ 体温计靠缩口离体读数，用前要甩。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var tabs = document.querySelectorAll('#explainTabs .tab-btn');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.question-box');
+      var open = box.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : '💡 点击揭晓答案';
+    });
+  });
+  document.querySelectorAll('.step-item .step-head').forEach(function(head){
+    head.addEventListener('click', function(){
+      head.parentElement.classList.toggle('open');
+    });
+  });
+  (function(){
+    var ids = ['s1step1','s1step2','s1step3','s1step4'];
+    var idx = 1;
+    var nextBtn = document.getElementById('s1next');
+    function refresh(){
+      nextBtn.style.display = idx >= ids.length ? 'none' : 'inline-block';
+    }
+    nextBtn.addEventListener('click', function(){
+      if(idx < ids.length){ document.getElementById(ids[idx]).classList.add('show'); idx++; refresh(); }
+    });
+    document.getElementById('s1reset').addEventListener('click', function(){
+      ids.forEach(function(id,i){ if(i>0) document.getElementById(id).classList.remove('show'); });
+      idx = 1; refresh();
+    });
+    refresh();
+  })();
+})();
+</script>
+</body>
+</html>

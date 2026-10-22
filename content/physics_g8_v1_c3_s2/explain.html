@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 熔化和凝固</title>
+<style>
+  :root { --ink:#2c2c2c; --ink2:#6b6b6b; --green:#2e9e5b; --green-bg:#e9f7ef; --brown:#a9713d; --brown-bg:#faf1e6; --cyan:#2b8a9e; --cyan-bg:#e6f6f9; --card2:#f7f5f0; }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100dvh; background:#f3f0ea; color:var(--ink); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; line-height:1.7; font-size:15px; }
+  .back-btn { display:inline-flex; align-items:center; gap:4px; margin:12px 0 0 12px; padding:8px 14px; border-radius:999px; background:#fff; color:var(--green); text-decoration:none; font-weight:700; font-size:14px; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .container { max-width:720px; margin:0 auto; padding:8px 14px 48px; }
+  .page-header { text-align:center; padding:14px 0 4px; }
+  .page-title { font-size:22px; margin:0 0 4px; }
+  .page-subtitle { color:var(--ink2); font-size:13px; margin:0; }
+  .card { background:#fff; border-radius:14px; padding:16px; margin:12px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .card h2 { font-size:17px; margin:0 0 10px; }
+  .chip { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; vertical-align:2px; }
+  .chip.brown { background:var(--brown-bg); color:var(--brown); }
+  .chip.green { background:var(--green-bg); color:var(--green); }
+  .tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin:12px 0 4px; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab-btn { flex:0 0 auto; padding:10px 14px; border-radius:10px; border:1px solid rgba(0,0,0,.1); background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; min-height:44px; }
+  .tab-btn.active { background:var(--green); color:#fff; border-color:var(--green); }
+  .tab-panel { display:none; animation:panelIn .25s ease; }
+  .tab-panel.active { display:block; }
+  @keyframes panelIn { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:none;} }
+  .question-box { background:var(--brown-bg); border-left:4px solid var(--brown); border-radius:0 12px 12px 0; padding:14px 16px; margin:12px 0; }
+  .question-box h4 { margin:0 0 8px; color:var(--brown); font-size:15px; }
+  .key-point { background:var(--green-bg); border-left:4px solid var(--green); border-radius:0 12px 12px 0; padding:12px 14px; margin:12px 0; }
+  .key-point.extra-box { background:var(--cyan-bg); border-left-color:var(--cyan); }
+  .reveal-btn { margin-top:8px; padding:10px 14px; min-height:44px; border-radius:10px; border:1.5px solid var(--green); background:#fff; color:var(--green); font-weight:800; font-size:14px; cursor:pointer; }
+  .reveal-btn:hover { background:var(--green-bg); }
+  .reveal-ans { display:none; margin-top:10px; background:#fff; border-left:4px solid var(--green); border-radius:0 10px 10px 0; padding:10px 12px; font-size:14px; }
+  .question-box.open .reveal-ans { display:block; animation:panelIn .25s ease; }
+  .step-item { border:1px solid rgba(0,0,0,.08); border-radius:10px; margin:8px 0; overflow:hidden; }
+  .step-head { display:flex; align-items:center; gap:8px; padding:12px 14px; font-weight:700; cursor:pointer; background:#fff; min-height:44px; }
+  .step-head .num { flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--green); color:#fff; font-size:12px; display:flex; align-items:center; justify-content:center; }
+  .step-head .arrow { margin-left:auto; color:var(--ink2); transition:transform .2s; }
+  .step-item.open .step-head .arrow { transform:rotate(90deg); }
+  .step-body { display:none; padding:0 14px 12px; background:var(--card2); font-size:14px; }
+  .step-item.open .step-body { display:block; animation:panelIn .25s ease; }
+  .example-step { display:none; background:var(--green-bg); border-radius:10px; padding:12px 14px; margin:10px 0; font-size:14px; }
+  .example-step.show { display:block; animation:panelIn .25s ease; }
+  .anim-btns { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .btn { padding:10px 16px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; border:1.5px solid transparent; min-height:44px; }
+  .btn-primary { background:var(--green); color:#fff; }
+  .btn-secondary { background:#fff; color:var(--green); border-color:var(--green); }
+  .note { color:var(--ink2); font-size:13px; }
+  table.simple { width:100%; border-collapse:collapse; font-size:13px; text-align:center; margin:10px 0; }
+  table.simple th, table.simple td { border:1px solid rgba(0,0,0,.08); padding:7px 4px; }
+  table.simple th { background:var(--card2); }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 熔化和凝固</h1>
+    <p class="page-subtitle">晶体与非晶体 · 熔点与凝固点 · 图像判读 · 吸放热应用</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">熔化与凝固</button>
+    <button class="tab-btn" data-tab="e2">晶体与非晶体</button>
+    <button class="tab-btn" data-tab="e3">图像与应用</button>
+  </div>
+
+  <!-- E1 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、物态变化 <span class="chip brown">导入</span></h2>
+      <p>工厂铸造工件时，先把金属块化成金属液浇进模具，冷却后成为想要的形状。冰化成水、水结成冰，蜡烛受热变软、放凉变硬——物质各种状态之间的变化，叫做<strong>物态变化</strong>。</p>
+      <p>物质从<strong>固态变成液态</strong>叫<strong>熔化</strong>，要<strong>吸热</strong>；从<strong>液态变成固态</strong>叫<strong>凝固</strong>，要<strong>放热</strong>，二者互逆。</p>
+      <div class="key-point">
+        <p><strong>探究实验怎么做</strong></p>
+        <p>把装有海波和石蜡的试管放入盛水的烧杯中<strong>水浴加热</strong>，每隔 1 分钟记录一次温度，再描点连成温度—时间图像，两种物质的表现截然不同。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- E2 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、晶体与非晶体 <span class="chip brown">核心概念</span></h2>
+      <p>海波熔化时虽然持续吸热，温度却<strong>保持不变</strong>，直到全部化成液体后才继续升温——它有一个固定的熔化温度。而石蜡熔化时<strong>边吸热边升温</strong>，先变软、再变稀，没有固定的熔化温度。</p>
+      <div class="step-item open">
+        <div class="step-head"><span class="num">晶</span>晶体：有固定熔化温度<span class="arrow">›</span></div>
+        <div class="step-body">这个固定温度叫<strong>熔点</strong>。常见晶体有冰、海波、萘和各类金属。熔化中持续吸热而温度停在熔点，物质处于固液共存状态。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">非</span>非晶体：没有固定熔化温度<span class="arrow">›</span></div>
+        <div class="step-body">常见的非晶体有石蜡、松香、玻璃、沥青。它们受热逐渐变软、变稀，最后成为液体，整个过程温度持续上升。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">凝</span>凝固点：与熔点同值<span class="arrow">›</span></div>
+        <div class="step-body">晶体凝固时也有固定温度，叫<strong>凝固点</strong>。<strong>同一种物质的凝固点和熔点相同</strong>，例如水的凝固点与冰的熔点都是 0℃。非晶体没有凝固点。</div>
+      </div>
+      <table class="simple">
+        <thead><tr><th>物质（标准大气压）</th><th>熔点/℃</th><th>物质</th><th>熔点/℃</th></tr></thead>
+        <tbody>
+          <tr><td>钨</td><td>3410</td><td>海波</td><td>48</td></tr>
+          <tr><td>铁</td><td>1538</td><td>冰</td><td>0</td></tr>
+          <tr><td>铜</td><td>1083</td><td>固态水银</td><td>-39</td></tr>
+          <tr><td>铅</td><td>328</td><td>固态酒精</td><td>-117</td></tr>
+        </tbody>
+      </table>
+      <div class="question-box">
+        <h4>💬 思考讨论 1</h4>
+        <p>我国内蒙古东北部冬季气温可低至 -58℃。在那里应该选水银温度计还是酒精温度计测气温？为什么？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">选<b>酒精温度计</b>。</div>
+          <div class="line">水银的凝固点是 -39℃，-58℃ 时水银早已凝固成固体，温度计没法工作；酒精凝固点是 -117℃，远低于 -58℃，仍保持液态，可以正常测温。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E3 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、图像判读 <span class="chip brown">方法</span></h2>
+      <p>把海波的温度—时间数据描点连线，图像特征鲜明：先是上升斜线（固态吸热升温），接着出现<strong>一段水平线</strong>（熔化中：持续吸热、温度不变，对应温度即熔点），最后又是上升斜线（液态继续升温）。</p>
+      <div class="key-point extra-box">
+        <p><span class="chip green">口诀</span> <strong>看图像抓两点</strong></p>
+        <p>① 有没有水平段：有水平段是晶体，无水平段是非晶体；② 水平段对应温度：熔化图像的水平段是熔点，凝固图像的水平段是凝固点。熔化图像整体走势升温，凝固图像整体走势降温。</p>
+      </div>
+      <div class="card" style="background:var(--card2);">
+        <h2 style="font-size:15px;">例题 · 分步揭晓 <span class="chip brown">状态判断</span></h2>
+        <p>海波的熔点是 48℃。把一块海波分别放在温度为 45℃、48℃、52℃ 的环境中（标准大气压），它各处于什么状态？48℃ 时一定全是液体吗？</p>
+        <div class="example-step show" id="s2step1">第一步：45℃ 低于熔点 48℃，海波不能熔化，处于<b>固态</b>。</div>
+        <div class="example-step" id="s2step2">第二步：52℃ 高于熔点，海波已全部熔化成<b>液态</b>。</div>
+        <div class="example-step" id="s2step3">第三步：48℃ 恰好是熔点。若正在熔化，处于<b>固液共存</b>；若刚熔化完还没继续升温，是液态；若正在凝固，也是固液共存；若尚未开始熔化，是固态。</div>
+        <div class="example-step" id="s2step4">结论：48℃ 时不一定全是液体——可能是固态、液态或固液共存，取决于吸热放热的进行程度。这正是晶体熔化时「吸热但温度不变」的体现。</div>
+        <div class="anim-btns">
+          <button class="btn btn-primary" id="s2next">下一步</button>
+          <button class="btn btn-secondary" id="s2reset">重置</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>四、熔化吸热与凝固放热的应用 <span class="chip brown">联系生活</span></h2>
+      <p>夏天在饮料里加冰块，冰<strong>熔化吸热</strong>使饮料降温；北方菜窖里放几桶水，天冷时水<strong>凝固放热</strong>，防止窖内温度过低冻坏蔬菜。</p>
+      <div class="question-box">
+        <h4>💬 思考讨论 2</h4>
+        <p>0℃ 的冰和 0℃ 的水温度相同，为什么用冰冷却饮料的效果比用同温度的水好？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">0℃ 的冰要先<b>熔化吸热</b>变成 0℃ 的水，这个过程吸收大量热量，之后升温还能继续吸热；而 0℃ 的水只能靠升温吸热。</div>
+          <div class="line">冰能从饮料中「抽走」更多热量，冷却效果更好。</div>
+        </div>
+      </div>
+      <div class="key-point">
+        <p><strong>本节小结</strong></p>
+        <p>① 熔化吸热、凝固放热，互逆；② 晶体有熔点凝固点且同值，非晶体都没有；③ 晶体熔化吸热而温度不变，图像有水平段；④ 冰块降温靠熔化吸热，菜窖放水靠凝固放热。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var tabs = document.querySelectorAll('#explainTabs .tab-btn');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.question-box');
+      var open = box.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : '💡 点击揭晓答案';
+    });
+  });
+  document.querySelectorAll('.step-item .step-head').forEach(function(head){
+    head.addEventListener('click', function(){
+      head.parentElement.classList.toggle('open');
+    });
+  });
+  (function(){
+    var ids = ['s2step1','s2step2','s2step3','s2step4'];
+    var idx = 1;
+    var nextBtn = document.getElementById('s2next');
+    function refresh(){
+      nextBtn.style.display = idx >= ids.length ? 'none' : 'inline-block';
+    }
+    nextBtn.addEventListener('click', function(){
+      if(idx < ids.length){ document.getElementById(ids[idx]).classList.add('show'); idx++; refresh(); }
+    });
+    document.getElementById('s2reset').addEventListener('click', function(){
+      ids.forEach(function(id,i){ if(i>0) document.getElementById(id).classList.remove('show'); });
+      idx = 1; refresh();
+    });
+    refresh();
+  })();
+})();
+</script>
+</body>
+</html>

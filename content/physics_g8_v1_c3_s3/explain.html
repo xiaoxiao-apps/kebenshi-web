@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 汽化和液化</title>
+<style>
+  :root { --ink:#2c2c2c; --ink2:#6b6b6b; --green:#2e9e5b; --green-bg:#e9f7ef; --brown:#a9713d; --brown-bg:#faf1e6; --cyan:#2b8a9e; --cyan-bg:#e6f6f9; --card2:#f7f5f0; }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100dvh; background:#f3f0ea; color:var(--ink); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; line-height:1.7; font-size:15px; }
+  .back-btn { display:inline-flex; align-items:center; gap:4px; margin:12px 0 0 12px; padding:8px 14px; border-radius:999px; background:#fff; color:var(--green); text-decoration:none; font-weight:700; font-size:14px; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .container { max-width:720px; margin:0 auto; padding:8px 14px 48px; }
+  .page-header { text-align:center; padding:14px 0 4px; }
+  .page-title { font-size:22px; margin:0 0 4px; }
+  .page-subtitle { color:var(--ink2); font-size:13px; margin:0; }
+  .card { background:#fff; border-radius:14px; padding:16px; margin:12px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .card h2 { font-size:17px; margin:0 0 10px; }
+  .chip { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; vertical-align:2px; }
+  .chip.brown { background:var(--brown-bg); color:var(--brown); }
+  .chip.green { background:var(--green-bg); color:var(--green); }
+  .tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin:12px 0 4px; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab-btn { flex:0 0 auto; padding:10px 14px; border-radius:10px; border:1px solid rgba(0,0,0,.1); background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; min-height:44px; }
+  .tab-btn.active { background:var(--green); color:#fff; border-color:var(--green); }
+  .tab-panel { display:none; animation:panelIn .25s ease; }
+  .tab-panel.active { display:block; }
+  @keyframes panelIn { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:none;} }
+  .question-box { background:var(--brown-bg); border-left:4px solid var(--brown); border-radius:0 12px 12px 0; padding:14px 16px; margin:12px 0; }
+  .question-box h4 { margin:0 0 8px; color:var(--brown); font-size:15px; }
+  .key-point { background:var(--green-bg); border-left:4px solid var(--green); border-radius:0 12px 12px 0; padding:12px 14px; margin:12px 0; }
+  .key-point.extra-box { background:var(--cyan-bg); border-left-color:var(--cyan); }
+  .reveal-btn { margin-top:8px; padding:10px 14px; min-height:44px; border-radius:10px; border:1.5px solid var(--green); background:#fff; color:var(--green); font-weight:800; font-size:14px; cursor:pointer; }
+  .reveal-btn:hover { background:var(--green-bg); }
+  .reveal-ans { display:none; margin-top:10px; background:#fff; border-left:4px solid var(--green); border-radius:0 10px 10px 0; padding:10px 12px; font-size:14px; }
+  .question-box.open .reveal-ans { display:block; animation:panelIn .25s ease; }
+  .step-item { border:1px solid rgba(0,0,0,.08); border-radius:10px; margin:8px 0; overflow:hidden; }
+  .step-head { display:flex; align-items:center; gap:8px; padding:12px 14px; font-weight:700; cursor:pointer; background:#fff; min-height:44px; }
+  .step-head .num { flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--green); color:#fff; font-size:12px; display:flex; align-items:center; justify-content:center; }
+  .step-head .arrow { margin-left:auto; color:var(--ink2); transition:transform .2s; }
+  .step-item.open .step-head .arrow { transform:rotate(90deg); }
+  .step-body { display:none; padding:0 14px 12px; background:var(--card2); font-size:14px; }
+  .step-item.open .step-body { display:block; animation:panelIn .25s ease; }
+  .example-step { display:none; background:var(--green-bg); border-radius:10px; padding:12px 14px; margin:10px 0; font-size:14px; }
+  .example-step.show { display:block; animation:panelIn .25s ease; }
+  .anim-btns { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .btn { padding:10px 16px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; border:1.5px solid transparent; min-height:44px; }
+  .btn-primary { background:var(--green); color:#fff; }
+  .btn-secondary { background:#fff; color:var(--green); border-color:var(--green); }
+  .note { color:var(--ink2); font-size:13px; }
+  table.simple { width:100%; border-collapse:collapse; font-size:13px; text-align:center; margin:10px 0; }
+  table.simple th, table.simple td { border:1px solid rgba(0,0,0,.08); padding:7px 4px; }
+  table.simple th { background:var(--card2); }
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 汽化和液化</h1>
+    <p class="page-subtitle">沸腾与沸点 · 蒸发三因素 · 液化两途径 · 冰箱与热棒</p>
+  </div>
+
+  <div class="tabs" id="explainTabs">
+    <button class="tab-btn active" data-tab="e1">沸腾</button>
+    <button class="tab-btn" data-tab="e2">蒸发</button>
+    <button class="tab-btn" data-tab="e3">液化与应用</button>
+  </div>
+
+  <!-- E1 沸腾 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、汽化和液化 <span class="chip brown">导入</span></h2>
+      <p>塑料袋滴几滴酒精，排空气扎紧，放进热水：袋子鼓起来，酒精变成看不见的蒸气；取出冷却：袋子又瘪了，蒸气变回酒精。物质从<strong>液态变为气态</strong>叫<strong>汽化</strong>，从<strong>气态变为液态</strong>叫<strong>液化</strong>。</p>
+      <p>汽化有两种方式：<strong>沸腾</strong>和<strong>蒸发</strong>。沸腾是在液体<strong>内部和表面同时</strong>发生的<strong>剧烈</strong>汽化现象。</p>
+    </div>
+    <div class="card">
+      <h2>二、探究水沸腾时温度变化 <span class="chip brown">实验</span></h2>
+      <p>加热水，近 90℃ 起每半分钟记温度。沸腾前水温不断升高，杯底小气泡上升途中变小消失；沸腾时气泡上升中<strong>越变越大</strong>，到水面破裂。关键发现：<strong>沸腾时虽继续吸热，温度却保持不变</strong>。</p>
+      <div class="key-point">
+        <p><strong>沸点</strong></p>
+        <p>液体沸腾时保持不变的温度叫<strong>沸点</strong>。标准大气压下水的沸点 100℃；水银 357℃、甲苯 111℃、液态氧 -183℃、液态氮 -196℃。</p>
+      </div>
+      <div class="card" style="background:var(--card2);">
+        <h2 style="font-size:15px;">例题 · 分步揭晓 <span class="chip brown">纸锅烧水</span></h2>
+        <p>用纸折个小锅装水，放在火焰上竟能烧开水而纸锅不燃烧（纸的着火点约 183℃），为什么？</p>
+        <div class="example-step show" id="s3step1">第一步：火焰热量不断传给水，水温升高。</div>
+        <div class="example-step" id="s3step2">第二步：水达到沸点 100℃ 后开始沸腾，继续吸热而温度停在 100℃ 不再升高。</div>
+        <div class="example-step" id="s3step3">第三步：纸锅与水紧贴，温度被水「压住」，只能接近 100℃，远低于着火点约 183℃。</div>
+        <div class="example-step" id="s3step4">结论：只要锅里还有水，纸温就到不了着火点；水烧干后纸锅很快烧着。</div>
+        <div class="anim-btns">
+          <button class="btn btn-primary" id="s3next">下一步</button>
+          <button class="btn btn-secondary" id="s3reset">重置</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E2 蒸发 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>三、蒸发 <span class="chip brown">核心概念</span></h2>
+      <p>湿衣服任何天气里最终都会干——在<strong>任何温度</strong>下、只在液体<strong>表面</strong>发生的<strong>缓慢</strong>汽化叫<strong>蒸发</strong>，与沸腾的区别一目了然：</p>
+      <table class="simple">
+        <thead><tr><th></th><th>蒸发</th><th>沸腾</th></tr></thead>
+        <tbody>
+          <tr><td>发生温度</td><td>任何温度</td><td>达到沸点</td></tr>
+          <tr><td>发生部位</td><td>只在液体表面</td><td>内部和表面同时</td></tr>
+        </tbody>
+      </table>
+      <p class="note">点击每一条，展开影响蒸发快慢的因素。</p>
+      <div class="step-item open">
+        <div class="step-head"><span class="num">1</span>液体的温度<span class="arrow">›</span></div>
+        <div class="step-body">温度越高，蒸发越快。同样一件湿衣服，夏天干得快，冬天干得慢。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">2</span>液体的表面积<span class="arrow">›</span></div>
+        <div class="step-body">表面积越大，蒸发越快。摊开晾晒比团成一团干得快。</div>
+      </div>
+      <div class="step-item">
+        <div class="step-head"><span class="num">3</span>表面空气流动的快慢<span class="arrow">›</span></div>
+        <div class="step-body">表面空气流动越快，蒸发越快：通风处、有风天衣服干得更快。</div>
+      </div>
+      <div class="key-point extra-box">
+        <p><span class="chip green">致冷</span> <strong>蒸发吸热</strong></p>
+        <p>蒸发从周围吸热，有致冷作用：手背擦酒精觉得凉；夏天地上洒水降温；游泳上岸风吹打冷颤，都是蒸发带走热量。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- E3 液化与应用 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>四、液化的两条途径 <span class="chip brown">核心概念</span></h2>
+      <p><strong>途径一：降低温度。</strong>冬天呼出的「白气」、露水和雾，都是水蒸气遇冷液化成的小水滴。<strong>途径二：压缩体积。</strong>家用液化石油气，就是在常温下压缩体积把气体变成液体装进钢罐的；火箭的液氢、液氧也这样储存。</p>
+      <p><strong>液化放热</strong>：100℃ 水蒸气烫伤比开水更严重——水蒸气先在皮肤上液化放热，变成的水再继续烫。</p>
+      <div class="question-box">
+        <h4>💬 思考讨论 1</h4>
+        <p>夏天从冰箱里拿出一瓶水，过一会儿瓶壁外侧挂满小水珠。水珠是从瓶里渗出来的吗？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">不是。瓶壁温度低，<b>空气中的水蒸气</b>遇冷瓶壁放热液化成小水珠附在外壁——水珠来自空气，不来自瓶内。</div>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>💬 思考讨论 2</h4>
+        <p>清晨草叶上的露水，到了上午常常就消失了。这个过程经历了哪些物态变化？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <div class="line">夜里气温降低，水蒸气<b>液化</b>成露；上午气温升高、空气流动快，小水滴又<b>蒸发（汽化）</b>散到空气中。</div>
+          <div class="line">先液化，后汽化。</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>五、汽化液化的应用 <span class="chip brown">联系生活</span></h2>
+      <p>电冰箱是台「热量搬运机」：压缩机把气态制冷介质压缩送入冷凝器，<strong>液化放热</strong>排到箱外；液态介质经毛细管进入箱内蒸发器，<strong>汽化吸热</strong>，如此循环。青藏高原铁路沿线插着一排排「热棒」：棒内液氨在地下吸热汽化、在地上遇冷液化，把冻土的热量导向空中，守住路基。</p>
+      <div class="key-point">
+        <p><strong>本节小结</strong></p>
+        <p>① 汽化两种方式：沸腾（沸点处剧烈、吸热温度不变）与蒸发（任何温度、表面、缓慢、致冷）；② 蒸发快慢看温度、表面积、空气流动；③ 液化两途径：降温与压缩体积，液化放热；④ 冰箱、热棒都是汽化吸热—液化放热的循环。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var tabs = document.querySelectorAll('#explainTabs .tab-btn');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.question-box');
+      var open = box.classList.toggle('open');
+      btn.textContent = open ? '🙈 收起答案' : '💡 点击揭晓答案';
+    });
+  });
+  document.querySelectorAll('.step-item .step-head').forEach(function(head){
+    head.addEventListener('click', function(){
+      head.parentElement.classList.toggle('open');
+    });
+  });
+  (function(){
+    var ids = ['s3step1','s3step2','s3step3','s3step4'];
+    var idx = 1;
+    var nextBtn = document.getElementById('s3next');
+    function refresh(){
+      nextBtn.style.display = idx >= ids.length ? 'none' : 'inline-block';
+    }
+    nextBtn.addEventListener('click', function(){
+      if(idx < ids.length){ document.getElementById(ids[idx]).classList.add('show'); idx++; refresh(); }
+    });
+    document.getElementById('s3reset').addEventListener('click', function(){
+      ids.forEach(function(id,i){ if(i>0) document.getElementById(id).classList.remove('show'); });
+      idx = 1; refresh();
+    });
+    refresh();
+  })();
+})();
+</script>
+</body>
+</html>
