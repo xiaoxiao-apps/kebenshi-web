@@ -13,8 +13,8 @@ const QUESTIONS = [
   { id:'c1s1q1', section:'第1节 长度和时间的测量', no:'第1题', points:10,
     stem:'一把刻度尺的分度值为 1 mm，用它测量物体的长度时，下列记录结果符合读数规范的是（　　）',
     parts:[
-      { kind:'choice', opts:['2.3 cm','2.35 cm','2.350 cm','2 cm'], answer:1,
-        analysis:'分度值为 1 mm 时，读数应估读到分度值的下一位，即 0.1 mm（0.01 cm），结果要保留到小数点后两位。四个选项中只有 <b>2.35 cm</b> 符合要求。' }
+      { kind:'choice', opts:['3.4 cm','3.46 cm','3.460 cm','3 cm'], answer:1,
+        analysis:'分度值为 1 mm 时，读数应估读到分度值的下一位，即 0.1 mm（0.01 cm），结果要保留到小数点后两位。四个选项中只有 <b>3.46 cm</b> 符合要求。' }
     ] },
 
   { id:'c1s1q2', section:'第1节 长度和时间的测量', no:'第2题', points:10,
@@ -25,17 +25,17 @@ const QUESTIONS = [
     ] },
 
   { id:'c1s1q3', section:'第1节 长度和时间的测量', no:'第3题', points:10,
-    stem:'观察一块机械停表：小表盘指针位于"1"和"2"之间，并且已越过两刻度的中线；大表盘指针指向 7.5 s。停表显示的时间是（　　）',
+    stem:'观察一块机械停表：小表盘指针位于"2"和"3"之间，并且已越过两刻度的中线；大表盘指针指向 16.5 s。停表显示的时间是（　　）',
     parts:[
-      { kind:'choice', opts:['1 min 7.5 s','1 min 37.5 s','2 min 37.5 s','0 min 37.5 s'], answer:1,
-        analysis:'小表盘记录分钟：指针在 1 与 2 之间且已过半，说明大表盘处于 30~60 s 区间，秒数应读作 30 s + 7.5 s = 37.5 s。故停表读数为 <b>1 min 37.5 s</b>。' }
+      { kind:'choice', opts:['2 min 16.5 s','2 min 46.5 s','3 min 46.5 s','1 min 46.5 s'], answer:1,
+        analysis:'小表盘记录分钟：指针在 2 与 3 之间且已过半，说明大表盘处于 30~60 s 区间，秒数应读作 30 s + 16.5 s = 46.5 s。故停表读数为 <b>2 min 46.5 s</b>。' }
     ] },
 
   { id:'c1s1q4', section:'第1节 长度和时间的测量', no:'第4题', points:10,
-    stem:'小红用同一把刻度尺对一支铅笔的长度连续测量 4 次，记录为：18.52 cm、18.50 cm、18.90 cm、18.51 cm。下列数据处理方式正确的是（　　）',
+    stem:'小红用同一把刻度尺对一支铅笔的长度连续测量 4 次，记录为：17.26 cm、17.24 cm、17.62 cm、17.25 cm。下列数据处理方式正确的是（　　）',
     parts:[
-      { kind:'choice', opts:['把 4 个数据直接求平均，得 18.61 cm','先剔除 18.90 cm，再求其余 3 个数据的平均值','全部数据都保留，求平均得 18.58 cm','多次测量能把误差彻底消除'], answer:1,
-        analysis:'18.90 cm 与另外三次读数偏差明显过大，属于操作不当造成的错误数据，应剔除后再求平均：(18.52+18.50+18.51)/3 ≈ 18.51 cm。误差客观存在，多次测量只能减小它，<b>不能消除它</b>。' }
+      { kind:'choice', opts:['把 4 个数据直接求平均，得 17.34 cm','先剔除 17.62 cm，再求其余 3 个数据的平均值','全部数据都保留，求平均得 17.30 cm','多次测量能把误差彻底消除'], answer:1,
+        analysis:'17.62 cm 与另外三次读数偏差明显过大，属于操作不当造成的错误数据，应剔除后再求平均：(17.26+17.24+17.25)/3 = 17.25 cm。误差客观存在，多次测量只能减小它，<b>不能消除它</b>。' }
     ] },
 
   { id:'c1s1q5', section:'第1节 长度和时间的测量', no:'第5题', points:10,
@@ -63,8 +63,8 @@ const QUESTIONS = [
   { id:'c1s1q8', section:'第1节 长度和时间的测量', no:'第8题', points:10,
     stem:'用停表测量单摆摆动一次所用的时间时，为减小测量误差，下列做法较合适的是（　　）',
     parts:[
-      { kind:'choice', opts:['只测 1 个周期，直接用这个时间','测出连续摆动 30 次的总时间，再除以 30','把摆球推得更用力，让它摆得快些','不用停表，靠目测估出 1 个周期的时间'], answer:1,
-        analysis:'这是<b>累积法</b>（测多算少）：把 30 次全摆动的时间合并测量再均分，能把判断起止时刻的误差摊薄到每个周期上，显著减小误差。' }
+      { kind:'choice', opts:['只测 1 个周期，直接用这个时间','测出连续摆动 20 次的总时间，再除以 20','把摆球推得更用力，让它摆得快些','不用停表，靠目测估出 1 个周期的时间'], answer:1,
+        analysis:'这是<b>累积法</b>（测多算少）：把 20 次全摆动的时间合并测量再均分，能把判断起止时刻的误差摊薄到每个周期上，显著减小误差。' }
     ] },
 
   { id:'c1s1q9', section:'第1节 长度和时间的测量', no:'第9题（多选·图题）', points:10,
@@ -142,31 +142,31 @@ const QUESTIONS = [
 
   // —— 第3节 运动的快慢（6 题） ——
   { id:'c1s3q1', section:'第3节 运动的快慢', no:'练习1', points:12,
-    stem:'张大爷每天清晨沿公园步道健走，某天他用 45 min 走完了 4.5 km。他这段时间健走的平均速度是多少千米每小时？合多少米每秒？',
+    stem:'张大爷每天清晨沿公园步道健走，某天他用 40 min 走完了 3.6 km。他这段时间健走的平均速度是多少千米每小时？合多少米每秒？',
     note:'两空均即时判分，等价写法（带不带单位）均认可。',
     parts:[
       { kind:'blank', q:'① 健走的平均速度是多少千米每小时？合多少米每秒？', blanks:[
-        { label:'速度（km/h）', answer:['6','6km/h','6 km/h','6千米每小时','6公里每小时'], unit:'km/h' },
-        { label:'速度（m/s）', answer:['1.7','1.67','约1.7','约1.67','1.7m/s','1.67m/s','1.7 m/s','1.67 m/s'], unit:'m/s' }],
-        analysis:'t = 45 min = 0.75 h；v = s ÷ t = 4.5 km ÷ 0.75 h = <b>6 km/h</b>；再换算：6 km/h = 6 ÷ 3.6 m/s ≈ <b>1.7 m/s</b>（≈1.67 m/s）。' }
+        { label:'速度（km/h）', answer:['5.4','5.4km/h','5.4 km/h','5.4千米每小时','5.4公里每小时'], unit:'km/h' },
+        { label:'速度（m/s）', answer:['1.5','1.50','1.5m/s','1.5 m/s'], unit:'m/s' }],
+        analysis:'t = 40 min = 2/3 h；v = s ÷ t = 3.6 km ÷ (2/3) h = <b>5.4 km/h</b>；再换算：5.4 km/h = 5.4 ÷ 3.6 m/s = <b>1.5 m/s</b>。' }
     ] },
 
   { id:'c1s3q2', section:'第3节 运动的快慢', no:'练习2', points:10,
-    stem:'一辆汽车在高速公路上行驶，车内速度表的指针位置见下图简图。若汽车按表显速度匀速行驶 10 km，行驶时间是多少分？',
+    stem:'一辆汽车在高速公路上行驶，车内速度表的指针位置见下图简图。若汽车按表显速度匀速行驶 9 km，行驶时间是多少分？',
     note:'下图为程序化简图。填空即时判分。',
-    fig:'speedDial', figCap:'简图：汽车速度表，主刻度 0~240、每大格 20，单位 km/h，指针指 80',
+    fig:'speedDial', figCap:'简图：汽车速度表，主刻度 0~240、每大格 20，单位 km/h，指针指 60',
     parts:[
       { kind:'blank', blanks:[
-        { label:'行驶的时间', answer:['7.5','7.5min','7.5 min','7.5分','0.125','0.125h','0.125 h','0.125小时'], unit:'min' }],
-        analysis:'先读表盘：主刻度 0—240、每大格 20，单位 km/h，指针指 <b>80</b>，即 v = 80 km/h；再由 t = s ÷ v = 10 km ÷ 80 km/h = 0.125 h = <b>7.5 min</b>。' }
+        { label:'行驶的时间', answer:['9','9min','9 min','9分','0.15','0.15h','0.15 h','0.15小时'], unit:'min' }],
+        analysis:'先读表盘：主刻度 0—240、每大格 20，单位 km/h，指针指 <b>60</b>，即 v = 60 km/h；再由 t = s ÷ v = 9 km ÷ 60 km/h = 0.15 h = <b>9 min</b>。' }
     ] },
 
   { id:'c1s3q3', section:'第3节 运动的快慢', no:'练习3', points:10,
-    stem:'一辆观光巴士在平直公路上匀速行驶，车内速度显示屏显示 72 km/h。小雨用手机秒表测出巴士从第 1 根路灯杆驶到第 6 根路灯杆共用时 10 s。若路灯杆间距相等，相邻两根路灯杆之间的距离是多少？',
+    stem:'一辆观光巴士在平直公路上匀速行驶，车内速度显示屏显示 54 km/h。小雨用手机秒表测出巴士从第 1 根路灯杆驶到第 5 根路灯杆共用时 12 s。若路灯杆间距相等，相邻两根路灯杆之间的距离是多少？',
     parts:[
       { kind:'blank', blanks:[
-        { label:'相邻两路灯杆之间的距离', answer:['40','40m','40 m','40米'], unit:'m' }],
-        analysis:'先统一单位：v = 72 km/h = 72 ÷ 3.6 m/s = 20 m/s；总路程：s = v·t = 20 m/s × 10 s = 200 m；第 1 根到第 6 根之间有 5 个间隔，故 d = 200 m ÷ 5 = <b>40 m</b>。' }
+        { label:'相邻两路灯杆之间的距离', answer:['45','45m','45 m','45米'], unit:'m' }],
+        analysis:'先统一单位：v = 54 km/h = 54 ÷ 3.6 m/s = 15 m/s；总路程：s = v·t = 15 m/s × 12 s = 180 m；第 1 根到第 5 根之间有 4 个间隔，故 d = 180 m ÷ 4 = <b>45 m</b>。' }
     ] },
 
   { id:'c1s3q4', section:'第3节 运动的快慢', no:'练习4', points:12,
@@ -175,34 +175,34 @@ const QUESTIONS = [
     fig:'trainTable', figCap:'表：某次高速列车运行信息',
     parts:[
       { kind:'blank', q:'（1）全程的平均速度是多少？', blanks:[
-        { label:'全程平均速度', answer:['284.5','约284.5','284.5km/h','284.4','284.46','284.6','284.7','284.4km/h','284.46km/h','284.5 km/h'], unit:'km/h' }],
-        analysis:'全程：s = 1318 km，t = 4 h 38 min ≈ 4.633 h；v = 1318 ÷ 4.633 ≈ <b>284.5 km/h</b>。' },
+        { label:'全程平均速度', answer:['230','230km/h','230 km/h','230.0','230千米每小时','230公里每小时'], unit:'km/h' }],
+        analysis:'全程：s = 989 km，t = 4 h 18 min = 4.3 h；v = 989 ÷ 4.3 = <b>230 km/h</b>。' },
       { kind:'choice', q:'（2）列车在哪个路段运行得最快？',
         opts:['临江→云山','云山→双河','双河→江州','江州→滨海'], answer:2,
-        analysis:'逐段算速度：临江→云山 122 km/31 min ≈ 236.1 km/h；云山→双河 284 km/60 min = 284 km/h；双河→江州 617 km/118 min ≈ <b>313.7 km/h（最快）</b>；江州→滨海 295 km/63 min ≈ 281.0 km/h。' },
+        analysis:'逐段算速度：临江→云山 90 km/30 min = 180 km/h；云山→双河 248 km/62 min = 240 km/h；双河→江州 338 km/78 min = <b>260 km/h（最快）</b>；江州→滨海 313 km/80 min ≈ 234.8 km/h。' },
       { kind:'choice', q:'（3）列车在哪个路段运行得最慢？',
         opts:['临江→云山','云山→双河','双河→江州','江州→滨海'], answer:0,
-        analysis:'比较各段结果，最慢的是 <b>临江→云山</b>（≈236.1 km/h）。' }
+        analysis:'比较各段结果，最慢的是 <b>临江→云山</b>（180 km/h）。' }
     ] },
 
   { id:'c1s3q5', section:'第3节 运动的快慢', no:'练习5（拓展）', points:12,
-    stem:'声音在空气中的传播速度约为 340 m/s。雷雨天，小磊看到窗外一道闪电，过了 3 s 才听到雷声。闪电发生处距小磊大约多少米？合多少千米？（光的传播时间忽略不计）',
+    stem:'声音在空气中的传播速度约为 340 m/s。雷雨天，小磊看到窗外一道闪电，过了 4 s 才听到雷声。闪电发生处距小磊大约多少米？合多少千米？（光的传播时间忽略不计）',
     note:'两空均即时判分，等价写法（带不带单位）均认可。',
     parts:[
       { kind:'blank', blanks:[
-        { label:'距离（m）', answer:['1020','1020m','1020 m','1020米'], unit:'m' },
-        { label:'合（km）', answer:['1.02','1.02km','1.02 km','1.02千米','1.02公里'], unit:'km' }],
-        analysis:'光速极快，传播时间可忽略，声音传播时间 t = 3 s，v = 340 m/s；由 v = s/t 得 s = v·t = 340 m/s × 3 s = <b>1020 m</b>；1020 m = <b>1.02 km</b>，即闪电处距小磊约 1020 m（1.02 km）。' }
+        { label:'距离（m）', answer:['1360','1360m','1360 m','1360米'], unit:'m' },
+        { label:'合（km）', answer:['1.36','1.36km','1.36 km','1.36千米','1.36公里'], unit:'km' }],
+        analysis:'光速极快，传播时间可忽略，声音传播时间 t = 4 s，v = 340 m/s；由 v = s/t 得 s = v·t = 340 m/s × 4 s = <b>1360 m</b>；1360 m = <b>1.36 km</b>，即闪电处距小磊约 1360 m（1.36 km）。' }
     ] },
 
   { id:'c1s3q6', section:'第3节 运动的快慢', no:'练习6（拓展）', points:12,
-    stem:'一架客机的巡航速度约为 900 km/h，合多少米每秒？一艘货轮以 20 kn（节，1 kn = 1.852 km/h）的速度航行，合多少千米每小时？',
+    stem:'一架客机的巡航速度约为 864 km/h，合多少米每秒？一艘货轮以 15 kn（节，1 kn = 1.852 km/h）的速度航行，合多少千米每小时？',
     note:'两空均即时判分，等价写法（带不带单位）均认可。',
     parts:[
       { kind:'blank', blanks:[
-        { label:'客机（m/s）', answer:['250','250m/s','250 m/s'], unit:'m/s' },
-        { label:'货轮（km/h）', answer:['37.04','37','37.0','约37','约37.04','37.04km/h','37km/h','37.04 km/h','37 km/h'], unit:'km/h' }],
-        analysis:'客机：900 km/h ÷ 3.6 = <b>250 m/s</b>；货轮：20 kn × 1.852 km/h = <b>37.04 km/h</b>（约 37 km/h）。' }
+        { label:'客机（m/s）', answer:['240','240m/s','240 m/s'], unit:'m/s' },
+        { label:'货轮（km/h）', answer:['27.78','27.8','约27.78','约27.8','27.78km/h','27.8km/h','27.78 km/h','27.8 km/h'], unit:'km/h' }],
+        analysis:'客机：864 km/h ÷ 3.6 = <b>240 m/s</b>；货轮：15 kn × 1.852 km/h = <b>27.78 km/h</b>（约 27.8 km/h）。' }
     ] },
 
   // —— 第4节 速度的测量（5 题） ——
@@ -223,20 +223,20 @@ const QUESTIONS = [
 
   { id:'c1s4q2', section:'第4节 速度的测量', no:'练习2（频闪照片示意图）', points:12,
     stem:'小组同学用频闪照相的方法研究小球沿斜面下滑的运动，拍下小球先后经过 A、B、C 三个位置，并在旁边放一把刻度尺、记下每个位置对应的时刻（见下图简图）。小球在 AB、BC、AC 各段运动的平均速度分别是多少？',
-    note:'下图为程序化简图：刻度尺 0~100 cm，A 在 100 cm 处、B 在 75 cm 处、C 在 0 处。填空即时判分。',
-    fig:'inclineRuler', figCap:'简图：频闪照片示意图（位置对应刻度尺），A=100 cm（00:00.00）、B=75 cm（00:01.00）、C=0（00:02.00）',
+    note:'下图为程序化简图：刻度尺 0~100 cm，A 在 90 cm 处、B 在 64 cm 处、C 在 10 cm 处。填空即时判分。',
+    fig:'inclineRuler', figCap:'简图：频闪照片示意图（位置对应刻度尺），A=90 cm（00:00.00）、B=64 cm（00:01.30）、C=10 cm（00:02.50）',
     parts:[
       { kind:'blank', q:'① AB 段：时间 tAB 与平均速度 vAB 分别是多少？', blanks:[
-        { label:'tAB', answer:['1','1.0','1.00','1s','1.00s','1 s'], unit:'s' },
-        { label:'vAB', answer:['25','25cm/s','25 cm/s'], unit:'cm/s' }],
-        analysis:'sAB = 100 − 75 = <b>25 cm</b>（由简图刻度读出）；tAB = 00:01.00 − 00:00.00 = <b>1.00 s</b>；vAB = 25 cm / 1.00 s = <b>25 cm/s</b>。' },
+        { label:'tAB', answer:['1.3','1.30','1.3s','1.30s','1.3 s'], unit:'s' },
+        { label:'vAB', answer:['20','20cm/s','20 cm/s'], unit:'cm/s' }],
+        analysis:'sAB = 90 − 64 = <b>26 cm</b>（由简图刻度读出）；tAB = 00:01.30 − 00:00.00 = <b>1.30 s</b>；vAB = 26 cm / 1.30 s = <b>20 cm/s</b>。' },
       { kind:'blank', q:'② BC 段：平均速度 vBC 是多少？', blanks:[
-        { label:'vBC', answer:['75','75cm/s','75 cm/s'], unit:'cm/s' }],
-        analysis:'sBC = 75 − 0 = <b>75 cm</b>；tBC = <b>1.00 s</b>；vBC = 75 cm / 1.00 s = <b>75 cm/s</b>。' },
+        { label:'vBC', answer:['45','45cm/s','45 cm/s'], unit:'cm/s' }],
+        analysis:'sBC = 64 − 10 = <b>54 cm</b>；tBC = <b>1.20 s</b>；vBC = 54 cm / 1.20 s = <b>45 cm/s</b>。' },
       { kind:'blank', q:'③ AC 段：时间 tAC 与平均速度 vAC 分别是多少？', blanks:[
-        { label:'tAC', answer:['2','2.0','2.00','2s','2.00s','2 s'], unit:'s' },
-        { label:'vAC', answer:['50','50cm/s','50 cm/s'], unit:'cm/s' }],
-        analysis:'sAC = 100 − 0 = <b>100 cm</b>；tAC = <b>2.00 s</b>（由简图时刻算出）；vAC = 100 cm / 2.00 s = <b>50 cm/s</b>。' }
+        { label:'tAC', answer:['2.5','2.50','2.5s','2.50s','2.5 s'], unit:'s' },
+        { label:'vAC', answer:['32','32cm/s','32 cm/s'], unit:'cm/s' }],
+        analysis:'sAC = 90 − 10 = <b>80 cm</b>；tAC = <b>2.50 s</b>（由简图时刻算出）；vAC = 80 cm / 2.50 s = <b>32 cm/s</b>。' }
     ] },
 
   { id:'c1s4q3', section:'第4节 速度的测量', no:'练习3', points:12,
@@ -267,8 +267,8 @@ const QUESTIONS = [
     note:'本题为开放方法题，作答后对照参考答案自评计分。',
     parts:[
       { kind:'open',
-        ref:'参考答案：<br>① 骑车沿绿道前行，经过某一块里程牌时<b>按下手表开始计时</b>，并记下出发时的牌数；<br>② 设又经过了 <b>n</b> 块里程牌（即跨过 n 个 1 km 间隔）后停止计时，用时 <b>t</b>，则骑行路程 <b>s = n × 1 km = n km</b>；<br>③ 平均速度 <b>v = s / t = n km / t</b>（t 用小时作单位时，结果单位就是 km/h）；<br>④ 举例：跨过 1 块里程牌用时 5 min（即 1/12 h），则 v = 1 km ÷ (1/12) h = <b>12 km/h</b>。',
-        analysis:'方法=数里程牌（n 个间隔 × 1 km 得路程）+ 手表计时，v = s/t；示例：1 个间隔 5 min ≈ 12 km/h。' }
+        ref:'参考答案：<br>① 骑车沿绿道前行，经过某一块里程牌时<b>按下手表开始计时</b>，并记下出发时的牌数；<br>② 设又经过了 <b>n</b> 块里程牌（即跨过 n 个 1 km 间隔）后停止计时，用时 <b>t</b>，则骑行路程 <b>s = n × 1 km = n km</b>；<br>③ 平均速度 <b>v = s / t = n km / t</b>（t 用小时作单位时，结果单位就是 km/h）；<br>④ 举例：跨过 1 块里程牌用时 4 min（即 1/15 h），则 v = 1 km ÷ (1/15) h = <b>15 km/h</b>。',
+        analysis:'方法=数里程牌（n 个间隔 × 1 km 得路程）+ 手表计时，v = s/t；示例：1 个间隔 4 min = 15 km/h。' }
     ] },
 
 ]; // 闭合 QUESTIONS 数组（共 27 题：第1节×9、第2节×7、第3节×6、第4节×5；总分 288）
@@ -333,7 +333,7 @@ function svgPencilRuler() {
   return `<svg viewBox="0 0 420 180" role="img" aria-label="简图：刻度尺0至5厘米，铅笔左端未对齐0刻度线，视线斜向看尺">${s}</svg>`;
 }
 
-/* c1s3q2 简图：汽车速度表（0~240 km/h、每大格 20，指针指 80） */
+/* c1s3q2 简图：汽车速度表（0~240 km/h、每大格 20，指针指 60） */
 function svgSpeedDial() {
   let s = `<circle cx="100" cy="100" r="92" fill="#101820" stroke="#c9d4dd" stroke-width="6"/>`;
   for (let v = 0; v <= 240; v += 10) {
@@ -344,27 +344,27 @@ function svgSpeedDial() {
       s += `<text x="${(100 + 60 * Math.sin(a)).toFixed(1)}" y="${(104 - 60 * Math.cos(a)).toFixed(1)}" fill="#7fd4ff" font-size="12" font-weight="700" text-anchor="middle">${v}</text>`;
     }
   }
-  s += `<line x1="100" y1="100" x2="100" y2="26" stroke="#e74c3c" stroke-width="5" stroke-linecap="round" transform="rotate(-40 100 100)"/>`;
+  s += `<line x1="100" y1="100" x2="100" y2="26" stroke="#e74c3c" stroke-width="5" stroke-linecap="round" transform="rotate(-60 100 100)"/>`;
   s += `<circle cx="100" cy="100" r="12" fill="#5a6672"/>`;
   s += `<text x="100" y="140" fill="#7fd4ff" font-size="11" text-anchor="middle">km/h</text>`;
-  return `<svg viewBox="0 0 200 200" role="img" aria-label="简图：汽车速度表，主刻度0至240，每大格20，单位千米每小时，指针指80">${s}</svg>`;
+  return `<svg viewBox="0 0 200 200" role="img" aria-label="简图：汽车速度表，主刻度0至240，每大格20，单位千米每小时，指针指60">${s}</svg>`;
 }
 
 /* c1s3q4 列车运行信息表（程序化绘制） */
 function htmlTrainTable() {
   const rows = [
-    ['1', '临江', '\\', '12:00', '0', '0'],
-    ['2', '云山', '12:31', '12:33', '31分', '122 km'],
-    ['3', '双河', '13:33', '13:35', '1小时33分', '406 km'],
-    ['4', '江州', '15:33', '15:35', '3小时33分', '1 023 km'],
-    ['5', '滨海', '16:38', '\\', '4小时38分', '1 318 km']
+    ['1', '临江', '\\', '09:00', '0', '0'],
+    ['2', '云山', '09:30', '09:32', '30分', '90 km'],
+    ['3', '双河', '10:34', '10:37', '1小时34分', '338 km'],
+    ['4', '江州', '11:55', '11:58', '2小时55分', '676 km'],
+    ['5', '滨海', '13:18', '\\', '4小时18分', '989 km']
   ];
   return `<table class="dtab"><thead><tr><th>站序</th><th>站名</th><th>到时</th><th>发时</th><th>运行时间</th><th>里程</th></tr></thead><tbody>`
     + rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')
     + `</tbody></table>`;
 }
 
-/* c1s4q2 简图：频闪照片示意图（刻度尺 0~100 cm，A=100/B=75/C=0 与对应时刻，程序化绘制） */
+/* c1s4q2 简图：频闪照片示意图（刻度尺 0~100 cm，A=90/B=64/C=10 与对应时刻，程序化绘制） */
 function svgInclineRuler() {
   let s = `<rect x="40" y="80" width="404" height="28" rx="4" fill="rgba(255,255,255,.1)" stroke="#9aa4b5"/>`;
   s += `<text x="260" y="70" text-anchor="middle" font-size="12" fill="#9aa4b5">频闪照片示意图（位置对应刻度尺）</text>`;
@@ -376,16 +376,16 @@ function svgInclineRuler() {
   }
   s += `<text x="470" y="103" text-anchor="middle" font-size="11" fill="#9aa4b5">cm</text>`;
   const pts = [
-    { x: 440, fill: '#e74c3c', edge: '#ff9d93', name: 'A', t: '00:00.00' },
-    { x: 340, fill: '#f39c12', edge: '#ffd479', name: 'B', t: '00:01.00' },
-    { x: 40,  fill: '#27ae60', edge: '#7de8a8', name: 'C', t: '00:02.00' }
+    { x: 400, fill: '#e74c3c', edge: '#ff9d93', name: 'A', t: '00:00.00' },
+    { x: 296, fill: '#f39c12', edge: '#ffd479', name: 'B', t: '00:01.30' },
+    { x: 80,  fill: '#27ae60', edge: '#7de8a8', name: 'C', t: '00:02.50' }
   ];
   pts.forEach(p => {
     s += `<circle cx="${p.x}" cy="70" r="10" fill="${p.fill}" stroke="${p.edge}" stroke-width="2"/>`;
     s += `<text x="${p.x}" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="${p.edge}">${p.name}</text>`;
     s += `<text x="${p.x}" y="132" text-anchor="middle" font-size="11" fill="#9aa4b5">${p.t}</text>`;
   });
-  return `<svg viewBox="0 0 520 150" role="img" aria-label="简图：频闪照片示意图，刻度尺0至100厘米，A在100厘米处时刻0分0秒，B在75厘米处时刻1秒，C在0处时刻2秒">${s}</svg>`;
+  return `<svg viewBox="0 0 520 150" role="img" aria-label="简图：频闪照片示意图，刻度尺0至100厘米，A在90厘米处时刻0分0秒，B在64厘米处时刻1.30秒，C在10厘米处时刻2.50秒">${s}</svg>`;
 }
 
 /* ===== 渲染引擎 ===== */

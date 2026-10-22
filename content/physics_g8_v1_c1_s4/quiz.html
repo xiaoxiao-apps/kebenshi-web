@@ -118,21 +118,21 @@
       <text x="260" y="70" text-anchor="middle" font-size="12" fill="#5a5a5a">频闪照片示意图（位置对应刻度尺）</text>
       <g id="q2-ruler-marks"></g>
       <g id="q2-ruler-nums"></g>
-      <circle cx="440" cy="70" r="10" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
-      <text x="440" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#c0392b">A</text>
-      <text x="440" y="132" text-anchor="middle" font-size="11" fill="#5a5a5a">00:00.00</text>
-      <circle cx="340" cy="70" r="10" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
-      <text x="340" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#d68910">B</text>
-      <text x="340" y="132" text-anchor="middle" font-size="11" fill="#5a5a5a">00:01.00</text>
-      <circle cx="40" cy="70" r="10" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
-      <text x="40" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#1e8449">C</text>
-      <text x="40" y="132" text-anchor="middle" font-size="11" fill="#5a5a5a">00:02.00</text>
+      <circle cx="400" cy="70" r="10" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+      <text x="400" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#c0392b">A</text>
+      <text x="400" y="132" text-anchor="middle" font-size="11" fill="#5a5a5a">00:00.00</text>
+      <circle cx="296" cy="70" r="10" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
+      <text x="296" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#d68910">B</text>
+      <text x="296" y="132" text-anchor="middle" font-size="11" fill="#5a5a5a">00:01.30</text>
+      <circle cx="80" cy="70" r="10" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
+      <text x="80" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#1e8449">C</text>
+      <text x="80" y="132" text-anchor="middle" font-size="11" fill="#5a5a5a">00:02.50</text>
     </svg>
     <div class="work">
       <div class="row">
         <span>AB 段时间 t<sub>AB</sub> =</span>
         <input id="q2-tab" type="number" placeholder="?" step="0.01" min="0" style="width:70px;">
-        <span>s，则 v<sub>AB</sub> = 25 /</span>
+        <span>s，则 v<sub>AB</sub> = 26 /</span>
         <span id="q2-tab-d">—</span>
         <span>=</span>
         <span class="inline-res" id="q2-vab">—</span>
@@ -156,11 +156,11 @@
     </div>
     <button class="reveal-btn" type="button">💡 查看答案</button><button class="reset-btn" type="button">↺ 重置本题</button>
     <div class="answer">
-      <div class="line">已知：s<sub>AB</sub> = 100 − 75 = <b>25 cm</b>，s<sub>BC</sub> = 75 − 0 = <b>75 cm</b>，s<sub>AC</sub> = 100 − 0 = <b>100 cm</b>（由图上刻度读出）。</div>
-      <div class="line">t<sub>AB</sub> = 00:01.00 − 00:00.00 = <b>1.00 s</b>，t<sub>BC</sub> = 1.00 s，t<sub>AC</sub> = 2.00 s（由图上时刻算出）。</div>
-      <div class="line">v<sub>AB</sub> = 25 cm / 1.00 s = <b>25 cm/s</b>。</div>
-      <div class="line">v<sub>BC</sub> = 75 cm / 1.00 s = <b>75 cm/s</b>。</div>
-      <div class="line">v<sub>AC</sub> = 100 cm / 2.00 s = <b>50 cm/s</b>。</div>
+      <div class="line">已知：s<sub>AB</sub> = 90 − 64 = <b>26 cm</b>，s<sub>BC</sub> = 64 − 10 = <b>54 cm</b>，s<sub>AC</sub> = 90 − 10 = <b>80 cm</b>（由图上刻度读出）。</div>
+      <div class="line">t<sub>AB</sub> = 00:01.30 − 00:00.00 = <b>1.30 s</b>，t<sub>BC</sub> = 00:02.50 − 00:01.30 = 1.20 s，t<sub>AC</sub> = 2.50 s（由图上时刻算出）。</div>
+      <div class="line">v<sub>AB</sub> = 26 cm / 1.30 s = <b>20 cm/s</b>。</div>
+      <div class="line">v<sub>BC</sub> = 54 cm / 1.20 s = <b>45 cm/s</b>。</div>
+      <div class="line">v<sub>AC</sub> = 80 cm / 2.50 s = <b>32 cm/s</b>。</div>
     </div>
   </div>
 
@@ -214,13 +214,13 @@
         <span>方法：记录自行车经过</span>
         <input id="q5-n" type="number" value="1" min="1" step="1" style="width:60px;">
         <span>个相邻里程碑，所用时间</span>
-        <input id="q5-t" type="number" value="5" step="0.1" style="width:70px;">
+        <input id="q5-t" type="number" value="4" step="0.1" style="width:70px;">
         <span>min。</span>
       </div>
       <div class="row">
         <span>路程 s =</span>
         <span class="inline-res" id="q5-s">1</span> km；速度 v =
-        <span class="inline-res" id="q5-v">12.0</span> km/h。
+        <span class="inline-res" id="q5-v">15.0</span> km/h。
       </div>
     </div>
     <button class="reveal-btn" type="button">💡 查看答案</button><button class="reset-btn" type="button">↺ 重置本题</button>
@@ -228,7 +228,7 @@
       <div class="line"><b>估测方法：</b>骑自行车沿公路前进，当经过某一里程碑时开始计时，同时数记经过的里程碑数。</div>
       <div class="line">若记录了经过 <b>n</b> 个相邻里程碑所用时间为 <b>t</b>，则行驶的路程 <b>s = n × 1 km = n km</b>。</div>
       <div class="line">自行车的平均速度 <b>v = s / t = n km / t</b>。若 t 用小时作单位，结果单位就是 km/h。</div>
-      <div class="line">例如：经过 1 个里程碑用时 5 min（即 1/12 h），则 v = 1 km ÷ (1/12) h = <b>12 km/h</b>。</div>
+      <div class="line">例如：经过 1 个里程碑用时 4 min（即 1/15 h），则 v = 1 km ÷ (1/15) h = <b>15 km/h</b>。</div>
     </div>
   </div>
 </div>
@@ -294,14 +294,14 @@
   function q2Check() {
     var tab = parseFloat(q2tab.value) || 0;
     q2tabD.textContent = tab > 0 ? tab.toFixed(2) : '—';
-    q2vab.textContent = tab > 0 ? (25 / tab).toFixed(2) : '—';
-    q2tab.classList.toggle('ok', tab > 0 && Math.abs(tab - 1) < 0.01);
-    q2tab.classList.toggle('err', q2tab.value !== '' && !(tab > 0 && Math.abs(tab - 1) < 0.01));
-    q2vbc.classList.toggle('ok', Math.abs(parseFloat(q2vbc.value) - 75) < 0.5);
+    q2vab.textContent = tab > 0 ? (26 / tab).toFixed(2) : '—';
+    q2tab.classList.toggle('ok', tab > 0 && Math.abs(tab - 1.3) < 0.01);
+    q2tab.classList.toggle('err', q2tab.value !== '' && !(tab > 0 && Math.abs(tab - 1.3) < 0.01));
+    q2vbc.classList.toggle('ok', Math.abs(parseFloat(q2vbc.value) - 45) < 0.5);
     q2vbc.classList.toggle('err', q2vbc.value !== '' && !q2vbc.classList.contains('ok'));
-    q2tac.classList.toggle('ok', Math.abs(parseFloat(q2tac.value) - 2) < 0.01);
+    q2tac.classList.toggle('ok', Math.abs(parseFloat(q2tac.value) - 2.5) < 0.01);
     q2tac.classList.toggle('err', q2tac.value !== '' && !q2tac.classList.contains('ok'));
-    q2vac.classList.toggle('ok', Math.abs(parseFloat(q2vac.value) - 50) < 0.5);
+    q2vac.classList.toggle('ok', Math.abs(parseFloat(q2vac.value) - 32) < 0.5);
     q2vac.classList.toggle('err', q2vac.value !== '' && !q2vac.classList.contains('ok'));
     if (q2tab.classList.contains('ok') && q2vbc.classList.contains('ok') && q2tac.classList.contains('ok') && q2vac.classList.contains('ok')) answered.q2 = true;
     updateProgress();
@@ -309,7 +309,7 @@
   [q2tab, q2vbc, q2tac, q2vac].forEach(function (el) { el.addEventListener('input', q2Check); });
   q2Check();
 
-  // 练习 2：画刻度尺刻度（0～100 cm，C在左端0、B在75、A在右端100）
+  // 练习 2：画刻度尺刻度（0～100 cm，C在10、B在64、A在90）
   (function () {
     var marks = document.getElementById('q2-ruler-marks');
     var nums = document.getElementById('q2-ruler-nums');
@@ -397,7 +397,7 @@
       var card = btn.closest('.card');
       card.querySelectorAll('input').forEach(function (inp) {
         if (inp.id === 'q5-n') { inp.value = '1'; }
-        else if (inp.id === 'q5-t') { inp.value = '5'; }
+        else if (inp.id === 'q5-t') { inp.value = '4'; }
         else { inp.value = ''; }
         inp.classList.remove('ok', 'err');
       });
