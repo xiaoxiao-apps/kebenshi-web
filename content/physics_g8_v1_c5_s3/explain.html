@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>探究凸透镜成像的规律 · 知识讲解</title>
+<style>
+:root{--ink:#2a2620;--ink2:#71675a;--green:#2f8f4e;--green-bg:#eaf6ee;--brown:#8a5a2b;--brown-bg:#faf1e2;--cyan:#2b7a8f;--cyan-bg:#e8f4f8;--card:#fffdf7;--bg:#f4efe4;--amber:#b45309;}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.85;font-size:15px;min-height:100dvh;}
+.back-btn{display:inline-flex;align-items:center;margin:12px 0 0 12px;padding:9px 15px;border-radius:12px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;border:1px solid rgba(0,0,0,.08);min-height:40px;}
+.container{max-width:720px;margin:0 auto;padding:6px 14px 48px;}
+.page-header{text-align:center;padding:14px 4px 6px;}
+.page-title{margin:0;font-size:23px;font-weight:800;}
+.page-subtitle{margin:6px 0 0;color:var(--ink2);font-size:13px;}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(60,45,20,.06);}
+.card h2{margin:2px 0 10px;font-size:17px;}
+.chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;vertical-align:2px;margin-left:6px;}
+.chip.brown{background:var(--brown-bg);color:var(--brown);}
+.chip.green{background:var(--green-bg);color:var(--green);}
+.chip.cyan{background:var(--cyan-bg);color:var(--cyan);}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 4px;margin:4px 0 10px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{flex:0 0 auto;padding:10px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;min-height:44px;font-family:inherit;}
+.tab-btn.active{background:var(--green);color:#fff;border-color:var(--green);}
+.tab-panel{display:none;animation:panelIn .25s ease;}
+.tab-panel.active{display:block;}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.key-point{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0;}
+.key-point p{margin:6px 0;}
+.kp-title{font-weight:800;color:var(--green);margin-bottom:6px;}
+.key-point.box-cyan{background:var(--cyan-bg);border-left-color:var(--cyan);}
+.key-point.box-cyan .kp-title{color:var(--cyan);}
+.key-point.box-brown{background:var(--brown-bg);border-left-color:var(--brown);}
+.key-point.box-brown .kp-title{color:var(--brown);}
+.question-box{background:var(--brown-bg);border-left:4px solid var(--brown);border-radius:0 12px 12px 0;padding:14px 16px;margin:12px 0;}
+.question-box h4{margin:0 0 6px;color:var(--brown);font-size:15px;}
+.question-box p{margin:6px 0;}
+.reveal-btn{margin-top:8px;padding:10px 14px;min-height:44px;border-radius:12px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;}
+.reveal-ans{display:none;margin-top:10px;background:#fff;border-radius:10px;padding:10px 12px;font-size:14px;border:1px dashed rgba(47,143,78,.4);}
+.question-box.open .reveal-ans{display:block;animation:panelIn .25s ease;}
+.example-step{display:none;background:var(--green-bg);border-radius:10px;padding:10px 14px;margin:8px 0;}
+.example-step.show{display:block;animation:panelIn .25s ease;}
+.step-btns{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+.btn{padding:9px 16px;border-radius:12px;border:none;font-weight:700;font-size:14px;cursor:pointer;min-height:42px;font-family:inherit;}
+.btn.primary{background:var(--green);color:#fff;}
+.btn.secondary{background:#fff;color:var(--ink);border:1px solid rgba(0,0,0,.1);}
+.btn:disabled{opacity:.45;cursor:default;}
+.summary-list{margin:6px 0;padding-left:20px;}
+.summary-list li{margin:4px 0;}
+.note{color:var(--ink2);font-size:13px;}
+strong{color:var(--amber);}
+.rule-table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0;text-align:center;}
+.rule-table th,.rule-table td{border:1px solid rgba(0,0,0,.08);padding:7px 4px;}
+.rule-table th{background:var(--green-bg);color:var(--green);}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">探究凸透镜成像的规律</h1>
+    <p class="page-subtitle">三个物距区间 · 实像与虚像 · 两条分界</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="e1">实验探究</button>
+    <button class="tab-btn" data-tab="e2">三区规律</button>
+    <button class="tab-btn" data-tab="e3">分界与动态</button>
+    <button class="tab-btn" data-tab="e4">例题与小结</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、怎样开展探究 <span class="chip brown">实验方法</span></h2>
+      <p>同一个凸透镜，照相机成缩小的像、投影仪成放大的像、放大镜成虚像，差别为什么这么大？像的虚实、大小、正倒可能跟<strong>物距 u</strong> 有关，我们用实验来验证。</p>
+      <p>器材：光具座上依次放发光物体（或点燃的蜡烛）、凸透镜和光屏，调节烛焰、透镜、光屏中心大致在<strong>同一高度</strong>，使像成在光屏中央。</p>
+      <div class="key-point box-brown" data-steps="s1a,s1b,s1c,s1d">
+        <p class="kp-title">实验步骤逐条看</p>
+        <div class="example-step show" id="s1a">第一步：测出凸透镜的焦距 f，在光具座上标出焦点和二倍焦距点的位置。</div>
+        <div class="example-step" id="s1b">第二步：把物体移到二倍焦距以外，移动光屏找清晰的像，观察虚实、大小、正倒，记下物距和像距。</div>
+        <div class="example-step" id="s1c">第三步：把物体移到一倍焦距与二倍焦距之间重复实验；再移到焦点以内，此时屏上接不到像，撤去光屏透过透镜观察。</div>
+        <div class="example-step" id="s1d">第四步：把各组数据整理成表，对比物距区间与成像性质，归纳出规律。</div>
+        <div class="step-btns">
+          <button class="btn primary step-next" type="button">下一步</button>
+          <button class="btn secondary step-reset" type="button">重置</button>
+        </div>
+      </div>
+      <p class="note">像距 v 指像到透镜光心的距离。</p>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、三个区间的成像规律 <span class="chip green">核心结论</span></h2>
+      <div class="key-point">
+        <p class="kp-title">凸透镜成像规律一览</p>
+        <table class="rule-table">
+          <tr><th>物距 u</th><th>像的性质</th><th>像距 v</th><th>应用</th></tr>
+          <tr><td>u &gt; 2f</td><td>倒立、缩小、实像</td><td>f &lt; v &lt; 2f</td><td>照相机</td></tr>
+          <tr><td>u = 2f</td><td>倒立、等大、实像</td><td>v = 2f</td><td>测焦距</td></tr>
+          <tr><td>f &lt; u &lt; 2f</td><td>倒立、放大、实像</td><td>v &gt; 2f</td><td>投影仪</td></tr>
+          <tr><td>u = f</td><td>不成像（出射平行光）</td><td>—</td><td>探照灯</td></tr>
+          <tr><td>u &lt; f</td><td>正立、放大、虚像</td><td>像与物同侧</td><td>放大镜</td></tr>
+        </table>
+      </div>
+      <p><strong>实像都是倒立的</strong>，与物在透镜异侧，能用光屏承接；<strong>虚像都是正立放大的</strong>，与物同侧，只能用眼睛观察。</p>
+      <div class="question-box">
+        <h4>思考讨论 1</h4>
+        <p>物体在一倍焦距与二倍焦距之间，屏上已出现清晰的像。用不透明纸板挡住透镜上半部分，屏上的像会只剩半截吗？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>不会。物体上任一点发出的光经过透镜的<strong>每一部分</strong>都会会聚到对应像点，挡住上半部只是减少了透光量，像仍<strong>完整</strong>，只是整体<strong>变暗</strong>。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、两条分界与动态规律 <span class="chip cyan">深化理解</span></h2>
+      <div class="key-point box-cyan">
+        <p class="kp-title">两句口诀</p>
+        <p><strong>一倍焦距分虚实</strong>：u = f 是虚实分界，物距大于焦距成实像，小于焦距成虚像。</p>
+        <p><strong>二倍焦距分大小</strong>：u = 2f 是大小分界，物距大于 2f 成缩小的像，小于 2f（仍大于 f）成放大的像。</p>
+      </div>
+      <p>把物体从远处逐渐移近凸透镜，可以观察到清晰的实像不断<strong>远离</strong>透镜，而且不断<strong>变大</strong>；当物体移过焦点后，实像消失，出现正立放大的虚像，此时物体越靠近透镜，虚像反而越小。</p>
+      <div class="question-box">
+        <h4>思考讨论 2</h4>
+        <p>做实验时，蜡烛燃烧变短了，光屏上清晰的像会向哪个方向移动？怎样调节才能让像回到光屏中央？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>像向<strong>上</strong>移。过光心的光方向不变，烛焰顶端变低后对应像点反而升高。可把光屏上移或蜡烛上移，使三者中心重新同高。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>四、例题 <span class="chip brown">分步揭晓</span></h2>
+      <p>例题：凸透镜焦距 f = 10 cm。物体距透镜 30 cm 时成什么像？像距多大？移到 15 cm 处又如何？（1/u + 1/v = 1/f）</p>
+      <div class="example-step show">已知：f = 10 cm；第一问 u₁ = 30 cm，第二问 u₂ = 15 cm。</div>
+      <div class="example-step" id="e4s1">第一问：u₁ = 30 cm &gt; 2f = 20 cm，成倒立、缩小的实像。</div>
+      <div class="example-step" id="e4s2">第一问算像距：1/v = 1/f − 1/u₁ = 1/10 − 1/30 = 2/30，得 v₁ = 15 cm，满足 f &lt; v₁ &lt; 2f。</div>
+      <div class="example-step" id="e4s3">第二问：f &lt; u₂ = 15 cm &lt; 2f，成倒立、放大的实像。</div>
+      <div class="example-step" id="e4s4">第二问算像距：1/v = 1/10 − 1/15 = 1/30，得 v₂ = 30 cm &gt; 2f。物近像远像变大，两问互相印证。</div>
+      <div class="step-btns">
+        <button class="btn primary" id="e4next" type="button">下一步</button>
+        <button class="btn secondary" id="e4reset" type="button">重置</button>
+      </div>
+      <div class="question-box">
+        <h4>例题 2</h4>
+        <p>物体距某凸透镜 8 cm 时，透过透镜看到正立、放大的像。成像原理与照相机、投影仪、放大镜中哪种相同？该透镜焦距范围？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>正立放大的像是<strong>虚像</strong>，原理同<strong>放大镜</strong>。虚像要求 u &lt; f，即 8 cm &lt; f，所以 f &gt; 8 cm。</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>五、本节小结 <span class="chip cyan">要点</span></h2>
+      <ul class="summary-list">
+        <li>u &gt; 2f：倒立缩小实像，照相机原理；f &lt; u &lt; 2f：倒立放大实像，投影仪原理；u &lt; f：正立放大虚像，放大镜原理。</li>
+        <li>一倍焦距分虚实，二倍焦距分大小；u = f 时不成像，u = 2f 时成等大实像。</li>
+        <li>成实像时：物近、像远、像变大；实像倒立异侧，虚像正立同侧。</li>
+        <li>遮住透镜一部分，像仍完整，只是变暗。</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var tabs=document.querySelectorAll('.tab-btn');
+var panels=document.querySelectorAll('.tab-panel');
+tabs.forEach(function(b){b.addEventListener('click',function(){
+tabs.forEach(function(x){x.classList.remove('active');});
+panels.forEach(function(p){p.classList.remove('active');});
+b.classList.add('active');
+document.getElementById('panel-'+b.dataset.tab).classList.add('active');
+window.scrollTo(0,0);});});
+document.querySelectorAll('.reveal-btn').forEach(function(btn){
+btn.addEventListener('click',function(){
+var box=btn.closest('.question-box');
+if(!box)return;
+var open=box.classList.toggle('open');
+btn.textContent=open?'收起答案':'点击揭晓答案';});});
+document.querySelectorAll('[data-steps]').forEach(function(wrap){
+var ids=wrap.dataset.steps.split(',');
+var idx=1;
+var next=wrap.querySelector('.step-next');
+var reset=wrap.querySelector('.step-reset');
+function refresh(){next.textContent=idx>=ids.length?'已完成':'下一步';next.disabled=idx>=ids.length;}
+next.addEventListener('click',function(){if(idx<ids.length){wrap.querySelector('#'+ids[idx]).classList.add('show');idx++;refresh();}});
+reset.addEventListener('click',function(){for(var i=1;i<ids.length;i++){wrap.querySelector('#'+ids[i]).classList.remove('show');}idx=1;refresh();});
+refresh();});
+(function(){
+var ids=['e4s1','e4s2','e4s3','e4s4'];
+var idx=0;
+var next=document.getElementById('e4next');
+var reset=document.getElementById('e4reset');
+function refresh(){next.textContent=idx>=ids.length?'已完成':'下一步';next.disabled=idx>=ids.length;}
+next.addEventListener('click',function(){if(idx<ids.length){document.getElementById(ids[idx]).classList.add('show');idx++;refresh();}});
+reset.addEventListener('click',function(){ids.forEach(function(id){document.getElementById(id).classList.remove('show');});idx=0;refresh();});
+refresh();
+})();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>显微镜和望远镜 · 知识讲解</title>
+<style>
+:root{--ink:#2a2620;--ink2:#71675a;--green:#2f8f4e;--green-bg:#eaf6ee;--brown:#8a5a2b;--brown-bg:#faf1e2;--cyan:#2b7a8f;--cyan-bg:#e8f4f8;--card:#fffdf7;--bg:#f4efe4;--amber:#b45309;}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.85;font-size:15px;min-height:100dvh;}
+.back-btn{display:inline-flex;align-items:center;margin:12px 0 0 12px;padding:9px 15px;border-radius:12px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;border:1px solid rgba(0,0,0,.08);min-height:40px;}
+.container{max-width:720px;margin:0 auto;padding:6px 14px 48px;}
+.page-header{text-align:center;padding:14px 4px 6px;}
+.page-title{margin:0;font-size:24px;font-weight:800;}
+.page-subtitle{margin:6px 0 0;color:var(--ink2);font-size:13px;}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(60,45,20,.06);}
+.card h2{margin:2px 0 10px;font-size:17px;}
+.chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;vertical-align:2px;margin-left:6px;}
+.chip.brown{background:var(--brown-bg);color:var(--brown);}
+.chip.green{background:var(--green-bg);color:var(--green);}
+.chip.cyan{background:var(--cyan-bg);color:var(--cyan);}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 4px;margin:4px 0 10px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{flex:0 0 auto;padding:10px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;min-height:44px;font-family:inherit;}
+.tab-btn.active{background:var(--green);color:#fff;border-color:var(--green);}
+.tab-panel{display:none;animation:panelIn .25s ease;}
+.tab-panel.active{display:block;}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.key-point{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0;}
+.key-point p{margin:6px 0;}
+.kp-title{font-weight:800;color:var(--green);margin-bottom:6px;}
+.key-point.box-cyan{background:var(--cyan-bg);border-left-color:var(--cyan);}
+.key-point.box-cyan .kp-title{color:var(--cyan);}
+.key-point.box-brown{background:var(--brown-bg);border-left-color:var(--brown);}
+.key-point.box-brown .kp-title{color:var(--brown);}
+.question-box{background:var(--brown-bg);border-left:4px solid var(--brown);border-radius:0 12px 12px 0;padding:14px 16px;margin:12px 0;}
+.question-box h4{margin:0 0 6px;color:var(--brown);font-size:15px;}
+.question-box p{margin:6px 0;}
+.reveal-btn{margin-top:8px;padding:10px 14px;min-height:44px;border-radius:12px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;}
+.reveal-ans{display:none;margin-top:10px;background:#fff;border-radius:10px;padding:10px 12px;font-size:14px;border:1px dashed rgba(47,143,78,.4);}
+.question-box.open .reveal-ans{display:block;animation:panelIn .25s ease;}
+.example-step{display:none;background:var(--green-bg);border-radius:10px;padding:10px 14px;margin:8px 0;}
+.example-step.show{display:block;animation:panelIn .25s ease;}
+.step-btns{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+.btn{padding:9px 16px;border-radius:12px;border:none;font-weight:700;font-size:14px;cursor:pointer;min-height:42px;font-family:inherit;}
+.btn.primary{background:var(--green);color:#fff;}
+.btn.secondary{background:#fff;color:var(--ink);border:1px solid rgba(0,0,0,.1);}
+.btn:disabled{opacity:.45;cursor:default;}
+.summary-list{margin:6px 0;padding-left:20px;}
+.summary-list li{margin:4px 0;}
+.note{color:var(--ink2);font-size:13px;}
+strong{color:var(--amber);}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">显微镜和望远镜</h1>
+    <p class="page-subtitle">两级放大 · 视角增大 · 镜筒长度与倍率</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="e1">显微镜</button>
+    <button class="tab-btn" data-tab="e2">望远镜</button>
+    <button class="tab-btn" data-tab="e3">视角与倍率</button>
+    <button class="tab-btn" data-tab="e4">例题与小结</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、显微镜：把微小物体放大再放大 <span class="chip brown">两级放大</span></h2>
+      <p>细胞、细菌太小，一个放大镜不够用。显微镜用<strong>两组凸透镜</strong>接力，把物体连续放大两次。</p>
+      <p>靠近物体的<strong>物镜</strong>焦距很短，物体放在物镜焦点稍外，像投影仪一样成<strong>倒立、放大的实像</strong>——第一次放大。</p>
+      <p>靠近眼睛的<strong>目镜</strong>把这个实像当作物体：实像落在目镜焦点以内，目镜相当于放大镜，再次放大成<strong>虚像</strong>——第二次放大。</p>
+      <div class="key-point">
+        <p class="kp-title">显微镜的光路链条</p>
+        <p>物体 →（物镜：f &lt; u &lt; 2f）→ 倒立放大实像 →（目镜：u &lt; f）→ 再放大的虚像。两级叠加，总倍率可达几百倍甚至上千倍。</p>
+      </div>
+      <p class="note">小知识：载玻片向左移，视野里的像向右移——物镜成的实像本来就是倒立的。</p>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、望远镜：把遥远天体拉近 <span class="chip cyan">先缩后放</span></h2>
+      <p>望远镜不能真把星星「搬近」，它的做法是：先用<strong>物镜</strong>给远处物体成<strong>倒立、缩小的实像</strong>——物距远大于二倍焦距，跟照相机相同。</p>
+      <p>这个实像落在<strong>目镜</strong>焦点以内，目镜再把它放大。虽然实像是缩小的，但经过目镜后像对人眼的<strong>视角</strong>大大增加，我们便觉得物体被「拉近」了。</p>
+      <div class="key-point box-cyan">
+        <p class="kp-title">望远镜的关键位置关系</p>
+        <p>观察最远物体时，实像几乎落在物镜焦点处，又要求它在目镜焦点以内，所以<strong>两镜间距约等于焦距之和</strong>：L ≈ f物 + f目。观察较近物体时实像稍后移，间距要<strong>稍大一些</strong>。</p>
+      </div>
+      <p>物镜口径做得大，是为了会聚更多光、使像更明亮，才能看清暗弱天体。1609 年伽利略用自制望远镜观测天体，打开了现代天文学的大门。</p>
+      <div class="question-box">
+        <h4>思考讨论 1</h4>
+        <p>用两块凸透镜自制望远镜，应选焦距长的还是短的作物镜？为什么？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>选<strong>焦距长</strong>的作物镜、焦距短的作目镜。放大倍率等于物镜焦距除以目镜焦距，物镜焦距越长、目镜焦距越短，倍率越大。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、视角：看清物体的关键 <span class="chip green">原理深化</span></h2>
+      <p>同一物体离眼越近看起来越大。视角大小决定视网膜上像的大小——<strong>视角越大，看得越清</strong>。</p>
+      <p>显微镜和望远镜本质相同：都想方设法<strong>增大物体对眼睛的视角</strong>。显微镜对微小物体两级放大；望远镜让远处物体的视角成倍增加。</p>
+      <div class="key-point box-brown">
+        <p class="kp-title">望远镜放大倍率</p>
+        <p>放大倍率 = <strong>f物 ÷ f目</strong>。想提高倍率，换焦距更长的物镜或更短的目镜。</p>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 2</h4>
+        <p>自制望远镜看远处的树，像是正立还是倒立？天文观测中这要紧吗？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>像是<strong>倒立</strong>的：物镜成倒立实像，目镜放大时不改变正倒。天上本无「正立」参照，倒立不影响天文研究。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>四、例题 <span class="chip brown">分步揭晓</span></h2>
+      <p>例题：小明用两块凸透镜自制望远镜，物镜焦距 f物 = 30 cm，目镜焦距 f目 = 5 cm。观察最远处的景物时，这台望远镜的放大倍率是多少？两块透镜之间的距离应调节为多少？</p>
+      <div class="example-step show">已知：f物 = 30 cm，f目 = 5 cm，观察对象在最远处。</div>
+      <div class="example-step" id="e4s1">求倍率：放大倍率 = f物 ÷ f目 = 30 cm ÷ 5 cm = 6（倍）。</div>
+      <div class="example-step" id="e4s2">求镜筒长度：观察最远物体时，两镜间距约等于焦距之和，L ≈ f物 + f目 = 30 cm + 5 cm = 35 cm。</div>
+      <div class="example-step" id="e4s3">答：放大倍率为 6 倍，镜筒长度约 35 cm。若改看较近物体，间距要稍调大。</div>
+      <div class="step-btns">
+        <button class="btn primary" id="e4next" type="button">下一步</button>
+        <button class="btn secondary" id="e4reset" type="button">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>五、本节小结 <span class="chip cyan">要点</span></h2>
+      <ul class="summary-list">
+        <li>显微镜：物镜（短焦距）成倒立放大实像，目镜当放大镜再放大，两级放大。</li>
+        <li>望远镜：物镜（长焦距）成倒立缩小实像于焦点附近，目镜放大实像，把远处物体「拉近」。</li>
+        <li>观察最远物体时镜筒长约等于两焦距之和；放大倍率 = f物 ÷ f目。</li>
+        <li>共同本质：增大物体对眼睛的视角。</li>
+        <li>物镜口径大是为了会聚更多光、让像更明亮。</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var tabs=document.querySelectorAll('.tab-btn');
+var panels=document.querySelectorAll('.tab-panel');
+tabs.forEach(function(b){b.addEventListener('click',function(){
+tabs.forEach(function(x){x.classList.remove('active');});
+panels.forEach(function(p){p.classList.remove('active');});
+b.classList.add('active');
+document.getElementById('panel-'+b.dataset.tab).classList.add('active');
+window.scrollTo(0,0);});});
+document.querySelectorAll('.reveal-btn').forEach(function(btn){
+btn.addEventListener('click',function(){
+var box=btn.closest('.question-box');
+if(!box)return;
+var open=box.classList.toggle('open');
+btn.textContent=open?'收起答案':'点击揭晓答案';});});
+(function(){
+var ids=['e4s1','e4s2','e4s3'];
+var idx=0;
+var next=document.getElementById('e4next');
+var reset=document.getElementById('e4reset');
+function refresh(){next.textContent=idx>=ids.length?'已完成':'下一步';next.disabled=idx>=ids.length;}
+next.addEventListener('click',function(){if(idx<ids.length){document.getElementById(ids[idx]).classList.add('show');idx++;refresh();}});
+reset.addEventListener('click',function(){ids.forEach(function(id){document.getElementById(id).classList.remove('show');});idx=0;refresh();});
+refresh();
+})();
+})();
+</script>
+</body>
+</html>

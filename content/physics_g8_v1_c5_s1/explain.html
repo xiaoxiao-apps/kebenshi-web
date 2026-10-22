@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>透镜 · 知识讲解</title>
+<style>
+:root{--ink:#2a2620;--ink2:#71675a;--green:#2f8f4e;--green-bg:#eaf6ee;--brown:#8a5a2b;--brown-bg:#faf1e2;--cyan:#2b7a8f;--cyan-bg:#e8f4f8;--card:#fffdf7;--bg:#f4efe4;--amber:#b45309;}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.85;font-size:15px;min-height:100dvh;}
+.back-btn{display:inline-flex;align-items:center;margin:12px 0 0 12px;padding:9px 15px;border-radius:12px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;border:1px solid rgba(0,0,0,.08);min-height:40px;}
+.container{max-width:720px;margin:0 auto;padding:6px 14px 48px;}
+.page-header{text-align:center;padding:14px 4px 6px;}
+.page-title{margin:0;font-size:24px;font-weight:800;}
+.page-subtitle{margin:6px 0 0;color:var(--ink2);font-size:13px;}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(60,45,20,.06);}
+.card h2{margin:2px 0 10px;font-size:17px;}
+.chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;vertical-align:2px;margin-left:6px;}
+.chip.brown{background:var(--brown-bg);color:var(--brown);}
+.chip.green{background:var(--green-bg);color:var(--green);}
+.chip.cyan{background:var(--cyan-bg);color:var(--cyan);}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 4px;margin:4px 0 10px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{flex:0 0 auto;padding:10px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;min-height:44px;font-family:inherit;}
+.tab-btn.active{background:var(--green);color:#fff;border-color:var(--green);}
+.tab-panel{display:none;animation:panelIn .25s ease;}
+.tab-panel.active{display:block;}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.key-point{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0;}
+.key-point p{margin:6px 0;}
+.kp-title{font-weight:800;color:var(--green);margin-bottom:6px;}
+.key-point.box-cyan{background:var(--cyan-bg);border-left-color:var(--cyan);}
+.key-point.box-cyan .kp-title{color:var(--cyan);}
+.key-point.box-brown{background:var(--brown-bg);border-left-color:var(--brown);}
+.key-point.box-brown .kp-title{color:var(--brown);}
+.question-box{background:var(--brown-bg);border-left:4px solid var(--brown);border-radius:0 12px 12px 0;padding:14px 16px;margin:12px 0;}
+.question-box h4{margin:0 0 6px;color:var(--brown);font-size:15px;}
+.question-box p{margin:6px 0;}
+.reveal-btn{margin-top:8px;padding:10px 14px;min-height:44px;border-radius:12px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;}
+.reveal-ans{display:none;margin-top:10px;background:#fff;border-radius:10px;padding:10px 12px;font-size:14px;border:1px dashed rgba(47,143,78,.4);}
+.question-box.open .reveal-ans{display:block;animation:panelIn .25s ease;}
+.example-step{display:none;background:var(--green-bg);border-radius:10px;padding:10px 14px;margin:8px 0;}
+.example-step.show{display:block;animation:panelIn .25s ease;}
+.step-btns{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+.btn{padding:9px 16px;border-radius:12px;border:none;font-weight:700;font-size:14px;cursor:pointer;min-height:42px;font-family:inherit;}
+.btn.primary{background:var(--green);color:#fff;}
+.btn.secondary{background:#fff;color:var(--ink);border:1px solid rgba(0,0,0,.1);}
+.btn:disabled{opacity:.45;cursor:default;}
+.summary-list{margin:6px 0;padding-left:20px;}
+.summary-list li{margin:4px 0;}
+.note{color:var(--ink2);font-size:13px;}
+strong{color:var(--amber);}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">透镜</h1>
+    <p class="page-subtitle">凸透镜与凹透镜 · 焦点焦距 · 三条特殊光线</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="e1">认识透镜</button>
+    <button class="tab-btn" data-tab="e2">焦点与焦距</button>
+    <button class="tab-btn" data-tab="e3">三条特殊光线</button>
+    <button class="tab-btn" data-tab="e4">例题与小结</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、从放大镜说起 <span class="chip brown">导入</span></h2>
+      <p>放大镜正对太阳，纸上会出现一个又小又亮的光斑，停留片刻纸片甚至被烤焦。一块玻璃为何能把光集中到一点？秘密藏在<strong>透镜</strong>里。</p>
+      <p>中间厚、边缘薄的透镜叫<strong>凸透镜</strong>，如放大镜的镜片；中间薄、边缘厚的叫<strong>凹透镜</strong>，如近视镜片。</p>
+      <p>通过透镜两个球面球心的直线叫<strong>主光轴</strong>；主轴上透镜中央的一点叫<strong>光心</strong>，经过光心的光传播方向不变。</p>
+      <div class="key-point">
+        <p class="kp-title">透镜对光的作用</p>
+        <p>凸透镜对光有<strong>会聚作用</strong>，叫会聚透镜；凹透镜对光有<strong>发散作用</strong>，叫发散透镜。</p>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 1</h4>
+        <p>两枚外形相同的镜片，一凸一凹。不许用手摸厚度，怎样把它们区分开？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>把镜片靠近书页上的字：能把字<strong>放大</strong>的是凸透镜，<strong>缩小</strong>的是凹透镜；隔着镜片看远处景物，能成倒立像的也是凸透镜。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、焦点与焦距 <span class="chip brown">核心概念</span></h2>
+      <p>跟主光轴平行的一束光通过凸透镜，折射光线会会聚到主轴上一点，这点叫<strong>焦点</strong>，用 F 表示；焦点到光心的距离叫<strong>焦距</strong>，用 f 表示。凸透镜两侧各有一个焦点，都是光实际会聚的<strong>实焦点</strong>。</p>
+      <p>平行光经凹透镜后发散，发散光线的反向延长线交于入射一侧主轴上一点，叫凹透镜的<strong>虚焦点</strong>。</p>
+      <p>焦距越短，凸透镜对光的会聚作用越强——焦距是衡量透镜折光本领的物理量。</p>
+      <div class="key-point box-brown" data-steps="s2a,s2b,s2c">
+        <p class="kp-title">用太阳光粗测焦距</p>
+        <div class="example-step show" id="s2a">第一步：让太阳光正对凸透镜照射，太阳光可看作平行光。</div>
+        <div class="example-step" id="s2b">第二步：另一侧放白纸屏，沿主轴前后移动，直到屏上出现最小、最亮的光斑。</div>
+        <div class="example-step" id="s2c">第三步：量出光斑到透镜的距离，即焦距 f。</div>
+        <div class="step-btns">
+          <button class="btn primary step-next" type="button">下一步</button>
+          <button class="btn secondary step-reset" type="button">重置</button>
+        </div>
+      </div>
+      <p><strong>光路可逆</strong>：把小灯泡恰好放在凸透镜焦点上，发出的光经透镜折射后成为一束平行于主轴的光。</p>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、三条特殊光线 <span class="chip green">作图基础</span></h2>
+      <div class="key-point">
+        <p class="kp-title">凸透镜的三条特殊光线</p>
+        <p>① 平行于主光轴的光线，经凸透镜折射后<strong>通过另一侧的焦点</strong>；</p>
+        <p>② 通过光心的光线，<strong>传播方向不变</strong>；</p>
+        <p>③ 通过焦点的光线，经凸透镜折射后<strong>平行于主光轴</strong>射出。</p>
+        <p>凹透镜的对应规律：① 平行于主轴的光折射后发散，<strong>反向延长线通过同侧虚焦点</strong>；② 过光心的光方向不变；③ 射向虚焦点的光折射后<strong>平行于主轴</strong>。</p>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 2</h4>
+        <p>一束平行于主光轴的光经过某个透镜后变得会聚了，这个透镜是凸还是凹？为什么？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>是<strong>凸透镜</strong>。平行光经它折射后向主轴靠拢、会聚到一点，说明它对光起会聚作用，会聚点就是它的焦点。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>四、例题 <span class="chip brown">分步揭晓</span></h2>
+      <div class="question-box">
+        <h4>例题 1</h4>
+        <p>小华把凸透镜正对太阳，在另一侧移动白纸屏。屏距透镜 10 cm 时光斑最小、最亮。这个凸透镜的焦距是多少？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>太阳光可看作平行光，经凸透镜折射后会聚在焦点，此时屏恰在焦点位置。所以 f = 10 cm。</p>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>例题 2</h4>
+        <p>小灯泡放在凸透镜主光轴上距透镜 15 cm 处，该透镜焦距恰为 15 cm。灯泡发出的光经过透镜后有什么特点？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>灯泡恰好位于焦点上。由光路可逆，从焦点发出的光经凸透镜折射后成为一束<strong>平行于主光轴的平行光</strong>。</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>五、本节小结 <span class="chip cyan">要点</span></h2>
+      <ul class="summary-list">
+        <li>凸透镜会聚光，凹透镜发散光。</li>
+        <li>焦点到光心的距离叫焦距；焦距越短，会聚作用越强。</li>
+        <li>太阳光和白纸屏找最小最亮光斑，可粗测焦距。</li>
+        <li>三条特殊光线：过焦点、过光心、平行于主轴。</li>
+        <li>光路可逆：焦点处光源发出的光经凸透镜成平行光。</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var tabs=document.querySelectorAll('.tab-btn');
+var panels=document.querySelectorAll('.tab-panel');
+tabs.forEach(function(b){b.addEventListener('click',function(){
+tabs.forEach(function(x){x.classList.remove('active');});
+panels.forEach(function(p){p.classList.remove('active');});
+b.classList.add('active');
+document.getElementById('panel-'+b.dataset.tab).classList.add('active');
+window.scrollTo(0,0);});});
+document.querySelectorAll('.reveal-btn').forEach(function(btn){
+btn.addEventListener('click',function(){
+var box=btn.closest('.question-box');
+if(!box)return;
+var open=box.classList.toggle('open');
+btn.textContent=open?'收起答案':'点击揭晓答案';});});
+document.querySelectorAll('[data-steps]').forEach(function(wrap){
+var ids=wrap.dataset.steps.split(',');
+var idx=1;
+var next=wrap.querySelector('.step-next');
+var reset=wrap.querySelector('.step-reset');
+function refresh(){next.textContent=idx>=ids.length?'已完成':'下一步';next.disabled=idx>=ids.length;}
+next.addEventListener('click',function(){if(idx<ids.length){wrap.querySelector('#'+ids[idx]).classList.add('show');idx++;refresh();}});
+reset.addEventListener('click',function(){for(var i=1;i<ids.length;i++){wrap.querySelector('#'+ids[i]).classList.remove('show');}idx=1;refresh();});
+refresh();});
+})();
+</script>
+</body>
+</html>

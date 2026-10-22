@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>生活中的透镜 · 知识讲解</title>
+<style>
+:root{--ink:#2a2620;--ink2:#71675a;--green:#2f8f4e;--green-bg:#eaf6ee;--brown:#8a5a2b;--brown-bg:#faf1e2;--cyan:#2b7a8f;--cyan-bg:#e8f4f8;--card:#fffdf7;--bg:#f4efe4;--amber:#b45309;}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.85;font-size:15px;min-height:100dvh;}
+.back-btn{display:inline-flex;align-items:center;margin:12px 0 0 12px;padding:9px 15px;border-radius:12px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;border:1px solid rgba(0,0,0,.08);min-height:40px;}
+.container{max-width:720px;margin:0 auto;padding:6px 14px 48px;}
+.page-header{text-align:center;padding:14px 4px 6px;}
+.page-title{margin:0;font-size:24px;font-weight:800;}
+.page-subtitle{margin:6px 0 0;color:var(--ink2);font-size:13px;}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(60,45,20,.06);}
+.card h2{margin:2px 0 10px;font-size:17px;}
+.chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;vertical-align:2px;margin-left:6px;}
+.chip.brown{background:var(--brown-bg);color:var(--brown);}
+.chip.green{background:var(--green-bg);color:var(--green);}
+.chip.cyan{background:var(--cyan-bg);color:var(--cyan);}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 4px;margin:4px 0 10px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{flex:0 0 auto;padding:10px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;min-height:44px;font-family:inherit;}
+.tab-btn.active{background:var(--green);color:#fff;border-color:var(--green);}
+.tab-panel{display:none;animation:panelIn .25s ease;}
+.tab-panel.active{display:block;}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.key-point{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0;}
+.key-point p{margin:6px 0;}
+.kp-title{font-weight:800;color:var(--green);margin-bottom:6px;}
+.key-point.box-cyan{background:var(--cyan-bg);border-left-color:var(--cyan);}
+.key-point.box-cyan .kp-title{color:var(--cyan);}
+.key-point.box-brown{background:var(--brown-bg);border-left-color:var(--brown);}
+.key-point.box-brown .kp-title{color:var(--brown);}
+.question-box{background:var(--brown-bg);border-left:4px solid var(--brown);border-radius:0 12px 12px 0;padding:14px 16px;margin:12px 0;}
+.question-box h4{margin:0 0 6px;color:var(--brown);font-size:15px;}
+.question-box p{margin:6px 0;}
+.reveal-btn{margin-top:8px;padding:10px 14px;min-height:44px;border-radius:12px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;}
+.reveal-ans{display:none;margin-top:10px;background:#fff;border-radius:10px;padding:10px 12px;font-size:14px;border:1px dashed rgba(47,143,78,.4);}
+.question-box.open .reveal-ans{display:block;animation:panelIn .25s ease;}
+.example-step{display:none;background:var(--green-bg);border-radius:10px;padding:10px 14px;margin:8px 0;}
+.example-step.show{display:block;animation:panelIn .25s ease;}
+.step-btns{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+.btn{padding:9px 16px;border-radius:12px;border:none;font-weight:700;font-size:14px;cursor:pointer;min-height:42px;font-family:inherit;}
+.btn.primary{background:var(--green);color:#fff;}
+.btn.secondary{background:#fff;color:var(--ink);border:1px solid rgba(0,0,0,.1);}
+.btn:disabled{opacity:.45;cursor:default;}
+.summary-list{margin:6px 0;padding-left:20px;}
+.summary-list li{margin:4px 0;}
+.note{color:var(--ink2);font-size:13px;}
+strong{color:var(--amber);}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">生活中的透镜</h1>
+    <p class="page-subtitle">照相机 · 投影仪 · 放大镜 · 实像与虚像</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="e1">照相机</button>
+    <button class="tab-btn" data-tab="e2">投影仪</button>
+    <button class="tab-btn" data-tab="e3">放大镜</button>
+    <button class="tab-btn" data-tab="e4">例题与小结</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、照相机 <span class="chip brown">缩小实像</span></h2>
+      <p>按下快门，远处的山川就留在了照片上。照相机的镜头相当于一个<strong>凸透镜</strong>，来自物体的光会聚在相机内部的感光元件（早期是胶片）上成像。</p>
+      <p>照相时物距大于二倍焦距，镜头成<strong>倒立、缩小的实像</strong>，像与物在镜头两侧。</p>
+      <div class="key-point">
+        <p class="kp-title">照相机的调节</p>
+        <p>想让像变大：<strong>靠近被摄物体</strong>（减小物距），同时<strong>拉长暗箱</strong>（增大像距）。物近、像远、像变大，配合调节才能重新清晰。</p>
+      </div>
+      <p>用两个纸筒可自制模型照相机：前筒前端装凸透镜，后筒末端蒙半透明薄膜当「底片」。对着明亮的窗外景物前后拉动纸筒，薄膜上会出现景物<strong>倒立、缩小</strong>的清晰像。</p>
+      <div class="question-box">
+        <h4>思考讨论 1</h4>
+        <p>模型照相机先拍远处教学楼得到清晰的像，改拍近处花坛时像变模糊了。应怎样调节？像的大小怎样变化？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>物距减小、像距要增大：应<strong>拉长纸筒</strong>让薄膜离透镜远些。重新清晰后像比原来<strong>变大</strong>。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、投影仪 <span class="chip brown">放大实像</span></h2>
+      <p>投影仪的投影片（物体）放在相当于凸透镜的镜头<strong>一倍焦距与二倍焦距之间</strong>的位置，在屏幕上成<strong>倒立、放大的实像</strong>。</p>
+      <p>投影仪内装的平面镜不改变像的性质，作用只是<strong>改变光的传播方向</strong>，把光反射到前方屏幕上。</p>
+      <div class="key-point box-brown" data-steps="s2a,s2b,s2c">
+        <p class="kp-title">为什么投影片要倒着插？</p>
+        <div class="example-step show" id="s2a">第一步：物体在一倍焦距与二倍焦距之间时，凸透镜成倒立的实像。</div>
+        <div class="example-step" id="s2b">第二步：投影片正着插，屏幕上的实像就会颠倒。</div>
+        <div class="example-step" id="s2c">第三步：倒着插入投影片，屏幕上才能呈现正立的画面。</div>
+        <div class="step-btns">
+          <button class="btn primary step-next" type="button">下一步</button>
+          <button class="btn secondary step-reset" type="button">重置</button>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>思考讨论 2</h4>
+        <p>照相机和投影仪都用凸透镜成像，它们的成像情况有什么相同点和不同点？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>相同点：都成<strong>倒立的实像</strong>，能用屏承接，像与物异侧。不同点：照相机 u &gt; 2f 成<strong>缩小</strong>的像；投影仪 f &lt; u &lt; 2f 成<strong>放大</strong>的像。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、放大镜 <span class="chip green">放大虚像</span></h2>
+      <p>放大镜就是一个凸透镜。把它放在物体与眼睛之间，物体到透镜的距离<strong>小于一倍焦距</strong>，透过透镜就能看到<strong>正立、放大的虚像</strong>。</p>
+      <p>虚像由折射光线的反向延长线相交而成，与物体在透镜<strong>同侧</strong>，只能用眼透过透镜观察，不能用光屏承接。</p>
+      <p><strong>让像更大：</strong>让放大镜<strong>适当远离物体</strong>（仍在焦距以内），虚像更大；远离到物距等于或超过焦距，像就消失——放大镜必须在焦点以内使用。</p>
+      <div class="question-box">
+        <h4>思考讨论 3</h4>
+        <p>老奶奶用放大镜看报纸，想看到更大的字，应把放大镜靠近报纸还是远离报纸？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>应<strong>适当远离报纸</strong>，同时保持报纸仍在焦点以内。物距越接近焦距，虚像越大。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>四、实像与虚像 <span class="chip cyan">对比辨析</span></h2>
+      <div class="key-point box-cyan">
+        <p class="kp-title">一张对比看清两种像</p>
+        <p><strong>实像</strong>：由实际光线会聚而成，能用光屏承接，与物体在透镜异侧，都是倒立的。</p>
+        <p><strong>虚像</strong>：由折射光线反向延长线相交而成，不能用光屏承接，只能用眼观察，与物在透镜同侧，都是正立的。</p>
+      </div>
+      <div class="question-box">
+        <h4>例题</h4>
+        <p>把放大镜贴近手指观察，再慢慢远离。什么时候能看到放大的像？什么时候像突然消失？消失后继续远离，透过透镜看到什么？</p>
+        <button class="reveal-btn" type="button">点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>物距<strong>小于焦距</strong>时看到正立放大的虚像，且越远像越大；物距<strong>等于焦距</strong>时折射光平行，像消失；超过焦距后透过透镜看到<strong>倒立</strong>的像——已进入实像范围。</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>五、本节小结 <span class="chip cyan">要点</span></h2>
+      <ul class="summary-list">
+        <li>照相机：物距大于二倍焦距，成倒立、缩小的实像；物近像远像变大。</li>
+        <li>投影仪：f &lt; u &lt; 2f 成倒立放大实像；投影片倒插；平面镜只改光路方向。</li>
+        <li>放大镜：物距小于一倍焦距，成正立、放大的虚像；适当远离物体像更大。</li>
+        <li>实像能呈现在光屏上，虚像只能用眼睛观察。</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var tabs=document.querySelectorAll('.tab-btn');
+var panels=document.querySelectorAll('.tab-panel');
+tabs.forEach(function(b){b.addEventListener('click',function(){
+tabs.forEach(function(x){x.classList.remove('active');});
+panels.forEach(function(p){p.classList.remove('active');});
+b.classList.add('active');
+document.getElementById('panel-'+b.dataset.tab).classList.add('active');
+window.scrollTo(0,0);});});
+document.querySelectorAll('.reveal-btn').forEach(function(btn){
+btn.addEventListener('click',function(){
+var box=btn.closest('.question-box');
+if(!box)return;
+var open=box.classList.toggle('open');
+btn.textContent=open?'收起答案':'点击揭晓答案';});});
+document.querySelectorAll('[data-steps]').forEach(function(wrap){
+var ids=wrap.dataset.steps.split(',');
+var idx=1;
+var next=wrap.querySelector('.step-next');
+var reset=wrap.querySelector('.step-reset');
+function refresh(){next.textContent=idx>=ids.length?'已完成':'下一步';next.disabled=idx>=ids.length;}
+next.addEventListener('click',function(){if(idx<ids.length){wrap.querySelector('#'+ids[idx]).classList.add('show');idx++;refresh();}});
+reset.addEventListener('click',function(){for(var i=1;i<ids.length;i++){wrap.querySelector('#'+ids[i]).classList.remove('show');}idx=1;refresh();});
+refresh();});
+})();
+</script>
+</body>
+</html>
