@@ -1,7 +1,7 @@
 /* c3 题库 · P1m 存量迁移 · 2026-10-24 · 源: physics_g8_v1_c3_practice/practice.js（R-fix 终版, 题面逐字照抄） */
 var QBANK_C3_MIG = [
   {
-    id:"c3s1b001", ch:3, sec:1, origId:"c3s1q1",
+    id:"c3s1p001", ch:3, sec:1, origId:"c3s1q1",
     kp:["thermometer"], type:"choice", diff:2, freq:4, points:10,
     stem:"科技活动周里，小航用同样的材料做了两支“液柱温度计”：两个规格完全相同的玻璃瓶中装入等量的红色水，瓶口用橡皮塞密封，各插一根吸管——甲插的是一根粗吸管，乙插的是一根细吸管（见下图）。他把两支装置同时放进同一杯温水中。下列关于他看到的现象的说法，正确的是哪一项？",
     note:"配图为程序化简图。",
@@ -11,7 +11,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"自制液柱温度计粗细吸管灵敏度对比"
   },
   {
-    id:"c3s1b002", ch:3, sec:1, origId:"c3s1q2",
+    id:"c3s1p002", ch:3, sec:1, origId:"c3s1q2",
     kp:["thermometer"], type:"blank", diff:1, freq:4, points:10,
     stem:"读出图中两支温度计的示数（单位均为摄氏度），分别填入下面的横栏。",
     note:"配图为程序化简图，供温度计读数训练使用。",
@@ -21,7 +21,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"两支温度计示数读数（含零下）"
   },
   {
-    id:"c3s1b003", ch:3, sec:1, origId:"c3s1q3",
+    id:"c3s1p003", ch:3, sec:1, origId:"c3s1q3",
     kp:["thermometer"], type:"experiment", diff:1, freq:4, points:10,
     stem:"小雨觉得身上发烫，拿出一支电子体温计（笔状机身、前端是金属测温探头、示数显示在液晶屏上）给自己测体温。她的操作是这样的：①开机后把探头夹在腋下，只等了十来秒、见液晶屏还有数字在跳动就急着记下了读数；②为了看得清楚，她把探头从腋下抽出来对着光看屏幕；③测完随手把体温计搁进抽屉，既没擦拭也没关机。请逐条指出小雨操作中不恰当的地方，并说明正确的做法。",
     note:"本题为开放题，作答后对照参考要点自评计分。",
@@ -31,7 +31,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"电子体温计测体温操作纠错"
   },
   {
-    id:"c3s1b004", ch:3, sec:1, origId:"c3s1q4",
+    id:"c3s1p004", ch:3, sec:1, origId:"c3s1q4",
     kp:["thermometer"], type:"calc", diff:2, freq:4, points:10,
     stem:"小航学习了温度的测量后，打算自己规定一套温标：他把温度计插入冰水混合物中，在液柱到达的位置标上“100 度”；再插入标准大气压下的沸水中，在液柱到达的位置标上“200 度”；然后把两标记之间均匀分成 100 等份，每 1 份就是这种温标的 1 度。可见它的 1 度与摄氏温度的 1℃ 一样大，只是零度起点不同（这种温标的温度记作 T）。若摄氏温度为 t，则 T 与 t 满足的换算关系是：T = t + ______。",
     note:null,
@@ -41,7 +41,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"自定义温标与摄氏温标换算关系"
   },
   {
-    id:"c3s2b001", ch:3, sec:2, origId:"c3s2q1",
+    id:"c3s2p001", ch:3, sec:2, origId:"c3s2q1",
     kp:["melt-boil-curve","crystal"], type:"experiment", diff:2, freq:5, points:12,
     stem:"小瑞小组在实验中对某种固态物质持续、均匀地加热，每隔一段时间记录一次温度，并把数据描点画成下图所示的温度—时间图像。请依据图像分析：这种物质属不属于晶体？它的熔点是多少？熔化过程一共经历了多长时间？",
     note:"配图为程序化绘制的熔化图像简图（含水平平台段）。",
@@ -51,7 +51,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"熔化图像判断晶体并读熔点与熔化时长"
   },
   {
-    id:"c3s2b002", ch:3, sec:2, origId:"c3s2q2",
+    id:"c3s2p002", ch:3, sec:2, origId:"c3s2q2",
     kp:["melt-boil-curve","crystal"], type:"experiment", diff:3, freq:5, points:12,
     stem:"下图是对同一种物质绘制的两幅图像：甲记录它持续吸热熔化时温度随时间的变化，乙记录它持续放热凝固时温度随时间的变化。请依据两幅图像回答：(1) 哪一幅是熔化图像、哪一幅是凝固图像？判断的依据是什么？(2) 这种物质的熔点和凝固点各是多少？二者有什么关系？(3) 两幅图像各自的水平平台段，物质在吸热还是放热？处于什么状态？",
     note:"配图为程序化简图（甲：熔化图像带平台；乙：凝固图像带平台，两平台温度相同）。本题为开放题，作答后对照参考要点自评计分。",
@@ -61,7 +61,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"熔化凝固双图像综合分析"
   },
   {
-    id:"c3s2b003", ch:3, sec:2, origId:"c3s2q3",
+    id:"c3s2p003", ch:3, sec:2, origId:"c3s2q3",
     kp:["thermometer"], type:"blank", diff:2, freq:4, points:10,
     stem:"图中给出了两支温度计（单位均为摄氏度）：甲是实验室温度计，乙是体温计。请分别写出它们的示数。",
     note:"配图为程序化简图。注意两支温度计的分度值并不相同。",
@@ -71,7 +71,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"实验室温度计与体温计分度值读数"
   },
   {
-    id:"c3s2b004", ch:3, sec:2, origId:"c3s2q4",
+    id:"c3s2p004", ch:3, sec:2, origId:"c3s2q4",
     kp:["phase-change"], type:"blank", diff:2, freq:5, points:8,
     stem:"请分别说明下面两种做法所依据的物理道理：(1) 夏季运送疫苗时，医务人员会在保温箱内放入冰袋，让疫苗全程处于低温；(2) 北方入冬前，菜农常在存放蔬菜的地窖里摆上几大桶水，防止窖内的菜被冻坏。",
     note:"本题为开放题，作答后对照参考要点自评计分。",
@@ -81,7 +81,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"冰袋保鲜与水桶防冻的熔凝固吸放热应用"
   },
   {
-    id:"c3s2b005", ch:3, sec:2, origId:"c3s2q5",
+    id:"c3s2p005", ch:3, sec:2, origId:"c3s2q5",
     kp:["phase-change","crystal"], type:"experiment", diff:3, freq:5, points:8,
     stem:"隆冬的一个夜里，气温降到了约 -6℃，村口池塘里的淡水一夜之间冻得结结实实。小晨在海边渔村却发现，同样低温下大盆里的海水丝毫没有结冰。针对这个现象，你能对“盐水的凝固温度”提出什么猜想？再根据你的猜想举出一个生活或生产中的应用实例。",
     note:"本题为开放题（给参考思路），作答后对照自评计分。",
@@ -91,7 +91,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"海水低温不结冰的凝固点猜想与应用"
   },
   {
-    id:"c3s3b001", ch:3, sec:3, origId:"c3s3q1",
+    id:"c3s3p001", ch:3, sec:3, origId:"c3s3q1",
     kp:["liquefy","phase-change"], type:"choice", diff:1, freq:4, points:8,
     stem:"寒冷的冬天，戴眼镜的小林从室外走进开着暖气的房间，镜片上立刻蒙了一层白雾，什么也看不清；过了一会儿，白雾又自己消失了，镜片重新变得透亮。从“镜片起雾”到“白雾消失”，水先后经历了哪些物态变化？",
     note:"本题为客观题，选择后即时判分。",
@@ -101,7 +101,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"眼镜起雾又变清的物态变化先后判断"
   },
   {
-    id:"c3s3b002", ch:3, sec:3, origId:"c3s3q2",
+    id:"c3s3p002", ch:3, sec:3, origId:"c3s3q2",
     kp:["melt-boil-curve","phase-change"], type:"blank", diff:2, freq:5, points:10,
     stem:"家里炖肉汤时，妈妈先用大火把汤烧至沸腾，随后调成小火，让汤面保持微微沸腾继续炖。小蕾担心地问：“火调小了，汤的温度会不会跟着降下来，把肉炖不熟？”汤沸腾后改用小火，汤的温度会降低吗？请用物理知识说明理由。",
     note:"本题为简答题，作答后对照参考答案自评计分。",
@@ -111,7 +111,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"汤沸腾后改小火温度是否降低"
   },
   {
-    id:"c3s3b003", ch:3, sec:3, origId:"c3s3q3",
+    id:"c3s3p003", ch:3, sec:3, origId:"c3s3q3",
     kp:["evaporate"], type:"blank", diff:2, freq:3, points:10,
     stem:"盛夏酷暑，小玥的奶奶有个给饮用水降温的老办法：把水盛进瓦罐里，用一块浸透水的布把罐身整个包裹起来，再放到通风阴凉的地方。过一阵子，罐里的水就变得清凉可口。请分析这种降温方法所依据的物理道理。",
     note:"情景示意（文字描述）：瓦罐盛水，外壁裹着湿布，置于通风阴凉处，罐中水逐渐变凉。本题为简答题，作答后对照参考答案自评计分。",
@@ -121,7 +121,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"瓦罐裹湿布通风阴凉处蒸发致冷"
   },
   {
-    id:"c3s3b004", ch:3, sec:3, origId:"c3s3q4",
+    id:"c3s3p004", ch:3, sec:3, origId:"c3s3q4",
     kp:["liquefy"], type:"blank", diff:2, freq:4, points:10,
     stem:"闷热的三伏天，小杰发现厨房里那根输送凉水的金属水管外壁挂满了小水珠，日子久了，管子下方的地面竟积起一滩水。妈妈拿干抹布把管壁擦了一遍，可没过多久，水珠又冒了出来。金属水管外壁为什么会“出汗”？妈妈这样能把管壁彻底擦干吗？请用物理知识说明。",
     note:"本题为简答题，作答后对照参考答案自评计分。",
@@ -131,7 +131,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"凉水管外壁出汗液化擦不干"
   },
   {
-    id:"c3s3b005", ch:3, sec:3, origId:"c3s3q5",
+    id:"c3s3p005", ch:3, sec:3, origId:"c3s3q5",
     kp:["evaporate"], type:"blank", diff:2, freq:3, points:12,
     stem:"干旱的西北地区水资源紧缺。为节约农业用水，农技人员推广了两项措施：一是把从前大水漫灌的浇地方式改成“滴灌”，让水通过管道一滴一滴地渗到作物根部；二是在作物行间裸露的地面上覆盖一层塑料地膜。实地测算表明，这两项措施能大大减少灌溉水的蒸发损失。请结合影响蒸发快慢的因素，分析它们为什么能节水。",
     note:"情景示意（文字描述）：滴灌把水少量、集中地送到作物根部，避免大面积漫灌；裸露地面则被塑料地膜覆盖。本题为简答题，作答后对照参考答案自评计分。",
@@ -141,7 +141,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"滴灌与覆膜减少蒸发节水分析"
   },
   {
-    id:"c3s4b001", ch:3, sec:4, origId:"c3s4q1",
+    id:"c3s4p001", ch:3, sec:4, origId:"c3s4q1",
     kp:["phase-change","crystal"], type:"experiment", diff:3, freq:5, points:10,
     stem:"做碘的升华实验时，小辰小组先用酒精灯火焰直接烧烤装有碘颗粒的密闭玻璃容器（俗称“碘锤”）底部，容器里很快出现紫色蒸气，可他们同时发现容器底部还积起了少量液态碘，实验现象并不“干净”。老师改用一个办法：把碘锤浸在热水里加热（热水温度不超过 100℃），结果容器里始终只有紫色碘蒸气，一点液态碘也没有。请对照下面的参考数据说明：① 直接用火焰烧烤，为什么会出现液态碘？② 改用热水加热，为什么就只发生升华、始终看不到液态碘？",
     note:"本题为简答题，作答后对照参考答案自评计分。参考数据：碘的熔点约为 113.7℃；酒精灯外焰温度可达 400~500℃。",
@@ -151,7 +151,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"碘升华实验直火与热水浴方案对比"
   },
   {
-    id:"c3s4b002", ch:3, sec:4, origId:"c3s4q2",
+    id:"c3s4p002", ch:3, sec:4, origId:"c3s4q2",
     kp:["phase-change"], type:"blank", diff:1, freq:5, points:10,
     stem:"下面是两个生活观察：① 卫生间里放的一盒固体清香剂，过了几个星期明显“瘦”了一圈，盒子里却没有留下任何液体；② 用久了的白炽灯泡，钨丝比新灯泡时明显变细了（钨丝在高温下会直接变成钨蒸气）。请判断这两个现象各属于哪种物态变化，并说明你判断的共同依据。",
     note:"本题为简答题，作答后对照参考答案自评计分。",
@@ -161,7 +161,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"清香剂变瘦与钨丝变细的升华判断"
   },
   {
-    id:"c3s4b003", ch:3, sec:4, origId:"c3s4q3",
+    id:"c3s4p003", ch:3, sec:4, origId:"c3s4q3",
     kp:["phase-change","liquefy"], type:"blank", diff:2, freq:5, points:10,
     stem:"阅读材料：干冰是二氧化碳的固态形式，看上去像一块块白色的霜。它有个特别的性质——在常温下不会熔化成液体，而是直接变成气体，同时从周围吸收大量的热，使周围温度骤降。正因如此，物流公司给疫苗做冷链运输时，会用干冰代替普通冰袋来冷藏；舞台剧组则用干冰烟雾机向台面喷出白色的“仙境雾气”。",
     note:"本题为阅读分析题，作答后对照参考答案自评计分。",
@@ -171,7 +171,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"干冰冷链不留水渍与舞台白雾成因"
   },
   {
-    id:"c3s4b004", ch:3, sec:4, origId:"c3s4q4",
+    id:"c3s4p004", ch:3, sec:4, origId:"c3s4q4",
     kp:["phase-change"], type:"experiment", diff:2, freq:5, points:12,
     stem:"小航在家做了一个小实验：往一只易拉罐里装入大半罐碎冰块，再撒入两勺食盐，用筷子搅拌大约半分钟。他把温度计插进罐里的冰盐混合物中，读数竟降到了 0℃ 以下。把罐子静置一会儿后再看，易拉罐外壁的下部和底部竟挂上了一层白霜。",
     note:"实验情景（文字描述）：易拉罐内装碎冰与食盐，搅拌后罐内温度低于 0℃，罐外壁下部与底部结出白霜。本题含填空与简答，作答后对照参考答案自评计分。",
@@ -181,7 +181,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"冰盐易拉罐外壁凝华结霜观察"
   },
   {
-    id:"c3s4b005", ch:3, sec:4, origId:"c3s4q5",
+    id:"c3s4p005", ch:3, sec:4, origId:"c3s4q5",
     kp:["evaporate"], type:"calc", diff:2, freq:3, points:10,
     stem:"学校水房有一个水龙头关不紧，一直在滴水。小曼测算发现：它平均每小时滴下的水约有 250 mL。请据此估算：这个水龙头一昼夜（按 24 小时计）大约要白白流掉多少升水？照这样一年（按 365 天计）下来又会浪费多少？针对这种现象，请你提出几条切实可行的节水建议。",
     note:"本题为开放题，作答后对照参考要点自评计分。",
@@ -191,7 +191,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"滴水龙头日年浪费水量估算与节水建议"
   },
   {
-    id:"c3s5b001", ch:3, sec:5, origId:"c3s5q1",
+    id:"c3s5p001", ch:3, sec:5, origId:"c3s5q1",
     kp:["melt-boil-curve","phase-change"], type:"blank", diff:1, freq:5, points:10,
     stem:"周末家里煮饺子，锅里的水烧开后，妈妈立刻把大火调成小火，让水保持微微沸腾。小舟不解地问：“火调这么小，水都不怎么翻滚了，饺子会不会煮不熟呀？”请从物理学的角度解释：水沸腾之后，为什么把大火改成小火反而更合理？",
     note:"本题为简答开放题，作答后对照参考要点自评计分。",
@@ -201,7 +201,7 @@ var QBANK_C3_MIG = [
     src:'migrated', scene:"煮饺子水开后改小火的节能解释"
   },
   {
-    id:"c3s5b002", ch:3, sec:5, origId:"c3s5q2",
+    id:"c3s5p002", ch:3, sec:5, origId:"c3s5q2",
     kp:["liquefy","phase-change"], type:"blank", diff:2, freq:4, points:10,
     stem:"厨房里常有这样的提醒：揭开沸腾汤锅的锅盖时，手和脸要避开涌出的水蒸气，当心烫伤。温度相同的水蒸气和水，为什么被水蒸气烫到往往比被开水烫到伤得更重？",
     note:"本题为简答开放题，作答后对照参考要点自评计分。",
