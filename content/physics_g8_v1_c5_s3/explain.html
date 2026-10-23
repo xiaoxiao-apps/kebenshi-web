@@ -140,12 +140,12 @@ strong{color:var(--amber);}
   <div class="tab-panel" id="panel-e4">
     <div class="card">
       <h2>四、例题 <span class="chip brown">分步揭晓</span></h2>
-      <p>例题：凸透镜焦距 f = 10 cm。物体距透镜 30 cm 时成什么像？像距多大？移到 15 cm 处又如何？（1/u + 1/v = 1/f）</p>
-      <div class="example-step show">已知：f = 10 cm；第一问 u₁ = 30 cm，第二问 u₂ = 15 cm。</div>
-      <div class="example-step" id="e4s1">第一问：u₁ = 30 cm &gt; 2f = 20 cm，成倒立、缩小的实像。</div>
-      <div class="example-step" id="e4s2">第一问算像距：1/v = 1/f − 1/u₁ = 1/10 − 1/30 = 2/30，得 v₁ = 15 cm，满足 f &lt; v₁ &lt; 2f。</div>
+      <p>例题：凸透镜焦距 f = 10 cm。物体放在距透镜 20 cm 处，成什么像？像距多大？再把物体移到 15 cm 处，成像情况又如何？（用凸透镜成像规律判断）</p>
+      <div class="example-step show">已知：f = 10 cm，2f = 20 cm；第一问 u₁ = 20 cm，第二问 u₂ = 15 cm。</div>
+      <div class="example-step" id="e4s1">第一问：u₁ = 20 cm 恰等于 2f，由成像规律，成倒立、等大的实像。</div>
+      <div class="example-step" id="e4s2">第一问像距：u = 2f 时 v = 2f，像距也是 20 cm，物与像的位置恰好对称。</div>
       <div class="example-step" id="e4s3">第二问：f &lt; u₂ = 15 cm &lt; 2f，成倒立、放大的实像。</div>
-      <div class="example-step" id="e4s4">第二问算像距：1/v = 1/10 − 1/15 = 1/30，得 v₂ = 30 cm &gt; 2f。物近像远像变大，两问互相印证。</div>
+      <div class="example-step" id="e4s4">第二问像距：此时像距大于 2f，即在 20 cm 以外。物体从 2f 移近到 f 与 2f 之间，物近、像远、像变大，两问互相印证。</div>
       <div class="step-btns">
         <button class="btn primary" id="e4next" type="button">下一步</button>
         <button class="btn secondary" id="e4reset" type="button">重置</button>
