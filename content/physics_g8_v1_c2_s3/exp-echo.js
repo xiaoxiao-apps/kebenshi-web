@@ -12,7 +12,17 @@
   var audioCtx = null, masterGain = null, soundOn = true;
   var soundBtn = document.getElementById('soundBtn');
 
-  function resize(){ var f = fitCanvas(cv, 340); ctx = f.ctx; W = f.w; H = f.h; k = W / DW; draw(); }
+  var fsWrap = document.getElementById('fsEchoWrap');
+  function isFs(){
+    return fsWrap.classList.contains('pseudo-fullscreen') ||
+      document.fullscreenElement === fsWrap || document.webkitFullscreenElement === fsWrap;
+  }
+  function cssH(){
+    /* 全屏态：scene-wrap 由 flex 分得剩余高度；非全屏态维持原 340 */
+    if(!isFs()) return 340;
+    return Math.max(120, fsWrap.querySelector('.scene-wrap').clientHeight);
+  }
+  function resize(){ var f = fitCanvas(cv, cssH()); ctx = f.ctx; W = f.w; H = f.h; k = W / DW; draw(); }
   function mediumName(){ return speed === 1500 ? '海水' : '空气'; }
   function updateReadout(){
     dist = +distSlider.value; speed = +mediumSel.value;
@@ -55,7 +65,7 @@
   fireBtn.addEventListener('click', firePulse);
   soundBtn.addEventListener('click', function(){ soundOn = !soundOn; updateSoundBtn(); if(masterGain){ masterGain.gain.setTargetAtTime(soundOn ? 1 : 0, audioCtx.currentTime, 0.02); } });
   resetBtn.addEventListener('click', function(){ pulseState = 'idle'; distSlider.value = 15; mediumSel.value = '340'; updateReadout(); draw(); });
-  document.querySelectorAll('.guess-card .opt').forEach(function(btn){ btn.addEventListener('click', function(){ var ok = btn.getAttribute('data-opt') === 'B'; echoFb.className = 'feedback ' + (ok ? 'ok' : 'err') + ' show'; echoFb.textContent = ok ? ' 回答正确！' : ' 再想想：回波时间是往返，深度要除以 2。'; if(ok) answerBox.style.display = 'block'; }); });
+  document.querySelectorAll('.guess-card .opt').forEach(function(btn){ btn.addEventListener('click', function(){ var ok = btn.getAttribute('data-opt') === 'B'; echoFb.className = 'feedback ' + (ok ? 'ok' : 'err') + ' show'; echoFb.textContent = ok ? ' 回答正确！' : ' 再想想：回波时间是往返，深度要除以 2。'; if(ok) answerBox.style.display = 'block'; resize(); }); });
   FullscreenHelper.bind(document.getElementById('fsEchoWrap'), document.getElementById('fsEchoBtn'), resize);
   window.addEventListener('resize', resize);
   updateReadout(); resize(); requestAnimationFrame(loop);

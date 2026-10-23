@@ -9,7 +9,7 @@ const QUESTIONS = [
   { id:'c3s1q1', section:'第1节 温度', no:'第1题', points:10,
     stem:'校园科技节上，甲、乙两个展位各展出一支自制的“瓶式温度计”：两个一模一样的小玻璃瓶里装着同样多的红色水，瓶口的橡皮塞上各插一根吸管——甲的吸管较粗，乙的吸管较细（见下图）。当周围温度发生同样大小的变化时，你认为哪一支温度计的反应更灵敏？',
     note:'配图为程序化简图。',
-    fig:'twoBottles', figCap:'两支自制温度计简图（甲：吸管较粗；乙：吸管较细）',
+    fig:'twoBottles',
     parts:[{ kind:'choice',
       opts:['甲——吸管较粗的那支更灵敏','乙——吸管较细的那支更灵敏','两支的灵敏程度完全相同'], answer:1,
       analysis:'瓶子相同、水量相同，温度变化量相同时，两瓶中水膨胀（或收缩）的体积变化量也相同。同样的体积变化挤进吸管里，吸管越细，液柱高度的变化就越大，现象越容易被观察到，所以细吸管的乙更灵敏。' }] },
@@ -17,7 +17,7 @@ const QUESTIONS = [
   { id:'c3s1q2', section:'第1节 温度', no:'第2题', points:10,
     stem:'读出图中两支温度计的示数（单位均为摄氏度），分别填入下面的横栏。',
     note:'配图为程序化简图，供温度计读数训练使用。',
-    fig:'thermPair1', figCap:'温度计读数简图（甲、乙分度值均为 2℃）',
+    fig:'thermPair1',
     parts:[{ kind:'blank', blanks:[
       { label:'甲温度计示数', answer:['26'], unit:'℃' },
       { label:'乙温度计示数', answer:['-4'], unit:'℃' }],
@@ -39,7 +39,7 @@ const QUESTIONS = [
   { id:'c3s2q1', section:'第2节 熔化和凝固', no:'第1题', points:12,
     stem:'探究小组对某种固态物质持续均匀加热，记录温度随时间的变化，绘制成下图所示的图像。请根据图像的特征回答：这种物质是不是晶体？它的熔点是多少？从开始熔化到完全熔化，大约持续了多长时间？',
     note:'配图为程序化绘制的熔化图像简图（含水平平台段）。',
-    fig:'meltCurve', figCap:'某物质熔化过程的温度-时间图像（分度：纵轴每小格 5℃，横轴每小格 1 min）',
+    fig:'meltCurve',
     parts:[
       { kind:'choice', q:'① 这种物质是晶体吗？判断依据是什么？',
         opts:['是晶体——图像中出现水平平台，熔化过程中温度保持不变','不是晶体——熔化过程中温度一直在不断升高','仅凭这张图像无法作出判断'], answer:0,
@@ -54,7 +54,7 @@ const QUESTIONS = [
   { id:'c3s2q2', section:'第2节 熔化和凝固', no:'第2题', points:12,
     stem:'下图中，甲是同一种物质的熔化图像，乙是它的凝固图像。仔细观察两条曲线，你能从中获得哪些物理信息？请尽量多写几条。',
     note:'配图为程序化简图（甲：熔化图像带平台；乙：凝固图像带平台，两平台温度相同）。本题为开放题，作答后对照参考要点自评计分。',
-    fig:'meltFreeze', figCap:'甲：熔化图像；乙：凝固图像（同一物质，平台温度均为 80℃）',
+    fig:'meltFreeze',
     parts:[{ kind:'open',
       ref:'参考要点（答出主要几条即可得满分）：<br>① 两条曲线都出现水平平台，说明该物质是<b>晶体</b>；<br>② 甲为熔化图像：熔化前不断吸热升温；到达熔点后虽继续吸热，温度却保持不变（固液共存）；完全熔化后温度才继续升高；<br>③ 乙为凝固图像：凝固前不断放热降温；到达凝固点后继续放热而温度保持不变；完全凝固后温度再下降；<br>④ 两图的平台温度都是 80℃，说明<b>同一种物质的凝固点与熔点相同</b>；<br>⑤ 熔化过程吸热，凝固过程放热。',
       analysis:'读熔化/凝固图像抓三点：一看有无平台——区分晶体与非晶体；二看平台对应的温度——熔点等于凝固点；三看各段的吸热/放热情况与物质状态的变化。' }] },
@@ -62,7 +62,7 @@ const QUESTIONS = [
   { id:'c3s2q3', section:'第2节 熔化和凝固', no:'第3题', points:10,
     stem:'图中给出了两支温度计（单位均为摄氏度）：甲是实验室温度计，乙是体温计。请分别写出它们的示数。',
     note:'配图为程序化简图。注意两支温度计的分度值并不相同。',
-    fig:'thermPair2', figCap:'温度计读数简图（甲实验室温度计分度值 1℃；乙体温计分度值 0.1℃）',
+    fig:'thermPair2',
     parts:[{ kind:'blank', blanks:[
       { label:'甲温度计示数', answer:['39'], unit:'℃' },
       { label:'乙体温计示数', answer:['37.2','37.20'], unit:'℃' }],
@@ -257,25 +257,24 @@ function svgThermometer(cx, label, value, step, min, max, opts) {
   const liquid = value >= 0
     ? `<rect x="${cx - 3}" y="${fillY}" width="6" height="${fillH}" fill="#ff7a6e" opacity=".9"/>`
     : `<rect x="${cx - 3}" y="${zeroY}" width="6" height="${fillH}" fill="#5ad7ff" opacity=".9"/>`;
-  const tip = `<text x="${cx}" y="${valY - 8}" fill="#ffd479" font-size="11" text-anchor="middle" font-weight="700">${value}℃</text>`;
   return `<g>
     <line x1="${cx}" y1="${topY}" x2="${cx}" y2="${bottomY}" stroke="#9aa4b5" stroke-width="3" stroke-linecap="round"/>
     <line x1="${cx}" y1="${topY}" x2="${cx}" y2="${bottomY}" stroke="#0b0e13" stroke-width="1"/>
     <circle cx="${cx}" cy="${bottomY + bulbR - 2}" r="${bulbR}" fill="#ff7a6e" opacity=".9"/>
-    ${ticks}${labels}${liquid}${tip}
+    ${ticks}${labels}${liquid}
     <text x="${cx}" y="${bottomY + 34}" fill="#d7dee9" font-size="12" text-anchor="middle" font-weight="700">${label}</text>
   </g>`;
 }
 
 function svgThermPair1() {
-  return `<svg viewBox="0 0 520 240" role="img" aria-label="温度计读数简图：甲26℃，乙-4℃，分度值2℃">
+  return `<svg viewBox="0 0 520 240" role="img" aria-label="温度计读数简图">
     ${svgThermometer(120, '甲', 26, 2, -10, 40)}
     ${svgThermometer(380, '乙', -4, 2, -10, 40)}
   </svg>`;
 }
 
 function svgThermPair2() {
-  return `<svg viewBox="0 0 520 240" role="img" aria-label="温度计读数简图：甲39℃，乙37.2℃">
+  return `<svg viewBox="0 0 520 240" role="img" aria-label="温度计读数简图">
     ${svgThermometer(120, '甲 实验室温度计', 39, 1, 35, 42)}
     ${svgThermometer(380, '乙 体温计', 37.2, 0.1, 35, 42)}
   </svg>`;
@@ -305,9 +304,8 @@ function svgMeltCurve() {
   const p0 = [xFor(0), yFor(25)], p1 = [xFor(2), yFor(80)], p2 = [xFor(8), yFor(80)], p3 = [xFor(10), yFor(90)];
   s += `<polyline points="${p0.join(',')} ${p1.join(',')} ${p2.join(',')} ${p3.join(',')}" fill="none" stroke="#ffd479" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
   s += `<line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}" stroke="#5ad7ff" stroke-width="1" stroke-dasharray="3 3"/>`;
-  s += `<text x="${xFor(5)}" y="${yFor(80) - 10}" fill="#5ad7ff" font-size="11" text-anchor="middle">熔点 80℃（2~8 min）</text>`;
   s += `<circle cx="${p1[0]}" cy="${p1[1]}" r="3" fill="#ffd479"/><circle cx="${p2[0]}" cy="${p2[1]}" r="3" fill="#ffd479"/>`;
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="熔化曲线简图：80℃水平平台">${s}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="熔化曲线简图">${s}</svg>`;
 }
 
 function svgMeltFreeze() {
@@ -333,7 +331,6 @@ function svgMeltFreeze() {
   const ptsA = [[0, 25], [2, 80], [8, 80], [10, 90]].map(([t, T]) => `${xFor(t, off1 + padL)},${yFor(T)}`).join(' ');
   s += `<polyline points="${ptsA}" fill="none" stroke="#ffd479" stroke-width="2.5" stroke-linejoin="round"/>`;
   s += `<line x1="${xFor(2, off1 + padL)}" y1="${yFor(80)}" x2="${xFor(8, off1 + padL)}" y2="${yFor(80)}" stroke="#5ad7ff" stroke-width="1" stroke-dasharray="3 3"/>`;
-  s += `<text x="${xFor(5, off1 + padL)}" y="${yFor(80) - 8}" fill="#5ad7ff" font-size="10" text-anchor="middle">80℃</text>`;
   s += `<text x="${xFor(5, off1 + padL)}" y="${yFor(0) + 30}" fill="#d7dee9" font-size="12" text-anchor="middle" font-weight="700">甲 熔化图像</text>`;
   const off2 = 240;
   s += axis(off2 + padL, yFor(0), off2 + right, top);
@@ -350,15 +347,14 @@ function svgMeltFreeze() {
   const ptsB = [[0, 90], [2, 80], [8, 80], [10, 25]].map(([t, T]) => `${xFor(t, off2 + padL)},${yFor(T)}`).join(' ');
   s += `<polyline points="${ptsB}" fill="none" stroke="#5ad7ff" stroke-width="2.5" stroke-linejoin="round"/>`;
   s += `<line x1="${xFor(2, off2 + padL)}" y1="${yFor(80)}" x2="${xFor(8, off2 + padL)}" y2="${yFor(80)}" stroke="#ffd479" stroke-width="1" stroke-dasharray="3 3"/>`;
-  s += `<text x="${xFor(5, off2 + padL)}" y="${yFor(80) - 8}" fill="#ffd479" font-size="10" text-anchor="middle">80℃</text>`;
   s += `<text x="${xFor(5, off2 + padL)}" y="${yFor(0) + 30}" fill="#d7dee9" font-size="12" text-anchor="middle" font-weight="700">乙 凝固图像</text>`;
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="熔化与凝固双图">${s}</svg>`;
 }
 
 /* ===== 渲染引擎 ===== */
-function renderFig(fig, figCap) {
+function renderFig(fig) {
   if (!fig || !FIGURES[fig]) return '';
-  return `<div class="figbox">${FIGURES[fig]()}<div class="figcap">${esc(figCap || '')}</div></div>`;
+  return `<div class="figbox">${FIGURES[fig]()}</div>`;
 }
 function renderPart(q, pi) {
   const p = q.parts[pi];
@@ -395,7 +391,7 @@ function renderQuestion(q) {
     <div class="qno"><b>${esc(q.no)}</b><span>(${q.points}分)</span></div>
     <div class="stem">${esc(q.stem)}</div>
     ${q.note ? `<div class="qnote">${esc(q.note)}</div>` : ''}
-    ${renderFig(q.fig, q.figCap)}
+    ${renderFig(q.fig)}
     ${q.parts.map((_, pi) => renderPart(q, pi)).join('')}
   </div>`;
 }

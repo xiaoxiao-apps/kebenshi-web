@@ -16,30 +16,32 @@
   .title{font-size:13px;font-weight:600;color:#2b2620;white-space:nowrap}
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
   canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
-  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:stretch;gap:6px;padding:8px 12px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:88px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:6px;padding:6px 10px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
   .ctrlbar>*{pointer-events:auto}
-  .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px;transition:opacity .3s ease,transform .3s ease}
-  .glabel{font-size:14px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
-  .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:40px}
-  .gctrl label{font-size:14px;cursor:pointer;white-space:nowrap;color:#3d3830}
-  button{border:0;border-radius:8px;padding:9px 13px;font-size:15px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
+  .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:4px 8px;transition:opacity .3s ease,transform .3s ease}
+  .glabel{font-size:13px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
+  .gctrl{display:flex;align-items:center;gap:5px;flex:1;min-height:36px}
+  .gctrl label{font-size:13px;cursor:pointer;white-space:nowrap;color:#3d3830}
+  button{border:0;border-radius:8px;padding:6px 9px;font-size:13px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
   button:hover{background:#1d4ed8}
   button.secondary{background:#6b7280}
   button.secondary:hover{background:#4b5563}
-  button.step{padding:6px 10px}
+  button.step{padding:5px 8px}
   button:disabled{opacity:.35;cursor:default}
+  /* F4③：常规屏（≥1024px 宽）控制栏单行不折行；窄屏可折行但分组有序 */
+  @media(min-width:1024px){.ctrlbar{flex-wrap:nowrap;overflow-x:auto;gap:5px}}
   /* 物理按压两态钮（照 c5s1）：凸起渐变→按下内凹 */
   button#btn-table,button#btn-law,button#btn-marks,button#btn-rays,button#btn-hand,button#btn-read,button#btn-noscreen,button#btn-lit{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
   button#btn-table:hover,button#btn-law:hover,button#btn-marks:hover,button#btn-rays:hover,button#btn-hand:hover,button#btn-read:hover,button#btn-noscreen:hover,button#btn-lit:hover{background:linear-gradient(#f8fafc,#d2deeb)}
   button#btn-table.on,button#btn-law.on,button#btn-marks.on,button#btn-rays.on,button#btn-hand.on,button#btn-read.on,button#btn-noscreen.on,button#btn-lit.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
-  input#rng-f{width:150px;accent-color:#d97706}
-  #lbl-f{font-size:15px;color:#854d0e;min-width:88px;text-align:right;font-variant-numeric:tabular-nums}
-  .ctrlbar.compact .glabel{font-size:14px}
-  .ctrlbar.compact .gctrl{min-height:32px}
-  .ctrlbar.compact .gctrl label{font-size:14px}
-  .ctrlbar.compact button{padding:5px 7px;font-size:14px}
-  .ctrlbar.compact input#rng-f{width:110px}
-  .ctrlbar.compact #lbl-f{font-size:14px;min-width:0}
+  input#rng-f{width:104px;accent-color:#d97706}
+  #lbl-f{font-size:13px;color:#854d0e;min-width:0;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ctrlbar.compact .glabel{font-size:12px}
+  .ctrlbar.compact .gctrl{min-height:30px}
+  .ctrlbar.compact .gctrl label{font-size:12px}
+  .ctrlbar.compact button{padding:4px 6px;font-size:12px}
+  .ctrlbar.compact input#rng-f{width:88px}
+  .ctrlbar.compact #lbl-f{font-size:12px;min-width:0}
   /* 幽灵化浮层（三级色阶：标题琥珀>数值>标签） */
   .rec-panel{display:none;position:absolute;top:12px;right:12px;min-width:340px;max-width:min(560px,92vw);background:rgba(255,255,255,0.45);border-radius:16px;padding:14px 18px;z-index:15;font-size:17px;line-height:1.7;letter-spacing:.02em}
   .rec-panel.show{display:block}
@@ -70,7 +72,7 @@
 </head>
 <body>
 <header>
-  <div class="title">第5章 第3节 探究凸透镜成像的规律 · 光具座</div>
+  <div class="title">探究凸透镜成像的规律 · 光具座</div>
   <a class="back" href="./index.html">← 返回实验卡页</a>
 </header>
 <div class="scene-wrap">
@@ -123,26 +125,26 @@
   <div class="group" id="grp-act">
     <div class="glabel">动作</div>
     <div class="gctrl">
-      <button id="btn-auto">自动寻像</button>
-      <button id="btn-noscreen">撤屏观察</button>
-      <button id="btn-record">记一笔</button>
+      <button id="btn-auto">寻像</button>
+      <button id="btn-noscreen">撤屏</button>
+      <button id="btn-record">记录</button>
       <button id="btn-hand">🖐 遮挡</button>
       <button id="btn-lit" class="on">💡 光源</button>
     </div>
   </div>
   <div class="group" id="grp-show">
-    <div class="glabel">显示</div>
+    <div class="glabel">显示 · 面板</div>
     <div class="gctrl">
       <button id="btn-rays" class="on">光路</button>
-      <button id="btn-marks" class="on">F/2F 标注</button>
+      <button id="btn-marks" class="on">F/2F</button>
+      <button id="btn-read" class="on">读数</button>
       <button id="btn-table">记录表</button>
-      <button id="btn-law">规律结论卡</button>
+      <button id="btn-law">规律卡</button>
     </div>
   </div>
   <div class="group" id="grp-sys">
     <div class="glabel">系统</div>
     <div class="gctrl">
-      <button id="btn-read" class="on">读数面板</button>
       <button id="btn-reset" class="secondary">重置</button>
       <button id="btn-mute">🔊</button>
       <button id="btn-full" class="secondary">全屏</button>

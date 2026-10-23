@@ -23,6 +23,20 @@
     .calc-row label { min-width: 36px; font-size: 14px; }
     .calc-row select { padding: 10px 4px; font-size: 13px; }
   }
+  /* ---- 全屏态：铺满视口 ---- */
+  #fsCalc:fullscreen, #fsCalc.pseudo-fullscreen {
+    width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+    border-radius: 0; margin: 0; padding: 46px 12px 12px; box-sizing: border-box;
+  }
+  #fsCalc:fullscreen .card, #fsCalc.pseudo-fullscreen .card { max-width: 860px; margin: 0 auto; }
+  #fsCalc:fullscreen .calc-row label, #fsCalc.pseudo-fullscreen .calc-row label { font-size: 18px; }
+  #fsCalc:fullscreen .calc-row input, #fsCalc.pseudo-fullscreen .calc-row input { font-size: 18px; width: 110px; }
+  #fsCalc:fullscreen .formula-display, #fsCalc.pseudo-fullscreen .formula-display { font-size: 17px; }
+  @media (max-width: 480px) {
+    #fsCalc:fullscreen, #fsCalc.pseudo-fullscreen { padding: 44px 8px 8px; }
+    #fsCalc:fullscreen .calc-row input, #fsCalc.pseudo-fullscreen .calc-row input { width: 70px; font-size: 15px; }
+    #fsCalc:fullscreen .formula-display, #fsCalc.pseudo-fullscreen .formula-display { font-size: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -32,6 +46,8 @@
     <h1 class="page-title">🧮 速度计算器</h1>
     <p class="page-subtitle">输入任意两个量，第三个量会自动算出。单位会自动换算。</p>
   </div>
+  <div class="fullscreen-wrap" id="fsCalc">
+    <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <div class="calc-wrap">
       <div class="calc-row" id="rowS">
@@ -55,7 +71,17 @@
       <div class="line empty">在上方输入任意两个量，这里会显示带单位的代入过程。</div>
     </div>
   </div>
+  </div>
 </div>
+<script src="fullscreen.js"></script>
 <script src="exp-calc.js"></script>
+<script>
+(function () {
+  var wrap = document.getElementById('fsCalc');
+  if (wrap && window.FullscreenHelper) {
+    FullscreenHelper.bind(wrap, wrap.querySelector('.fullscreen-btn'), null);
+  }
+})();
+</script>
 </body>
 </html>

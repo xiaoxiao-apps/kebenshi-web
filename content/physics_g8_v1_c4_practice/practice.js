@@ -51,7 +51,7 @@ const QUESTIONS = [
   { id:'c4s2q1', section:'第2节 光的反射', no:'第1题', points:12,
     stem:'一束光射向平面镜，与镜面成 25° 角。它的反射角是多少度？请画出反射光线，并标出入射角与反射角。再想一想：当这束光垂直射向镜面时，反射光会沿什么方向射出？画图说明。',
     note:'配图由程序化反射简图（光线/法线/角度）呈现；作图部分供参考，本页考查反射角计算与垂直入射判断。',
-    fig:'reflectionRule', figCap:'反射简图：入射光线与镜面成 25° 角，法线 ON 垂直于镜面，入射角 i = 反射角 r = 65°',
+    fig:'reflectionRule',
     parts:[
       { kind:'blank', q:'① 光与镜面成 25° 角入射时，反射角为多少度？', blanks:[
         { label:'反射角', answer:['65'], unit:'°' }],
@@ -64,7 +64,7 @@ const QUESTIONS = [
   { id:'c4s2q2', section:'第2节 光的反射', no:'第2题', points:10,
     stem:'夜间行车时，汽车前灯的光照到公路旁的反光标志牌上，标志牌会显得格外明亮。这类反光装置的核心部件是角反射器——由多组互相垂直的小平面镜组成。光射入角反射器，经过两次反射后沿什么方向射出？为什么无论灯光从哪个方向照射，反光装置都很亮？',
     note:'本题以文字作答（不作图），考查角反射器的反射规律；下图为两次反射的程序化简图。',
-    fig:'cornerReflector', figCap:'角反射器简图：一束入射光经两次反射后，沿与入射方向平行且相反的方向射出',
+    fig:'cornerReflector',
     parts:[{ kind:'blank', blanks:[
       { label:'光进入角反射器经两次反射后，沿与入射方向___的方向射出', answer:['平行反向','反向平行','原路返回','与入射方向平行且相反','平行且反向','沿与入射方向平行的反向射出'], unit:'' }],
       analysis:'角反射器由两块互相垂直的平面镜组成。光先在第一块镜面上反射（反射角=入射角），再在第二块镜面上反射（同样遵循反射定律）。可以证明：两次反射后的出射光线与入射光线<b>平行且方向相反</b>，即沿来路反向射回光源方向。因此夜间无论灯光从哪个方向照来，反射光都能返回观察者眼中，反光装置看起来都很亮。' }] },
@@ -72,7 +72,7 @@ const QUESTIONS = [
   { id:'c4s2q3', section:'第2节 光的反射', no:'第3题', points:12,
     stem:'一口竖直的枯井照不进阳光。某日上午，太阳光与水平地面成 40° 角斜射向井口。怎样才能只用一块平面镜，把太阳光反射成竖直向下的光束照进井里？请计算：①反射角是多少度？②平面镜应与水平地面成多大的夹角？',
     note:'本题以文字作答（不作图），考查反射定律的应用；井口条件见下方程序化简图。',
-    fig:'wellMirror', figCap:'条件简图：太阳光与水平面成 40° 角，斜射向竖直的井口',
+    fig:'wellMirror',
     parts:[{ kind:'blank', blanks:[
       { label:'①反射角', answer:['65'], unit:'°' },
       { label:'②平面镜与水平面夹角', answer:['65'], unit:'°' }],
@@ -148,12 +148,10 @@ function svgReflectionRule() {
   const ry = OY - 150 * Math.sin(25 * Math.PI / 180);
   s += `<line x1="${OX}" y1="${OY}" x2="${rx}" y2="${ry}" stroke="#5ad7ff" stroke-width="2.5"/>`;
   s += `<text x="${rx + 4}" y="${ry + 30}" fill="#5ad7ff" font-size="12">反射光线</text>`;
-  // 角度标注：入射角 i（法线与入射光之间，65°），反射角 r
-  s += `<text x="${OX - 44}" y="${OY - 54}" fill="#ffd479" font-size="13" font-weight="700">i=65°</text>`;
-  s += `<text x="${OX + 16}" y="${OY - 54}" fill="#ffd479" font-size="13" font-weight="700">r=65°</text>`;
+  // 角度标注：入射光与镜面夹角 25°（题给条件）；i/r 数值不标注，由学生计算
   s += `<text x="${OX - 60}" y="${OY - 12}" fill="#9aa4b5" font-size="11">25°</text>`;
   s += `<text x="${OX}" y="${OY - 12}" fill="#d7dee9" font-size="11">O</text>`;
-  return `<svg viewBox="0 0 460 300" role="img" aria-label="反射定律简图：入射角=反射角=65°">${s}</svg>`;
+  return `<svg viewBox="0 0 460 300" role="img" aria-label="反射定律简图">${s}</svg>`;
 }
 
 function svgCornerReflector() {
@@ -180,8 +178,8 @@ function svgCornerReflector() {
   s += `<text x="${P1.x - 40}" y="${P1.y + 16}" fill="#9aa4b5" font-size="11">①</text>`;
   s += `<line x1="${P2.x}" y1="${P2.y}" x2="${E.x}" y2="${E.y}" stroke="#5ad7ff" stroke-width="2.5"/>`;
   s += `<text x="${P2.x - 20}" y="${P2.y + 16}" fill="#9aa4b5" font-size="11">②</text>`;
-  s += `<text x="${E.x - 40}" y="${E.y - 10}" fill="#5ad7ff" font-size="12">反射光（反向射出）</text>`;
-  return `<svg viewBox="0 0 460 260" role="img" aria-label="角反射器两次反射简图：出射光与入射光反向平行">${s}</svg>`;
+  s += `<text x="${E.x - 40}" y="${E.y - 10}" fill="#5ad7ff" font-size="12">反射光</text>`;
+  return `<svg viewBox="0 0 460 260" role="img" aria-label="角反射器两次反射简图">${s}</svg>`;
 }
 
 function svgWellMirror() {
@@ -194,16 +192,16 @@ function svgWellMirror() {
   s += `<line x1="330" y1="90" x2="330" y2="275" stroke="#cbb994" stroke-width="6"/>`;
   s += `<text x="138" y="182" fill="#9aa4b5" font-size="11">井壁</text>`;
   // 太阳光：与水平成40°从左上射向井口
-  s += `<line x1="85" y1="9" x2="181" y2="90" stroke="#ff7a6e" stroke-width="2.5"/>`;
+  s += `<line x1="85" y1="9.45" x2="181" y2="90" stroke="#ff7a6e" stroke-width="2.5"/>`;
   s += `<text x="40" y="42" fill="#ff7a6e" font-size="12">太阳光</text>`;
   s += `<text x="148" y="58" fill="#ffd479" font-size="12">40°</text>`;
-  return `<svg viewBox="0 0 460 290" role="img" aria-label="井口条件简图：太阳光与水平成40°斜射向竖直井口">${s}</svg>`;
+  return `<svg viewBox="0 0 460 290" role="img" aria-label="井口条件简图">${s}</svg>`;
 }
 
 /* ===== 渲染引擎 ===== */
-function renderFig(fig, figCap) {
+function renderFig(fig) {
   if (!fig || !FIGURES[fig]) return '';
-  return `<div class="figbox">${FIGURES[fig]()}<div class="figcap">${esc(figCap || '')}</div></div>`;
+  return `<div class="figbox">${FIGURES[fig]()}</div>`;
 }
 function renderPart(q, pi) {
   const p = q.parts[pi];
@@ -240,7 +238,7 @@ function renderQuestion(q) {
     <div class="qno"><b>${esc(q.no)}</b><span>(${q.points}分)</span></div>
     <div class="stem">${esc(q.stem)}</div>
     ${q.note ? `<div class="qnote">${esc(q.note)}</div>` : ''}
-    ${renderFig(q.fig, q.figCap)}
+    ${renderFig(q.fig)}
     ${q.parts.map((_, pi) => renderPart(q, pi)).join('')}
   </div>`;
 }

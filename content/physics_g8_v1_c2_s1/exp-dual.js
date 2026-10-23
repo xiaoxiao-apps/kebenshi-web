@@ -1,4 +1,4 @@
-/** exp-dual.js — G11 双声到达模拟：铁(5200) vs 空气(340) 竞速动画 + 时间差 + 0.1s 合并判定 */
+/** exp-dual.js — G11 双声到达模拟：铁(5200) vs 空气(340) 竞速动画 + 三声真实时序（叮@0 / 咚@t₁ / 咚@t₂）+ 0.1s 合并判定 */
 (function () {
   'use strict';
 
@@ -52,10 +52,10 @@
     roD.style.color = d > THRESHOLD ? '#4a8c3f' : '#8b6914';
     if (d > THRESHOLD) {
       verdict.className = 'verdict two';
-      verdict.innerHTML = '✅ Δt = ' + d.toFixed(3) + ' s <b>&gt; 0.1 s</b>：两声分得开 → 听到 <b>2 次</b>敲打声（先铁管、后空气）。';
+      verdict.innerHTML = '✅ Δt = ' + d.toFixed(3) + ' s <b>&gt; 0.1 s</b>：两声「咚」分得开 → 加上敲击瞬间的「叮」，共听到 <b>3 声</b>（叮 → 铁管「咚」→ 空气「咚」）。';
     } else {
       verdict.className = 'verdict one';
-      verdict.innerHTML = '🔶 Δt = ' + d.toFixed(3) + ' s <b>≤ 0.1 s</b>：两声合并 → 只听到 <b>1 次</b>。管长小于约 36.4 m 时就是这样！';
+      verdict.innerHTML = '🔶 Δt = ' + d.toFixed(3) + ' s <b>≤ 0.1 s</b>：两声「咚」合并 → 听到「叮」+ 1 声「咚」，共 <b>2 声</b>。管长小于约 36.4 m 时就是这样！';
     }
   }
   lenRange.addEventListener('input', update);
@@ -69,7 +69,7 @@
     if (b) b.addEventListener('click', function () { lenRange.value = q[1]; update(); });
   });
 
-  // ===== 敲击合成音（短促金属/木鱼声，用于到达提示） =====
+  // ===== 敲击合成音（880Hz=敲击「叮」，440Hz=到达「咚」，音色区分） =====
   function ping(freq, vol) {
     var ctx = ensureCtx();
     if (!ctx) return;
@@ -96,9 +96,9 @@
     var L = len();
     var t1 = L / V_IRON, t2 = L / V_AIR, d = t2 - t1;
     var twoSounds = d > THRESHOLD;
+    var t1ms = t1 * 1000, t2ms = t2 * 1000;
 
-    // 动画时长压缩：空气路径全程 1.6s 演完，铁路径按真实比例先到
-    var T_ANIM = 1.6;
+    // 竞速动画按真实时序 t₂ 演完（L≤150 m 时 ≤0.44 s），与三声完全对齐
     var x0 = 70, x1 = 562;
     runIron.setAttribute('opacity', '1');
     runAir.setAttribute('opacity', '1');
@@ -106,42 +106,41 @@
     flashAir.setAttribute('opacity', '0');
     raceLabel.textContent = '竞速开始！铁管声一路领先…';
 
-    // 到达声：按真实 Δt 播放（L≤150 m 时 Δt≤0.412 s，可直接听）
+    /* 三声真实时序（随当前 L 每次重算）：
+       t=0 「叮」880Hz=敲击瞬间；t₁=L/V_IRON「咚」440Hz=铁管到达；t₂=L/V_AIR「咚」440Hz=空气到达。
+       Δt≤0.1 s 时两「咚」合并为 1 声（在 t₁ 播），听到叮+咚共 2 声 */
+    ping(880, 0.3);
+    pendingTo.push(setTimeout(function () { ping(440, 0.26); }, t1ms));
     if (twoSounds) {
-      ping(880, 0.3);                          // 第 1 声：沿铁管（先到）
-      pendingTo.push(setTimeout(function () { ping(440, 0.22); }, d * 1000)); // 第 2 声：沿空气
-    } else {
-      ping(660, 0.3);                          // 合并：只听到 1 次
+      pendingTo.push(setTimeout(function () { ping(440, 0.26); }, t2ms));
     }
 
+    // 到达闪光与到达声同步：铁管闪光@t₁、空气闪光@t₂
+    pendingTo.push(setTimeout(function () {
+      flashIron.setAttribute('opacity', '1');
+      pendingTo.push(setTimeout(function () { flashIron.setAttribute('opacity', '0'); }, Math.max(200, t2ms - t1ms)));
+    }, t1ms));
+    pendingTo.push(setTimeout(function () {
+      flashAir.setAttribute('opacity', '1');
+      raceLabel.textContent = twoSounds
+        ? '👂 叮(敲击) → 咚(铁管 t₁) → 咚(空气 t₂)：两咚分得开，共 3 声！'
+        : '👂 叮(敲击) + 咚(两路合并，Δt≤0.1 s)：共 2 声';
+      pendingTo.push(setTimeout(function () { flashAir.setAttribute('opacity', '0'); }, 600));
+      pendingTo.push(setTimeout(function () {
+        runIron.setAttribute('opacity', '0');
+        runAir.setAttribute('opacity', '0');
+      }, 900));
+    }, t2ms));
+
     var start = null;
-    var ironDone = false, airDone = false;
     function frame(ts) {
       if (!start) start = ts;
-      var p = Math.min((ts - start) / (T_ANIM * 1000), 1);
-      // 铁路径：按 t1/t2 比例提前到达
-      var ironLead = t2 > 0 ? Math.min(1, p * (t2 / t1)) : 1;
-      var xi = x0 + (x1 - x0) * Math.min(ironLead, 1);
-      var xa = x0 + (x1 - x0) * p;
-      runIron.setAttribute('cx', xi.toFixed(1));
-      runAir.setAttribute('cx', xa.toFixed(1));
-      if (ironLead >= 1 && !ironDone) {
-        ironDone = true;
-        flashIron.setAttribute('opacity', '1');
-        pendingTo.push(setTimeout(function () { flashIron.setAttribute('opacity', '0'); }, 400));
-      }
-      if (p >= 1 && !airDone) {
-        airDone = true;
-        flashAir.setAttribute('opacity', '1');
-        raceLabel.textContent = twoSounds ? '👂 两声先后到达 → 共听到 2 次！' : '👂 两声几乎同时到达（Δt≤0.1 s）→ 合并为 1 次';
-        pendingTo.push(setTimeout(function () { flashAir.setAttribute('opacity', '0'); }, 600));
-        pendingTo.push(setTimeout(function () {
-          runIron.setAttribute('opacity', '0');
-          runAir.setAttribute('opacity', '0');
-        }, 900));
-        animId = null;
-        return;
-      }
+      var el = ts - start;
+      var pAir = Math.min(el / t2ms, 1);
+      var pIron = Math.min(el / t1ms, 1);
+      runIron.setAttribute('cx', (x0 + (x1 - x0) * pIron).toFixed(1));
+      runAir.setAttribute('cx', (x0 + (x1 - x0) * pAir).toFixed(1));
+      if (pAir >= 1) { animId = null; return; }
       animId = requestAnimationFrame(frame);
     }
     animId = requestAnimationFrame(frame);

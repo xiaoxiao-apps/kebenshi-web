@@ -192,6 +192,32 @@ matGrid.addEventListener('click',e=>{var b=e.target.closest('.mat-btn');if(b)app
 function resize(){var w=wrap.clientWidth,h=wrap.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
 window.addEventListener('resize',resize);
 
+/* —— 全屏：绑定按钮；全屏态把「选择隔音材料」块移入悬浮窗，退出恢复原位 —— */
+var fsWrap=document.getElementById('fsRoom');
+var matTitle=document.getElementById('matTitle');
+var matHome=document.createComment('matBlock-home');
+var floatBox=document.createElement('div'); floatBox.className='fs-float-mat';
+if(matGrid&&matGrid.parentNode){matGrid.parentNode.insertBefore(matHome,matGrid);}
+function placeMat(){
+  if(!fsWrap||!window.FullscreenHelper)return;
+  var fs=FullscreenHelper.isFullscreen()||fsWrap.classList.contains('pseudo-fullscreen');
+  if(fs){
+    if(floatBox.parentNode!==fsWrap){
+      floatBox.appendChild(matTitle); floatBox.appendChild(matGrid);
+      fsWrap.appendChild(floatBox); resize();
+    }
+  }else if(floatBox.parentNode===fsWrap){
+    fsWrap.removeChild(floatBox);
+    matHome.parentNode.insertBefore(matTitle,matHome);
+    matHome.parentNode.insertBefore(matGrid,matHome);
+    resize();
+  }
+}
+if(fsWrap&&window.FullscreenHelper){
+  FullscreenHelper.bind(fsWrap,fsWrap.querySelector('.fullscreen-btn'),placeMat);
+}
+window.addEventListener('resize',placeMat);
+
 function animate(){
 requestAnimationFrame(animate);
 var t=performance.now()*0.001;

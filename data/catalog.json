@@ -418,7 +418,7 @@
     "chapter": "第4章 光现象",
     "section": "第1节 光的直线传播",
     "type": "实验",
-    "title": "介质中的直线传播",
+    "title": "光在介质中的直线传播",
     "path": "content/physics_g8_v1_c4_s1/exp-medium.html",
     "thumb": "content/physics_g8_v1_c4_s1/thumb1.svg"
    },
@@ -432,7 +432,7 @@
     "type": "实验",
     "title": "光影成像实验室",
     "path": "content/physics_g8_v1_c4_s1/exp-shadow.html",
-    "thumb": "content/physics_g8_v1_c4_s1/thumb1.svg"
+    "thumb": "content/physics_g8_v1_c4_s1/thumb2.svg"
    },
    {
     "id": "physics_g8_v1_c4_s2/index",

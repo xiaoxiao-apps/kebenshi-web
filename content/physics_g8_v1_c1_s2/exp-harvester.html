@@ -55,29 +55,29 @@
   <div class="card">
     <h2>相对静止 + 时间轴 <span class="chip brown">运动的相对性</span></h2>
     <div class="hint-bar">💡 先选一个参照物，再点「▶ 出发」；拖动时间轴可以回到任意时刻。开启「位置印记」看两车每秒留下的点。</div>
-    <div class="ref-pills" id="refPills">
-      <span class="lbl">参照物：</span>
-      <button class="pill guide" data-ref="ground">🌾 地面</button>
-      <button class="pill" data-ref="harvester">🚜 收割机</button>
-      <button class="pill" data-ref="truck">🚚 运稻车</button>
-      <button class="mark-toggle" id="markToggle">📍 位置印记：关</button>
-    </div>
     <div class="fullscreen-wrap" id="fsHvWrap">
-      <button class="fullscreen-btn" id="fsHvBtn" title="全屏">⛶</button>
+      <div class="ref-pills" id="refPills">
+        <span class="lbl">参照物：</span>
+        <button class="pill guide" data-ref="ground">🌾 地面</button>
+        <button class="pill" data-ref="harvester">🚜 收割机</button>
+        <button class="pill" data-ref="truck">🚚 运稻车</button>
+        <button class="mark-toggle" id="markToggle">📍 位置印记：关</button>
+      </div>
       <div class="scene-wrap">
+        <button class="fullscreen-btn" id="fsHvBtn" title="全屏">⛶</button>
         <canvas id="fieldCv"></canvas>
       </div>
+      <div class="tl-row">
+        <input type="range" id="tlSlider" min="0" max="1000" value="0" step="1" aria-label="时间轴">
+        <span class="t-label" id="tLabel">t = 0.0 s</span>
+      </div>
+      <div class="anim-btns">
+        <button class="btn btn-primary" id="mainBtn">▶ 出发</button>
+        <button class="btn btn-secondary" id="resetBtn">⟲ 重置</button>
+      </div>
+      <div class="conclusion" id="conclusion"></div>
+      <p class="hint locked" id="finalHint">结论：两车同快慢、同方向，彼此之间位置不变 → 互为参照物时都是静止的；但相对地面它们都在运动。运动和静止是<b>相对</b>的。</p>
     </div>
-    <div class="tl-row">
-      <input type="range" id="tlSlider" min="0" max="1000" value="0" step="1" aria-label="时间轴">
-      <span class="t-label" id="tLabel">t = 0.0 s</span>
-    </div>
-    <div class="anim-btns">
-      <button class="btn btn-primary" id="mainBtn">▶ 出发</button>
-      <button class="btn btn-secondary" id="resetBtn">⟲ 重置</button>
-    </div>
-    <div class="conclusion" id="conclusion"></div>
-    <p class="hint locked" id="finalHint">结论：两车同快慢、同方向，彼此之间位置不变 → 互为参照物时都是静止的；但相对地面它们都在运动。运动和静止是<b>相对</b>的。</p>
   </div>
 </div>
 <script src="fullscreen.js"></script>
@@ -99,13 +99,20 @@
   var refObj = 'ground';           /* ground | harvester | truck */
   var markOn = false;
   var camX = -0, lastFrame = 0;
+  var wrap = document.getElementById('fsHvWrap');
 
   function hx(tt){ return HX0 + V * tt; }
   function tx(tt){ return TX0 + V * tt; }
   function refX(tt){ return refObj === 'harvester' ? hx(tt) : (refObj === 'truck' ? tx(tt) : 0); }
 
+  function isFs(){
+    return wrap.classList.contains('pseudo-fullscreen') ||
+      document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap;
+  }
   function resize(){
-    var f = fitCanvas(cv, getCssH(cv));
+    /* 全屏态：scene-wrap 由 flex 分得剩余高度；非全屏态走 getCssH 原逻辑 */
+    var h = isFs() ? Math.max(120, cv.parentElement.clientHeight) : getCssH(cv);
+    var f = fitCanvas(cv, h);
     ctx = f.ctx; W = f.w; H = parseFloat(cv.style.height) || f.h;
     k = W / DW;
     draw();
@@ -359,6 +366,7 @@
       if(btn.dataset.ref !== refObj) camBlend = { from: refObj, t0: performance.now() };
       refObj = btn.dataset.ref;
       revealHint();
+      updateConcl(); resize();   /* 结论条行数随参照物变化，全屏态需重算画布高度 */
     });
   });
   var markToggle = document.getElementById('markToggle');

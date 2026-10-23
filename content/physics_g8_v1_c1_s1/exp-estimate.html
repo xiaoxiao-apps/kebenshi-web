@@ -11,6 +11,17 @@
   .ref-card b { display: block; color: var(--brown); font-size: 15px; }
   .ref-card span { font-size: 13px; color: var(--ink2); }
   .est-question { font-size: 15px; margin: 8px 0 12px; }
+  /* ---- 全屏态（页面大标题在 wrap 外，全屏自然隐藏） ---- */
+  .fullscreen-wrap:fullscreen, .fullscreen-wrap.pseudo-fullscreen {
+    width: 100vw; height: 100vh; overflow-y: auto;
+    background: var(--bg); border-radius: 0; margin: 0;
+    padding: 52px 14px 16px; box-sizing: border-box;
+  }
+  .fullscreen-wrap:fullscreen .card,
+  .fullscreen-wrap.pseudo-fullscreen .card { max-width: 760px; margin: 0 auto; }
+  @media (max-width: 480px) {
+    .fullscreen-wrap:fullscreen, .fullscreen-wrap.pseudo-fullscreen { padding: 48px 8px 12px; }
+  }
 </style>
 </head>
 <body>
@@ -20,6 +31,8 @@
     <h1 class="page-title">实验三：身上的尺 · 估测挑战</h1>
     <p class="page-subtitle">用身体尺和生活经验快速估测长度和时间。</p>
   </div>
+  <div class="fullscreen-wrap" id="fsEstimate">
+    <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <h2>实验三：身上的尺 · 估测挑战 <span class="chip brown">估测</span></h2>
     <div class="body-ruler-refs">
@@ -44,7 +57,17 @@
       <button class="btn btn-secondary" id="estNext" style="margin-top:10px;display:none;"> 再来一题</button>
     </div>
   </div>
+  </div>
 </div>
+<script src="fullscreen.js"></script>
+<script>
+(function(){
+  var wrap = document.getElementById("fsEstimate");
+  if(wrap && window.FullscreenHelper){
+    FullscreenHelper.bind(wrap, wrap.querySelector(".fullscreen-btn"), null);
+  }
+})();
+</script>
 <script>
 (function(){
   var estQuestions = [

@@ -67,11 +67,21 @@
   function updateReadout(){
     document.getElementById('forceVal').textContent = curForce || '—';
     document.getElementById('tryVal').textContent = tried.size + '/2';
-    if(tried.size >= 2 && !unlocked){ unlocked = true; document.getElementById('findCard').style.display = 'block'; }
+    if(tried.size >= 2 && !unlocked){ unlocked = true; document.getElementById('findCard').style.display = 'block'; resize(); }
   }
 
   /* ---------- 画布：音叉 + 乒乓球 ---------- */
-  function resize(){ var f = fitCanvas(cv, getCssH(cv)); ctx = f.ctx; W = f.w; H = parseFloat(cv.style.height) || f.h; k = W / DW; draw(); updatePerson(); }
+  var fsWrap = document.getElementById('fsLoudWrap');
+  function isFs(){
+    return fsWrap.classList.contains('pseudo-fullscreen') ||
+      document.fullscreenElement === fsWrap || document.webkitFullscreenElement === fsWrap;
+  }
+  function cssH(){
+    /* 全屏态：stage-left 由 flex/stretch 分得剩余高度；非全屏态走 getCssH 原逻辑 */
+    if(!isFs()) return getCssH(cv);
+    return Math.max(120, fsWrap.querySelector('.stage-left').clientHeight);
+  }
+  function resize(){ var f = fitCanvas(cv, cssH()); ctx = f.ctx; W = f.w; H = parseFloat(cv.style.height) || f.h; k = W / DW; draw(); updatePerson(); }
   function draw(){
     var now = (performance.now() - t0) / 1000;
     if(amp > 0){ amp *= 0.97; phaseSpd *= 0.98; if(amp < 0.3){ amp = 0; phaseSpd = 0; } }
@@ -133,6 +143,7 @@
     var w1 = document.getElementById('w1').value, w2 = document.getElementById('w2').value, fb = document.getElementById('findFb');
     if(w1 === '振幅' && w2 === '振幅'){ fb.className = 'feedback ok show'; fb.textContent = '✅ 回答正确！'; document.getElementById('answerBox').style.display = 'block'; }
     else { fb.className = 'feedback err show'; fb.textContent = '❌ 再想想：乒乓球被弹开幅度反映的是振动幅度。'; }
+    resize();   /* 反馈/答案展开会改变全屏态剩余高度 */
   });
   function loop(){ draw(); requestAnimationFrame(loop); }
 

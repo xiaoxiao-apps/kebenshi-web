@@ -23,6 +23,34 @@
   .dim-table th, .dim-table td { border: 1px solid rgba(0,0,0,.08); padding: 8px 10px; text-align: left; }
   .dim-table th { background: var(--card2); }
   @media (max-width: 768px) { .mat-grid { grid-template-columns: 1fr; } }
+  /* ---- 全屏态：铺满视口，3D 视口占余下高度 ---- */
+  #fsRoom:fullscreen, #fsRoom.pseudo-fullscreen {
+    width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+    border-radius: 0; margin: 0; padding: 46px 12px 12px; box-sizing: border-box;
+  }
+  #fsRoom:fullscreen > .card, #fsRoom.pseudo-fullscreen > .card {
+    max-width: 1200px; margin: 0 auto; height: 100%;
+    display: flex; flex-direction: column; overflow-y: auto; box-sizing: border-box;
+  }
+  #fsRoom:fullscreen .scene-wrap, #fsRoom.pseudo-fullscreen .scene-wrap { flex: 1 1 auto; min-height: 220px; }
+  #fsRoom:fullscreen #room3d, #fsRoom.pseudo-fullscreen #room3d { height: 100%; }
+  /* 全屏内「选择隔音材料」悬浮窗（贴边、半透明、不挡房间主体） */
+  .fs-float-mat {
+    position: fixed; left: 12px; bottom: 12px; z-index: 30;
+    width: min(280px, 42vw); max-height: 70vh; overflow-y: auto;
+    background: rgba(255, 255, 255, .9); backdrop-filter: blur(3px);
+    border-radius: 12px; padding: 10px 12px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .22);
+  }
+  .fs-float-mat h3 { font-size: 14px; margin: 0 0 8px; }
+  .fs-float-mat .mat-grid { grid-template-columns: 1fr; margin-top: 0; gap: 6px; }
+  .fs-float-mat .mat-btn { padding: 7px 10px; min-height: 38px; font-size: 13px; }
+  @media (max-width: 480px) {
+    #fsRoom:fullscreen, #fsRoom.pseudo-fullscreen { padding: 44px 8px 8px; }
+    .fs-float-mat { left: 8px; bottom: 8px; width: min(200px, 52vw); max-height: 45vh; padding: 8px; }
+    .fs-float-mat h3 { font-size: 12px; }
+    .fs-float-mat .mat-btn { font-size: 12px; padding: 6px 8px; min-height: 34px; }
+  }
 </style>
 </head>
 <body>
@@ -33,6 +61,8 @@
     <p class="page-subtitle">用包装盒或鞋盒充当“房间”，给内壁贴材料，测试隔音性能。</p>
   </div>
 
+  <div class="fullscreen-wrap" id="fsRoom">
+    <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <h2>3D 模型 <span class="chip brown">项目实施</span></h2>
     <div class="hint-bar"> 鼠标拖拽可旋转视角，滚轮缩放；打开盒盖观察内部。先测“处理前”的分贝，再贴材料测“处理后”。</div>
@@ -54,7 +84,7 @@
       <button class="btn btn-secondary" id="resetBtn">清空材料</button>
     </div>
 
-    <h3 style="font-size:15px;margin:14px 0 8px;">选择一种隔音材料，点击贴附到盒内壁</h3>
+    <h3 id="matTitle" style="font-size:15px;margin:14px 0 8px;">选择一种隔音材料，点击贴附到盒内壁</h3>
     <div class="mat-grid" id="matGrid">
       <button class="mat-btn active" data-mat="none"><span class="dot" style="background:#e8e2d6;"></span>无（处理前）</button>
       <button class="mat-btn" data-mat="sponge"><span class="dot" style="background:#d980a0;"></span>海绵</button>
@@ -67,6 +97,7 @@
       <b>隔音性能模拟说明</b><br>
       软多孔材料（海绵、泡沫、毛巾）对声音的吸收效果较好，模拟衰减较大；硬质薄材料（纸板）衰减较小。界面数值为<strong>教学示意</strong>，实际请以实测为准。
     </div>
+  </div>
   </div>
 
   <div class="card">
@@ -90,6 +121,7 @@
   </div>
 </div>
 <script src="three.min.js?v=20260920r5"></script>
+<script src="fullscreen.js?v=20260920r5"></script>
 <script src="exp-back.js?v=20260920r5"></script>
 <script src="exp-room.js?v=20260920r5"></script>
 </body>

@@ -379,15 +379,29 @@ var btnPlay=document.getElementById('btn-play'); if(btnPlay) btnPlay.addEventLis
 var btnPause=document.getElementById('btn-pause'); if(btnPause) btnPause.addEventListener('click',function(){ paused=!paused; btnPause.textContent=paused?'继续':'暂停'; if(window.playClick) playClick(); });
 var btnReset=document.getElementById('btn-reset'); if(btnReset) btnReset.addEventListener('click',function(){ angle=initialAngle; lastDeg=99; pen.on=false; pulse.on=false; pen.x=150; pen.y=benchTopY()-14; resetMedia(); if(window.playClick) playClick(); });
 var btnMute=document.getElementById('btn-mute'); if(btnMute) btnMute.addEventListener('click',function(){ window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick) playClick(); });
-var btnFull=document.getElementById('btn-full'); if(btnFull) btnFull.addEventListener('click',function(){ var el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen(); else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen(); if(window.playClick) playClick(); });
-document.addEventListener('fullscreenchange',function(){ setTimeout(resize,60); });
+var btnFull=document.getElementById('btn-full');
+function pickFn(el,names){for(var i=0;i<names.length;i++){var fn=el[names[i]];if(typeof fn==='function')return fn;}return null;}
+function fullEl(){return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement;}
+function syncFull(){if(btnFull)btnFull.textContent=(fullEl()||document.documentElement.classList.contains('pseudo-fs'))?'退出全屏':'全屏';}
+function reqFull(){
+  var el=document.documentElement,f=pickFn(el,['requestFullscreen','webkitRequestFullscreen','webkitRequestFullScreen','mozRequestFullScreen','msRequestFullscreen']);
+  if(!f){document.documentElement.classList.add('pseudo-fs');syncFull();return;}
+  var r=f.call(el);if(r&&r.catch)r.catch(function(){document.documentElement.classList.add('pseudo-fs');syncFull();});
+  setTimeout(function(){if(!fullEl()&&!document.documentElement.classList.contains('pseudo-fs')){document.documentElement.classList.add('pseudo-fs');syncFull();}},400);
+}
+function exitFull(){
+  var f=pickFn(document,['exitFullscreen','webkitExitFullscreen','webkitCancelFullScreen','mozCancelFullScreen','msExitFullscreen']);
+  if(f)f.call(document);document.documentElement.classList.remove('pseudo-fs');syncFull();
+}
+if(btnFull) btnFull.addEventListener('click',function(){if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();if(window.playClick) playClick();});
+['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){document.addEventListener(ev,function(){syncFull();setTimeout(resize,60);});});
 
 ['laser_pen','smoke_box','water_tank','glass_brick'].forEach(function(id){
   PROPS.onSprite(id,function(){ if(!paused) draw(); });
 });
 
 window.addEventListener('resize',resize);
-initMedia(); resize(); pen.y=benchTopY()-14; maybeFromQuery(); rafId=requestAnimationFrame(loop);
+initMedia(); resize(); syncFull(); pen.y=benchTopY()-14; maybeFromQuery(); rafId=requestAnimationFrame(loop);
 
 function stepPhysics(){
   var now=performance.now(),act=false,dt=1/60;

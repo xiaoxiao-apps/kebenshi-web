@@ -53,20 +53,20 @@
   <div class="card">
     <h2>参照物选择 <span class="chip cyan">标准</span></h2>
     <div class="hint-bar">💡 点击你想当作标准的物体；金色环表示参照物，青色环表示当前研究的目标。</div>
-    <div class="task-area">
-      <div class="task-title">任务进度</div>
-      <span id="task1" class="task-chip">任务1：让汽车显示为静止</span>
-      <span id="task2" class="task-chip">任务2：让树木动起来</span>
-    </div>
-    <div class="target-pills">
-      <span style="font-size:13px;color:var(--ink2);margin-right:6px;">研究目标：</span>
-      <button class="pill active" data-target="car">🚗 汽车</button>
-      <button class="pill" data-target="tree">🌳 树木</button>
-      <button class="pill" data-target="pedestrian">🚶 行人</button>
-    </div>
     <div class="fullscreen-wrap" id="fsRefWrap">
-      <button class="fullscreen-btn" id="fsRefBtn" title="全屏">⛶</button>
+      <div class="task-area">
+        <div class="task-title">任务进度</div>
+        <span id="task1" class="task-chip">任务1：让汽车显示为静止</span>
+        <span id="task2" class="task-chip">任务2：让树木动起来</span>
+      </div>
+      <div class="target-pills">
+        <span style="font-size:13px;color:var(--ink2);margin-right:6px;">研究目标：</span>
+        <button class="pill active" data-target="car">🚗 汽车</button>
+        <button class="pill" data-target="tree">🌳 树木</button>
+        <button class="pill" data-target="pedestrian">🚶 行人</button>
+      </div>
       <div class="scene-wrap" id="sceneWrap">
+        <button class="fullscreen-btn" id="fsRefBtn" title="全屏">⛶</button>
         <svg class="svg-scene" viewBox="0 0 800 420" role="img" aria-label="街景参照物选择">
           <defs>
             <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
@@ -126,8 +126,8 @@
           <circle id="tgtRing" cx="0" cy="0" r="0" fill="none" stroke="var(--cyan-hi)" stroke-width="4" opacity="0" pointer-events="none"/>
         </svg>
       </div>
+      <div class="conclusion" id="conclusion"></div>
     </div>
-    <div class="conclusion" id="conclusion"></div>
   </div>
 </div>
 <script src="fullscreen.js"></script>

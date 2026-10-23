@@ -23,6 +23,19 @@
 .timeline .dot { width: 10px; height: 10px; border-radius: 50%; background: #e74c3c; }
 .timeline .dot.echo { background: #2980b9; }
 #pulseInfo { margin-left: auto; font-weight: 700; color: var(--brown); }
+/* ---- 全屏态：铺满视口 ---- */
+#fsSensor:fullscreen, #fsSensor.pseudo-fullscreen {
+  width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+  border-radius: 0; margin: 0; padding: 46px 12px 12px; box-sizing: border-box;
+}
+#fsSensor:fullscreen > .card, #fsSensor.pseudo-fullscreen > .card {
+  max-width: 1100px; margin: 0 auto; width: 100%; box-sizing: border-box;
+}
+#fsSensor:fullscreen #sensorSvg, #fsSensor.pseudo-fullscreen #sensorSvg { max-height: 50vh; }
+#fsSensor:fullscreen .readout .big, #fsSensor.pseudo-fullscreen .readout .big { font-size: 34px; }
+@media (max-width: 480px) {
+  #fsSensor:fullscreen, #fsSensor.pseudo-fullscreen { padding: 44px 8px 8px; }
+}
 </style>
 </head>
 <body>
@@ -38,6 +51,8 @@
     ℹ️ 本页动画为<strong>示意图</strong>，用于展示超声波测距与测速原理。左侧传感器发射超声波脉冲，脉冲遇到运动小车后反射回传感器，计算机根据往返时间计算距离。
   </div>
 
+  <div class="fullscreen-wrap" id="fsSensor">
+    <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <h2>传感器测距动画示意</h2>
     <p style="font-size:13px;color:var(--ink2);margin-bottom:10px;">拖动滑块或选择“自动往返”移动小车，点击“发射脉冲”观察超声波脉冲的传播与反射。</p>
@@ -82,6 +97,7 @@
         <option value="auto">自动往返</option>
       </select>
       <button id="emitBtn" class="btn btn-primary" type="button">发射脉冲</button>
+      <button id="slowBtn" class="btn btn-secondary" type="button">慢速播放</button>
       <button id="pauseBtn" class="btn btn-secondary" type="button" style="display:none;">暂停</button>
     </div>
     <div class="readout" style="margin-top:12px;">
@@ -90,6 +106,7 @@
       <span class="unit">m</span>
     </div>
     <p id="autoHint" class="hint">拖动滑块改变小车位置，点击“发射脉冲”测距离。</p>
+  </div>
   </div>
 
   <div class="card calc-card">
@@ -158,6 +175,7 @@
   var carRange = document.getElementById('carRange');
   var modeSelect = document.getElementById('modeSelect');
   var emitBtn = document.getElementById('emitBtn');
+  var slowBtn = document.getElementById('slowBtn');
   var pauseBtn = document.getElementById('pauseBtn');
   var autoHint = document.getElementById('autoHint');
   var inputT = document.getElementById('inputT');
@@ -183,6 +201,8 @@
   var autoPlaying = false;
   var rafId = null;
   var pulseAnim = null;
+  var slowFactor = 1; // 慢速播放倍率：0.25=慢速，1=正常；只影响动画速率，不影响测距数值
+  var slowMotion = false;
 
   // 刻度
   var marks = document.getElementById('rulerMarks');
@@ -278,7 +298,7 @@
     var start = performance.now();
     function frame(now) {
       var elapsed = (now - start) / 1000;
-      var p = Math.min(1, elapsed / duration);
+      var p = Math.min(1, elapsed * slowFactor / duration);
       if (p <= 0.5) {
         drawPulse(p * 2, false);
         pulseBack.style.display = 'none';
@@ -337,6 +357,11 @@
     if (autoPlaying) rafId = requestAnimationFrame(loop);
   });
   emitBtn.addEventListener('click', emitPulse);
+  slowBtn.addEventListener('click', function () {
+    slowMotion = !slowMotion;
+    slowFactor = slowMotion ? 0.25 : 1;
+    slowBtn.textContent = slowMotion ? '正常速度' : '慢速播放';
+  });
   inputT.addEventListener('input', updateCalcS);
   [s1Input, s2Input, dtInput].forEach(function (el) { el.addEventListener('input', updateCalcV); });
 
@@ -345,6 +370,16 @@
   updateCalcV();
 })();
 </script>
+<script src="fullscreen.js"></script>
+<script>
+(function () {
+  var fsWrap = document.getElementById('fsSensor');
+  if (fsWrap && window.FullscreenHelper) {
+    FullscreenHelper.bind(fsWrap, fsWrap.querySelector('.fullscreen-btn'), null);
+  }
+})();
+</script>
+<script src="exp-back.js"></script>
 <script>
 (function(){
   var back = document.getElementById('backBtn');

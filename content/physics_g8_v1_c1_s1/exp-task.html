@@ -16,6 +16,17 @@
   .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
+  /* ---- 全屏态（页面大标题在 wrap 外，全屏自然隐藏） ---- */
+  .fullscreen-wrap:fullscreen, .fullscreen-wrap.pseudo-fullscreen {
+    width: 100vw; height: 100vh; overflow-y: auto;
+    background: var(--bg); border-radius: 0; margin: 0;
+    padding: 52px 14px 16px; box-sizing: border-box;
+  }
+  .fullscreen-wrap:fullscreen .card,
+  .fullscreen-wrap.pseudo-fullscreen .card { max-width: 860px; margin: 0 auto; }
+  @media (max-width: 480px) {
+    .fullscreen-wrap:fullscreen, .fullscreen-wrap.pseudo-fullscreen { padding: 48px 8px 12px; }
+  }
 </style>
 </head>
 <body>
@@ -25,6 +36,8 @@
     <h1 class="page-title">实验四：实测任务单</h1>
     <p class="page-subtitle">动手记录数据，多次测量求平均，理解误差概念。</p>
   </div>
+  <div class="fullscreen-wrap" id="fsTask">
+    <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <h2>实验四：实测任务单 <span class="chip green">动手记录</span></h2>
     <p>请用刻度尺/秒表完成以下测量，把数据填入表中。多次测量可以减小<b>误差</b>。</p>
@@ -56,7 +69,17 @@
     </table>
     </div>
   </div>
+  </div>
 </div>
+<script src="fullscreen.js"></script>
+<script>
+(function(){
+  var wrap = document.getElementById("fsTask");
+  if(wrap && window.FullscreenHelper){
+    FullscreenHelper.bind(wrap, wrap.querySelector(".fullscreen-btn"), null);
+  }
+})();
+</script>
 <script>
 (function(){
   var taskTabs = document.getElementById("taskTabs");

@@ -23,7 +23,17 @@
     ctx.beginPath(); ctx.rect(leftRailInnerX(), rt, rightRailInnerX() - leftRailInnerX(), rb - rt); ctx.clip();
   }
 
-  function resize(){ var f = fitCanvas(cv, 360); ctx = f.ctx; W = f.w; H = f.h; k = Math.max(1, W / 640); draw(); }
+  var fsWrap = document.getElementById('fsHuanqiuWrap');
+  function isFs(){
+    return fsWrap.classList.contains('pseudo-fullscreen') ||
+      document.fullscreenElement === fsWrap || document.webkitFullscreenElement === fsWrap;
+  }
+  function cssH(){
+    /* 全屏态：scene-wrap 由 flex 分得剩余高度；非全屏态维持原 360 */
+    if(!isFs()) return 360;
+    return Math.max(120, fsWrap.querySelector('.scene-wrap').clientHeight);
+  }
+  function resize(){ var f = fitCanvas(cv, cssH()); ctx = f.ctx; W = f.w; H = f.h; k = Math.max(1, W / 640); draw(); }
 
   function drawSky(){ ctx.fillStyle = '#e9f4fb'; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#d9e6dc'; ctx.fillRect(0, H - H * 0.08, W, H * 0.08); }
 
@@ -314,7 +324,7 @@
 
   function shout(){ emitWave(personX(), mouthY()); } // r8: 波源在嘴/头高度
 
-  function updateInfo(){ if(stand === 'center'){ infoCard.style.display = 'block'; outsideInfo.style.display = 'none'; } else { infoCard.style.display = 'none'; outsideInfo.style.display = 'block'; } }
+  function updateInfo(){ if(stand === 'center'){ infoCard.style.display = 'block'; outsideInfo.style.display = 'none'; } else { infoCard.style.display = 'none'; outsideInfo.style.display = 'block'; } resize(); /* 说明卡切换高度不同，全屏态需重算画布高度 */ }
 
   standSelect.addEventListener('change', function(){ stand = standSelect.value; updateInfo(); });
   shoutBtn.addEventListener('click', shout);

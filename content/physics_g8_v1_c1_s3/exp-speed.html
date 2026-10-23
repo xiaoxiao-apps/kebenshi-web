@@ -19,6 +19,20 @@
     .bar-row .name { min-width: 84px; font-size: 12px; }
     .bar-row .num { min-width: 78px; font-size: 11px; }
   }
+  /* ---- 全屏态：铺满视口 ---- */
+  #fsSpeed:fullscreen, #fsSpeed.pseudo-fullscreen {
+    width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+    border-radius: 0; margin: 0; padding: 46px 12px 12px; box-sizing: border-box;
+  }
+  #fsSpeed:fullscreen .card, #fsSpeed.pseudo-fullscreen .card { max-width: 860px; margin: 0 auto; }
+  #fsSpeed:fullscreen .bar-row .name, #fsSpeed.pseudo-fullscreen .bar-row .name { font-size: 15px; }
+  #fsSpeed:fullscreen .bar-row .track, #fsSpeed.pseudo-fullscreen .bar-row .track { height: 28px; }
+  #fsSpeed:fullscreen .bar-row .num, #fsSpeed.pseudo-fullscreen .bar-row .num { font-size: 14px; }
+  @media (max-width: 480px) {
+    #fsSpeed:fullscreen, #fsSpeed.pseudo-fullscreen { padding: 44px 8px 8px; }
+    #fsSpeed:fullscreen .bar-row .name, #fsSpeed.pseudo-fullscreen .bar-row .name { min-width: 84px; font-size: 12px; }
+    #fsSpeed:fullscreen .bar-row .num, #fsSpeed.pseudo-fullscreen .bar-row .num { min-width: 78px; font-size: 11px; }
+  }
 </style>
 </head>
 <body>
@@ -29,12 +43,24 @@
     <!-- 溯源：原表1.3-1 -->
     <p class="page-subtitle">十种物体的速度对比。点条目看 km/h 换算和生活化类比。</p>
   </div>
+  <div class="fullscreen-wrap" id="fsSpeed">
+    <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <div class="bars" id="bars"></div>
     <div class="scale-note">※ 条长用对数刻度（速度跨 6 个数量级：0.0015—3070 m/s），线性条会让蜗牛和步行完全看不见。</div>
     <div class="detail" id="detail">👆 点上面任意一条，看它的 km/h 换算和生活化类比。</div>
   </div>
+  </div>
 </div>
+<script src="fullscreen.js"></script>
+<script>
+(function () {
+  var wrap = document.getElementById('fsSpeed');
+  if (wrap && window.FullscreenHelper) {
+    FullscreenHelper.bind(wrap, wrap.querySelector('.fullscreen-btn'), null);
+  }
+})();
+</script>
 <script>
 (function () {
   'use strict';

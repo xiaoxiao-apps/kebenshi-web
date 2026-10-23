@@ -476,14 +476,21 @@ modeRadios.forEach(function(r){ r.addEventListener('change',function(){ if(r.che
 var btnReset=document.getElementById('btn-reset'); if(btnReset) btnReset.addEventListener('click',function(){ resetAll(); if(window.playClick) playClick(); });
 var btnMute=document.getElementById('btn-mute'); if(btnMute) btnMute.addEventListener('click',function(){ window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick) playClick(); });
 var btnFull=document.getElementById('btn-full');
-function syncFullBtn(){ var fs=document.fullscreenElement||document.webkitFullscreenElement; if(btnFull){ btnFull.textContent=fs?'退出全屏':'全屏'; } }
-if(btnFull) btnFull.addEventListener('click',function(){
-  var fs=document.fullscreenElement||document.webkitFullscreenElement;
-  if(fs){ (document.exitFullscreen||document.webkitExitFullscreen).call(document); }
-  else { var el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen(); else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen(); }
-  if(window.playClick) playClick(); syncFullBtn();
-});
-document.addEventListener('fullscreenchange',function(){ setTimeout(resize,60); syncFullBtn(); });
+function pickFn(el,names){for(var i=0;i<names.length;i++){var fn=el[names[i]];if(typeof fn==='function')return fn;}return null;}
+function fullEl(){return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement;}
+function syncFull(){if(btnFull)btnFull.textContent=(fullEl()||document.documentElement.classList.contains('pseudo-fs'))?'退出全屏':'全屏';}
+function reqFull(){
+  var el=document.documentElement,f=pickFn(el,['requestFullscreen','webkitRequestFullscreen','webkitRequestFullScreen','mozRequestFullScreen','msRequestFullscreen']);
+  if(!f){document.documentElement.classList.add('pseudo-fs');syncFull();return;}
+  var r=f.call(el);if(r&&r.catch)r.catch(function(){document.documentElement.classList.add('pseudo-fs');syncFull();});
+  setTimeout(function(){if(!fullEl()&&!document.documentElement.classList.contains('pseudo-fs')){document.documentElement.classList.add('pseudo-fs');syncFull();}},400);
+}
+function exitFull(){
+  var f=pickFn(document,['exitFullscreen','webkitExitFullscreen','webkitCancelFullScreen','mozCancelFullScreen','msExitFullscreen']);
+  if(f)f.call(document);document.documentElement.classList.remove('pseudo-fs');syncFull();
+}
+if(btnFull) btnFull.addEventListener('click',function(){if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();if(window.playClick) playClick();});
+['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){document.addEventListener(ev,function(){syncFull();setTimeout(resize,60);});});
 
 ['candle','desk_lamp','hand_shadow','board_with_hole','screen','laser_pen'].forEach(function(id){
   PROPS.onSprite(id,function(){ draw(); });
@@ -543,5 +550,5 @@ window.__c4s2dbg={
   get u(){ var l=findById('desk_lamp'),h=findById('hand_shadow'); if(!l||l.state!=='active'||!h||h.state!=='active') return null; return Math.hypot(handCenter(h).x-bulbPos(l).x, handCenter(h).y-bulbPos(l).y); },
   get v(){ var l=findById('desk_lamp'),s=findById('screen'); if(!l||l.state!=='active'||!s||s.state!=='active') return null; return screenPlane(s).sx-bulbPos(l).x; }
 };
-initMedia(); setDefaultLayout(); resize(); syncFullBtn(); rafId=requestAnimationFrame(loop);
+initMedia(); setDefaultLayout(); resize(); syncFull(); rafId=requestAnimationFrame(loop);
 })();

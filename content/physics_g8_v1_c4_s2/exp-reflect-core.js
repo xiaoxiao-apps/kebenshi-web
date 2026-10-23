@@ -175,14 +175,14 @@ function reqFull(){
   var el=document.documentElement;
   var f=pickFn(el,['requestFullscreen','webkitRequestFullscreen','webkitRequestFullScreen','mozRequestFullScreen','msRequestFullscreen']);
   if(!f){
-    if(hintEl){ hintEl.textContent='全屏：兼容模式（当前浏览器无全屏API）'; }
+    if(hintEl){ hintEl.textContent='全屏：兼容方式（当前浏览器无全屏API）'; }
     document.documentElement.classList.add('pseudo-fs'); syncFull(); return;
   }
-  if(hintEl) hintEl.textContent='全屏：原生模式';
+  if(hintEl) hintEl.textContent='全屏：原生方式';
   var r=f.call(el);
   if(r&&r.catch){
     r.catch(function(){
-      if(hintEl) hintEl.textContent='全屏被拒绝，已切兼容模式';
+      if(hintEl) hintEl.textContent='全屏被拒绝，已切兼容方式';
       document.documentElement.classList.add('pseudo-fs'); syncFull();
     });
   }

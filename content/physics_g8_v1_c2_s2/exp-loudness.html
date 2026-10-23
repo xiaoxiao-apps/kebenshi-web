@@ -28,6 +28,21 @@
   .fill-card select { min-width: 80px; }
   .answer-hidden { display: none; }
   @media (max-width: 768px) { .anim-btns { flex-direction: column; } .anim-btns .btn { min-width: 0; } }
+  /* F1 全屏改结构：wrap=整屏 flex 列，canvas 高度=stage-left 剩余高度（js 重算） */
+  #fsLoudWrap:fullscreen, #fsLoudWrap.pseudo-fullscreen {
+    display: flex; flex-direction: column; overflow-y: auto;
+    padding: 10px 12px 12px; background: #faf8f5;
+  }
+  #fsLoudWrap:fullscreen > *, #fsLoudWrap.pseudo-fullscreen > * { flex-shrink: 0; }
+  #fsLoudWrap:fullscreen .scene-wrap, #fsLoudWrap.pseudo-fullscreen .scene-wrap {
+    flex: 1 1 0; min-height: 120px; align-items: stretch;
+  }
+  #fsLoudWrap:fullscreen .stage-left, #fsLoudWrap.pseudo-fullscreen .stage-left { flex: 1.6 1 0; min-height: 0; }
+  #fsLoudWrap:fullscreen .stage-right, #fsLoudWrap.pseudo-fullscreen .stage-right { flex-shrink: 0; }
+  @media (max-width: 768px) {
+    #fsLoudWrap:fullscreen .stage-left, #fsLoudWrap.pseudo-fullscreen .stage-left { min-height: 120px; }
+    #fsLoudWrap:fullscreen .stage-right, #fsLoudWrap.pseudo-fullscreen .stage-right { flex: 0 0 auto; }
+  }
 </style>
 </head>
 <body>
@@ -100,21 +115,20 @@
         <button class="btn btn-secondary" id="lightBtn">🔨 轻敲</button>
         <button class="btn btn-primary" id="hardBtn">🔨 重敲</button>
       </div>
-    </div>
-
-    <div class="fill-card" id="findCard">
-      <h3>🔓 你的发现（轻敲、重敲都体验后解锁）</h3>
-      <div class="input-line" style="flex-wrap:wrap;gap:8px 16px;">
-        <span>乒乓球弹开幅度反映音叉的</span>
-        <select id="w1"><option value="">—</option><option value="振幅">振幅</option><option value="频率">频率</option><option value="音色">音色</option></select>
-        <span>；</span>
-        <select id="w2"><option value="">—</option><option value="振幅">振幅</option><option value="频率">频率</option><option value="音色">音色</option></select>
-        <span>越大，响度越大。</span>
-        <button class="btn btn-brown" id="checkBtn">提交</button>
-      </div>
-      <div class="feedback" id="findFb"></div>
-      <div class="answer-hidden" id="answerBox">
-        <p class="key-point">参考答案：<b>振幅 / 振幅</b>。音叉振动幅度越大，乒乓球被弹得越远，听到的声音也越响亮。</p>
+      <div class="fill-card" id="findCard">
+        <h3>🔓 你的发现（轻敲、重敲都体验后解锁）</h3>
+        <div class="input-line" style="flex-wrap:wrap;gap:8px 16px;">
+          <span>乒乓球弹开幅度反映音叉的</span>
+          <select id="w1"><option value="">—</option><option value="振幅">振幅</option><option value="频率">频率</option><option value="音色">音色</option></select>
+          <span>；</span>
+          <select id="w2"><option value="">—</option><option value="振幅">振幅</option><option value="频率">频率</option><option value="音色">音色</option></select>
+          <span>越大，响度越大。</span>
+          <button class="btn btn-brown" id="checkBtn">提交</button>
+        </div>
+        <div class="feedback" id="findFb"></div>
+        <div class="answer-hidden" id="answerBox">
+          <p class="key-point">参考答案：<b>振幅 / 振幅</b>。音叉振动幅度越大，乒乓球被弹得越远，听到的声音也越响亮。</p>
+        </div>
       </div>
     </div>
   </div>

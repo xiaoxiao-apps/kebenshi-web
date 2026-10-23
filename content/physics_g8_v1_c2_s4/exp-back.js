@@ -26,28 +26,49 @@
       }
     }
 
-    var href, text;
+    var href, btnText;
     if (from === 'explain') {
-      /* 返回来源 Tab：URL tab 参数优先，其次 explain 页记录的当前 Tab */
+      /* 返回来源 Tab：URL tab 参数优先，其次本节 explain 页记录的当前 Tab（键名随目录推导，如 c2s1_explain_tab） */
       if (!tab || !/^t[1-4]$/.test(tab)) {
-        try { tab = sessionStorage.getItem('c2s4_explain_tab') || 't1'; } catch (e) { tab = 't1'; }
+        tab = '';
+        var seg = (window.location.pathname.match(/_(c\d+)_(s\d+)/) || []).slice(1).join('');
+        if (seg) { try { tab = sessionStorage.getItem(seg + '_explain_tab') || ''; } catch (e) { tab = ''; } }
       }
-      href = 'explain.html#' + tab;
-      text = '‹ 返回知识讲解';
+      href = tab ? 'explain.html#' + tab : 'explain.html';
+      btnText = '📖 返回知识讲解';
     } else {
       href = 'quiz.html';
-      text = '‹ 返回随堂练习';
+      btnText = '‹ 返回随堂练习';
     }
 
+    /* 改写页面原有返回钮（非壳环境可见可用；壳环境会被 HIDE_BACK_CSS 隐藏） */
     var backs = document.querySelectorAll('a[data-back]');
     for (var i = 0; i < backs.length; i++) {
       var el = backs[i];
       el.setAttribute('href', href);
       if (/back-btn/.test(el.className)) {
-        el.innerHTML = text;
+        el.innerHTML = from === 'explain' ? '‹ 返回知识讲解' : btnText;
       } else {
-        el.innerHTML = el.innerHTML.replace(/返回实验区/, text);
+        el.innerHTML = el.innerHTML.replace(/返回实验区/, btnText);
       }
+    }
+
+    /* 壳环境浮动返回钮：总站壳注入的 HIDE_BACK_CSS 按旧类名/data 属性/id 选择器隐藏页内返回钮，
+       下面的类名与 id 均不在其命中范围内，讲解页带 ?from=explain 跳来时保证有路可回 */
+    if (hasFromParam && from === 'explain' && !document.getElementById('qd-exp-back-float')) {
+      var fab = document.createElement('button');
+      fab.id = 'qd-exp-back-float';
+      fab.className = 'qd-exp-back-float';
+      fab.type = 'button';
+      fab.textContent = '📖 返回知识讲解';
+      fab.setAttribute('aria-label', '返回知识讲解');
+      fab.style.cssText = 'position:fixed;top:10px;left:10px;z-index:2147483000;' +
+        'min-height:44px;padding:10px 16px;border:none;border-radius:22px;cursor:pointer;' +
+        'background:rgba(28,28,32,.82);color:#fff;font-size:14px;font-weight:700;line-height:1.2;' +
+        'backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.35);';
+      fab.addEventListener('click', function () { window.location.href = href; });
+      var mount = function () { (document.body || document.documentElement).appendChild(fab); };
+      if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
     }
   } catch (e) {
     if (typeof console !== 'undefined' && console.warn) console.warn('exp-back error', e);

@@ -24,7 +24,7 @@
   #bubble-arrow{position:absolute;width:0;height:0;border:9px solid transparent;left:20px}
   #bubble.arr-b #bubble-arrow{bottom:-18px;border-top-color:rgba(255,255,255,0.55)}
   #bubble.arr-t #bubble-arrow{top:-18px;border-bottom-color:rgba(255,255,255,0.55)}
-  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:stretch;gap:6px;padding:8px 12px;z-index:20}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:8px;padding:8px 12px;z-index:20}
   .ctrlbar>*{pointer-events:auto}
   .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px;transition:opacity .3s ease,transform .3s ease}
   .glabel{font-size:14px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
@@ -75,7 +75,7 @@
 </head>
 <body>
 <header>
-  <div class="title">第5章 第4节 眼睛和眼镜 · 眼睛与矫正</div>
+  <div class="title">眼睛和眼镜 · 眼睛与矫正</div>
   <a class="back" id="btn-back" href="./index.html">← 返回实验卡页</a>
 </header>
 <div class="scene-wrap">
@@ -108,7 +108,7 @@
     </div>
   </div>
   <div class="group" id="grp-act">
-    <div class="glabel">动作</div>
+    <div class="glabel">动作 · 显示</div>
     <div class="gctrl">
       <label for="sel-cond">眼况</label>
       <select id="sel-cond">
@@ -116,11 +116,6 @@
         <option value="myopia">近视</option>
         <option value="hyper">远视</option>
       </select>
-    </div>
-  </div>
-  <div class="group" id="grp-show">
-    <div class="glabel">显示</div>
-    <div class="gctrl">
       <button id="btn-flow">光流</button>
     </div>
   </div>

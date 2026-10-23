@@ -60,6 +60,14 @@
   .badge.ok { background:rgba(88,214,141,.15); color:#7de8a8; }
   .badge.rev { background:rgba(255,212,121,.12); color:#ffd479; }
   .foot { margin-top:30px; font-size:12px; color:#6b7686; line-height:1.8; border-top:1px dashed rgba(255,255,255,.12); padding-top:14px; }
+  .modal-mask { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.55); z-index:50; align-items:center; justify-content:center; padding:20px; }
+  .modal-mask.show { display:flex; }
+  .modal-card { background:#fff; color:#222; border-radius:14px; padding:22px 20px 18px; max-width:340px; width:100%; font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; box-shadow:0 8px 30px rgba(0,0,0,.35); }
+  .modal-txt { font-size:15px; line-height:1.8; }
+  .modal-btns { display:flex; gap:10px; margin-top:18px; justify-content:flex-end; }
+  .modal-btn { min-height:40px; padding:8px 18px; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; border:1px solid transparent; font-family:inherit; }
+  .modal-btn.cancel { background:#f0f1f4; color:#555; border-color:#ddd; }
+  .modal-btn.ok { background:#e74c3c; color:#fff; }
   @media (max-width:560px){ .wrap{padding:16px 12px 56px;} header h1{font-size:21px;} .qcard{padding:14px;} .blankrow input{width:120px;} }
 </style>
 </head>
@@ -75,6 +83,15 @@
   </div>
   <main id="quizRoot"></main>
   <div class="foot">题目为本页原创练习，覆盖各节核心考点。客观题提交即时判分，开放题由参考答案自评计分；作答记录自动保存在本机浏览器，点「重做本章」可清空记录重新作答。</div>
+</div>
+<div class="modal-mask" id="redoModal">
+  <div class="modal-card">
+    <div class="modal-txt">确定重做本章练习吗？当前全部作答记录与得分将被清空。</div>
+    <div class="modal-btns">
+      <button type="button" class="modal-btn cancel" id="redoCancel">取消</button>
+      <button type="button" class="modal-btn ok" id="redoOk">确定重做</button>
+    </div>
+  </div>
 </div>
 <script src="practice.js?v=1"></script>
 </body>

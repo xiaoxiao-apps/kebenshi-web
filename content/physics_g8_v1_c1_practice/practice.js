@@ -4,7 +4,7 @@
  * 判分：客观题提交即时判分（全对得分）；开放题查看参考答案后自评计分。
  * 题目：围绕各节知识点编写的原创题（第1节 9 题、第2节 7 题、第3节 6 题、第4节 5 题），
  *      交互联动型题拆分为小问（note 说明）；共 27 题，总分 288 分（各题 points 之和）。
- * multi 类型说明：c1s1q7、c1s1q9 为多选题（选齐对应项数自动判定），在样板 choice/blank/open 之外
+ * multi 类型说明：c1s1q7、c1s1q9 为多选题（选择完毕后点提交按钮判分），在样板 choice/blank/open 之外
  *      最小增补 multi 一种 part 类型，样板既有判分逻辑零改动。
  * 分值规则对齐样板：单 part 题 10 分，多 part/多空题 12 分。
  */
@@ -54,7 +54,7 @@ const QUESTIONS = [
 
   { id:'c1s1q7', section:'第1节 长度和时间的测量', no:'第7题（多选）', points:10,
     stem:'小杰想测出家里圆形茶盘盖的直径，下列方法中可行的是（多选）',
-    note:'本题为多选题，选齐 3 项后自动提交判分。',
+    note:'本题为多选题，选择完毕后点击提交按钮判分。',
     parts:[
       { kind:'multi', opts:['把刻度尺横盖在盖面上，直接对着读数当直径','用两个三角板把盖子竖夹在中间，量两板内侧间的距离','用细棉线沿盖边绕一周，量出线长再算出直径','在盖子边缘做记号，让盖子在纸上滚一周，量出两记号间的长度再算直径'], answer:[1,2,3],
         analysis:'两块三角板夹住盖子属于<b>辅助法</b>，位置固定、读数准确，可行；棉线绕一周量周长再算直径是<b>化曲为直</b>，可行；滚动一周量痕迹长度是<b>滚圆法</b>，同样常用。而盖面上圆心的位置难以确定，直接横尺读数容易偏大偏小，一般不采用。' }
@@ -69,8 +69,8 @@ const QUESTIONS = [
 
   { id:'c1s1q9', section:'第1节 长度和时间的测量', no:'第9题（多选·图题）', points:10,
     stem:'下图简图中，小刚正用刻度尺测量铅笔的长度，他的操作存在哪些错误？选出所有错误项（多选）：',
-    note:'本题为多选题，选齐 2 项后自动提交判分。下图为程序化简图。',
-    fig:'pencilRuler', figCap:'简图：刻度尺 0~5 cm，铅笔左端未对齐 0 刻度线，视线斜向看尺',
+    note:'本题为多选题，选择完毕后点击提交按钮判分。下图为程序化简图。',
+    fig:'pencilRuler',
     parts:[
       { kind:'multi', opts:['铅笔左端没有对齐 0 刻度线','刻度尺没有放正','视线没有垂直于尺面','读数时没写单位'], answer:[0,2],
         analysis:'简图中可找出两处错误：① 铅笔左端未与 0 刻度线对齐——起始端应对齐零刻度线或某一整刻度线；② 斜着眼睛看尺，视线没有与尺面垂直。即便改正这两处，测量结果仍然会有误差，因为误差不可避免。' }
@@ -154,7 +154,7 @@ const QUESTIONS = [
   { id:'c1s3q2', section:'第3节 运动的快慢', no:'练习2', points:10,
     stem:'一辆汽车在高速公路上行驶，车内速度表的指针位置见下图简图。若汽车按表显速度匀速行驶 9 km，行驶时间是多少分？',
     note:'下图为程序化简图。填空即时判分。',
-    fig:'speedDial', figCap:'简图：汽车速度表，主刻度 0~240、每大格 20，单位 km/h，指针指 60',
+    fig:'speedDial',
     parts:[
       { kind:'blank', blanks:[
         { label:'行驶的时间', answer:['9','9min','9 min','9分','0.15','0.15h','0.15 h','0.15小时'], unit:'min' }],
@@ -172,7 +172,7 @@ const QUESTIONS = [
   { id:'c1s3q4', section:'第3节 运动的快慢', no:'练习4', points:12,
     stem:'某次高速列车由临江站开往滨海站，沿途停靠及运行信息见下表。（1）列车由临江站驶往滨海站全程的平均速度是多少？（2）列车在哪个路段运行得最快？在哪个路段运行得最慢？',
     note:'信息表见下表。①填空 + ②③单选均即时判分。',
-    fig:'trainTable', figCap:'表：某次高速列车运行信息',
+    fig:'trainTable',
     parts:[
       { kind:'blank', q:'（1）全程的平均速度是多少？', blanks:[
         { label:'全程平均速度', answer:['230','230km/h','230 km/h','230.0','230千米每小时','230公里每小时'], unit:'km/h' }],
@@ -224,7 +224,7 @@ const QUESTIONS = [
   { id:'c1s4q2', section:'第4节 速度的测量', no:'练习2（频闪照片示意图）', points:12,
     stem:'小组同学用频闪照相的方法研究小球沿斜面下滑的运动，拍下小球先后经过 A、B、C 三个位置，并在旁边放一把刻度尺、记下每个位置对应的时刻（见下图简图）。小球在 AB、BC、AC 各段运动的平均速度分别是多少？',
     note:'下图为程序化简图：刻度尺 0~100 cm，A 在 90 cm 处、B 在 64 cm 处、C 在 10 cm 处。填空即时判分。',
-    fig:'inclineRuler', figCap:'简图：频闪照片示意图（位置对应刻度尺），A=90 cm（00:00.00）、B=64 cm（00:01.30）、C=10 cm（00:02.50）',
+    fig:'inclineRuler',
     parts:[
       { kind:'blank', q:'① AB 段：时间 tAB 与平均速度 vAB 分别是多少？', blanks:[
         { label:'tAB', answer:['1.3','1.30','1.3s','1.30s','1.3 s'], unit:'s' },
@@ -316,21 +316,21 @@ function svgPencilRuler() {
   // 刻度尺
   s += `<rect x="50" y="50" width="320" height="44" fill="#f2ede2" stroke="#9aa4b5" rx="3"/>`;
   s += `<line x1="50" y1="50" x2="50" y2="94" stroke="#2c2c2c"/><line x1="370" y1="50" x2="370" y2="94" stroke="#2c2c2c"/>`;
-  const xs = [50, 121.43, 192.86, 264.29, 335.71, 370];
+  const xs = [50, 114, 178, 242, 306, 370];
   const labels = ['0', '1', '2', '3', '4', '5 cm'];
   xs.forEach((x, i) => {
     s += `<line x1="${x}" y1="50" x2="${x}" y2="70" stroke="#2c2c2c"/>`;
     s += `<text x="${x}" y="108" fill="#9aa4b5" font-size="11" text-anchor="middle" dominant-baseline="middle">${labels[i]}</text>`;
   });
   // 铅笔（左端在 x=40，未对齐 0 刻度）
-  s += `<rect x="40" y="108" width="280" height="20" fill="#e08e5e" rx="3"/>`;
-  s += `<polygon points="320,108 340,118 320,128" fill="#d4a017"/>`;
-  s += `<circle cx="40" cy="118" r="4" fill="#b8860b"/>`;
-  s += `<text x="175" y="160" text-anchor="middle" font-size="12" fill="#9aa4b5">铅笔</text>`;
+  s += `<rect x="40" y="122" width="280" height="20" fill="#e08e5e" rx="3"/>`;
+  s += `<polygon points="320,122 340,132 320,142" fill="#d4a017"/>`;
+  s += `<circle cx="40" cy="132" r="4" fill="#b8860b"/>`;
+  s += `<text x="175" y="164" text-anchor="middle" font-size="12" fill="#9aa4b5">铅笔</text>`;
   // 斜视线（未垂直尺面）
-  s += `<line x1="360" y1="20" x2="320" y2="105" stroke="#ff7a6e" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+  s += `<line x1="360" y1="20" x2="320" y2="120" stroke="#ff7a6e" stroke-width="1.5" stroke-dasharray="5,4"/>`;
   s += `<text x="350" y="15" text-anchor="end" font-size="12" fill="#ff7a6e" font-weight="700">视线</text>`;
-  return `<svg viewBox="0 0 420 180" role="img" aria-label="简图：刻度尺0至5厘米，铅笔左端未对齐0刻度线，视线斜向看尺">${s}</svg>`;
+  return `<svg viewBox="0 0 420 180" role="img" aria-label="刻度尺测量铅笔长度简图">${s}</svg>`;
 }
 
 /* c1s3q2 简图：汽车速度表（0~240 km/h、每大格 20，指针指 60） */
@@ -347,7 +347,7 @@ function svgSpeedDial() {
   s += `<line x1="100" y1="100" x2="100" y2="26" stroke="#e74c3c" stroke-width="5" stroke-linecap="round" transform="rotate(-60 100 100)"/>`;
   s += `<circle cx="100" cy="100" r="12" fill="#5a6672"/>`;
   s += `<text x="100" y="140" fill="#7fd4ff" font-size="11" text-anchor="middle">km/h</text>`;
-  return `<svg viewBox="0 0 200 200" role="img" aria-label="简图：汽车速度表，主刻度0至240，每大格20，单位千米每小时，指针指60">${s}</svg>`;
+  return `<svg viewBox="0 0 200 200" role="img" aria-label="汽车速度表简图">${s}</svg>`;
 }
 
 /* c1s3q4 列车运行信息表（程序化绘制） */
@@ -385,13 +385,13 @@ function svgInclineRuler() {
     s += `<text x="${p.x}" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="${p.edge}">${p.name}</text>`;
     s += `<text x="${p.x}" y="132" text-anchor="middle" font-size="11" fill="#9aa4b5">${p.t}</text>`;
   });
-  return `<svg viewBox="0 0 520 150" role="img" aria-label="简图：频闪照片示意图，刻度尺0至100厘米，A在90厘米处时刻0分0秒，B在64厘米处时刻1.30秒，C在10厘米处时刻2.50秒">${s}</svg>`;
+  return `<svg viewBox="0 0 520 150" role="img" aria-label="频闪照片与刻度尺简图">${s}</svg>`;
 }
 
 /* ===== 渲染引擎 ===== */
-function renderFig(fig, figCap) {
+function renderFig(fig) {
   if (!fig || !FIGURES[fig]) return '';
-  return `<div class="figbox">${FIGURES[fig]()}<div class="figcap">${esc(figCap || '')}</div></div>`;
+  return `<div class="figbox">${FIGURES[fig]()}</div>`;
 }
 function renderPart(q, pi) {
   const p = q.parts[pi];
@@ -407,7 +407,7 @@ function renderPart(q, pi) {
     const opts = p.opts.map((opt, idx) =>
       `<button class="opt mopt" data-qid="${q.id}" data-pi="${pi}" data-idx="${idx}">${['A','B','C','D'][idx]}. ${esc(opt)}</button>`
     ).join('');
-    return `<div class="part" data-key="${key}">${head}<div class="multi-hint">多选题 · 共选 ${p.answer.length} 项，选齐后自动提交判分</div><div class="opts">${opts}</div><div class="fb" data-role="fb"></div></div>`;
+    return `<div class="part" data-key="${key}">${head}<div class="multi-hint">多选题 · 选择完毕后点提交判分</div><div class="opts">${opts}</div><button class="btn multi-submit" data-qid="${q.id}" data-pi="${pi}">提交</button><div class="fb" data-role="fb"></div></div>`;
   }
   if (p.kind === 'blank') {
     const rows = p.blanks.map((b, bi) =>
@@ -434,7 +434,7 @@ function renderQuestion(q) {
     <div class="qno"><b>${esc(q.no)}</b><span>(${q.points}分)</span></div>
     <div class="stem">${esc(q.stem)}</div>
     ${q.note ? `<div class="qnote">${esc(q.note)}</div>` : ''}
-    ${renderFig(q.fig, q.figCap)}
+    ${renderFig(q.fig)}
     ${q.parts.map((_, pi) => renderPart(q, pi)).join('')}
   </div>`;
 }
@@ -491,6 +491,8 @@ function setMultiUI(el, part, chosen) {
     else if ((chosen || []).includes(idx)) btn.classList.add('err');
     else btn.classList.add('dim');
   });
+  const sbtn = $1('.multi-submit', el);
+  if (sbtn) sbtn.disabled = true;
   showFb(el, sameSet(chosen, correct), part.analysis);
 }
 function setBlankUI(el, part, vals) {
@@ -554,6 +556,7 @@ function restoreUI() {
 function bindEvents() {
   $all('.opt').forEach(btn => btn.addEventListener('click', btn.classList.contains('mopt') ? onMultiClick : onChoiceClick));
   $all('.blank-check').forEach(btn => btn.addEventListener('click', onBlankCheck));
+  $all('.multi-submit').forEach(btn => btn.addEventListener('click', onMultiSubmit));
   $all('.ref-toggle').forEach(btn => btn.addEventListener('click', onRefToggle));
   $all('.self-score').forEach(btn => btn.addEventListener('click', onSelfScore));
 }
@@ -570,29 +573,34 @@ function onChoiceClick(e) {
   setChoiceUI(btn.closest('.part'), part, idx);
   updateProgress();
 }
-/* multi：点选/再点取消，选齐 answer.length 项后自动提交判分（集合全等=正确） */
+/* multi：点选/再点取消，选择完毕后点提交按钮判分（集合全等=正确），判分后锁定 */
 const MULTI_SEL = {};
 function onMultiClick(e) {
   const btn = e.currentTarget;
   const qid = btn.dataset.qid, pi = +btn.dataset.pi, idx = +btn.dataset.idx;
   const key = `${qid}_${pi}`;
   if (STATE.done[key]) return;
-  const q = findQ(qid), part = q.parts[pi];
   if (!MULTI_SEL[key]) MULTI_SEL[key] = [];
   const sel = MULTI_SEL[key];
   const pos = sel.indexOf(idx);
   if (pos >= 0) { sel.splice(pos, 1); btn.classList.remove('sel'); }
   else { sel.push(idx); btn.classList.add('sel'); }
-  if (sel.length === part.answer.length) {
-    const ok = sameSet(sel, part.answer);
-    STATE.multi[key] = sel.slice();
-    STATE.done[key] = true;
-    STATE.scores[qid] = STATE.scores[qid] || {};
-    STATE.scores[qid][pi] = ok ? partPoints(q, pi) : 0;
-    saveState();
-    setMultiUI(btn.closest('.part'), part, sel.slice());
-    updateProgress();
-  }
+}
+function onMultiSubmit(e) {
+  const btn = e.currentTarget;
+  const qid = btn.dataset.qid, pi = +btn.dataset.pi;
+  const key = `${qid}_${pi}`;
+  if (STATE.done[key]) return;
+  const q = findQ(qid), part = q.parts[pi];
+  const sel = (MULTI_SEL[key] || []).slice();
+  const ok = sameSet(sel, part.answer);
+  STATE.multi[key] = sel;
+  STATE.done[key] = true;
+  STATE.scores[qid] = STATE.scores[qid] || {};
+  STATE.scores[qid][pi] = ok ? partPoints(q, pi) : 0;
+  saveState();
+  setMultiUI(btn.closest('.part'), part, sel);
+  updateProgress();
 }
 function onBlankCheck(e) {
   const btn = e.currentTarget;
@@ -683,8 +691,15 @@ function updateProgress() {
 function bindRedo() {
   const btn = document.getElementById('redoBtn');
   if (!btn) return;
-  btn.addEventListener('click', () => {
-    if (!window.confirm('确定重做本章练习吗？当前全部作答记录与得分将被清空。')) return;
+  const mask = document.getElementById('redoModal');
+  if (!mask) return;
+  const close = () => mask.classList.remove('show');
+  btn.addEventListener('click', () => mask.classList.add('show'));
+  mask.addEventListener('click', (e) => { if (e.target === mask) close(); });
+  const cancel = document.getElementById('redoCancel');
+  if (cancel) cancel.addEventListener('click', close);
+  const ok = document.getElementById('redoOk');
+  if (ok) ok.addEventListener('click', () => {
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
     location.reload();
   });

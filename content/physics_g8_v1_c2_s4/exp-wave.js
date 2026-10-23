@@ -51,7 +51,17 @@
     }
   }
 
-  function resize(){ var f = fitCanvas(cv, 340); ctx = f.ctx; W = f.w; H = f.h; k = W / DW; drawBase(); }
+  var fsWrap = document.getElementById('fsWaveWrap');
+  function isFs(){
+    return fsWrap.classList.contains('pseudo-fullscreen') ||
+      document.fullscreenElement === fsWrap || document.webkitFullscreenElement === fsWrap;
+  }
+  function cssH(){
+    /* 全屏态：scene-wrap 由 flex 分得剩余高度；非全屏态维持原 340 */
+    if(!isFs()) return 340;
+    return Math.max(120, fsWrap.querySelector('.scene-wrap').clientHeight);
+  }
+  function resize(){ var f = fitCanvas(cv, cssH()); ctx = f.ctx; W = f.w; H = f.h; k = W / DW; drawBase(); }
 
   function drawGrid(){
     ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.lineWidth = 1;

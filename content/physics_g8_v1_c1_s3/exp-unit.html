@@ -21,6 +21,19 @@
     .conv-row input[type="number"] { width: 90px; padding: 10px 4px; font-size: 15px; }
     .conv-row select { min-width: 100px; font-size: 14px; }
   }
+  /* ---- 全屏态：铺满视口 ---- */
+  #fsUnit:fullscreen, #fsUnit.pseudo-fullscreen {
+    width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+    border-radius: 0; margin: 0; padding: 46px 12px 12px; box-sizing: border-box;
+  }
+  #fsUnit:fullscreen .card, #fsUnit.pseudo-fullscreen .card { max-width: 860px; margin: 0 auto; }
+  #fsUnit:fullscreen .out-row, #fsUnit.pseudo-fullscreen .out-row { font-size: 24px; }
+  #fsUnit:fullscreen .why, #fsUnit.pseudo-fullscreen .why { font-size: 16px; }
+  @media (max-width: 480px) {
+    #fsUnit:fullscreen, #fsUnit.pseudo-fullscreen { padding: 44px 8px 8px; }
+    #fsUnit:fullscreen .out-row, #fsUnit.pseudo-fullscreen .out-row { font-size: 18px; }
+    #fsUnit:fullscreen .why, #fsUnit.pseudo-fullscreen .why { font-size: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -30,6 +43,8 @@
     <h1 class="page-title">🔁 单位换算器</h1>
     <p class="page-subtitle">8 种速度单位任选互转：m/s、km/h、cm/s、km/min、mph、节、ft/s、马赫。换算原理看得见。</p>
   </div>
+  <div class="fullscreen-wrap" id="fsUnit">
+    <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <div class="conv-wrap">
       <div class="conv-row">
@@ -44,7 +59,17 @@
     </div>
     <div class="why" id="whyBox"></div>
   </div>
+  </div>
 </div>
+<script src="fullscreen.js"></script>
+<script>
+(function () {
+  var wrap = document.getElementById('fsUnit');
+  if (wrap && window.FullscreenHelper) {
+    FullscreenHelper.bind(wrap, wrap.querySelector('.fullscreen-btn'), null);
+  }
+})();
+</script>
 <script>
 (function () {
   'use strict';

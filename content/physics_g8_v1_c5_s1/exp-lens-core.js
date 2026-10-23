@@ -73,13 +73,15 @@ function sunY(){ return Math.round(H*SUN_Y_FRAC); }
 
 function layout(){
   axisY=Math.round(H*0.5);
-  // 垂直分层：底部下带=控制栏（DOM），上带=托盘（canvas）；托盘底边贴 H−ctrlBandH−12px 间距，永不与控制栏相压
-  var cardH=132;
-  var card={x:16,y:H-ctrlBandH-12-cardH,w:456,h:cardH,r:10,fill:'rgba(255,255,255,0.88)',stroke:'#c9c0ae'};
+  // F4②：托盘从画布底部带移到左上角并整体缩小（件 100→80 档、卡 456×132→366×106）。
+  // 命中检测/槽位坐标/拖放落位全部走本函数单源重算（toolbox.create 每次 resize/RO 重建），无硬编码旧坐标残留。
+  // 遮挡核查：卡底边 12+106=118px < 最上支激光笔顶（H=360 最劣 ≈120.7px，H≥520 更宽裕）→ 不遮笔组与主光路；场景二太阳在 y=0.18H 但托盘只在场景一渲染（drawTray 仅 renderBench 调用）
+  var cardH=106;
+  var card={x:16,y:12,w:366,h:cardH,r:10,fill:'rgba(255,255,255,0.88)',stroke:'#c9c0ae'};
   var nat={pens:{w:56,h:56},bulb:{w:56,h:56},lens_convex:{w:56,h:56},lens_concave:{w:56,h:56}};
   var ids=['pens','bulb','lens_convex','lens_concave'],items=[];   // 托盘四件（光屏只在场景二存在，不入托盘）
-  for(var i=0;i<ids.length;i++) items.push({id:ids[i],x:card.x+60+i*112,y:card.y+66});
-  var fit=(H<COMPACT_H)?Math.min(100,Math.round(H*0.19)):100;   // 紧凑档托盘缩小；常规档对齐兄弟节 c4s3 实值 100
+  for(var i=0;i<ids.length;i++) items.push({id:ids[i],x:card.x+48+i*90,y:card.y+53});
+  var fit=(H<COMPACT_H)?Math.min(80,Math.round(H*0.15)):80;   // 紧凑档托盘再缩；常规档 80（F4 缩小档）
   toolbox=PROPS.toolbox.create({card:card,items:items,fit:fit,nat:nat});
 }
 
@@ -147,11 +149,11 @@ function drawTray(){
   toolbox.drawCard(ctx);
   var slots=toolbox.slots;
   for(var i=0;i<slots.length;i++){
-    var s=slots[i];
-    if(s.id==='pens') PROPS.laser_pen(ctx,s.x,s.y+18,{h:36});
-    else if(s.id==='bulb') PROPS.bulb(ctx,s.x,s.y+39,{h:70});
-    else if(s.id==='lens_convex') PROPS.lens_convex(ctx,s.x,s.y,{h:64});   // 库件中心锚：直接对槽心
-    else if(s.id==='lens_concave') PROPS.lens_concave(ctx,s.x,s.y,{h:64});
+    var s=slots[i];   // F4②：托盘缩至 80 档，缩略图绘制尺寸同步 ×0.8（36→29/70→56/64→51，锚点偏移同比）
+    if(s.id==='pens') PROPS.laser_pen(ctx,s.x,s.y+14,{h:29});
+    else if(s.id==='bulb') PROPS.bulb(ctx,s.x,s.y+31,{h:56});
+    else if(s.id==='lens_convex') PROPS.lens_convex(ctx,s.x,s.y,{h:51});   // 库件中心锚：直接对槽心
+    else if(s.id==='lens_concave') PROPS.lens_concave(ctx,s.x,s.y,{h:51});
   }
 }
 function beam(x0,y0,x1,y1){
@@ -430,71 +432,62 @@ function draw(){
     if(a.to==='focal'){ renderBench(-H*e); renderFocal(H*(1-e)); }
     else { renderFocal(-H*e); renderBench(H*(1-e)); }
   }
-  checkSpotFocus(); updatePanel(); updateBubblePos();
+  checkSpotFocus(); updatePanel(); if(!state.animating) updateHint();
 }
 
-// ===== 气泡解说（替代标题 hint）：状态机分支+锚点，边缘翻转、器材跟随、×关闭同分支不再自动重弹 =====
-var bubbleEl=document.getElementById('bubble'),bubbleTxt=document.getElementById('bubble-txt'),bubbleArr=document.getElementById('bubble-arrow');
-var hintSt={key:null,ax:0,ay:0,dismissed:null,fadeT:null};
-function slotXY(id){ var ss=toolbox.slots; for(var i=0;i<ss.length;i++){ if(ss[i].id===id) return ss[i]; } return {x:80,y:H-80}; }
-// 分支定义：key+文案+锚点（画布坐标）；场景二 3 支 + 场景一 9 支
+// ===== F4③ hint 橙色解说条（照 c6_s2 密度式，替代旧毛玻璃气泡）：状态机分支文案；pointer-events:none 永不吞拖拽；位置由 placeHint() 定 =====
+var hintEl=document.getElementById('hint');
+var hintSt={key:null,fadeT:null};
+// 分支定义：key+文案；场景二 3 支 + 场景一 9 支（旧锚点 ax/ay 已随气泡删除）
 function hintBranch(){
   var S=cur(),L=S.lens,s=S.source,sc=S.screen;
   if(state.scene==='focal'){
-    if(sc&&sc.atF) return {key:'f-atF',ax:sc.x,ay:axisY-10,text:'光斑最小最亮！光屏到透镜的距离就是焦距 f='+fCm().toFixed(1)+' cm。拖光屏离开焦点看光斑变大变暗'};
-    if(sc) return {key:'f-drag',ax:sc.x,ay:axisY-0.455*screenH(),text:'拖动光屏找最小最亮的光斑——此时屏到透镜的距离就是焦距 f。看右上角读数面板'};
-    return {key:'f-sun',ax:sunX(),ay:sunY()+SUN_R+6,text:'太阳离我们非常远，射到地面的阳光可以看作平行光。平行光经凸透镜会聚于焦点——拖光屏找最小最亮的光斑，就能测出焦距'};
+    if(sc&&sc.atF) return {key:'f-atF',text:'光斑最小最亮！光屏到透镜的距离就是焦距 f='+fCm().toFixed(1)+' cm。拖光屏离开焦点看光斑变大变暗'};
+    if(sc) return {key:'f-drag',text:'拖动光屏找最小最亮的光斑——此时屏到透镜的距离就是焦距 f。看右上角读数面板'};
+    return {key:'f-sun',text:'太阳离我们非常远，射到地面的阳光可以看作平行光。平行光经凸透镜会聚于焦点——拖光屏找最小最亮的光斑，就能测出焦距'};
   }
-  if(!s){ var sl=slotXY('pens'); return {key:'b-nosource',ax:sl.x,ay:sl.y-56,text:'从下方器材托盘把「激光笔组」或「小灯泡」拖到光学台上（光源互斥），再点光源本体开光'}; }
-  if(s.type==='pens'&&!anyLit()) return {key:'b-pens-off',ax:s.x+PEN_W*0.1,ay:axisY+(s.yOff||0)-RAY_OFF-PEN_H*0.35,text:L?'点击笔身开关，重新点亮光源':'点击笔身上的红色按钮，点亮激光笔'};
-  if(s.type==='pens'&&L&&L.kind==='convex') return {key:'b-pens-convex',ax:s.x+PEN_W*0.1,ay:axisY+(s.yOff||0)-RAY_OFF-PEN_H*0.35,text:'太阳离我们非常远，射到地面的阳光可以看作平行光——激光笔组发出的也是平行光。平行光经凸透镜会聚于焦点 F。点右下「☀️ 测焦距」用阳光真测一次'};
-  if(s.type==='bulb'&&!s.on) return {key:'b-bulb-off',ax:s.x,ay:axisY-BULB_H*0.9,text:'点小灯泡本体开灯（300ms 光晕反馈）'};
-  if(!L){ var s2=slotXY('lens_convex'); return {key:'b-nolens',ax:s2.x,ay:s2.y-56,text:'光沿直线传播。把凸透镜或凹透镜拖到主光轴上，看看光路怎么变；开「标注」显示器材与主光轴名称'}; }
-  if(s.type==='bulb'&&L.kind==='convex'&&!bulbAtF()) return {key:'b-bulb-notF',ax:s.x,ay:axisY-BULB_H*0.9,text:'沿主光轴拖动小灯泡。把它移到焦点 F（±6px 会磁吸对齐），看出射光变平行——这就是光路可逆'};
-  if(s.type==='bulb'&&bulbAtF()) return {key:'b-bulb-atF',ax:s.x,ay:axisY-BULB_H*0.9,text:'小灯泡放在焦点上，光经凸透镜后变成平行光——光路是可逆的'};
-  if(L.kind==='convex') return {key:'b-convex',ax:L.x,ay:axisY-dPx/2-14,text:'凸透镜对光有会聚作用：平行光会聚于焦点 F（「焦点」钮开关黄点标记）。拖 f 滑杆改焦距、拖直径滑杆改通光口径（直径不改焦距、只改通光量），或换凹透镜'};
-  return {key:'b-concave',ax:L.x,ay:axisY-dPx/2-14,text:'凹透镜对光有发散作用：折射光线的反向延长线（虚线）交于入射侧的虚焦点。拖 f 滑杆看虚焦点跟随。开「光流」看光的传播方向，试试换回凸透镜'};
+  if(!s) return {key:'b-nosource',text:'从左上角器材托盘把「激光笔组」或「小灯泡」拖到光学台上（光源互斥），再点光源本体开光'};
+  if(s.type==='pens'&&!anyLit()) return {key:'b-pens-off',text:L?'点击笔身开关，重新点亮光源':'点击笔身上的红色按钮，点亮激光笔'};
+  if(s.type==='pens'&&L&&L.kind==='convex') return {key:'b-pens-convex',text:'太阳离我们非常远，射到地面的阳光可以看作平行光——激光笔组发出的也是平行光。平行光经凸透镜会聚于焦点 F。点「☀️ 测焦距」用阳光真测一次'};
+  if(s.type==='bulb'&&!s.on) return {key:'b-bulb-off',text:'点小灯泡本体开灯（300ms 光晕反馈）'};
+  if(!L) return {key:'b-nolens',text:'光沿直线传播。把凸透镜或凹透镜拖到主光轴上，看看光路怎么变；开「标注」显示器材与主光轴名称'};
+  if(s.type==='bulb'&&L.kind==='convex'&&!bulbAtF()) return {key:'b-bulb-notF',text:'沿主光轴拖动小灯泡。把它移到焦点 F（±6px 会磁吸对齐），看出射光变平行——这就是光路可逆'};
+  if(s.type==='bulb'&&bulbAtF()) return {key:'b-bulb-atF',text:'小灯泡放在焦点上，光经凸透镜后变成平行光——光路是可逆的'};
+  if(L.kind==='convex') return {key:'b-convex',text:'凸透镜对光有会聚作用：平行光会聚于焦点 F（「焦点」钮开关黄点标记）。拖 f 滑杆改焦距、拖直径滑杆改通光口径（直径不改焦距、只改通光量），或换凹透镜'};
+  return {key:'b-concave',text:'凹透镜对光有发散作用：折射光线的反向延长线（虚线）交于入射侧的虚焦点。拖 f 滑杆看虚焦点跟随。开「光流」看光的传播方向，试试换回凸透镜'};
 }
 function updateHint(){
-  if(!bubbleEl||state.animating){ hideBubble(); return; }   // 场景切换动画期间气泡隐藏
+  if(!hintEl||state.animating){ hideHint(); return; }   // 场景切换动画期间解说条隐藏
   var o=hintBranch();
-  if(o.key===hintSt.key){ hintSt.ax=o.ax; hintSt.ay=o.ay; positionBubble(); return; }   // 同分支：只跟随锚点
-  hintSt.key=o.key; hintSt.ax=o.ax; hintSt.ay=o.ay;
-  if(hintSt.dismissed===o.key){ hideBubble(); return; }      // ×关闭后同分支不再自动重弹
-  if(bubbleEl.style.display==='block'){                      // 分支变化：旧淡出新淡入（150ms 级）
-    bubbleEl.classList.remove('show');
+  if(o.key===hintSt.key){ placeHint(); return; }        // 同分支：只刷新位置（文案含动态数值时同步）
+  hintSt.key=o.key;
+  if(hintEl.classList.contains('show')){                // 分支变化：旧淡出新淡入
+    hintEl.classList.remove('show');
     if(hintSt.fadeT) clearTimeout(hintSt.fadeT);
-    hintSt.fadeT=setTimeout(showBubbleNow,150);
-  }else showBubbleNow();
+    hintSt.fadeT=setTimeout(showHintNow,150);
+  }else showHintNow();
 }
-function showBubbleNow(){
-  var o=hintBranch(); if(o.key!==hintSt.key||hintSt.dismissed===o.key) return;
-  bubbleTxt.textContent=o.text;
-  bubbleEl.style.display='block';
-  positionBubble();
-  requestAnimationFrame(function(){ bubbleEl.classList.add('show'); });
+function showHintNow(){
+  if(!hintEl) return;
+  var o=hintBranch(); if(o.key!==hintSt.key) return;
+  hintEl.textContent=o.text;
+  placeHint();
+  requestAnimationFrame(function(){ hintEl.classList.add('show'); });
 }
-function hideBubble(){ if(bubbleEl){ bubbleEl.classList.remove('show'); bubbleEl.style.display='none'; } }
-function hintReset(){ hintSt.key=null; hintSt.dismissed=null; }   // 场景切换结束后按新场景分支重弹
-// 定位：canvas 坐标×(css宽/画布逻辑宽) 换算 DOM 坐标；箭头指锚点；靠上边缘自动翻转到锚点下方
-function positionBubble(){
-  if(!bubbleEl||bubbleEl.style.display!=='block') return;
-  var r=cv.getBoundingClientRect(),kx=r.width/W,ky=r.height/H;
-  var ax=hintSt.ax*kx,ay=hintSt.ay*ky;
-  var bw=bubbleEl.offsetWidth,bh=bubbleEl.offsetHeight;
-  var above=ay-bh-22>42;   // 42≈header 高，翻出可视区则改放锚点下方
-  var left=Math.max(8,Math.min(r.width-bw-8,ax-bw/2));
-  bubbleEl.style.left=Math.round(left)+'px';
-  bubbleEl.style.top=Math.round(above?ay-bh-18:ay+18)+'px';   // 18px 偏移：箭头尖距器材边缘 ≥8px，本体不被压
-  bubbleEl.classList.toggle('arr-b',above);
-  bubbleEl.classList.toggle('arr-t',!above);
-  bubbleArr.style.left=Math.round(Math.max(14,Math.min(bw-32,ax-left-9)))+'px';
+function hideHint(){ if(hintEl) hintEl.classList.remove('show'); }
+function hintReset(){ hintSt.key=null; }   // 场景切换结束后按新场景分支重弹
+// placeHint 定位：宽屏（W≥900）顶部居中；窄屏避开左上角托盘→放托盘正下方左侧
+function placeHint(){
+  if(!hintEl) return;
+  var c=toolbox?toolbox.card:{x:16,y:12,w:366,h:106};
+  if(W>=900){
+    hintEl.style.left='50%'; hintEl.style.transform='translateX(-50%)'; hintEl.style.top='12px';
+    hintEl.style.textAlign='center'; hintEl.style.maxWidth='60%';
+  }else{
+    hintEl.style.left='16px'; hintEl.style.transform='none'; hintEl.style.top=(c.y+c.h+10)+'px';
+    hintEl.style.textAlign='left'; hintEl.style.maxWidth='72%';
+  }
 }
-function updateBubblePos(){ if(!state.animating) updateHint(); }   // draw 每帧调用：器材拖动时气泡跟随
-var bubbleX=document.getElementById('bubble-x');
-if(bubbleX) bubbleX.addEventListener('click',function(){
-  hintSt.dismissed=hintSt.key; hideBubble();
-});
 function updatePanel(){
   var pn=document.getElementById('panel-read'); if(!pn||!pn.classList.contains('show')) return;
   var S=cur(),L=S.lens,sc=S.screen;
@@ -743,7 +736,7 @@ function switchScene(){
   state.scene=(state.scene==='bench')?'focal':'bench';
   var T=cur(); setF(T.f); setD(T.d);             // 载入目标场景（两场景状态完全隔离）
   state.animating=true; state.anim={to:state.scene,t0:performance.now()};
-  hideBubble();
+  hideHint();
   syncSceneUI(); syncSlider();
   if(window.playClick) playClick();
 }

@@ -44,19 +44,31 @@
       ctx.fillStyle = '#333'; ctx.beginPath(); ctx.ellipse(cx, cy, 8 * k, 26 * k, 0, 0, Math.PI * 2); ctx.fill();
     }
   }
+  /* 面板几何唯一来源：draw 绘制与 click 命中判定同取此处，resize 后不会错位 */
+  function panels(){ var w2 = W / 2; return [ {x: 0, w: w2, kind: 'butterfly'}, {x: w2, w: W - w2, kind: 'mosquito'} ]; }
   function draw(){
     ctx.clearRect(0, 0, W, H);
-    var w2 = W / 2;
-    drawPanel(0, w2, '蝴蝶', 6, '#b8e0d2', 2, 'butterfly');
-    drawPanel(w2, W - w2, '蚊子', 550, '#ffd3b6', 18, 'mosquito');
+    var ps = panels();
+    drawPanel(ps[0].x, ps[0].w, '蝴蝶', 6, '#b8e0d2', 2, 'butterfly');
+    drawPanel(ps[1].x, ps[1].w, '蚊子', 550, '#ffd3b6', 18, 'mosquito');
     if(butterflyHint > 0){ butterflyHint -= 0.02; ctx.fillStyle = 'rgba(255,255,255,.92)'; roundRectPath(ctx, W * 0.08, H * 0.65, W * 0.34, 44 * k, 8 * k); ctx.fill(); ctx.fillStyle = '#555'; ctx.font = 'bold ' + (13 * k) + 'px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('振动太慢，人耳听不到', W * 0.25, H * 0.65 + 27 * k); }
     if(mosqHint > 0){ mosqHint -= 0.02; ctx.fillStyle = 'rgba(255,255,255,.92)'; roundRectPath(ctx, W * 0.58, H * 0.65, W * 0.34, 44 * k, 8 * k); ctx.fill(); ctx.fillStyle = '#555'; ctx.textAlign = 'center'; ctx.fillText(mosqPlaying ? '蚊子正在嗡嗡叫' : '播放蚊子嗡嗡声', W * 0.75, H * 0.65 + 27 * k); }
   }
   cv.addEventListener('click', function(e){
-    var r = cv.getBoundingClientRect(), x = (e.clientX - r.left) * (cv.width / r.width);
-    if(x < W / 2){ butterflyHint = 1.5; }
-    else {
-      var a = ensureAudio();
+    var r = cv.getBoundingClientRect();
+    var x = (e.clientX - r.left) * (cv.width / r.width);
+    var y = (e.clientY - r.top) * (cv.height / r.height);
+    var pad = 6 * k, ps = panels(), hit = null;
+    for(var i = 0; i < ps.length; i++){
+      var p = ps[i];
+      if(x >= p.x + pad && x <= p.x + p.w - pad && y >= pad && y <= H - pad){ hit = p.kind; break; }
+    }
+    if(!hit) return; /* 两面板之外：零触发 */
+    var a = ensureAudio();
+    if(hit === 'butterfly'){
+      if(mosqPlaying || !a.paused){ a.pause(); a.currentTime = 0; mosqPlaying = false; }
+      butterflyHint = 1.5;
+    } else {
       if(a.paused || a.ended){ a.currentTime = 0; a.play().catch(function(){}); mosqPlaying = true; }
       mosqHint = 1.5;
     }

@@ -65,22 +65,22 @@
       <div class="stage" id="stage">
         <canvas id="moCv"></canvas>
       </div>
-    </div>
-    <div class="tl-row" id="tlRow">
-      <input type="range" id="tlSlider" min="0" max="1000" value="1000" step="1" aria-label="回放时间轴">
-      <span class="t-label" id="tLabel"></span>
-    </div>
-    <div class="controls">
-      <button class="btn btn-primary" id="mainBtn">▶ 观察彗星</button>
-    </div>
-    <div class="quiz-area" id="quizArea">
-      <button class="opt" data-ok="0">🎨 颜色鲜艳</button>
-      <button class="opt" data-ok="1">📍 位置在变化</button>
-      <button class="opt" data-ok="0">⚡ 速度很快</button>
-    </div>
-    <div class="def-card" id="defCard">
-      在物理学中，我们把<b>物体位置随时间的变化</b>叫作<b>机械运动</b>（mechanical motion）。
-      <span class="src">—— 概念卡片：机械运动</span>
+      <div class="tl-row" id="tlRow">
+        <input type="range" id="tlSlider" min="0" max="1000" value="1000" step="1" aria-label="回放时间轴">
+        <span class="t-label" id="tLabel"></span>
+      </div>
+      <div class="controls">
+        <button class="btn btn-primary" id="mainBtn">▶ 观察彗星</button>
+      </div>
+      <div class="quiz-area" id="quizArea">
+        <button class="opt" data-ok="0">🎨 颜色鲜艳</button>
+        <button class="opt" data-ok="1">📍 位置在变化</button>
+        <button class="opt" data-ok="0">⚡ 速度很快</button>
+      </div>
+      <div class="def-card" id="defCard">
+        在物理学中，我们把<b>物体位置随时间的变化</b>叫作<b>机械运动</b>（mechanical motion）。
+        <span class="src">—— 概念卡片：机械运动</span>
+      </div>
     </div>
   </div>
 </div>
@@ -112,9 +112,19 @@
   var exIdx = -1;      /* 当前/最近一个实例 */
   var mode = 'idle';   /* idle | playing | scrub */
   var t = 0, lastFrame = 0;
+  var wrap = document.getElementById('fsMoWrap');
 
+  function isFs(){
+    return wrap.classList.contains('pseudo-fullscreen') ||
+      document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap;
+  }
+  function cssH(){
+    /* 全屏态：stage 由 flex 分得剩余高度；非全屏态维持原 300/360 */
+    if(isFs()) return Math.max(120, stage.clientHeight);
+    return window.innerWidth <= 768 ? 300 : 360;
+  }
   function resize(){
-    var f = fitCanvas(cv, getCssH(cv));
+    var f = fitCanvas(cv, cssH());
     ctx = f.ctx; W = f.w; H = parseFloat(cv.style.height) || f.h;
     draw();
   }
@@ -220,12 +230,13 @@
     tlRow.classList.remove('show');
     setStageClass('');
     setBtn();
+    resize();
   }
 
   mainBtn.addEventListener('click', function(){
     if(step <= 2){ startPlay(step); }
-    else if(step === 3){ quizArea.classList.add('show'); mainBtn.style.display = 'none'; }
-    else if(step === 4){ defCard.classList.add('show'); step = 5; setBtn(); }
+    else if(step === 3){ quizArea.classList.add('show'); mainBtn.style.display = 'none'; resize(); }
+    else if(step === 4){ defCard.classList.add('show'); step = 5; setBtn(); resize(); }
     else if(step === 5){ resetAll(); }
   });
 
@@ -237,6 +248,7 @@
           b.classList.remove('right');
           quizArea.classList.remove('show');
           step = 4; setBtn();
+          resize();
         }, 450);
       } else {
         b.classList.add('wrong');   /* 抖动+变红后自动复位 */

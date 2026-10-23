@@ -36,6 +36,17 @@
     .dist-line input { width: 62px; min-width: 62px; }
     .quiz-line input[type=text] { width: 62px; min-width: 62px; }
   }
+  /* ---- 全屏态：铺满视口，全部按钮/算式讲解区保留 ---- */
+  #fsEcho:fullscreen, #fsEcho.pseudo-fullscreen {
+    width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+    border-radius: 0; margin: 0; padding: 46px 12px 12px; box-sizing: border-box;
+  }
+  #fsEcho:fullscreen .card, #fsEcho.pseudo-fullscreen .card { max-width: 860px; margin: 0 auto; }
+  #fsEcho:fullscreen .ro-cell .rv, #fsEcho.pseudo-fullscreen .ro-cell .rv { font-size: 24px; }
+  @media (max-width: 480px) {
+    #fsEcho:fullscreen, #fsEcho.pseudo-fullscreen { padding: 44px 8px 8px; }
+    #fsEcho:fullscreen .ro-cell .rv, #fsEcho.pseudo-fullscreen .ro-cell .rv { font-size: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -46,6 +57,8 @@
     <p class="page-subtitle">拖距离滑块听效果：反射声回来晚于 0.1 s 才分得出回声。再挑战反向出题：给时间求距离！</p>
   </div>
 
+  <div class="fullscreen-wrap" id="fsEcho">
+    <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <div class="mode-tabs">
       <button class="mode-tab on" data-p="calc" type="button">📏 正向：距离→回声</button>
@@ -71,7 +84,15 @@
           <rect x="560" y="30" width="80" height="170" fill="#8a8a8a"/>
           <rect x="548" y="30" width="14" height="170" fill="#5a5a5a"/>
           <text x="600" y="22" font-size="13" fill="#5a5a5a" text-anchor="middle" font-weight="700">山崖/墙</text>
-          <circle id="person" cx="70" cy="120" r="16" fill="#8b6914"/>
+          <g id="person">
+            <circle cx="70" cy="108" r="5.5" fill="#8b6914"/>
+            <g fill="none" stroke="#8b6914" stroke-width="4" stroke-linecap="round">
+              <line x1="70" y1="113" x2="70" y2="126"/>
+              <line x1="70" y1="126" x2="63" y2="137"/>
+              <line x1="70" y1="126" x2="77" y2="137"/>
+              <line x1="70" y1="117" x2="79" y2="112"/>
+            </g>
+          </g>
           <text x="70" y="160" font-size="13" fill="#2c2c2c" text-anchor="middle" font-weight="700">你</text>
           <rect id="cliffFlash" x="548" y="30" width="14" height="170" fill="#ffd766" opacity="0"/>
           <g id="waveGo" opacity="0" stroke="#2980b9" stroke-width="3" fill="none">
@@ -104,6 +125,7 @@
       <div class="feedback" id="quizFb"></div>
       <div class="formula-box" id="formulaBox"></div>
     </div>
+  </div>
   </div>
 </div>
 <script src="fullscreen.js"></script>

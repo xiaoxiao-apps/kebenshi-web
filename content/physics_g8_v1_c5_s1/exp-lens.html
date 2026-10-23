@@ -14,21 +14,18 @@
   .title{font-size:13px;font-weight:600;color:#2b2620;white-space:nowrap}
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
   canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
-  /* 气泡解说（替代标题 hint）：毛玻璃暖白底+左侧琥珀条+CSS 三角箭头+右上×，文案可换行 */
-  #bubble{display:none;position:absolute;left:0;top:0;max-width:340px;background:rgba(255,255,255,0.35);border-radius:16px;padding:10px 30px 10px 13px;font-size:14px;line-height:1.55;color:#2a2620;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:17;opacity:0;transition:opacity .15s ease}
-  #bubble.show{opacity:1}
-  #bubble-x{position:absolute;top:3px;right:8px;cursor:pointer;color:#8a7c66;font-size:16px;line-height:1;user-select:none}
-  #bubble-x:hover{color:#3d3830}
-  #bubble-arrow{position:absolute;width:0;height:0;border:9px solid transparent;left:20px}
-  #bubble.arr-b #bubble-arrow{bottom:-18px;border-top-color:rgba(255,255,255,0.35)}
-  #bubble.arr-t #bubble-arrow{top:-18px;border-bottom-color:rgba(255,255,255,0.35)}
-  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:stretch;gap:6px;padding:8px 12px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
+  /* hint 橙色解说条（F4 照 c6_s2 密度式，替代旧毛玻璃气泡）：pointer-events:none 永不吞画布拖拽；位置由 core placeHint() 定（宽屏顶部居中/窄屏托盘下方） */
+  #hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);max-width:60%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;font-weight:600;line-height:1.5;padding:9px 16px;border-radius:12px;z-index:16;pointer-events:none;transition:opacity .6s ease;opacity:0;text-align:center}
+  #hint.show{opacity:1}
+  /* F4①：常规屏（≥1024px）控制栏单行不折行；窄屏可折行但分组有序 */
+  @media(min-width:1024px){.ctrlbar{flex-wrap:nowrap;overflow-x:auto}}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:88px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:6px;padding:6px 10px;font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;z-index:20}
   .ctrlbar>*{pointer-events:auto}
-  .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px}
-  .glabel{font-size:14px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
-  .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:40px}
-  .gctrl label{font-size:14px;cursor:pointer;white-space:nowrap;color:#3d3830}
-  button{border:0;border-radius:8px;padding:9px 13px;font-size:14px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
+  .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:4px 8px}
+  .glabel{font-size:13px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
+  .gctrl{display:flex;align-items:center;gap:5px;flex:1;min-height:36px}
+  .gctrl label{font-size:13px;cursor:pointer;white-space:nowrap;color:#3d3830}
+  button{border:0;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
   button:hover{background:#1d4ed8}
   button.secondary{background:#6b7280}
   button.secondary:hover{background:#4b5563}
@@ -37,12 +34,13 @@
   button#btn-table,button#btn-focus,button#btn-labels,button#btn-flow,button#btn-scene{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
   button#btn-table:hover,button#btn-focus:hover,button#btn-labels:hover,button#btn-flow:hover,button#btn-scene:hover{background:linear-gradient(#f8fafc,#d2deeb)}
   button#btn-table.on,button#btn-focus.on,button#btn-labels.on,button#btn-flow.on,button#btn-scene.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
-  .group.flyout{opacity:0;transform:translateY(-36px);pointer-events:none;transition:opacity .3s ease,transform .3s ease}
+  /* F4①：flyout 泛化到组内子块（#grp-d 直径子块并入透镜参数卡后仍随场景二淡出） */
+  .flyout{opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .3s ease,transform .3s ease}
   .group{transition:opacity .3s ease,transform .3s ease}
-  input#rng-f{width:160px;accent-color:#d97706}
-  input#rng-d{width:100px;accent-color:#d97706}
-  #lbl-f{font-size:15px;color:#854d0e;min-width:88px;text-align:right;font-variant-numeric:tabular-nums}
-  #lbl-d{font-size:15px;color:#854d0e;min-width:84px;text-align:right;font-variant-numeric:tabular-nums}
+  input#rng-f{width:118px;accent-color:#d97706}
+  input#rng-d{width:76px;accent-color:#d97706}
+  #lbl-f{font-size:14px;color:#854d0e;min-width:74px;text-align:right;font-variant-numeric:tabular-nums}
+  #lbl-d{font-size:14px;color:#854d0e;min-width:62px;text-align:right;font-variant-numeric:tabular-nums}
   /* 小窗紧凑档（core resize 判定 H<600 加 .compact）：字号/内边距/滑杆宽全缩，保 5 卡单行 */
   .ctrlbar.compact .glabel{font-size:12px}
   .ctrlbar.compact .gctrl{min-height:32px}
@@ -68,16 +66,12 @@
 </head>
 <body>
 <header>
-  <div class="title">第5章 第1节 透镜 · 透镜光学台</div>
+  <div class="title">透镜 · 透镜光学台</div>
   <a class="back" href="./index.html">← 返回实验卡页</a>
 </header>
 <div class="scene-wrap">
 <canvas id="scene"></canvas>
-<div id="bubble">
-  <div id="bubble-txt"></div>
-  <span id="bubble-x">×</span>
-  <div id="bubble-arrow"></div>
-</div>
+<div id="hint"></div>
 <div class="rec-panel" id="panel-read">
   <div class="rp-title">读数面板</div>
   <table class="rec"><tbody>
@@ -90,19 +84,16 @@
 </div>
 <div class="ctrlbar">
   <div class="group" id="grp-f">
-    <div class="glabel">焦距</div>
+    <div class="glabel">透镜参数</div>
     <div class="gctrl">
       <button id="btn-f-down" class="secondary step">◀</button>
       <input type="range" id="rng-f" min="1.2" max="4.8" step="0.05" value="2">
       <span id="lbl-f">f = 2.0 cm</span>
       <button id="btn-f-up" class="secondary step">▶</button>
-    </div>
-  </div>
-  <div class="group" id="grp-d">
-    <div class="glabel">直径</div>
-    <div class="gctrl">
-      <input type="range" id="rng-d" min="2.4" max="6.0" step="0.1" value="4.0">
-      <span id="lbl-d">Ø 4.0 cm</span>
+      <span id="grp-d" style="display:inline-flex;align-items:center;gap:5px;margin-left:6px">
+        <input type="range" id="rng-d" min="2.4" max="6.0" step="0.1" value="4.0">
+        <span id="lbl-d">Ø 4.0 cm</span>
+      </span>
     </div>
   </div>
   <div class="group" id="grp-show">
@@ -117,16 +108,11 @@
   <div class="group" id="grp-sys">
     <div class="glabel">系统</div>
     <div class="gctrl">
+      <button id="btn-scene">☀️ 测焦距</button>
       <button id="btn-table">读数面板</button>
       <button id="btn-reset" class="secondary">重置</button>
       <button id="btn-mute">🔊</button>
       <button id="btn-full" class="secondary">全屏</button>
-    </div>
-  </div>
-  <div class="group" id="grp-scene">
-    <div class="glabel">场景</div>
-    <div class="gctrl">
-      <button id="btn-scene">☀️ 测焦距</button>
     </div>
   </div>
 </div>

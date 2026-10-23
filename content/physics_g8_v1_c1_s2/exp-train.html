@@ -56,16 +56,16 @@
         <canvas id="trainCv"></canvas>
       </div>
       <div id="peekNote"></div>
-    </div>
-    <div class="controls">
-      <button class="btn btn-primary" id="mainBtn">▶ 坐在车厢里</button>
-      <div class="ref-pills" id="refPills">
-        <span style="font-size:13px;color:var(--ink2);">以谁为参照物？</span>
-        <button class="pill active" data-ref="platform">🚉 站台</button>
-        <button class="pill" data-ref="other">🚄 旁边列车</button>
+      <div class="controls">
+        <button class="btn btn-primary" id="mainBtn">▶ 坐在车厢里</button>
+        <div class="ref-pills" id="refPills">
+          <span style="font-size:13px;color:var(--ink2);">以谁为参照物？</span>
+          <button class="pill active" data-ref="platform">🚉 站台</button>
+          <button class="pill" data-ref="other">🚄 旁边列车</button>
+        </div>
       </div>
+      <div class="conclusion" id="conclusion"></div>
     </div>
-    <div class="conclusion" id="conclusion"></div>
   </div>
 </div>
 <script src="fullscreen.js"></script>
@@ -98,8 +98,16 @@
   info[ST.CONCLUSION] = { text: '⟲ 再体验一次', next: ST.SIT };
 
   var cvW = 300, cvH = 300;
+  var stageEl = document.getElementById('trainStage');
+  function isFs(){
+    return wrap.classList.contains('pseudo-fullscreen') ||
+      document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap;
+  }
   function fit(){
-    var info = fitCanvas(cv, window.innerWidth <= 768 ? 260 : 320);
+    /* 全屏态：stage 由 flex 分得剩余高度；非全屏态维持原 260/320 */
+    var h = isFs() ? Math.max(120, stageEl.clientHeight)
+                   : (window.innerWidth <= 768 ? 260 : 320);
+    var info = fitCanvas(cv, h);
     ctx = info.ctx;
     cvW = info.w;
     cvH = info.h;
@@ -290,6 +298,7 @@
     mainBtn.textContent = info[state.step].text;
     if(state.step === ST.CONCLUSION){ showConclusion(); }
     if(!rafId){ rafId = requestAnimationFrame(loop); }
+    fit();   /* peekNote/conclusion/refPills 显隐会改变全屏态剩余高度 */
   }
   mainBtn.addEventListener('click', function(){
     var cur = state.step;
@@ -304,6 +313,7 @@
     var badgeClass = state.ref === 'platform' ? 'still' : 'move';
     conclusion.innerHTML = '以【' + refText + '】为参照物，你乘坐的列车：<span class="badge ' + badgeClass + '">' + result + '</span><br><small>真相：自己的列车没动，是旁边列车在后退。</small>';
     conclusion.classList.add('show');
+    fit();   /* 结论条撑高后重算全屏画布高度 */
   }
 
   document.querySelectorAll('#refPills .pill').forEach(function(btn){

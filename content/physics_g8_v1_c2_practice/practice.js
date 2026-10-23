@@ -343,9 +343,9 @@ function $all(sel, el) { return Array.from((el || document).querySelectorAll(sel
 const FIGURES = {};
 
 /* ===== 渲染引擎 ===== */
-function renderFig(fig, figCap) {
+function renderFig(fig) {
   if (!fig || !FIGURES[fig]) return '';
-  return `<div class="figbox">${FIGURES[fig]()}<div class="figcap">${esc(figCap || '')}</div></div>`;
+  return `<div class="figbox">${FIGURES[fig]()}</div>`;
 }
 function renderPart(q, pi) {
   const p = q.parts[pi];
@@ -382,7 +382,7 @@ function renderQuestion(q) {
     <div class="qno"><b>${esc(q.no)}</b><span>(${q.points}分)</span></div>
     <div class="stem">${esc(q.stem)}</div>
     ${q.note ? `<div class="qnote">${esc(q.note)}</div>` : ''}
-    ${renderFig(q.fig, q.figCap)}
+    ${renderFig(q.fig)}
     ${q.parts.map((_, pi) => renderPart(q, pi)).join('')}
   </div>`;
 }
@@ -590,8 +590,15 @@ function updateProgress() {
 function bindRedo() {
   const btn = document.getElementById('redoBtn');
   if (!btn) return;
-  btn.addEventListener('click', () => {
-    if (!window.confirm('确定重做本章练习吗？当前全部作答记录与得分将被清空。')) return;
+  const mask = document.getElementById('redoModal');
+  if (!mask) return;
+  const close = () => mask.classList.remove('show');
+  btn.addEventListener('click', () => mask.classList.add('show'));
+  mask.addEventListener('click', (e) => { if (e.target === mask) close(); });
+  const cancel = document.getElementById('redoCancel');
+  if (cancel) cancel.addEventListener('click', close);
+  const ok = document.getElementById('redoOk');
+  if (ok) ok.addEventListener('click', () => {
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
     location.reload();
   });

@@ -60,7 +60,17 @@
     }
   }
 
-  function resize(){ var f = fitCanvas(cv, 340); ctx = f.ctx; W = f.w; H = f.h; k = W / DW; draw(); }
+  var fsWrap = document.getElementById('fsCandleWrap');
+  function isFs(){
+    return fsWrap.classList.contains('pseudo-fullscreen') ||
+      document.fullscreenElement === fsWrap || document.webkitFullscreenElement === fsWrap;
+  }
+  function cssH(){
+    /* 全屏态：scene-wrap 由 flex 分得剩余高度；非全屏态维持原 340 */
+    if(!isFs()) return 340;
+    return Math.max(120, fsWrap.querySelector('.scene-wrap').clientHeight);
+  }
+  function resize(){ var f = fitCanvas(cv, cssH()); ctx = f.ctx; W = f.w; H = f.h; k = W / DW; draw(); }
   function drawSpeaker(x, y){ var w = 50 * k, h = 70 * k; ctx.fillStyle = '#2c2c2c'; ctx.beginPath(); roundRectPath(ctx, x - w/2, y - h/2, w, h, 6 * k); ctx.fill(); ctx.fillStyle = '#4a4a4a'; ctx.beginPath(); ctx.arc(x, y, 18 * k, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(x, y, 10 * k, 0, Math.PI * 2); ctx.fill(); }
   function drawFlame(cx, cy, flicker){
     ctx.save(); ctx.translate(cx, cy);

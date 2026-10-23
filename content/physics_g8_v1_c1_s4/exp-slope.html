@@ -31,6 +31,32 @@
 .data-table .hl { background: var(--green-bg); color: var(--green); font-weight: 700; }
 .flash { animation: flash .35s ease-out; }
 @keyframes flash { 0% { opacity: 1; } 50% { opacity: .2; } 100% { opacity: 1; } }
+/* ---- 全屏态：铺满视口 ---- */
+#fsSlope:fullscreen, #fsSlope.pseudo-fullscreen {
+  width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+  border-radius: 0; margin: 0; padding: 14px 12px; box-sizing: border-box;
+}
+#fsSlope:fullscreen > .card, #fsSlope.pseudo-fullscreen > .card {
+  max-width: 1100px; margin: 0 auto; width: 100%; box-sizing: border-box;
+}
+#fsSlope:fullscreen #slopeSvg, #fsSlope.pseudo-fullscreen #slopeSvg { max-height: 52vh; }
+/* 全屏内数据记录表悬浮小窗（右上角、半透明、可滚动） */
+#fsSlope:fullscreen .fs-float-table, #fsSlope.pseudo-fullscreen .fs-float-table {
+  position: fixed; top: 54px; right: 14px; z-index: 30;
+  width: min(340px, 46vw); max-height: 62vh; overflow-y: auto;
+  background: rgba(255, 255, 255, .88); backdrop-filter: blur(3px);
+  border-radius: 12px; padding: 10px 12px; margin: 0;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .22);
+}
+.fs-float-table h2 { font-size: 15px; margin-bottom: 6px; }
+.fs-float-table .data-table { font-size: 12px; }
+.fs-float-table .data-table td input { width: 54px; padding: 5px; font-size: 12px; }
+.fs-float-table .hint { font-size: 11px; }
+@media (max-width: 480px) {
+  #fsSlope:fullscreen .fs-float-table, #fsSlope.pseudo-fullscreen .fs-float-table {
+    top: 48px; right: 6px; width: min(200px, 54vw); max-height: 40vh; padding: 8px;
+  }
+}
 </style>
 </head>
 <body>
@@ -46,6 +72,8 @@
     ℹ️ 本页动画为<strong>示意图</strong>，用于展示实验过程与数据处理方法。坡度的快慢效果是示意性的，真实实验请到实验室动手做。
   </div>
 
+  <div class="fullscreen-wrap" id="fsSlope">
+    <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <h2>实验装置</h2>
     <div class="scene-wrap">
@@ -86,6 +114,7 @@
     </div>
     <div id="manualHint" class="hint" style="display:none;">手动模式：小车释放后，看到金属片闪光或听到提示时立刻按“停止”。你的反应会带来误差。</div>
   </div>
+  </div>
 
   <div class="card">
     <h2>实验步骤</h2>
@@ -106,7 +135,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="dataTableCard">
     <h2>数据记录表</h2>
     <table class="data-table">
       <thead>
@@ -193,5 +222,28 @@
   }
 })();
 </script>
+<script src="fullscreen.js"></script>
+<script>
+(function(){
+  'use strict';
+  var fsWrap = document.getElementById('fsSlope');
+  var dataCard = document.getElementById('dataTableCard');
+  if(!fsWrap || !dataCard || !window.FullscreenHelper) return;
+  var home = document.createComment('dataTableCard-home');
+  dataCard.parentNode.insertBefore(home, dataCard);
+  function placeTable(){
+    var fs = FullscreenHelper.isFullscreen() || fsWrap.classList.contains('pseudo-fullscreen');
+    if(fs){
+      if(dataCard.parentNode !== fsWrap){ fsWrap.appendChild(dataCard); dataCard.classList.add('fs-float-table'); }
+    } else if(dataCard.parentNode !== home.parentNode){
+      home.parentNode.insertBefore(dataCard, home);
+      dataCard.classList.remove('fs-float-table');
+    }
+  }
+  FullscreenHelper.bind(fsWrap, fsWrap.querySelector('.fullscreen-btn'), placeTable);
+  window.addEventListener('resize', placeTable);
+})();
+</script>
+<script src="exp-back.js"></script>
 </body>
 </html>

@@ -16,7 +16,7 @@ const QUESTIONS = [
   { id:'c5s1q2', section:'第1节 透镜', no:'第2题', points:10,
     stem:'下面四幅简图各画出一个透镜和两条入射光线及其折射光线。哪一幅图的光路画得正确？请说明你的理由。',
     note:'下图四幅均为程序化简图。选择后对照解析中的理由自查。',
-    fig:'lensPaths4', figCap:'四幅光路简图：甲=凸透镜，平行入射光折射后会聚于F；乙=凸透镜，过F的入射光折射后发散；丙=凹透镜，自同侧F发散的入射光折射后变平行；丁=凹透镜，平行入射光折射后实际会聚于F',
+    fig:'lensPaths4',
     parts:[{ kind:'choice', q:'哪一幅图的光路画得正确？',
       opts:['甲','乙','丙','丁'], answer:0,
       analysis:'<b>甲画得正确</b>。判据有两条：凸透镜会聚光、凹透镜发散光；再结合三条特殊光线。<br>① 甲：凸透镜让平行于主光轴的入射光折射后会聚于焦点 F——符合「平行过焦点」，<b>正确</b>；<br>② 乙：凸透镜让过焦点 F 的入射光折射后应<b>平行于主光轴</b>出射，图中却画成发散——错误；<br>③ 丙：凹透镜使光发散，本就自同侧 F 发散而来的入射光折射后应<b>更加发散</b>，不会变成平行光——错误；<br>④ 丁：凹透镜让平行入射光折射后<b>发散</b>，发散光线的反向延长线才过同侧虚焦点，光线本身不可能实际会聚于 F——错误。' }] },
@@ -24,7 +24,7 @@ const QUESTIONS = [
   { id:'c5s1q3', section:'第1节 透镜', no:'第3题', points:10,
     stem:'下面甲、乙两图中，一束会聚的入射光穿过虚线框后变成图中所示的折射光线。请根据光线方向的变化，判断虚线框内应放置哪种类型的透镜，并把它画出来。',
     note:'下图两幅均为程序化简图：甲=会聚入射光过框后发散出射，乙=会聚入射光过框后平行出射。本题为开放作图题，作答后对照参考答案自评计分。',
-    fig:'lensBox2', figCap:'两幅简图：甲=会聚入射光过虚线框后发散出射；乙=会聚入射光过虚线框后平行出射',
+    fig:'lensBox2',
     parts:[{ kind:'open',
       ref:'参考答案：<br><b>判断方法</b>：把折射光线与入射光线作比较——折射后比入射<b>更发散</b>（会聚程度被削弱），框内应画<b>凹透镜</b>；折射后<b>更会聚</b>，则画<b>凸透镜</b>。<br>① 甲：会聚的入射光过框后转为发散，折射相对入射更发散 → 画<b>凹透镜</b>；<br>② 乙：会聚的入射光过框后变成平行光，会聚趋势被"顶了回去"，折射仍比入射更发散 → 画<b>凹透镜</b>。',
       analysis:'凸透镜=会聚透镜、凹透镜=发散透镜；依据折射光线相对入射光线更会聚还是更发散来判定框内透镜类型（甲、乙两图均应画凹透镜）。' }] },
@@ -119,7 +119,7 @@ const QUESTIONS = [
   { id:'c5s3q5', section:'第3节 凸透镜成像的规律', no:'第5题', points:12,
     stem:'实验小组在光具座上探究凸透镜成像的规律。器材有：一个凸透镜、光屏、高度为 2.0 cm 且带刻度的发光物体。实验中物距从 6.0 cm 开始，每次增加 3.0 cm，下表是小组记录的物距、像距、像的高度和正倒情况。',
     note:'数据表见下图（表中"/"表示光屏上承接不到像）。三空各4分，即时判分。',
-    fig:'imgDataTable', figCap:'表：物距、像距、像的高度与正倒记录数据（发光物体高 2.0 cm；"/"表示光屏上承接不到像）',
+    fig:'imgDataTable',
     parts:[
       { kind:'blank', q:'(1) 怎样判断表中所成的像是放大的还是缩小的？', blanks:[
         { label:'判断方法：把像的高度与___比较', answer:['物体高度','光源高度','光源的高度','物体的高度','物高','2.0cm','2.0','2cm','2.0厘米'], unit:'' }],
@@ -276,7 +276,7 @@ function svgLensPaths4() {
     + focal(170, 80) + `<text x="26" y="52" fill="#ff7a6e" font-size="10">平行光</text>`;
   const s = panelBox(0, 0, '甲', pA) + panelBox(230, 0, '乙', pB)
     + panelBox(0, 150, '丙', pC) + panelBox(230, 150, '丁', pD);
-  return `<svg viewBox="0 0 460 300" role="img" aria-label="四幅光路简图：甲凸透镜平行光会聚于F，乙凸透镜过F入射发散，丙凹透镜自F发散入射变平行，丁凹透镜平行入射实际会聚于F">${s}</svg>`;
+  return `<svg viewBox="0 0 460 300" role="img" aria-label="四幅透镜光路简图">${s}</svg>`;
 }
 
 function svgLensBox2() {
@@ -289,7 +289,7 @@ function svgLensBox2() {
   let pB = box + inc + ray([[125,64],[205,64]], '#5ad7ff') + ray([[125,96],[205,96]], '#5ad7ff')
     + `<text x="26" y="42" fill="#ff7a6e" font-size="10">会聚入射</text><text x="150" y="56" fill="#5ad7ff" font-size="10">平行出射</text>`;
   const s = panelBox(0, 0, '甲', pA) + panelBox(230, 0, '乙', pB);
-  return `<svg viewBox="0 0 460 160" role="img" aria-label="两幅简图：甲会聚入射过虚线框后发散出射，乙会聚入射过虚线框后平行出射">${s}</svg>`;
+  return `<svg viewBox="0 0 460 160" role="img" aria-label="虚线框放透镜的两幅光路简图">${s}</svg>`;
 }
 
 function htmlImgDataTable() {
@@ -305,9 +305,9 @@ function htmlImgDataTable() {
 }
 
 /* ===== 渲染引擎 ===== */
-function renderFig(fig, figCap) {
+function renderFig(fig) {
   if (!fig || !FIGURES[fig]) return '';
-  return `<div class="figbox">${FIGURES[fig]()}<div class="figcap">${esc(figCap || '')}</div></div>`;
+  return `<div class="figbox">${FIGURES[fig]()}</div>`;
 }
 function renderPart(q, pi) {
   const p = q.parts[pi];
@@ -344,7 +344,7 @@ function renderQuestion(q) {
     <div class="qno"><b>${esc(q.no)}</b><span>(${q.points}分)</span></div>
     <div class="stem">${esc(q.stem)}</div>
     ${q.note ? `<div class="qnote">${esc(q.note)}</div>` : ''}
-    ${renderFig(q.fig, q.figCap)}
+    ${renderFig(q.fig)}
     ${q.parts.map((_, pi) => renderPart(q, pi)).join('')}
   </div>`;
 }

@@ -43,7 +43,7 @@ const QUESTIONS = [
   { id:'c6s1q4', section:'第1节 质量', no:'第4题', points:12,
     stem:'小岚想用托盘天平测出杯中豆浆的质量。她先测空杯：天平平衡时共用 3 个砝码——100 g、20 g、5 g 各 1 个，游码在标尺上的位置见下方简图。空杯的质量是多少？接着她把豆浆倒入杯中，测得杯和豆浆的总质量是 236.8 g。杯中豆浆的质量是多少？',
     note:'下方标尺简图为程序化绘制（标尺 0~5 g，游码对齐 3.2 g）。两空均即时判分（每空6分），等价写法（带不带单位）均认可。',
-    fig:'fig616', figCap:'简图：天平标尺 0~5 g（主刻度 1 g、副刻度 0.2 g），游码对齐 3.2 g',
+    fig:'fig616',
     parts:[
       { kind:'blank', q:'① 空杯的质量是多少？', blanks:[
         { label:'空杯的质量', answer:['128.2','128.2g','128.2 g','128.2克'], unit:'g' }],
@@ -64,7 +64,7 @@ const QUESTIONS = [
   { id:'c6s2q1', section:'第2节 密度', no:'第1题', points:12,
     stem:'科技小组探究某种金属材料的质量与体积的关系，测得六组实验数据（见下表）。请把这六组数据描在坐标纸上（纵轴 m/g 取 0~120、横轴 V/cm³ 取 0~50）并作出 m-V 图像。由图像你能得出什么结论？',
     note:'①作图对照参考要点自评，②结论填空即时判分。',
-    fig:'s2q1Table', figCap:'表：该金属材料的体积与质量实验数据（六组）',
+    fig:'s2q1Table',
     parts:[
       { kind:'open', q:'① 作图：在坐标纸上作出 m-V 图像。',
         ref:'参考要点：<br>① 以体积 V 为横轴、质量 m 为纵轴，把表中六个数据点（12, 32.4）（16, 43.3）（20, 54.0）（28, 75.5）（32, 86.5）（40, 108.0）逐一描在坐标网格上；<br>② 六个点大致分布在<b>一条过原点的直线</b>上，用直线把它们连起来（作 m-V 图像）。',
@@ -126,7 +126,7 @@ const QUESTIONS = [
   { id:'c6s3q1', section:'第3节 测量液体和固体的密度', no:'第1题', points:12,
     stem:'用量筒测液体体积时，读数姿势常见下方简图所示的三种情况。哪种读数是正确的？另外，要测量约 75 mL 的液体，应选规格为"100 mL"还是"500 mL"的量筒？为什么？',
     note:'下方简图为程序化绘制（甲=俯视/乙=视线与液面相平/丙=仰视）。两小问均单选即时判分，②的「为什么」说理见判分后解析。',
-    fig:'readSight3', figCap:'简图：三种读数情况——甲=俯视，乙=视线与液面相平，丙=仰视',
+    fig:'readSight3',
     parts:[
       { kind:'choice', q:'① 读数时哪种情况是正确的？',
         opts:['甲','乙','丙'], answer:1,
@@ -163,7 +163,7 @@ const QUESTIONS = [
   { id:'c6s3q4', section:'第3节 测量液体和固体的密度', no:'第4题', points:12,
     stem:'小硕要测定一块金属块的密度，实验分两步。第一步用天平测质量：天平平衡时，右盘中的砝码与游码位置见下方简图甲，金属块的质量 m 是多少？第二步用量筒测体积：先在量筒中倒入适量水，液面位置见简图乙；把金属块完全浸没后水面升高，见简图丙，金属块的体积 V 是多少？根据测量结果，这块金属的密度是多少？',
     note:'下方简图为程序化绘制（甲：砝码 20 g、20 g、5 g+游码对齐 1.8 g；乙：22 mL；丙：28 mL）。三空均即时判分（每空4分）。',
-    fig:'balanceCyl3', figCap:'简图：甲=砝码 20 g、20 g、5 g+游码对齐标尺 1.8 g；乙=量筒液面 22 mL；丙=金属块完全浸没后液面升至 28 mL',
+    fig:'balanceCyl3',
     parts:[
       { kind:'blank', q:'① 金属块的质量 m 是多少？', blanks:[
         { label:'质量 m', answer:['46.8','46.8g','46.8 g','46.8克'], unit:'g' }],
@@ -216,7 +216,7 @@ const QUESTIONS = [
   { id:'c6s4q4', section:'第4节 密度的应用', no:'第4题', points:12,
     stem:'铝箔在厨房里用途很多。下表给出了某卷厚质厨房铝箔的规格信息。假设铝箔由纯铝制成，请根据表中数据算出它的质量，并判断计算结果与标称值是否相同。',
     note:'①计算质量填空 + ②判断单选，均即时判分（每空6分）。',
-    fig:'s4q4Table', figCap:'表：某卷厚质厨房铝箔的规格信息',
+    fig:'s4q4Table',
     parts:[
       { kind:'blank', q:'① 根据表中数据计算铝箔的质量 m：', blanks:[
         { label:'计算质量 m', answer:['202.5','202.5g','202.5 g','202.5克','0.2025','0.2025kg','0.2025千克'], unit:'g' }],
@@ -315,8 +315,7 @@ function svgFig616() {
   s += `<text x="402" y="106" fill="#9aa4b5" font-size="11">g</text>`;
   const xr = x0 + 3.2 * step;
   s += `<rect x="${xr - 6}" y="62" width="12" height="20" fill="#ffd479" rx="2"/>`;
-  s += `<text x="${xr - 40}" y="50" fill="#ffd479" font-size="11">游码对齐 3.2 g</text>`;
-  return `<svg viewBox="0 0 440 120" role="img" aria-label="简图：天平标尺0至5克，主刻度1克、副刻度0.2克，游码对齐3.2克位置">${s}</svg>`;
+  return `<svg viewBox="0 0 440 120" role="img" aria-label="天平标尺简图">${s}</svg>`;
 }
 
 /* 量筒读数三视线简图（甲=俯视/乙=视线与液面相平/丙=仰视），确定性绘制 */
@@ -345,7 +344,7 @@ function svgReadSight3() {
   const s = panelBox(0, 0, '甲', sightPanel(76, 44, '俯视'))
     + panelBox(233, 0, '乙', sightPanel(76, 76, '相平'))
     + panelBox(466, 0, '丙', sightPanel(76, 108, '仰视'));
-  return `<svg viewBox="0 0 700 170" role="img" aria-label="简图：三种读数情况，甲俯视，乙视线与液面相平，丙仰视">${s}</svg>`;
+  return `<svg viewBox="0 0 700 170" role="img" aria-label="量筒读数视线简图">${s}</svg>`;
 }
 
 /* 天平与量筒三联简图（甲=砝码20 g+20 g+5 g、游码对齐1.8 g；乙=量筒22 mL；丙=金属块浸没后28 mL），确定性绘制 */
@@ -356,40 +355,43 @@ function svgBalanceCyl3() {
   pA += `<rect x="72" y="48" width="38" height="26" fill="rgba(255,255,255,.08)" stroke="#9aa4b5" stroke-width="1.5" rx="3"/><text x="78" y="66" fill="#eef2f8" font-size="12">20 g</text>`;
   pA += `<rect x="118" y="54" width="30" height="20" fill="rgba(255,255,255,.08)" stroke="#9aa4b5" stroke-width="1.5" rx="3"/><text x="124" y="69" fill="#eef2f8" font-size="12">5 g</text>`;
   pA += `<text x="158" y="52" fill="#9aa4b5" font-size="10">砝码</text>`;
-  // 游码标尺 0-5 g，游码对齐 1.8 g
+  // 游码标尺 0-5 g（主刻 1 g、副刻 0.2 g 族），游码对齐 1.8 g
   pA += `<line x1="20" y1="118" x2="206" y2="118" stroke="#9aa4b5" stroke-width="1.5"/>`;
-  for (let i = 0; i <= 5; i++) {
-    const x = 24 + i * 35;
-    pA += `<line x1="${x}" y1="110" x2="${x}" y2="118" stroke="#9aa4b5" stroke-width="1.5"/>`;
-    pA += `<text x="${x - 3}" y="132" fill="#9aa4b5" font-size="10">${i}</text>`;
+  for (let i = 0; i <= 25; i++) {
+    const x = 24 + i * 7;
+    const major = i % 5 === 0;
+    pA += `<line x1="${x}" y1="${major ? 110 : 113}" x2="${x}" y2="118" stroke="#9aa4b5" stroke-width="${major ? 1.5 : 1}"/>`;
+    if (major) pA += `<text x="${x - 3}" y="132" fill="#9aa4b5" font-size="10">${i / 5}</text>`;
   }
   pA += `<text x="208" y="132" fill="#9aa4b5" font-size="10">g</text>`;
   pA += `<rect x="${24 + 1.8 * 35 - 4}" y="102" width="8" height="14" fill="#ffd479" rx="2"/>`;
-  pA += `<text x="120" y="98" fill="#ffd479" font-size="10">游码对齐 1.8 g</text>`;
-  // 乙/丙：量筒（乙 22 mL；丙 金属块浸没后 28 mL）
-  function cylPanel(menY, label, block) {
+  // 乙/丙：量筒（0~30 mL，1 mL = 3px；乙 22 mL；丙 金属块浸没后 28 mL）
+  function cylPanel(mL, block) {
+    const yFor = v => 128 - v * 3;
     let s = `<rect x="92" y="30" width="40" height="104" fill="none" stroke="#9aa4b5" stroke-width="1.5" rx="2"/>`;
-    for (let i = 0; i <= 9; i++) {
-      const y = 38 + i * 10;
-      s += `<line x1="${i % 5 === 0 ? 118 : 123}" y1="${y}" x2="132" y2="${y}" stroke="#6b7686" stroke-width="1"/>`;
+    for (let v = 0; v <= 30; v++) {
+      const y = yFor(v);
+      const major = v % 5 === 0;
+      s += `<line x1="${major ? 118 : 124}" y1="${y}" x2="132" y2="${y}" stroke="#6b7686" stroke-width="${major ? 1.2 : 1}"/>`;
+      if (major) s += `<text x="136" y="${y + 3}" fill="#9aa4b5" font-size="9">${v}</text>`;
     }
-    s += `<rect x="93.5" y="${menY}" width="37" height="${134 - menY - 1.5}" fill="rgba(90,215,255,.22)"/>`;
-    if (block) s += `<rect x="100" y="106" width="26" height="24" fill="#8b96a8" stroke="#6b7686" rx="2"/><text x="103" y="122" fill="#0b0e13" font-size="9">金属块</text>`;
+    s += `<text x="136" y="34" fill="#9aa4b5" font-size="9">mL</text>`;
+    const menY = yFor(mL);
+    s += `<rect x="93.5" y="${menY}" width="37" height="${132.5 - menY}" fill="rgba(90,215,255,.22)"/>`;
+    if (block) s += `<rect x="100" y="108" width="26" height="24" fill="#8b96a8" stroke="#6b7686" rx="2"/><text x="103" y="124" fill="#0b0e13" font-size="9">金属块</text>`;
     s += `<line x1="92" y1="${menY}" x2="132" y2="${menY}" stroke="#5ad7ff" stroke-width="2"/>`;
-    s += `<line x1="132" y1="${menY}" x2="152" y2="${menY}" stroke="#5ad7ff" stroke-width="1" stroke-dasharray="3 3"/>`;
-    s += `<text x="154" y="${menY + 4}" fill="#5ad7ff" font-size="11">${label}</text>`;
     return s;
   }
-  const pB = cylPanel(84, '22 mL', false);   // 乙：水面 22 mL
-  const pC = cylPanel(60, '28 mL', true);    // 丙：浸没后水面升至 28 mL
+  const pB = cylPanel(22, false);   // 乙：水面 22 mL
+  const pC = cylPanel(28, true);    // 丙：浸没后水面升至 28 mL
   const s = panelBox(0, 0, '甲', pA) + panelBox(233, 0, '乙', pB) + panelBox(466, 0, '丙', pC);
-  return `<svg viewBox="0 0 700 170" role="img" aria-label="简图：甲砝码20g、20g、5g加游码对齐1.8g，乙量筒液面22mL，丙金属块完全浸没后液面升至28mL">${s}</svg>`;
+  return `<svg viewBox="0 0 700 170" role="img" aria-label="天平与量筒测量简图">${s}</svg>`;
 }
 
 /* ===== 渲染引擎 ===== */
-function renderFig(fig, figCap) {
+function renderFig(fig) {
   if (!fig || !FIGURES[fig]) return '';
-  return `<div class="figbox">${FIGURES[fig]()}<div class="figcap">${esc(figCap || '')}</div></div>`;
+  return `<div class="figbox">${FIGURES[fig]()}</div>`;
 }
 function renderPart(q, pi) {
   const p = q.parts[pi];
@@ -426,7 +428,7 @@ function renderQuestion(q) {
     <div class="qno"><b>${esc(q.no)}</b><span>(${q.points}分)</span></div>
     <div class="stem">${esc(q.stem)}</div>
     ${q.note ? `<div class="qnote">${esc(q.note)}</div>` : ''}
-    ${renderFig(q.fig, q.figCap)}
+    ${renderFig(q.fig)}
     ${q.parts.map((_, pi) => renderPart(q, pi)).join('')}
   </div>`;
 }

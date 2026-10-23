@@ -18,6 +18,21 @@
   .segtable th, .segtable td { border: 1px solid rgba(0,0,0,.12); padding: 6px 4px; text-align: center; }
   .segtable th { background: var(--brown-bg); }
   .hint { font-size: 13px; color: var(--ink2); margin-top: 8px; line-height: 1.7; }
+  /* ---- 全屏态：铺满视口，canvas 占余下高度 ---- */
+  #fsMotion:fullscreen, #fsMotion.pseudo-fullscreen {
+    width: 100vw; height: 100vh; background: var(--bg); border-radius: 0;
+    margin: 0; padding: 46px 10px 10px; box-sizing: border-box; overflow: hidden;
+  }
+  #fsMotion:fullscreen .card, #fsMotion.pseudo-fullscreen .card {
+    height: 100%; margin: 0; display: flex; flex-direction: column;
+    overflow-y: auto; box-sizing: border-box;
+  }
+  #fsMotion:fullscreen canvas, #fsMotion.pseudo-fullscreen canvas {
+    flex: 1 1 0; min-height: 120px; width: 100%; height: auto;
+  }
+  @media (max-width: 480px) {
+    #fsMotion:fullscreen, #fsMotion.pseudo-fullscreen { padding: 44px 6px 6px; }
+  }
 </style>
 </head>
 <body>
@@ -27,6 +42,8 @@
     <h1 class="page-title">🚗 双车运动对比</h1>
     <p class="page-subtitle">增强版：甲车匀速（速度可调）、乙车变速，看每 10 s 间隔的路程。</p>
   </div>
+  <div class="fullscreen-wrap" id="fsMotion">
+    <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <div class="ctrl">
       <button id="btnPlay" type="button">▶ 播放</button>
@@ -45,13 +62,16 @@
     </table>
     <div class="hint" id="hint">💡 播放或逐帧后观察：甲车每 10 s 间隔相等（匀速）；乙车间隔越来越长（变速，从静止开始加速）。乙车数据为标准参考值：0/100/235/400/600 m；画面量程 0—600 m，甲车速度滑块上限 15 m/s（40 s 恰好跑完 600 m）。</div>
   </div>
+  </div>
 </div>
+<script src="fullscreen.js"></script>
 <script>
 (function () {
   'use strict';
   var cv = document.getElementById('cv');
   var ctx = cv.getContext('2d');
-  var W = cv.width, H = cv.height;
+  var W = 900, H = 360; // 逻辑坐标；物理像素由 fitCanvas 按容器重算
+  var sx = 1, sy = 1;
   var posB = [0, 100, 235, 400, 600]; // 标准参考值
   var MAXS = 600;
   var t = 0, playing = false, raf = null, last = null;
@@ -81,6 +101,7 @@
   }
 
   function draw() {
+    ctx.setTransform(sx, 0, 0, sy, 0, 0);
     ctx.clearRect(0, 0, W, H);
     var lanes = [
       { y: 90, name: '甲（匀速 ' + vARun + ' m/s）', p: posA(t), color: '#e74c3c' },
@@ -166,6 +187,19 @@
   vAEl.addEventListener('input', function () {
     vAVal.textContent = vA() + ' m/s'; // 只更新数字，不重绘画面
   });
+  function fitCanvas() {
+    var rect = cv.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    cv.width = Math.max(1, Math.round(rect.width * dpr));
+    cv.height = Math.max(1, Math.round(rect.height * dpr));
+    sx = cv.width / W; sy = cv.height / H;
+  }
+  window.addEventListener('resize', function () { fitCanvas(); draw(); });
+  var fsWrap = document.getElementById('fsMotion');
+  if (fsWrap && window.FullscreenHelper) {
+    FullscreenHelper.bind(fsWrap, fsWrap.querySelector('.fullscreen-btn'), function () { fitCanvas(); draw(); });
+  }
+  fitCanvas();
   draw();
 })();
 </script>
