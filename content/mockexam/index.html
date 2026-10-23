@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模拟组卷 · 随机自测（八年级物理 上册）</title>
+<link rel="stylesheet" href="mockexam.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <h1>模拟组卷 · 随机自测</h1>
+    <p class="sub">八年级物理（上册）· 跨节跨章随机卷 · 可打印 A4 试卷</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ 组卷配置屏 ============ -->
+  <section id="screenSetup" class="screen">
+    <div class="card">
+      <h2>① 选择范围</h2>
+      <div class="segrow" id="scopeModeRow">
+        <label><input type="radio" name="scopeMode" value="single" checked> 单章</label>
+        <label><input type="radio" name="scopeMode" value="multi"> 多章</label>
+        <label><input type="radio" name="scopeMode" value="all"> 全册</label>
+      </div>
+      <div id="singleWrap" class="scopewrap">
+        <select id="singleSel">
+          <option value="1">第1章 机械运动</option>
+          <option value="2">第2章 声现象</option>
+          <option value="3">第3章 物态变化</option>
+          <option value="4">第4章 光现象</option>
+          <option value="5">第5章 透镜及其应用</option>
+          <option value="6">第6章 质量与密度</option>
+        </select>
+      </div>
+      <div id="multiWrap" class="scopewrap" hidden>
+        <label><input type="checkbox" class="chbox" value="1" checked> 第1章 机械运动</label>
+        <label><input type="checkbox" class="chbox" value="2" checked> 第2章 声现象</label>
+        <label><input type="checkbox" class="chbox" value="3"> 第3章 物态变化</label>
+        <label><input type="checkbox" class="chbox" value="4"> 第4章 光现象</label>
+        <label><input type="checkbox" class="chbox" value="5"> 第5章 透镜及其应用</label>
+        <label><input type="checkbox" class="chbox" value="6"> 第6章 质量与密度</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>② 题量</h2>
+      <div class="segrow">
+        <button type="button" class="btn preset" data-n="10">10 题</button>
+        <button type="button" class="btn preset on" data-n="20">20 题</button>
+        <span class="sliderbox">自定义 <input type="range" id="nSlider" min="5" max="40" step="1" value="20"> <b id="nLabel">20</b> 题</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>③ 判分模式</h2>
+      <div class="segrow">
+        <label><input type="radio" name="gradeMode" value="submit" checked> 交卷判分（更像真考）</label>
+        <label><input type="radio" name="gradeMode" value="instant"> 即时判分（每题即答即判）</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>④ 题型配比 <span class="tip">（可调，随题量自动套默认比例）</span></h2>
+      <div class="segrow mixrow">
+        <label>选择 <input type="number" id="mixChoice" min="0" max="40" value="5"></label>
+        <label>多选 <input type="number" id="mixMulti" min="0" max="40" value="1"></label>
+        <label>填空 <input type="number" id="mixBlank" min="0" max="40" value="5"></label>
+        <label>实验 <input type="number" id="mixExp" min="0" max="40" value="5"></label>
+        <label>计算 <input type="number" id="mixCalc" min="0" max="40" value="4"></label>
+        <button type="button" class="btn ghost" id="mixReset">恢复默认</button>
+      </div>
+      <p class="tip" id="mixHint"></p>
+    </div>
+
+    <div class="startrow">
+      <button type="button" class="btn big gold" id="startBtn">开始组卷</button>
+    </div>
+    <p class="tip" id="poolInfo"></p>
+  </section>
+
+  <!-- ============ 作答屏 ============ -->
+  <section id="screenExam" class="screen" hidden>
+    <div class="card exambar" id="examBar">
+      <div id="examMeta" class="exammeta"></div>
+      <div class="segrow">
+        <button type="button" class="btn" id="newSeedBtn">换一卷</button>
+        <button type="button" class="btn" id="printBtn">打印试卷</button>
+        <label class="chk"><input type="checkbox" id="printAnsChk" checked> 打印答案页</label>
+        <button type="button" class="btn ghost" id="backSetupBtn">返回设置</button>
+        <button type="button" class="btn gold" id="submitExamBtn">交 卷</button>
+      </div>
+    </div>
+    <div id="examRoot"></div>
+    <div class="startrow" id="examFoot"></div>
+  </section>
+
+  <!-- ============ 成绩屏 ============ -->
+  <section id="screenResult" class="screen" hidden>
+    <div id="resultRoot"></div>
+    <div class="startrow">
+      <button type="button" class="btn" id="resultNewBtn">换一卷再测</button>
+      <button type="button" class="btn" id="resultPrintBtn">打印试卷</button>
+      <label class="chk"><input type="checkbox" id="resultPrintAnsChk" checked> 打印答案页</label>
+      <button type="button" class="btn ghost" id="resultBackBtn">返回设置</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- 打印专用区域（屏幕上隐藏，打印时唯一可见） -->
+<div id="printArea" aria-hidden="true"></div>
+
+<footer class="foot"><p>模拟组卷 · 题库随机抽题 · seed 固定本卷，刷新不跳题</p></footer>
+
+<!-- 题库数据文件（并行波次生产；404 无害，未定义的 window 变量自动跳过） -->
+<script src="../qbank/c1_orig.js"></script>
+<script src="../qbank/c2_orig.js"></script>
+<script src="../qbank/c3a_orig.js"></script>
+<script src="../qbank/c3b_orig.js"></script>
+<script src="../qbank/c4a_orig.js"></script>
+<script src="../qbank/c4b_orig.js"></script>
+<script src="../qbank/c5a_orig.js"></script>
+<script src="../qbank/c5b_orig.js"></script>
+<script src="../qbank/c6a_orig.js"></script>
+<script src="../qbank/c6b_orig.js"></script>
+<script src="../qbank/c1_migrated.js"></script>
+<script src="../qbank/c2_migrated.js"></script>
+<script src="../qbank/c3_migrated.js"></script>
+<script src="../qbank/c4_migrated.js"></script>
+<script src="../qbank/c5_migrated.js"></script>
+<script src="../qbank/c6_migrated.js"></script>
+<script src="mockexam.js"></script>
+</body>
+</html>
