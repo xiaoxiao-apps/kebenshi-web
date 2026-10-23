@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-22",
+ "generated": "2026-10-23",
  "subjects": {
   "physics": [
    {
@@ -279,6 +279,18 @@
     "thumb": null
    },
    {
+    "id": "physics_g8_v1_c3_s1/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第3章 物态变化",
+    "section": "第1节 温度",
+    "type": "讲解",
+    "title": "温度",
+    "path": "content/physics_g8_v1_c3_s1/explain.html",
+    "thumb": null
+   },
+   {
     "id": "physics_g8_v1_c3_s1/exp-temp-lab",
     "subject": "物理",
     "grade": "八年级",
@@ -289,6 +301,18 @@
     "title": "温度实验室",
     "path": "content/physics_g8_v1_c3_s1/exp-temp-lab.html",
     "thumb": "content/physics_g8_v1_c3_s1/assets/thumb-templab.png"
+   },
+   {
+    "id": "physics_g8_v1_c3_s2/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第3章 物态变化",
+    "section": "第2节 熔化和凝固",
+    "type": "讲解",
+    "title": "熔化和凝固",
+    "path": "content/physics_g8_v1_c3_s2/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c3_s2/exp-melt",
@@ -303,6 +327,18 @@
     "thumb": "content/physics_g8_v1_c3_s2/assets/thumb-melt.png"
    },
    {
+    "id": "physics_g8_v1_c3_s3/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第3章 物态变化",
+    "section": "第3节 汽化和液化",
+    "type": "讲解",
+    "title": "汽化和液化",
+    "path": "content/physics_g8_v1_c3_s3/explain.html",
+    "thumb": null
+   },
+   {
     "id": "physics_g8_v1_c3_s3/exp-vapor",
     "subject": "物理",
     "grade": "八年级",
@@ -313,6 +349,18 @@
     "title": "汽化液化探究馆",
     "path": "content/physics_g8_v1_c3_s3/exp-vapor.html",
     "thumb": "content/physics_g8_v1_c3_s3/assets/thumb-vapor.png"
+   },
+   {
+    "id": "physics_g8_v1_c3_s4/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第3章 物态变化",
+    "section": "第4节 升华和凝华",
+    "type": "讲解",
+    "title": "升华和凝华",
+    "path": "content/physics_g8_v1_c3_s4/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c3_s4/exp-subl",
@@ -351,6 +399,18 @@
     "thumb": null
    },
    {
+    "id": "physics_g8_v1_c4_s1/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第4章 光现象",
+    "section": "第1节 光的直线传播",
+    "type": "讲解",
+    "title": "光的直线传播",
+    "path": "content/physics_g8_v1_c4_s1/explain.html",
+    "thumb": null
+   },
+   {
     "id": "physics_g8_v1_c4_s1/exp-medium",
     "subject": "物理",
     "grade": "八年级",
@@ -375,6 +435,18 @@
     "thumb": "content/physics_g8_v1_c4_s1/thumb1.svg"
    },
    {
+    "id": "physics_g8_v1_c4_s2/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第4章 光现象",
+    "section": "第2节 光的反射",
+    "type": "讲解",
+    "title": "光的反射",
+    "path": "content/physics_g8_v1_c4_s2/explain.html",
+    "thumb": null
+   },
+   {
     "id": "physics_g8_v1_c4_s2/exp-reflect",
     "subject": "物理",
     "grade": "八年级",
@@ -385,6 +457,18 @@
     "title": "光的反射实验室",
     "path": "content/physics_g8_v1_c4_s2/exp-reflect.html",
     "thumb": "content/physics_g8_v1_c4_s2/thumb.svg"
+   },
+   {
+    "id": "physics_g8_v1_c4_s3/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第4章 光现象",
+    "section": "第3节 平面镜成像",
+    "type": "讲解",
+    "title": "平面镜成像",
+    "path": "content/physics_g8_v1_c4_s3/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c4_s3/exp-mirror",
@@ -399,6 +483,18 @@
     "thumb": "content/physics_g8_v1_c4_s3/thumb.svg"
    },
    {
+    "id": "physics_g8_v1_c4_s4/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第4章 光现象",
+    "section": "第4节 光的折射",
+    "type": "讲解",
+    "title": "光的折射",
+    "path": "content/physics_g8_v1_c4_s4/explain.html",
+    "thumb": null
+   },
+   {
     "id": "physics_g8_v1_c4_s4/exp-refract",
     "subject": "物理",
     "grade": "八年级",
@@ -409,6 +505,18 @@
     "title": "光的折射实验台",
     "path": "content/physics_g8_v1_c4_s4/exp-refract.html",
     "thumb": "content/physics_g8_v1_c4_s4/thumb.svg"
+   },
+   {
+    "id": "physics_g8_v1_c4_s5/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第4章 光现象",
+    "section": "第5节 光的色散",
+    "type": "讲解",
+    "title": "光的色散",
+    "path": "content/physics_g8_v1_c4_s5/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c4_s5/exp-dispersion",
@@ -447,6 +555,18 @@
     "thumb": null
    },
    {
+    "id": "physics_g8_v1_c5_s1/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第5章 透镜及其应用",
+    "section": "第1节 透镜",
+    "type": "讲解",
+    "title": "透镜",
+    "path": "content/physics_g8_v1_c5_s1/explain.html",
+    "thumb": null
+   },
+   {
     "id": "physics_g8_v1_c5_s1/exp-lens",
     "subject": "物理",
     "grade": "八年级",
@@ -457,6 +577,18 @@
     "title": "透镜光学台",
     "path": "content/physics_g8_v1_c5_s1/exp-lens.html",
     "thumb": "content/physics_g8_v1_c5_s1/thumb1.svg"
+   },
+   {
+    "id": "physics_g8_v1_c5_s2/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第5章 透镜及其应用",
+    "section": "第2节 生活中的透镜",
+    "type": "讲解",
+    "title": "生活中的透镜",
+    "path": "content/physics_g8_v1_c5_s2/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c5_s2/exp-lens-life",
@@ -471,6 +603,18 @@
     "thumb": "content/physics_g8_v1_c5_s2/thumb1.svg"
    },
    {
+    "id": "physics_g8_v1_c5_s3/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第5章 透镜及其应用",
+    "section": "第3节 凸透镜成像的规律",
+    "type": "讲解",
+    "title": "凸透镜成像的规律",
+    "path": "content/physics_g8_v1_c5_s3/explain.html",
+    "thumb": null
+   },
+   {
     "id": "physics_g8_v1_c5_s3/exp-image-law",
     "subject": "物理",
     "grade": "八年级",
@@ -483,6 +627,18 @@
     "thumb": "content/physics_g8_v1_c5_s3/thumb1.svg"
    },
    {
+    "id": "physics_g8_v1_c5_s4/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第5章 透镜及其应用",
+    "section": "第4节 眼睛和眼镜",
+    "type": "讲解",
+    "title": "眼睛和眼镜",
+    "path": "content/physics_g8_v1_c5_s4/explain.html",
+    "thumb": null
+   },
+   {
     "id": "physics_g8_v1_c5_s4/exp-eye",
     "subject": "物理",
     "grade": "八年级",
@@ -493,6 +649,18 @@
     "title": "眼睛与矫正",
     "path": "content/physics_g8_v1_c5_s4/exp-eye.html",
     "thumb": "content/physics_g8_v1_c5_s4/thumb1.svg"
+   },
+   {
+    "id": "physics_g8_v1_c5_s5/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第5章 透镜及其应用",
+    "section": "第5节 跨学科实践：制作望远镜",
+    "type": "讲解",
+    "title": "跨学科实践：制作望远镜",
+    "path": "content/physics_g8_v1_c5_s5/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c5_s5/exp-telescope",
@@ -531,6 +699,18 @@
     "thumb": null
    },
    {
+    "id": "physics_g8_v1_c6_s1/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第6章 质量与密度",
+    "section": "第1节 质量",
+    "type": "讲解",
+    "title": "质量",
+    "path": "content/physics_g8_v1_c6_s1/explain.html",
+    "thumb": null
+   },
+   {
     "id": "physics_g8_v1_c6_s1/exp-mass",
     "subject": "物理",
     "grade": "八年级",
@@ -543,6 +723,18 @@
     "thumb": "content/physics_g8_v1_c6_s1/thumb1.svg"
    },
    {
+    "id": "physics_g8_v1_c6_s2/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第6章 质量与密度",
+    "section": "第2节 密度",
+    "type": "讲解",
+    "title": "密度",
+    "path": "content/physics_g8_v1_c6_s2/explain.html",
+    "thumb": null
+   },
+   {
     "id": "physics_g8_v1_c6_s2/exp-density",
     "subject": "物理",
     "grade": "八年级",
@@ -553,6 +745,18 @@
     "title": "密度实验室",
     "path": "content/physics_g8_v1_c6_s2/exp-density.html",
     "thumb": "content/physics_g8_v1_c6_s2/thumb1.svg"
+   },
+   {
+    "id": "physics_g8_v1_c6_s3/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "第6章 质量与密度",
+    "section": "第3节 测量液体和固体的密度",
+    "type": "讲解",
+    "title": "测量液体和固体的密度",
+    "path": "content/physics_g8_v1_c6_s3/explain.html",
+    "thumb": null
    },
    {
     "id": "physics_g8_v1_c6_s3/exp-measure",
