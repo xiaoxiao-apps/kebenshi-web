@@ -198,7 +198,7 @@ function exitFull(){
 }
 function fullEl(){return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement;}
 function syncFull(){btnFull.textContent=(fullEl()||document.documentElement.classList.contains('pseudo-fs'))?'退出全屏':'全屏';}
-btnFull.addEventListener('click',function(){ if(fullEl()||document.documentElement.classList.contains('pseudo-fs')) exitFull(); else reqFull(); });
+btnFull.addEventListener('click',function(){ if(fullEl()||document.documentElement.classList.contains('pseudo-fs')) exitFull(); else reqFull(); if(window.playClick) playClick(); });
 document.addEventListener('fullscreenchange',syncFull);
 document.addEventListener('webkitfullscreenchange',syncFull);
 document.addEventListener('mozfullscreenchange',syncFull);

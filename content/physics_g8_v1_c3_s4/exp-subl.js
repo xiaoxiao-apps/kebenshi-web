@@ -90,6 +90,7 @@ function bindUI() {
     const el = document.getElementById('app');
     if (document.fullscreenElement) document.exitFullscreen();
     else if (el.requestFullscreen) el.requestFullscreen();
+    if(window.playClick) playClick();
   });
   document.addEventListener('fullscreenchange', () => {
     document.getElementById('btn-fullscreen').textContent = document.fullscreenElement ? '⛶ 退出全屏' : '⛶ 全屏';

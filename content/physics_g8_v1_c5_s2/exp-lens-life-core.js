@@ -924,7 +924,7 @@ function exitFull(){
   var f=pickFn(document,['exitFullscreen','webkitExitFullscreen','webkitCancelFullScreen','mozCancelFullScreen','msExitFullscreen']);
   if(f)f.call(document);document.documentElement.classList.remove('pseudo-fs');syncFull();
 }
-if(btnFull) btnFull.addEventListener('click',function(){if(state.animating)return;if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();});
+if(btnFull) btnFull.addEventListener('click',function(){if(state.animating)return;if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();if(window.playClick) playClick();});
 ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){document.addEventListener(ev,function(){syncFull();setTimeout(resize,60);});});
 // ===== sprite 重绘钩子（加性回调，仅注册有 sprite 文件的件） =====
 ['f_led_panel','paper_tube','paper_tube_inner','observer_eye'].forEach(function(id){

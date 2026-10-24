@@ -753,7 +753,7 @@ function exitFull(){
   var f=pickFn(document,['exitFullscreen','webkitExitFullscreen','webkitCancelFullScreen','mozCancelFullScreen','msExitFullscreen']);
   if(f)f.call(document);document.documentElement.classList.remove('pseudo-fs');syncFull();
 }
-if(btnFull) btnFull.addEventListener('click',function(){if(st.anim)return;if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();});
+if(btnFull) btnFull.addEventListener('click',function(){if(st.anim)return;if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();if(window.playClick) playClick();});
 ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){document.addEventListener(ev,function(){syncFull();setTimeout(resize,60);});});
 // ===== sprite 重绘钩子（仅注册有 sprite 文件的件；透镜矢量无 sprite） =====
 ['f_led_panel','candle','candle_unlit','observer_eye'].forEach(function(id){   // K1 f_led_panel 无底座灯箱 sprite；H6 遮挡手掌 sprite 引用清零（板改代码画）
