@@ -44,11 +44,18 @@
 #fsSlope:fullscreen #slopeSvg, #fsSlope.pseudo-fullscreen #slopeSvg { max-height: 52vh; }
 /* 全屏内数据记录表悬浮小窗（右上角、半透明、可滚动） */
 #fsSlope:fullscreen .fs-float-table, #fsSlope.pseudo-fullscreen .fs-float-table {
-  position: fixed; top: 54px; right: 14px; z-index: 30;
+  position: fixed; top: 54px; left: 14px; z-index: 30;
   width: min(340px, 46vw); max-height: 62vh; overflow-y: auto;
   background: rgba(255, 255, 255, .88); backdrop-filter: blur(3px);
   border-radius: 12px; padding: 10px 12px; margin: 0;
   box-shadow: 0 4px 18px rgba(0, 0, 0, .22);
+}
+.fs-drag-handle { display: none; }
+#fsSlope:fullscreen .fs-float-table .fs-drag-handle, #fsSlope.pseudo-fullscreen .fs-float-table .fs-drag-handle {
+  display: block; touch-action: none; cursor: grab; user-select: none;
+  font-size: 12px; font-weight: 700; color: var(--ink2);
+  padding: 4px 6px; margin: -4px -6px 6px; border-radius: 8px;
+  background: rgba(0, 0, 0, .05); text-align: center;
 }
 .fs-float-table h2 { font-size: 15px; margin-bottom: 6px; }
 .fs-float-table .data-table { font-size: 12px; }
@@ -56,7 +63,7 @@
 .fs-float-table .hint { font-size: 11px; }
 @media (max-width: 480px) {
   #fsSlope:fullscreen .fs-float-table, #fsSlope.pseudo-fullscreen .fs-float-table {
-    top: 48px; right: 6px; width: min(200px, 54vw); max-height: 40vh; padding: 8px;
+    top: 48px; left: 6px; width: min(200px, 54vw); max-height: 40vh; padding: 8px;
   }
 }
 </style>
@@ -138,6 +145,7 @@
   </div>
 
   <div class="card" id="dataTableCard">
+    <div class="fs-drag-handle">⠿ 按住拖动</div>
     <h2>数据记录表</h2>
     <table class="data-table">
       <thead>
@@ -233,17 +241,67 @@
   if(!fsWrap || !dataCard || !window.FullscreenHelper) return;
   var home = document.createComment('dataTableCard-home');
   dataCard.parentNode.insertBefore(home, dataCard);
+  var handle = dataCard.querySelector('.fs-drag-handle');
+
+  function clampFloat(){
+    if(!dataCard.classList.contains('fs-float-table')) return;
+    var w = dataCard.offsetWidth, h = dataCard.offsetHeight;
+    var l = parseFloat(dataCard.style.left), t = parseFloat(dataCard.style.top);
+    if(isNaN(l) || isNaN(t)){
+      var r = dataCard.getBoundingClientRect();
+      l = r.left; t = r.top;
+    }
+    l = Math.min(Math.max(l, 4), Math.max(4, window.innerWidth - w - 4));
+    t = Math.min(Math.max(t, 4), Math.max(4, window.innerHeight - h - 4));
+    dataCard.style.left = l + 'px';
+    dataCard.style.top = t + 'px';
+    dataCard.style.right = 'auto';
+  }
+
+  if(handle && window.PointerEvent){
+    var dragging = false, startX = 0, startY = 0, baseL = 0, baseT = 0, moved = false;
+    handle.addEventListener('pointerdown', function(e){
+      if(!dataCard.classList.contains('fs-float-table')) return;
+      var r = dataCard.getBoundingClientRect();
+      dragging = true; moved = false;
+      startX = e.clientX; startY = e.clientY;
+      baseL = r.left; baseT = r.top;
+      handle.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    handle.addEventListener('pointermove', function(e){
+      if(!dragging) return;
+      var dx = e.clientX - startX, dy = e.clientY - startY;
+      if(!moved && Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+      moved = true;
+      var w = dataCard.offsetWidth, h = dataCard.offsetHeight;
+      var l = Math.min(Math.max(baseL + dx, 4), Math.max(4, window.innerWidth - w - 4));
+      var t = Math.min(Math.max(baseT + dy, 4), Math.max(4, window.innerHeight - h - 4));
+      dataCard.style.left = l + 'px';
+      dataCard.style.top = t + 'px';
+      dataCard.style.right = 'auto';
+    });
+    handle.addEventListener('pointerup', function(e){
+      dragging = false;
+      if(handle.hasPointerCapture(e.pointerId)) handle.releasePointerCapture(e.pointerId);
+    });
+    handle.addEventListener('pointercancel', function(){ dragging = false; });
+  }
+
   function placeTable(){
     var fs = FullscreenHelper.isFullscreen() || fsWrap.classList.contains('pseudo-fullscreen');
     if(fs){
       if(dataCard.parentNode !== fsWrap){ fsWrap.appendChild(dataCard); dataCard.classList.add('fs-float-table'); }
+      clampFloat();
     } else if(dataCard.parentNode !== home.parentNode){
       home.parentNode.insertBefore(dataCard, home);
       dataCard.classList.remove('fs-float-table');
+      dataCard.style.left = ''; dataCard.style.top = ''; dataCard.style.right = '';
     }
   }
   FullscreenHelper.bind(fsWrap, fsWrap.querySelector('.fullscreen-btn'), placeTable);
   window.addEventListener('resize', placeTable);
+  window.addEventListener('resize', clampFloat);
 })();
 </script>
 <script src="exp-back.js?v=20261024"></script>
