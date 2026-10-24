@@ -254,8 +254,8 @@ function partPoints(q, pi) {
   const n = q.parts && q.parts.length ? q.parts.length : 1;
   return Math.round(q.points / n);
 }
-/* 判一个小问：ans 为作答（choice=索引 / multi=索引数组 / blank=字符串数组 / open=自评得分）
- * 返回 {ok, score, full}；open 题 ok=null（自评制） */
+/* 判一个小问：ans 为作答（choice=索引 / multi=索引数组 / blank=字符串数组 / open=作答文本，分数在 EX.open）
+ * 返回 {ok, score, full}；open 题 ok=null（自评制）；blank 带 keyPoints 时按要点比例给部分分（ok: 满分true/部分分null/0分false） */
 function gradePart(q, pi, ans) {
   const p = q.parts[pi];
   const full = partPoints(q, pi);
@@ -265,10 +265,27 @@ function gradePart(q, pi, ans) {
   } else if (p.kind === 'multi') {
     ok = sameSet(ans, p.answer);
   } else if (p.kind === 'blank') {
+    if (Array.isArray(p.keyPoints) && p.keyPoints.length) {
+      const raw = (Array.isArray(ans) ? ans : [ans]).map(v => String(v == null ? '' : v)).join(' ');
+      let hit = 0;
+      p.keyPoints.forEach(kp => {
+        let matched = false;
+        if (kp.re) {
+          try { matched = new RegExp(kp.re).test(raw); } catch (e) { matched = raw.includes(String(kp.re)); }
+        } else if (kp.text) {
+          matched = raw.includes(String(kp.text));
+        }
+        if (matched) hit++;
+      });
+      const score = Math.round(full * hit / p.keyPoints.length);
+      return { ok: score >= full ? true : (score > 0 ? null : false), score, full };
+    }
     ok = (p.blanks || []).every((b, bi) =>
       (b.answer || []).map(norm).includes(norm((ans && ans[bi]) || '')));
   } else if (p.kind === 'open') {
-    const score = Math.min(full, Math.max(0, +ans || 0));
+    const key = q.id + '_' + pi;
+    const sv = (typeof EX !== 'undefined' && EX && EX.open && EX.open[key] !== undefined) ? EX.open[key] : ans;
+    const score = Math.min(full, Math.max(0, +sv || 0));
     return { ok: null, score, full };
   }
   return { ok, score: ok ? full : 0, full };
@@ -287,7 +304,7 @@ function gradeQuestion(q, answers) {
 /* ================= 状态 ================= */
 const STORAGE_KEY = 'mockexam_state_v1';
 let POOL = [], FIGMAP = {}, IS_SAMPLE = true;
-let EX = null; /* {chapters,N,mix,mode,seed,paper:[q..],answers:{key:ans},open:{key:score},done:{key:true},submitted:bool} */
+let EX = null; /* {chapters,N,mix,mode,seed,paper:[q..],answers:{key:ans},open:{key:score},cpSel:{key:[ci..]},done:{key:true},submitted:bool} */
 let MULTI_SEL = {};
 
 function saveEX() {
@@ -296,7 +313,7 @@ function saveEX() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       chapters: EX.chapters, N: EX.N, mix: EX.mix, mode: EX.mode, seed: EX.seed,
       paperIds: EX.paper.map(q => q.id), answers: EX.answers, open: EX.open,
-      done: EX.done, submitted: EX.submitted
+      cpSel: EX.cpSel, done: EX.done, submitted: EX.submitted
     }));
   } catch (e) {}
 }
@@ -309,7 +326,7 @@ function loadEX() {
     const paper = s.paperIds.map(id => byId[id]).filter(Boolean);
     if (paper.length !== s.paperIds.length) return null; /* 题池已变，弃用旧卷 */
     return { chapters: s.chapters, N: s.N, mix: s.mix, mode: s.mode, seed: s.seed,
-      paper, answers: s.answers || {}, open: s.open || {}, done: s.done || {}, submitted: !!s.submitted };
+      paper, answers: s.answers || {}, open: s.open || {}, cpSel: s.cpSel || {}, done: s.done || {}, submitted: !!s.submitted };
   } catch (e) { return null; }
 }
 function findQ(qid) { return EX.paper.find(q => q.id === qid); }
@@ -346,13 +363,18 @@ function renderPart(q, pi) {
     return '<div class="part" data-key="' + key + '">' + head + rows + chk + '<div class="fb" data-role="fb"></div></div>';
   }
   if (p.kind === 'open') {
+    const cps = (Array.isArray(p.checkpoints) && p.checkpoints.length) ? p.checkpoints : null;
+    const selfUI = cps
+      ? '<div class="selfrow cprow">' + cps.map((c, ci) =>
+          '<label class="cp-chk"><input type="checkbox" class="cp-box" data-qid="' + q.id + '" data-pi="' + pi + '" data-ci="' + ci + '"> ' + esc(c) + '</label>').join('') + '</div>'
+      : '<div class="selfrow"><button class="btn gold self-score" data-qid="' + q.id + '" data-pi="' + pi + '" data-ratio="1">满分</button>' +
+        '<button class="btn self-score" data-qid="' + q.id + '" data-pi="' + pi + '" data-ratio="0.5">半分</button>' +
+        '<button class="btn ghost self-score" data-qid="' + q.id + '" data-pi="' + pi + '" data-ratio="0">0分</button></div>';
     return '<div class="part" data-key="' + key + '">' + head +
-      '<div class="written" aria-label="作答区"></div>' +
+      '<textarea class="open-input" rows="4" placeholder="在此作答（交卷后对照参考答案自评）" data-qid="' + q.id + '" data-pi="' + pi + '"></textarea>' +
       '<button class="btn ghost ref-toggle" data-qid="' + q.id + '" data-pi="' + pi + '">查看参考答案</button>' +
       '<div class="ref">' + (p.ref || '') + '</div>' +
-      '<div class="selfrow"><button class="btn gold self-score" data-qid="' + q.id + '" data-pi="' + pi + '" data-ratio="1">满分</button>' +
-      '<button class="btn self-score" data-qid="' + q.id + '" data-pi="' + pi + '" data-ratio="0.5">半分</button>' +
-      '<button class="btn ghost self-score" data-qid="' + q.id + '" data-pi="' + pi + '" data-ratio="0">0分</button></div>' +
+      selfUI +
       '<div class="fb" data-role="fb"></div></div>';
   }
   return '';
@@ -366,22 +388,24 @@ function renderQuestion(q, no) {
     (q.parts || []).map((_, pi) => renderPart(q, pi)).join('') +
     '</div>';
 }
-function paperSections() {
+function sectionsOf(paper) {
   const secs = [];
   SECTION_ORDER.forEach(t => {
-    const qs = EX.paper.filter(q => q.type === t);
+    const qs = paper.filter(q => q.type === t);
+    qs.sort((a, b) => ((a.diff || 0) - (b.diff || 0)) || ((b.freq || 0) - (a.freq || 0)));
     if (qs.length) secs.push({ type: t, qs });
   });
   /* 未知题型兜底并入最后一区 */
   const known = {};
   secs.forEach(s => s.qs.forEach(q => { known[q.id] = true; }));
-  const rest = EX.paper.filter(q => !known[q.id]);
+  const rest = paper.filter(q => !known[q.id]);
   if (rest.length) {
     if (secs.length) secs[secs.length - 1].qs = secs[secs.length - 1].qs.concat(rest);
     else secs.push({ type: 'choice', qs: rest });
   }
   return secs;
 }
+function paperSections() { return sectionsOf(EX.paper); }
 function renderExam() {
   const root = document.getElementById('examRoot');
   let html = '', n = 0;
@@ -394,7 +418,7 @@ function renderExam() {
   root.innerHTML = html;
   const meta = document.getElementById('examMeta');
   const scope = EX.chapters.length === 6 ? '全册' : EX.chapters.map(c => '第' + c + '章').join('+');
-  meta.innerHTML = '范围 <b>' + esc(scope) + '</b> ｜ 题量 <b>' + EX.N + '</b> ｜ 模式 <b>' + (EX.mode === 'instant' ? '即时判分' : '交卷判分') + '</b> ｜ seed <b>' + EX.seed + '</b>' + (IS_SAMPLE ? ' ｜ <b>⚠ SAMPLE 兜底题库（qbank 数据未载入）</b>' : ' ｜ 题池 ' + POOL.length + ' 题');
+  meta.innerHTML = '范围 <b>' + esc(scope) + '</b> ｜ 题量 <b>' + EX.N + '</b> ｜ 模式 <b>' + (EX.mode === 'instant' ? '即时判分' : '交卷判分') + '</b>' + (IS_SAMPLE ? ' ｜ <b>⚠ SAMPLE 兜底题库（qbank 数据未载入）</b>' : '');
   document.getElementById('submitExamBtn').style.display = EX.mode === 'instant' ? 'none' : '';
   bindExamEvents();
   restoreExamUI();
@@ -422,6 +446,8 @@ function bindExamEvents() {
   $all('#examRoot .ref-toggle').forEach(btn => btn.addEventListener('click', onRefToggle));
   $all('#examRoot .self-score').forEach(btn => btn.addEventListener('click', onSelfScore));
   $all('#examRoot .blank-inp').forEach(inp => inp.addEventListener('input', onBlankInput));
+  $all('#examRoot .open-input').forEach(ta => ta.addEventListener('input', onOpenInput));
+  $all('#examRoot .cp-box').forEach(cb => cb.addEventListener('change', onCpToggle));
 }
 
 /* 单选：即时模式=点击判分锁定；交卷模式=点击改选不判分 */
@@ -486,7 +512,13 @@ function onBlankCheck(e) {
   setBlankUI(el, part, vals);
   renderExamFoot();
 }
-/* open（实验/计算题常见）：查看参考 + 自评计分 */
+/* open（实验/计算题常见）：作答文本实时持久化 + 查看参考 + 自评计分 */
+function onOpenInput(e) {
+  const ta = e.currentTarget;
+  if (ta.readOnly) return;
+  const key = ta.dataset.qid + '_' + ta.dataset.pi;
+  setAns(key, ta.value, false);
+}
 function onRefToggle(e) {
   const btn = e.currentTarget;
   const el = btn.closest('.part');
@@ -508,7 +540,8 @@ function onSelfScore(e) {
   const full = partPoints(q, pi);
   const score = Math.round(full * ratio);
   EX.open[key] = score;
-  setAns(key, score, true);
+  EX.done[key] = true;
+  saveEX();
   const el = btn.closest('.part');
   $1('.ref', el).classList.add('show');
   $1('.selfrow', el).classList.add('show');
@@ -519,7 +552,27 @@ function onSelfScore(e) {
   if (EX.submitted || EX.mode === 'instant') $all('.self-score', el).forEach(b => { b.disabled = true; });
   const label = ratio === 1 ? '满分' : (ratio === 0.5 ? '半分' : '0分');
   showFb(el, ratio > 0, '自评得分：' + label + '。' + (part.analysis || ''));
+  renderExamFoot();
+}
+/* 分步采分点自评：勾「我做对的点」，得分 = round(points × 勾选数 / 总数) */
+function onCpToggle(e) {
+  const box = e.currentTarget;
+  const qid = box.dataset.qid, pi = +box.dataset.pi;
+  const key = qid + '_' + pi;
+  const q = findQ(qid), part = q.parts[pi];
+  const full = partPoints(q, pi);
+  const el = box.closest('.part');
+  const boxes = $all('.cp-box', el);
+  const picked = boxes.filter(b => b.checked).map(b => +b.dataset.ci);
+  const score = Math.round(full * picked.length / boxes.length);
+  EX.cpSel[key] = picked;
+  EX.open[key] = score;
+  EX.done[key] = true;
   saveEX();
+  if (EX.submitted || EX.mode === 'instant') boxes.forEach(b => { b.disabled = true; });
+  $1('.ref', el).classList.add('show');
+  const tb = $1('.ref-toggle', el); if (tb) { tb.textContent = '收起参考答案'; tb.dataset.shown = '1'; }
+  showFb(el, score > 0, '自评得分：' + score + ' / ' + full + ' 分（勾选 ' + picked.length + '/' + boxes.length + ' 个采分点）。' + (part.analysis || ''));
   renderExamFoot();
 }
 
@@ -548,26 +601,47 @@ function setMultiUI(el, part, chosen) {
   if (sbtn) sbtn.disabled = true;
   showFb(el, sameSet(chosen, part.answer), part.analysis || '');
 }
-function setBlankUI(el, part, vals) {
+function setBlankUI(el, part, vals, q, pi) {
   const inputs = $all('.blank-inp', el);
+  const useKp = Array.isArray(part.keyPoints) && part.keyPoints.length;
   let allOk = true;
   inputs.forEach((inp, bi) => {
     inp.value = (vals && vals[bi]) || '';
-    const accepted = ((part.blanks || [])[bi] || { answer: [] }).answer.map(norm);
-    const ok = accepted.includes(norm(inp.value));
-    inp.classList.toggle('ok', ok);
-    inp.classList.toggle('err', !ok);
+    if (!useKp) {
+      const accepted = ((part.blanks || [])[bi] || { answer: [] }).answer.map(norm);
+      const ok = accepted.includes(norm(inp.value));
+      inp.classList.toggle('ok', ok);
+      inp.classList.toggle('err', !ok);
+      if (!ok) allOk = false;
+    }
     inp.readOnly = true;
-    if (!ok) allOk = false;
   });
   const btn = $1('.blank-check', el);
   if (btn) btn.disabled = true;
+  if (useKp && q) {
+    const g = gradePart(q, pi, vals || []);
+    const fb = $1('[data-role="fb"]', el);
+    if (fb) {
+      fb.className = 'fb ' + (g.score >= g.full ? 'ok' : 'err');
+      fb.innerHTML = (g.score >= g.full ? '✅ 回答正确' : '🟡 要点得分 ' + g.score + ' / ' + g.full + ' 分') +
+        '<div class="an"><b>解析：</b>' + (part.analysis || '') + '</div>';
+    }
+    return;
+  }
   showFb(el, allOk, part.analysis || '');
 }
-function setOpenUI(el, score, full) {
+function setOpenUI(el, score, full, q, pi) {
   $1('.ref', el).classList.add('show');
   $1('.selfrow', el).classList.add('show');
   const tb = $1('.ref-toggle', el); if (tb) { tb.textContent = '收起参考答案'; tb.dataset.shown = '1'; }
+  const ta = $1('.open-input', el); if (ta && EX.submitted) ta.readOnly = true;
+  const boxes = $all('.cp-box', el);
+  if (boxes.length) {
+    const picked = (EX.cpSel && EX.cpSel[q.id + '_' + pi]) || [];
+    boxes.forEach(b => { b.checked = picked.includes(+b.dataset.ci); b.disabled = true; });
+    showFb(el, score > 0, '自评得分：' + score + ' / ' + full + ' 分。');
+    return;
+  }
   const ratio = full ? score / full : 0;
   $all('.self-score', el).forEach(btn => {
     btn.disabled = true;
@@ -589,11 +663,16 @@ function restoreExamUI() {
       if (EX.done[key]) {
         if (part.kind === 'choice') setChoiceUI(el, part, ans);
         else if (part.kind === 'multi') setMultiUI(el, part, ans || []);
-        else if (part.kind === 'blank') setBlankUI(el, part, ans || []);
-        else if (part.kind === 'open') setOpenUI(el, EX.open[key] || 0, partPoints(q, pi));
+        else if (part.kind === 'blank') setBlankUI(el, part, ans || [], q, pi);
+        else if (part.kind === 'open') {
+          const ta = $1('.open-input', el); if (ta && typeof ans === 'string') ta.value = ans;
+          setOpenUI(el, EX.open[key] || 0, partPoints(q, pi), q, pi);
+        }
         return;
       }
-      if (ans !== undefined && EX.mode !== 'instant') {
+      if (part.kind === 'open') {
+        const ta = $1('.open-input', el); if (ta && typeof ans === 'string') ta.value = ans;
+      } else if (ans !== undefined && EX.mode !== 'instant') {
         if (part.kind === 'choice') $all('.opt', el).forEach(b => b.classList.toggle('sel', +b.dataset.idx === ans));
         else if (part.kind === 'multi') $all('.opt', el).forEach(b => b.classList.toggle('sel', (ans || []).includes(+b.dataset.idx)));
         else if (part.kind === 'blank') $all('.blank-inp', el).forEach((inp, bi) => { inp.value = (ans && ans[bi]) || ''; });
@@ -619,8 +698,9 @@ function submitExam() {
       EX.done[key] = true;
       if (part.kind === 'choice') setChoiceUI(el, part, ans === undefined ? -1 : ans);
       else if (part.kind === 'multi') setMultiUI(el, part, ans || []);
-      else if (part.kind === 'blank') setBlankUI(el, part, ans || []);
+      else if (part.kind === 'blank') setBlankUI(el, part, ans || [], q, pi);
       else if (part.kind === 'open') {
+        const ta = $1('.open-input', el); if (ta) ta.readOnly = true;
         const tb = $1('.ref-toggle', el);
         if (tb && tb.dataset.shown !== '1') tb.click();
       }
@@ -677,7 +757,7 @@ function showResult() {
   const root = document.getElementById('resultRoot');
   root.innerHTML =
     '<div class="res-hero"><div class="score">' + total + ' / ' + full + '</div>' +
-    '<div class="rate">得分率 ' + rate + '% ｜ seed ' + EX.seed + ' ｜ ' + (EX.mode === 'instant' ? '即时判分' : '交卷判分') + '</div>' +
+    '<div class="rate">得分率 ' + rate + '% ｜ ' + (EX.mode === 'instant' ? '即时判分' : '交卷判分') + '</div>' +
     '<div class="resgrid"><span class="pill">答对 <b>' + okN + '</b> 题</span><span class="pill">答错 <b>' + errN + '</b> 题</span></div></div>' +
     (weak.length ? '<div class="weak"><h3>知识点薄弱提示（答错最多的考点在前）</h3><ol>' +
       weak.map(k => '<li>' + esc(k) + ' —— 错 ' + kpWrong[k] + ' 题</li>').join('') + '</ol></div>' : '') +
@@ -692,34 +772,40 @@ function showResult() {
 }
 
 /* ================= 打印层（设计书 §6：纯 CSS + window.print()） ================= */
+function printDensity() {
+  if (typeof document === 'undefined') return 'compact';
+  const r = $1('input[name="printDensity"]:checked');
+  return r ? r.value : 'compact';
+}
+/* 选项排版：全部≤14字→4列一行；≤28字→2列；更长→每行1项（列宽由 CSS 按 cols 类控制） */
 function printChoiceOpts(p) {
-  return '<div class="p-opts">' + (p.opts || []).map((o, i) => '<div>' + letterOf(i) + '. ' + esc(o) + '</div>').join('') + '</div>';
+  const opts = p.opts || [];
+  let maxLen = 0;
+  opts.forEach(o => { maxLen = Math.max(maxLen, String(o).length); });
+  const per = opts.length >= 4 && maxLen <= 14 ? 4 : (opts.length >= 2 && maxLen <= 28 ? 2 : 1);
+  return '<div class="p-opts cols' + per + '">' + opts.map((o, i) => '<span>' + letterOf(i) + '. ' + esc(o) + '</span>').join('') + '</div>';
 }
 function buildPrint(includeAnswers) {
-  let html = '<div class="p-paper">';
+  const density = printDensity();
+  let html = '<div class="p-paper ' + density + '">';
   const scope = EX.chapters.length === 6 ? '全册' : EX.chapters.map(c => '第' + c + '章 ' + CH_NAMES[c]).join('、');
   html += '<div class="p-head"><h1>八年级物理（上册）模拟试卷</h1>' +
-    '<div class="p-sub">范围：' + esc(scope) + ' ｜ 共 ' + EX.paper.length + ' 题 ｜ seed ' + EX.seed + '</div></div>';
+    '<div class="p-sub">范围：' + esc(scope) + ' ｜ 共 ' + EX.paper.length + ' 题</div></div>';
   html += '<div class="p-seal">✂ - - - - - - - - - - - - - - - - - - - - 密 封 线 - - - - - - - - - - - - - - - - - - - - ✂</div>';
   html += '<div class="p-idrow"><span>学校：____________</span><span>班级：____________</span><span>考号：____________</span><span>得分：____________</span></div>';
   html += '<div class="p-notice">注意事项：作答前请将密封线内信息填写完整；选择题用 2B 铅笔填涂，其余题目用黑色签字笔作答。</div>';
   let n = 0;
-  const secs = [];
-  SECTION_ORDER.forEach(t => {
-    const qs = EX.paper.filter(q => q.type === t);
-    if (qs.length) secs.push({ type: t, qs });
-  });
-  const known = {}; secs.forEach(s => s.qs.forEach(q => { known[q.id] = true; }));
-  const rest = EX.paper.filter(q => !known[q.id]);
-  if (rest.length) { if (secs.length) secs[secs.length - 1].qs = secs[secs.length - 1].qs.concat(rest); else secs.push({ type: 'choice', qs: rest }); }
+  const secs = paperSections();
 
   secs.forEach((s, si) => {
     const sum = s.qs.reduce((a, q) => a + (q.points || 0), 0);
     html += '<div class="p-sec-title">' + CN_NUM[si] + '、' + TYPE_NAMES[s.type] + '<span class="p-sec-sum">（共 ' + s.qs.length + ' 题，' + sum + ' 分）</span></div>';
     s.qs.forEach(q => {
       n++;
-      html += '<div class="pq"><div class="p-stem">' + n + '. ' + esc(q.stem) + '（' + q.points + '分）</div>';
-      if (q.fig && FIGMAP[q.fig]) { try { html += '<div class="p-fig">' + FIGMAP[q.fig]() + '</div>'; } catch (e) {} }
+      const isShort = (q.parts || []).length <= 2 && q.type !== 'experiment' && q.type !== 'calc';
+      let figHtml = '';
+      if (q.fig && FIGMAP[q.fig]) { try { figHtml = '<div class="p-fig">' + FIGMAP[q.fig]() + '</div>'; } catch (e) {} }
+      html += '<div class="pq' + (isShort ? ' pq-short' : '') + '">' + figHtml + '<div class="p-stem">' + n + '. ' + esc(q.stem) + '（' + q.points + '分）</div>';
       (q.parts || []).forEach(p => {
         if (p.q) html += '<div>' + esc(p.q) + '</div>';
         if (p.kind === 'choice' || p.kind === 'multi') {
@@ -762,11 +848,12 @@ function doPrint(includeAnswers) {
 
 /* ================= 组卷配置屏逻辑 ================= */
 function getChapters() {
-  const mode = ($1('input[name="scopeMode"]:checked') || {}).value || 'single';
-  if (mode === 'all') return [1, 2, 3, 4, 5, 6];
-  if (mode === 'single') return [+document.getElementById('singleSel').value];
-  const cs = $all('.chbox').filter(b => b.checked).map(b => +b.value);
-  return cs.length ? cs : [1];
+  return $all('.chbox').filter(b => b.checked).map(b => +b.value);
+}
+function syncScopeUI() {
+  const cs = getChapters();
+  document.getElementById('startBtn').disabled = !cs.length;
+  document.getElementById('scopeHint').textContent = cs.length ? '' : '请至少勾选一个章节';
 }
 function getN() { return +document.getElementById('nSlider').value; }
 function getMixUI() {
@@ -799,12 +886,13 @@ function switchScreen(id) {
 }
 function startExam(seed) {
   const chapters = getChapters();
+  if (!chapters.length) { alert('请至少勾选一个章节'); return; }
   const N = getN();
   const mix = getMixUI();
   const mode = ($1('input[name="gradeMode"]:checked') || {}).value || 'submit';
   const paper = drawPaper(POOL, { chapters, N, seed, mix });
   if (!paper.length) { alert('当前范围题池为空，无法组卷'); return; }
-  EX = { chapters, N: paper.length, mix, mode, seed, paper, answers: {}, open: {}, done: {}, submitted: false };
+  EX = { chapters, N: paper.length, mix, mode, seed, paper, answers: {}, open: {}, cpSel: {}, done: {}, submitted: false };
   MULTI_SEL = {};
   saveEX();
   switchScreen('screenExam');
@@ -819,18 +907,21 @@ function newSeed() {
 function initSetup() {
   const r = collectPool();
   POOL = r.pool; FIGMAP = r.figs; IS_SAMPLE = r.sample;
-  const byCh = {};
-  POOL.forEach(q => { byCh[q.ch] = (byCh[q.ch] || 0) + 1; });
   document.getElementById('poolInfo').textContent = r.sample
     ? '⚠ qbank 数据文件尚未载入，当前使用 SAMPLE 兜底题库（' + POOL.length + ' 题，仅第1~6章样例）自测。'
-    : '题池已载入 ' + POOL.length + ' 题：' + [1,2,3,4,5,6].map(c => 'c' + c + '=' + (byCh[c] || 0)).join(' ');
+    : '';
   syncMixUI(getN());
 
-  $all('input[name="scopeMode"]').forEach(rb => rb.addEventListener('change', () => {
-    const m = ($1('input[name="scopeMode"]:checked') || {}).value;
-    document.getElementById('singleWrap').hidden = (m !== 'single');
-    document.getElementById('multiWrap').hidden = (m !== 'multi');
-  }));
+  $all('.chbox').forEach(b => b.addEventListener('change', syncScopeUI));
+  document.getElementById('selAllBtn').addEventListener('click', () => {
+    $all('.chbox').forEach(b => { b.checked = true; });
+    syncScopeUI();
+  });
+  document.getElementById('selNoneBtn').addEventListener('click', () => {
+    $all('.chbox').forEach(b => { b.checked = false; });
+    syncScopeUI();
+  });
+  syncScopeUI();
   document.getElementById('nSlider').addEventListener('input', e => {
     document.getElementById('nLabel').textContent = e.target.value;
     $all('.preset').forEach(b => b.classList.toggle('on', +b.dataset.n === +e.target.value));
@@ -876,5 +967,5 @@ if (typeof document !== 'undefined') {
 
 /* Node 自测出口（/tmp/p1_drawtest.js 用） */
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { SAMPLE, collectPool, mulberry32, defaultMix, diffQuota, drawPaper, norm, sameSet, gradePart, gradeQuestion };
+  module.exports = { SAMPLE, collectPool, mulberry32, defaultMix, diffQuota, drawPaper, norm, sameSet, gradePart, gradeQuestion, sectionsOf };
 }

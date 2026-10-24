@@ -10,7 +10,6 @@ body{margin:0;background:var(--bg);color:var(--txt);
 .topbar{background:linear-gradient(135deg,#14202c,#0e141b);border-bottom:1px solid var(--line);padding:22px 0 14px;margin-bottom:18px}
 .topbar h1{margin:0;font-size:24px;color:var(--gold)}
 .topbar .sub{margin:4px 0 0;color:var(--sub);font-size:13px}
-.foot{color:var(--sub);font-size:12px;text-align:center;padding:24px 0}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
 .card h2{margin:0 0 10px;font-size:17px;color:var(--blue)}
@@ -18,7 +17,7 @@ body{margin:0;background:var(--bg);color:var(--txt);
 .segrow{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
 .segrow label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
 .scopewrap{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
-select,input[type=number]{background:#0e161f;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:15px}
+input[type=number]{background:#0e161f;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:15px}
 input[type=number]{width:64px}
 input[type=range]{accent-color:var(--gold);vertical-align:middle}
 .sliderbox{color:var(--sub);font-size:14px}
@@ -71,7 +70,13 @@ input[type=range]{accent-color:var(--gold);vertical-align:middle}
   padding:7px 10px;font-size:15px;min-width:160px}
 .blank-inp.ok{border-color:var(--ok)}
 .blank-inp.err{border-color:var(--err)}
-.written{border:1px dashed var(--line);border-radius:8px;min-height:90px;margin-top:6px}
+.open-input{width:100%;background:#0e161f;color:var(--txt);border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;font-size:14px;line-height:1.7;font-family:inherit;margin-top:6px;resize:vertical}
+.open-input:focus{border-color:var(--blue);outline:none}
+.open-input[readonly]{opacity:.75}
+.cprow{flex-direction:column;align-items:flex-start;gap:6px}
+.cp-chk{display:inline-flex;align-items:center;gap:6px;color:var(--sub);font-size:14px;cursor:pointer}
+.cp-chk input{accent-color:var(--gold)}
 .ref{display:none;background:#101c26;border-left:3px solid var(--blue);border-radius:6px;
   padding:8px 12px;font-size:14px;margin-top:8px}
 .ref.show{display:block}
@@ -110,7 +115,7 @@ input[type=range]{accent-color:var(--gold);vertical-align:middle}
 }
 @media print{
   body{background:#fff;color:#000;font:10.5pt/1.55 "Songti SC","SimSun",serif}
-  .topbar,main,.foot,#screenSetup,#screenExam,#screenResult{display:none!important}
+  .topbar,main,#screenSetup,#screenExam,#screenResult{display:none!important}
   #printArea{display:block}
   .p-paper{width:100%}
   .p-head{text-align:center;border-bottom:2pt solid #000;padding-bottom:6pt;margin-bottom:8pt}
@@ -126,7 +131,7 @@ input[type=range]{accent-color:var(--gold);vertical-align:middle}
   .pq{break-inside:avoid;page-break-inside:avoid;margin-bottom:8pt}
   .pq .p-stem{font-size:10.5pt}
   .pq .p-opts{margin:2pt 0 0 1.5em}
-  .pq .p-opts div{margin:1pt 0}
+  .pq .p-opts span{display:block;margin:1pt 0}
   .pq .p-blankline{display:inline-block;min-width:8em;border-bottom:0.75pt solid #000;margin:0 3pt}
   .pq .p-writearea{border:0.5pt dashed #999;min-height:60pt;margin-top:3pt}
   .pq .p-fig{margin:3pt 0}
@@ -136,4 +141,22 @@ input[type=range]{accent-color:var(--gold);vertical-align:middle}
   .p-ans-item{font-size:10pt;margin:3pt 0;break-inside:avoid}
   .p-ans-item .p-analysis{font-size:9pt;color:#333;margin-left:1.5em}
   a{color:#000;text-decoration:none}
+
+  /* ===== 紧凑档（默认）：20题约2~3张A4 ===== */
+  .p-paper.compact{font:9.5pt/1.35 "Songti SC","SimSun",serif}
+  .p-paper.compact .pq{break-inside:auto;page-break-inside:auto;margin-bottom:5pt}
+  .p-paper.compact .pq.pq-short{break-inside:avoid;page-break-inside:avoid}
+  .p-paper.compact .pq::after{content:"";display:block;clear:both}
+  .p-paper.compact .pq .p-stem{font-size:9.5pt}
+  .p-paper.compact .p-sec-title{font-size:11pt;margin:8pt 0 4pt}
+  .p-paper.compact .pq .p-opts{margin:1pt 0 0 1.2em}
+  .p-paper.compact .pq .p-opts span{display:inline-block;vertical-align:top;margin:0}
+  .p-paper.compact .pq .p-opts.cols4 span{width:25%}
+  .p-paper.compact .pq .p-opts.cols2 span{width:50%}
+  .p-paper.compact .pq .p-opts.cols1 span{display:block;width:100%;margin:1pt 0}
+  .p-paper.compact .pq .p-writearea{min-height:40pt}
+  .p-paper.compact .pq .p-fig{float:right;max-width:34%;margin:0 0 3pt 6pt}
+  .p-paper.compact .pq .p-fig svg{max-width:100%}
+  .p-paper.compact .p-ans-item{font-size:9pt;margin:2pt 0}
+  .p-paper.compact .p-ans-item .p-analysis{font-size:8.5pt}
 }

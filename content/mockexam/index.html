@@ -23,28 +23,18 @@
   <section id="screenSetup" class="screen">
     <div class="card">
       <h2>① 选择范围</h2>
-      <div class="segrow" id="scopeModeRow">
-        <label><input type="radio" name="scopeMode" value="single" checked> 单章</label>
-        <label><input type="radio" name="scopeMode" value="multi"> 多章</label>
-        <label><input type="radio" name="scopeMode" value="all"> 全册</label>
-      </div>
-      <div id="singleWrap" class="scopewrap">
-        <select id="singleSel">
-          <option value="1">第1章 机械运动</option>
-          <option value="2">第2章 声现象</option>
-          <option value="3">第3章 物态变化</option>
-          <option value="4">第4章 光现象</option>
-          <option value="5">第5章 透镜及其应用</option>
-          <option value="6">第6章 质量与密度</option>
-        </select>
-      </div>
-      <div id="multiWrap" class="scopewrap" hidden>
+      <div id="multiWrap" class="scopewrap">
         <label><input type="checkbox" class="chbox" value="1" checked> 第1章 机械运动</label>
         <label><input type="checkbox" class="chbox" value="2" checked> 第2章 声现象</label>
         <label><input type="checkbox" class="chbox" value="3"> 第3章 物态变化</label>
         <label><input type="checkbox" class="chbox" value="4"> 第4章 光现象</label>
         <label><input type="checkbox" class="chbox" value="5"> 第5章 透镜及其应用</label>
         <label><input type="checkbox" class="chbox" value="6"> 第6章 质量与密度</label>
+      </div>
+      <div class="segrow" style="margin-top:10px">
+        <button type="button" class="btn ghost" id="selAllBtn">全选</button>
+        <button type="button" class="btn ghost" id="selNoneBtn">清空</button>
+        <span class="tip" id="scopeHint"></span>
       </div>
     </div>
 
@@ -76,6 +66,14 @@
         <button type="button" class="btn ghost" id="mixReset">恢复默认</button>
       </div>
       <p class="tip" id="mixHint"></p>
+    </div>
+
+    <div class="card">
+      <h2>⑤ 打印密度</h2>
+      <div class="segrow">
+        <label><input type="radio" name="printDensity" value="compact" checked> 紧凑（20题约2~3张A4）</label>
+        <label><input type="radio" name="printDensity" value="standard"> 标准</label>
+      </div>
     </div>
 
     <div class="startrow">
@@ -115,8 +113,6 @@
 
 <!-- 打印专用区域（屏幕上隐藏，打印时唯一可见） -->
 <div id="printArea" aria-hidden="true"></div>
-
-<footer class="foot"><p>模拟组卷 · 题库随机抽题 · seed 固定本卷，刷新不跳题</p></footer>
 
 <!-- 题库数据文件（并行波次生产；404 无害，未定义的 window 变量自动跳过） -->
 <script src="../qbank/c1_orig.js?v=20261024"></script>
