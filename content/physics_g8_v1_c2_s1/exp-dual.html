@@ -32,6 +32,17 @@
     .len-line input[type=number] { width: 62px; min-width: 62px; }
     .quick-btns .btn { font-size: 12px; padding: 10px 4px; }
   }
+  /* ---- 全屏态：铺满视口，滑块/按钮/读数全部保留 ---- */
+  #fsDualWrap:fullscreen, #fsDualWrap.pseudo-fullscreen {
+    width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+    border-radius: 0; margin: 0; padding: 46px 12px 12px; box-sizing: border-box;
+  }
+  #fsDualWrap:fullscreen .card, #fsDualWrap.pseudo-fullscreen .card { max-width: 860px; margin: 0 auto; }
+  #fsDualWrap:fullscreen .ro-cell .rv, #fsDualWrap.pseudo-fullscreen .ro-cell .rv { font-size: 24px; }
+  @media (max-width: 480px) {
+    #fsDualWrap:fullscreen, #fsDualWrap.pseudo-fullscreen { padding: 44px 8px 8px; }
+    #fsDualWrap:fullscreen .ro-cell .rv, #fsDualWrap.pseudo-fullscreen .ro-cell .rv { font-size: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -42,6 +53,8 @@
     <p class="page-subtitle">练习④说：耳朵贴长铁管一端，另一端敲一下，会听到<b>2 次</b>敲打声。为什么？让声音沿铁管（5 200 m/s）和空气（340 m/s）赛个跑！</p>
   </div>
 
+  <div class="fullscreen-wrap" id="fsDualWrap">
+    <button class="fullscreen-btn" id="fsDualBtn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <h2>🏁 竞速跑道 <span class="chip">G11</span></h2>
     <div class="len-line">
@@ -85,13 +98,16 @@
     </div>
     <div class="anim-btns">
       <button class="btn btn-primary" id="hitBtn" type="button">🔨 敲一下！（看竞速+听到达声）</button>
+      <button class="btn btn-secondary" id="slowBtn" type="button">🐢 慢放 1×</button>
     </div>
     <div class="readout">
       <div class="ro-cell">铁管到达 t₁<span class="rv green" id="roT1">0.019 s</span></div>
       <div class="ro-cell">空气到达 t₂<span class="rv cyan" id="roT2">0.294 s</span></div>
       <div class="ro-cell">时间差 Δt<span class="rv" id="roD">0.275 s</span></div>
     </div>
+    <p class="hint" id="slowNote" style="display:none"></p>
     <div class="verdict two" id="verdict"></div>
+  </div>
   </div>
 
   <div class="card">

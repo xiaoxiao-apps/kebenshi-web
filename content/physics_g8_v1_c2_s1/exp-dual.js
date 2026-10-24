@@ -14,6 +14,8 @@
   var roD = document.getElementById('roD');
   var verdict = document.getElementById('verdict');
   var hitBtn = document.getElementById('hitBtn');
+  var slowBtn = document.getElementById('slowBtn');
+  var slowNote = document.getElementById('slowNote');
   var raceLabel = document.getElementById('raceLabel');
   var runIron = document.getElementById('runIron');
   var runAir = document.getElementById('runAir');
@@ -23,6 +25,22 @@
   var actx = null;
   var animId = null;
   var pendingTo = [];
+
+  /* G3 慢放三档：只缩放演示间隔（setTimeout/rAF 时间基准），ping 音色与时长不变；
+     默认 1× 保持 F6 真实时序语义完全不变 */
+  var SPEEDS = [1, 0.5, 0.25];
+  var si = 0;
+  function refreshSlowNote() {
+    if (si === 0) { slowNote.style.display = 'none'; return; }
+    var L0 = len();
+    slowNote.textContent = '🐢 演示已慢放 ×' + SPEEDS[si] + '，真实 Δt = ' + (L0 / V_AIR - L0 / V_IRON).toFixed(3) + ' s（按当前管长 ' + L0 + ' m）';
+    slowNote.style.display = '';
+  }
+  slowBtn.addEventListener('click', function () {
+    si = (si + 1) % 3;
+    slowBtn.textContent = '🐢 慢放 ' + SPEEDS[si] + '×';
+    refreshSlowNote();
+  });
 
   function ensureCtx() {
     if (!actx) {
@@ -57,6 +75,7 @@
       verdict.className = 'verdict one';
       verdict.innerHTML = '🔶 Δt = ' + d.toFixed(3) + ' s <b>≤ 0.1 s</b>：两声「咚」合并 → 听到「叮」+ 1 声「咚」，共 <b>2 声</b>。管长小于约 36.4 m 时就是这样！';
     }
+    refreshSlowNote();
   }
   lenRange.addEventListener('input', update);
   lenInput.addEventListener('change', function () {
@@ -96,7 +115,10 @@
     var L = len();
     var t1 = L / V_IRON, t2 = L / V_AIR, d = t2 - t1;
     var twoSounds = d > THRESHOLD;
-    var t1ms = t1 * 1000, t2ms = t2 * 1000;
+    /* G3：慢放系数 f 只拉长间隔（÷f），1× 时与 F6 真实时序逐毫秒一致；
+       rAF 竞速动画共用 t1ms/t2ms 时间基准，声画同步缩放 */
+    var f = SPEEDS[si];
+    var t1ms = t1 * 1000 / f, t2ms = t2 * 1000 / f;
 
     // 竞速动画按真实时序 t₂ 演完（L≤150 m 时 ≤0.44 s），与三声完全对齐
     var x0 = 70, x1 = 562;
@@ -148,6 +170,12 @@
   hitBtn.addEventListener('click', hit);
 
   update();
+
+  /* G3 全屏：SVG height:auto 等比缩放，无需 resize 回调（同 exp-echo） */
+  var fsW = document.getElementById('fsDualWrap');
+  if (fsW && window.FullscreenHelper) {
+    FullscreenHelper.bind(fsW, document.getElementById('fsDualBtn'), null);
+  }
 
   /* F11：壳切tab通知→清序列定时器+冻结已排程 ping（幂等；show 不自动恢复） */
   window.addEventListener('message', function (e) {
