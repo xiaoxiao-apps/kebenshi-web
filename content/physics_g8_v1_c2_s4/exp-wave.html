@@ -17,8 +17,8 @@
   .readout .pill b { color: var(--brown); }
   .source-btns { display: flex; gap: 8px; flex-wrap: wrap; }
   .source-btns .btn { flex: 1; min-width: 80px; }
-  .stop-wrap { margin-top: 10px; }
-  .stop-wrap .btn { width: 100%; }
+  .stop-wrap { margin-top: 10px; display: flex; gap: 8px; }
+  .stop-wrap .btn { flex: 1; }
   .conclusion-card { background: var(--green-bg); border: 1px solid rgba(74,140,63,.2); border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: 14px; line-height: 1.7; }
   @media (max-width: 768px) { .source-btns { flex-direction: column; } .source-btns .btn { min-width: 0; } }
   /* F1 全屏改结构：wrap=整屏 flex 列，canvas 高度=scene-wrap 剩余高度（js 重算） */
@@ -56,6 +56,7 @@
       </div>
       <div class="stop-wrap">
         <button class="btn btn-primary" id="stopBtn">⏹ 停止</button>
+        <button class="btn btn-secondary" id="pauseBtn" disabled>⏸ 暂停</button>
       </div>
       <div class="conclusion-card">
         <b>结论：</b>音叉等乐音的波形是规则的，而噪声的波形杂乱无章，说明噪声是由发声体的无规则振动产生的。

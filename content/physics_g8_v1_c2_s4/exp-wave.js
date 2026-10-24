@@ -4,8 +4,10 @@
   var cv = document.getElementById('waveCv'), ctx;
   var DW = 640, W, H, k;
   var stopBtn = document.getElementById('stopBtn');
+  var pauseBtn = document.getElementById('pauseBtn');
   var sourceBtns = document.querySelectorAll('[data-source]');
   var source = null, rafId = null, phase = 0, amp = 0.85;
+  var paused = false;
   var audioCtx = null, masterGain = null, oscNode = null, noiseNode = null;
   var noiseBuf = null, noiseLen = 2;
 
@@ -49,6 +51,7 @@
       noiseNode.start();
       masterGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.02);
     }
+    pauseBtn.disabled = false;
   }
 
   var fsWrap = document.getElementById('fsWaveWrap');
@@ -114,6 +117,8 @@
     source = name;
     sourceBtns.forEach(function(b){ b.classList.toggle('btn-primary', b.dataset.source === name); b.classList.toggle('btn-secondary', b.dataset.source !== name); });
     startSound(name);
+    if (paused) { paused = false; pauseBtn.textContent = '⏸ 暂停'; }
+    if (!rafId) rafId = requestAnimationFrame(loop);
   }
 
   stopBtn.addEventListener('click', function(){
@@ -122,6 +127,24 @@
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
     drawBase();
     rafId = requestAnimationFrame(loop);
+    paused = false;
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    pauseBtn.textContent = '⏸ 暂停';
+    pauseBtn.disabled = true;
+  });
+
+  pauseBtn.addEventListener('click', function(){
+    if (!paused) {
+      if (audioCtx) audioCtx.suspend();
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      paused = true;
+      pauseBtn.textContent = '▶ 继续';
+    } else {
+      if (audioCtx) audioCtx.resume();
+      if (!rafId) rafId = requestAnimationFrame(loop);
+      paused = false;
+      pauseBtn.textContent = '⏸ 暂停';
+    }
   });
 
   sourceBtns.forEach(function(b){
