@@ -25,7 +25,26 @@
     padding: 52px 14px 16px; box-sizing: border-box;
   }
   .fullscreen-wrap:fullscreen .card,
-  .fullscreen-wrap.pseudo-fullscreen .card { max-width: 860px; margin: 0 auto; }
+  .fullscreen-wrap.pseudo-fullscreen .card { max-width: 960px; margin: 0 auto; }
+  /* 全屏主体放大（口径同 exp-estimate） */
+  .fullscreen-wrap:fullscreen .card h2,
+  .fullscreen-wrap.pseudo-fullscreen .card h2 { font-size: 24px; }
+  .fullscreen-wrap:fullscreen .card > p,
+  .fullscreen-wrap.pseudo-fullscreen .card > p { font-size: 19px; }
+  .fullscreen-wrap:fullscreen .hint,
+  .fullscreen-wrap.pseudo-fullscreen .hint { font-size: 15px; }
+  .fullscreen-wrap:fullscreen .tab-btn,
+  .fullscreen-wrap.pseudo-fullscreen .tab-btn { font-size: 19px; padding: 13px 24px; }
+  .fullscreen-wrap:fullscreen .task-table,
+  .fullscreen-wrap.pseudo-fullscreen .task-table { font-size: 19px; }
+  .fullscreen-wrap:fullscreen .task-table th,
+  .fullscreen-wrap.pseudo-fullscreen .task-table th,
+  .fullscreen-wrap:fullscreen .task-table td,
+  .fullscreen-wrap.pseudo-fullscreen .task-table td { padding: 10px 6px; }
+  .fullscreen-wrap:fullscreen .task-table .rec,
+  .fullscreen-wrap.pseudo-fullscreen .task-table .rec {
+    width: 104px; font-size: 19px; padding: 10px 6px;
+  }
   @media (max-width: 480px) {
     .fullscreen-wrap:fullscreen, .fullscreen-wrap.pseudo-fullscreen { padding: 48px 8px 12px; }
   }

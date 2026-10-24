@@ -31,20 +31,43 @@
     width: 100vw; height: 100vh; overflow-y: auto;
     background: var(--bg); border-radius: 0; margin: 0;
     padding: 52px 14px 16px; box-sizing: border-box;
+    display: flex; flex-direction: column;
   }
   .fullscreen-wrap:fullscreen .illusion-card,
   .fullscreen-wrap.pseudo-fullscreen .illusion-card {
-    max-width: 760px; margin: 0 auto;
+    max-width: 860px; width: 100%; margin: 0 auto;
+    flex: 1 0 auto; min-height: 0;
+    display: flex; flex-direction: column;
   }
   /* 全屏态隐藏标题与 chip（保悬念，投屏用） */
   .fullscreen-wrap:fullscreen .illusion-card h2,
   .fullscreen-wrap.pseudo-fullscreen .illusion-card h2 { display: none; }
   .fullscreen-wrap:fullscreen .illusion-card .chip,
   .fullscreen-wrap.pseudo-fullscreen .illusion-card .chip { display: none; }
+  /* 主体真放大：解除桌面 420px 上限，svg-wrap 吃掉剩余高度，SVG 靠 viewBox 等比缩放不变形 */
+  .fullscreen-wrap:fullscreen .svg-wrap,
+  .fullscreen-wrap.pseudo-fullscreen .svg-wrap {
+    flex: 1 0 auto;
+    display: flex; align-items: center; justify-content: center;
+  }
   .fullscreen-wrap:fullscreen .illusion-card svg,
-  .fullscreen-wrap.pseudo-fullscreen .illusion-card svg { max-height: 52vh; }
+  .fullscreen-wrap.pseudo-fullscreen .illusion-card svg {
+    width: 100%; height: auto; max-width: 100%; max-height: 56vh;
+  }
   .fullscreen-wrap:fullscreen .question,
-  .fullscreen-wrap.pseudo-fullscreen .question { font-size: 18px; }
+  .fullscreen-wrap.pseudo-fullscreen .question { font-size: 20px; flex: none; }
+  .fullscreen-wrap:fullscreen .btn-group,
+  .fullscreen-wrap.pseudo-fullscreen .btn-group,
+  .fullscreen-wrap:fullscreen .feedback,
+  .fullscreen-wrap.pseudo-fullscreen .feedback,
+  .fullscreen-wrap:fullscreen .measure-area,
+  .fullscreen-wrap.pseudo-fullscreen .measure-area,
+  .fullscreen-wrap:fullscreen .illusion-card > .btn,
+  .fullscreen-wrap.pseudo-fullscreen .illusion-card > .btn { flex: none; }
+  .fullscreen-wrap:fullscreen .btn-group .btn,
+  .fullscreen-wrap.pseudo-fullscreen .btn-group .btn { font-size: 17px; padding: 13px 22px; }
+  .fullscreen-wrap:fullscreen .feedback,
+  .fullscreen-wrap.pseudo-fullscreen .feedback { font-size: 17px; }
   @media (max-width: 480px) {
     .fullscreen-wrap:fullscreen, .fullscreen-wrap.pseudo-fullscreen { padding: 48px 8px 12px; }
   }

@@ -20,7 +20,24 @@
     padding: 52px 14px 16px; box-sizing: border-box;
   }
   .fullscreen-wrap:fullscreen .card,
-  .fullscreen-wrap.pseudo-fullscreen .card { max-width: 760px; margin: 0 auto; }
+  .fullscreen-wrap.pseudo-fullscreen .card { max-width: 960px; margin: 0 auto; }
+  /* 全屏主体放大（口径同 EXP-A1 第3节） */
+  .fullscreen-wrap:fullscreen .card h2,
+  .fullscreen-wrap.pseudo-fullscreen .card h2 { font-size: 24px; }
+  .fullscreen-wrap:fullscreen .est-question,
+  .fullscreen-wrap.pseudo-fullscreen .est-question { font-size: 26px; }
+  .fullscreen-wrap:fullscreen .ref-card b,
+  .fullscreen-wrap.pseudo-fullscreen .ref-card b { font-size: 22px; }
+  .fullscreen-wrap:fullscreen .ref-card span,
+  .fullscreen-wrap.pseudo-fullscreen .ref-card span { font-size: 17px; }
+  .fullscreen-wrap:fullscreen .input-line input,
+  .fullscreen-wrap.pseudo-fullscreen .input-line input,
+  .fullscreen-wrap:fullscreen .input-line select,
+  .fullscreen-wrap.pseudo-fullscreen .input-line select { font-size: 20px; padding: 12px 16px; }
+  .fullscreen-wrap:fullscreen .est-box .btn,
+  .fullscreen-wrap.pseudo-fullscreen .est-box .btn { font-size: 20px; padding: 12px 24px; }
+  .fullscreen-wrap:fullscreen .feedback,
+  .fullscreen-wrap.pseudo-fullscreen .feedback { font-size: 18px; }
   @media (max-width: 480px) {
     .fullscreen-wrap:fullscreen, .fullscreen-wrap.pseudo-fullscreen { padding: 48px 8px 12px; }
   }
