@@ -7,7 +7,7 @@
  */
 const SUMMARIES = [
   {
-    section: '第1节 长度和时间的测量',
+    section: '长度和时间的测量',
     chip: '单位 · 刻度尺 · 停表 · 误差',
     blocks: [
       {
@@ -143,7 +143,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第2节 运动的描述',
+    section: '运动的描述',
     chip: '机械运动 · 参照物 · 相对性',
     blocks: [
       {
@@ -196,7 +196,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第3节 运动的快慢',
+    section: '运动的快慢',
     chip: '速度 · 单位换算 · 匀速与变速',
     blocks: [
       {
@@ -279,7 +279,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第4节 速度的测量',
+    section: '速度的测量',
     chip: '平均速度 · 斜面小车 · 超声波测速',
     blocks: [
       {

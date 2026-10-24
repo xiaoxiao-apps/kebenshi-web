@@ -6,7 +6,7 @@
  */
 const SUMMARIES = [
   {
-    section: '第1节 透镜',
+    section: '透镜',
     chip: '凸凹透镜 · 焦点 · 三条特殊光线',   // 原页码范围 P114~P117（仅入注释，P6 新规）
     blocks: [
       {
@@ -56,7 +56,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第2节 生活中的透镜',
+    section: '生活中的透镜',
     chip: '照相机 · 投影仪 · 放大镜',   // 原页码范围 P118~P121（仅入注释，P6 新规）
     blocks: [
       {
@@ -91,7 +91,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第3节 凸透镜成像的规律',
+    section: '凸透镜成像的规律',
     chip: '三区成像 · 两句分界口诀',   // 原页码范围 P122~P125（仅入注释，P6 新规）
     blocks: [
       {
@@ -132,7 +132,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第4节 眼睛和眼镜',
+    section: '眼睛和眼镜',
     chip: '睫状体 · 近视 · 远视',   // 原页码范围 P126~P129（仅入注释，P6 新规）
     blocks: [
       {
@@ -185,7 +185,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第5节 跨学科实践：制作望远镜',
+    section: '跨学科实践：制作望远镜',
     chip: '物镜 · 目镜 · 放大倍率',   // 原页码范围 P130~P135（仅入注释，P6 新规）
     blocks: [
       {

@@ -6,7 +6,7 @@
  */
 const SUMMARIES = [
   {
-    section: '第1节 声音的产生与传播',
+    section: '声音的产生与传播',
     chip: '振动 · 介质 · 声速 · 回声',
     blocks: [
       {
@@ -100,7 +100,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第2节 声音的特性',
+    section: '声音的特性',
     chip: '音调 · 响度 · 音色 · 听觉范围',
     blocks: [
       {
@@ -180,7 +180,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第3节 声的利用',
+    section: '声的利用',
     chip: '传递信息 · 传递能量 · 圜丘',
     blocks: [
       {
@@ -217,7 +217,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第4节 噪声的危害和控制',
+    section: '噪声的危害和控制',
     chip: '两定义 · 分贝 · 三途径',
     blocks: [
       {
@@ -262,7 +262,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第5节 跨学科实践：制作隔音房间模型',
+    section: '跨学科实践：制作隔音房间模型',
     chip: '选材 · 控制变量 · 评价',
     blocks: [
       {

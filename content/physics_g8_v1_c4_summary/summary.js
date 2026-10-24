@@ -6,7 +6,7 @@
  */
 const SUMMARIES = [
   {
-    section: '第1节 光的直线传播',
+    section: '光的直线传播',
     chip: '光源 · 小孔成像 · 光速',   // 原页码范围 P88~P92（仅入注释，P6 新规）
     blocks: [
       {
@@ -55,7 +55,7 @@ const SUMMARIES = [
       }
     ]
   },  {
-    section: '第2节 光的反射',
+    section: '光的反射',
     chip: '反射定律 · 可逆性 · 镜面与漫反射',   // 原页码范围 P93~P97（仅入注释，P6 新规）
     blocks: [
       {
@@ -103,7 +103,7 @@ const SUMMARIES = [
   }
   // =====【追加位】第3节 第4节 完成后在此追加 =====
   ,{
-    section: '第4节 光的折射',
+    section: '光的折射',
     chip: '折射规律 · 池水变浅',   // 原页码范围 P103~P106（仅入注释，P6 新规）
     blocks: [
       {

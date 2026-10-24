@@ -7,7 +7,7 @@
  */
 const SUMMARIES = [
   {
-    section: '第1节 温度',
+    section: '温度',
     chip: '摄氏温度 · 温度计 · 体温计',   // 原页码范围 P58~P63（仅入注释，P6 新规）
     blocks: [
       {
@@ -56,7 +56,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第2节 熔化和凝固',
+    section: '熔化和凝固',
     chip: '晶体 · 熔点 · 吸放热',   // 原页码范围 P64~P69（仅入注释，P6 新规）
     blocks: [
       {
@@ -117,7 +117,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第3节 汽化和液化',
+    section: '汽化和液化',
     chip: '沸腾 · 蒸发 · 液化',   // 原页码范围 P70~P76（仅入注释，P6 新规）
     blocks: [
       {
@@ -196,7 +196,7 @@ const SUMMARIES = [
   },
   // =====【追加位】第4/5节：完成后在上方逗号后直接新增节对象，页面自动渲染 =====
   {
-    section: '第4节 升华和凝华',
+    section: '升华和凝华',
     chip: '升华吸热 · 干冰 · 水循环',   // 原页码范围 P77~P80（仅入注释，P6 新规）
     blocks: [
       {
@@ -287,7 +287,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第5节 跨学科实践：厨房中的物态变化',
+    section: '跨学科实践：厨房中的物态变化',
     chip: '厨房物态变化 · 项目记录',   // 原页码范围 P81~P83（仅入注释，P6 新规）
     blocks: [
       {

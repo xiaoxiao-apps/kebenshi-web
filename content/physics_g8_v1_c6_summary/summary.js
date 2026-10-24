@@ -7,7 +7,7 @@
  */
 const SUMMARIES = [
   {
-    section: '第1节 质量',
+    section: '质量',
     chip: '定义 · 单位 · 天平测量',
     blocks: [
       {
@@ -104,7 +104,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第2节 密度',
+    section: '密度',
     chip: '定义 · 公式 · 密度表',
     blocks: [
       {
@@ -193,7 +193,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第3节 测量液体和固体的密度',
+    section: '测量液体和固体的密度',
     chip: '量筒 · 差值法 · 排水法',
     blocks: [
       {
@@ -274,7 +274,7 @@ const SUMMARIES = [
     ]
   },
   {
-    section: '第4节 密度的应用',
+    section: '密度的应用',
     chip: '公式变形 · 鉴别物质 · 材料',
     blocks: [
       {
