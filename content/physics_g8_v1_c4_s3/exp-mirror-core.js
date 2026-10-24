@@ -228,6 +228,8 @@ btnRec.addEventListener('click',function(ev){clickFx(ev);recFill();});
 btnClear.addEventListener('click',function(ev){clickFx(ev);recClear();if(window.playClick)window.playClick();});
 function setMode(m){
   R.mode=m;document.body.className='mode-'+m;
+  var btns=document.querySelectorAll('#mode-m1,#mode-m2,#mode-m3');
+  btns.forEach(function(b){b.classList.toggle('on',b.dataset.mode===m);});
   if(m==='m2'){layoutM2();R.m2.showRay=false;R.m2.showExt=false;R.m2.showNormal=false;R.m2.showSym=false;R.m2.animT=0;R.m2.heldItem=null;
     if(cbRay)cbRay.checked=false;if(cbExt)cbExt.checked=false;if(cbNorm)cbNorm.checked=false;if(cbSym)cbSym.checked=false;
   }
@@ -526,7 +528,7 @@ function exitFull(){
   var f=pickFn(document,['exitFullscreen','webkitExitFullscreen','webkitCancelFullScreen','mozCancelFullScreen','msExitFullscreen']);
   if(f)f.call(document);document.documentElement.classList.remove('pseudo-fs');syncFull();
 }
-btnFull.addEventListener('click',function(){if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();});
+btnFull.addEventListener('click',function(){if(fullEl()||document.documentElement.classList.contains('pseudo-fs'))exitFull();else reqFull();if(window.playClick) playClick();});
 ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(e){document.addEventListener(e,syncFull);});
 document.getElementById('btn-reset').addEventListener('click',function(ev){
   clickFx(ev);

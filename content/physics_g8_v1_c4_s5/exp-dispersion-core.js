@@ -38,8 +38,8 @@ function loop(){try{R.draw();}catch(err){console.error('disp draw:',err);} reque
 
 function setMode(m){
   R.mode=m; document.body.className=(m==='m1'?'mode-m1':'mode-m2');
-  document.getElementById('mode-m1').classList.toggle('active',m==='m1');
-  document.getElementById('mode-m2').classList.toggle('active',m==='m2');
+  document.getElementById('mode-m1').classList.toggle('on',m==='m1');
+  document.getElementById('mode-m2').classList.toggle('on',m==='m2');
   updateHint(); if(!loopOn)R.draw();
 }
 function setPrism(d){d=Math.round(Math.max(-15,Math.min(15,d))); R.prism.deg=d; prismS.value=d; prismV.textContent=d+'°'; if(!loopOn)R.draw();}
@@ -153,7 +153,7 @@ function exitFull(){
   var f=pickFn(document,['exitFullscreen','webkitExitFullscreen','webkitCancelFullScreen','mozCancelFullScreen','msExitFullscreen']);
   if(f)f.call(document); document.documentElement.classList.remove('pseudo-fs'); syncFull();
 }
-btnFull.addEventListener('click',function(){ if(fullEl()||document.documentElement.classList.contains('pseudo-fs')) exitFull(); else reqFull(); });
+btnFull.addEventListener('click',function(){ if(fullEl()||document.documentElement.classList.contains('pseudo-fs')) exitFull(); else reqFull(); if(window.playClick) playClick(); });
 ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(e){document.addEventListener(e,syncFull);});
 
 layout(); updateMix(); updateHint(); startLoop();

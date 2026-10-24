@@ -28,7 +28,9 @@
   button.secondary{background:#6b7280}
   button.secondary:hover{background:#4b5563}
   button:disabled{background:#c3cad6;cursor:not-allowed}
-  button.active{background:#1d4ed8;box-shadow:inset 0 0 0 2px #1e40af}
+  button.scn{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s;padding:7px 11px}
+  button.scn:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  button.scn.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
   button.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
   button#btn-eq,button#btn-table{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s}
   button#btn-eq:hover,button#btn-table:hover{background:linear-gradient(#f8fafc,#d2deeb)}
@@ -76,9 +78,9 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
   <div class="group">
     <div class="glabel">场景</div>
     <div class="gctrl">
-      <button id="mode-m1" class="active">M1 成像探究台</button>
-      <button id="mode-m2">M2 虚像原理</button>
-      <button id="mode-m3">M3 潜望镜</button>
+      <button id="mode-m1" class="scn on" data-mode="m1">M1 成像探究台</button>
+      <button id="mode-m2" class="scn" data-mode="m2">M2 虚像原理</button>
+      <button id="mode-m3" class="scn" data-mode="m3">M3 潜望镜</button>
     </div>
   </div>
   <div class="group m1-only">
