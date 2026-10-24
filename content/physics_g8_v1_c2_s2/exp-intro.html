@@ -12,6 +12,7 @@
   .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: linear-gradient(180deg, #e8f4fd 0%, #d4e9f7 100%); }
   #introCv { width: 100%; display: block; cursor: pointer; }
   .audio-ctl { text-align: center; margin-top: 10px; }
+  .audio-ctl .btn + .btn { margin-left: 8px; }
   .axis-wrap { background: var(--card2); border-radius: 12px; padding: 14px 16px; margin-top: 14px; }
   .axis-wrap h3 { font-size: 15px; margin-bottom: 10px; }
   .freq-axis { position: relative; height: 42px; border-radius: 8px; background: #e8e8e8; margin: 8px 0; }
@@ -42,7 +43,8 @@
         <canvas id="introCv"></canvas>
       </div>
       <div class="audio-ctl">
-        <button class="btn btn-secondary" id="mosqResetBtn">⏸ 暂停/重置</button>
+        <button class="btn btn-secondary" id="mosqPauseBtn">⏸ 暂停</button>
+        <button class="btn btn-secondary" id="mosqResetBtn">↺ 重置</button>
       </div>
     </div>
 
