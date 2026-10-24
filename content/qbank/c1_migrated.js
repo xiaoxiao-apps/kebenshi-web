@@ -334,8 +334,8 @@ function svgPencilRuler() {
   s += `<circle cx="40" cy="132" r="4" fill="#b8860b"/>`;
   s += `<text x="175" y="164" text-anchor="middle" font-size="12" fill="#9aa4b5">蜡笔</text>`;
   // 斜视线（未垂直尺面）
-  s += `<line x1="360" y1="20" x2="320" y2="120" stroke="#ff7a6e" stroke-width="1.5" stroke-dasharray="5,4"/>`;
-  s += `<text x="350" y="15" text-anchor="end" font-size="12" fill="#ff7a6e" font-weight="700">视线</text>`;
+  s += `<line x1="388" y1="40" x2="330" y2="127" stroke="#ff7a6e" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+  s += `<text x="392" y="28" text-anchor="end" font-size="12" fill="#ff7a6e" font-weight="700">视线</text>`;
   return `<svg viewBox="0 0 420 180" role="img" aria-label="刻度尺测量蜡笔长度简图">${s}</svg>`;
 }
 
