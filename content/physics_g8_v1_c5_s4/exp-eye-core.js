@@ -3,13 +3,14 @@ PROPS.SPRITE_BASE='../_lib/v1/sprites/';
 var FONT='"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif';
 
 // ===== 光学模型（全部以 D=晶状体→视网膜距离 为单位，resize 时由像素几何重算） =====
-// W3 两条教科书光线口径：物顶发 ①平行主轴线 ②过光心线；像点=两线求交（近轴追迹，与薄透镜式一致但不外显公式）
-// 自动调焦：fK_req=uK/(1+uK)（内部计算层），钳到该眼况调节范围 COND_FRNG；戴镜时对串联系统等效反解
+// X4/R32 三条平行光口径（教材图5.4-2 画法，回归 preW3）：树顶/中/底三部位各发一条水平平行线入眼，经晶状体后会聚于像点；像点几何由 xConv 与放大率（像高=物高×v/u 相似）导出
+// 物理内核保留 W3：自动调焦 fK_req=uK/(1+uK)（内部计算层），钳到该眼况调节范围 frNow()；戴镜时对串联系统等效反解；会聚点 xConv=薄透镜成像解（物顶平行轴线+光心方向线求交，内部解算不绘制）
 var SHARP_TOL=0.03;                            // 清晰判定 |xConv-xRet| <= SHARP_TOL*D
 var UK_MIN=0.9,UK_MAX=2.7;                     // W3 树可拖动范围（×D，无量纲物距系数；禁存像素）
-var GLASS_F_K={concave:-2.61,convex:4.48};     // W3 重标定凹镜（旧-3.94按近视自然态0.82D标定，新调节范围薄极限0.64D够不着→回归必败）：-2.61使近视戴凹镜在远端2.7D以放松态(fe≈0.64)清晰；凸镜4.48新范围下 fe_needed(2.7D)=0.818∈[0.66,1.05] 免改；戴镜自动档按串联两光线反解等效 f（fReqK）
-// W3 三态调节范围 fK=f/D ×D：[厚极限(强折光), 薄极限(弱折光)]。正常近点1.13D；近视远点1.78D；远视清晰阈值1.94D——三关键点全落在拖动行程 [0.9,2.7] 内
-var COND_FRNG={normal:[0.53,1.00],myopia:[0.42,0.64],hyper:[0.66,1.05]};
+var GLASS_F_K={concave:-2.61,convex:4.48};     // W3 重标定凹镜（旧-3.94按近视自然态0.82D标定，新调节范围薄极限0.64D够不着→回归必败）：-2.61使近视戴凹镜在远端2.7D以放松态(fe≈0.64)清晰；凸镜4.48新范围下 fe_needed(2.7D)=0.818∈[0.66,1.05] 免改；戴镜自动档按串联光线对反解等效 f（fReqK）
+// X4/R33 正常眼厚极限 0.53→0.45：req(0.9)=0.4737 全覆盖→拖树全行程恒清晰（蔡总原话②「随便怎么拖，像都在视网膜上」）；W3「正常近点1.13D、uK<1.13 blur」语义作废。近视远点1.78D；远视清晰阈值1.94D——两关键点仍在拖动行程 [0.9,2.7] 内
+// X4/R34 远视戴凸镜 fe_needed(0.9)≈0.479<裸厚极限0.66 被钳→blur（蔡总原话③），换焦度无解；戴镜态调节范围走 frNow() 单源=[0.45,1.05]，裸 hyper [0.66,1.05] 不动（保住「远视看不清近处」演示）
+var COND_FRNG={normal:[0.45,1.00],myopia:[0.42,0.64],hyper:[0.66,1.05]};
 var COND_NAME={normal:'正常眼',myopia:'近视眼',hyper:'远视眼'};
 
 var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
@@ -47,10 +48,13 @@ function layout(){
 }
 function xObj(){ return Math.max(60,Math.round(G.xL-st.uK*G.D)); }  // W3：像素位置由无量纲 uK 派生，resize/全屏不漂
 function objTopY(){ return axisY-G.hObj; }
+function objBottomY(){ return axisY+G.hObj; }
 function clampUK(v){ return Math.max(UK_MIN,Math.min(UK_MAX,v)); }
 function gK(){ return (G.xL-G.xC)/G.D; }                 // 矫正镜间距（×D）
 function clamp01(v){ return Math.max(0,Math.min(1,v)); }
-// W3 自动调焦目标 fK：裸眼=fK_req=uK/(1+uK) 反解；戴镜（近视/远视）=串联系统反解——物顶两光线（平行轴+过光心）在视网膜面等高解出晶状体 fe=(A+q)/(q+1/uK+g/(uK·fcK)+A−1/fcK)，A=1−g/fcK，q=g²/(uK·fcK)（fcK→∞ 退化为裸眼式；uK→∞ 与旧 R16 BFL 标定一致）；解无效回退裸眼值；最后钳到该眼况调节范围。
+// X4/R34 调节范围单源：远视戴镜（凸/凹皆然）走加宽档 [0.45,1.05]，其余走 COND_FRNG——fReqK/tActNow/fEyeK/lockNote 四处引用一律经此函数，禁 COND_FRNG[st.cond] 直引
+function frNow(){ if(st.glass&&st.cond==='hyper') return [0.45,1.05]; return COND_FRNG[st.cond]||COND_FRNG.normal; }
+// W3 自动调焦目标 fK：裸眼=fK_req=uK/(1+uK) 反解；戴镜（近视/远视）=串联系统反解——物顶解算光线对（平行轴线+光心方向线）在视网膜面等高解出晶状体 fe=(A+q)/(q+1/uK+g/(uK·fcK)+A−1/fcK)，A=1−g/fcK，q=g²/(uK·fcK)（fcK→∞ 退化为裸眼式；uK→∞ 与旧 R16 BFL 标定一致）；解无效回退裸眼值；最后钳到 frNow() 调节范围。
 // 正常眼戴镜不做串联补偿（按裸眼 f_req 调 t）：会聚点必偏离视网膜——保住「不该随便戴别人的眼镜」既有演示与 W3 回归（若补偿，正常眼会自动调节抵消镜片，模糊演示失效）
 function fReqK(){
   var req=st.uK/(1+st.uK);
@@ -59,47 +63,67 @@ function fReqK(){
     var fe=(A+q)/(q+1/st.uK+g/(st.uK*fcK)+A-1/fcK);
     if(fe>0.2&&fe<3) req=fe;
   }
-  var fr=COND_FRNG[st.cond]||COND_FRNG.normal;
+  var fr=frNow();
   return Math.max(fr[0],Math.min(fr[1],req));
 }
 function tActNow(){
   // t=晶状体厚度参数 0(薄)~1(厚)，光路/drawCrystal/滑杆三处同源；
-  // 自动档=fReqK() 按态归一（薄极限→0，厚极限→1）；手动档=tCmd 全行程直接映射 COND_FRNG（R22 锁区由范围本身承接：近视 fK_max=0.64<远物所需0.73，怎么调都够不着）
-  var fr=COND_FRNG[st.cond]||COND_FRNG.normal;
+  // 自动档=fReqK() 按态归一（薄极限→0，厚极限→1）；手动档=tCmd 全行程直接映射 frNow()（R22 锁区由范围本身承接：近视 fK_max=0.64<远物所需0.73，怎么调都够不着）
+  var fr=frNow();
   if(st.auto) return (fr[1]-fReqK())/(fr[1]-fr[0]);
   return st.tCmd;
 }
 function fEyeK(){
-  var fr=COND_FRNG[st.cond]||COND_FRNG.normal;
+  var fr=frNow();
   if(st.auto) return fReqK();
   return fr[1]-st.tCmd*(fr[1]-fr[0]);     // 手动档：tCmd=0→薄极限、1→厚极限
 }
 
-// ===== 近轴光线追迹（画布像素，y 向下；折射 m' = m - (y-axisY)/fPx） =====
-// W3：两条教科书光线自物顶出发——①平行主轴（经晶状体折向焦点）②射向晶状体光心（过光心方向不变）；戴矫正镜时先在镜面串联折射
-function traceRays(){
-  var fEyePx=fEyeK()*G.D;
+// ===== 近轴光线追迹（画布像素，y 向下） =====
+// X4/R32 物理内核（W3 逐字保留，仅供解算会聚点、不绘制）：物顶解算光线对 ①平行主轴 ②射向晶状体光心，戴镜先在镜面串联折射，求交=像点 xConv
+function imgConv(fEyePx){
   var x0=xObj(),y0=objTopY();
   var fc=st.glass?GLASS_F_K[st.glass]*G.D:0;
   var m0s=[0,(axisY-y0)/(G.xL-x0)];
-  var rays=[];
+  var rs=[];
   for(var i=0;i<2;i++){
     var m=m0s[i],yC=y0,y=y0;
     if(st.glass){
-      yC=y0+m*(G.xC-x0);                    // 在矫正镜面命中高度（过光心线带斜率，非水平）
+      yC=y0+m*(G.xC-x0);                    // 在矫正镜面命中高度（光心方向线带斜率，非水平）
       m=m-(yC-axisY)/fc;                    // 矫正镜折射
       y=yC+m*(G.xL-G.xC);                   // 传到晶状面
     }else{
-      y=y0+m*(G.xL-x0);                     // W3：过光心线带斜率，须先传播到晶状面（平行光线 m=0 时不变）
+      y=y0+m*(G.xL-x0);                     // 光心方向线带斜率，须先传播到晶状面（平行光线 m=0 时不变）
     }
     m=m-(y-axisY)/fEyePx;                   // 晶状体折射
-    rays.push({yi:y0,yC:yC,yL:y,m:m});
+    rs.push({yL:y,m:m});
   }
-  // 会聚点=两光线求交（物顶点像点；其 x=像面位置，轴向语义与旧版一致，sharp 判定沿用）
-  var a=rays[0],b=rays[1],xConv,yConv;
+  var a=rs[0],b=rs[1],xConv,yConv;
   if(Math.abs(a.m-b.m)<1e-9){ xConv=Infinity; yConv=axisY; }
   else{ xConv=G.xL+(b.yL-a.yL)/(a.m-b.m); yConv=a.yL+a.m*(xConv-G.xL); }
-  return {rays:rays,xConv:xConv,yConv:yConv,fEyePx:fEyePx};
+  return {xConv:xConv,yConv:yConv};
+}
+// X4/R32 绘制口径（蔡总原话①，教材图5.4-2）：三条水平平行光自树顶/中/底（m0=0）；戴镜时每线在镜面串联折射（yC/m 结构逐线套用）；
+// 晶状体折射后三线会聚于像点 xConv（像点几何=imgConv 物理解+放大率 v/u 相似，绘制的光线就是本函数算出的线，禁另画一套；任意两线求交即 xConv、第三线同过该点）
+function traceRays(){
+  var fEyePx=fEyeK()*G.D;
+  var ys=[objTopY(),axisY,objBottomY()];
+  var fc=st.glass?GLASS_F_K[st.glass]*G.D:0;
+  var cv=imgConv(fEyePx);
+  var vPx=cv.xConv-G.xL;                    // 像距（px）；<0=虚像（折射后发散，反向延长会聚）
+  var rays=[];
+  for(var i=0;i<ys.length;i++){
+    var yi=ys[i];
+    var m=0,yC=yi,y=yi;
+    if(st.glass){
+      yC=yi;                                // 水平线在矫正镜面命中高度=出发高度
+      m=m-(yC-axisY)/fc;                    // 矫正镜折射
+      y=yC+m*(G.xL-G.xC);                   // 传到晶状面
+    }
+    m=(isFinite(vPx)&&Math.abs(vPx)>1e-6)?-(y-axisY)/vPx:0;   // 晶状体折射：折向像点（三线交于 xConv 轴上一点）
+    rays.push({yi:yi,yC:yC,yL:y,m:m});
+  }
+  return {rays:rays,xConv:cv.xConv,yConv:cv.yConv,fEyePx:fEyePx};
 }
 // R3 焦点语义轴上化：sharp 判定 = |xConv-xRet| <= SHARP_TOL*D
 function imgInfo(tr){
@@ -135,12 +159,13 @@ function drawTree(x,baseY,h){
   ctx.restore();
 }
 function drawObject(){
-  // 树以光轴为垂直中心；W3 单物顶光线画法（照 s3 G6 口径）：仅在物顶标发光点
+  // R2：树以光轴为垂直中心——中端在 axisY、顶端 axisY-hObj、底端 axisY+hObj；三条平行光出发端点（顶/中/底）标发光点
   var x=xObj(),h=G.hObj*2;
   drawTree(x,axisY+G.hObj,h);
   ctx.save();
   ctx.fillStyle='#f59e0b';
-  ctx.beginPath(); ctx.arc(x,objTopY(),3,0,Math.PI*2); ctx.fill();
+  var ys=[objTopY(),axisY,objBottomY()];
+  for(var i=0;i<ys.length;i++){ ctx.beginPath(); ctx.arc(x,ys[i],3,0,Math.PI*2); ctx.fill(); }
   ctx.restore();
 }
 function drawEyeball(){
@@ -194,7 +219,7 @@ function drawRays(tr){
     var yEnd=r.yL+r.m*(xEnd-G.xL);
     beamSeg(G.xL,r.yL,xEnd,yEnd);
   }
-  // R16：会聚点在视网膜后（远视自动 f=1.35D→后约0.35D）——实光线到视网膜仍未会聚，虚线延长至后方轴上会聚点（加粗当主角引线）
+  // R16：会聚点在视网膜后（裸远视看近自动钳薄极限 f=0.66D 等）——实光线到视网膜仍未会聚，虚线延长至后方轴上会聚点（三线都延长，加粗当主角引线）
   var info=imgInfo(tr);
   if(!info.sharp&&info.diff>0&&isFinite(tr.xConv)&&tr.xConv<W+40){
     ctx.save(); ctx.setLineDash([6,6]); ctx.strokeStyle='rgba(220,38,38,.75)'; ctx.lineWidth=2;
@@ -206,10 +231,16 @@ function drawRays(tr){
     ctx.restore();
   }
 }
-// R24：会聚点迷你倒立树剪影——与物体树同造型绕光轴倒转（树冠朝轴下/树根朝轴上=倒立实像语义），高≈R×0.28，代码画
-function drawImgTree(x){
+// R24：会聚点迷你倒立树剪影——与物体树同造型绕光轴倒转（树冠朝轴下/树根朝轴上=倒立实像语义），代码画
+// X4/R32 像高由放大率导出：像高=物高×(xConv-xL)/(xL-xObj) 相似关系（默认远端 u=2.7D、v=1D 时=0.28R 恰为 R24 原规格）
+function imgHeightK(xConv){
+  var u=G.xL-xObj();
+  var h=G.hObj*2*(xConv-G.xL)/u;
+  return Math.max(G.R*0.10,Math.min(G.R*0.75,h));                   // 离焦极端像距的视觉钳制（物理 xConv 不动）
+}
+function drawImgTree(x,h){
   if(!isFinite(x)) return;
-  var h=G.R*0.28;
+  h=h||G.R*0.28;
   ctx.save();
   ctx.translate(0,2*axisY); ctx.scale(1,-1);                       // 绕光轴镜像
   drawTree(x,axisY+h/2,h);
@@ -217,6 +248,7 @@ function drawImgTree(x){
 }
 function drawRetinaImage(tr){
   var info=imgInfo(tr);
+  var hImg=imgHeightK(tr.xConv);                                    // X4/R32：像高=物高×v/u（放大率相似）
   if(info.sharp){
     // R10：清晰态会聚点强制吸附视网膜表面交点 G.xRet（轴上）；黄晕圆心=像点圆心=吸附点
     var cx=G.xRet,cy=axisY;
@@ -227,10 +259,10 @@ function drawRetinaImage(tr){
     ctx.fillStyle='#b45309';
     ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2); ctx.fill();      // 清晰像点
     ctx.restore();
-    drawImgTree(cx);                                                // R24：小像立视网膜线上
+    drawImgTree(cx,hImg);                                           // R24：小像立视网膜线上
     return {x:cx,y:cy,r:4};
   }
-  // R11：会聚点在视网膜前（近视自动 f=0.82D→前约0.18D）——轴上画会聚光斑
+  // R11：会聚点在视网膜前（如近视眼看远自动钳厚极限 f=0.64D，2.7D 远物成像 0.84D）——轴上画会聚光斑
   if(isFinite(tr.xConv)&&tr.xConv>G.xL&&tr.xConv<G.xRet){
     ctx.save();
     var gc=ctx.createRadialGradient(tr.xConv,axisY,0,tr.xConv,axisY,Math.max(4,G.R*0.05));
@@ -239,7 +271,7 @@ function drawRetinaImage(tr){
     ctx.fillStyle='#b45309';
     ctx.beginPath(); ctx.arc(tr.xConv,axisY,2.5,0,Math.PI*2); ctx.fill();
     ctx.restore();
-    drawImgTree(tr.xConv);                                          // R24：小像清晰画在视网膜前会聚点
+    drawImgTree(tr.xConv,hImg);                                     // R24：小像清晰画在视网膜前会聚点
   }
   // R16：会聚点在视网膜后（远视）——后方轴上会聚点补画同款黄晕+实心点当主角（与清晰态同规格）
   var behind=isFinite(tr.xConv)&&info.diff>0;
@@ -251,13 +283,13 @@ function drawRetinaImage(tr){
     ctx.fillStyle='#b45309';
     ctx.beginPath(); ctx.arc(tr.xConv,axisY,3,0,Math.PI*2); ctx.fill();
     ctx.restore();
-    drawImgTree(tr.xConv);                                          // R24：小像立视网膜后虚线延长交点处
+    drawImgTree(tr.xConv,hImg);                                     // R24：小像立视网膜后虚线延长交点处
   }
   // 视网膜上=模糊光斑（半径随光线散开程度）；离焦态主角=会聚点小像，光斑降亮度当配角（R24）
-  // W3 适配：rays[2]→rays[1]（三条平行线改两条教科书光线后取两线在视网膜面高度差，其余零改动）
+  // X4/R32：三平行光回归后取顶/底两线（rays[0]/rays[2]）在视网膜面高度差（照 preW3 口径）
   var yR0=tr.rays[0].yL+tr.rays[0].m*(G.xRet-G.xL);
-  var yR1=tr.rays[1].yL+tr.rays[1].m*(G.xRet-G.xL);
-  var spread=Math.abs(yR0-yR1)/2;
+  var yR2=tr.rays[2].yL+tr.rays[2].m*(G.xRet-G.xL);
+  var spread=Math.abs(yR0-yR2)/2;
   var r=Math.max(G.R*0.05,spread*0.9);
   ctx.save();
   ctx.globalAlpha=0.45;
@@ -351,9 +383,10 @@ function updatePanel(){
   var info=imgInfo();
   var el=function(id){ return document.getElementById(id); };
   el('pr-cond').textContent=COND_NAME[st.cond];
-  // W3 lockNote 复算（手动档=COND_FRNG 全行程滑杆）：近视 f≤0.64D，远物(2.7D)需0.73D→怎么调都够不着，近物(0.9D)需0.47D→可清晰；远视 f≥0.66D，近物够不着、远物可清晰；正常全行程无锁
+  // X4 lockNote 复算（手动档=frNow() 全行程滑杆）：近视 f≤0.64D，远物(2.7D)需0.73D→怎么调都够不着，近物(0.9D)需0.47D→可清晰；远视裸 f≥0.66D，近物够不着、远物(≥1.94D)可清晰；正常 [0.45,1.00] 覆盖 req(0.9)=0.4737~req(∞)→全行程恒清晰、无锁区（R33）；远视戴镜 [0.45,1.05] 全行程无锁（R34）
   var lockNote='';
-  if(!st.auto&&st.cond==='myopia') lockNote='（手动 · 看远再怎么调薄也够不着清晰，需凹透镜；把树拖近可调清晰）';
+  if(st.auto&&st.glass&&st.cond==='hyper') lockNote='（自动调节 · 戴镜已矫正，远近都清晰）';
+  else if(!st.auto&&st.cond==='myopia') lockNote='（手动 · 看远再怎么调薄也够不着清晰，需凹透镜；把树拖近可调清晰）';
   else if(!st.auto&&st.cond==='hyper') lockNote='（手动 · 看近再怎么调厚也够不着清晰，需凸透镜；把树拖远可调清晰）';
   else lockNote=st.auto?'（自动调节）':'（手动）';
   el('pr-lens').textContent=lensWord()+lockNote;
@@ -365,18 +398,18 @@ function updatePanel(){
 var toastEl=document.getElementById('toast'),toastTxt=document.getElementById('toast-txt'),toastXEl=document.getElementById('toast-x');
 var hintSt={key:null,dismissed:null};
 function hintBranch(){
-  if(st.cond==='normal'&&st.glass) return {key:'n-glass',text:'正常眼戴上眼镜反而模糊了：凹透镜使光先发散、凸透镜使光先会聚，会聚点偏离视网膜。这就是为什么不该随便戴别人的眼镜（点镜片看解说，拖回左下托盘可取下）'};
-  if(st.cond==='myopia'&&st.glass==='concave') return {key:'m-ok',text:'矫正成功！凹透镜使光先发散，再经晶状体会聚，会聚点重新拉回视网膜上——近视眼镜就是凹透镜。把树拖到远处再看矫正效果：戴凹镜看清远处时晶状体处于最放松的状态。试试关「自动」拖滑杆，看晶状体厚薄怎样移动会聚点'};
-  if(st.cond==='hyper'&&st.glass==='convex') return {key:'h-ok',text:'矫正成功！凸透镜使光先会聚，再经晶状体会聚，会聚点重新拉回视网膜上——远视眼镜（老花镜）就是凸透镜。把树拖到远处再看矫正效果：戴凸镜时晶状体比裸眼更省力。试试切换眼况，或关「自动」拖滑杆'};
+  if(st.cond==='normal'&&st.glass) return {key:'n-glass',text:'正常眼戴上眼镜反而模糊了：凹透镜使平行光先发散、凸透镜使平行光先会聚，会聚点偏离视网膜。这就是为什么不该随便戴别人的眼镜（点镜片看解说，拖回左下托盘可取下）'};
+  if(st.cond==='myopia'&&st.glass==='concave') return {key:'m-ok',text:'矫正成功！凹透镜使平行光先发散，再经晶状体会聚，会聚点重新拉回视网膜上——近视眼镜就是凹透镜。把树拖到远处再看矫正效果：戴凹镜看清远处时晶状体处于最放松的状态。试试关「自动」拖滑杆，看晶状体厚薄怎样移动会聚点'};
+  if(st.cond==='hyper'&&st.glass==='convex') return {key:'h-ok',text:'矫正成功！凸透镜使平行光先会聚，再经晶状体会聚，会聚点重新拉回视网膜上——远视眼镜（老花镜）就是凸透镜。戴着它把树拖近拖远：晶状体自动调节，远近的像都落在视网膜上。试试切换眼况，或关「自动」拖滑杆'};
   if(st.glass) return {key:'g-wrong',text:'拖错镜型了：会聚点偏得离视网膜更远、光斑更散。近视要凹透镜、远视要凸透镜——把它拖回左下托盘，换另一片试试'};
   if(!st.auto){
     if(st.cond==='myopia') return {key:'manual',text:'自动调节已关：近视眼看远处物体，滑杆再怎么调薄也够不着清晰，需要凹透镜；把树拖近，滑杆调到合适厚度就能清晰。拖滑杆看会聚点在视网膜前来回移动'};
     if(st.cond==='hyper') return {key:'manual',text:'自动调节已关：远视眼看近处物体，滑杆再怎么调厚也够不着清晰，需要凸透镜；把树拖远，滑杆调到合适厚度就能清晰。拖滑杆看会聚点在视网膜后来回移动'};
     return {key:'manual',text:'自动调节已关：睫状体不再帮忙，拖「晶状体厚度」滑杆手动控制。看会聚点在光轴上怎样于视网膜前后来回移动，找到清晰像点；再拖动左侧的树改变远近，重新找清晰'};
   }
-  if(st.cond==='myopia') return {key:'myopia',text:'近视眼：晶状体整体偏厚、折光能力太强，来自远处物体的光会聚在视网膜前，到达视网膜已是模糊光斑。把左下托盘的凹透镜拖到眼前试试；或把树拖近——近处物体眼睛能调清晰，这就是近视眼看近清楚、看远模糊'};
-  if(st.cond==='hyper') return {key:'hyper',text:'远视眼：晶状体整体偏薄、折光能力太弱，看近处物体时光还没会聚成一点就到了视网膜（会聚点在视网膜后，虚线延长可见）。把树拖近看模糊光斑，拖远眼睛又能调清晰；看近要戴左下托盘的凸透镜试试'};
-  return {key:'init',text:'正常眼看远处物体：睫状体放松、晶状体较薄，光恰好会聚在视网膜上成清晰像点。把左侧的树拖近试试：睫状体收缩、晶状体自动变厚，像依然清晰；拖得比近点还近就模糊了（点眼球或物体可看知识解说）。关「自动」拖滑杆，或把眼况切成「近视」「远视」'};
+  if(st.cond==='myopia') return {key:'myopia',text:'近视眼：晶状体整体偏厚、折光能力太强，来自远处物体的平行光会聚在视网膜前，到达视网膜已是模糊光斑。把左下托盘的凹透镜拖到眼前试试；或把树拖近——近处物体眼睛能调清晰，这就是近视眼看近清楚、看远模糊'};
+  if(st.cond==='hyper') return {key:'hyper',text:'远视眼：晶状体整体偏薄、折光能力太弱，看近处物体时平行光还没会聚成一点就到了视网膜（会聚点在视网膜后，虚线延长可见）。把树拖近看模糊光斑，拖远眼睛又能调清晰；看近要戴左下托盘的凸透镜试试'};
+  return {key:'init',text:'正常眼看远处物体：来自物体的光可看作平行光，睫状体放松、晶状体较薄，平行光恰好会聚在视网膜上成清晰像点。把左侧的树随便拖远拖近：睫状体自动调节晶状体厚薄，像始终清晰落在视网膜上（点眼球或物体可看知识解说）。关「自动」拖滑杆，或把眼况切成「近视」「远视」'};
 }
 function hideToast(){ if(toastEl) toastEl.classList.remove('show'); }
 function sayHint(){
@@ -447,7 +480,7 @@ function knowledgeTap(p){
   // 物体区（R2：物体以光轴为垂直中心）
   var xo=xObj();
   if(Math.abs(p.x-xo)<G.R*0.5&&p.y>axisY-G.hObj*1.5&&p.y<axisY+G.hObj*1.5){
-    showBubble('正常眼的远点在无限远处：看很远处的物体时睫状体放松，晶状体最薄，光线恰好会聚在视网膜上。',xo,axisY-G.hObj*1.2);
+    showBubble('正常眼的远点在无限远处：看很远处的物体时睫状体放松，晶状体最薄，平行光恰好会聚在视网膜上。',xo,axisY-G.hObj*1.2);
     return true;
   }
   return false;
@@ -656,6 +689,6 @@ resize(); syncUI(); sayHint(); draw(); requestAnimationFrame(tick);
 window.__c5s4dbg={
   get st(){return st;}, get G(){return G;}, get W(){return W;}, get H(){return H;},
   set:function(o){ Object.assign(st,o); syncUI(); sayHint(); draw(); },
-  info:imgInfo,tAct:tActNow,tr:traceRays,fEyeK:fEyeK
+  info:imgInfo,tAct:tActNow,tr:traceRays,fEyeK:fEyeK,fReqK:fReqK,frNow:frNow,imgConv:imgConv,COND_FRNG:COND_FRNG,SHARP_TOL:SHARP_TOL
 };
 })();
