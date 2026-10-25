@@ -3,7 +3,7 @@ PROPS.SPRITE_BASE='../_lib/v1/sprites/';
 var FONT='"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif';
 
 // ===== 光学模型（全部以 D=晶状体→视网膜距离 为单位，resize 时由像素几何重算） =====
-// X4/R32 三条平行光口径（教材图5.4-2 画法，回归 preW3）：树顶/中/底三部位各发一条水平平行线入眼，经晶状体后会聚于像点；像点几何由 xConv 与放大率（像高=物高×v/u 相似）导出
+// X4/R32 三条平行光口径（教材图5.4-2 画法，回归 preW3）：树顶/中/底三部位各发一条水平平行线入眼，经晶状体后会聚于像点；像高恒定小像 G.R*0.28（蔡总 2026-10-26 口径：拖树全程像大小不变，仅像点位置随眼况/调焦移动）
 // 物理内核保留 W3：自动调焦 fK_req=uK/(1+uK)（内部计算层），钳到该眼况调节范围 frNow()；戴镜时对串联系统等效反解；会聚点 xConv=薄透镜成像解（物顶平行轴线+光心方向线求交，内部解算不绘制）
 var SHARP_TOL=0.03;                            // 清晰判定 |xConv-xRet| <= SHARP_TOL*D
 var UK_MIN=0.9,UK_MAX=2.7;                     // W3 树可拖动范围（×D，无量纲物距系数；禁存像素）
@@ -104,7 +104,7 @@ function imgConv(fEyePx){
   return {xConv:xConv,yConv:yConv};
 }
 // X4/R32 绘制口径（蔡总原话①，教材图5.4-2）：三条水平平行光自树顶/中/底（m0=0）；戴镜时每线在镜面串联折射（yC/m 结构逐线套用）；
-// 晶状体折射后三线会聚于像点 xConv（像点几何=imgConv 物理解+放大率 v/u 相似，绘制的光线就是本函数算出的线，禁另画一套；任意两线求交即 xConv、第三线同过该点）
+// 晶状体折射后三线会聚于像点 xConv（像点位置=imgConv 物理解；像高恒定小像 G.R*0.28（蔡总 2026-10-26 口径：拖树全程像大小不变，仅像点位置随眼况/调焦移动）；绘制的光线就是本函数算出的线，禁另画一套；任意两线求交即 xConv、第三线同过该点）
 function traceRays(){
   var fEyePx=fEyeK()*G.D;
   var ys=[objTopY(),axisY,objBottomY()];
@@ -232,11 +232,9 @@ function drawRays(tr){
   }
 }
 // R24：会聚点迷你倒立树剪影——与物体树同造型绕光轴倒转（树冠朝轴下/树根朝轴上=倒立实像语义），代码画
-// X4/R32 像高由放大率导出：像高=物高×(xConv-xL)/(xL-xObj) 相似关系（默认远端 u=2.7D、v=1D 时=0.28R 恰为 R24 原规格）
+// Y1 像高恒定小像 G.R*0.28（蔡总 2026-10-26 口径：拖树全程像大小不变，仅像点位置随眼况/调焦移动）
 function imgHeightK(xConv){
-  var u=G.xL-xObj();
-  var h=G.hObj*2*(xConv-G.xL)/u;
-  return Math.max(G.R*0.10,Math.min(G.R*0.75,h));                   // 离焦极端像距的视觉钳制（物理 xConv 不动）
+  return G.R*0.28;
 }
 function drawImgTree(x,h){
   if(!isFinite(x)) return;
@@ -248,7 +246,7 @@ function drawImgTree(x,h){
 }
 function drawRetinaImage(tr){
   var info=imgInfo(tr);
-  var hImg=imgHeightK(tr.xConv);                                    // X4/R32：像高=物高×v/u（放大率相似）
+  var hImg=imgHeightK(tr.xConv);                                    // Y1：像高恒定小像 G.R*0.28（蔡总 2026-10-26 口径：拖树全程像大小不变，仅像点位置随眼况/调焦移动）
   if(info.sharp){
     // R10：清晰态会聚点强制吸附视网膜表面交点 G.xRet（轴上）；黄晕圆心=像点圆心=吸附点
     var cx=G.xRet,cy=axisY;
