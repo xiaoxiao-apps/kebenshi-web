@@ -383,7 +383,6 @@ function renderQuestion(q, no) {
   return '<div class="qcard" id="q_' + q.id + '">' +
     '<div class="qno"><b>' + esc(no) + '</b><span>(' + q.points + '分)</span></div>' +
     '<div class="stem">' + esc(q.stem) + '</div>' +
-    (q.note ? '<div class="qnote">' + esc(q.note) + '</div>' : '') +
     renderFig(q.fig) +
     (q.parts || []).map((_, pi) => renderPart(q, pi)).join('') +
     '</div>';
@@ -772,6 +771,47 @@ function showResult() {
 }
 
 /* ================= 打印层（设计书 §6：纯 CSS + window.print()） ================= */
+/* 打印图像修正（X1/A2）：qbank fig 返回的 SVG 仅有 viewBox 无固有宽高，
+ * 打印 compact 档 float 盒 shrink-to-fit 塌缩为 0 宽 → 图全消失；
+ * 且 figs 配色按深色底设计，白纸不可见。仅 buildPrint 的 p-fig 分支调用，屏上 renderFig 不动。
+ * ①由 viewBox 注入 width/height；②<text> 的 fill 十六进制色→#000；
+ * ③非 text 元素 fill/stroke 十六进制色按亮度 L=0.299r+0.587g+0.114b：
+ *   L>200→#333；150<L≤200→各通道×0.6 取整钳[0,255]；L≤150 保留；opacity/rgba/none 不动。 */
+function _printHex(hex) {
+  let h = hex.slice(1);
+  if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+  if (!/^[0-9a-fA-F]{6}$/.test(h)) return hex;
+  const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+  const L = 0.299 * r + 0.587 * g + 0.114 * b;
+  if (L > 200) return '#333';
+  if (L > 150) {
+    const dim = c => Math.max(0, Math.min(255, Math.round(c * 0.6)));
+    const to2 = v => ('0' + v.toString(16)).slice(-2);
+    return '#' + to2(dim(r)) + to2(dim(g)) + to2(dim(b));
+  }
+  return hex;
+}
+function printifySvg(svgStr) {
+  if (typeof svgStr !== 'string') return svgStr;
+  const root = svgStr.match(/<svg\b[^>]*>/);
+  if (!root) return svgStr;
+  const vb = root[0].match(/viewBox\s*=\s*"\s*(-?[\d.]+)[\s,]+(-?[\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)\s*"/);
+  if (!vb) return svgStr;
+  let s = svgStr;
+  if (!/\bwidth\s*=/.test(root[0])) {
+    s = s.replace(root[0], root[0].replace(/^<svg/, '<svg width="' + vb[3] + '" height="' + vb[4] + '"'));
+  }
+  s = s.replace(/<([a-zA-Z][\w-]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/g, (tag, name, attrs) => {
+    if (name === 'text') {
+      attrs = attrs.replace(/fill\s*=\s*"#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})"/g, 'fill="#000"');
+    } else {
+      attrs = attrs.replace(/(fill|stroke)\s*=\s*"(#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}))"/g,
+        (m, attr, hex) => attr + '="' + _printHex(hex) + '"');
+    }
+    return '<' + name + attrs + '>';
+  });
+  return s;
+}
 function printDensity() {
   if (typeof document === 'undefined') return 'compact';
   const r = $1('input[name="printDensity"]:checked');
@@ -804,7 +844,7 @@ function buildPrint(includeAnswers) {
       n++;
       const isShort = (q.parts || []).length <= 2 && q.type !== 'experiment' && q.type !== 'calc';
       let figHtml = '';
-      if (q.fig && FIGMAP[q.fig]) { try { figHtml = '<div class="p-fig">' + FIGMAP[q.fig]() + '</div>'; } catch (e) {} }
+      if (q.fig && FIGMAP[q.fig]) { try { figHtml = '<div class="p-fig">' + printifySvg(FIGMAP[q.fig]()) + '</div>'; } catch (e) {} }
       html += '<div class="pq' + (isShort ? ' pq-short' : '') + '">' + figHtml + '<div class="p-stem">' + n + '. ' + esc(q.stem) + '（' + q.points + '分）</div>';
       (q.parts || []).forEach(p => {
         if (p.q) html += '<div>' + esc(p.q) + '</div>';
@@ -967,5 +1007,5 @@ if (typeof document !== 'undefined') {
 
 /* Node 自测出口（/tmp/p1_drawtest.js 用） */
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { SAMPLE, collectPool, mulberry32, defaultMix, diffQuota, drawPaper, norm, sameSet, gradePart, gradeQuestion, sectionsOf };
+  module.exports = { SAMPLE, collectPool, mulberry32, defaultMix, diffQuota, drawPaper, norm, sameSet, gradePart, gradeQuestion, sectionsOf, printifySvg };
 }
