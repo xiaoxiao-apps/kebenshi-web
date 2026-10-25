@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-23",
+ "generated": "2026-10-26",
  "subjects": {
   "physics": [
    {
@@ -780,6 +780,18 @@
     "type": "小结",
     "title": "质量与密度 · 本章小结",
     "path": "content/physics_g8_v1_c6_summary/index.html",
+    "thumb": null
+   },
+   {
+    "id": "mockexam/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "上册",
+    "chapter": "全册",
+    "section": "模拟组卷",
+    "type": "组卷",
+    "title": "模拟试卷组卷",
+    "path": "content/mockexam/index.html",
     "thumb": null
    }
   ],

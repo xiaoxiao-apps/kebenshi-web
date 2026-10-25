@@ -113,6 +113,7 @@ button { font-family: inherit; cursor: pointer; }
 .qd-thumb-fallback[data-t="小结"] { background: linear-gradient(135deg, #f5a623, #ef7d3b); }
 .qd-thumb-fallback[data-t="练习"] { background: linear-gradient(135deg, #ef5f8a, #d84bb0); }
 .qd-thumb-fallback[data-t="趣味"] { background: linear-gradient(135deg, #ff8a3d, #f7564f); }
+.qd-thumb-fallback[data-t="组卷"] { background: linear-gradient(135deg, #6c5ce7, #3742fa); }
 .qd-card-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .qd-card-title { font-size: 15px; font-weight: 600; line-height: 1.4; margin: 0; }
 .qd-badges { margin-top: auto; display: flex; flex-wrap: wrap; gap: 6px; }

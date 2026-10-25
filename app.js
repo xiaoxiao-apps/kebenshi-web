@@ -8,7 +8,7 @@
     { key: 'math', name: '数学', icon: '📐', desc: '趣味数学探究' },
     { key: 'chemistry', name: '化学', icon: '🧪', desc: '化学互动实验' }
   ];
-  var TYPE_EMOJI = { '实验': '🧪', '讲解': '📖', '小结': '📋', '练习': '✏️', '趣味': '🎲' };
+  var TYPE_EMOJI = { '实验': '🧪', '讲解': '📖', '小结': '📋', '练习': '✏️', '趣味': '🎲', '组卷': '📝' };
   var FILTER_GROUPS = [
     { key: 'grade', label: '年级', param: 'g', field: 'grade' },
     { key: 'volume', label: '册', param: 'v', field: 'volume' },
@@ -276,6 +276,7 @@
       case '讲解': return '「' + (card.section || ch) + '」知识讲解 · ' + ch + ' · 动画演示，一步步建立概念';
       case '小结': return ch + '知识梳理 · 把整章内容串成一张网';
       case '练习': return ch + '闯关练习 · 即时判分，边练边巩固';
+      case '组卷': return '按章节范围自动组卷 · 即时/交卷判分 · 可打印 A4 试卷';
       case '趣味': return '趣味探究 · 在动手尝试中发现数学规律';
       default: return card.chapter || '';
     }
@@ -536,7 +537,7 @@
   });
 
   /* ---------- 启动 ---------- */
-  fetch('data/catalog.json')
+  fetch('data/catalog.json?v=20261026')
     .then(function (r) { return r.json(); })
     .then(function (data) {
       catalog = data.subjects || {};
