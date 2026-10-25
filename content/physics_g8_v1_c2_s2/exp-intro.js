@@ -140,13 +140,14 @@
     }
     if(!hit) return; /* 两面板之外：零触发 */
     if(paused){ paused = false; pauseBtn.textContent = '⏸ 暂停'; }
+    /* X2 互斥：点谁谁动、另一个立停，无需重置（G4 只置 true 从不清另一个致暂停后双动） */
+    active.butterfly=(hit === 'butterfly');
+    active.mosquito=(hit === 'mosquito');
     var a = ensureAudio();
     if(hit === 'butterfly'){
-      active.butterfly = true; /* 点蝴蝶：翅膀扇但无声 */
       if(mosqPlaying || !a.paused){ a.pause(); a.currentTime = 0; mosqPlaying = false; wasPlaying = false; }
       butterflyHint = 1.5;
     } else {
-      active.mosquito = true; /* 点蚊子：扇翅+嗡嗡声 */
       if(a.paused || a.ended){ a.currentTime = 0; a.play().catch(function(){}); mosqPlaying = true; }
       mosqHint = 1.5;
     }
