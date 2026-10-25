@@ -45,6 +45,12 @@
     box-shadow: 0 4px 18px rgba(0, 0, 0, .22);
   }
   .fs-float-mat h3 { font-size: 14px; margin: 0 0 8px; }
+  .fs-float-mat .fs-drag-handle {
+    touch-action: none; cursor: grab; user-select: none;
+    font-size: 12px; font-weight: 700; color: var(--ink2);
+    padding: 4px 6px; margin: -4px -6px 6px; border-radius: 8px;
+    background: rgba(0, 0, 0, .05); text-align: center;
+  }
   .fs-float-mat .mat-grid { grid-template-columns: 1fr; margin-top: 0; gap: 6px; }
   .fs-float-mat .mat-btn { padding: 7px 10px; min-height: 38px; font-size: 13px; }
   @media (max-width: 480px) {
@@ -125,6 +131,6 @@
 <script src="three.min.js?v=20261024"></script>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-back.js?v=20261024"></script>
-<script src="exp-room.js?v=20261024"></script>
+<script src="exp-room.js?v=20261025x3"></script>
 </body>
 </html>

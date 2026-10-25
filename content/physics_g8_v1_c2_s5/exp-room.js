@@ -198,13 +198,50 @@ var matTitle=document.getElementById('matTitle');
 var matHome=document.createComment('matBlock-home');
 var floatBox=document.createElement('div'); floatBox.className='fs-float-mat';
 if(matGrid&&matGrid.parentNode){matGrid.parentNode.insertBefore(matHome,matGrid);}
+/* —— 浮窗拖动（照 G6 exp-slope 先例）：专用 ⠿ 手柄 pointerdown→setPointerCapture→pointermove 改 left/top，四边钳制，<5px 视为 click —— */
+var floatHandle=document.createElement('div'); floatHandle.className='fs-drag-handle'; floatHandle.textContent='⠿ 按住拖动'; floatBox.appendChild(floatHandle);
+function clampFloat(){
+  if(floatBox.parentNode!==fsWrap)return;
+  var w=floatBox.offsetWidth,h=floatBox.offsetHeight,r=floatBox.getBoundingClientRect();
+  var l=Math.min(Math.max(r.left,4),Math.max(4,window.innerWidth-w-4));
+  var t=Math.min(Math.max(r.top,4),Math.max(4,window.innerHeight-h-4));
+  floatBox.style.left=l+'px'; floatBox.style.top=t+'px'; floatBox.style.bottom='auto';
+}
+if(window.PointerEvent){
+  var fdrag=false,fSX=0,fSY=0,fBL=0,fBT=0,fMoved=false;
+  floatHandle.addEventListener('pointerdown',function(e){
+    if(floatBox.parentNode!==fsWrap)return;
+    var r=floatBox.getBoundingClientRect();
+    fdrag=true; fMoved=false; fSX=e.clientX; fSY=e.clientY; fBL=r.left; fBT=r.top;
+    floatBox.style.left=fBL+'px'; floatBox.style.top=fBT+'px'; floatBox.style.bottom='auto';
+    floatHandle.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  floatHandle.addEventListener('pointermove',function(e){
+    if(!fdrag)return;
+    var dx=e.clientX-fSX,dy=e.clientY-fSY;
+    if(!fMoved&&Math.abs(dx)<5&&Math.abs(dy)<5)return;
+    fMoved=true;
+    var w=floatBox.offsetWidth,h=floatBox.offsetHeight;
+    var l=Math.min(Math.max(fBL+dx,4),Math.max(4,window.innerWidth-w-4));
+    var t=Math.min(Math.max(fBT+dy,4),Math.max(4,window.innerHeight-h-4));
+    floatBox.style.left=l+'px'; floatBox.style.top=t+'px'; floatBox.style.bottom='auto';
+  });
+  floatHandle.addEventListener('pointerup',function(e){
+    fdrag=false;
+    if(floatHandle.hasPointerCapture(e.pointerId))floatHandle.releasePointerCapture(e.pointerId);
+  });
+  floatHandle.addEventListener('pointercancel',function(){fdrag=false;});
+}
+window.addEventListener('resize',clampFloat);
+document.addEventListener('fullscreenchange',clampFloat);
 function placeMat(){
   if(!fsWrap||!window.FullscreenHelper)return;
   var fs=FullscreenHelper.isFullscreen()||fsWrap.classList.contains('pseudo-fullscreen');
   if(fs){
     if(floatBox.parentNode!==fsWrap){
       floatBox.appendChild(matTitle); floatBox.appendChild(matGrid);
-      fsWrap.appendChild(floatBox); resize();
+      fsWrap.appendChild(floatBox); resize(); clampFloat();
     }
   }else if(floatBox.parentNode===fsWrap){
     fsWrap.removeChild(floatBox);
