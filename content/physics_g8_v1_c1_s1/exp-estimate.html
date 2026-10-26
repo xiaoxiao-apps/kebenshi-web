@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>身上的尺 · 估测挑战 · 长度和时间的测量</title>
 <link rel="stylesheet" href="common.css?v=20261024">
 <style>
+  html, body { -webkit-tap-highlight-color: transparent; }
+  #fsEstimate.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
   .body-ruler-refs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
   .ref-card { background: var(--brown-bg); border-radius: 10px; padding: 12px; text-align: center; }
   .ref-card b { display: block; color: var(--brown); font-size: 15px; }
@@ -15,7 +17,7 @@
   .est-question { font-size: 15px; margin: 8px 0 12px; }
   /* ---- 全屏态（页面大标题在 wrap 外，全屏自然隐藏） ---- */
   .fullscreen-wrap:fullscreen, .fullscreen-wrap.pseudo-fullscreen {
-    width: 100vw; height: 100vh; overflow-y: auto;
+    width: 100vw; height: 100vh; height: 100dvh; overflow-y: auto;
     background: var(--bg); border-radius: 0; margin: 0;
     padding: 52px 14px 16px; box-sizing: border-box;
   }

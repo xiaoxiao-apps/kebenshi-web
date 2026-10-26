@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>实测任务单 · 长度和时间的测量</title>
 <link rel="stylesheet" href="common.css?v=20261024">
 <style>
+  html, body { -webkit-tap-highlight-color: transparent; }
+  #fsTask.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
   .task-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
   .task-table th, .task-table td { border: 1px solid #e6dfd0; padding: 6px 4px; text-align: center; }
   .task-table th { background: var(--green-bg); color: var(--green); }
@@ -20,7 +22,7 @@
   .tab-panel.active { display: block; }
   /* ---- 全屏态（页面大标题在 wrap 外，全屏自然隐藏） ---- */
   .fullscreen-wrap:fullscreen, .fullscreen-wrap.pseudo-fullscreen {
-    width: 100vw; height: 100vh; overflow-y: auto;
+    width: 100vw; height: 100vh; height: 100dvh; overflow-y: auto;
     background: var(--bg); border-radius: 0; margin: 0;
     padding: 52px 14px 16px; box-sizing: border-box;
   }
