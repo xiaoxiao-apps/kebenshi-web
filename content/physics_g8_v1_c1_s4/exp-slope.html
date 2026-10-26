@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <title>斜面小车测平均速度 · 速度的测量</title>
 <link rel="stylesheet" href="common.css?v=20261024">
 <style>
+html, body { -webkit-tap-highlight-color: transparent; }
 .notice { background: var(--cyan-bg); border-left: 4px solid var(--cyan); padding: 12px 14px; border-radius: 0 10px 10px 0; font-size: 13px; color: var(--ink2); margin-bottom: 14px; }
 .scene-wrap { position: relative; background: var(--card2); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
 #slopeSvg { display: block; width: 100%; height: auto; user-select: none; }
@@ -35,9 +36,10 @@
 @keyframes flash { 0% { opacity: 1; } 50% { opacity: .2; } 100% { opacity: 1; } }
 /* ---- 全屏态：铺满视口 ---- */
 #fsSlope:fullscreen, #fsSlope.pseudo-fullscreen {
-  width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+  width: 100vw; height: 100vh; height: 100dvh; overflow-y: auto; background: var(--bg);
   border-radius: 0; margin: 0; padding: 14px 12px; box-sizing: border-box;
 }
+#fsSlope.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
 #fsSlope:fullscreen > .card, #fsSlope.pseudo-fullscreen > .card {
   max-width: 1100px; margin: 0 auto; width: 100%; box-sizing: border-box;
 }

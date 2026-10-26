@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <title>速度全景图 · 运动的快慢</title>
 <link rel="stylesheet" href="common.css?v=20261024">
 <style>
+  html, body { -webkit-tap-highlight-color: transparent; }
   .bars { margin: 10px 0; }
   .bar-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; cursor: pointer; }
   .bar-row .name { min-width: 118px; font-weight: 700; font-size: 13px; text-align: right; color: var(--ink); }
@@ -23,9 +24,10 @@
   }
   /* ---- 全屏态：铺满视口 ---- */
   #fsSpeed:fullscreen, #fsSpeed.pseudo-fullscreen {
-    width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+    width: 100vw; height: 100vh; height: 100dvh; overflow-y: auto; background: var(--bg);
     border-radius: 0; margin: 0; padding: 46px 12px 12px; box-sizing: border-box;
   }
+  #fsSpeed.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
   #fsSpeed:fullscreen .card, #fsSpeed.pseudo-fullscreen .card { max-width: 860px; margin: 0 auto; }
   #fsSpeed:fullscreen .bar-row .name, #fsSpeed.pseudo-fullscreen .bar-row .name { font-size: 15px; }
   #fsSpeed:fullscreen .bar-row .track, #fsSpeed.pseudo-fullscreen .bar-row .track { height: 28px; }
