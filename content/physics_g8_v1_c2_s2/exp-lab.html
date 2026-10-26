@@ -4,9 +4,13 @@
   <meta charset="UTF-8" />
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
   <title>声音特性实验室</title>
   <link rel="stylesheet" href="lab.css?v=20261024" />
+<style>
+    /* M3b 移动兼容：防误触（壳页 height:100% 布局，无 100vh，dvh N/A） */
+    html, body { -webkit-tap-highlight-color: transparent; }
+  </style>
 </head>
 <body>
   <header id="shell-header">
@@ -29,12 +33,12 @@
 
   <main id="shell-content">
     <div class="frame-card">
-      <iframe class="mode-frame active" data-mode="intro"       data-src="exp-intro.html?v=20261026"       title="蚊子与蝴蝶" allowfullscreen allow="fullscreen"></iframe>
-      <iframe class="mode-frame" data-mode="ruler"       data-src="exp-ruler.html?v=20261024"       title="钢尺振动" allowfullscreen allow="fullscreen"></iframe>
-      <iframe class="mode-frame" data-mode="scope"       data-src="exp-scope.html?v=20261024"       title="示波器波形" allowfullscreen allow="fullscreen"></iframe>
-      <iframe class="mode-frame" data-mode="loudness"    data-src="exp-loudness.html?v=20261024"    title="响度与振幅" allowfullscreen allow="fullscreen"></iframe>
-      <iframe class="mode-frame" data-mode="timbre"      data-src="exp-timbre.html?v=20261024"      title="音色对比" allowfullscreen allow="fullscreen"></iframe>
-      <iframe class="mode-frame" data-mode="range"       data-src="exp-range.html?v=20261024"       title="听觉频率范围" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame active" data-mode="intro"       data-src="exp-intro.html?v=20261026m3"       title="蚊子与蝴蝶" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame" data-mode="ruler"       data-src="exp-ruler.html?v=20261026m3"       title="钢尺振动" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame" data-mode="scope"       data-src="exp-scope.html?v=20261026m3"       title="示波器波形" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame" data-mode="loudness"    data-src="exp-loudness.html?v=20261026m3"    title="响度与振幅" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame" data-mode="timbre"      data-src="exp-timbre.html?v=20261026m3"      title="音色对比" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame" data-mode="range"       data-src="exp-range.html?v=20261026m3"       title="听觉频率范围" allowfullscreen allow="fullscreen"></iframe>
       <iframe class="mode-frame" data-mode="craft"       data-src="exp-craft.html?v=20261024"       title="自制乐器仿真" allowfullscreen allow="fullscreen"></iframe>
       <iframe class="mode-frame" data-mode="instruments" data-src="exp-instruments.html?v=20261024" title="乐音和乐器" allowfullscreen allow="fullscreen"></iframe>
     </div>

@@ -4,9 +4,13 @@
   <meta charset="UTF-8" />
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
   <title>声的利用实验室</title>
   <link rel="stylesheet" href="lab.css?v=20261024" />
+<style>
+    /* M3b 移动兼容：防误触（壳页 height:100% 布局，无 100vh，dvh N/A） */
+    html, body { -webkit-tap-highlight-color: transparent; }
+  </style>
 </head>
 <body>
   <header id="shell-header">
@@ -24,9 +28,9 @@
 
   <main id="shell-content">
     <div class="frame-card">
-      <iframe class="mode-frame active" data-mode="candle"  data-src="exp-candle.html?v=20261024"  title="扬声器与烛焰" allowfullscreen allow="fullscreen"></iframe>
-      <iframe class="mode-frame" data-mode="echo"     data-src="exp-echo.html?v=20261024"     title="回声定位测距" allowfullscreen allow="fullscreen"></iframe>
-      <iframe class="mode-frame" data-mode="huanqiu" data-src="exp-huanqiu.html?v=20261024" title="圜丘回声" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame active" data-mode="candle"  data-src="exp-candle.html?v=20261026m3"  title="扬声器与烛焰" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame" data-mode="echo"     data-src="exp-echo.html?v=20261026m3"     title="回声定位测距" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame" data-mode="huanqiu" data-src="exp-huanqiu.html?v=20261026m3" title="圜丘回声" allowfullscreen allow="fullscreen"></iframe>
     </div>
   </main>
 

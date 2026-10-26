@@ -4,9 +4,14 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>回声测距计算器 · 声音的产生与传播</title>
 <link rel="stylesheet" href="common.css?v=20261024">
+<style>
+  /* M3b 移动兼容（共享 common.css 禁改，内联覆盖）：防误触 + 伪全屏 100dvh 回退 */
+  html, body { -webkit-tap-highlight-color: transparent; }
+  #fsEcho.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
+</style>
 <style>
   .mode-tabs { display: flex; gap: 8px; flex-wrap: nowrap; margin-bottom: 12px; }
   .mode-tab { flex: 1; min-height: 44px; border-radius: 10px; border: 1.5px solid rgba(0,0,0,.1); background: var(--card); color: var(--ink2); font-weight: 700; font-size: 13px; cursor: pointer; }
@@ -40,7 +45,7 @@
   }
   /* ---- 全屏态：铺满视口，全部按钮/算式讲解区保留 ---- */
   #fsEcho:fullscreen, #fsEcho.pseudo-fullscreen {
-    width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+    width: 100vw; height: 100vh; height: 100dvh; overflow-y: auto; background: var(--bg);
     border-radius: 0; margin: 0; padding: 46px 12px 12px; box-sizing: border-box;
   }
   #fsEcho:fullscreen .card, #fsEcho.pseudo-fullscreen .card { max-width: 860px; margin: 0 auto; }

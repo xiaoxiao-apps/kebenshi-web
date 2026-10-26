@@ -4,9 +4,13 @@
   <meta charset="UTF-8" />
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
   <title>噪声实验室</title>
   <link rel="stylesheet" href="lab.css?v=20261024" />
+<style>
+    /* M3b 移动兼容：防误触（壳页 height:100% 布局，无 100vh，dvh N/A） */
+    html, body { -webkit-tap-highlight-color: transparent; }
+  </style>
 </head>
 <body>
   <header id="shell-header">
@@ -24,9 +28,9 @@
 
   <main id="shell-content">
     <div class="frame-card">
-      <iframe class="mode-frame active" data-mode="wave"    data-src="exp-wave.html?v=20261024"    title="观察噪声的波形" allowfullscreen allow="fullscreen"></iframe>
-      <iframe class="mode-frame" data-mode="decibel" data-src="exp-decibel.html?v=20261024" title="声音强弱的感觉" allowfullscreen allow="fullscreen"></iframe>
-      <iframe class="mode-frame" data-mode="control" data-src="exp-control.html?v=20261024" title="控制噪声三途径" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame active" data-mode="wave"    data-src="exp-wave.html?v=20261026m3"    title="观察噪声的波形" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame" data-mode="decibel" data-src="exp-decibel.html?v=20261026m3" title="声音强弱的感觉" allowfullscreen allow="fullscreen"></iframe>
+      <iframe class="mode-frame" data-mode="control" data-src="exp-control.html?v=20261026m3" title="控制噪声三途径" allowfullscreen allow="fullscreen"></iframe>
     </div>
   </main>
 

@@ -4,9 +4,14 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>实验：控制噪声的三个途径 · 噪声的危害和控制</title>
 <link rel="stylesheet" href="common.css?v=20261024">
+<style>
+  /* M3b 移动兼容（共享 common.css 禁改，内联覆盖）：防误触 + 伪全屏 100dvh 回退 */
+  html, body { -webkit-tap-highlight-color: transparent; }
+  .measure-card.sel { outline: 3px solid #2b7fd4; outline-offset: 2px; }
+</style>
 <style>
   .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
   .drag-pool { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; min-height: 54px; }
@@ -65,6 +70,6 @@
   </div>
 </div>
 <script src="exp-back.js?v=20261024"></script>
-<script src="exp-control.js?v=20261024"></script>
+<script src="exp-control.js?v=20261026m3"></script>
 </body>
 </html>

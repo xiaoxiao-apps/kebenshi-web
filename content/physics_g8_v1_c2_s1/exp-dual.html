@@ -4,9 +4,14 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>双声到达模拟 · 声音的产生与传播</title>
 <link rel="stylesheet" href="common.css?v=20261024">
+<style>
+  /* M3b 移动兼容（共享 common.css 禁改，内联覆盖）：防误触 + 伪全屏 100dvh 回退 */
+  html, body { -webkit-tap-highlight-color: transparent; }
+  #fsDualWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
+</style>
 <style>
   .len-line { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; margin-top: 10px; }
   .len-line input[type=range] { flex: 1; width: auto; min-width: 0; }
@@ -34,7 +39,7 @@
   }
   /* ---- 全屏态：铺满视口，滑块/按钮/读数全部保留 ---- */
   #fsDualWrap:fullscreen, #fsDualWrap.pseudo-fullscreen {
-    width: 100vw; height: 100vh; overflow-y: auto; background: var(--bg);
+    width: 100vw; height: 100vh; height: 100dvh; overflow-y: auto; background: var(--bg);
     border-radius: 0; margin: 0; padding: 46px 12px 12px; box-sizing: border-box;
   }
   #fsDualWrap:fullscreen .card, #fsDualWrap.pseudo-fullscreen .card { max-width: 860px; margin: 0 auto; }
