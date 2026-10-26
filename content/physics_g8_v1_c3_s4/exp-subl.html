@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>升华凝华观察站</title>
+<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261027n1">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
   html, body { width:100%; height:100%; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei",sans-serif; background:#1a1a24; color:#f0f0f0; }
@@ -43,7 +44,8 @@
   .btn.warn { background:#ff9800; border-color:#ff9800; color:#fff; }
 
   .bottom-controls { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); display:flex; gap:12px; align-items:center; background:rgba(30,30,44,.95); padding:10px 18px; border-radius:28px; border:1px solid rgba(255,255,255,.1); }
-  .hint-bar { position:absolute; bottom:86px; left:50%; transform:translateX(-50%); font-size:12px; color:#9090a5; background:rgba(0,0,0,.35); padding:4px 14px; border-radius:12px; text-align:center; max-width:90vw; }
+  #canvas-container { touch-action:none; }
+  #app { height:100vh; height:100dvh; }
 
   #heat-arrow, #cool-arrow { position:absolute; left:50%; transform:translateX(-50%); font-size:14px; font-weight:700; opacity:0; transition:opacity .4s; pointer-events:none; }
   #heat-arrow { top:56%; color:#ff7043; text-shadow:0 0 6px rgba(255,112,67,.6); }
@@ -132,7 +134,6 @@
       <button class="btn" id="btn-mute">🔊</button>
       <button class="btn" id="btn-fullscreen">⛶ 全屏</button>
     </div>
-    <div class="hint-bar">💡 空白处拖动旋转视角 · 滚轮/双指缩放 · 点「浇热水」看碘升华为紫色蒸气，点「浇冷水」看蒸气凝华回落</div>
 
     <div id="heat-arrow">↑ 持续吸热 ↑</div>
     <div id="cool-arrow">↓ 放热 ↓</div>
@@ -169,10 +170,15 @@
     <div id="pour-tooltip"></div>
   </div>
 </div>
-<script src="three.min.js?v=20261024"></script>
-<script src="exp-subl-audio.js?v=20261024"></script>
-<script src="exp-subl-core.js?v=20261024"></script>
-<script src="exp-subl-pour.js?v=20261024"></script>
-<script src="exp-subl.js?v=20261024"></script>
+<script src="three.min.js?v=20261027n1"></script>
+<script src="exp-subl-audio.js?v=20261027n1"></script>
+<script src="exp-subl-core.js?v=20261027n1"></script>
+<div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
+<script>window.GUIDE_CFG={state:window.C3S4_STATE,mode:'refract'};/* core 已加载；state.mode 恒 iodine，GUIDE_CFG.mode 强制 refract；GUIDE_DATA 由 guide-data.js 末尾双赋值 */</script>
+<script src="guide/guide-data.js?v=20261027n1"></script>
+<script src="../_lib/guide/engine-core.js?v=20261027n1"></script>
+<script src="../_lib/guide/vB-core.js?v=20261027n1"></script>
+<script src="exp-subl-pour.js?v=20261027n1"></script>
+<script src="exp-subl.js?v=20261027n1"></script>
 </body>
 </html>

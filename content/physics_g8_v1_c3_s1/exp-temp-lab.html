@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
   <title>温度实验室</title>
-  <link rel="stylesheet" href="temp-lab.css?v=20261024" />
+  <link rel="stylesheet" href="temp-lab.css?v=20261027n1" />
+<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261027n1" />
+<style>html,body{-webkit-tap-highlight-color:transparent}#canvas-container{touch-action:none}#app{height:100vh;height:100dvh}.hint{display:none!important}/* 解说条已删（蔡总拍板：加语音页不要解说条），temp-lab.css 属红线禁改，用内联覆盖隐藏 */</style>
 </head>
 <body>
   <div id="app">
@@ -88,17 +90,19 @@
         <button class="btn" id="btn-mute" title="切换静音">🔊</button>
       </div>
 
-      <div class="hint">
-        点击「温度计架」插入杯中 · 点击杯中温度计取出 · 拖温度计到垃圾桶删除 · 空白处拖动旋转视角 · 滚轮/双指缩放 · 右侧调节参数
-      </div>
       <div id="trash-bin">🗑️<div class="trash-label">垃圾桶</div></div>
       <button id="clinical-shake">甩一甩体温计</button>
     </div>
   </div>
 
-  <script src="three.min.js?v=20261024"></script>
-  <script src="exp-temp-lab-audio.js?v=20261024"></script>
-  <script src="exp-temp-lab-core.js?v=20261024"></script>
-  <script src="exp-temp-lab.js?v=20261024"></script>
+  <script src="three.min.js?v=20261027n1"></script>
+  <script src="exp-temp-lab-audio.js?v=20261027n1"></script>
+  <script src="exp-temp-lab-core.js?v=20261027n1"></script>
+  <div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
+  <script>window.GUIDE_CFG={state:window.C3S1_STATE,mode:'refract'};/* core 已加载，window.C3S1_STATE 已存在；GUIDE_DATA 由 guide-data.js 末尾双赋值 */</script>
+  <script src="guide/guide-data.js?v=20261027n1"></script>
+  <script src="../_lib/guide/engine-core.js?v=20261027n1"></script>
+  <script src="../_lib/guide/vB-core.js?v=20261027n1"></script>
+  <script src="exp-temp-lab.js?v=20261027n1"></script>
 </body>
 </html>

@@ -1131,3 +1131,7 @@ window.addEventListener('pagehide', function (e) {
     }
   } catch (err) { /* 清理路径不抛错 */ }
 });
+
+/* ---- 语音讲解层暴露（docs/c3-guide-design.md §C-1）：state 惰性赋值(S3-ui:5)且会整体重赋值(S3-ui:85/S3-core:59)，
+   必须 Proxy 委托实时解引用闭包绑定；引擎加载期捕获的是 Proxy 本身，引用永久稳定 ---- */
+window.C3S3_STATE = new Proxy({}, { get(_t, k){ return state ? state[k] : undefined; } });

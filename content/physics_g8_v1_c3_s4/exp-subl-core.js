@@ -395,3 +395,7 @@ window.addEventListener('pagehide', function (e) {
     }
   } catch (err) { /* 清理路径不抛错 */ }
 });
+
+/* ---- 语音讲解层暴露（docs/c3-guide-design.md §D-1）：state 在 DOMContentLoaded→init 才赋值(S4-ui:5)，
+   引擎脚本求值期即捕获引用(engine-core.js:12)，必须 Proxy 委托实时解引用 ---- */
+window.C3S4_STATE = new Proxy({}, { get(_t, k){ return state ? state[k] : undefined; } });

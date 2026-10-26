@@ -1150,3 +1150,6 @@ window.addEventListener('pagehide', function (e) {
     }
   } catch (err) { /* 清理路径不抛错 */ }
 });
+
+/* ---- 语音讲解层暴露（docs/c3-guide-design.md §B-1）：Proxy 委托，免疫 resetState(95)/paused(71) 重赋值 ---- */
+window.C3S2_STATE = new Proxy({}, { get(_t, k){ if (k === 'paused') return paused; return state ? state[k] : undefined; } });

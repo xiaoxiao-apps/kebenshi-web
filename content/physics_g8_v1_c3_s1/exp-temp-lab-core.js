@@ -351,3 +351,11 @@ window.addEventListener('pagehide', function (e) {
     }
   } catch (err) { /* 清理路径不抛错 */ }
 });
+
+/* ---- 语音讲解层暴露（docs/c3-guide-design.md §A-1）：state 永远原地 mutate（resetState 58-79 只改字段），
+   paused/thermometers 为闭包散变量且会重赋值，用不可枚举只读 getter 聚合，不改任何实验逻辑 ---- */
+Object.defineProperties(state, {
+  paused: { get(){ return paused; }, enumerable: false },
+  thermometers: { get(){ return thermometers; }, enumerable: false }
+});
+window.C3S1_STATE = state;
