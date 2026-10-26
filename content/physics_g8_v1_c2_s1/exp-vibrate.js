@@ -237,11 +237,10 @@
     if(on){ stopAudio(); }
     updateState();
   }
-  holdBtn.addEventListener('mousedown', function(){ setHold(true); });
-  holdBtn.addEventListener('mouseup', function(){ setHold(false); });
-  holdBtn.addEventListener('mouseleave', function(){ if(held) setHold(false); });
-  holdBtn.addEventListener('touchstart', function(e){ e.preventDefault(); setHold(true); }, { passive: false });
-  holdBtn.addEventListener('touchend', function(e){ e.preventDefault(); setHold(false); });
+  holdBtn.addEventListener('pointerdown', function(){ setHold(true); });
+  holdBtn.addEventListener('pointerup', function(){ setHold(false); });
+  holdBtn.addEventListener('pointerleave', function(){ if(held) setHold(false); });
+  holdBtn.addEventListener('pointercancel', function(){ setHold(false); });
   resetBtn.addEventListener('click', function(){
     plucked = false; curAmp = 0; curCycle = -1; setHold(false);
     ampSlider.value = 60; tensionSlider.value = 50;

@@ -4,10 +4,13 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>实验：发声体振动台 · 声音的产生</title>
 <link rel="stylesheet" href="common.css?v=20261024">
 <style>
+  html, body { -webkit-tap-highlight-color: transparent; }
+  #holdBtn { touch-action: none; user-select: none; -webkit-user-select: none; }
+  #fsVibWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
   .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
   .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #f7e8c0; }
   #bandCv { width: 100%; display: block; }
@@ -77,6 +80,6 @@
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>
 <script src="exp-back.js?v=20261024"></script>
-<script src="exp-vibrate.js?v=20261024"></script>
+<script src="exp-vibrate.js?v=20261026m1"></script>
 </body>
 </html>

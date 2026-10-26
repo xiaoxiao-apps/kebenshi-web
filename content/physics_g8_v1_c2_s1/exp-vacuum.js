@@ -325,20 +325,15 @@
     updateState();
   }
   if(playBtn) playBtn.addEventListener('click', function(){ setPlaying(!playing); });
-  /* 按住抽气键：pointer/mouse/touch 三套，按住才抽、松开停 */
+  /* 按住抽气键：pointer 一套（鼠标/触摸/笔通用），按住才抽、松开停 */
   (function bindHold(el){
     if(!el) return;
     function start(e){ e.preventDefault(); ensureAudio(); setPumping(true); }
     function stop(){ setPumping(false); }
     el.addEventListener('pointerdown', start);
-    el.addEventListener('mousedown', start);
-    el.addEventListener('touchstart', start, { passive: false });
     el.addEventListener('pointerup', stop);
     el.addEventListener('pointerleave', stop);
     el.addEventListener('pointercancel', stop);
-    window.addEventListener('mouseup', stop);
-    window.addEventListener('touchend', stop);
-    window.addEventListener('touchcancel', stop);
     window.addEventListener('pointerup', stop);
     window.addEventListener('pointercancel', stop);
   })(pumpBtn);

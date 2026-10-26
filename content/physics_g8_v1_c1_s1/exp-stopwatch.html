@@ -4,14 +4,18 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>停表读数 · 长度和时间的测量</title>
 <link rel="stylesheet" href="common.css?v=20261024">
 <style>
+  html, body { -webkit-tap-highlight-color: transparent; }
+  #stopwatchCv { touch-action: none; user-select: none; -webkit-user-select: none; }
+  #fsQuiz { touch-action: none; }
   #stopwatchCv { height: 360px; }
   @media (max-width: 768px) { #stopwatchCv { height: 300px; } }
-  .pseudo-fullscreen #stopwatchCv { height: 100vh !important; }
-  :fullscreen #stopwatchCv { height: 100vh !important; }
+  .pseudo-fullscreen #stopwatchCv { height: 100vh !important; height: 100dvh !important; }
+  :fullscreen #stopwatchCv { height: 100vh !important; height: 100dvh !important; }
+  #fsSwWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
 </style>
 </head>
 <body>
@@ -43,7 +47,7 @@
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>
-<script src="exp-stopwatch.js?v=20261024"></script>
+<script src="exp-stopwatch.js?v=20261026m1"></script>
 <script src="exp-back.js?v=20261024"></script>
 </body>
 </html>

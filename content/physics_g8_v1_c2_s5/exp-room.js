@@ -177,9 +177,10 @@ function stopRing(){
 
 var drag=false, lx, ly, cr=Math.atan2(camera.position.z,camera.position.x), ch=Math.atan2(camera.position.y,Math.hypot(camera.position.x,camera.position.y,camera.position.z)), cd=Math.hypot(camera.position.x,camera.position.y,camera.position.z);
 function setCam(){camera.position.set(cd*Math.cos(ch)*Math.cos(cr),cd*Math.sin(ch),cd*Math.cos(ch)*Math.sin(cr));camera.lookAt(0,0,0);}
-wrap.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
-window.addEventListener('mousemove',e=>{if(!drag)return;cr-=(e.clientX-lx)*0.005;ch+=(e.clientY-ly)*0.005;ch=Math.max(-1.3,Math.min(1.3,ch));lx=e.clientX;ly=e.clientY;setCam();});
-window.addEventListener('mouseup',()=>drag=false);
+wrap.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;ly=e.clientY;if(!(e.target.closest&&e.target.closest('button,input,select,a'))){try{wrap.setPointerCapture(e.pointerId);}catch(_){}}});
+window.addEventListener('pointermove',e=>{if(!drag)return;cr-=(e.clientX-lx)*0.005;ch+=(e.clientY-ly)*0.005;ch=Math.max(-1.3,Math.min(1.3,ch));lx=e.clientX;ly=e.clientY;setCam();});
+window.addEventListener('pointerup',()=>drag=false);
+window.addEventListener('pointercancel',()=>drag=false);
 wrap.addEventListener('wheel',e=>{e.preventDefault();cd*=e.deltaY>0?1.08:0.92;cd=Math.max(3,Math.min(12,cd));setCam();},{passive:false});
 
 var lidOpen=false, lidT=0;

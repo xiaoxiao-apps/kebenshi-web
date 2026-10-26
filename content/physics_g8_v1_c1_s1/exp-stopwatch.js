@@ -226,12 +226,8 @@
   }
 
   function handleClick(e){
-    var rect = cv.getBoundingClientRect();
-    var px, py;
-    if(e.changedTouches && e.changedTouches.length){
-      px = e.changedTouches[0].clientX - rect.left; py = e.changedTouches[0].clientY - rect.top;
-      e.preventDefault();
-    } else { px = e.offsetX; py = e.offsetY; }
+    if(e.pointerType === 'touch') e.preventDefault();
+    var px = e.offsetX, py = e.offsetY;
     var h = cv.clientHeight;
     if(insideBtn(px, py, cv.clientWidth * 0.22, h - 40, 88, 44)){
       if(!running){ running = true; startTime = performance.now(); }
@@ -243,8 +239,7 @@
     }
   }
 
-  cv.addEventListener('mousedown', handleClick);
-  cv.addEventListener('touchstart', handleClick, {passive: false});
+  cv.addEventListener('pointerdown', handleClick);
   window.addEventListener('resize', function(){ g = fitCanvas(cv, getCssH(cv)); });
 
   document.getElementById('swCheck').addEventListener('click', function(){
@@ -285,6 +280,7 @@
     var t = e.target;
     if(t.tagName === 'INPUT' || t.tagName === 'BUTTON' || (t.closest && t.closest('button'))) return;
     dragging = true;
+    if (quiz.setPointerCapture && e.pointerId !== undefined) { try { quiz.setPointerCapture(e.pointerId); } catch(_) {} }
     var wr = wrap.getBoundingClientRect(), qr = quiz.getBoundingClientRect();
     quiz.style.right = 'auto'; quiz.style.transform = 'none';
     quiz.style.left = (qr.left - wr.left) + 'px'; quiz.style.top = (qr.top - wr.top) + 'px';
@@ -302,10 +298,8 @@
     e.preventDefault();
   }
   function up(){ dragging = false; }
-  quiz.addEventListener('mousedown', down);
-  quiz.addEventListener('touchstart', down, {passive: false});
-  window.addEventListener('mousemove', move);
-  window.addEventListener('touchmove', move, {passive: false});
-  window.addEventListener('mouseup', up);
-  window.addEventListener('touchend', up);
+  quiz.addEventListener('pointerdown', down);
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
 })();

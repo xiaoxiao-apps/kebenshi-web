@@ -404,11 +404,13 @@
         if (pa.hit(p0.clientX - cr.left, p0.clientY - cr.top)) {
           forward = true;
           pa.down(e);
+          if (quiz.setPointerCapture && e.pointerId !== undefined) { try { quiz.setPointerCapture(e.pointerId); } catch(_) {} }
           e.preventDefault();
           return;
         }
       }
       dragging = true;
+      if (quiz.setPointerCapture && e.pointerId !== undefined) { try { quiz.setPointerCapture(e.pointerId); } catch(_) {} }
       var wr = wrap.getBoundingClientRect(), qr = quiz.getBoundingClientRect();
       quiz.style.right = 'auto'; quiz.style.transform = 'none';
       quiz.style.left = (qr.left - wr.left) + 'px'; quiz.style.top = (qr.top - wr.top) + 'px';
@@ -430,12 +432,10 @@
       if (forward) { var pa3 = window.__rulerPencil; if (pa3) pa3.up(e); forward = false; return; }
       dragging = false;
     }
-    quiz.addEventListener('mousedown', down);
-    quiz.addEventListener('touchstart', down, {passive: false});
-    window.addEventListener('mousemove', move);
-    window.addEventListener('touchmove', move, {passive: false});
-    window.addEventListener('mouseup', up);
-    window.addEventListener('touchend', up);
+    quiz.addEventListener('pointerdown', down);
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
   })();
 
   function pointerPos(e){
@@ -449,13 +449,14 @@
   function getPxPerCm(){ return (g.w - 72) / state.rangeCm; }
 
   function onPointerDown(e){
-    if(e.type === 'touchstart') e.preventDefault();
+    if(e.pointerType === 'touch') e.preventDefault();
     var p = pointerPos(e);
     var hitBody = hitPencilBody(p.x, p.y, state, g);
     var hitTip = hitPencilTip(p.x, p.y, state, g);
     if(!hitBody && !hitTip) return;
     if (state.quizMode) { state.quizMode = false; updateReadouts(); }
     drag.active = true;
+    if (cv.setPointerCapture && e.pointerId !== undefined) { try { cv.setPointerCapture(e.pointerId); } catch(_) {} }
     drag.body = hitBody && !hitTip;
     drag.tip = hitTip;
     drag.startX = p.x;
@@ -465,7 +466,7 @@
   }
 
   function onPointerMove(e){
-    if(e.type === 'touchmove') e.preventDefault();
+    if(e.pointerType === 'touch') e.preventDefault();
     var p = pointerPos(e);
     if(!drag.active){
       var hBody = hitPencilBody(p.x, p.y, state, g);
@@ -499,19 +500,17 @@
 
   function onPointerUp(e){
     if(!drag.active) return;
+    if (cv.releasePointerCapture && e && e.pointerId !== undefined && cv.hasPointerCapture(e.pointerId)) cv.releasePointerCapture(e.pointerId);
     var wasTip = drag.tip;
     drag.active = false; drag.body = false; drag.tip = false;
     if(wasTip){ setCursor(''); }
     else { setCursor(''); }
   }
 
-  cv.addEventListener('mousedown', onPointerDown);
-  cv.addEventListener('mousemove', onPointerMove);
-  window.addEventListener('mouseup', onPointerUp);
-  cv.addEventListener('touchstart', onPointerDown, { passive: false });
-  cv.addEventListener('touchmove', onPointerMove, { passive: false });
-  cv.addEventListener('touchend', onPointerUp);
-  cv.addEventListener('touchcancel', onPointerUp);
+  cv.addEventListener('pointerdown', onPointerDown);
+  cv.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('pointercancel', onPointerUp);
 
   // 暴露铅笔命中+处理给全屏答题面板：面板盖住铅笔时触摸转发，保证铅笔永远可拖
   window.__rulerPencil = {
