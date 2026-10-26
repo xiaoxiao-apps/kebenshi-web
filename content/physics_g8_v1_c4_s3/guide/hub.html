@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平面镜成像 · 讲解化四版本对比</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f0f5fa;color:#1f2937;padding:32px 20px 48px}
+  .wrap{max-width:880px;margin:0 auto}
+  h1{font-size:22px;text-align:center;margin:0 0 6px;color:#111827}
+  .sub{text-align:center;font-size:13px;color:#64748b;margin:0 0 26px}
+  .cards{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+  .card{
+    flex:1 1 340px;max-width:420px;
+    background:#fff;border:1px solid #e3eaf4;border-radius:14px;
+    padding:16px 18px;box-shadow:0 2px 8px rgba(30,41,59,.07);
+    display:flex;flex-direction:column;gap:8px;
+    transition:box-shadow .15s,transform .15s;
+  }
+  .card:hover{box-shadow:0 6px 18px rgba(30,41,59,.13);transform:translateY(-2px)}
+  .card h2{margin:0;font-size:16px;color:#111827;display:flex;align-items:center;gap:8px}
+  .tag{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:26px;height:26px;border-radius:8px;color:#fff;font-size:14px;font-weight:700;flex:none;
+  }
+  .tag-a{background:#22c55e}.tag-b{background:#f59e0b}.tag-c{background:#8b5cf6}.tag-d{background:#2563eb}
+  .card p{margin:0;font-size:13px;color:#64748b;line-height:1.6;flex:1}
+  .card a.enter{
+    align-self:flex-start;
+    font-size:13px;font-weight:600;color:#fff;background:#2563eb;
+    text-decoration:none;border-radius:8px;padding:7px 16px;
+    transition:background .15s;
+  }
+  .card a.enter:hover{background:#1d4ed8}
+  .hot{font-size:11px;color:#dc2626;border:1px solid #fecaca;background:#fef2f2;border-radius:999px;padding:1px 8px;margin-left:4px}
+  .orig{text-align:center;margin-top:26px;font-size:13px;color:#64748b}
+  .orig a{color:#2563eb;text-decoration:none;font-weight:600}
+  .orig a:hover{text-decoration:underline}
+  @media (max-width:640px){
+    .cards{flex-direction:column;align-items:stretch}
+    .card{max-width:none}
+    body{padding:20px 14px 36px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>平面镜成像 · 讲解化四版本对比</h1>
+  <p class="sub">同一个实验（M1 成像探究台 / M2 虚像原理 / M3 潜望镜），四种「老师在讲解」的方式，点开对比验收。</p>
+  <div class="cards">
+    <div class="card">
+      <h2><span class="tag tag-a">A</span>任务链版</h2>
+      <p>卡通老师出任务：先预测、再操作、后验证，专治「近大远小」等迷思概念，答错不给答案只引导再试。</p>
+      <a class="enter" href="../exp-mirror-vA.html">进入 A 版 →</a>
+    </div>
+    <div class="card">
+      <h2><span class="tag tag-b">B</span>语音版</h2>
+      <p>字幕 + 配音双通道：每步讲解、每次纠错都有亲切语音同步播报，34 条配音覆盖全部讲解场景。</p>
+      <a class="enter" href="../exp-mirror-vB.html">进入 B 版 →</a>
+    </div>
+    <div class="card">
+      <h2><span class="tag tag-c">C</span>分步引导版</h2>
+      <p>「跟我做」聚光灯：高亮下一步该动的控件、聚焦该看的画面区域，完成自动推进，20 步走完知识点。</p>
+      <a class="enter" href="../exp-mirror-vC.html">进入 C 版 →</a>
+    </div>
+    <div class="card">
+      <h2><span class="tag tag-d">D</span>字幕解说版<span class="hot">蔡总方案</span></h2>
+      <p>底部「歌词式」字幕条：每个动作触发老师解说，做错时整条变橙色「不对哟～」，轻量不打扰。</p>
+      <a class="enter" href="../exp-mirror-vD.html">进入 D 版 →</a>
+    </div>
+  </div>
+  <p class="orig"><a href="../exp-mirror.html">原版（自由探索）→</a></p>
+</div>
+</body>
+</html>

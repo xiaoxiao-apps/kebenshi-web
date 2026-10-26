@@ -1,0 +1,177 @@
+/* c4s3 四变体讲解层共用样式（guide.css）
+   命名空间 .guide-* / #g-*，不与实验页原样式冲突；叠加层元素全部 pointer-events 受控，不挡 canvas 操作。 */
+
+/* ---------- 顶部变体小标签 ---------- */
+.guide-badge{
+  position:fixed;top:40px;left:10px;z-index:60;
+  font-size:11px;font-weight:700;color:#fff;
+  background:rgba(37,99,235,.88);border-radius:999px;
+  padding:2px 10px;letter-spacing:.5px;pointer-events:none;
+  box-shadow:0 1px 4px rgba(30,41,59,.25);
+}
+
+/* ---------- 底部字幕条（vD/vB/vC 共用；ctrlbar 上方，无触发时隐藏不占位） ---------- */
+.guide-caption{
+  position:fixed;left:50%;bottom:104px;z-index:55;
+  transform:translate(-50%,14px);
+  display:none;align-items:center;gap:8px;
+  max-width:min(760px,92vw);
+  background:rgba(15,23,42,.88);color:#fff;
+  font-size:15px;line-height:1.55;
+  border-radius:12px;padding:9px 16px 9px 10px;
+  box-shadow:0 4px 18px rgba(15,23,42,.28);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s ease,transform .25s ease;
+}
+.guide-caption.show{opacity:1;transform:translate(-50%,0)}
+.guide-caption-avatar{
+  flex:none;display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:50%;
+  background:#facc15;font-size:15px;
+}
+.guide-caption-text{white-space:pre-wrap;word-break:break-word}
+/* 纠错态：整条橙色底 + 轻微左右抖动一次 */
+.guide-caption.err{background:rgba(249,115,22,.94);color:#fff}
+.guide-caption.shake{animation:guide-shake .3s ease}
+@keyframes guide-shake{
+  0%,100%{margin-left:0}
+  25%{margin-left:-5px}
+  50%{margin-left:5px}
+  75%{margin-left:-3px}
+}
+
+/* ---------- vB 讲解配音静音钮（独立于 core 的 btn-mute） ---------- */
+.guide-mute-btn{
+  position:fixed;top:40px;right:12px;z-index:60;
+  border:1px solid #b8c6da;border-radius:8px;
+  background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;
+  font-size:14px;padding:4px 9px;cursor:pointer;
+  box-shadow:0 2px 3px rgba(30,41,59,.25);
+}
+.guide-mute-btn:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+
+/* ---------- vA 任务链老师卡（纯 CSS 卡通，无图片） ---------- */
+.guide-card{
+  position:fixed;right:14px;bottom:118px;z-index:50;
+  display:flex;align-items:flex-end;gap:0;
+  max-width:min(400px,94vw);
+}
+.guide-card-avatar{
+  flex:none;width:52px;height:52px;border-radius:50%;
+  background:#fde68a;border:2px solid #f59e0b;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;cursor:pointer;user-select:none;
+  box-shadow:0 3px 10px rgba(30,41,59,.25);
+  transition:transform .15s;
+}
+.guide-card-avatar:hover{transform:scale(1.06)}
+.guide-card-main{
+  display:flex;flex-direction:column;align-items:flex-end;gap:6px;
+  margin-right:-6px;
+}
+.guide-bubble{
+  position:relative;
+  background:#fff;border:1px solid #e2e8f0;border-radius:12px;
+  padding:10px 13px;max-width:320px;
+  box-shadow:0 4px 14px rgba(30,41,59,.16);
+  font-size:13.5px;line-height:1.55;color:#1f2937;
+}
+/* 气泡尖角（指向老师头像） */
+.guide-bubble::after{
+  content:'';position:absolute;right:-8px;bottom:14px;
+  border:8px solid transparent;border-left-color:#fff;border-right:0;
+}
+.guide-bubble::before{
+  content:'';position:absolute;right:-10px;bottom:13px;
+  border:9px solid transparent;border-left-color:#e2e8f0;border-right:0;
+}
+.guide-bubble.ok{background:#f0fdf4;border-color:#bbf7d0}
+.guide-bubble.ok::after{border-left-color:#f0fdf4}
+.guide-bubble.ok::before{border-left-color:#bbf7d0}
+.guide-bubble.err{background:#fff7ed;border-color:#fed7aa}
+.guide-bubble.err::after{border-left-color:#fff7ed}
+.guide-bubble.err::before{border-left-color:#fed7aa}
+.guide-bubble-progress{font-size:11px;color:#64748b;margin-bottom:3px;font-weight:600}
+.guide-bubble-text{white-space:pre-wrap;word-break:break-word}
+.guide-options{display:flex;flex-direction:column;gap:6px;align-items:stretch;width:100%;max-width:320px}
+.guide-opt{
+  border:1px solid #bfdbfe;border-radius:9px;
+  background:#eff6ff;color:#1d4ed8;
+  font-size:13px;padding:7px 11px;cursor:pointer;text-align:left;
+  transition:background .12s;white-space:normal;
+}
+.guide-opt:hover{background:#dbeafe}
+.guide-opt.wrong{
+  background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0;
+  text-decoration:line-through;cursor:not-allowed;
+}
+/* 全通关庆祝条 */
+.guide-celebrate{
+  position:fixed;top:44px;left:50%;transform:translateX(-50%);z-index:70;
+  background:#22c55e;color:#fff;font-weight:700;font-size:15px;
+  border-radius:999px;padding:8px 22px;
+  box-shadow:0 4px 16px rgba(34,197,94,.4);
+  animation:guide-pop .35s ease;
+}
+@keyframes guide-pop{0%{transform:translateX(-50%) scale(.7);opacity:0}100%{transform:translateX(-50%) scale(1);opacity:1}}
+/* 折叠态：只留头像 */
+.guide-card.collapsed .guide-card-main{display:none}
+
+/* ---------- vC 分步引导 ---------- */
+.guide-spot{
+  position:fixed;inset:0;width:100%;height:100%;
+  z-index:30;pointer-events:none;
+}
+.guide-spotbubble{
+  position:fixed;z-index:62;
+  background:#fff;color:#1f2937;
+  border:1.5px solid #22c55e;border-radius:10px;
+  padding:7px 12px;font-size:13px;line-height:1.5;font-weight:600;
+  max-width:260px;box-shadow:0 4px 14px rgba(30,41,59,.22);
+  pointer-events:none;
+}
+.guide-topbar{
+  position:fixed;top:40px;left:50%;transform:translateX(-50%);z-index:61;
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.92);border:1px solid #d7e0ec;border-radius:999px;
+  padding:4px 8px 4px 14px;box-shadow:0 2px 10px rgba(30,41,59,.15);
+}
+.guide-progress{font-size:12.5px;font-weight:700;color:#334155;white-space:nowrap}
+.guide-btns{display:flex;gap:6px}
+.guide-topbar button.g-nav{
+  border:1px solid #bfdbfe;border-radius:8px;
+  background:#eff6ff;color:#1d4ed8;
+  font-size:12px;padding:4px 10px;cursor:pointer;white-space:nowrap;
+}
+.guide-topbar button.g-nav:hover{background:#dbeafe}
+.guide-topbar button.g-nav:disabled{background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0;cursor:not-allowed}
+.guide-topbar button.g-exit{background:#f8fafc;color:#475569;border-color:#cbd5e1}
+.guide-topbar button.g-exit:hover{background:#f1f5f9}
+/* DOM 控件高亮：outline 脉冲圈 2px #22c55e + box-shadow 呼吸 */
+.guide-hl{
+  outline:2px solid #22c55e !important;
+  outline-offset:2px;
+  border-radius:8px;
+  animation:guide-breathe 1.1s ease-in-out infinite;
+}
+@keyframes guide-breathe{
+  0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.55)}
+  50%{box-shadow:0 0 0 7px rgba(34,197,94,0)}
+}
+/* 完成一步的绿闪庆祝 */
+.guide-flash{
+  position:fixed;inset:0;z-index:65;pointer-events:none;
+  background:rgba(34,197,94,.22);opacity:0;
+}
+.guide-flash.go{animation:guide-flashfade .45s ease-out}
+@keyframes guide-flashfade{0%{opacity:1}100%{opacity:0}}
+
+/* ---------- 移动端 ---------- */
+@media (max-width:640px){
+  .guide-card{right:8px;bottom:130px;max-width:96vw}
+  .guide-bubble{max-width:240px}
+  .guide-options{max-width:240px}
+  .guide-topbar{gap:6px;padding:3px 6px 3px 10px}
+  .guide-progress{font-size:11.5px}
+  .guide-caption{font-size:14px;padding:8px 12px 8px 8px}
+}
