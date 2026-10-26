@@ -1,19 +1,12 @@
 'use strict';
-/* c4s3 变体 B · 语音版（修复轮 r3 / g4，蔡总三条体验反馈）
-   ① autoplay 拦截（平台红线绕不过）：voice 态照常起播 intro，play() 被拒 NotAllowedError →
-      弹全屏启动层 .gvb-start「🔊 点击开启语音讲解」，点一下移除并立刻补播当前条；
-      放行则启动层永不出现；本次页面生命周期只弹一次；r2 的隐形 once 手势补播保留作兜底。
-   ② 浮标三态视觉：voice=纯净头像无任何叠加；text=头像圆面上叠 🔇（白圆底小托，非附在旁边）；
-      sleep=同款叠加位 💤 + 头像半透明。三态 title/localStorage(gvb-mode) 循环逻辑不变。
-   ③ 结论播报：script.js 追加 m{1,2,3}-concl（trigger after:mX-s5@1500），engine 现成 after: 触发；
-      r2 的解说队列（有音频在播则入队等播完，error 例外立即打断，上限 3 丢最旧/free 优先）
-      自动保证结论排在上一条解说之后播。
-   纪律：本轮 engine.js 零改动；script.js 仅 3 step + 3 audios 追加；生产文件零触碰。 */
+/* c4s3 变体 B · 语音版（修复轮 r5 / g6，蔡总反馈①：要做哪步播哪步）
+   即时打断制：新解说到达 → 无条件停掉当前音频、清驻留计时、立即上屏渲染；
+   r2 的解说队列机制整体删除，防刷屏交给 engine 的 3s 步骤冷却 / 5s 纠错节流。
+   audio ended → 字幕 +400ms 后隐藏、🔁 重播、启动层、三态、collapsed/sleep 判断全部保持现状。 */
 (function(){
 var LS_MODE='gvb-mode';
 var MAX_DUR=15000;      /* 配音同步兜底上限 */
 var END_TAIL=400;       /* audio ended 后字幕再驻留 */
-var QUEUE_MAX=3;        /* 解说队列上限 */
 
 function start(){
   if(!window.GuideEngine||!window.C4S3_SCRIPT)return;
@@ -163,8 +156,8 @@ function start(){
     document.removeEventListener('keydown',unlockHandler,{capture:true});
   }
 
-  /* ---------- 字幕驻留调度 + 队列（反馈②） ---------- */
-  var cur=null,hideTimer=null,q=[],lastIntro=null;
+  /* ---------- 字幕驻留调度（r5：即时打断，无队列） ---------- */
+  var cur=null,hideTimer=null,lastIntro=null;
   function textDur(t){return Math.max(4000,(t||'').length*280);}
   function clearHide(){if(hideTimer){clearTimeout(hideTimer);hideTimer=null;}}
   function scheduleHide(ms){clearHide();hideTimer=setTimeout(hide,ms);}
@@ -174,16 +167,6 @@ function start(){
     cur=null;
     bar.classList.remove('show');
     setTimeout(function(){if(!cur)bar.style.display='none';},260);
-    if(q.length)showEntry(q.shift());/* 兜底超时隐藏后继续消化队列 */
-  }
-  function enqueue(entry){
-    q.push(entry);
-    while(q.length>QUEUE_MAX){
-      var drop=-1;
-      for(var i=0;i<q.length;i++){if(q[i].kind==='free'){drop=i;break;}}
-      if(drop<0)drop=0;
-      q.splice(drop,1);
-    }
   }
   function showEntry(entry){
     entry.at=now();
@@ -200,13 +183,7 @@ function start(){
     if(!text)return;
     var entry={text:text,kind:kind||'step',audioId:audioId||null,at:now()};
     if(entry.kind==='intro')lastIntro=entry;
-    if(entry.kind==='error'){
-      /* 纠错即时：立即打断在播条目，被打断的 step/intro 不再补播 */
-      clearHide();stopAudio();
-      showEntry(entry);
-      return;
-    }
-    if(mode==='voice'&&curAudio){enqueue(entry);return;}/* 有音频在播：等播完 */
+    /* r5：要做哪步播哪步——无条件打断在播音频，新条立即上屏 */
     clearHide();stopAudio();
     showEntry(entry);
   }
@@ -225,7 +202,6 @@ function start(){
       if(cur!==entry)return;
       setSpeaking(false);
       if(blocked&&startEl){clearHide();return;}/* 启动层在屏：字幕留住，点击解锁后由 render() 接管 */
-      if(q.length){showEntry(q.shift());return;}/* 播完取队首上屏 */
       /* 音频正常结束：字幕再驻留 400ms；加载失败/被拦截：回退纯文字时长 */
       scheduleHide(failed?Math.max(600,textDur(entry.text)-(now()-entry.at)):END_TAIL);
     });
@@ -257,7 +233,6 @@ function start(){
       removeStartLayer();
       disarmUnlock();
       clearHide();stopAudio();
-      q.length=0;
       bar.style.display='none';
       bar.classList.remove('show');
     }else if(mode==='text'){

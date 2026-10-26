@@ -19,6 +19,8 @@ var fnCache={};
 var tasksOn=false,taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
 var recCache={n:-1,t:0};
 var lastDoCm=null,lastChangeSeenT=0,objChangeArmed=true;
+/* r5：等效蜡烛移动手势计数状态（镜像 objChangeCount，仅 placed 态跟踪） */
+var lastEqDo=null,eqChangeSeenT=0,eqChangeArmed=true,prevEqPlaced=false;
 
 function now(){return performance.now();}
 function getApi(){return apiRef||{};}
@@ -64,11 +66,12 @@ function throttle(map,key,ms){
 /* ---------- G 进度字段采集（§0.3，引擎私有） ---------- */
 function resetG(){
   G={recCount:0,do0:(R&&R.doCm!=null)?R.doCm:8,objChangeCount:0,
-     t:now(),lastObjChangeT:0,
+     t:now(),lastObjChangeT:0,eqMoveGestureCount:0,lastEqChangeT:0,
      eqEverOn:false,everMatched:false,firstSlotDone:false,modeEnterT:now(),
      everLit:false,matchedEdgeCount:0,angleWasOff:false,
      raySaid:false,inBeamSaid:false,spSaid:false,firstSlotSaid:false,bothSlotSaid:false,pathSaid:false};
   lastDoCm=null;lastChangeSeenT=0;objChangeArmed=true;
+  lastEqDo=null;eqChangeSeenT=0;eqChangeArmed=true;prevEqPlaced=false;
 }
 function countRec(){
   var t=now();
@@ -102,6 +105,19 @@ function updateG(){
     }
     if(!objChangeArmed&&t-lastChangeSeenT>350)objChangeArmed=true;
   }
+  /* r5 eqMoveGestureCount：等效蜡烛移动「手势」计数——镜像 objChangeCount，
+     仅 placed 态跟踪；刚放下种子赋值不计数，一次连续挪动只计 1 次，静默 350ms 重新武装 */
+  if(R.eqState==='placed'){
+    if(!prevEqPlaced){lastEqDo=R.eqDo;eqChangeArmed=true;}
+    else if(R.eqDo!==lastEqDo){
+      lastEqDo=R.eqDo;eqChangeSeenT=t;G.lastEqChangeT=t;
+      if(eqChangeArmed){G.eqMoveGestureCount++;eqChangeArmed=false;}
+    }
+    if(!eqChangeArmed&&t-eqChangeSeenT>350)eqChangeArmed=true;
+  }else{
+    lastEqDo=null;
+  }
+  prevEqPlaced=(R.eqState==='placed');
 }
 
 /* ---------- 触发分发 ---------- */
