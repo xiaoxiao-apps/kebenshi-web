@@ -433,4 +433,18 @@ function stepPhysics(){
 }
 
 window.__c4s1dbg={ get media(){return media;}, get pen(){return pen;}, get W(){return W;}, get H(){return H;}, get benchY(){return benchTopY();}, emitPt:emitPt, computePath:computePath, rectOf:rectOf, segs:function(){return computePath(emitPt(),angle);}, place:function(id){ for(var i=0;i<media.length;i++) if(media[i].id===id){ var m=media[i]; m.state='active'; setActiveSize(m); m.x=Math.round(W/2); m.y=benchTopY(); constrain(m); return true; } return false; }, penOn:function(v){ pen.on=!!v; } };
+
+/* 语音讲解层状态暴露（设计书 docs/c4s1-guide-design.md §A-1.3；只读 getter 门面，引擎轮询；对象永不重赋值） */
+function mediaOnStage(id){for(var i=0;i<media.length;i++){var m=media[i];if(m.id===id&&(m.state==='active'||m.state==='falling'))return true;}return false;}
+window.C4S1M={
+  get laserOn(){return pen.on;},
+  get pulseOn(){return pulse.on;},
+  get paused(){return paused;},
+  get angleDeg(){return Math.round(angle*180/Math.PI);},
+  get turbidity(){return turbidity;},
+  get activeCount(){var n=0;for(var i=0;i<media.length;i++){var s=media[i].state;if(s==='active'||s==='falling')n++;}return n;},
+  get smokeOn(){return mediaOnStage('smoke_box');},
+  get waterOn(){return mediaOnStage('water_tank');},
+  get glassOn(){return mediaOnStage('glass_brick');}
+};
 })();

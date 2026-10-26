@@ -4,19 +4,18 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>光在介质中的直线传播 — 光的直线传播</title>
 <style>
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%}
+  html,body{margin:0;height:100%;-webkit-tap-highlight-color:transparent}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f9f4cd;color:#1f2937;overflow:hidden}
   header{position:fixed;top:0;left:0;right:0;height:34px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f9f4cd;border-bottom:1px solid rgba(0,0,0,0.08);z-index:10}
   .back{font-size:13px;color:#2563eb;text-decoration:none;white-space:nowrap}
   .back:hover{text-decoration:underline}
   .title{font-size:13px;font-weight:600;color:#111827;white-space:nowrap}
-  .hint{font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
-  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
   .ctrlbar{position:fixed;left:0;right:0;bottom:0;height:16%;background:transparent;pointer-events:none;display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:0 16px 14px;z-index:20}
   .ctrlbar>*{pointer-events:auto}
   .group{background:rgba(255,255,255,0.25);border-radius:10px;padding:6px 10px;display:flex;align-items:center;gap:8px}
@@ -28,10 +27,11 @@
   html.pseudo-fs{width:100%;height:100%}
   html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
 </style>
+<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261027n1">
 </head>
 <body>
 <header>
-  <div class="title">光在介质中的直线传播 <span class="hint">从左上卡槽拖器材到桌面，观察光在不同介质里的直线传播</span></div>
+  <div class="title">光在介质中的直线传播</div>
   <a class="back" href="./index.html">← 返回实验卡页</a>
 </header>
 <div class="scene-wrap">
@@ -52,8 +52,13 @@
     <button id="btn-full" class="secondary">全屏</button>
   </div>
 </div>
-<script src="../_lib/v1/props.js?v=20261024"></script>
-<script src="../_lib/v1/sfx.js?v=20261024"></script>
-<script src="exp-medium-core.js?v=20261024"></script>
+<div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
+<script src="../_lib/v1/props.js?v=20261027n1"></script>
+<script src="../_lib/v1/sfx.js?v=20261027n1"></script>
+<script src="exp-medium-core.js?v=20261027n1"></script>
+<script>window.GUIDE_CFG={state:window.C4S1M,mode:'refract'};</script>
+<script src="guide/guide-data-medium.js?v=20261027n1"></script>
+<script src="../_lib/guide/engine-core.js?v=20261027n1"></script>
+<script src="../_lib/guide/vB-core.js?v=20261027n1"></script>
 </body>
 </html>

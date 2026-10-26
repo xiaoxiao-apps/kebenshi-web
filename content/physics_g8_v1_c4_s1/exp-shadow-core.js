@@ -550,5 +550,15 @@ window.__c4s2dbg={
   get u(){ var l=findById('desk_lamp'),h=findById('hand_shadow'); if(!l||l.state!=='active'||!h||h.state!=='active') return null; return Math.hypot(handCenter(h).x-bulbPos(l).x, handCenter(h).y-bulbPos(l).y); },
   get v(){ var l=findById('desk_lamp'),s=findById('screen'); if(!l||l.state!=='active'||!s||s.state!=='active') return null; return screenPlane(s).sx-bulbPos(l).x; }
 };
+
+/* 语音讲解层状态暴露（设计书 docs/c4s1-guide-design.md §B-1.3；只读 getter 门面，引擎轮询；对象永不重赋值） */
+window.C4S1S={
+  get mode(){return mode;},
+  get rayOn(){return rayOn;},
+  get candleLit(){var m=findById('candle');return !!(m&&m.lit&&(m.state==='active'||m.state==='falling'));},
+  get scene(){return computeScene();},
+  get imgM(){var sc=computePinholeScene();return sc&&sc.ok?sc.m:null;},
+  get handM(){var sc=computeHandScene();return sc&&sc.ok?sc.m:null;}
+};
 initMedia(); setDefaultLayout(); resize(); syncFull(); rafId=requestAnimationFrame(loop);
 })();
