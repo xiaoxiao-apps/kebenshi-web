@@ -68,6 +68,7 @@ var state={
       splashes:[],stack:null},
   e5:{blocks:[],sel:0,cylTw:null,cylFrac:E5_CYL_BASE/E5_CYL_CAP,fade:null,drag:null}
 };
+window.C6S2_STATE=state;
 var hintT0=0,HINT_LIFE=6000;   // hint 6s 自动淡出，新操作（updateHint）再唤出
 function e4Blocks(){ return state.e4.dual?state.e4.duals:[state.e4.single]; }
 

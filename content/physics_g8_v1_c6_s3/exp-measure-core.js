@@ -69,6 +69,7 @@ var state={
   s2:{seed:7,stone:null,rows:[],cur:{m:null,v1:null,v2:null,done:false},injected:false,waterMl:0,eyeT:EYE_INIT,
       waterTw:null,drag:null,firstHintShown:false}
 };
+window.C6S3_STATE=state;
 /* ===== 布局（layout() 单点算，绘制只读；R29→P5 坐深居中：器材停驻线一律 L.seat=seatOf(fy)=by+SEAT_MID，足迹中心=桌面带正中） ===== */
 /* H3 响应式两档单源：tier()——先按 Tier A 试排（k≥0.45 成立）→ Tier A；否则 Tier B（窄窗/竖屏全屏）。
    Tier A（宽窗）：特写卡右上紧凑锚定；数据表右下停泊（宽=min(44%W,cmPx(240))，控制栏上方 cmPx(2)），表开时桌面右界=tableLeft−cmPx(2)；

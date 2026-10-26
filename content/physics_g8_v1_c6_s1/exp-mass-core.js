@@ -53,6 +53,7 @@ var state={
   seen:{shape:false,state:false,pos:false},alldone:false
 };
 state.showLabels=false;   // R34 标注开关默认关（重置不清=用户偏好保持）
+window.C6S1_STATE=state;
 function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
 function measureCtrl(){ if(ctrlEl){ var r=ctrlEl.getBoundingClientRect(); if(r.height>0) ctrlBandH=Math.round(r.height); } }
 // R11 砝码几何与盒内槽位单源（weightGeom 立方根律：w=u×(g/100)^⅓, h=w×0.55）——同一枚盒内外同尺寸
