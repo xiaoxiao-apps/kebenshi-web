@@ -175,3 +175,64 @@
   .guide-progress{font-size:11.5px}
   .guide-caption{font-size:14px;padding:8px 12px 8px 8px}
 }
+
+/* ---------- vB 打磨版（g2）专属：命名空间 .gvb-*，仅追加，不改上方任何既有规则 ---------- */
+/* 右下老师浮标 = 解说总开关（bottom 由 vB.js 按 ctrlbar 高度自适应写入） */
+.gvb-fab{
+  position:fixed;right:14px;bottom:110px;z-index:58;
+  width:52px;height:52px;padding:0;border-radius:50%;
+  background:#fde68a;border:2px solid #f59e0b;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;line-height:1;cursor:pointer;user-select:none;
+  box-shadow:0 3px 10px rgba(30,41,59,.25);
+  transition:transform .15s,opacity .2s;
+  pointer-events:auto;
+}
+.gvb-fab:hover{transform:scale(1.06)}
+.gvb-fab-face{pointer-events:none}
+/* 收起态：半透明 + 右上 💤 角标 */
+.gvb-fab.is-collapsed{opacity:.45}
+.gvb-fab.is-collapsed:hover{opacity:.8}
+.gvb-fab-zzz{
+  position:absolute;top:-6px;right:-6px;
+  display:none;font-size:14px;line-height:1;pointer-events:none;
+  filter:drop-shadow(0 1px 2px rgba(30,41,59,.35));
+}
+.gvb-fab.is-collapsed .gvb-fab-zzz{display:block}
+
+/* vB 字幕条：整体左移让开右侧浮标，永不重叠（含隐藏态起始位移，避免淡出时横跳） */
+.gvb-caption{max-width:min(700px,calc(100vw - 104px));transform:translate(calc(-50% - 36px),14px)}
+.gvb-caption.show{transform:translate(calc(-50% - 36px),0)}
+
+/* 🔁 重播当前条（字幕条本体 pointer-events:none，只放开这颗钮） */
+.gvb-replay{
+  flex:none;margin-left:2px;padding:2px 6px;
+  border:1px solid rgba(255,255,255,.45);border-radius:7px;
+  background:rgba(255,255,255,.14);color:#fff;
+  font-size:12px;line-height:1.3;cursor:pointer;
+  opacity:.85;pointer-events:auto;transition:background .15s,opacity .15s;
+}
+.gvb-replay:hover{background:rgba(255,255,255,.3);opacity:1}
+
+/* 讲话中：头像徽旁 3 根小竖条跳动，audio ended/pause 即停 */
+.gvb-speaking{flex:none;display:none;align-items:flex-end;gap:2px;height:16px}
+.gvb-speaking.on{display:flex}
+.gvb-speaking i{
+  display:block;width:3px;height:5px;border-radius:2px;
+  background:#4ade80;
+}
+.gvb-speaking.on i{animation:gvb-bars .9s ease-in-out infinite}
+.gvb-speaking.on i:nth-child(2){animation-delay:.15s}
+.gvb-speaking.on i:nth-child(3){animation-delay:.3s}
+@keyframes gvb-bars{
+  0%,100%{height:5px}
+  50%{height:15px}
+}
+.guide-caption.err .gvb-speaking i{background:#fff}
+
+@media (max-width:640px){
+  .gvb-fab{right:8px;width:46px;height:46px;font-size:23px}
+  .gvb-caption{max-width:min(92vw,calc(100vw - 84px));font-size:14px;transform:translate(calc(-50% - 28px),14px)}
+  .gvb-caption.show{transform:translate(calc(-50% - 28px),0)}
+  .gvb-replay{padding:2px 5px;font-size:11px}
+}
