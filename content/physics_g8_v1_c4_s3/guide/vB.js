@@ -1,11 +1,14 @@
 'use strict';
-/* c4s3 变体 B · 语音版（修复轮 r2 / g3，蔡总四条体验反馈）
-   ① autoplay 被拦截：挂一次性手势监听（pointerdown/keydown, once+capture）解锁补播当前条或 intro；
-   ② 解说队列：有音频在播时新解说入队等播完（error 纠错例外立即打断，被打断的 step/intro 不补播；
-      队列上限 3，超出丢最旧、free 类最优先丢）；
-   ④ 右上角喇叭钮已删除，右下老师浮标三态循环 voice(🔊语音+字幕)→text(🔇只字幕)→sleep(💤休眠)，
-      localStorage 单键 gvb-mode 记忆（旧键 gvb-collapsed/gvb-muted 弃用忽略）。
-   纪律：engine.js 仅两处向后兼容 G 字段小改；script.js 仅 m1-s1/m1-s2；生产文件零触碰。 */
+/* c4s3 变体 B · 语音版（修复轮 r3 / g4，蔡总三条体验反馈）
+   ① autoplay 拦截（平台红线绕不过）：voice 态照常起播 intro，play() 被拒 NotAllowedError →
+      弹全屏启动层 .gvb-start「🔊 点击开启语音讲解」，点一下移除并立刻补播当前条；
+      放行则启动层永不出现；本次页面生命周期只弹一次；r2 的隐形 once 手势补播保留作兜底。
+   ② 浮标三态视觉：voice=纯净头像无任何叠加；text=头像圆面上叠 🔇（白圆底小托，非附在旁边）；
+      sleep=同款叠加位 💤 + 头像半透明。三态 title/localStorage(gvb-mode) 循环逻辑不变。
+   ③ 结论播报：script.js 追加 m{1,2,3}-concl（trigger after:mX-s5@1500），engine 现成 after: 触发；
+      r2 的解说队列（有音频在播则入队等播完，error 例外立即打断，上限 3 丢最旧/free 优先）
+      自动保证结论排在上一条解说之后播。
+   纪律：本轮 engine.js 零改动；script.js 仅 3 step + 3 audios 追加；生产文件零触碰。 */
 (function(){
 var LS_MODE='gvb-mode';
 var MAX_DUR=15000;      /* 配音同步兜底上限 */
@@ -28,16 +31,22 @@ function start(){
   badge.textContent='B · 语音版';
   LAYER.appendChild(badge);
 
-  /* ---------- 老师浮标：三态循环 voice→text→sleep ---------- */
+  /* ---------- 老师浮标：三态循环 voice→text→sleep（r3：voice 态纯净无叠加） ---------- */
   var mode=lsGet(LS_MODE,'voice');
   if(mode!=='voice'&&mode!=='text'&&mode!=='sleep')mode='voice';
   var fab=document.createElement('button');
   fab.className='gvb-fab';
   fab.type='button';
-  fab.innerHTML='<span class="gvb-fab-face">🧑‍🏫</span><span class="gvb-fab-badge"></span>';
+  fab.innerHTML='<span class="gvb-fab-face">🧑‍🏫</span>';
   fab.setAttribute('aria-label','老师解说模式切换');
   LAYER.appendChild(fab);
-  var fabBadge=fab.querySelector('.gvb-fab-badge');
+  /* 叠加图标：voice 态传 null = 从 DOM 摘掉（头像上不留任何角标）；text/sleep 态叠在圆面右下 */
+  function setBadge(glyph){
+    var b=fab.querySelector('.gvb-fab-badge');
+    if(!glyph){if(b&&b.parentNode)b.parentNode.removeChild(b);return;}
+    if(!b){b=document.createElement('span');b.className='gvb-fab-badge';fab.appendChild(b);}
+    b.textContent=glyph;
+  }
 
   /* ---------- 字幕条（自建，复用 .guide-caption 基础视觉） ---------- */
   var bar=document.createElement('div');
@@ -85,24 +94,53 @@ function start(){
     var a=new Audio(src);
     curAudio=a;
     var settled=false;
-    function settle(failed){
+    function settle(failed,blocked){
       if(settled)return;settled=true;
       if(curAudio===a)curAudio=null;
       setSpeaking(false);
-      if(failed)armUnlock();/* 反馈①：被拦截/加载失败 → 等首次手势补播 */
-      if(onSettled)onSettled(failed);
+      /* 反馈①：autoplay 被拦 → 显式启动层（一次生命周期只弹一次）；其余失败/已弹过 → 隐形手势兜底 */
+      if(blocked&&!startUsed)showStartLayer();
+      else if(failed)armUnlock();
+      if(onSettled)onSettled(failed,blocked);
     }
     a.addEventListener('playing',function(){if(curAudio===a){setSpeaking(true);disarmUnlock();}});
     a.addEventListener('pause',function(){if(curAudio===a)setSpeaking(false);});
-    a.addEventListener('ended',function(){settle(false);});
-    a.addEventListener('error',function(){settle(true);});
+    a.addEventListener('ended',function(){settle(false,false);});
+    a.addEventListener('error',function(){settle(true,false);});
     var p=a.play();
-    if(p&&p.catch)p.catch(function(){settle(true);});
+    if(p&&p.catch)p.catch(function(e){settle(true,!!(e&&e.name==='NotAllowedError'));});
     return true;
   }
 
-  /* ---------- 首次手势解锁补播（反馈①，voice 态才挂） ---------- */
+  /* ---------- r3 反馈①：全屏语音启动层 ---------- */
+  function showStartLayer(){
+    if(mode!=='voice'||startUsed||startEl)return;
+    startUsed=true;
+    var el=document.createElement('div');
+    el.className='gvb-start';
+    el.setAttribute('role','button');
+    el.setAttribute('aria-label','点击开启语音讲解');
+    el.innerHTML='<div class="gvb-start-card"><span class="gvb-start-icon">🔊</span>'+
+                 '<span class="gvb-start-title">点击开启语音讲解</span>'+
+                 '<span class="gvb-start-sub">浏览器要求先点一下屏幕才允许播声音</span></div>';
+    el.addEventListener('click',function(){
+      removeStartLayer();
+      disarmUnlock();
+      if(cur){cur.at=now();render();}        /* 立刻补播当前条 */
+      else if(lastIntro)showEntry(lastIntro);/* 当前条已过期：补播 intro */
+    });
+    LAYER.appendChild(el);
+    startEl=el;
+  }
+  function removeStartLayer(){
+    if(!startEl)return;
+    var el=startEl;startEl=null;
+    if(el.parentNode)el.parentNode.removeChild(el);
+  }
+
+  /* ---------- r2 隐形手势解锁补播（r3 降级为兜底，voice 态才挂） ---------- */
   var unlockArmed=false;
+  var startEl=null,startUsed=false;/* r3 启动层元素 / 本次页面生命周期是否已弹过 */
   function unlockHandler(){
     if(mode!=='voice'){disarmUnlock();return;}
     disarmUnlock();
@@ -183,9 +221,10 @@ function start(){
     bar.classList.add('show');
     replayEl.style.display=(cur.audioId&&mode==='voice')?'':'none';
     var entry=cur;
-    var playing=playClip(entry.audioId,function(failed){
+    var playing=playClip(entry.audioId,function(failed,blocked){
       if(cur!==entry)return;
       setSpeaking(false);
+      if(blocked&&startEl){clearHide();return;}/* 启动层在屏：字幕留住，点击解锁后由 render() 接管 */
       if(q.length){showEntry(q.shift());return;}/* 播完取队首上屏 */
       /* 音频正常结束：字幕再驻留 400ms；加载失败/被拦截：回退纯文字时长 */
       scheduleHide(failed?Math.max(600,textDur(entry.text)-(now()-entry.at)):END_TAIL);
@@ -212,15 +251,17 @@ function start(){
   function applyMode(persist){
     fab.classList.remove('mode-voice','mode-text','mode-sleep');
     fab.classList.add('mode-'+mode);
-    fabBadge.textContent=mode==='voice'?'🔊':mode==='text'?'🔇':'💤';
+    setBadge(mode==='voice'?null:mode==='text'?'🔇':'💤');
     fab.title=mode==='voice'?'语音+字幕':mode==='text'?'只字幕':'老师休眠中，点击唤醒';
     if(mode==='sleep'){
+      removeStartLayer();
       disarmUnlock();
       clearHide();stopAudio();
       q.length=0;
       bar.style.display='none';
       bar.classList.remove('show');
     }else if(mode==='text'){
+      removeStartLayer();
       disarmUnlock();
       stopAudio();
       if(cur){

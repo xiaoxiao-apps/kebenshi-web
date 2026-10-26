@@ -23,7 +23,8 @@ window.C4S3_SCRIPT={
       {id:'m1-s5',trigger:"R.matched===true && !G.everMatched",say:'重合了！像和物等大，到镜面距离也相等。',audio:'c4s3-m1-s5'},
       {id:'m1-s6',trigger:"G.recCount===1",say:'记下第一组！物距和像距是不是相等呀？',audio:'c4s3-m1-s6'},
       {id:'m1-s7',trigger:"G.recCount===2",say:'换个物距再做一次，规律还成立吗？',audio:'c4s3-m1-s7'},
-      {id:'m1-s8',trigger:"G.recCount>=3",say:'三组数据都说明：等大、等距、对称、虚像！',audio:'c4s3-m1-s8'}
+      {id:'m1-s8',trigger:"G.recCount>=3",say:'三组数据都说明：等大、等距、对称、虚像！',audio:'c4s3-m1-s8'},
+      {id:'m1-concl',trigger:'after:m1-s5@1500',say:'因此我们得出结论：平面镜成的像，跟物体大小相等，像距等于物距，关于镜面对称，而且是虚像。',audio:'c4s3-m1-concl'}
     ],
     errors:[
       {id:'m1-e1',trigger:"R.eqState==='placed' && R.eqDo<0",fix:'不对哟～等效蜡烛要放到玻璃板后面，像在那边呢。',audio:'c4s3-m1-e1'},
@@ -58,7 +59,8 @@ window.C4S3_SCRIPT={
       {id:'m2-s3',trigger:"R.m2.showExt===true && R.m2.showRay",say:'把反射光线反向延长，它们全交在 S′ 一点！',audio:'c4s3-m2-s3'},
       {id:'m2-s4',trigger:"R.m2.eye.inBeam===true && !G.inBeamSaid",say:'眼睛逆着反射光看去，S′ 的像一下子亮了。',audio:'c4s3-m2-s4',saidFlag:'inBeamSaid'},
       {id:'m2-s5',trigger:"R.m2.screenAtSp===true && !G.spSaid",say:'光屏承接不到！S′ 没有光真正到达，是虚像。',audio:'c4s3-m2-s5',saidFlag:'spSaid'},
-      {id:'m2-s6',trigger:"R.m2.showSym===true",say:'看，S 和 S′ 关于镜面对称，距离相等。',audio:'c4s3-m2-s6'}
+      {id:'m2-s6',trigger:"R.m2.showSym===true",say:'看，S 和 S′ 关于镜面对称，距离相等。',audio:'c4s3-m2-s6'},
+      {id:'m2-concl',trigger:'after:m2-s5@1500',say:'记住啦：平面镜的像，是反射光线反向延长线交出来的，没有光真正到达那里，所以是虚像。',audio:'c4s3-m2-concl'}
     ],
     errors:[
       {id:'m2-e1',trigger:"R.m2.screen.state!=='tray' && !R.m2.showRay",fix:'不对哟～先打开「入射-反射线」，再拖光屏去试。',audio:'c4s3-m2-e1'},
@@ -89,7 +91,8 @@ window.C4S3_SCRIPT={
       {id:'m3-s2',trigger:"(R.m3.top.state==='slot' || R.m3.bottom.state==='slot') && !G.firstSlotSaid",say:'装好一面镜子啦，再把另一面也装进卡槽。',audio:'c4s3-m3-s2',saidFlag:'firstSlotSaid'},
       {id:'m3-s3',trigger:"R.m3.top.state==='slot' && R.m3.bottom.state==='slot' && !G.bothSlotSaid",say:'两面镜子都到位，角度保持 45° 刚刚好。',audio:'c4s3-m3-s3',saidFlag:'bothSlotSaid'},
       {id:'m3-s4',trigger:"R.m3.showPath===true && R.m3.inEye && !G.pathSaid",say:'光两次转折，走 Z 字形，水平射向眼睛啦。',audio:'c4s3-m3-s4',saidFlag:'pathSaid'},
-      {id:'m3-s5',trigger:"after:m3-s4@1500",say:'瞧右上角，眼睛看到的是水面小船正立的像！',audio:'c4s3-m3-s5'}
+      {id:'m3-s5',trigger:"after:m3-s4@1500",say:'瞧右上角，眼睛看到的是水面小船正立的像！',audio:'c4s3-m3-s5'},
+      {id:'m3-concl',trigger:'after:m3-s5@1500',say:'所以说，潜望镜用两块四十五度的平面镜，让光两次反射，水下的人就能看到水面上的景物啦。',audio:'c4s3-m3-concl'}
     ],
     errors:[
       {id:'m3-e1',trigger:"R.m3.showPath===true && (R.m3.top.state!=='slot' || R.m3.bottom.state!=='slot')",fix:'不对哟～先把两块镜子都装进卡槽，光才有得反射。',audio:'c4s3-m3-e1'},
@@ -174,6 +177,9 @@ window.C4S3_SCRIPT={
     'c4s3-m3-s5':'guide/audio/c4s3-m3-s5.mp3',
     'c4s3-m3-e1':'guide/audio/c4s3-m3-e1.mp3',
     'c4s3-m3-e2':'guide/audio/c4s3-m3-e2.mp3',
-    'c4s3-m3-e3':'guide/audio/c4s3-m3-e3.mp3'
+    'c4s3-m3-e3':'guide/audio/c4s3-m3-e3.mp3',
+    'c4s3-m1-concl':'guide/audio/c4s3-m1-concl.mp3',
+    'c4s3-m2-concl':'guide/audio/c4s3-m2-concl.mp3',
+    'c4s3-m3-concl':'guide/audio/c4s3-m3-concl.mp3'
   }
 };
