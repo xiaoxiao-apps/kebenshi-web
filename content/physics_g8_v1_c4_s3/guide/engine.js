@@ -13,7 +13,7 @@ var DATA=window.C4S3_SCRIPT;
 var apiRef=null,loopOn=false;
 var curMode=null,G={},firedSteps={},hold={},errLast={},freeLast={},freePrev={},stepSched={};
 /* r4：repeat:true 步骤的边沿重触发状态（引擎私有，非 repeat 步骤不使用） */
-var repPrev={},repLast={},fireCount={},seenCount={};
+var repPrev={},repLast={},fireCount={},seenCount={},delayFired={};
 var REP_COOLDOWN=3000;
 var fnCache={};
 var tasksOn=false,taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
@@ -164,7 +164,11 @@ function tickSteps(mode){
     var p=parseTrigger(st.trigger);
     if(!p)continue;
     if(p.delayMs){
-      if(st.repeat)repPrev[st.id]=false;/* delay 型无电平，复位供 onModeEnter 重挂 */
+      if(st.repeat){
+        /* r6：delay 型 repeat 步骤每次进模式只发一次，发过（或已挂待）就不再重挂，杜绝 N 秒无限重播 */
+        if(delayFired[st.id])continue;
+        delayFired[st.id]=true;
+      }
       sched(st,mode,p.delayMs);continue;
     }
     if(p.afterId){
@@ -273,7 +277,7 @@ function clearRepeatState(){
     if(!md||!md.steps)continue;
     for(var i=0;i<md.steps.length;i++){
       var id=md.steps[i].id;
-      delete fireCount[id];delete seenCount[id];delete repPrev[id];delete repLast[id];
+      delete fireCount[id];delete seenCount[id];delete repPrev[id];delete repLast[id];delete delayFired[id];
     }
   }
 }
@@ -412,7 +416,7 @@ window.GuideEngine={
     tasksOn=!!opts.tasks;
     resetG();
     firedSteps={};hold={};errLast={};freeLast={};freePrev={};stepSched={};
-    repPrev={};repLast={};fireCount={};seenCount={};/* r4：repeat 状态 */
+    repPrev={};repLast={};fireCount={};seenCount={};delayFired={};/* r4：repeat 状态；r6：delayFired */
     recCache={n:-1,t:0};
     taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
     bindEventTriggers();

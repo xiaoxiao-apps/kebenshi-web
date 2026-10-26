@@ -53,7 +53,7 @@ window.C4S3_SCRIPT={
       audio:'c4s3-m2-intro'
     },
     steps:[
-      {id:'m2-s1',repeat:true,trigger:"delay:2000",say:'烛焰上这个亮点叫 S，光从它射向四面八方。',audio:'c4s3-m2-s1'},
+      {id:'m2-s1',repeat:true,trigger:"delay:12000",say:'烛焰上这个亮点叫 S，光从它射向四面八方。',audio:'c4s3-m2-s1'},
       {id:'m2-s2',repeat:true,trigger:"R.m2.showRay===true",say:'光射到镜面反射出去，反射光进入眼睛。',audio:'c4s3-m2-s2'},
       {id:'m2-s3',repeat:true,trigger:"R.m2.showExt===true && R.m2.showRay",say:'把反射光线反向延长，它们全交在 S′ 一点！',audio:'c4s3-m2-s3'},
       {id:'m2-s4',repeat:true,trigger:"R.m2.eye.inBeam===true",say:'眼睛逆着反射光看去，S′ 的像一下子亮了。',audio:'c4s3-m2-s4'},
@@ -86,7 +86,7 @@ window.C4S3_SCRIPT={
       audio:'c4s3-m3-intro'
     },
     steps:[
-      {id:'m3-s1',repeat:true,trigger:"delay:2000",say:'潜艇藏在水下，靠潜望镜把光接力送进艇里。',audio:'c4s3-m3-s1'},
+      {id:'m3-s1',repeat:true,trigger:"delay:13500",say:'潜艇藏在水下，靠潜望镜把光接力送进艇里。',audio:'c4s3-m3-s1'},
       {id:'m3-s2',repeat:true,trigger:"(R.m3.top.state==='slot' || R.m3.bottom.state==='slot')",say:'装好一面镜子啦，再把另一面也装进卡槽。',audio:'c4s3-m3-s2'},
       {id:'m3-s3',repeat:true,trigger:"R.m3.top.state==='slot' && R.m3.bottom.state==='slot'",say:'两面镜子都到位，角度保持 45° 刚刚好。',audio:'c4s3-m3-s3'},
       {id:'m3-s4',repeat:true,trigger:"R.m3.showPath===true && R.m3.inEye",say:'光两次转折，走 Z 字形，水平射向眼睛啦。',audio:'c4s3-m3-s4'},
