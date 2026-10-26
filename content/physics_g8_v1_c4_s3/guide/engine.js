@@ -12,6 +12,9 @@ var R=window.MRR;
 var DATA=window.C4S3_SCRIPT;
 var apiRef=null,loopOn=false;
 var curMode=null,G={},firedSteps={},hold={},errLast={},freeLast={},freePrev={},stepSched={};
+/* r4：repeat:true 步骤的边沿重触发状态（引擎私有，非 repeat 步骤不使用） */
+var repPrev={},repLast={},fireCount={},seenCount={};
+var REP_COOLDOWN=3000;
 var fnCache={};
 var tasksOn=false,taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
 var recCache={n:-1,t:0};
@@ -103,6 +106,7 @@ function updateG(){
 
 /* ---------- 触发分发 ---------- */
 function fireStep(step,mode){
+  fireCount[step.id]=(fireCount[step.id]||0)+1;/* r4：after: 依赖计数（repeat/非 repeat 都计） */
   if(step.saidFlag)G[step.saidFlag]=true;
   var api=getApi();
   if(api.onStep)api.onStep(step,mode);
@@ -124,31 +128,58 @@ function sched(step,mode,ms){
   if(stepSched[step.id]!=null)return;
   stepSched[step.id]=setTimeout(function(){
     stepSched[step.id]=null;
+    if(step.repeat){/* r4：repeat 步骤可重发，不查/不写 fired */
+      if(curMode===mode){repLast[step.id]=now();fireStep(step,mode);}
+      return;
+    }
     var fired=firedSteps[mode]||(firedSteps[mode]={});
     if(curMode===mode&&!fired[step.id]){fired[step.id]=true;fireStep(step,mode);}
   },ms);
 }
-/* steps：边沿触发只回调一次；同帧多条按数组序只发第一条 */
+/* steps：默认边沿触发只回调一次；repeat:true 步骤边沿重触发+3s 冷却（r4）；同帧多条按数组序只发第一条 */
 function tickSteps(mode){
   var md=DATA&&DATA[mode];if(!md||!md.steps)return;
   var fired=firedSteps[mode]||(firedSteps[mode]={});
   for(var i=0;i<md.steps.length;i++){
     var st=md.steps[i];
-    if(fired[st.id])continue;
+    if(st.repeat){/* r4：repeat 步骤不写 firedSteps，每帧先同步上一帧电平 */
+      repPrev[st.id]=repPrev[st.id]||false;
+    }else if(fired[st.id])continue;
     var p=parseTrigger(st.trigger);
     if(!p)continue;
-    if(p.delayMs){sched(st,mode,p.delayMs);continue;}
+    if(p.delayMs){
+      if(st.repeat)repPrev[st.id]=false;/* delay 型无电平，复位供 onModeEnter 重挂 */
+      sched(st,mode,p.delayMs);continue;
+    }
     if(p.afterId){
-      if(fired[p.afterId])sched(st,mode,p.afterMs);
+      if(st.repeat){
+        /* r4：依赖步每多发一次，就重新延时触发一次（seenCount 追 fireCount） */
+        var fc=fireCount[p.afterId]||0;
+        if(fc>(seenCount[st.id]||0)&&stepSched[st.id]==null){seenCount[st.id]=fc;sched(st,mode,p.afterMs);}
+        repPrev[st.id]=false;
+      }else if(fired[p.afterId])sched(st,mode,p.afterMs);
       continue;
     }
     if(p.expr==null)continue;
     var v=evalParsed(p);
+    var rPrev=st.repeat?!!repPrev[st.id]:false;/* 存档本帧更新前的电平 */
+    if(st.repeat)repPrev[st.id]=v;/* 每帧更新上一帧布尔 */
     if(p.holdMs){
       if(v){
         if(hold[st.id]==null)hold[st.id]=now();
-        else if(now()-hold[st.id]>=p.holdMs){hold[st.id]=null;fired[st.id]=true;fireStep(st,mode);return;}
+        else if(now()-hold[st.id]>=p.holdMs){
+          hold[st.id]=null;
+          if(st.repeat){
+            if(!rPrev&&(repLast[st.id]==null||now()-repLast[st.id]>=REP_COOLDOWN)){repLast[st.id]=now();fireStep(st,mode);return;}
+          }else{fired[st.id]=true;fireStep(st,mode);return;}
+        }
       }else hold[st.id]=null;
+      continue;
+    }
+    if(st.repeat){
+      if(v&&!rPrev&&(repLast[st.id]==null||now()-repLast[st.id]>=REP_COOLDOWN)){
+        repLast[st.id]=now();fireStep(st,mode);return;
+      }
       continue;
     }
     if(v){fired[st.id]=true;fireStep(st,mode);return;}
@@ -218,12 +249,25 @@ function bindEventTriggers(){
 }
 
 /* ---------- 模式切换（轮询 R.mode 变化沿） ---------- */
+/* r4：按模式清全部 step id 的 repeat 计数/电平（step id 全局唯一，跨模式不残留） */
+function clearRepeatState(){
+  if(!DATA)return;
+  for(var m in DATA){
+    var md=DATA[m];
+    if(!md||!md.steps)continue;
+    for(var i=0;i<md.steps.length;i++){
+      var id=md.steps[i].id;
+      delete fireCount[id];delete seenCount[id];delete repPrev[id];delete repLast[id];
+    }
+  }
+}
 function onModeEnter(mode){
   curMode=mode;
   G.modeEnterT=now();
   if(mode==='m1'&&R&&R.doCm!=null)G.do0=R.doCm;
   for(var k in stepSched){if(stepSched[k]!=null){clearTimeout(stepSched[k]);stepSched[k]=null;}}
   for(var h in hold)hold[h]=null;
+  clearRepeatState();/* r4：清全部模式 step 的 fireCount/seenCount/repPrev/repLast，delay 型重进模式可重发 */
   var md=DATA&&DATA[mode];
   if(md&&md.intro)fireIntro(mode,md.intro);
   if(tasksOn)resetTasks(mode);
@@ -352,6 +396,7 @@ window.GuideEngine={
     tasksOn=!!opts.tasks;
     resetG();
     firedSteps={};hold={};errLast={};freeLast={};freePrev={};stepSched={};
+    repPrev={};repLast={};fireCount={};seenCount={};/* r4：repeat 状态 */
     recCache={n:-1,t:0};
     taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
     bindEventTriggers();

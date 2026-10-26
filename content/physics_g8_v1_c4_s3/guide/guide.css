@@ -180,15 +180,21 @@
 }
 .gvb-fab:hover{transform:scale(1.06)}
 .gvb-fab-face{pointer-events:none}
-/* r3 反馈②：三态叠加图标——voice 态 vB.js 根本不渲染此元素（头像纯净无角标）；
-   text 🔇 / sleep 💤 以白色圆底小托叠在头像圆面右下（直径 46% of fab），不再「附在旁边」 */
+/* r4 反馈②③：角标两态——sleep 💤 用基础位=圆外右上角（恢复 r2 第1版，无白底托）；
+   text 🔇 由 .mode-text 规则叠在圆正中间（白圆底小托）。voice 态 vB.js 不渲染此元素 */
 .gvb-fab-badge{
-  position:absolute;left:62%;top:62%;transform:translate(-50%,-50%);
-  width:46%;height:46%;border-radius:50%;
+  position:absolute;top:-6px;right:-6px;
+  font-size:14px;line-height:1;pointer-events:none;
+  filter:drop-shadow(0 1px 2px rgba(30,41,59,.35));
+}
+.gvb-fab.mode-text .gvb-fab-badge{
+  left:50%;top:50%;right:auto;transform:translate(-50%,-50%);
+  width:56%;height:56%;border-radius:50%;
   background:#fff;border:1px solid rgba(148,163,184,.6);
   display:flex;align-items:center;justify-content:center;
-  font-size:13px;line-height:1;pointer-events:none;
+  font-size:15px;
   box-shadow:0 1px 3px rgba(30,41,59,.3);
+  filter:none;
 }
 /* sleep 休眠态：头像半透明 */
 .gvb-fab.mode-sleep{opacity:.45}
@@ -246,7 +252,6 @@
 
 @media (max-width:640px){
   .gvb-fab{right:8px;width:46px;height:46px;font-size:23px}
-  .gvb-fab-badge{font-size:11.5px}
   .gvb-start-card{padding:20px 22px;gap:6px}
   .gvb-start-icon{font-size:38px}
   .gvb-start-title{font-size:17px}
