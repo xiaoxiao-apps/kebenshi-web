@@ -256,6 +256,23 @@ function bindEventTriggers(){
         var ok=(p.expr==null)?true:evalParsed(p);
         if(ok&&throttle(errLast,er.id,5000))fireError(er);
       });
+      /* 通用版增补（c4s4 设计书 §5.1-2 发现的阻塞缺陷）：事件回调原来只发 errors/free 不发 steps，
+         event:input:#slider-i 型步骤会永不触发。repeat 步走 repLast+REP_COOLDOWN 节流（与 tickSteps 同机制），
+         非 repeat 步走 firedSteps 一次性闸门。 */
+      if(md.steps)md.steps.forEach(function(st){
+        var p=parseTrigger(st.trigger);
+        if(!p||p.evt!==evt||p.el!==elSel)return;
+        var ok=(p.expr==null)?true:evalParsed(p);
+        if(!ok)return;
+        if(st.repeat){
+          if(repLast[st.id]!=null&&now()-repLast[st.id]<REP_COOLDOWN)return;
+          repLast[st.id]=now();fireStep(st,curMode);
+        }else{
+          var fm=firedSteps[curMode]||(firedSteps[curMode]={});
+          if(fm[st.id])return;
+          fm[st.id]=true;fireStep(st,curMode);
+        }
+      });
       if(md.free)md.free.forEach(function(fr,idx){
         var p=parseTrigger(fr.trigger);
         if(!p||p.evt!==evt||p.el!==elSel)return;
