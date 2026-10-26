@@ -61,6 +61,7 @@ function throttle(map,key,ms){
 /* ---------- G 进度字段采集（§0.3，引擎私有） ---------- */
 function resetG(){
   G={recCount:0,do0:(R&&R.doCm!=null)?R.doCm:8,objChangeCount:0,
+     t:now(),lastObjChangeT:0,
      eqEverOn:false,everMatched:false,firstSlotDone:false,modeEnterT:now(),
      everLit:false,matchedEdgeCount:0,angleWasOff:false,
      raySaid:false,inBeamSaid:false,spSaid:false,firstSlotSaid:false,bothSlotSaid:false,pathSaid:false};
@@ -78,6 +79,7 @@ function countRec(){
 function updateG(){
   if(!R)return;
   var t=now();
+  G.t=t;
   G.recCount=countRec();
   G.modeEnterT=G.modeEnterT||t;
   if(R.eqOn)G.eqEverOn=true;
@@ -92,7 +94,7 @@ function updateG(){
   if(R.doCm!=null){
     if(lastDoCm===null){lastDoCm=R.doCm;}
     else if(R.doCm!==lastDoCm){
-      lastDoCm=R.doCm;lastChangeSeenT=t;
+      lastDoCm=R.doCm;lastChangeSeenT=t;G.lastObjChangeT=t;
       if(objChangeArmed){G.objChangeCount++;objChangeArmed=false;}
     }
     if(!objChangeArmed&&t-lastChangeSeenT>350)objChangeArmed=true;

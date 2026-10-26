@@ -40,16 +40,6 @@
   75%{margin-left:-3px}
 }
 
-/* ---------- vB 讲解配音静音钮（独立于 core 的 btn-mute） ---------- */
-.guide-mute-btn{
-  position:fixed;top:40px;right:12px;z-index:60;
-  border:1px solid #b8c6da;border-radius:8px;
-  background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;
-  font-size:14px;padding:4px 9px;cursor:pointer;
-  box-shadow:0 2px 3px rgba(30,41,59,.25);
-}
-.guide-mute-btn:hover{background:linear-gradient(#f8fafc,#d2deeb)}
-
 /* ---------- vA 任务链老师卡（纯 CSS 卡通，无图片） ---------- */
 .guide-card{
   position:fixed;right:14px;bottom:118px;z-index:50;
@@ -176,8 +166,8 @@
   .guide-caption{font-size:14px;padding:8px 12px 8px 8px}
 }
 
-/* ---------- vB 打磨版（g2）专属：命名空间 .gvb-*，仅追加，不改上方任何既有规则 ---------- */
-/* 右下老师浮标 = 解说总开关（bottom 由 vB.js 按 ctrlbar 高度自适应写入） */
+/* ---------- vB 打磨版（r2/g3）专属：命名空间 .gvb-*，仅追加，不改上方任何既有规则 ---------- */
+/* 右下老师浮标 = 三态循环 voice🔊 / text🔇 / sleep💤（bottom 由 vB.js 按 ctrlbar 高度自适应写入） */
 .gvb-fab{
   position:fixed;right:14px;bottom:110px;z-index:58;
   width:52px;height:52px;padding:0;border-radius:50%;
@@ -190,15 +180,15 @@
 }
 .gvb-fab:hover{transform:scale(1.06)}
 .gvb-fab-face{pointer-events:none}
-/* 收起态：半透明 + 右上 💤 角标 */
-.gvb-fab.is-collapsed{opacity:.45}
-.gvb-fab.is-collapsed:hover{opacity:.8}
-.gvb-fab-zzz{
+/* 三态小角标（内容由 vB.js 依 gvb-mode 切换） */
+.gvb-fab-badge{
   position:absolute;top:-6px;right:-6px;
-  display:none;font-size:14px;line-height:1;pointer-events:none;
+  font-size:14px;line-height:1;pointer-events:none;
   filter:drop-shadow(0 1px 2px rgba(30,41,59,.35));
 }
-.gvb-fab.is-collapsed .gvb-fab-zzz{display:block}
+/* sleep 休眠态：头像半透明 */
+.gvb-fab.mode-sleep{opacity:.45}
+.gvb-fab.mode-sleep:hover{opacity:.8}
 
 /* vB 字幕条：整体左移让开右侧浮标，永不重叠（含隐藏态起始位移，避免淡出时横跳） */
 .gvb-caption{max-width:min(700px,calc(100vw - 104px));transform:translate(calc(-50% - 36px),14px)}

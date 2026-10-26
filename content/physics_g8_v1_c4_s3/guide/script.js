@@ -16,8 +16,8 @@ window.C4S3_SCRIPT={
       audio:'c4s3-m1-intro'
     },
     steps:[
-      {id:'m1-s1',trigger:"R.objLit===true && R.eqState==='off' && !G.everMatched",say:'点燃啦！看玻璃板里，出现了一支蜡烛的像。',audio:'c4s3-m1-s1'},
-      {id:'m1-s2',trigger:"R.objLit && !R.eqOn && G.objChangeCount>=1 && Math.abs(R.doCm-G.do0)>=2",say:'蜡烛移远，像也跟着移远，大小可没变哦。',audio:'c4s3-m1-s2'},
+      {id:'m1-s1',trigger:"R.objLit===true && R.eqState==='off' && !G.everMatched",say:'点燃啦！火苗亮了，玻璃板里的像才看得清哦。',audio:'c4s3-m1-s1'},
+      {id:'m1-s2',trigger:"R.objLit && !R.eqOn && G.objChangeCount>=1 && Math.abs(R.doCm-G.do0)>=2 && (G.t-G.lastObjChangeT)<1600",say:'蜡烛移远，像也跟着移远，大小可没变哦。',audio:'c4s3-m1-s2'},
       {id:'m1-s3',trigger:"R.eqOn===true && (R.eqState==='tray'||R.eqState==='held')",say:'等效蜡烛拿出来了，把它拖到玻璃板后面去。',audio:'c4s3-m1-s3'},
       {id:'m1-s4',trigger:"R.eqState==='placed' && !R.matched && R.eqDo>=0",say:'慢慢挪，让它跟板里的像完全重合。',audio:'c4s3-m1-s4'},
       {id:'m1-s5',trigger:"R.matched===true && !G.everMatched",say:'重合了！像和物等大，到镜面距离也相等。',audio:'c4s3-m1-s5'},
