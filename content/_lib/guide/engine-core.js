@@ -22,6 +22,8 @@ var recCache={n:-1,t:0};
 var lastDoCm=null,lastChangeSeenT=0,objChangeArmed=true;
 /* r5：等效蜡烛移动手势计数状态（镜像 objChangeCount，仅 placed 态跟踪） */
 var lastEqDo=null,eqChangeSeenT=0,eqChangeArmed=true,prevEqPlaced=false;
+/* A5（W1 c4s2 揪出）：角度改动手势计数状态——监听 R.angleI，无此字段的实验不进守卫 */
+var lastAngVal=null,angChangeSeenT=0,angChangeArmed=true;
 
 function now(){return performance.now();}
 function getApi(){return apiRef||{};}
@@ -70,9 +72,11 @@ function resetG(){
      t:now(),lastObjChangeT:0,eqMoveGestureCount:0,lastEqChangeT:0,
      eqEverOn:false,everMatched:false,firstSlotDone:false,modeEnterT:now(),
      everLit:false,matchedEdgeCount:0,angleWasOff:false,
-     raySaid:false,inBeamSaid:false,spSaid:false,firstSlotSaid:false,bothSlotSaid:false,pathSaid:false};
+     raySaid:false,inBeamSaid:false,spSaid:false,firstSlotSaid:false,bothSlotSaid:false,pathSaid:false,
+     angChangeCount:0,lastAngChangeT:0};
   lastDoCm=null;lastChangeSeenT=0;objChangeArmed=true;
   lastEqDo=null;eqChangeSeenT=0;eqChangeArmed=true;prevEqPlaced=false;
+  lastAngVal=null;angChangeSeenT=0;angChangeArmed=true;
 }
 function countRec(){
   var t=now();
@@ -119,6 +123,18 @@ function updateG(){
     lastEqDo=null;
   }
   prevEqPlaced=(R.eqState==='placed');
+  /* A5 angChangeCount：角度改动「手势」计数（监听 R.angleI，镜像 objChangeCount）——
+     变化且已武装才 +1，静默 350ms 重新武装，一次连续拖动只计 1 次。
+     c4s2 法线步 s4 trigger 依赖 G.angChangeCount>=1 && (G.t-G.lastAngChangeT)>800；
+     通用字段：无 R.angleI 的实验不进守卫，其余有角度拖动的实验亦可复用 */
+  if(R.angleI!=null){
+    if(lastAngVal===null){lastAngVal=R.angleI;}
+    else if(R.angleI!==lastAngVal){
+      lastAngVal=R.angleI;angChangeSeenT=t;G.lastAngChangeT=t;
+      if(angChangeArmed){G.angChangeCount++;angChangeArmed=false;}
+    }
+    if(!angChangeArmed&&t-angChangeSeenT>350)angChangeArmed=true;
+  }
 }
 
 /* ---------- 触发分发 ---------- */

@@ -143,6 +143,7 @@ R.draw=function(){
     if(!R.pulse.loop && raw>=1){t=1;R.pulse.active=false;}
     var rev=R.pulse.reverse;
     if(R.beamMode==='beam'){
+      var incDir={x:Math.sin(a), y:Math.cos(a)}; /* 热修(W1验收揪出)：pulse+beam 分支在主 draw 函数作用域，引用不到 drawBeam() 内局部 incDir→每帧 ReferenceError；定义式与 L92/L151 内联写法一致 */
       var n=5;
       for(var i=0;i<n;i++){
         var x=O.x+(i-2)*R.mirrorLen*0.16;
