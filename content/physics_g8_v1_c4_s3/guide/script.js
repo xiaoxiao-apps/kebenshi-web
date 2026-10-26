@@ -34,10 +34,10 @@ window.C4S3_SCRIPT={
       {id:'m1-e5',trigger:"event:click:#btn-rec:G.recCount>=3",fix:'记录表满啦～点「清除」腾出空行再记吧。',audio:'c4s3-m1-e5'}
     ],
     free:[
-      {trigger:"event:input:#obj-slider:R.objLit",note:'物距在变，像距跟着变，两支蜡烛始终对称。'},
-      {trigger:"R.showAux===true",note:'辅助线连出像和物，连线跟板面垂直呢。'},
-      {trigger:"R.objLit===false && G.everLit",note:'蜡烛灭了，像也跟着消失了。'},
-      {trigger:"R.matched===true && G.matchedEdgeCount>=2",note:'又重合了，等大等距的规律一直都在。'}
+      {trigger:"event:input:#obj-slider:R.objLit",note:'物距在变，像距跟着变，两支蜡烛始终对称。',audio:'c4s3-m1-f1'},
+      {trigger:"R.showAux===true",note:'辅助线连出像和物，连线跟板面垂直呢。',audio:'c4s3-m1-f2'},
+      {trigger:"R.objLit===false && G.everLit",note:'蜡烛灭了，像也跟着消失了。',audio:'c4s3-m1-f3'},
+      {trigger:"R.matched===true && G.matchedEdgeCount>=2",note:'又重合了，等大等距的规律一直都在。',audio:'c4s3-m1-f4'}
     ],
     tasks:[
       {id:'m1-t1',stage:'predict',q:'点燃蜡烛后，玻璃板里的像跟蜡烛比，大小会怎样？',options:['一样大','比蜡烛小','比蜡烛大'],answer:0,done:"R.objLit===true",praise:'对啦！像和物始终等大，记住咯～',retry:'咦？去点燃蜡烛，仔细比比像和蜡烛的大小再选～'},
@@ -68,11 +68,11 @@ window.C4S3_SCRIPT={
       {id:'m2-e4',trigger:"R.m2.screen.state==='placed' && !R.m2.screenAtSp && R.m2.showExt@2000",fix:'把光屏放到虚线交点 S′ 那里，看能不能承接到像。',audio:'c4s3-m2-e4'}
     ],
     free:[
-      {trigger:"R.m2.dragS===true",note:'S 移到哪，S′ 就对称地跟到哪。'},
-      {trigger:"R.m2.showNormal===true",note:'法线垂直镜面，反射角等于入射角。'},
-      {trigger:"R.m2.eye.state==='placed' && !R.m2.eye.inBeam && R.m2.showRay",note:'眼睛在光束外，接收不到反射光，像变暗了。'},
-      {trigger:"R.m2.screen.state==='placed' && !R.m2.screenAtSp",note:'光屏立在这儿，上面什么像也没有。'},
-      {trigger:"R.m2.showSym===true",note:'对称标注画出来了，S 和 S′ 等距。'}
+      {trigger:"R.m2.dragS===true",note:'S 移到哪，S′ 就对称地跟到哪。',audio:'c4s3-m2-f1'},
+      {trigger:"R.m2.showNormal===true",note:'法线垂直镜面，反射角等于入射角。',audio:'c4s3-m2-f2'},
+      {trigger:"R.m2.eye.state==='placed' && !R.m2.eye.inBeam && R.m2.showRay",note:'眼睛在光束外，接收不到反射光，像变暗了。',audio:'c4s3-m2-f3'},
+      {trigger:"R.m2.screen.state==='placed' && !R.m2.screenAtSp",note:'光屏立在这儿，上面什么像也没有。',audio:'c4s3-m2-f4'},
+      {trigger:"R.m2.showSym===true",note:'对称标注画出来了，S 和 S′ 等距。',audio:'c4s3-m2-f5'}
     ],
     tasks:[
       {id:'m2-t1',stage:'predict',q:'S 发出的光经镜面反射后进眼睛，人觉得光是从哪来的？',options:['镜面','反射光线反向延长线的交点 S′','S 本身'],answer:1,done:"R.m2.showRay && R.m2.showExt",praise:'对！眼睛爱沿直线倒推，S′ 就是这么「看」出来的～',retry:'打开入射-反射线，再开反向延长线，看虚线交在哪～'},
@@ -99,10 +99,10 @@ window.C4S3_SCRIPT={
       {id:'m3-e3',trigger:"R.m3.top.state==='placed' || R.m3.bottom.state==='placed'@1500",fix:'镜子没进卡槽哟～把它拖到卡槽圆圈里才算装好。',audio:'c4s3-m3-e3'}
     ],
     free:[
-      {trigger:"Math.abs(R.m3.angle-45)>0.5",note:'角度一变，光就不走 Z 字形路线了。'},
-      {trigger:"R.m3.angle===45 && G.angleWasOff",note:'回到 45°，光路又通了。'},
-      {trigger:"R.m3.top.state==='held' || R.m3.bottom.state==='held'",note:'镜子在你手里，卡槽还空着呢。'},
-      {trigger:"R.m3.showPath===false && R.m3.inEye",note:'镜子装好了，开「显示光路」能看到光的走法。'}
+      {trigger:"Math.abs(R.m3.angle-45)>0.5",note:'角度一变，光就不走 Z 字形路线了。',audio:'c4s3-m3-f1'},
+      {trigger:"R.m3.angle===45 && G.angleWasOff",note:'回到 45°，光路又通了。',audio:'c4s3-m3-f2'},
+      {trigger:"R.m3.top.state==='held' || R.m3.bottom.state==='held'",note:'镜子在你手里，卡槽还空着呢。',audio:'c4s3-m3-f3'},
+      {trigger:"R.m3.showPath===false && R.m3.inEye",note:'镜子装好了，开「显示光路」能看到光的走法。',audio:'c4s3-m3-f4'}
     ],
     tasks:[
       {id:'m3-t1',stage:'predict',q:'潜望镜里的平面镜，装成多少度角才能把光接力送到眼睛？',options:['30°','45°','60°'],answer:1,done:"R.m3.top.state==='slot' && R.m3.bottom.state==='slot' && R.m3.angle===45",praise:'45° 正解！两次转折后光刚好水平射出～',retry:'装好镜子后拖角度滑杆试试别的角度，光会怎样？'},
@@ -179,6 +179,19 @@ window.C4S3_SCRIPT={
     'c4s3-m3-e3':'guide/audio/c4s3-m3-e3.mp3',
     'c4s3-m1-concl':'guide/audio/c4s3-m1-concl.mp3',
     'c4s3-m2-concl':'guide/audio/c4s3-m2-concl.mp3',
-    'c4s3-m3-concl':'guide/audio/c4s3-m3-concl.mp3'
+    'c4s3-m3-concl':'guide/audio/c4s3-m3-concl.mp3',
+    'c4s3-m1-f1':'guide/audio/c4s3-m1-f1.mp3',
+    'c4s3-m1-f2':'guide/audio/c4s3-m1-f2.mp3',
+    'c4s3-m1-f3':'guide/audio/c4s3-m1-f3.mp3',
+    'c4s3-m1-f4':'guide/audio/c4s3-m1-f4.mp3',
+    'c4s3-m2-f1':'guide/audio/c4s3-m2-f1.mp3',
+    'c4s3-m2-f2':'guide/audio/c4s3-m2-f2.mp3',
+    'c4s3-m2-f3':'guide/audio/c4s3-m2-f3.mp3',
+    'c4s3-m2-f4':'guide/audio/c4s3-m2-f4.mp3',
+    'c4s3-m2-f5':'guide/audio/c4s3-m2-f5.mp3',
+    'c4s3-m3-f1':'guide/audio/c4s3-m3-f1.mp3',
+    'c4s3-m3-f2':'guide/audio/c4s3-m3-f2.mp3',
+    'c4s3-m3-f3':'guide/audio/c4s3-m3-f3.mp3',
+    'c4s3-m3-f4':'guide/audio/c4s3-m3-f4.mp3'
   }
 };
