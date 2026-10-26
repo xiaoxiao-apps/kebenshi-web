@@ -102,3 +102,34 @@ canvas touch-action：wrap 内展示 canvas 计算样式=none（common.css 既�
 
 === DONE ===
 报告路径：docs/mobile-wave-M3b-report.md
+
+---
+
+# M3c 补漏（两页）
+
+日期：2026-10-27 ｜ 范围：c2_s2/exp-craft.html + exp-craft.js + exp-instruments.html + exp-lab.html（仅 data-src 两行），未 commit/push
+
+## 1. 盘点结论（先 grep 后动手）
+
+- **exp-craft.js**：水瓶琴原为 `click` + `touchstart(preventDefault)` 双绑（规格 2.3 命中）——touchstart 已删，收敛为 click 单绑（触屏 tap 原生合成 click，无双触发风险，桌面路径不变）；活塞哨子拖拽**已是 pointer 单绑**（pointerdown/move/up/leave + setPointerCapture），零改动。
+- **exp-instruments.js**：全 click/input（tab 切换/滑杆/flip 卡/试听按钮），mouse/touch 绑定 0 命中，无需改动（同 M3b 大盘结论）。
+- 两页均**无 canvas、无 fullscreen wrap、无 100vh**（grep 0 命中）——规格 2.4 全部 N/A 如实记录。exp-craft 的 `.pipe-stage/.pipe-piston` 内联 CSS 既有 `touch-action:none`，无需补。
+- hint-bar：两页无 hint-bar 解说条组件（仅静态 `.hint` 文案），原样保留。
+
+## 2. 每页改动表
+
+| 页 | 额外改动 | 实测（375×667 touch） |
+|---|---|---|
+| exp-craft | viewport 补 maximum-scale/user-scalable=no；内联 style 加 `html,body{-webkit-tap-highlight-color:transparent}`；**exp-craft.js 删 touchstart 双绑（唯一 js 改动）**；js 引用升 `?v=20261026m3c` | tap 瓶子 i→.active；tap 管体 30% 高→airLen=70%（活塞 pointer 路径触屏生效）；滑杆→airLen=10%；tap 吹气→「⏹ 停止」再 tap→「🌬️ 吹气」；375≤375；console 0 |
+| exp-instruments | 仅统一项（viewport + tap-highlight） | tap Tab 弦乐→panel active；tap flip 卡→.flipped；力度滑杆→「响度：中→大」；tap 试听鼓无报错；375≤375；console 0 |
+| exp-lab（壳） | 仅 craft/instruments 两行 data-src `?v=20261024→20261026m3c`，其余禁碰零改动 | tap tab⑦→frame src=exp-craft.html?v=20261026m3c；tap tab⑧→src=exp-instruments.html?v=20261026m3c；console 0 |
+
+## 3. 验收证据
+
+- `node --check exp-craft.js` OK（本轮唯一 js 改动；exp-instruments.js 未动）。
+- git status：本轮仅上述 4 文件 M（工作区其余 M/untracked 为并行线产物，零触碰）。
+- Playwright（Python + Chromium）移动端 375×667 emulate（is_mobile/has_touch/DSR2/iPhone UA，`locator.tap()`/`touchscreen.tap()` 真实合成触摸）+ 桌面 1280×800 回归（click 瓶子/鼠标拖活塞→airLen=20%，pointer 路径未破坏；tab/试听正常）：**23/23 PASS**，全部 console/pageerror 0。脚本 /tmp/m3c_test.py，结果 /tmp/m3c_results.json。
+- 调试记录：首跑 22/23，唯一 FAIL 为测试脚本自身取 bounding_box 前未固定滚动位置（tap 坐标偏移 78px），页面代码无 bug；脚本补 scroll_into_view 后复跑全绿。
+- 纪律：物理逻辑/判分/WebAudio 合成零改动（js 改动仅删 1 行冗余 touchstart）；未 commit/push；轮次用量 7/8。
+
+=== DONE ===

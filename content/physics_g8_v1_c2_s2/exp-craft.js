@@ -25,7 +25,6 @@
 
   bottles.forEach(function(b) {
     b.addEventListener('click', function() { playBottle(b); });
-    b.addEventListener('touchstart', function(e) { e.preventDefault(); playBottle(b); });
   });
 
   // ===== 活塞哨子 =====
