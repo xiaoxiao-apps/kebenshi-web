@@ -265,8 +265,24 @@ function bindEventTriggers(){
       });
     },true);
   }
-  bind('#btn-rec','click');
-  bind('#obj-slider','input');
+  /* 通用版：扫描 DATA 里所有事件型 trigger，按 (选择器,事件) 去重后逐一绑定，
+     不再硬编码 c4_s3 的 #btn-rec/#obj-slider。宿主实验的 event:input:#slider-i 等自动生效。 */
+  var seen={};
+  for(var m in DATA){
+    var md=DATA[m];
+    if(!md)continue;
+    [md.errors,md.free,md.steps].forEach(function(arr){
+      if(!arr)return;
+      arr.forEach(function(item){
+        var p=item&&item.trigger?parseTrigger(item.trigger):null;
+        if(!p||!p.evt||!p.el)return;
+        var key=p.el+'|'+p.evt;
+        if(seen[key])return;
+        seen[key]=true;
+        bind(p.el,p.evt);
+      });
+    });
+  }
 }
 
 /* ---------- 模式切换（轮询 R.mode 变化沿） ---------- */
