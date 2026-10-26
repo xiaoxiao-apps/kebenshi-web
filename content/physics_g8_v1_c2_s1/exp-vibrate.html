@@ -11,7 +11,7 @@
   html, body { -webkit-tap-highlight-color: transparent; }
   #holdBtn { touch-action: none; user-select: none; -webkit-user-select: none; }
   #fsVibWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
-  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #f7e8c0; }
   #bandCv { width: 100%; display: block; }
   .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
@@ -43,7 +43,6 @@
 
   <div class="card">
     <h2>拨动橡皮筋 <span class="chip brown">想想做做</span></h2>
-    <div class="hint-bar">💡 点「▶ 拨动」：每振动一个来回，就发出「铮」的一声；振动越来越弱，声音也越来越轻，静止后不再发声；拖 slider 改变振幅和音调；<b>按住</b>「🖐 按住橡皮筋」→ 振动停、声音停。</div>
     <div class="fullscreen-wrap" id="fsVibWrap">
       <button class="fullscreen-btn" id="fsVibBtn" title="全屏">⛶</button>
       <div class="scene-wrap">
@@ -76,6 +75,7 @@
       🧠 归纳：橡皮筋嗡嗡作响时它在振动，说话时声带在振动——大量现象归纳出一般结论：<b>声音是由物体的振动产生的</b>。想让物体不再发声？让它<b>停止振动</b>。
     </div>
   </div>
+  <div class="hint-bar">💡 点「▶ 拨动」：每振动一个来回，就发出「铮」的一声；振动越来越弱，声音也越来越轻，静止后不再发声；拖 slider 改变振幅和音调；<b>按住</b>「🖐 按住橡皮筋」→ 振动停、声音停。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>

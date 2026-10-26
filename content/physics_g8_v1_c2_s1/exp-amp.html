@@ -13,7 +13,7 @@
   #fsAmpWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
 </style>
 <style>
-  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #fdf3d8; }
   #ampCv { width: 100%; display: block; }
   .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
@@ -49,7 +49,6 @@
 
   <div class="card">
     <h2>左：鼓面碎纸屑 右：音叉点水 <span class="chip cyan">实时联动</span></h2>
-    <div class="hint-bar">💡 拖「敲鼓力度」slider 再点「敲一下」：力度越大，鼓面振幅越大，碎纸屑跳得越高。点「音叉点水」看振动的音叉溅起水花。「慢镜头」0.25× 回放最近一次敲击。</div>
     <div class="fullscreen-wrap" id="fsAmpWrap">
       <button class="fullscreen-btn" id="fsAmpBtn" title="全屏">⛶</button>
       <div class="scene-wrap">
@@ -79,6 +78,7 @@
       <div class="fb-text" id="fbAmp"><b>答对了！</b>鼓面、音叉发声时在振动，但振幅太小看不清。碎纸屑跳动、水花飞溅把<b>微小的振动放大</b>成明显的现象，让我们"看见"了振动——这就是<b>转换法</b>。振动停止，纸屑落下、水面平静，发声也停止。</div>
     </div>
   </div>
+  <div class="hint-bar">💡 拖「敲鼓力度」slider 再点「敲一下」：力度越大，鼓面振幅越大，碎纸屑跳得越高。点「音叉点水」看振动的音叉溅起水花。「慢镜头」0.25× 回放最近一次敲击。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>

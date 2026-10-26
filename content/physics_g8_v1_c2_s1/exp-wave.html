@@ -13,7 +13,7 @@
   #fsWaveWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
 </style>
 <style>
-  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #fdf3d8; }
   #waveCv { width: 100%; display: block; }
   .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
@@ -40,7 +40,6 @@
 
   <div class="card">
     <h2>上：声波（疏密波） 下：水波 <span class="chip cyan">分屏对比</span></h2>
-    <div class="hint-bar">💡 点「🥁 敲鼓」：看空气粒子在鼓旁原位振动、疏密波形向外传；拖「频率」slider 看疏密间距怎么变。下半屏是铅笔点水面的水波，对比看。</div>
     <div class="fullscreen-wrap" id="fsWaveWrap">
       <button class="fullscreen-btn" id="fsWaveBtn" title="全屏">⛶</button>
       <div class="scene-wrap">
@@ -59,6 +58,7 @@
     <div class="note-line" id="noteLine"></div>
     <p class="hint">注意看：每个空气质点（蓝点）只在自己位置附近来回振动，<b>向外传播的是疏密相间的波形</b>，不是质点本身。水波同理：水质点上下振动，波纹向外传。</p>
   </div>
+  <div class="hint-bar">💡 点「🥁 敲鼓」：看空气粒子在鼓旁原位振动、疏密波形向外传；拖「频率」slider 看疏密间距怎么变。下半屏是铅笔点水面的水波，对比看。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>

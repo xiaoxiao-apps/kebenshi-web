@@ -10,12 +10,7 @@
 <style>
   html, body { -webkit-tap-highlight-color: transparent; }
   #fsHvWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
-  .hint-bar {
-    background: var(--brown-bg); color: var(--brown);
-    border: 1px solid rgba(139,105,20,.15); border-radius: 10px;
-    padding: 10px 14px; font-size: 14px; line-height: 1.6;
-    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-  }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #f7e8c0; }
   #fieldCv { width: 100%; display: block; }
   .ref-pills { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
@@ -58,7 +53,6 @@
   </div>
   <div class="card">
     <h2>相对静止 + 时间轴 <span class="chip brown">运动的相对性</span></h2>
-    <div class="hint-bar">💡 先选一个参照物，再点「▶ 出发」；拖动时间轴可以回到任意时刻。开启「位置印记」看两车每秒留下的点。</div>
     <div class="fullscreen-wrap" id="fsHvWrap">
       <div class="ref-pills" id="refPills">
         <span class="lbl">参照物：</span>
@@ -83,6 +77,7 @@
       <p class="hint locked" id="finalHint">结论：两车同快慢、同方向，彼此之间位置不变 → 互为参照物时都是静止的；但相对地面它们都在运动。运动和静止是<b>相对</b>的。</p>
     </div>
   </div>
+  <div class="hint-bar">💡 先选一个参照物，再点「▶ 出发」；拖动时间轴可以回到任意时刻。开启「位置印记」看两车每秒留下的点。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>

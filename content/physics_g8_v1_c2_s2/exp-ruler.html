@@ -13,7 +13,7 @@
   #fsRulerWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
 </style>
 <style>
-  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #e8e8e8; }
   #rulerCv { width: 100%; display: block; }
   .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
@@ -48,7 +48,6 @@
 
   <div class="card">
     <h2>想想做做 <span class="chip brown">钢尺音调实验</span></h2>
-    <div class="hint-bar">💡 按照实验步骤：先把钢尺伸出桌边<b>较长</b>，拨动听音调；再<b>逐渐缩短</b>伸出长度，重复拨动，观察振动快慢与音调变化。</div>
 
     <div class="fullscreen-wrap" id="fsRulerWrap">
       <button class="fullscreen-btn" id="fsRulerBtn" title="全屏">⛶</button>
@@ -94,6 +93,7 @@
       </div>
     </div>
   </div>
+  <div class="hint-bar">💡 按照实验步骤：先把钢尺伸出桌边<b>较长</b>，拨动听音调；再<b>逐渐缩短</b>伸出长度，重复拨动，观察振动快慢与音调变化。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>

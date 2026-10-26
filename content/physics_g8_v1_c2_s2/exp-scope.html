@@ -13,7 +13,7 @@
   #fsScopeWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
 </style>
 <style>
-  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .screen-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #1a1f26; border: 6px solid #2c3540; }
   #scopeCv { width: 100%; display: block; }
   .scope-bezel { position: absolute; top: 8px; left: 12px; color: #6c8a6c; font-size: 11px; font-family: monospace; }
@@ -51,7 +51,6 @@
 
   <div class="card">
     <h2>观察声音的波形 <span class="chip cyan">演示</span></h2>
-    <div class="hint-bar">💡 选择频率按钮，听真实音叉录音并观察示波器波形。注意比较：高频波形更密，低频波形更疏。</div>
 
     <div class="fullscreen-wrap" id="fsScopeWrap">
       <button class="fullscreen-btn" id="fsScopeBtn" title="全屏">⛶</button>
@@ -89,6 +88,7 @@
       <b>实验结论：</b>音调越高，同样时长里挤进的波形越<b>密集</b>，每秒振动次数（频率）越大；音调越低，波形越<b>稀疏</b>，频率越小。
     </div>
   </div>
+  <div class="hint-bar">💡 选择频率按钮，听真实音叉录音并观察示波器波形。注意比较：高频波形更密，低频波形更疏。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>

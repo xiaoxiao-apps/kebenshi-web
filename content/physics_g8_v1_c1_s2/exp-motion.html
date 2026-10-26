@@ -10,12 +10,7 @@
 <style>
   html, body { -webkit-tap-highlight-color: transparent; }
   #fsMoWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
-  .hint-bar {
-    background: var(--brown-bg); color: var(--brown);
-    border: 1px solid rgba(139,105,20,.15); border-radius: 10px;
-    padding: 10px 14px; font-size: 14px; line-height: 1.6;
-    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-  }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .stage { position: relative; border-radius: 12px; overflow: hidden; background: #1d2438; transition: background .25s ease; }
   .stage.day { background: #f7e8c0; }
   .stage.leaf { background: #eef6ec; }
@@ -63,7 +58,6 @@
   </div>
   <div class="card">
     <h2>什么是机械运动 <span class="chip brown">概念建构</span></h2>
-    <div class="hint-bar">💡 点下方按钮，依次观察三种运动，找出它们的共同点。</div>
     <div class="fullscreen-wrap" id="fsMoWrap">
       <button class="fullscreen-btn" id="fsMoBtn" title="全屏">⛶</button>
       <div class="stage" id="stage">
@@ -87,6 +81,7 @@
       </div>
     </div>
   </div>
+  <div class="hint-bar">💡 点下方按钮，依次观察三种运动，找出它们的共同点。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>

@@ -22,7 +22,7 @@
   .readout .pill { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--ink2); }
   .readout .pill b { color: var(--brown); }
   .info-card { background: var(--cyan-bg); border: 1px solid rgba(41,128,185,.2); border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: 14px; line-height: 1.7; }
-  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 13px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .dim-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
   .dim-table th, .dim-table td { border: 1px solid rgba(0,0,0,.08); padding: 8px 10px; text-align: left; }
   .dim-table th { background: var(--card2); }
@@ -75,7 +75,6 @@
     <button class="fullscreen-btn" title="全屏" aria-label="全屏显示">⛶</button>
   <div class="card">
     <h2>3D 模型 <span class="chip brown">项目实施</span></h2>
-    <div class="hint-bar"> 鼠标拖拽可旋转视角，滚轮缩放；打开盒盖观察内部。先测“处理前”的分贝，再贴材料测“处理后”。</div>
 
     <div class="scene-wrap" id="roomWrap">
       <canvas id="room3d"></canvas>
@@ -129,6 +128,7 @@
       <tr><td>安全和环保</td><td>材料是否安全、无毒、环保</td></tr>
     </table>
   </div>
+  <div class="hint-bar"> 鼠标拖拽可旋转视角，滚轮缩放；打开盒盖观察内部。先测“处理前”的分贝，再贴材料测“处理后”。</div>
 </div>
 <script src="three.min.js?v=20261024"></script>
 <script src="fullscreen.js?v=20261024"></script>

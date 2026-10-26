@@ -12,7 +12,7 @@
   html, body { -webkit-tap-highlight-color: transparent; }
 </style>
 <style>
-  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .axis-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid rgba(0,0,0,.08); }
   #rangeCv { width: 100%; display: block; }
   .animal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
@@ -42,7 +42,6 @@
   <div class="card">
     <!-- 溯源：原表2.2-1 -->
     <h2>人和一些动物的听觉频率范围 <span class="chip brown">数据</span></h2>
-    <div class="hint-bar">💡 点击动物按钮，在轴上画出它的听觉范围。绿色高亮区是<b>人耳</b>可听范围（20~20 000 Hz）。<20 Hz 为次声波，>20 000 Hz 为超声波。</div>
 
     <div class="axis-wrap">
       <canvas id="rangeCv"></canvas>
@@ -82,6 +81,7 @@
       </div>
     </div>
   </div>
+  <div class="hint-bar">💡 点击动物按钮，在轴上画出它的听觉范围。绿色高亮区是<b>人耳</b>可听范围（20~20 000 Hz）。<20 Hz 为次声波，>20 000 Hz 为超声波。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>

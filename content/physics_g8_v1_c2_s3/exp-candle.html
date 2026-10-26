@@ -13,7 +13,7 @@
   #fsCandleWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
 </style>
 <style>
-  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #1a1512; }
   #candleCv { width: 100%; display: block; }
   .ctl-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; flex-wrap: nowrap; }
@@ -47,7 +47,6 @@
 
   <div class="card">
     <h2>演示 <span class="chip brown">声与能量</span></h2>
-    <div class="hint-bar"> 点击「播放音乐」，观察声波波纹向烛焰传播；拖动「音量」滑杆改变振幅，火焰颤动幅度随之变化。</div>
 
     <div class="fullscreen-wrap" id="fsCandleWrap">
       <button class="fullscreen-btn" id="fsCandleBtn" title="全屏">⛶</button>
@@ -72,6 +71,7 @@
       </div>
     </div>
   </div>
+  <div class="hint-bar"> 点击「播放音乐」，观察声波波纹向烛焰传播；拖动「音量」滑杆改变振幅，火焰颤动幅度随之变化。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>

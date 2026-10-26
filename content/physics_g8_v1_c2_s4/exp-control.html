@@ -13,7 +13,7 @@
   .measure-card.sel { outline: 3px solid #2b7fd4; outline-offset: 2px; }
 </style>
 <style>
-  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .drag-pool { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; min-height: 54px; }
   .measure-card { background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 10px; padding: 10px 14px; font-size: 13px; cursor: grab; user-select: none; transition: transform .12s, box-shadow .15s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
   .measure-card:active { cursor: grabbing; transform: scale(.97); }
@@ -41,7 +41,6 @@
 
   <div class="card">
     <h2>思考讨论</h2>
-    <div class="hint-bar">💡 拖动下方卡片到左侧三栏中，每栏放对得分；放错卡片会自动归位并提示。全部正确后查看讲解。</div>
 
     <div class="drag-pool" id="cardPool">
       <div class="measure-card" data-category="source" draggable="true">🏍️ 摩托车消声器</div>
@@ -68,6 +67,7 @@
 
     <div class="feedback" id="fb"></div>
   </div>
+  <div class="hint-bar">💡 拖动下方卡片到左侧三栏中，每栏放对得分；放错卡片会自动归位并提示。全部正确后查看讲解。</div>
 </div>
 <script src="exp-back.js?v=20261024"></script>
 <script src="exp-control.js?v=20261026m3"></script>

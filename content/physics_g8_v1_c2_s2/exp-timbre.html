@@ -13,7 +13,7 @@
   #fsTimbreWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
 </style>
 <style>
-  .hint-bar { background: var(--brown-bg); color: var(--brown); border: 1px solid rgba(139,105,20,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .screen-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #1a1f26; border: 6px solid #2c3540; }
   #timbreCv { width: 100%; display: block; }
   .screen-wrap .screen-note { position: absolute; top: 6px; right: 8px; font-size: 11px; color: rgba(154,168,184,0.85); pointer-events: none; }
@@ -41,7 +41,6 @@
 
   <div class="card">
     <h2>演示：比较不同乐器的波形 <span class="chip cyan">波形对比</span></h2>
-    <div class="hint-bar">💡 先点三个发声体听声音、看波形；再玩「盲辨」：遮住名字随机播放，猜猜是哪种乐器。至少猜 2 次解锁结论。</div>
 
     <div class="fullscreen-wrap" id="fsTimbreWrap">
       <button class="fullscreen-btn" id="fsTimbreBtn" title="全屏">⛶</button>
@@ -76,6 +75,7 @@
       <b>实验结论：</b>音调相同时，各乐器波形的<b>疏密一致</b>，即<b>频率相同</b>；但起伏的<b>轮廓各不相同</b>，这就是<b>音色</b>的差异。发声体自身的材质与构造决定了它的音色。
     </div>
   </div>
+  <div class="hint-bar">💡 先点三个发声体听声音、看波形；再玩「盲辨」：遮住名字随机播放，猜猜是哪种乐器。至少猜 2 次解锁结论。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>

@@ -13,7 +13,7 @@
   #fsIntroWrap.pseudo-fullscreen { height: 100vh !important; height: 100dvh !important; }
 </style>
 <style>
-  .hint-bar { background: var(--cyan-bg); color: var(--cyan); border: 1px solid rgba(41,128,185,.15); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .hint-bar { width: fit-content; max-width: min(92vw, 760px); margin: 18px auto 0; background: rgba(15,23,42,.82); color: #fff; font-size: 13px; line-height: 1.55; padding: 9px 18px; border-radius: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
   .scene-wrap { position: relative; border-radius: 12px; overflow: hidden; background: linear-gradient(180deg, #e8f4fd 0%, #d4e9f7 100%); }
   #introCv { width: 100%; display: block; cursor: pointer; }
   .audio-ctl { text-align: center; margin-top: 10px; }
@@ -40,7 +40,6 @@
 
   <div class="card">
     <h2>问题导入 <span class="chip cyan">想一想</span></h2>
-    <div class="hint-bar">💡 点击蚊子听声音，点击蝴蝶看提示；再想想翅膀振动快慢与「能否听见」有什么关系。</div>
 
     <div class="fullscreen-wrap" id="fsIntroWrap">
       <button class="fullscreen-btn" id="fsIntroBtn" title="全屏">⛶</button>
@@ -77,6 +76,7 @@
       </div>
     </div>
   </div>
+  <div class="hint-bar">💡 点击蚊子听声音，点击蝴蝶看提示；再想想翅膀振动快慢与「能否听见」有什么关系。</div>
 </div>
 <script src="fullscreen.js?v=20261024"></script>
 <script src="exp-common.js?v=20261024"></script>
