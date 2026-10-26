@@ -164,6 +164,7 @@ function tickSteps(mode){
     }else if(fired[st.id])continue;
     var p=parseTrigger(st.trigger);
     if(!p)continue;
+    if(p.evt)continue;/* 热修#4：事件型步骤由 bindEventTriggers 处理；此处若每帧电平求值会在闸门变真瞬间误发（c4s4 试点 bug①：s3 把 s1 顶掉的根因） */
     if(p.delayMs){
       if(st.repeat){
         /* r6：delay 型 repeat 步骤每次进模式只发一次，发过（或已挂待）就不再重挂，杜绝 N 秒无限重播 */
@@ -187,11 +188,16 @@ function tickSteps(mode){
     if(st.repeat)repPrev[st.id]=v;/* 每帧更新上一帧布尔 */
     if(p.holdMs){
       if(v){
-        if(hold[st.id]==null)hold[st.id]=now();
+        if(hold[st.id]==null){
+          /* 热修#5：repeat+hold 只在上升沿(假→真)启动计时——原实现 hold 期间每帧把 repPrev 置真，
+             到期时 !rPrev 永假=永不触发（c4s4 试点 bug②：s4 垂直入射哑火根因）。
+             发火后 repPrev=true 状态不变不再计时，离开再进入才重新计时=每次进入状态说一次 */
+          if(!st.repeat||!rPrev)hold[st.id]=now();
+        }
         else if(now()-hold[st.id]>=p.holdMs){
           hold[st.id]=null;
           if(st.repeat){
-            if(!rPrev&&(repLast[st.id]==null||now()-repLast[st.id]>=REP_COOLDOWN)){repLast[st.id]=now();fireStep(st,mode);return;}
+            if(repLast[st.id]==null||now()-repLast[st.id]>=REP_COOLDOWN){repLast[st.id]=now();fireStep(st,mode);return;}
           }else{fired[st.id]=true;fireStep(st,mode);return;}
         }
       }else hold[st.id]=null;
