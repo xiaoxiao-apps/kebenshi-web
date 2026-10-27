@@ -55,9 +55,9 @@ function makeInitialState(overrides) {
     hissAnnounced: false, quietAnnounced: false,
     evapSub: 'factors',
     evap: {
-      factors: { temp: 35, area: 1.5, wind: 2.0, ambTemp: 25, fanBoost: 0, volumes: [1, 1], fastShown: false, slowShown: false },
+      factors: { temp: 35, area: 1.5, wind: 2.0, fanBoost: 0, volumes: [1, 1], fastShown: false, slowShown: false },
       cooling: { baseT: amb, wind: 2.0, alcohol: [0, 0], drop: [0, 0], withTemp: amb, withoutTemp: amb, conclusionShown: false },
-      paper: { lit: false, water: 0, filling: false, waterTemp: amb, paperTemp: amb, boiling: false, burning: false, conclusionShown: false }
+      paper: { lit: false, water: 0, filling: false, waterTemp: amb, paperTemp: amb, boiling: false, burning: false, burnVoiceSaid: false, burnVoiceTimer: 0, conclusionShown: false }
     },
     ...overrides
   };
@@ -141,7 +141,7 @@ function evaporationRate(T, area, wind) {
 function stepEvaporationFactors(state, dtReal) {
   const dt = dtReal * state.timeScale;
   const f = state.evap.factors;
-  const baseT = f.ambTemp, baseA = 1.0, baseW = f.wind;
+  const baseT = 25, baseA = 1.0, baseW = f.wind; /* 环境温度滑杆已删（蔡总2026-10-27三3），对照组固定25℃基准 */
   const leftRate = evaporationRate(baseT, baseA, baseW);
   const rightRate = evaporationRate(f.temp, f.area, baseW + f.fanBoost);
   const rates = [leftRate, rightRate];
@@ -154,8 +154,9 @@ function stepEvaporationFactors(state, dtReal) {
     const surface = Math.pow(Math.max(0.001, V), 2 / 3);
     f.volumes[i] = Math.max(0, V - rates[i] * surface * dt);
   }
-  if (!f.fastShown && (f.volumes[0] - f.volumes[1] > 0.25 || f.volumes[1] < 0.5)) f.fastShown = true;
-  if (!f.slowShown && (f.volumes[1] - f.volumes[0] > 0.25 || f.volumes[0] < 0.5)) f.slowShown = true;
+  /* 仅差值判定，删绝对阈值项（蔡总2026-10-27三4：对照组自然蒸干误报"对照组反而快"）；打平不播任何一边 */
+  if (!f.fastShown && (f.volumes[0] - f.volumes[1] > 0.25)) f.fastShown = true;
+  if (!f.slowShown && (f.volumes[1] - f.volumes[0] > 0.25)) f.slowShown = true;
 }
 
 function stepEvapCooling(state, dtReal) {
@@ -204,6 +205,11 @@ function stepPaperPot(state, dtReal) {
     p.waterTemp += -0.05 * (p.waterTemp - amb) * dt;
     p.paperTemp = Math.max(amb, p.paperTemp + (250 - p.paperTemp) * 0.002 * dt);
     p.boiling = false;
+    /* e3只播一遍闸门：burning沿起2.5s后置位（给引擎轮询留首播窗口，同帧置位会吞首播），只在物理步进时累积 */
+    if (!p.burnVoiceSaid) {
+      p.burnVoiceTimer += dtReal;
+      if (p.burnVoiceTimer >= 2.5) p.burnVoiceSaid = true;
+    }
     return;
   }
 

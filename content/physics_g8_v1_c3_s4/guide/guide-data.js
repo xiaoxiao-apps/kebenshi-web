@@ -10,10 +10,10 @@ window.C3S4_GUIDE={
     },
     steps:[
       {id:'s1',repeat:true,trigger:"R.guessDone===true",say:'猜好啦？那就点「浇热水」，看碘怎么变身。',audio:'c3s4-s1'},
-      {id:'s2',repeat:true,trigger:"R.phase==='sublimate' && R.vapor<0.35",say:'热水一浇，碘直接冒出紫色蒸气，没化成液体！',audio:'c3s4-s2'},
-      {id:'s3',repeat:true,trigger:"R.sublimAnnounced===true",say:'这就是升华：固态直接变气态，还要吸热。',audio:'c3s4-s3'},
-      {id:'s4',repeat:true,trigger:"R.phase==='deposit' && R.wallCrystal<0.25",say:'浇冷水啦，紫色蒸气变淡，要变回固态了。',audio:'c3s4-s4'},
-      {id:'s5',repeat:true,trigger:"R.depositAnnounced===true",say:'器壁挂上亮晶晶的碘晶体，这叫凝华，放热。',audio:'c3s4-s5'},
+      {id:'s2',trigger:"R.phase==='sublimate' && R.vapor<0.35",say:'热水一浇，碘直接冒出紫色蒸气，没化成液体！',audio:'c3s4-s2'},
+      {id:'s3',repeat:true,trigger:'after:s2@5200',say:'这就是升华：固态直接变气态，还要吸热。',audio:'c3s4-s3'},/* Q6防互踢：s2实测4.896s→5200ms后接播；sublimAnnounced旧trigger弃用（页面旗标保留供UI定义卡） */
+      {id:'s4',trigger:"R.phase==='deposit' && R.wallCrystal<0.25",say:'浇冷水啦，紫色蒸气变淡，要变回固态了。',audio:'c3s4-s4'},
+      {id:'s5',repeat:true,trigger:'after:s4@4800',say:'器壁挂上亮晶晶的碘晶体，这叫凝华，放热。',audio:'c3s4-s5'},/* Q6防互踢：s4实测4.440s→4800ms后接播 */
       {id:'s6',repeat:true,trigger:"R.phase==='deposit' && R.vapor<=0.05 && R.wallCrystal>0.25",say:'蒸气散尽啦，全程固态气态互变，没有液态。',audio:'c3s4-s6'},
       {id:'s7',repeat:true,trigger:'after:s6@6000',say:'因此我们得出结论：固态直接变气态叫升华，要吸热；气态直接变固态叫凝华，要放热，中间都不经过液态。',audio:'c3s4-s7'}
     ],

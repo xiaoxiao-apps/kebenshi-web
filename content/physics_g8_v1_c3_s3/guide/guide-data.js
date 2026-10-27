@@ -45,12 +45,13 @@ window.C3S3_GUIDE={
     ],
     errors:[
       {id:'e2',trigger:"event:click:#paper-match-btn:R.evap.paper.water===0 && !R.evap.paper.lit",fix:'不对哟～纸锅还没加水呢，空烧马上就着火啦。',audio:'c3s3-e2'},
-      {id:'e3',trigger:"R.evap.paper.burning===true",fix:'哎呀烧着啦！没水吸热，纸温冲到183℃着火点。',audio:'c3s3-e3'}
+      {id:'e3',trigger:"R.evap.paper.burning===true && !R.evap.paper.burnVoiceSaid",fix:'哎呀烧着啦！没水吸热，纸温冲到183℃着火点。',audio:'c3s3-e3'}/* 只播一遍：burnVoiceSaid由physics燃烧2.5s后置位（留首播窗口） */
     ],
     free:[
       {trigger:"R.evapSub==='factors' && R.evap.factors.fastShown===true && R.evap.factors.volumes[1]<0.7",note:'右边液滴干得快，温度高表面积大，占了优势。',audio:'c3s3-f4'},
       {trigger:"R.evapSub==='cooling' && R.evap.cooling.alcohol[0]<=0",note:'点温度计下面的「涂酒精」，对比才看得出来了。',audio:'c3s3-f5'},
-      {trigger:"event:click:#paper-water-btn:!R.evap.paper.lit",note:'水加好啦，纸锅贴着水，温度就被水压住了。',audio:'c3s3-f6'}
+      {trigger:"event:click:#paper-water-btn:!R.evap.paper.lit",note:'水加好啦，纸锅贴着水，温度就被水压住了。',audio:'c3s3-f6'},
+      {trigger:"event:click:#evap-fan-hit",cooldown:1000,note:'扇动扇子，加快空气流动，蒸发变快了。',audio:'c3s3-f9'}/* Q4扇子语音：core checkFanClick命中派发 */
     ]
   },
   liquefy:{
@@ -111,7 +112,8 @@ window.C3S3_GUIDE={
     'c3s3-f5':'guide/audio/c3s3-f5.mp3',
     'c3s3-f6':'guide/audio/c3s3-f6.mp3',
     'c3s3-f7':'guide/audio/c3s3-f7.mp3',
-    'c3s3-f8':'guide/audio/c3s3-f8.mp3'
+    'c3s3-f8':'guide/audio/c3s3-f8.mp3',
+    'c3s3-f9':'guide/audio/c3s3-f9.mp3'
   }
 };
 window.GUIDE_DATA=window.C3S3_GUIDE;

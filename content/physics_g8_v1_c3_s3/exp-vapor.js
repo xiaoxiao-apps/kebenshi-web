@@ -129,8 +129,6 @@ function updateBoilUI() {
 
 function updateEvapUI() {
   const f = state.evap.factors;
-  document.getElementById('evap-amb-slider').value = f.ambTemp;
-  document.getElementById('evap-amb-val').textContent = f.ambTemp + '℃';
   document.getElementById('evap-temp-slider').value = f.temp;
   document.getElementById('evap-temp-val').textContent = f.temp + '℃';
   document.getElementById('evap-area-slider').value = f.area;
@@ -213,7 +211,6 @@ function bindEvapUI() {
   document.querySelectorAll('.sub-tab').forEach(btn => {
     btn.addEventListener('click', () => { switchEvapSub(btn.dataset.sub); playClick(); });
   });
-  bindSlider('evap-amb', v => { state.evap.factors.ambTemp = v; }, '℃');
   bindSlider('evap-temp', v => { state.evap.factors.temp = v; }, '℃');
   bindSlider('evap-area', v => { state.evap.factors.area = v; }, '');
   bindSlider('evap-wind', v => { state.evap.factors.wind = v; }, '');
@@ -271,6 +268,7 @@ function switchEvapSub(sub) {
   document.getElementById('evap-paper-readout').style.display = sub === 'paper' ? 'block' : 'none';
   document.querySelectorAll('.evap-coat-btn').forEach(btn => { btn.style.display = sub === 'cooling' ? 'block' : 'none'; });
   if (typeof setEvapSub === 'function') setEvapSub(sub);
+  if (window.GUIDE_SCENE && window.GUIDE_SCENE.change) window.GUIDE_SCENE.change(); /* 子台切换即停旧语音（引擎波EG4契约2） */
 }
 
 function checkEvapToasts() {

@@ -444,7 +444,7 @@ function updateEvapDroplets(dt) {
     drop.position.y = dishBottomY + 0.55 * s;
   });
   const rightWind = f.wind + f.fanBoost;
-  const leftRate = evaporationRate(f.ambTemp, 1.0, f.wind), rightRate = evaporationRate(f.temp, f.area, rightWind);
+  const leftRate = evaporationRate(25, 1.0, f.wind), rightRate = evaporationRate(f.temp, f.area, rightWind); /* 环境温度滑杆已删，对照组固定25℃ */
   const maxRate = Math.max(leftRate, rightRate);
   const t = performance.now() * 0.003;
   if (fanAnimT > 0) {
@@ -791,6 +791,8 @@ function checkFanClick(x, y) {
     triggerWindBurst();
     if (typeof playFanWhoosh === 'function') playFanWhoosh();
     if (typeof playClick === 'function') playClick();
+    const fanHit = document.getElementById('evap-fan-hit');
+    if (fanHit) fanHit.dispatchEvent(new Event('click', { bubbles: true })); /* 语音R1-Q4：给引擎事件型free派发命中信号 */
   }
 }
 
@@ -826,7 +828,7 @@ function updateEvapTooltip() {
   if (!evapTooltip || hoverDropIdx == null || isRotating) { if (evapTooltip) evapTooltip.style.display = 'none'; return; }
   const i = hoverDropIdx;
   const f = state.evap.factors;
-  const T = i === 0 ? f.ambTemp : f.temp;
+  const T = i === 0 ? 25 : f.temp; /* 对照组温度固定25.0（环境温度滑杆已删） */
   const wind = i === 0 ? f.wind : (f.wind + f.fanBoost);
   const V = f.volumes[i];
   const area = i === 0 ? 1.0 : f.area;
