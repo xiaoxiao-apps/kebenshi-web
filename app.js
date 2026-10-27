@@ -242,6 +242,7 @@
         var badges = el('div', 'qd-badges');
         badges.appendChild(el('span', 'qd-badge', chapterShort(card.chapter) || card.chapter));
         badges.appendChild(el('span', 'qd-badge qd-type', card.type));
+        if (card.voice) badges.appendChild(el('span', 'qd-badge qd-voice', '语音讲解'));
         body.appendChild(badges);
         btn.appendChild(body);
         btn.onclick = function () { openOverlay(card.id); };

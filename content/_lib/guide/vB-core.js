@@ -1,5 +1,5 @@
 'use strict';
-/* c4s3 变体 B · 语音版（修复轮 r5 / g6，蔡总反馈①：要做哪步播哪步）
+/* c4s3 变体B语音版（修复轮 r5 / g6，蔡总反馈①：要做哪步播哪步）
    即时打断制：新解说到达 → 无条件停掉当前音频、清驻留计时、立即上屏渲染；
    r2 的解说队列机制整体删除，防刷屏交给 engine 的 3s 步骤冷却 / 5s 纠错节流。
    audio ended → 字幕 +400ms 后隐藏、🔁 重播、启动层、三态、collapsed/sleep 判断全部保持现状。 */
@@ -18,11 +18,7 @@ function start(){
   function lsSet(k,v){try{window.localStorage.setItem(k,v);}catch(e){}}
   function now(){return (window.performance&&performance.now)?performance.now():Date.now();}
 
-  /* ---------- 顶部变体小标签 ---------- */
-  var badge=document.createElement('span');
-  badge.className='guide-badge';
-  badge.textContent='B · 语音版';
-  LAYER.appendChild(badge);
+  /* EG2-2：删除左上角变体小标签 badge（改由总站/节卡片「语音讲解」角标标注，见 card-voice-badge.css） */
 
   /* ---------- 老师浮标：三态循环 voice→text→sleep（r3：voice 态纯净无叠加） ---------- */
   var mode=lsGet(LS_MODE,'voice');
@@ -116,10 +112,15 @@ function start(){
     el.innerHTML='<div class="gvb-start-card"><span class="gvb-start-icon">🔊</span>'+
                  '<span class="gvb-start-title">点击开启语音讲解</span></div>';/* EG1：删小字 .gvb-start-sub */
     el.addEventListener('click',function(){
+      startAck=true;                         /* EG2-1：先确认，之后 say() 一律放行 */
       removeStartLayer();
       disarmUnlock();
-      if(cur){cur.at=now();render();}        /* 立刻补播当前条 */
-      else if(lastIntro)showEntry(lastIntro);/* 当前条已过期：补播 intro */
+      if(pendingEntry){                      /* 优先正式开播被闸门拦下的第一条（通常是欢迎词） */
+        var pe=pendingEntry;pendingEntry=null;
+        say(pe.text,pe.kind,pe.audioId);
+      }
+      else if(cur){cur.at=now();render();}   /* 兜底：立刻补播当前条 */
+      else if(lastIntro)showEntry(lastIntro);/* 兜底：当前条已过期则补播 intro */
     });
     LAYER.appendChild(el);
     startEl=el;
@@ -133,6 +134,7 @@ function start(){
   /* ---------- r2 隐形手势解锁补播（r3 降级为兜底，voice 态才挂） ---------- */
   var unlockArmed=false;
   var startEl=null,startUsed=false;/* r3 启动层元素 / 本次页面生命周期是否已弹过 */
+  var startAck=false,pendingEntry=null;/* EG2-1 欢迎词闸门：用户是否已确认播音 / 被闸门拦下的第一条（first-wins） */
   function unlockHandler(){
     if(mode!=='voice'){disarmUnlock();return;}
     disarmUnlock();
@@ -182,6 +184,16 @@ function start(){
     if(!text)return;
     var entry={text:text,kind:kind||'step',audioId:audioId||null,at:now()};
     if(entry.kind==='intro')lastIntro=entry;
+    /* EG2-1 欢迎词闸门：voice 模式未经用户确认前，一律不出声、不显字幕 */
+    if(mode==='voice'&&!startAck){
+      /* 防死锁b：本生命周期启动层已弹过且已移除 = 用户已确认过，直接放行 */
+      if(startUsed&&startEl===null){startAck=true;}
+      else{
+        if(!startEl)showStartLayer();        /* 首次 say 必弹启动卡（不再依赖 blocked） */
+        if(!pendingEntry)pendingEntry=entry; /* first-wins：保住欢迎词不被后续条目顶掉 */
+        return;
+      }
+    }
     /* r5：要做哪步播哪步——无条件打断在播音频，新条立即上屏 */
     clearHide();stopAudio();
     showEntry(entry);
@@ -249,6 +261,7 @@ function start(){
   }
   fab.addEventListener('click',function(){
     mode=mode==='voice'?'text':mode==='text'?'sleep':'voice';
+    if(mode==='voice')startAck=true;/* EG2-1 防死锁a：用户显式手势切到语音=同意播音 */
     applyMode(true);
   });
 

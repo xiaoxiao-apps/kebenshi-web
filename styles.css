@@ -122,6 +122,11 @@ button { font-family: inherit; cursor: pointer; }
   background: #eef2fd; color: #3a56b4; white-space: nowrap;
 }
 .qd-badge.qd-type { background: #e7f7ef; color: #16794c; }
+.qd-badge.qd-voice {
+  background: #eff6ff; color: #2563eb;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.qd-badge.qd-voice::before { content: '🔊'; font-size: 10px; }
 .qd-empty-tip { grid-column: 1 / -1; text-align: center; color: var(--qd-ink-2); padding: 60px 0; }
 
 /* ---------- 覆盖页（卡片详情） ---------- */

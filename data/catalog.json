@@ -300,6 +300,7 @@
     "type": "实验",
     "title": "温度实验室",
     "path": "content/physics_g8_v1_c3_s1/exp-temp-lab.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c3_s1/assets/thumb-templab.png"
    },
    {
@@ -324,6 +325,7 @@
     "type": "实验",
     "title": "熔化凝固探究馆",
     "path": "content/physics_g8_v1_c3_s2/exp-melt.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c3_s2/assets/thumb-melt.png"
    },
    {
@@ -348,6 +350,7 @@
     "type": "实验",
     "title": "汽化液化探究馆",
     "path": "content/physics_g8_v1_c3_s3/exp-vapor.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c3_s3/assets/thumb-vapor.png"
    },
    {
@@ -372,6 +375,7 @@
     "type": "实验",
     "title": "升华凝华观察站",
     "path": "content/physics_g8_v1_c3_s4/exp-subl.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c3_s4/assets/thumb-subl.png"
    },
    {
@@ -420,6 +424,7 @@
     "type": "实验",
     "title": "光在介质中的直线传播",
     "path": "content/physics_g8_v1_c4_s1/exp-medium.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c4_s1/thumb1.svg"
    },
    {
@@ -432,6 +437,7 @@
     "type": "实验",
     "title": "光影成像实验室",
     "path": "content/physics_g8_v1_c4_s1/exp-shadow.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c4_s1/thumb2.svg"
    },
    {
@@ -456,6 +462,7 @@
     "type": "实验",
     "title": "光的反射实验室",
     "path": "content/physics_g8_v1_c4_s2/exp-reflect.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c4_s2/thumb.svg"
    },
    {
@@ -504,6 +511,7 @@
     "type": "实验",
     "title": "光的折射实验台",
     "path": "content/physics_g8_v1_c4_s4/exp-refract.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c4_s4/thumb.svg"
    },
    {
@@ -528,6 +536,7 @@
     "type": "实验",
     "title": "光的色散实验室",
     "path": "content/physics_g8_v1_c4_s5/exp-dispersion.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c4_s5/thumb.svg"
    },
    {
@@ -720,6 +729,7 @@
     "type": "实验",
     "title": "天平实验室",
     "path": "content/physics_g8_v1_c6_s1/exp-mass.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c6_s1/thumb1.svg"
    },
    {
@@ -744,6 +754,7 @@
     "type": "实验",
     "title": "密度实验室",
     "path": "content/physics_g8_v1_c6_s2/exp-density.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c6_s2/thumb1.svg"
    },
    {
@@ -768,6 +779,7 @@
     "type": "实验",
     "title": "密度测量台",
     "path": "content/physics_g8_v1_c6_s3/exp-measure.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c6_s3/thumb1.svg"
    },
    {

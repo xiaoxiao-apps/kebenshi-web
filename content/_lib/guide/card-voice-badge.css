@@ -1,0 +1,11 @@
+/* EG2-3 · 节卡片页「语音讲解」角标（共享样式，11 个节 index.html 引入）
+   放实验卡 .body 内 .desc 之后：<span class="voice-badge">语音讲解</span> */
+.voice-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:600;line-height:1;
+  color:#2563eb;background:#eff6ff;
+  border:1px solid #dbeafe;border-radius:999px;
+  padding:3px 9px;margin-top:8px;
+  white-space:nowrap;user-select:none;
+}
+.voice-badge::before{content:'🔊';font-size:10px}
