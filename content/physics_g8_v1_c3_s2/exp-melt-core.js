@@ -56,7 +56,7 @@ const FLAME_PROFILE = {
 
 const INITIAL = {
   mode: 'melt',
-  sample: 'hypo', fire: 'medium', ambTemp: 25, amount: 'medium', timeScale: 60,
+  sample: 'hypo', fire: 'medium', ambTemp: 25, amount: 'medium', timeScale: 10,
   sampleTemp: 25, bathTemp: 25, meltedFrac: 0,
   heating: false, simTime: 0, lastRecordTime: -1,
   dataLog: [], phaseName: '固态',

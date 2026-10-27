@@ -74,7 +74,7 @@ select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:non
       <div class="slider-row select-row"><label>火力</label><div class="custom-select" id="fire-wrap"><select id="fire-select"><option value="low">小</option><option value="medium" selected>中</option><option value="high">大</option></select><div class="custom-select-trigger"><span class="custom-select-text">中</span></div><div class="custom-options"><div class="custom-option" data-value="low">小</div><div class="custom-option active" data-value="medium">中</div><div class="custom-option" data-value="high">大</div></div></div></div>
       <div class="slider-row"><label>环境温度</label><button class="stepper-btn" id="amb-minus">◀</button><input id="amb-slider" type="range" min="-10" max="40" step="1" value="25"><button class="stepper-btn" id="amb-plus">▶</button><span class="value" id="amb-val">25℃</span></div>
       <div class="slider-row select-row"><label>样品量</label><div class="custom-select" id="amount-wrap"><select id="amount-select"><option value="small">小</option><option value="medium" selected>中</option><option value="large">大</option></select><div class="custom-select-trigger"><span class="custom-select-text">中</span></div><div class="custom-options"><div class="custom-option" data-value="small">小</div><div class="custom-option active" data-value="medium">中</div><div class="custom-option" data-value="large">大</div></div></div></div>
-      <div class="slider-row select-row"><label>时间加速</label><div class="custom-select" id="timescale-wrap"><select id="timescale-select"><option value="1">×1</option><option value="10">×10</option><option value="60" selected>×60</option><option value="300">×300</option></select><div class="custom-select-trigger"><span class="custom-select-text">×60</span></div><div class="custom-options"><div class="custom-option" data-value="1">×1</div><div class="custom-option" data-value="10">×10</div><div class="custom-option active" data-value="60">×60</div><div class="custom-option" data-value="300">×300</div></div></div></div>
+      <div class="slider-row select-row"><label>时间加速</label><div class="custom-select" id="timescale-wrap"><select id="timescale-select"><option value="1">×1</option><option value="10" selected>×10</option><option value="60">×60</option><option value="300">×300</option></select><div class="custom-select-trigger"><span class="custom-select-text">×10</span></div><div class="custom-options"><div class="custom-option" data-value="1">×1</div><div class="custom-option active" data-value="10">×10</div><div class="custom-option" data-value="60">×60</div><div class="custom-option" data-value="300">×300</div></div></div></div>
       <div class="row" style="margin-top:4px;"><button class="btn primary" id="btn-lamp" style="flex:1;">点燃酒精灯</button></div>
       <div class="row" style="margin-top:4px;"><button class="btn" id="btn-freeze-quick" style="flex:1; display:none;">熄灯观察凝固</button></div>
       <div class="row" style="margin-top:4px;"><button class="btn warn" id="btn-pre-melt" style="flex:1;">直接跳到液态</button></div>
@@ -145,7 +145,7 @@ select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:non
     </div>
 
     <div class="bottom-controls">
-      <button class="btn primary" id="btn-pause">开始</button>
+      <button class="btn primary" id="btn-pause">暂停</button>
       <button class="btn" id="btn-reset">重置</button>
       <button class="btn" id="btn-mute">🔊</button>
     </div>
@@ -155,13 +155,13 @@ select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:non
 </div>
 <script src="three.min.js?v=20261027r1"></script>
 <script src="exp-melt-audio.js?v=20261027r1"></script>
-<script src="exp-melt-core.js?v=20261027r1"></script>
+<script src="exp-melt-core.js?v=20261027r2"></script>
 <div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
 <script>window.GUIDE_CFG={state:window.C3S2_STATE};/* core 已加载；mode 由引擎轮询 R.mode 自动切 melt/freeze；GUIDE_DATA 由 guide-data.js 末尾双赋值 */</script>
-<script src="guide/guide-data.js?v=20261027r1"></script>
+<script src="guide/guide-data.js?v=20261027r2"></script>
 <script src="../_lib/guide/engine-core.js?v=20261027r1"></script>
 <script src="../_lib/guide/vB-core.js?v=20261027r1"></script>
 <script src="exp-melt-chart.js?v=20261027r1"></script>
-<script src="exp-melt.js?v=20261027r1"></script>
+<script src="exp-melt.js?v=20261027r2"></script>
 </body>
 </html>

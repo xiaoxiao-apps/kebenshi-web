@@ -17,7 +17,7 @@ window.C3S2_GUIDE={
       {id:'s4',repeat:true,trigger:"(R.fullyMeltedAnnounced===true || (R.sample==='paraffin' && R.paraffinHeatAnnounced===true))@6000",say:'因此我们得出结论：晶体熔化要吸热，但有固定熔点，熔化中温度不变；非晶体像石蜡，没有熔点，边熔化边升温。',audio:'c3s2-s4'}
     ],
     errors:[
-      {id:'e1',trigger:"R.paused===true && R.heating===true@3000",fix:'不对哟～还暂停着呢，点「开始」实验才会跑哦。',audio:'c3s2-e1'},
+      {id:'e1',trigger:"R.paused===true && R.heating===true@3000",fix:'不对哟～还暂停着呢，点「继续」按钮恢复，实验才会跑哦。',audio:'c3s2-e1'},
       {id:'e2',trigger:"R.heating===false && R.simTime>0 && R.meltedFrac<=0 && R.sampleTemp<=R.ambTemp+1@5000",fix:'灯灭啦，样品到不了熔点哟～重新点燃酒精灯吧。',audio:'c3s2-e2'}
     ],
     free:[
@@ -54,7 +54,7 @@ window.C3S2_GUIDE={
     'c3s2-s7':'guide/audio/c3s2-s7.mp3',
     'c3s2-s8':'guide/audio/c3s2-s8.mp3',
     'c3s2-s9':'guide/audio/c3s2-s9.mp3',
-    'c3s2-e1':'guide/audio/c3s2-e1.mp3',
+    'c3s2-e1':'guide/audio/c3s2-e1.mp3?v=20261027r2',
     'c3s2-e2':'guide/audio/c3s2-e2.mp3',
     'c3s2-f1':'guide/audio/c3s2-f1.mp3',
     'c3s2-f2':'guide/audio/c3s2-f2.mp3',

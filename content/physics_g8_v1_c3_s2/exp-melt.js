@@ -19,7 +19,7 @@ function bindUI() {
   bindCustomSelect('sample', v => {
     state.sample = v;
     resetPhysics();
-    document.getElementById('btn-pause').textContent = '开始';
+    document.getElementById('btn-pause').textContent = '暂停';
     clearTable();
     redrawChart();
     updateSampleNameLabel();
@@ -38,6 +38,10 @@ function bindUI() {
   document.getElementById('btn-lamp').addEventListener('click', () => {
     const on = !state.heating;
     setHeating(on);
+    if (on && paused) {
+      paused = false;
+      document.getElementById('btn-pause').textContent = '暂停';
+    }
     if (on) playIgnite(); else playExtinguish();
     if (on && !paused) startBoil();
     else stopBoil();
@@ -45,18 +49,22 @@ function bindUI() {
   });
   document.getElementById('btn-pre-melt').addEventListener('click', () => {
     preMeltComplete();
+    if (paused) {
+      paused = false;
+      document.getElementById('btn-pause').textContent = '暂停';
+    }
     playClick();
     updateUI();
   });
   document.getElementById('btn-pause').addEventListener('click', () => {
     paused = !paused;
-    document.getElementById('btn-pause').textContent = paused ? '开始' : '暂停';
+    document.getElementById('btn-pause').textContent = paused ? '继续' : '暂停';
     if (!paused && state.heating) startBoil(); else stopBoil();
     playClick();
   });
   document.getElementById('btn-reset').addEventListener('click', () => {
     resetPhysics();
-    document.getElementById('btn-pause').textContent = '开始';
+    document.getElementById('btn-pause').textContent = '暂停';
     clearTable();
     redrawChart();
     playClick();
@@ -80,7 +88,7 @@ function bindUI() {
   window.addEventListener('pointerup', onPointerUp);
   window.addEventListener('resize', () => { onResize(); redrawChart(); });
 
-  document.getElementById('btn-pause').textContent = paused ? '开始' : '暂停';
+  document.getElementById('btn-pause').textContent = '暂停';
 }
 
 function throttledSliderTick() {}
