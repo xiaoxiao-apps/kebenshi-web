@@ -93,6 +93,7 @@ function switchMode(to){
   mode=to;
   if(window.playClick) playClick();
   draw();
+  window.GUIDE_SCENE&&window.GUIDE_SCENE.change();
 }
 
 function resize(){

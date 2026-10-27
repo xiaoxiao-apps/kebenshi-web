@@ -257,9 +257,6 @@ var RRDraw = window.RRDraw = {
       c.strokeStyle = '#94a3b8'; c.lineWidth = 1.5; c.setLineDash([5, 4]);
       c.beginPath(); c.moveTo(B2.x, B2.y - 20); c.lineTo(B2.x, B2.y + 20); c.stroke();
       c.setLineDash([]);
-      // 出射段中点右侧14px小灰字
-      c.font = '12px sans-serif'; c.fillStyle = '#64748b'; c.textAlign = 'left'; c.textBaseline = 'middle';
-      c.fillText('出射光与入射光平行', exitEnd.x + 14, by + 58); // 标签放出射光点右侧桌带上，避开砖右缘
       c.restore();
     }
     // 笔身红钮命中区（供 core 点击开关激光）：sprite 324×90，drawImage(-w/2,-h,w,h)，

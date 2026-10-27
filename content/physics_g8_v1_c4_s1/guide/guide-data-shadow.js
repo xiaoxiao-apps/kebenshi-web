@@ -17,7 +17,7 @@ window.C4S1S_GUIDE={
       {id:'s-s4',repeat:true,trigger:"R.mode==='hand'",say:'手影模式！台灯和小手替换了蜡烛。',audio:'c4s1s-s4'},
       {id:'s-s5',repeat:true,trigger:"R.mode==='hand' && R.handM!==null",say:'台灯点亮，光幕上出现黑黑的手影。',audio:'c4s1s-s5'},
       {id:'s-s6',repeat:true,trigger:"R.handM!==null && R.handM>=2.6",say:'手越靠近台灯，影子变得越大！',audio:'c4s1s-s6'},
-      {id:'s-concl',repeat:true,trigger:'after:s-s2@6000',say:'因此我们得出结论：光沿直线传播，穿过小孔成的是倒立的实像。',audio:'c4s1s-concl'}
+      {id:'s-concl',repeat:true,trigger:"R.mode==='pinhole' && R.imgM>=1.4@6000",say:'因此我们得出结论：光沿直线传播，穿过小孔成的是倒立的实像。',audio:'c4s1s-concl'}
     ],
     errors:[
       {id:'s-e1',trigger:"R.mode==='pinhole' && R.scene && (R.scene.missing==='candlePos' || R.scene.missing==='boardPos')@1500",fix:'不对哟～带孔板要放在蜡烛和光屏中间。',audio:'c4s1s-e1'},
@@ -38,7 +38,7 @@ window.C4S1S_GUIDE={
     'c4s1s-s4':'guide/audio/c4s1s-s4.mp3',
     'c4s1s-s5':'guide/audio/c4s1s-s5.mp3',
     'c4s1s-s6':'guide/audio/c4s1s-s6.mp3',
-    'c4s1s-concl':'guide/audio/c4s1s-concl.mp3',
+    'c4s1s-concl':'guide/audio/c4s1s-concl.mp3?v=20261027r2',
     'c4s1s-e1':'guide/audio/c4s1s-e1.mp3',
     'c4s1s-e2':'guide/audio/c4s1s-e2.mp3',
     'c4s1s-f1':'guide/audio/c4s1s-f1.mp3',

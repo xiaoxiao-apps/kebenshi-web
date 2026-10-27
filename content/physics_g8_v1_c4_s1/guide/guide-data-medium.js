@@ -38,7 +38,7 @@ window.C4S1M_GUIDE={
     'c4s1m-s3':'guide/audio/c4s1m-s3.mp3',
     'c4s1m-s4':'guide/audio/c4s1m-s4.mp3',
     'c4s1m-s5':'guide/audio/c4s1m-s5.mp3',
-    'c4s1m-concl':'guide/audio/c4s1m-concl.mp3',
+    'c4s1m-concl':'guide/audio/c4s1m-concl.mp3?v=20261027r2',
     'c4s1m-e1':'guide/audio/c4s1m-e1.mp3',
     'c4s1m-e2':'guide/audio/c4s1m-e2.mp3',
     'c4s1m-f1':'guide/audio/c4s1m-f1.mp3',
