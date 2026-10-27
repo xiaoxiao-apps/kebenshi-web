@@ -114,8 +114,7 @@ function start(){
     el.setAttribute('role','button');
     el.setAttribute('aria-label','点击开启语音讲解');
     el.innerHTML='<div class="gvb-start-card"><span class="gvb-start-icon">🔊</span>'+
-                 '<span class="gvb-start-title">点击开启语音讲解</span>'+
-                 '<span class="gvb-start-sub">浏览器要求先点一下屏幕才允许播声音</span></div>';
+                 '<span class="gvb-start-title">点击开启语音讲解</span></div>';/* EG1：删小字 .gvb-start-sub */
     el.addEventListener('click',function(){
       removeStartLayer();
       disarmUnlock();
@@ -269,6 +268,14 @@ function start(){
     },
     onFree:function(free){
       say(free.note,'free',free.audio||null);
+    },
+    /* EG4a：引擎/页面调用的即时静音——停当前音频+清隐藏定时器+字幕条移除 show 态+当前条目引用置空 */
+    onStop:function(){
+      clearHide();
+      stopAudio();
+      cur=null;
+      bar.classList.remove('show');
+      setTimeout(function(){if(!cur)bar.style.display='none';},260);
     }
   });
 }

@@ -7,6 +7,13 @@
    特殊 trigger：delay:2000（进模式延时一次）/ expr@2000（持续满足才触发）/
    event:click:#btn-rec:expr、event:input:#obj-slider[:expr]（capture 即时判定，不拦截原逻辑）/
    after:m3-s4@1500（依赖步触发后延时）。 */
+/* 【接口契约2·EG4c】window.GUIDE_SCENE={change:function(){...}}
+   语义=api.onStop() 立即静音 + clearPendingSchedules() + 清 errLast/freeLast/freePrev/repLast + G.modeEnterT=now()；
+   不清 firedSteps/fireCount（防切回子台时非 repeat 旧步骤重发），不重发 intro。
+   供页面波在子场景切换处接线（如 c3s3 蒸发子台 tab、c4s1-shadow pinhole/hand 切换）：
+   切换处调用 window.GUIDE_SCENE&&window.GUIDE_SCENE.change()。 */
+/* 【接口契约1·EG3b】free 条目新增可选字段 cooldown:<毫秒>（如 cooldown:1000 实现「点一次报一次」），
+   事件型与电平型 free 节流均取 fr.cooldown||8000，缺省 8000 与旧行为一致。 */
 (function(){
 if(window.GuideEngine)return;
 var R=(window.GUIDE_CFG&&window.GUIDE_CFG.state)||window.MRR;
@@ -16,6 +23,7 @@ var curMode=null,G={},firedSteps={},hold={},errLast={},freeLast={},freePrev={},s
 /* r4：repeat:true 步骤的边沿重触发状态（引擎私有，非 repeat 步骤不使用） */
 var repPrev={},repLast={},fireCount={},seenCount={},delayFired={};
 var REP_COOLDOWN=3000;
+var EVT_DEBOUNCE=500;/* EG3a：事件型 steps 去抖（用户动作到=秒响），电平型 repeat 仍走 REP_COOLDOWN */
 var fnCache={};
 var tasksOn=false,taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
 var recCache={n:-1,t:0};
@@ -259,12 +267,18 @@ function tickFree(mode){
     if(!p||p.evt||p.expr==null)continue;
     var v=evalParsed(p);
     if(v&&!freePrev[key]){
-      if(throttle(freeLast,key,8000))fireFree(fr);
+      if(throttle(freeLast,key,fr.cooldown||8000))fireFree(fr);/* EG3b：free 可选 cooldown，缺省 8000 */
     }
     freePrev[key]=v;
   }
 }
 /* 事件类 trigger：capture 阶段即时判定（先于 core 的 bubble 处理器，读到点击前状态），不拦截原逻辑 */
+/* EG3c：用户动作到来 → 立即作废在途 after/delay 定时器与 hold 计时，
+   杜绝「点完按钮等几秒才播报 / 旧结论把新动作语音顶掉」。逻辑与 onModeEnter 前半段同源。 */
+function clearPendingSchedules(){
+  for(var k in stepSched){if(stepSched[k]!=null){clearTimeout(stepSched[k]);stepSched[k]=null;}}
+  for(var h in hold)hold[h]=null;
+}
 function bindEventTriggers(){
   function bind(elSel,evt){
     var el=document.querySelector(elSel);
@@ -276,10 +290,11 @@ function bindEventTriggers(){
         var p=parseTrigger(er.trigger);
         if(!p||p.evt!==evt||p.el!==elSel)return;
         var ok=(p.expr==null)?true:evalParsed(p);
-        if(ok&&throttle(errLast,er.id,5000))fireError(er);
+        if(ok&&throttle(errLast,er.id,5000)){clearPendingSchedules();fireError(er);}
       });
       /* 通用版增补（c4s4 设计书 §5.1-2 发现的阻塞缺陷）：事件回调原来只发 errors/free 不发 steps，
-         event:input:#slider-i 型步骤会永不触发。repeat 步走 repLast+REP_COOLDOWN 节流（与 tickSteps 同机制），
+         event:input:#slider-i 型步骤会永不触发。repeat 步走 repLast+EVT_DEBOUNCE 去抖（EG3a：事件型秒响，
+         500ms 只防连点双触发；电平型 repeat 仍走 tickSteps 的 REP_COOLDOWN），
          非 repeat 步走 firedSteps 一次性闸门。 */
       if(md.steps)md.steps.forEach(function(st){
         var p=parseTrigger(st.trigger);
@@ -287,11 +302,13 @@ function bindEventTriggers(){
         var ok=(p.expr==null)?true:evalParsed(p);
         if(!ok)return;
         if(st.repeat){
-          if(repLast[st.id]!=null&&now()-repLast[st.id]<REP_COOLDOWN)return;
+          if(repLast[st.id]!=null&&now()-repLast[st.id]<EVT_DEBOUNCE)return;
+          clearPendingSchedules();
           repLast[st.id]=now();fireStep(st,curMode);
         }else{
           var fm=firedSteps[curMode]||(firedSteps[curMode]={});
           if(fm[st.id])return;
+          clearPendingSchedules();
           fm[st.id]=true;fireStep(st,curMode);
         }
       });
@@ -300,7 +317,8 @@ function bindEventTriggers(){
         if(!p||p.evt!==evt||p.el!==elSel)return;
         var key=curMode+'#'+idx;
         var ok=(p.expr==null)?true:evalParsed(p);
-        if(ok&&throttle(freeLast,key,8000))fireFree(fr);
+        /* EG3b：free 条目可选 cooldown:<毫秒>，缺省 8000 */
+        if(ok&&throttle(freeLast,key,fr.cooldown||8000)){clearPendingSchedules();fireFree(fr);}
       });
     },true);
   }
@@ -341,8 +359,11 @@ function onModeEnter(mode){
   curMode=mode;
   G.modeEnterT=now();
   if(mode==='m1'&&R&&R.doCm!=null)G.do0=R.doCm;
-  for(var k in stepSched){if(stepSched[k]!=null){clearTimeout(stepSched[k]);stepSched[k]=null;}}
-  for(var h in hold)hold[h]=null;
+  clearPendingSchedules();/* EG3c 复用：清在途 stepSched 定时器 + hold */
+  /* EG4b：切模式即清节流状态，防旧 error/free 跨模式续播重播（repLast 由 clearRepeatState 一并 delete） */
+  errLast={};freeLast={};freePrev={};
+  var api0=getApi();
+  if(api0.onStop)api0.onStop();/* EG4b：立即静音+字幕撤下，须在 fireIntro 之前，否则会掐掉新模式 intro */
   clearRepeatState();/* r4：清全部模式 step 的 fireCount/seenCount/repPrev/repLast，delay 型重进模式可重发 */
   var md=DATA&&DATA[mode];
   if(md&&md.intro)fireIntro(mode,md.intro);
@@ -350,6 +371,18 @@ function onModeEnter(mode){
   var api=getApi();
   if(api.onModeChange)api.onModeChange(mode);
 }
+
+/* ---------- EG4c【接口契约2】子场景切换公共 API（不重发 intro、不清 firedSteps/fireCount） ---------- */
+window.GUIDE_SCENE={
+  change:function(){
+    var api=getApi();
+    if(api.onStop)api.onStop();          /* 立即静音 + 字幕条撤下 */
+    clearPendingSchedules();             /* 作废在途 after/delay 定时器 + hold 计时 */
+    errLast={};freeLast={};freePrev={};  /* 清节流：旧 error/free 不带进新子场景 */
+    for(var id in repLast)delete repLast[id];/* repeat 冷却一并清，新子场景首次动作秒响 */
+    G.modeEnterT=now();
+  }
+};
 
 /* ---------- 任务链（A 版）：engine 持有进度，皮肤只渲染+转发作答 ---------- */
 function resetTasks(mode){

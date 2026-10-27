@@ -259,3 +259,18 @@
   .gvb-caption.show{transform:translate(calc(-50% - 28px),0)}
   .gvb-replay{padding:2px 5px;font-size:11px}
 }
+
+/* ---------- EG2（语音R1引擎波）：上方同语义提示条全隐藏 ----------
+   下方 .guide-caption 字幕已承载同一句解说，上方页面自有提示条会造成视觉+语义双重叠加。
+   只隐藏视觉，页面 JS 的旗标赋值一律不动（语音 trigger 依赖它们，动了会哑火）。
+   逐 id 来源（grep exp-*.html 实况核实，2026-10-27）：
+   #phase-toast    ← c3_s2/exp-melt.html:152、c3_s3/exp-vapor.html:136
+   #toast          ← c6_s2/exp-density.html:171、c6_s3/exp-measure.html:145
+   #pour-tooltip   ← c3_s4/exp-subl.html:170
+   #evap-tooltip   ← c3_s3/exp-vapor.html:138
+   .lq-phase-hint  ← c3_s3/exp-vapor.html:140（内联 display:none，JS 会改回 block，须 !important 压制）
+   .lq-tooltip     ← c3_s3/exp-vapor.html:139
+   注：.hint 旧橙色解说条已由 c3_s1/c3_s3 html 内联 display:none!important 处理，此处不重复；
+       #chart-live-hint/#chart-float-hint（c3_s2 图表操作提示）、#lq-hint-note（c3_s3 卡片内静态说明）
+       非解说条、与字幕不同语义，保留不隐藏。 */
+#phase-toast,#toast,#pour-tooltip,#evap-tooltip,.lq-phase-hint,.lq-tooltip{display:none!important}
