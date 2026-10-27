@@ -14,10 +14,10 @@ window.C4S1M_GUIDE={
     },
     steps:[
       {id:'m-s1',repeat:true,trigger:"R.smokeOn===true && R.laserOn===false",say:'烟雾箱摆好啦，接下来打开激光笔。',audio:'c4s1m-s1'},
-      {id:'m-s2',repeat:true,trigger:"R.smokeOn===true && R.laserOn===true",say:'看，烟雾里的光路，是一条笔直的线。',audio:'c4s1m-s2'},
-      {id:'m-s3',repeat:true,trigger:"R.waterOn===true && R.laserOn===true",say:'换到水里：光在水下也走直线。',audio:'c4s1m-s3'},
-      {id:'m-s4',repeat:true,trigger:"R.glassOn===true && R.laserOn===true",say:'玻璃砖里，光路照样笔直。',audio:'c4s1m-s4'},
-      {id:'m-s5',repeat:true,trigger:"R.pulseOn===true",say:'放出光点，看它沿着直线一路跑过去。',audio:'c4s1m-s5'},
+      {id:'m-s2',repeat:true,trigger:"R.smokeOn===true && R.laserOn===true",say:'看，烟雾里的光路是一条笔直的线！你看到了吗？',audio:'c4s1m-s2'},
+      {id:'m-s3',repeat:true,trigger:"R.waterOn===true && R.laserOn===true",say:'换到水里，光也走直线！接下来换玻璃砖试试。',audio:'c4s1m-s3'},
+      {id:'m-s4',repeat:true,trigger:"R.glassOn===true && R.laserOn===true",say:'玻璃砖里光路照样笔直！接下来放出光点看看。',audio:'c4s1m-s4'},
+      {id:'m-s5',repeat:true,trigger:"R.pulseOn===true",say:'光点沿直线一路跑过去！歪一歪激光笔再试试？',audio:'c4s1m-s5'},
       {id:'m-concl',repeat:true,trigger:'after:m-s5@6000',say:'因此我们得出结论：光在同种均匀介质中沿直线传播。',audio:'c4s1m-concl'}
     ],
     errors:[
@@ -34,10 +34,10 @@ window.C4S1M_GUIDE={
   audios:{
     'c4s1m-intro':'guide/audio/c4s1m-intro.mp3',
     'c4s1m-s1':'guide/audio/c4s1m-s1.mp3',
-    'c4s1m-s2':'guide/audio/c4s1m-s2.mp3',
-    'c4s1m-s3':'guide/audio/c4s1m-s3.mp3',
-    'c4s1m-s4':'guide/audio/c4s1m-s4.mp3',
-    'c4s1m-s5':'guide/audio/c4s1m-s5.mp3',
+    'c4s1m-s2':'guide/audio/c4s1m-s2.mp3?v=20261027g1',
+    'c4s1m-s3':'guide/audio/c4s1m-s3.mp3?v=20261027g1',
+    'c4s1m-s4':'guide/audio/c4s1m-s4.mp3?v=20261027g1',
+    'c4s1m-s5':'guide/audio/c4s1m-s5.mp3?v=20261027g1',
     'c4s1m-concl':'guide/audio/c4s1m-concl.mp3?v=20261027r2',
     'c4s1m-e1':'guide/audio/c4s1m-e1.mp3',
     'c4s1m-e2':'guide/audio/c4s1m-e2.mp3',
