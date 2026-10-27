@@ -56,9 +56,9 @@
           <div class="slider-row">
             <label>加热功率</label>
             <button class="stepper-btn" id="power-minus">◀</button>
-            <input id="power-slider" type="range" min="0" max="500" step="10" value="0" />
+            <input id="power-slider" type="range" min="0" max="500" step="10" value="200" />
             <button class="stepper-btn" id="power-plus">▶</button>
-            <span class="slider-value" id="power-val">0 W</span>
+            <span class="slider-value" id="power-val">200 W</span>
           </div>
           <div class="slider-row">
             <label>水量</label>
@@ -85,7 +85,7 @@
       </div>
 
       <div class="bottom-controls">
-        <button class="btn primary" id="btn-pause">开始</button>
+        <button class="btn primary" id="btn-pause">暂停</button>
         <button class="btn" id="btn-reset">重置</button>
         <button class="btn" id="btn-mute" title="切换静音">🔊</button>
       </div>
@@ -97,12 +97,12 @@
 
   <script src="three.min.js?v=20261027r1"></script>
   <script src="exp-temp-lab-audio.js?v=20261027r1"></script>
-  <script src="exp-temp-lab-core.js?v=20261027r1"></script>
+  <script src="exp-temp-lab-core.js?v=20261027r2"></script>
   <div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
   <script>window.GUIDE_CFG={state:window.C3S1_STATE,mode:'refract'};/* core 已加载，window.C3S1_STATE 已存在；GUIDE_DATA 由 guide-data.js 末尾双赋值 */</script>
-  <script src="guide/guide-data.js?v=20261027r1"></script>
+  <script src="guide/guide-data.js?v=20261027r2"></script>
   <script src="../_lib/guide/engine-core.js?v=20261027r1"></script>
   <script src="../_lib/guide/vB-core.js?v=20261027r1"></script>
-  <script src="exp-temp-lab.js?v=20261027r1"></script>
+  <script src="exp-temp-lab.js?v=20261027r2"></script>
 </body>
 </html>

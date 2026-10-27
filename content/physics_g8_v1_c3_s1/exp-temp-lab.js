@@ -32,6 +32,10 @@ function bindUI() {
 
   document.getElementById('btn-heat').addEventListener('click', () => {
     setHeating(!state.heating);
+    if (state.heating && paused) { // P1：首次打开加热=计时开始（关加热再开不重置，持续累计）
+      paused = false;
+      document.getElementById('btn-pause').textContent = '暂停';
+    }
     updateHeatUI();
     playClick();
   });
@@ -39,7 +43,7 @@ function bindUI() {
 
   document.getElementById('btn-pause').addEventListener('click', () => {
     paused = !paused;
-    document.getElementById('btn-pause').textContent = paused ? '开始' : '暂停';
+    document.getElementById('btn-pause').textContent = paused ? '继续' : '暂停';
     playClick();
   });
   document.getElementById('btn-reset').addEventListener('click', () => { resetAll(); playClick(); });
@@ -66,7 +70,7 @@ function bindUI() {
     state.timeScale = parseFloat(tsSel.value);
     playClick();
   });
-  document.getElementById('btn-pause').textContent = paused ? '开始' : '暂停';
+  document.getElementById('btn-pause').textContent = '暂停';
 
   raycaster = new THREE.Raycaster();
   mouse = new THREE.Vector2();
@@ -100,7 +104,7 @@ function resetAll() {
   resetState();
   paused = true;
   setHeating(false);
-  document.getElementById('btn-pause').textContent = '开始';
+  document.getElementById('btn-pause').textContent = '暂停';
   const tsSel = document.getElementById('timescale-select');
   if (tsSel) tsSel.value = '60';
   state.timeScale = 60;

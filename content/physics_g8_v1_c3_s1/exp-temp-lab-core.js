@@ -18,7 +18,7 @@ const INITIAL = {
   waterTemp: 20,
   ambTemp: 20,
   volumeML: 200,
-  heatPower: 0,
+  heatPower: 200,
   heating: false,
   iceMass: 0,
   simTime: 0,
@@ -356,6 +356,7 @@ window.addEventListener('pagehide', function (e) {
    paused/thermometers 为闭包散变量且会重赋值，用不可枚举只读 getter 聚合，不改任何实验逻辑 ---- */
 Object.defineProperties(state, {
   paused: { get(){ return paused; }, enumerable: false },
-  thermometers: { get(){ return thermometers; }, enumerable: false }
+  thermometers: { get(){ return thermometers; }, enumerable: false },
+  selectedThermometer: { get(){ return selectedThermometer; }, enumerable: false }
 });
 window.C3S1_STATE = state;
