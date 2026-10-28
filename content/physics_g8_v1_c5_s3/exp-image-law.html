@@ -60,15 +60,10 @@
   #panel-law .law-kj{color:#854d0e;font-weight:600;margin-bottom:10px}
   #panel-law .law-qa{color:#334155}
   #panel-law .law-qa b{color:#0f172a}
-  /* I7 橙色居中解说条：hint 状态机常驻输出端（原气泡已删），× 关闭=同分支不再自动重弹；J7 动态长度：top 4%、默认 70% 单行，与器材包围盒相交加 .narrow 46% 换行 */
-  #toast{display:none;position:absolute;left:50%;top:4%;transform:translateX(-50%);max-width:70%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:17px;line-height:1.65;letter-spacing:.02em;font-weight:600;padding:12px 34px 12px 18px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:16;text-align:left}
-  #toast.narrow{max-width:46%}
-  #toast.show{display:block}
-  #toast-x{position:absolute;top:5px;right:11px;cursor:pointer;color:#8a7c66;font-size:19px;line-height:1;user-select:none}
-  #toast-x:hover{color:#3d3830}
   html.pseudo-fs{width:100%;height:100%}
   html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
 </style>
+<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261028v1">
 </head>
 <body>
 <header>
@@ -110,7 +105,7 @@
     <div><b>思考讨论④</b> 放大镜离物体越远（仍小于焦距）像越大；F 形光源比蜡烛好：像稳定、可判断左右是否相反、安全环保、高度不变。</div>
   </div>
 </div>
-<div id="toast"><span id="toast-txt"></span><span id="toast-x">×</span></div>
+<div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
 </div>
 <div class="ctrlbar">
   <div class="group" id="grp-f">
@@ -154,6 +149,10 @@
 <script src="../_lib/v1/props.js?v=20261024"></script>
 <script src="../_lib/v1/props-optics.js?v=20261024"></script>
 <script src="../_lib/v1/sfx.js?v=20261024"></script>
-<script src="exp-image-law-core.js?v=20261024"></script>
+<script src="exp-image-law-core.js?v=20261028v1"></script>
+<script>window.GUIDE_CFG={state:window.C5S3_STATE,mode:'refract'};</script>
+<script src="guide/guide-data.js?v=20261028v1"></script>
+<script src="../_lib/guide/engine-core.js?v=20261028v1"></script>
+<script src="../_lib/guide/vB-core.js?v=20261028v1"></script>
 </body>
 </html>

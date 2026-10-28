@@ -36,7 +36,8 @@ var st={
   rows:[],anim:null,
   fTip:false,touched:false,snapI:0,wasSharp:true,eyeTip:false,eyeTipShown:false
 };
-var drag=null,startPt=null,toolbox=null,trayCard=null,toastTimer=null,glowFx=[];
+window.C5S3_STATE=st;   // 语音讲解层状态暴露（设计书 §B-1 最小方案：稳定对象直接引用，无需 getter 聚合）
+var drag=null,startPt=null,toolbox=null,trayCard=null,glowFx=[];
 function layout(){
   axisY=Math.round(H*0.40);
   S=cmPx(); xLens=Math.round(W*0.42);   // I2 主体居中：0.40W→0.42W（探针 W1440/H766 默认 u=21/v=19.1 构图 bbox 中心 0.365W→0.385W；
@@ -378,7 +379,7 @@ function draw(){
   drawRays(); drawLens(); drawHand(); drawObject();
   drawScreen(); drawImageOnScreen(); drawEye(); drawVirtualImage(); drawOffArrow();
   drawTray(); drawGlowFx(); drawEyePeep();
-  updatePanel(); if(!st.anim) sayHint();   // I7 解说条随 hint 状态机刷新（动画期间不抢，动画末帧由 tick 调 sayHint）
+  updatePanel();
 }
 function drawGlowFx(){   // 对焦光晕（照 c5s2：300ms 渐隐，F6）
   for(var i=glowFx.length-1;i>=0;i--){
@@ -397,61 +398,6 @@ function checkSharpEdge(){   // isSharp 假→真时刻 push 光晕（屏上像�
   if(s&&!st.wasSharp) glowFx.push({x:xOfV(st.vSc),y:axisY,t0:performance.now(),c:'255,214,120'});
   st.wasSharp=s;
 }
-// ===== I7 解说条 hint 状态机：分支逻辑不变，输出端由气泡改橙色居中解说条（#toast）；× 关闭=同分支不再自动重弹 =====
-var toastEl=document.getElementById('toast'),toastTxt=document.getElementById('toast-txt'),toastXEl=document.getElementById('toast-x');
-var hintSt={key:null,dismissed:null};
-function hintBranch(){
-  var k=imgKind();
-  if(!st.lit) return {key:'litoff',text:'光源已关闭：无光线、无像。点「💡 光源」按钮，或点画布上的 F 光源/蜡烛重新点亮（点蜡烛可点亮/熄灭）。'};
-  if(st.hand&&imgKind()==='virtual') return {key:'handv',text:'遮挡透镜一部分，虚像同样仍完整、只是变暗——物上每点的光经未遮挡部分折射、反向延长仍交成完整虚像，只是通光量减少。'};   // J8 遮挡+虚像（与实像结论对称）
-  if(st.hand) return {key:'hand',text:'遮挡透镜一部分：屏上的像仍完整、只是变暗——通光量减少。物上每点发出的光经未遮挡部分仍能会聚成完整的像。'};
-  if(st.fTip) return {key:'ftip',text:'焦距变小、会聚能力变强、像距变小——透镜乙(f=10cm)应放在透镜甲(f=20cm)的右侧（靠光屏一侧），光屏上才能重新得到清晰的像。屏上像已模糊，重调屏位验证。'};
-  if(st.eyeTip) return {key:'eyed3',text:'虚像的位置和大小只由物距和焦距决定，与眼的位置无关；眼挪动变的只是视角（离像近看起来大）。'};   // G15 D3
-  if(!st.screenOn &&k==='virtual') return {key:'vsee',text:'从光屏一侧向透镜看去：正立、放大的虚像，与物体同侧、屏上接不到。虚线是折射光线的反向延长线。'};
-  if(!st.screenOn) return {key:'nosee',text:'光屏已撤。u＜f 时用眼在屏侧观察虚像；u＞f 时实像成在空中（原屏位附近）。点「装回」恢复。'};
-  if(k==='real'&&vImg()>vMaxDyn()) return {key:'vover',text:'像距 v='+vImg().toFixed(1)+' cm 超出光屏行程，屏上是弥散像——真实光台也受台面长度限制，数据见记录表'};
-  if(k==='none') return {key:'nof',text:'u=f：折射光线平行射出，不成像——实像与虚像的分界（一倍焦距分虚实）。向两侧再拖一点点看看。'};
-  if(k==='virtual'&&st.u>=st.f*0.85) return {key:'vdim',text:'虚像越来越大、也越来越淡：同样的光摊到更大的像面上，面亮度下降；u=f 不成像。'};   // J10 近焦解说
-  if(k==='virtual') return {key:'vgo',text:'u＜f，屏上接不到像。此时可以撤去光屏，从光屏一侧向凸透镜方向看去，就能观察到发光物体的虚像。点「撤屏」试试。'};
-  if(Math.abs(st.u-2*st.f)<=EPS_CM) return {key:'e2f',text:'u=2f：v=2f，成倒立、等大的实像——大小的分界（二倍焦距分大小）。'};
-  if(!isSharp()) return {key:'sharp',text:'屏上像模糊：|v屏−v像|＞0.6cm。拖光屏或点「寻像」找清晰像。当前理论像距 v='+vImg().toFixed(1)+' cm。'};
-  if(st.rows.length===0) return {key:'rec1',text:'清晰像到手！点「记录」把 u、v 与像的性质写进记录表；再拖光源跨 u＞2f、f＜u＜2f、u＜f 三区，每区记一笔。「💡 光源」按钮或点画布 F 可关灯/开灯；换蜡烛后点蜡烛可点亮/熄灭。'};
-  return {key:'law1',text:'点「规律卡」对照凸透镜成像规律。托盘可换蜡烛作物体——F 形比蜡烛好：像稳定、可判断左右相反、安全环保、高度不变。'};
-}
-function hideToast(){ if(toastEl) toastEl.classList.remove('show'); }
-function sayHint(){   // hint 输出端：解说条持久显示当前分支文案（事件 toast 占用期间不抢）
-  if(!toastEl||toastTimer) return;
-  var o=hintBranch(); hintSt.key=o.key;
-  if(hintSt.dismissed===o.key){ hideToast(); return; }
-  if(toastTxt.textContent!==o.text) toastTxt.textContent=o.text;
-  if(!toastEl.classList.contains('show')) toastEl.classList.add('show');
-  checkToastNarrow();   // J7 立即检测一次
-}
-function showToast(msg){   // 事件 toast：覆盖解说条 4s，到时回落当前 hint 文案
-  if(!toastEl) return;
-  if(toastTimer) clearTimeout(toastTimer);
-  toastTxt.textContent=msg; toastEl.classList.add('show');
-  toastTimer=setTimeout(function(){ toastTimer=null; sayHint(); },4000);
-  checkToastNarrow();   // J7 立即检测一次
-}
-// J7 解说条动态长度：默认 max-width 70% 单行；与器材包围盒相交→加 .narrow（46% 换行 2-3 行），脱离恢复；top 4%（html）
-function sceneBBox(){   // 本页器材包围盒：物左缘..max(屏,眼)右缘，y=axisY±max(hoPx*VIS_K, scHPx*0.5)
-  var x0=xOfU(st.u)-hoPx()*0.7;   // 物左缘（F 板显示半宽≈0.69*hoPx）
-  var x1=xOfV(st.vSc)+scHPx()*0.12;   // 屏右缘（面宽+底座余量）
-  if(st.eye&&st.eyeA>0.5){ var e=eyeXY(); x1=Math.max(x1,e.x+e.h*0.6); }
-  var hy=Math.max(hoPx()*VIS_K,scHPx()*0.5);
-  return {x0:x0,y0:axisY-hy,x1:x1,y1:axisY+hy};
-}
-var toastChkI=0;
-function checkToastNarrow(){
-  if(!toastEl||!toastEl.classList.contains('show')) return;
-  var tr=toastEl.getBoundingClientRect(),cr=cv.getBoundingClientRect();
-  if(!tr.width) return;
-  var b=sceneBBox();
-  var hit=!(tr.right-cr.left<b.x0||tr.left-cr.left>b.x1||tr.bottom-cr.top<b.y0||tr.top-cr.top>b.y1);
-  toastEl.classList.toggle('narrow',hit);
-}
-if(toastXEl) toastXEl.addEventListener('click',function(){ hintSt.dismissed=hintSt.key; hideToast(); });
 // ===== 读数浮层：u/v/m/像性质实时 =====
 function natureText(){
   if(!st.lit) return '光源关闭';
@@ -538,7 +484,6 @@ cv.addEventListener('pointerdown',function(e){
       st.obj=(slot.id==='candle')?'candle':'F';
       drag={k:'obj'}; st.touched=true;
       if(window.playPick) playPick();
-      showToast(st.obj==='candle'?'已换蜡烛作物体：像变为烛焰图案（正倒缩放）':'已换回 F 形光源：可判断像的左右是否相反');
     }
   }
   if(!drag){
@@ -547,7 +492,7 @@ cv.addEventListener('pointerdown',function(e){
     else if(hitEye(p)){ drag={k:'eye'}; if(!st.eyeTipShown){ st.eyeTipShown=true; st.eyeTip=true; } }   // G15 首次拖眼气泡 D3
     else st.eyeTip=false;
   }
-  if(drag){ st.touched=true; cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; sayHint(); draw(); }
+  if(drag){ st.touched=true; cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; draw(); }
 });
 cv.addEventListener('pointermove',function(e){
   if(st.anim) return;
@@ -566,11 +511,10 @@ cv.addEventListener('pointermove',function(e){
     var v=(p.x-xLens)/S;
     if(imgKind()==='real'){ var vi=vImg(); if(Math.abs(v-vi)<=0.3) v=vi+(v-vi)*0.35; }   // G14 软吸附：|v屏−v像|≤0.3cm 微磁吸不跳变
     st.vSc=clampV(v); st.fTip=false;
-    if(isSharp()&&!st.wasSharp){   // G14 边缘触发：上一帧 !isSharp 且本帧 isSharp → 过程音效+光晕+toast
+    if(isSharp()&&!st.wasSharp){   // G14 边缘触发：上一帧 !isSharp 且本帧 isSharp → 过程音效+光晕（toast 已删，语义由语音 s2/s3/s4 承接）
       st.wasSharp=true;
       glowFx.push({x:xOfV(st.vSc),y:axisY,t0:performance.now(),c:'255,214,120'});
       if(window.playMatch) playMatch();
-      showToast('清晰像！v屏='+st.vSc.toFixed(1)+' cm');
     }
   }else if(drag.k==='eye'){
     st.eyeX=Math.max(50,Math.min(W-50,p.x));   // 眼纯观察位：不改任何像的计算
@@ -585,25 +529,21 @@ function endDrag(e){
     if(moved){
       if(window.playDrop) playDrop();
       if(st.obj==='candle'&&toolbox.pointInCard(p)){   // 蜡烛拖回托盘=换回 F 形光源
-        st.obj='F'; showToast('蜡烛已拖回托盘：换回 F 形光源');
+        st.obj='F';
       }
-      if(Math.abs(st.u-2*st.f)<=EPS_CM) showToast('u=2f：等大分界——倒立、等大的实像，v=2f');
-      else if(Math.abs(st.u-st.f)<=EPS_CM) showToast('u=f：实虚分界——折射光平行射出，不成像');
     }else if(!toolbox.pointInCard(startPt)){
       if(st.obj==='candle'){   // K6 点蜡烛=点亮/熄灭蜡烛（换回 F 仅拖回托盘一条路径）
         st.lit=!st.lit; syncLitBtn();
         if(window.playClick) playClick();
-        showToast(st.lit?'🕯 蜡烛已点亮：光线恢复、像恢复':'蜡烛已熄灭：无光线、无像——点蜡烛可重新点亮');
       }else{   // G12 画布点 F 光源切换亮/灭
         st.lit=!st.lit; syncLitBtn();
         if(window.playClick) playClick();
-        showToast(st.lit?'💡 光源已点亮':'光源已关闭：无光线、无像——点「💡 光源」或点画布 F 重新点亮');
       }
     }
   }else if(drag.k==='sc'){
-    if(moved&&window.playDrop) playDrop();   // G14：清晰音效/toast 已移入 pointermove 边缘触发，pointerup 不再响（防双响）
+    if(moved&&window.playDrop) playDrop();   // G14：清晰音效已移入 pointermove 边缘触发，pointerup 不再响（防双响）
   }
-  drag=null; cv.style.cursor=''; sayHint(); draw();
+  drag=null; cv.style.cursor=''; draw();
 }
 cv.addEventListener('pointerup',endDrag);
 cv.addEventListener('pointercancel',endDrag);
@@ -620,7 +560,7 @@ function setF(v){
   if(rngF) rngF.value=st.f;
   if(lblF) lblF.textContent='f = '+st.f.toFixed(1)+' cm';
 }
-function onFChange(v){ setF(v); st.fTip=true; st.touched=true; sayHint(); draw(); }
+function onFChange(v){ setF(v); st.fTip=true; st.touched=true; draw(); }
 if(rngF) rngF.addEventListener('input',function(){ if(st.anim){ rngF.value=st.f; return; } onFChange(+rngF.value); });
 function nudgeF(d){ if(st.anim) return; onFChange(st.f+d*0.5); if(window.playClick) playClick(); }
 var bFd=document.getElementById('btn-f-down'),bFu=document.getElementById('btn-f-up');
@@ -634,14 +574,14 @@ function twoState(id,getv,setv,after){
     setv(!getv()); b.classList.toggle('on',getv());
     if(window.playClick) playClick();
     if(after) after();
-    sayHint(); draw();
+    draw();
   });
 }
 twoState('btn-marks',function(){return st.marks;},function(v){st.marks=v;});
 twoState('btn-rays',function(){return st.rays;},function(v){st.rays=v;if(v)flowT0=performance.now();});   // H8 开光路置 flowT0
-twoState('btn-hand',function(){return st.hand;},function(v){st.hand=v;if(v) showToast('遮挡透镜一部分：屏上的像仍完整、只是变暗——通光量减少');});
+twoState('btn-hand',function(){return st.hand;},function(v){st.hand=v;});
 function syncLitBtn(){ var b=document.getElementById('btn-lit'); if(b) b.classList.toggle('on',st.lit); }
-twoState('btn-lit',function(){return st.lit;},function(v){st.lit=v;showToast(v?'💡 光源已点亮：光线恢复、像恢复':'光源已关闭：无光线、无像，读数面板显示「光源关闭」');});   // G12 物理两态钮
+twoState('btn-lit',function(){return st.lit;},function(v){st.lit=v;});   // G12 物理两态钮
 // ===== 三浮层互斥：统一入口 openPanel（F8） =====
 function openPanel(name){   // name∈read/rec/law/null：开一个自动关另外两个，按钮 .on 同步
   var map={read:['panel-read','btn-read'],rec:['panel-rec','btn-table'],law:['panel-law','btn-law']};
@@ -668,15 +608,13 @@ if(bRec1) bRec1.addEventListener('click',function(){
   if(st.anim) return;
   recordCurrent();
   openPanel('rec');   // 记一笔自动开记录表（走互斥入口）
-  showToast('已记录：u='+st.u.toFixed(1)+' cm，'+natureText());
   if(window.playClick) playClick();
-  sayHint(); draw();
+  draw();
 });
 var bTB=document.getElementById('btn-textbook');
 if(bTB) bTB.addEventListener('click',function(){
   st.rows=textbookRows(); renderRec();
   openPanel('rec');
-  showToast('已载入参考数据表 13 行（f=10cm）——对照找规律');
   if(window.playClick) playClick();
 });
 var bClr=document.getElementById('btn-clear');
@@ -688,17 +626,15 @@ if(bAuto) bAuto.addEventListener('click',function(){
   st.touched=true; st.fTip=false;
   var k=imgKind();
   if(k!=='real'){
-    showToast(k==='none'?'u=f 不成像：折射光平行射出，屏上无像（实虚分界）':'虚像屏上接不到——点「撤屏」用眼从屏侧看');
-    if(window.playClick) playClick(); sayHint(); draw(); return;
+    if(window.playClick) playClick(); draw(); return;   // u=f/u<f 寻像无效：纠错语义由语音 e2/e3 承接
   }
   var vT=clampV(vImg());
   st.anim={kind:'auto',t0:performance.now(),from:st.vSc,to:vT};
   if(window.playClick) playClick();
 });
 function finishAuto(a){
-  if(isSharp()){ showToast('寻像到位：清晰像 v='+vImg().toFixed(1)+' cm，'+natureText()); if(window.playMatch) playMatch(); }
-  else showToast('理论像距 v='+vImg().toFixed(1)+' cm 超出滑轨，屏已到最右——像成在滑轨外');
-  sayHint(); draw();
+  if(isSharp()){ if(window.playMatch) playMatch(); }
+  draw();
 }
 // 撤屏观察 / 装回光屏（两态钮）：屏淡出、observer_eye 飞入屏位、虚像呈现
 var bNs=document.getElementById('btn-noscreen');
@@ -708,13 +644,11 @@ if(bNs) bNs.addEventListener('click',function(){
   if(st.screenOn){
     st.screenOn=false; bNs.textContent='装回'; bNs.classList.add('on');
     st.anim={kind:'out',t0:performance.now()};
-    if(imgKind()==='virtual') showToast('实验操作：撤去光屏，从光屏一侧向凸透镜方向看去');
   }else{
     st.screenOn=true; bNs.textContent='撤屏'; bNs.classList.remove('on');
     st.anim={kind:'in',t0:performance.now()};
   }
   if(window.playClick) playClick();
-  hintSt.dismissed=null; sayHint();   // I7 撤屏/装回后重新武装解说条
 });
 // 复位（记录表数据只有 reset 才清）
 var bReset=document.getElementById('btn-reset');
@@ -732,9 +666,8 @@ if(bReset) bReset.addEventListener('click',function(){
   if(bNs){ bNs.textContent='撤屏'; bNs.classList.remove('on'); }
   openPanel('read');
   st.wasSharp=isSharp();
-  hideToast(); hintSt.key=null; hintSt.dismissed=null;
   if(window.playClick) playClick();
-  sayHint(); draw();
+  draw();
 });
 var btnMute=document.getElementById('btn-mute');
 if(btnMute) btnMute.addEventListener('click',function(){ window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick) playClick(); });
@@ -773,10 +706,10 @@ function tick(){
       if(t>=1){ st.anim=null; finishAuto(a); }
     }else if(a.kind==='out'){
       st.screenA=1-e; st.eye=true; st.eyeA=e; st.eyeOff=(W+40-xOfV(st.vSc))*(1-e);
-      if(t>=1){ st.anim=null; st.screenA=0; st.eyeA=1; st.eyeOff=0; sayHint(); }
+      if(t>=1){ st.anim=null; st.screenA=0; st.eyeA=1; st.eyeOff=0; }
     }else if(a.kind==='in'){
       st.screenA=e; st.eyeA=1-e; st.eyeOff=(W+40-xOfV(st.vSc))*e;
-      if(t>=1){ st.anim=null; st.eye=false; st.eyeA=0; st.eyeOff=0; st.screenA=1; st.eyeX=null; sayHint(); }
+      if(t>=1){ st.anim=null; st.eye=false; st.eyeA=0; st.eyeOff=0; st.screenA=1; st.eyeX=null; }
     }
     draw();
   }else{
@@ -784,7 +717,6 @@ function tick(){
     if(fading) st.handA=Math.max(0,Math.min(1,st.handA+(st.hand?HAND_FADE:-HAND_FADE)));
     if(glowFx.length||(st.rays&&st.lit)||fading) draw();   // G6 流动虚线需逐帧重绘
   }
-  if(++toastChkI>=10){ toastChkI=0; checkToastNarrow(); }   // J7 每 10 帧解说条与器材包围盒相交检测
   }catch(err){ console.error('[c5s3] tick 单帧异常（已捕获，rAF 继续）:',err); }
   requestAnimationFrame(tick);
 }
@@ -807,12 +739,12 @@ layout(); resize();
 openPanel('read');
 st.wasSharp=isSharp();
 renderRec(); syncFull();
-sayHint(); draw(); requestAnimationFrame(tick);
+draw(); requestAnimationFrame(tick);
 window.__c5s3dbg={
   get st(){return st;}, get W(){return W;}, get H(){return H;}, get axisY(){return axisY;}, get S(){return S;}, get xLens(){return xLens;},
   vImg:vImg, imgKind:imgKind, mag:mag,
-  setU:function(u){ st.u=clampU(u); st.touched=true; st.fTip=false; sayHint(); draw(); },
-  setV:function(v){ st.vSc=clampV(v); st.fTip=false; sayHint(); draw(); },
+  setU:function(u){ st.u=clampU(u); st.touched=true; st.fTip=false; draw(); },
+  setV:function(v){ st.vSc=clampV(v); st.fTip=false; draw(); },
   setF:function(f){ onFChange(f); },
   auto:function(){ document.getElementById('btn-auto').click(); },
   noscreen:function(){ document.getElementById('btn-noscreen').click(); },

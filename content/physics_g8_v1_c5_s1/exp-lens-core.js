@@ -60,6 +60,7 @@ var state={
   bench:{f:F_DEF_CM,d:D_DEF_CM,lens:null,source:null},   // f/d 均为 cm 语义（px 换算走 cmPx()）
   focal:{f:F_DEF_CM,d:FOCAL_D_DEF_CM,lens:null,screen:null}
 };
+window.C5S1_STATE=state;   // 语音讲解层状态暴露（设计书 §A-1 最小方案：稳定对象直接引用，无需 getter 聚合）
 function cur(){ return state[state.scene]; }   // 当前场景子状态（交互/面板/气泡读写点）
 function setF(v){ fCmV=v; fPx=v*cmPx(); cur().f=v; }   // 焦距单点写（cm，px 缓存同步）
 function setD(v){ dCmV=v; dPx=v*cmPx(); cur().d=v; }   // 直径单点写（cm，px 缓存同步）
@@ -291,8 +292,7 @@ function checkSpotFocus(){
     sc.atF=true;
     showToast('光斑最小最亮！光屏到透镜的距离就是焦距 f = '+fCm().toFixed(1)+' cm');
     if(window.playMatch) playMatch();
-    updateHint();
-  }else if(!hit&&sc.atF){ sc.atF=false; updateHint(); }
+  }else if(!hit&&sc.atF){ sc.atF=false; }
 }
 function showToast(msg){
   var t=document.getElementById('toast'); if(!t) return;
@@ -432,62 +432,9 @@ function draw(){
     if(a.to==='focal'){ renderBench(-H*e); renderFocal(H*(1-e)); }
     else { renderFocal(-H*e); renderBench(H*(1-e)); }
   }
-  checkSpotFocus(); updatePanel(); if(!state.animating) updateHint();
+  checkSpotFocus(); updatePanel();
 }
 
-// ===== F4③ hint 橙色解说条（照 c6_s2 密度式，替代旧毛玻璃气泡）：状态机分支文案；pointer-events:none 永不吞拖拽；位置由 placeHint() 定 =====
-var hintEl=document.getElementById('hint');
-var hintSt={key:null,fadeT:null};
-// 分支定义：key+文案；场景二 3 支 + 场景一 9 支（旧锚点 ax/ay 已随气泡删除）
-function hintBranch(){
-  var S=cur(),L=S.lens,s=S.source,sc=S.screen;
-  if(state.scene==='focal'){
-    if(sc&&sc.atF) return {key:'f-atF',text:'光斑最小最亮！光屏到透镜的距离就是焦距 f='+fCm().toFixed(1)+' cm。拖光屏离开焦点看光斑变大变暗'};
-    if(sc) return {key:'f-drag',text:'拖动光屏找最小最亮的光斑——此时屏到透镜的距离就是焦距 f。看右上角读数面板'};
-    return {key:'f-sun',text:'太阳离我们非常远，射到地面的阳光可以看作平行光。平行光经凸透镜会聚于焦点——拖光屏找最小最亮的光斑，就能测出焦距'};
-  }
-  if(!s) return {key:'b-nosource',text:'从左上角器材托盘把「激光笔组」或「小灯泡」拖到光学台上（光源互斥），再点光源本体开光'};
-  if(s.type==='pens'&&!anyLit()) return {key:'b-pens-off',text:L?'点击笔身开关，重新点亮光源':'点击笔身上的红色按钮，点亮激光笔'};
-  if(s.type==='pens'&&L&&L.kind==='convex') return {key:'b-pens-convex',text:'太阳离我们非常远，射到地面的阳光可以看作平行光——激光笔组发出的也是平行光。平行光经凸透镜会聚于焦点 F。点「☀️ 测焦距」用阳光真测一次'};
-  if(s.type==='bulb'&&!s.on) return {key:'b-bulb-off',text:'点小灯泡本体开灯（300ms 光晕反馈）'};
-  if(!L) return {key:'b-nolens',text:'光沿直线传播。把凸透镜或凹透镜拖到主光轴上，看看光路怎么变；开「标注」显示器材与主光轴名称'};
-  if(s.type==='bulb'&&L.kind==='convex'&&!bulbAtF()) return {key:'b-bulb-notF',text:'沿主光轴拖动小灯泡。把它移到焦点 F（±6px 会磁吸对齐），看出射光变平行——这就是光路可逆'};
-  if(s.type==='bulb'&&bulbAtF()) return {key:'b-bulb-atF',text:'小灯泡放在焦点上，光经凸透镜后变成平行光——光路是可逆的'};
-  if(L.kind==='convex') return {key:'b-convex',text:'凸透镜对光有会聚作用：平行光会聚于焦点 F（「焦点」钮开关黄点标记）。拖 f 滑杆改焦距、拖直径滑杆改通光口径（直径不改焦距、只改通光量），或换凹透镜'};
-  return {key:'b-concave',text:'凹透镜对光有发散作用：折射光线的反向延长线（虚线）交于入射侧的虚焦点。拖 f 滑杆看虚焦点跟随。开「光流」看光的传播方向，试试换回凸透镜'};
-}
-function updateHint(){
-  if(!hintEl||state.animating){ hideHint(); return; }   // 场景切换动画期间解说条隐藏
-  var o=hintBranch();
-  if(o.key===hintSt.key){ placeHint(); return; }        // 同分支：只刷新位置（文案含动态数值时同步）
-  hintSt.key=o.key;
-  if(hintEl.classList.contains('show')){                // 分支变化：旧淡出新淡入
-    hintEl.classList.remove('show');
-    if(hintSt.fadeT) clearTimeout(hintSt.fadeT);
-    hintSt.fadeT=setTimeout(showHintNow,150);
-  }else showHintNow();
-}
-function showHintNow(){
-  if(!hintEl) return;
-  var o=hintBranch(); if(o.key!==hintSt.key) return;
-  hintEl.textContent=o.text;
-  placeHint();
-  requestAnimationFrame(function(){ hintEl.classList.add('show'); });
-}
-function hideHint(){ if(hintEl) hintEl.classList.remove('show'); }
-function hintReset(){ hintSt.key=null; }   // 场景切换结束后按新场景分支重弹
-// placeHint 定位：宽屏（W≥900）顶部居中；窄屏避开左上角托盘→放托盘正下方左侧
-function placeHint(){
-  if(!hintEl) return;
-  var c=toolbox?toolbox.card:{x:16,y:12,w:366,h:106};
-  if(W>=900){
-    hintEl.style.left='50%'; hintEl.style.transform='translateX(-50%)'; hintEl.style.top='12px';
-    hintEl.style.textAlign='center'; hintEl.style.maxWidth='60%';
-  }else{
-    hintEl.style.left='16px'; hintEl.style.transform='none'; hintEl.style.top=(c.y+c.h+10)+'px';
-    hintEl.style.textAlign='left'; hintEl.style.maxWidth='72%';
-  }
-}
 function updatePanel(){
   var pn=document.getElementById('panel-read'); if(!pn||!pn.classList.contains('show')) return;
   var S=cur(),L=S.lens,sc=S.screen;
@@ -561,7 +508,7 @@ cv.addEventListener('pointerdown',function(e){
     else if(hitScreen(p)) drag={k:'screen'};
     else if(hitPens(p)) drag={k:'pens'};
   }
-  if(drag){ cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; updateHint(); draw(); }
+  if(drag){ cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; draw(); }
 });
 cv.addEventListener('pointermove',function(e){
   if(state.animating) return;
@@ -625,7 +572,7 @@ function endDrag(e){
     if(movedL&&inCtrlArea(p)&&state.scene==='bench'){ S.lens=null; if(window.playDrop) playDrop(); }   // 场景二预置透镜不可收回
     else if(S.lens){ S.lens.x=clampLensX(S.lens.x); if(movedL&&window.playDrop) playDrop(); }
   }
-  drag=null; cv.style.cursor=''; syncSlider(); updateHint(); draw();
+  drag=null; cv.style.cursor=''; syncSlider(); draw();
 }
 cv.addEventListener('pointerup',endDrag);
 cv.addEventListener('pointercancel',endDrag);
@@ -670,12 +617,12 @@ function syncSlider(){
 }
 if(rngF) rngF.addEventListener('input',function(){
   if(state.animating){ rngF.value=fCmV; return; }
-  setF(snapF(+rngF.value)); syncSlider(); updateHint(); draw();
+  setF(snapF(+rngF.value)); syncSlider(); draw();
 });
 function nudgeF(dir){
   if(state.animating) return;
   setF(snapF(Math.max(F_MIN_CM,Math.min(F_MAX_CM,fCmV+dir*0.5))));
-  syncSlider(); updateHint(); draw();
+  syncSlider(); draw();
 }
 if(btnFDown) btnFDown.addEventListener('click',function(){ nudgeF(-1); if(window.playClick) playClick(); });
 if(btnFUp) btnFUp.addEventListener('click',function(){ nudgeF(1); if(window.playClick) playClick(); });
@@ -683,7 +630,7 @@ if(btnFUp) btnFUp.addEventListener('click',function(){ nudgeF(1); if(window.play
 var rngD=document.getElementById('rng-d'),lblD=document.getElementById('lbl-d');
 if(rngD) rngD.addEventListener('input',function(){
   if(state.animating){ rngD.value=dCmV; return; }
-  setD(Math.max(D_MIN_CM,Math.min(D_MAX_CM,+rngD.value))); syncSlider(); updateHint(); draw();
+  setD(Math.max(D_MIN_CM,Math.min(D_MAX_CM,+rngD.value))); syncSlider(); draw();
 });
 // 读数面板（物理按压两态；关面板不清数据，reset 才清）
 var btnTable=document.getElementById('btn-table'),panelRead=document.getElementById('panel-read');
@@ -718,7 +665,7 @@ var btnReset=document.getElementById('btn-reset');
 if(btnReset) btnReset.addEventListener('click',function(){
   if(state.animating) return;
   if(state.scene==='bench') resetBench(); else resetFocal();
-  syncSlider(); if(window.playClick) playClick(); updateHint(); draw();
+  syncSlider(); if(window.playClick) playClick(); draw();
 });
 // ===== 场景切换钮（两态：☀️ 测焦距 / 🔦 返回光学台）+ 飞入飞出动画 =====
 var btnScene=document.getElementById('btn-scene');
@@ -736,9 +683,9 @@ function switchScene(){
   state.scene=(state.scene==='bench')?'focal':'bench';
   var T=cur(); setF(T.f); setD(T.d);             // 载入目标场景（两场景状态完全隔离）
   state.animating=true; state.anim={to:state.scene,t0:performance.now()};
-  hideHint();
   syncSceneUI(); syncSlider();
   if(window.playClick) playClick();
+  if(window.GUIDE_SCENE) window.GUIDE_SCENE.change();   // EG4c：切场景立即静音+清在途调度（B6 推荐③）
 }
 if(btnScene) btnScene.addEventListener('click',switchScene);
 var btnMute=document.getElementById('btn-mute');
@@ -771,7 +718,7 @@ function tick(){
   if(state.animating){
     if(performance.now()-state.anim.t0>=ANIM_DUR){
       state.animating=false; state.anim=null;
-      hintReset(); updateHint(); syncSlider();   // 动画结束按新场景分支重弹气泡
+      syncSlider();   // 动画结束按新场景重载滑杆
     }
     draw();
   }else if(glowFx.length||showFlow) draw();
@@ -787,12 +734,12 @@ state.bench.lens={kind:'convex',x:480};   // 场景一初始态②：凸透镜�
 layout(); resize();
 state.focal.lens={kind:'convex',x:clampLensX(Math.round(W*SC_X_FRAC))};      // 场景二预置凸透镜（与场景一完全隔离）
 state.focal.screen={x:clampScreenX(Math.round(W*SC_SCREEN_X_FRAC)),atF:false};
-syncSceneUI(); syncSlider(); updateHint(); draw(); requestAnimationFrame(tick);
+syncSceneUI(); syncSlider(); draw(); requestAnimationFrame(tick);
 
 window.__c5s1dbg={ get state(){return state;}, get W(){return W;}, get H(){return H;}, get axisY(){return axisY;}, get fPx(){return fPx;},
-  place:function(kind){ state.bench.lens={kind:kind||'convex',x:Math.round(W*0.5)}; if(state.scene==='bench'){fPx=state.bench.f;dPx=state.bench.d;} syncSlider(); updateHint(); draw(); },
-  pens:function(on){ state.bench.source={type:'pens',x:PENS_X,yOff:0,on:[!!on,!!on,!!on]}; updateHint(); draw(); },
-  bulb:function(on,x){ state.bench.source={type:'bulb',x:x?clampBulbX(x):Math.round(W*BULB_X_FRAC),on:!!on,snapped:false}; updateHint(); draw(); },
-  screen:function(x){ state.focal.screen={x:x?clampScreenX(x):Math.round(W*SC_SCREEN_X_FRAC),atF:false}; updateHint(); draw(); },
-  setF:function(v){ setF(Math.max(F_MIN_CM,Math.min(F_MAX_CM,v))); syncSlider(); updateHint(); draw(); } };
+  place:function(kind){ state.bench.lens={kind:kind||'convex',x:Math.round(W*0.5)}; if(state.scene==='bench'){fPx=state.bench.f;dPx=state.bench.d;} syncSlider(); draw(); },
+  pens:function(on){ state.bench.source={type:'pens',x:PENS_X,yOff:0,on:[!!on,!!on,!!on]}; draw(); },
+  bulb:function(on,x){ state.bench.source={type:'bulb',x:x?clampBulbX(x):Math.round(W*BULB_X_FRAC),on:!!on,snapped:false}; draw(); },
+  screen:function(x){ state.focal.screen={x:x?clampScreenX(x):Math.round(W*SC_SCREEN_X_FRAC),atF:false}; draw(); },
+  setF:function(v){ setF(Math.max(F_MIN_CM,Math.min(F_MAX_CM,v))); syncSlider(); draw(); } };
 })();
