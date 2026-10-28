@@ -70,7 +70,7 @@ select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:non
     <a id="back-to-index" href="index.html">‹ 返回</a>
     <div class="panel control-panel">
       <div class="panel-title">参数</div>
-      <div class="slider-row select-row"><label>样品</label><div class="custom-select" id="sample-wrap"><select id="sample-select"><option value="hypo">海波</option><option value="paraffin">石蜡</option><option value="ice">冰</option></select><div class="custom-select-trigger"><span class="custom-select-text">海波</span></div><div class="custom-options"><div class="custom-option active" data-value="hypo">海波</div><div class="custom-option" data-value="paraffin">石蜡</div><div class="custom-option" data-value="ice">冰</div></div></div></div>
+      <div class="slider-row select-row"><label>样品</label><div class="custom-select" id="sample-wrap"><select id="sample-select"><option value="hypo">海波</option><option value="paraffin">石蜡</option></select><div class="custom-select-trigger"><span class="custom-select-text">海波</span></div><div class="custom-options"><div class="custom-option active" data-value="hypo">海波</div><div class="custom-option" data-value="paraffin">石蜡</div></div></div></div>
       <div class="slider-row select-row"><label>火力</label><div class="custom-select" id="fire-wrap"><select id="fire-select"><option value="low">小</option><option value="medium" selected>中</option><option value="high">大</option></select><div class="custom-select-trigger"><span class="custom-select-text">中</span></div><div class="custom-options"><div class="custom-option" data-value="low">小</div><div class="custom-option active" data-value="medium">中</div><div class="custom-option" data-value="high">大</div></div></div></div>
       <div class="slider-row"><label>环境温度</label><button class="stepper-btn" id="amb-minus">◀</button><input id="amb-slider" type="range" min="-10" max="40" step="1" value="25"><button class="stepper-btn" id="amb-plus">▶</button><span class="value" id="amb-val">25℃</span></div>
       <div class="slider-row select-row"><label>样品量</label><div class="custom-select" id="amount-wrap"><select id="amount-select"><option value="small">小</option><option value="medium" selected>中</option><option value="large">大</option></select><div class="custom-select-trigger"><span class="custom-select-text">中</span></div><div class="custom-options"><div class="custom-option" data-value="small">小</div><div class="custom-option active" data-value="medium">中</div><div class="custom-option" data-value="large">大</div></div></div></div>
@@ -155,13 +155,13 @@ select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:non
 </div>
 <script src="three.min.js?v=20261027r1"></script>
 <script src="exp-melt-audio.js?v=20261027r1"></script>
-<script src="exp-melt-core.js?v=20261027r2"></script>
+<script src="exp-melt-core.js?v=20261027r3"></script>
 <div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
 <script>window.GUIDE_CFG={state:window.C3S2_STATE};/* core 已加载；mode 由引擎轮询 R.mode 自动切 melt/freeze；GUIDE_DATA 由 guide-data.js 末尾双赋值 */</script>
-<script src="guide/guide-data.js?v=20261027r4"></script>
+<script src="guide/guide-data.js?v=20261027r5"></script>
 <script src="../_lib/guide/engine-core.js?v=20261027r3"></script>
 <script src="../_lib/guide/vB-core.js?v=20261027r3"></script>
-<script src="exp-melt-chart.js?v=20261027r4"></script>
-<script src="exp-melt.js?v=20261027r4"></script>
+<script src="exp-melt-chart.js?v=20261027r5"></script>
+<script src="exp-melt.js?v=20261027r5"></script>
 </body>
 </html>

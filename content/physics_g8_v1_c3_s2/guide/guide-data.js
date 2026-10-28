@@ -2,12 +2,12 @@
 /* c3s2 熔化凝固探究馆 · B 语音版数据（§B/§4；G1波按A5-G3引导语规范改写文案）。R=window.C3S2_STATE（§B-1 Proxy 暴露）。
    mode 由引擎轮询 R.mode 自动切（melt→freeze 转场自动播 freeze intro）。
    R2：steps 头部 s0（event:input:#sample-select）衔接「先选样品再点灯」；熔化晶体线 s1→s2→s3→s4a；熔化石蜡线 s1→s4b
-   （s4a/s4b 按 R.sample 分流，hold@6000 才播；样品无关文案，冰亦走 s4a）。石蜡熔化无自动凝固（meltedFrac 恒 0），
+   （s4a/s4b 按 R.sample 分流，hold@6000 才播；样品无关文案；R3-J5 移除第三样品后晶体只剩海波，R.sample!=='paraffin' 等价海波专属）。石蜡熔化无自动凝固（meltedFrac 恒 0），
    需 btn-pre-melt 进 freeze（S2-core:1023-1043）走 s7→s9；凝固晶体线 s5→s6→s8。 */
 window.C3S2_GUIDE={
   melt:{
     intro:{
-      text:'欢迎来到熔化凝固探究馆！先在右侧选好样品：海波是晶体，石蜡是非晶体，冰也是晶体。选好样品，点燃酒精灯，跟我来！',
+      text:'欢迎来到熔化凝固探究馆！先在右侧选好样品，海波是晶体，石蜡是非晶体。选好样品，点燃酒精灯，跟我来！',
       audio:'c3s2-intro-melt'
     },
     steps:[
@@ -45,7 +45,7 @@ window.C3S2_GUIDE={
     ]
   },
   audios:{
-    'c3s2-intro-melt':'guide/audio/c3s2-intro-melt.mp3?v=20261027r4',
+    'c3s2-intro-melt':'guide/audio/c3s2-intro-melt.mp3?v=20261028r3',
     'c3s2-intro-freeze':'guide/audio/c3s2-intro-freeze.mp3?v=20261027g1',
     'c3s2-s0':'guide/audio/c3s2-s0.mp3?v=20261027r4',
     'c3s2-s1':'guide/audio/c3s2-s1.mp3?v=20261027g1',

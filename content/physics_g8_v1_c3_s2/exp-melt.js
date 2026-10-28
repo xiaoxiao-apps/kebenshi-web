@@ -60,6 +60,7 @@ function bindUI() {
     paused = !paused;
     document.getElementById('btn-pause').textContent = paused ? '继续' : '暂停';
     if (!paused && state.heating) startBoil(); else stopBoil();
+    window.GUIDE_PAUSE && window.GUIDE_PAUSE.set(paused);
     playClick();
   });
   document.getElementById('btn-reset').addEventListener('click', () => {
@@ -67,6 +68,7 @@ function bindUI() {
     document.getElementById('btn-pause').textContent = '暂停';
     clearTable();
     redrawChart();
+    window.GUIDE_RESET && window.GUIDE_RESET.all();
     playClick();
   });
   document.getElementById('btn-mute').addEventListener('click', () => {

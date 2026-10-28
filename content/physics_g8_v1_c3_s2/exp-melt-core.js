@@ -11,11 +11,6 @@ const SAMPLE_DEFS = {
     name: '石蜡', kind: 'amorph', softStart: 50, softEnd: 70,
     colorSolid: 0xfaf3e0, colorLiquid: 0xf5e6c8,
     latentHeat: 0, cSolid: 2100, cLiquid: 2500
-  },
-  ice: {
-    name: '冰', kind: 'crystal', meltingPoint: 0,
-    colorSolid: 0xd6f0ff, colorLiquid: 0x88ccff,
-    latentHeat: 3.34e5, cSolid: 2100, cLiquid: 4180
   }
 };
 
@@ -125,7 +120,7 @@ function resetPhysics() {
   updateFlame();
 }
 
-function sampleDef() { return SAMPLE_DEFS[state.sample]; }
+function sampleDef() { return SAMPLE_DEFS[state.sample] || SAMPLE_DEFS.hypo; }
 function sampleMass() { return AMOUNT_KG[state.amount]; }
 function fireWatts() { return FIRE_POWER[state.fire]; }
 

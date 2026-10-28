@@ -1,7 +1,7 @@
 /* exp-melt-chart.js — 温度-时间曲线系统（小图 + 放大悬浮窗） [r5i] */
 /* eslint-env browser */
 
-const CHART_SAMPLE_NAMES = { hypo: '海波', paraffin: '石蜡', ice: '冰' };
+const CHART_SAMPLE_NAMES = { hypo: '海波', paraffin: '石蜡' };
 const CHART_COLORS = {
   axis: 'rgba(255,255,255,0.35)',
   grid: 'rgba(255,255,255,0.10)',
@@ -24,7 +24,7 @@ let floatPanning = false, floatPanStartX = 0, floatPanStartRight = 0;
 let livePanRight = null; // null = 小图跟随最新数据
 let livePanning = false, livePanStartX = 0, livePanStartRight = 0;
 
-const LIVE_WINDOW = 12;   // 小图时间窗（分钟）：R2 滑动小窗参照c3s3，整段回看走悬浮放大窗
+const LIVE_WINDOW = 6;    // 小图时间窗（分钟）：R3-J4 对齐 c3s3 CHART_SPAN=6（×10 下典型熔化全程≈6min，窗口=数据长度，曲线不再挤在纵坐标边）；整段回看走悬浮放大窗
 const FLOAT_WINDOW = 6;   // 悬浮窗实时曲线时间窗（分钟）
 
 /* ---------- 初始化 ---------- */
@@ -141,7 +141,8 @@ function fixedTickList() {
 
 function computeXRange(windowMinutes, right) {
   const data = state.dataLog || [];
-  const tMax = data.length ? data[data.length - 1].t : 0;
+  // R3-J4：右缘取 max(末记录点, simTime连续值)——移植 c3s3 dataEnd()，窗口随 simTime 平滑滑动，不再等整数记录点跳格
+  const tMax = Math.max(data.length ? data[data.length - 1].t : 0, (state.simTime || 0) / 60);
   const r = (typeof right === 'number') ? right : Math.max(windowMinutes, tMax);
   const left = Math.max(0, r - windowMinutes);
   return { xMin: left, xMax: r, tMax };
