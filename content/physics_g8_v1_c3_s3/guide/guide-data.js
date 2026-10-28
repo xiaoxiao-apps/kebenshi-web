@@ -44,11 +44,11 @@ window.C3S3_GUIDE={
       {id:'s14',repeat:true,trigger:"R.evapSub==='paper' && R.evap.paper.lit && R.evap.paper.water>0 && !R.evap.paper.boiling && !R.evap.paper.burning",say:'火苗舔着纸锅，水在升温纸却烧不着，神奇吧？接着看！',audio:'c3s3-s14'},
       {id:'s15',repeat:true,trigger:"R.evap.paper.boiling===true",say:'纸锅里的水沸腾啦！水温压住纸温，到不了着火点。',audio:'c3s3-s15'},
       /* R3-K1③：s15 实测5.520s+300≈5800 接播「烧干」补句 */
-      {id:'s15b',repeat:true,trigger:'after:s15@5800',say:'但水随着沸腾越来越少，最终会烧干。',audio:'c3s3-s15b'},
+      {id:'s15b',repeat:true,queue:true,trigger:'after:s15@5800',say:'但水随着沸腾越来越少，最终会烧干。',audio:'c3s3-s15b'},/* R5主会话热补：queue（任务书要求s15b/s16双加，Qoder漏s15b） */
       /* R3-K1②：原 errors.e3 迁入 steps（after: 只追 step 的 fireCount，error 不计）；非 repeat 边沿一次性，重置由 GUIDE_RESET 清 firedSteps */
       {id:'sBurn',trigger:"R.evap.paper.burning===true",say:'哎呀烧着啦！没水吸热，纸温冲到183℃着火点。',audio:'c3s3-e3'},
       /* R3-K1②：结论移到最后——sBurn 音频6.480s+300≈6800，播完「点燃」再下结论，文案/音频不动 */
-      {id:'s16',repeat:true,trigger:'after:sBurn@6800',say:'通过刚才的实验，我们发现：蒸发任何温度都发生，越热、越大、越快风就越快，还吸热致冷。记住它哦！',audio:'c3s3-s16'}
+      {id:'s16',repeat:true,queue:true,trigger:'after:sBurn@6800',say:'通过上述三个实验，我们发现：蒸发任何温度都发生，越热、越大、越快风就越快，还吸热致冷。记住它哦！',audio:'c3s3-s16'}
     ],
     errors:[
       {id:'e2',trigger:"event:click:#paper-match-btn:R.evap.paper.water===0 && !R.evap.paper.lit",fix:'不对哟～纸锅还没加水呢，空烧马上就着火啦。',audio:'c3s3-e2'}
@@ -103,7 +103,7 @@ window.C3S3_GUIDE={
     'c3s3-s13':'guide/audio/c3s3-s13.mp3?v=20261027g1',
     'c3s3-s14':'guide/audio/c3s3-s14.mp3?v=20261027g1',
     'c3s3-s15':'guide/audio/c3s3-s15.mp3?v=20261027g1',
-    'c3s3-s16':'guide/audio/c3s3-s16.mp3?v=20261027g1',
+    'c3s3-s16':'guide/audio/c3s3-s16.mp3?v=20261028v5',
     'c3s3-s17':'guide/audio/c3s3-s17.mp3?v=20261027g1',
     'c3s3-s18':'guide/audio/c3s3-s18.mp3?v=20261027g1',
     'c3s3-s19':'guide/audio/c3s3-s19.mp3?v=20261027g1',

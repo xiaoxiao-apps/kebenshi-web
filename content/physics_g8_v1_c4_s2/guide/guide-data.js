@@ -21,12 +21,12 @@ window.C4S2_GUIDE={
     },
     steps:[
       {id:'c4s2-s1',repeat:true,trigger:"R.laserOn===true && R.beamMode==='single' && R.fold===0 && R.rough===0 && !R.pulse.reverse",say:'激光开啦！这束红光射向平面镜，叫入射光线。',audio:'c4s2-s1'},
-      {id:'c4s2-s2',repeat:true,trigger:'after:c4s2-s1@6000',say:'光打在镜面的 O 点——入射点；反射光也从 O 射出，这条光线叫做反射光线。',audio:'c4s2-s2'},
+      {id:'c4s2-s2',repeat:true,queue:true,trigger:'after:c4s2-s1@6000',say:'光打在镜面的 O 点——入射点；反射光也从 O 射出，这条光线叫做反射光线。',audio:'c4s2-s2'},
       {id:'c4s2-s3',repeat:true,trigger:"event:input:#ang-slider:R.laserOn===true && R.beamMode==='single' && R.fold===0 && !R.pulse.reverse",say:'拖动滑杆改入射角，反射角马上跟着变！你看到了吗？',audio:'c4s2-s3'},
       {id:'c4s2-s4',repeat:true,trigger:"event:change:#cb-normal:R.laserOn===true && R.beamMode==='single' && R.fold===0 && R.rough===0 && !R.pulse.reverse && document.getElementById('cb-normal').checked===true",say:'金色虚线是法线，垂直镜面，角都从它量起。再拖拖滑杆。',audio:'c4s2-s4'},
       {id:'c4s2-s5',repeat:true,trigger:"event:change:#cb-arc:document.getElementById('cb-arc').checked===true",say:'看角弧：∠r 和 ∠i 相等，反射角等于入射角！折折纸板试试？',audio:'c4s2-s5'},
-      {id:'c4s2-s6',repeat:true,trigger:"R.fold>0 && R.laserOn===true && R.beamMode==='single' && !R.pulse.reverse",say:'纸板一折，反射光线所在的平面没有了，光照不到这个平面上，所以就看不到反射光线了。这说明入射光、反射光和法线三线共面。',audio:'c4s2-s6'},
-      {id:'c4s2-s6b',repeat:true,trigger:"R.fold>0 && R.laserOn===true && R.beamMode==='beam' && R.rough===0",say:'纸板一折，折过去那半边就不在反射光所在的平面里了，上面自然没有反射光——每条光线都这样，三线共面对平行光同样成立。',audio:'c4s2-s6b'},
+      {id:'c4s2-s6',repeat:true,trigger:"event:change:#fold-slider:R.fold>0 && R.laserOn===true && R.beamMode==='single' && !R.pulse.reverse",say:'纸板一折，反射光线所在的平面没有了，光照不到这个平面上，所以就看不到反射光线了。这说明入射光、反射光和法线三线共面。',audio:'c4s2-s6'},/* R5主会话热修：input改change——①引擎事件绑定走capture阶段，input时点R.fold还是旧值（页面listener在bubble才更新）门控永假首折不播；change在松手时发火，R.fold已被页面input listener更新为新值门控成立；②input拖拽连续发火+repeat 500ms去抖=12.6s音频被反复重启卡顿，change一次折叠手势只播一次；事件型自带clearPendingSchedules=折纸板即作废激光第2条在途定时器（蔡总第4条） */
+      {id:'c4s2-s6b',repeat:true,trigger:"event:change:#fold-slider:R.fold>0 && R.laserOn===true && R.beamMode==='beam' && R.rough===0",say:'纸板一折，折过去那半边就不在反射光所在的平面里了，上面自然没有反射光——每条光线都这样，三线共面对平行光同样成立。',audio:'c4s2-s6b'},/* R5主会话热修：同s6，input改change（capture旧值门控+拖拽卡顿两因） */
       {id:'c4s2-s7',repeat:true,trigger:"R.pulse.reverse===true && R.laserOn===true && R.fold===0",say:'光路可逆！逆着反射光路射入，就沿原入射路射出。',audio:'c4s2-s7'},
       {id:'c4s2-s8',repeat:true,trigger:"R.beamMode==='beam' && R.laserOn===true && R.rough===0 && R.fold===0 && !R.pulse.reverse",say:'好，接下来换平行光，反射光仍平行，镜面反射。',audio:'c4s2-s8'},
       {id:'c4s2-s9',repeat:true,trigger:"R.rough>0 && R.laserOn===true && R.fold===0 && !R.pulse.reverse",say:'表面变粗糙，反射光散向四面八方，这就是漫反射。',audio:'c4s2-s9'},

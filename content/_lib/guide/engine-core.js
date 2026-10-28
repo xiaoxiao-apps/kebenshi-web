@@ -18,6 +18,11 @@
    与 hold 型 trigger 组合语义：holdMs = 首催等待（进场后条件持续满足 holdMs 才首播），
    interval = 之后的重播节奏（每 interval 再催一次），**不重新累积 holdMs**。
    用例：c3s3 液化 e5 = @16000 + interval:10000 → intro 实测 11.04s 播完再等 5s 首催，之后每 10s 仍无动作再催一次。 */
+/* 【接口契约6·R5 queue】steps 条目可选字段 queue:true = 排队解说（当前有语音在播则 defer 到播完再播）。
+   实现：fireStep 最开头拦截——enginePaused 时只续轮询不计时；api.isAudioPlaying() 为真则 250ms 后重试，
+   80 次（=20s）上限后强制播防死等。三触发路径（tickSteps 电平 / sched after·delay / bindEventTriggers 事件）
+   公共入口都是 fireStep，queue 全路径生效。不带 queue 的条目（用户动作类）行为完全不变=仍可打断。
+   vB 侧配合：api 新增 isAudioPlaying()（curAudio 在播且未 paused/ended 为真）。doReset 清 queueTries。 */
 /* 【接口契约3·EG3-1 重置】window.GUIDE_RESET={all:fn} / window.GuideEngine.reset=同一函数
    调用时机=页面重置 handler 的最后一行（页面 state 已清零、UI 已同步之后；先调引擎会让 intro 读到旧状态）。
    语义=实验+语音+字幕全部从头：清 firedSteps/hold/errLast/freeLast/freePrev/recCache/taskState + resetG()，
@@ -40,6 +45,7 @@ var DATA=window.GUIDE_DATA||window.C4S3_SCRIPT;
 var apiRef=null,loopOn=false;
 var enginePaused=false;/* EG3-2：页面暂停联动开关（只由 setPause 写，tick 读） */
 var curMode=null,G={},firedSteps={},hold={},errLast={},freeLast={},freePrev={},stepSched={};
+var queueTries={};/* 【接口契约6·R5】queue:true 条目的轮询计数（80 次=20s 上限强制播） */
 /* r4：repeat:true 步骤的边沿重触发状态（引擎私有，非 repeat 步骤不使用） */
 var repPrev={},repLast={},fireCount={},seenCount={},delayFired={};
 var REP_COOLDOWN=3000;
@@ -167,6 +173,16 @@ function updateG(){
 
 /* ---------- 触发分发 ---------- */
 function fireStep(step,mode){
+  /* 【接口契约6·R5】queue:true 解说条目：当前有语音在播则 defer 到播完再播（250ms 轮询，80 次=20s 上限强制播防死等）；
+     暂停期间不计等待不发火（enginePaused 时只续轮询）；不带 queue 的条目（用户动作类）行为不变=仍可打断 */
+  if(step.queue){
+    if(enginePaused){setTimeout(function(){fireStep(step,mode);},250);return;}
+    var apq=getApi();
+    if(apq&&apq.isAudioPlaying&&apq.isAudioPlaying()){
+      if((queueTries[step.id]=(queueTries[step.id]||0)+1)<=80){setTimeout(function(){fireStep(step,mode);},250);return;}
+      queueTries[step.id]=0;
+    }else queueTries[step.id]=0;
+  }
   fireCount[step.id]=(fireCount[step.id]||0)+1;/* r4：after: 依赖计数（repeat/非 repeat 都计） */
   if(step.saidFlag)G[step.saidFlag]=true;
   var api=getApi();
@@ -177,6 +193,19 @@ function fireError(err){
   if(api.onError)api.onError(err);
 }
 function fireFree(free){
+  /* 【接口契约6扩展·R5】queue:true 的 free 条目等当前语音播完再播（250ms轮询、80次=20s上限强制播防死等）；
+     暂停期间只续轮询不发火；不带 queue 的 free 条（用户动作类）行为不变=仍可打断。
+     用例：c3s4-f2 浇热水动画条原在 s2 主条开播0.15s即掐断它（同一次点击双条互踢，浏览器实测81.57/81.72），
+     加 queue 后接在 s2 播完再播。 */
+  if(free.queue){
+    if(enginePaused){setTimeout(function(){fireFree(free);},250);return;}
+    var fk='free#'+(free.audio||free.note);
+    var apq=getApi();
+    if(apq&&apq.isAudioPlaying&&apq.isAudioPlaying()){
+      if((queueTries[fk]=(queueTries[fk]||0)+1)<=80){setTimeout(function(){fireFree(free);},250);return;}
+      queueTries[fk]=0;
+    }else queueTries[fk]=0;
+  }
   var api=getApi();
   if(api.onFree)api.onFree(free);
 }
@@ -420,7 +449,7 @@ window.GUIDE_PAUSE={set:setPause};
 /* ---------- EG3-1【接口契约3】重置公共 API（实验+语音+字幕全部从头，重播当前模式 intro） ---------- */
 function doReset(){
   resetG();
-  firedSteps={};hold={};errLast={};freeLast={};freePrev={};
+  firedSteps={};hold={};errLast={};freeLast={};freePrev={};queueTries={};
   recCache={n:-1,t:0};
   taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
   var apiR=getApi();
@@ -562,7 +591,7 @@ window.GuideEngine={
     apiRef=variantApi||{};
     tasksOn=!!opts.tasks;
     resetG();
-    firedSteps={};hold={};errLast={};freeLast={};freePrev={};stepSched={};
+    firedSteps={};hold={};errLast={};freeLast={};freePrev={};stepSched={};queueTries={};
     repPrev={};repLast={};fireCount={};seenCount={};delayFired={};/* r4：repeat 状态；r6：delayFired */
     recCache={n:-1,t:0};
     taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};

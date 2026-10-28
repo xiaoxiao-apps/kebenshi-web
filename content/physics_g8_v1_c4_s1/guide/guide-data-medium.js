@@ -25,13 +25,13 @@ window.C4S1M_GUIDE={
       {id:'m-s1r',repeat:true,trigger:"R.smokeOn===true && R.laserOn===true && R.laserThroughSmoke===false",say:'先把激光笔对准烟雾箱，让光穿过箱体哦。',audio:'c4s1m-s1r'},
       {id:'m-s2',repeat:true,trigger:"R.smokeOn===true && R.laserOn===true && R.laserThroughSmoke===true",say:'看，烟雾里的光路是一条笔直的线！接下来放下水槽，看看水里的光路吧。',audio:'c4s1m-s2'},
       {id:'m-s2b',repeat:true,trigger:"R.waterJustPlaced===true",say:'水槽摆好啦！',audio:'c4s1m-s2b-confirm'},
-      {id:'m-s2c',repeat:true,trigger:"R.waterOn===true && R.laserOn===false && R.waterPlacedT>0 && (G.t-R.waterPlacedT)>2152",say:'打开激光笔，看看水里的光路。',audio:'c4s1m-s2c'},
+      {id:'m-s2c',repeat:true,queue:true,trigger:"R.waterOn===true && R.laserOn===false && R.waterPlacedT>0 && (G.t-R.waterPlacedT)>2152",say:'打开激光笔，看看水里的光路。',audio:'c4s1m-s2c'},
       {id:'m-s3',repeat:true,trigger:"R.waterOn===true && R.laserOn===true && R.laserThroughWater===true",say:'换到水里，光也走直线！接下来我们再换换玻璃砖试试吧。',audio:'c4s1m-s3-new'},
       {id:'m-s3b',repeat:true,trigger:"R.glassJustPlaced===true",say:'玻璃砖摆好啦！',audio:'c4s1m-s3b-confirm'},
-      {id:'m-s3c',repeat:true,trigger:"R.glassOn===true && R.laserOn===false && R.glassPlacedT>0 && (G.t-R.glassPlacedT)>2248",say:'打开激光笔，看看玻璃砖里的光路。',audio:'c4s1m-s3c'},
+      {id:'m-s3c',repeat:true,queue:true,trigger:"R.glassOn===true && R.laserOn===false && R.glassPlacedT>0 && (G.t-R.glassPlacedT)>2248",say:'打开激光笔，看看玻璃砖里的光路。',audio:'c4s1m-s3c'},
       {id:'m-s4',repeat:true,trigger:"R.glassOn===true && R.laserOn===true && R.laserThroughGlass===true",say:'玻璃砖里光路照样笔直！接下来放出光点看看。',audio:'c4s1m-s4-new'},
-      {id:'m-s5',repeat:true,trigger:"R.pulseOn===true",say:'光点沿直线一路跑过去！歪一歪激光笔再试试？',audio:'c4s1m-s5'},
-      {id:'m-concl',repeat:true,trigger:'after:m-s5@6000',say:'因此我们得出结论：光在同种均匀介质中沿直线传播。',audio:'c4s1m-concl'}
+      {id:'m-s5',repeat:true,trigger:"R.pulseOn===true",say:'光点沿直线一路跑过去！',audio:'c4s1m-s5'},/* R5主会话热修：删Qoder误加的queue——光点是用户动作（点btn-play），按蔡总「动作必打断」规矩禁排队等前条播完 */
+      {id:'m-concl',repeat:true,queue:true,trigger:'after:m-s5@6000',say:'因此我们得出结论：光在同种均匀介质中沿直线传播。',audio:'c4s1m-concl'}
     ],
     errors:[
       {id:'m-e1',trigger:"R.laserOn===true && R.activeCount===0@2000",fix:'不对哟～空气里的光路看不见，先摆上烟雾箱。',audio:'c4s1m-e1'},
@@ -55,7 +55,7 @@ window.C4S1M_GUIDE={
     'c4s1m-s3b-confirm':'guide/audio/c4s1m-s3b-confirm.mp3?v=20261028v1',
     'c4s1m-s3c':'guide/audio/c4s1m-s3c.mp3?v=20261028v1',
     'c4s1m-s4-new':'guide/audio/c4s1m-s4-new.mp3?v=20261028v1',
-    'c4s1m-s5':'guide/audio/c4s1m-s5.mp3?v=20261027g1',
+    'c4s1m-s5':'guide/audio/c4s1m-s5.mp3?v=20261028v5',
     'c4s1m-concl':'guide/audio/c4s1m-concl.mp3?v=20261027r2',
     'c4s1m-e1':'guide/audio/c4s1m-e1.mp3',
     'c4s1m-e2':'guide/audio/c4s1m-e2.mp3',

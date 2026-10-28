@@ -319,7 +319,9 @@ function start(){
         scheduleHide(Math.max(END_TAIL,missedWindow()));
       }
       pauseT=0;
-    }
+    },
+    /* 【接口契约6·R5】queue:true 条目排队判定：当前是否有语音真在播 */
+    isAudioPlaying:function(){return !!(curAudio&&!curAudio.paused&&!curAudio.ended);}
   });
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
