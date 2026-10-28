@@ -66,6 +66,7 @@ function start(){
 
   /* ---------- 配音播放 ---------- */
   var curAudio=null;
+  var audioResumeAt=0,pauseT=0;/* EG3-2 暂停联动：音频续播断点 / 暂停起点（字幕驻留时间冻结用） */
   function setSpeaking(on){spkEl.classList.toggle('on',!!on);}
   function stopAudio(){
     if(curAudio){
@@ -289,6 +290,35 @@ function start(){
       cur=null;
       bar.classList.remove('show');
       setTimeout(function(){if(!cur)bar.style.display='none';},260);
+    },
+    /* EG3-1【接口契约3】引擎重置配合：被欢迎词闸门拦下的旧条目不带进新周期；
+       startAck/startUsed/startEl 一律不碰（用户已确认过播音，禁重新弹启动卡） */
+    onReset:function(){
+      pendingEntry=null;
+    },
+    /* EG3-2【接口契约4】暂停联动：音频续播不重播、字幕冻结显示（DOM 与 cur 保留）、驻留倒计时停摆 */
+    onPause:function(paused){
+      if(paused){
+        pauseT=now();
+        if(curAudio){
+          try{audioResumeAt=curAudio.currentTime;curAudio.pause();}catch(e){}
+        }
+        clearHide();
+        return;
+      }
+      if(curAudio){
+        try{
+          curAudio.currentTime=audioResumeAt;
+          var pr=curAudio.play();
+          if(pr&&pr.catch)pr.catch(function(){});
+        }catch(e){}
+      }
+      if(cur){
+        /* 暂停期间驻留倒计时冻结：把暂停时长补回 at，再按剩余窗口重挂（至少留 END_TAIL，防恢复瞬间字幕消失） */
+        if(pauseT)cur.at+=now()-pauseT;
+        scheduleHide(Math.max(END_TAIL,missedWindow()));
+      }
+      pauseT=0;
     }
   });
 }

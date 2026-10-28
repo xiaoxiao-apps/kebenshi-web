@@ -14,11 +14,27 @@
    切换处调用 window.GUIDE_SCENE&&window.GUIDE_SCENE.change()。 */
 /* 【接口契约1·EG3b】free 条目新增可选字段 cooldown:<毫秒>（如 cooldown:1000 实现「点一次报一次」），
    事件型与电平型 free 节流均取 fr.cooldown||8000，缺省 8000 与旧行为一致。 */
+/* 【接口契约3·EG3-1 重置】window.GUIDE_RESET={all:fn} / window.GuideEngine.reset=同一函数
+   调用时机=页面重置 handler 的最后一行（页面 state 已清零、UI 已同步之后；先调引擎会让 intro 读到旧状态）。
+   语义=实验+语音+字幕全部从头：清 firedSteps/hold/errLast/freeLast/freePrev/recCache/taskState + resetG()，
+   再走 onModeEnter(curMode) 复用（clearPendingSchedules/clearRepeatState/api.onStop/fireIntro/resetTasks），
+   重播当前模式 intro，全部步骤可重新触发。curMode 为 null（页面刚加载未进模式）时只清状态，不炸。
+   vB 侧配合（api.onReset）：pendingEntry 清空（被闸门拦下的旧条目不带进新周期）、startAck 保持当前值
+   （用户已确认过播音，禁重新弹启动卡）。
+   暂停中调 all()：不改变 enginePaused（页面 paused 才是权威状态，强行恢复会让引擎在实验冻结时继续跑触发），
+   但把暂停重新施加到刚起的 intro 上——恢复后从欢迎词第 0 秒续播。 */
+/* 【接口契约4·EG3-2 暂停】window.GUIDE_PAUSE={set:fn} / window.GuideEngine.pause=同一函数
+   页面暂停 handler 调 window.GUIDE_PAUSE&&window.GUIDE_PAUSE.set(paused)。
+   语义=暂停期间 tick 跳过 updateG/tickSteps/tickErrors/tickFree/tickTasks 全部求值（不攒触发、不误发火），
+   但 requestAnimationFrame 尾调用保留（循环不死，恢复即续跑）。
+   vB 侧配合（api.onPause(paused)）：音频续播不重播（记 currentTime 后 pause / 恢复回写后 play）、
+   clearHide() 停字幕驻留倒计时、字幕条 DOM 与 cur 引用保留不清（字幕冻结显示），恢复时补回剩余驻留时间。 */
 (function(){
 if(window.GuideEngine)return;
 var R=(window.GUIDE_CFG&&window.GUIDE_CFG.state)||window.MRR;
 var DATA=window.GUIDE_DATA||window.C4S3_SCRIPT;
 var apiRef=null,loopOn=false;
+var enginePaused=false;/* EG3-2：页面暂停联动开关（只由 setPause 写，tick 读） */
 var curMode=null,G={},firedSteps={},hold={},errLast={},freeLast={},freePrev={},stepSched={};
 /* r4：repeat:true 步骤的边沿重触发状态（引擎私有，非 repeat 步骤不使用） */
 var repPrev={},repLast={},fireCount={},seenCount={},delayFired={};
@@ -384,6 +400,36 @@ window.GUIDE_SCENE={
   }
 };
 
+/* ---------- EG3-2【接口契约4】暂停公共 API（tick 冻结求值，rAF 循环保活；语音/字幕联动走 api.onPause） ---------- */
+function setPause(p){
+  enginePaused=!!p;
+  var api=getApi();
+  if(api.onPause)api.onPause(enginePaused);
+}
+window.GUIDE_PAUSE={set:setPause};
+
+/* ---------- EG3-1【接口契约3】重置公共 API（实验+语音+字幕全部从头，重播当前模式 intro） ---------- */
+function doReset(){
+  resetG();
+  firedSteps={};hold={};errLast={};freeLast={};freePrev={};
+  recCache={n:-1,t:0};
+  taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
+  var apiR=getApi();
+  /* onReset 须在 onModeEnter 之前：清掉旧周期被闸门拦下的 pendingEntry，
+     随后 fireIntro 若仍被闸门拦下会重新 first-wins 写入新周期的欢迎词 */
+  if(apiR.onReset)apiR.onReset();
+  /* 其余（clearPendingSchedules/clearRepeatState/api.onStop/fireIntro/resetTasks）全部由 onModeEnter 复用，禁重复实现 */
+  if(curMode)onModeEnter(curMode);
+  /* 暂停中重置：不解除暂停（页面 paused 权威），把暂停重新施加到刚起的 intro，恢复后从 0 秒续播 */
+  if(enginePaused&&apiR.onPause)apiR.onPause(true);
+}
+window.GUIDE_RESET={
+  all:function(){
+    if(!loopOn)return;
+    doReset();
+  }
+};
+
 /* ---------- 任务链（A 版）：engine 持有进度，皮肤只渲染+转发作答 ---------- */
 function resetTasks(mode){
   taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
@@ -443,6 +489,9 @@ function ensureWrong(t){if(t&&!taskState.wrongPick[t.id])taskState.wrongPick[t.i
 /* ---------- 主循环 ---------- */
 function tick(){
   if(!loopOn)return;
+  /* EG3-2：暂停期间跳过全部求值（防攒触发/误发火），但必须先挂 rAF 再 return，
+     否则恢复后循环死掉（冻结帧事故教训） */
+  if(enginePaused){requestAnimationFrame(tick);return;}
   if(R){
     updateG();
     var mode=(window.GUIDE_CFG&&window.GUIDE_CFG.mode)||(R&&R.mode);
@@ -512,6 +561,8 @@ window.GuideEngine={
     if(!loopOn){loopOn=true;requestAnimationFrame(tick);}
   },
   Caption:Caption,
+  reset:window.GUIDE_RESET.all,/* EG3-1【接口契约3】=GUIDE_RESET.all 同一函数 */
+  pause:setPause,/* EG3-2【接口契约4】=GUIDE_PAUSE.set 同一函数 */
   getG:function(){return G;},
   getMode:function(){return curMode;},
   getTaskState:function(){return taskState;},
