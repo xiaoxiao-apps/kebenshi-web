@@ -28,6 +28,10 @@ var E3_W_SET=[100,50,20,20,10,5]; // 砝码盒配置（weight_set 同源；总20
 var E3_CYL_CAP=60,E3_CYL_DIV=10,E3_CYL_BASE=20;   // E3 量筒 cm³(=mL)：底水20，浸没块最大30→50<60
 var E3_CONV_MS=600,E3_BLINK_HZ=1.5;               // 箭头汇聚时长(ms)/忽闪频率(Hz)——蔡总创意：忽闪→平移汇聚→交点浮现
 var E3_BLOCK_K=0.40;              // E3 物块示意缩放系数（蔡总：左盘物块太大→0.4×）
+/* R2-e（蔡总：鉴别场景补开场白+步骤引导）：进 e5 后延时置 G.e5OpenSaid=true，guide 步骤条目以此为闸——
+   保证开场白（hold 700ms 起播）播完再放第一条步骤引导，不被 r5 即时打断顶掉。
+   门时=700(hold)+开场白音频实测时长+600(缓冲)，afinfo 实测后回填单点常量 */
+var E5_OPEN_GATE_MS=700+10300+600;   // e5-open afinfo 实测 10.224s → 取 10300
 
 var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
 var ctrlEl=document.querySelector('.ctrlbar');
@@ -469,7 +473,7 @@ function e3Tick(){   // rAF 推进：量筒水位插值 + 箭头汇聚计时 + �
 var tankOK=false;   // water_tank sprite 就位标记（renderE4 每帧刷新）
 function mkE4Block(preset,v,m,loc){
   return {preset:preset,mat:preset==='custom'?'styrofoam':preset,v:v,m:m,
-    x:L.e4.tank.x,y:L.e4.benchY,loc:loc||'tank',tw:null,benchOn:null};   // benchOn=台面摞叠宿主（R32修4）
+    x:L.e4.tank.x,y:L.e4.benchY,loc:loc||'bench',tw:null,benchOn:null,settled:false};   // benchOn=台面摞叠宿主（R32修4）；settled=浮沉稳定态门（R2蔡总：先现象后因果，guide 逐材质条目用）
 }
 function e4Rho(b){ return b.m/b.v; }   // kg/L = ρ=m/V
 /* R25 除根：浸没比一律按绘制位置派生（掉入/按住/松手/水面再动全同源，两路径不可能不一致） */
@@ -499,7 +503,7 @@ function e4Splash(x){   // 入水微溅：记录涟漪（屏幕 x，水面 y 取
 }
 function e4Settle(b,splash){   // 放手/改参数：漂浮→每帧动平衡派生+阻尼微晃偏移(R25) / 沉底→350ms 单调到池底（P6 禁回弹）
   var now=performance.now();
-  b.tw=null; b.bob=null;
+  b.tw=null; b.bob=null; b.settled=false;   // R2：动画期间稳定态门关闭，浮沉落定后由 e4Tick 置真（guide 因果条目才发声）
   if(e4Rho(b)>=RHO_WATER) b.tw={t0:now,y0:b.y,y1:tankBotY()};
   else if(b.loc==='tank') b.bob={t0:now,off0:b.y-e4FinalY(b,state.e4.lvl)};   // bob 只存偏移量，yEq 不快照（水面再动块必跟随）
   if(splash) e4Splash(b.x);
@@ -512,6 +516,7 @@ function e4Tick(){   // rAF 推进：沉底单调 / 漂浮每帧由动平衡派�
   var dragB=E.drag?E.drag.b:null;
   e4Blocks().forEach(function(b){
     if(!b||(S&&(b===S.top||b===S.bot))) return;   // 摞叠成员由锚点驱动
+    if(b!==dragB&&!b.tw&&!b.bob&&!b.settled) b.settled=true;   // R2 稳定态门：沉底插值/漂浮微晃都不在途=现象已稳定（手持中 dragB 不置真）
     if(b.tw){   // 沉底：单调 easeInOut 到池底
       var p=clamp((now-b.tw.t0)/TWEEN_MS,0,1);
       b.y=b.tw.y0+(b.tw.y1-b.tw.y0)*easeInOut(p);
@@ -784,12 +789,15 @@ function e4ToggleDual(){   // 单块/双块切换钮（右下常驻；命名走�
   syncE4Ctrl(); updateHint(); updatePanel(); dirty=true;
   if(window.playClick) playClick();
 }
-function resetE4(){   // 初始态：单块木预设（0.4kg/L×5L=2kg）静置漂浮、水位102L
+function resetE4(){   // 初始态（R2蔡总：先现象后因果）：单块木预设（0.4kg/L×5L=2kg）停在水槽旁桌面、水位=基础100L；放入水中后才浮沉
   var E=state.e4;
   E.dual=false; E.duals=null; E.sel=0; E.drag=null; E.splashes=[]; E.stack=null;
-  E.single=mkE4Block('wood',5,2,'tank');
-  E.lvl=TANK_BASE_L+E.single.v*e4Rho(E.single);   // 平衡水位=100+Vρ（漂浮解析终态）
-  E.single.y=e4FinalY(E.single,E.lvl); E.single.tw=null; E.single.bob=null;
+  E.single=mkE4Block('wood',5,2,'bench');
+  var sd=e4Side(E.single);
+  E.single.x=clamp(L.e4.tank.x-L.e4.tank.w/2-sd/2-28,60,W-60);   // 水槽左侧桌面上（不与水槽精灵重叠）
+  E.single.y=L.e4.benchY;
+  E.single.tw=null; E.single.bob=null; E.single.settled=false;
+  E.lvl=TANK_BASE_L;   // 块未入水：无排水
   syncE4Ctrl(); updatePanel(); updateHint(); dirty=true;
 }
 /* ===== 场景三 E5：物质鉴别（借鉴 PhET Mystery；单位一档 kg/L，数值=g/cm³，1 g/cm³=1×10³ kg/m³） ===== */
@@ -1028,10 +1036,14 @@ function syncGroups(){
     document.getElementById('btn-scene-'+k).classList.toggle('on',s===k);
   });
 }
+var e5OpenT=null;
+function e5FlagSet(v){ if(window.GuideEngine&&window.GuideEngine.getG) window.GuideEngine.getG().e5OpenSaid=v; }
 function switchScene(to){
   if(state.animating||to===state.scene) return;
   state.anim={from:state.scene,to:to,t0:performance.now()};   // animating 期间锁全部输入
   state.scene=to; state.animating=true;
+  clearTimeout(e5OpenT);   // R2-e：进 e5 重挂开场闸门，离开即撤（重进 e5 开场白+步骤引导整套重来）
+  if(to==='e5'){ e5FlagSet(false); e5OpenT=setTimeout(function(){ e5FlagSet(true); },E5_OPEN_GATE_MS); }
   hideToast(); syncGroups(); placeHint(); repositionPanels(); updateHint();
   if(window.playClick) playClick();
   dirty=true;
@@ -1061,7 +1073,7 @@ cv.addEventListener('pointerdown',function(ev){
       });
       b.benchOn=null;   // 拖走顶块→自身脱链，松手按落点重新判定
       state.e4.drag={b:b,dx:b.x-p.x,dy:b.y-p.y};
-      b.tw=null; b.bob=null;   // R25：按住中 loc 保持 tank——y 跟手、排水按 e4SubFrac 实时算（按住全浸水位连续升到 100+V）
+      b.tw=null; b.bob=null; b.settled=false;   // R25：按住中 loc 保持 tank——y 跟手、排水按 e4SubFrac 实时算（按住全浸水位连续升到 100+V）；R2：手持中稳定态门关闭防因果条目误播
       if(window.playPick) playPick();
       try{ cv.setPointerCapture(ev.pointerId); }catch(err){}
       dirty=true; updatePanel(); updateHint();
