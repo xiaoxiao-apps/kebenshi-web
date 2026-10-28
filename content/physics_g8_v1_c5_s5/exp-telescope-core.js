@@ -14,8 +14,11 @@ var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
 var ctrlEl=document.querySelector('.ctrlbar');
 var W=960,H=520,DPR=1,axisY=260,S=10,xObjLens=288,eyeRoom=80;
 var st={
-  fObj:20,fEye:10,L:30,near:false,   // L 初始=默认组合匹配距离 f物20+f目10（syncTubeRange 再校准）
-  wasMatch:true,everMatch:false,angleSeen:false,
+  /* R7-A1（蔡总第5条）：初始 L=lMatch−4=26（旧30恰=匹配点→没操作 intro 未完结论连发）。
+     |Δ|=4>MATCH_TOL_CM(0.6)→matched 初始=false；≤TUBE_STROKE_CM(5)→不触发 e1 纠错(>4 才催)且 clampL 不钳回；
+     s4 '像模糊啦慢慢拖' 成为 intro 后第一条引导=合理。wasMatch 同步 false */
+  fObj:20,fEye:10,L:26,near:false,
+  wasMatch:false,everMatch:false,angleSeen:false,
   flow:false,
   showLabels:false
 };
@@ -386,7 +389,7 @@ var bReset=document.getElementById('btn-reset');
 if(bReset) bReset.addEventListener('click',function(){
   st.fObj=20; st.fEye=10; st.near=false;
   syncTubeRange();               // R14 范围回默认组合 lMatch±5
-  st.L=clampL(lMatchCm());   // 重置回初始态：两镜在轴+最远物距+镜筒在匹配点
+  st.L=clampL(lMatchCm()-4);   // R7-A1 重置回初始态：与 st 字面量同偏移 lMatch−4（未匹配，用户拖滑杆对焦后结论才发火）
   st.wasMatch=isMatch(); st.everMatch=false; st.angleSeen=false; st.flow=false;
   glowFx=[];
   if(selFobj) selFobj.value='20';

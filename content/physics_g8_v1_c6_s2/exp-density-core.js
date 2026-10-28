@@ -157,7 +157,8 @@ function reflow(){   // resize/全屏重算一切（第17条）：块位置回�
   e4Blocks().forEach(function(b,i){
     if(!b) return;
     if(b.loc==='tank'){ b.x=clamp(b.x,t.x-t.innerHalf+e4Side(b)/2,t.x+t.innerHalf-e4Side(b)/2); b.y=e4RestY(b); }
-    else { b.y=L.e4.benchY; b.benchOn=null; b.x=clamp(b.x,60,W-60); }   // resize 回位=拆台面摞（同 E5 R28 语义）
+    else { b.y=L.e4.benchY; b.benchOn=null; b.x=clamp(b.x,60,W-60);
+      if(Math.abs(b.x-t.x)<t.w/2+e4Side(b)/2) b.x=e4BenchHomeX(b); }   // resize 回位=拆台面摞（同 E5 R28 语义）；R7-B：台面块禁与水槽横向重叠
   });
   if(state.e4.stack) e4StackReflow();
   state.e5.blocks.forEach(function(b,i){
@@ -471,9 +472,16 @@ function e3Tick(){   // rAF 推进：量筒水位插值 + 箭头汇聚计时 + �
 }
 /* ===== 场景二 E4：密度水槽（借鉴 PhET Intro；水位=基础+排水，浮沉 P6 规格） ===== */
 var tankOK=false;   // water_tank sprite 就位标记（renderE4 每帧刷新）
+/* R7-B 蔡总第8条：台面初始位=水槽左缘再往左24px（sprite 宽高比后到时 layout 重算也不会压到水槽） */
+function e4BenchHomeX(b){
+  var t=L.e4.tank;
+  return clamp(t.x-t.w/2-e4Side(b)/2-24,16,W-60);
+}
 function mkE4Block(preset,v,m,loc){
-  return {preset:preset,mat:preset==='custom'?'styrofoam':preset,v:v,m:m,
+  var b={preset:preset,mat:preset==='custom'?'styrofoam':preset,v:v,m:m,
     x:L.e4.tank.x,y:L.e4.benchY,loc:loc||'bench',tw:null,benchOn:null,settled:false};   // benchOn=台面摞叠宿主（R32修4）；settled=浮沉稳定态门（R2蔡总：先现象后因果，guide 逐材质条目用）
+  if(b.loc!=='tank') b.x=e4BenchHomeX(b);
+  return b;
 }
 function e4Rho(b){ return b.m/b.v; }   // kg/L = ρ=m/V
 /* R25 除根：浸没比一律按绘制位置派生（掉入/按住/松手/水面再动全同源，两路径不可能不一致） */
@@ -793,8 +801,7 @@ function resetE4(){   // 初始态（R2蔡总：先现象后因果）：单块�
   var E=state.e4;
   E.dual=false; E.duals=null; E.sel=0; E.drag=null; E.splashes=[]; E.stack=null;
   E.single=mkE4Block('wood',5,2,'bench');
-  var sd=e4Side(E.single);
-  E.single.x=clamp(L.e4.tank.x-L.e4.tank.w/2-sd/2-28,60,W-60);   // 水槽左侧桌面上（不与水槽精灵重叠）
+  E.single.x=e4BenchHomeX(E.single);   // 水槽左侧桌面上（不与水槽精灵重叠）
   E.single.y=L.e4.benchY;
   E.single.tw=null; E.single.bob=null; E.single.settled=false;
   E.lvl=TANK_BASE_L;   // 块未入水：无排水

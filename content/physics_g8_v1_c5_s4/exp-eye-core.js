@@ -59,8 +59,9 @@ function objBottomY(){ return axisY+G.hObj; }
 function clampUK(v){ return Math.max(UK_MIN,Math.min(UK_MAX,v)); }
 function gK(){ return (G.xL-G.xC)/G.D; }                 // 矫正镜间距（×D）
 function clamp01(v){ return Math.max(0,Math.min(1,v)); }
-// X4/R34 调节范围单源：远视戴镜（凸/凹皆然）走加宽档 [0.45,1.05]，其余走 COND_FRNG——fReqK/tActNow/fEyeK/lockNote 四处引用一律经此函数，禁 COND_FRNG[st.cond] 直引
-function frNow(){ if(st.glass&&st.cond==='hyper') return [0.45,1.05]; return COND_FRNG[st.cond]||COND_FRNG.normal; }
+// X4/R34 调节范围单源：远视戴**凸**镜走加宽档 [0.45,1.05]，其余走 COND_FRNG——fReqK/tActNow/fEyeK/lockNote 四处引用一律经此函数，禁 COND_FRNG[st.cond] 直引
+// R7-A1（蔡总第4条）：加宽档收窄到 convex——远视戴凹透镜走裸 hyper [0.66,1.05]，串联反解 fe_needed 够不着→钳→blur=戴凹更模糊（物理正确）；近视戴凹路径不受影响（myopia 无加宽，原样）
+function frNow(){ if(st.glass==='convex'&&st.cond==='hyper') return [0.45,1.05]; return COND_FRNG[st.cond]||COND_FRNG.normal; }
 // W3 自动调焦目标 fK：裸眼=fK_req=uK/(1+uK) 反解；戴镜（近视/远视）=串联系统反解——物顶解算光线对（平行轴线+光心方向线）在视网膜面等高解出晶状体 fe=(A+q)/(q+1/uK+g/(uK·fcK)+A−1/fcK)，A=1−g/fcK，q=g²/(uK·fcK)（fcK→∞ 退化为裸眼式；uK→∞ 与旧 R16 BFL 标定一致）；解无效回退裸眼值；最后钳到 frNow() 调节范围。
 // 正常眼戴镜不做串联补偿（按裸眼 f_req 调 t）：会聚点必偏离视网膜——保住「不该随便戴别人的眼镜」既有演示与 W3 回归（若补偿，正常眼会自动调节抵消镜片，模糊演示失效）
 function fReqK(){

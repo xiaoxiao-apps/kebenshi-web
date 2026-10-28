@@ -30,9 +30,9 @@ function xOfU(u){ return xLens-u*S; }
 function xOfV(v){ return xLens+v*S; }
 var st={
   u:21,f:F_DEF_CM,vSc:19.1,           // 初始态：u=21(>2f=20)、f=10、屏在清晰像位 v=210/11≈19.1 → 进页即见倒立缩小实像
-  obj:'F',lit:true,
+  obj:'F',lit:false,   // R7-A2（蔡总 23:23 条3-c）：初始全关——光源/光路/F-2F/读数四钮初值 false，与 HTML 无 class="on" 同源
   screenOn:true,screenA:1,eye:false,eyeA:0,eyeOff:0,eyeX:null,
-  hand:false,handA:0,marks:true,rays:true,
+  hand:false,handA:0,marks:false,rays:false,
   rows:[],anim:null,
   fTip:false,touched:false,snapI:0,wasSharp:true,eyeTip:false,eyeTipShown:false
 };
@@ -127,18 +127,24 @@ function traceRay(x0,y0,xL,yi,mIn,dir){
   if(Math.abs(m)<1e-9){ var cp=exitCut(xL,yi,dir>0?W+2:-2,yi,dir); beam(xL,yi,cp.x,cp.y); return; }   // u=f：出射平行
   var e=refractEnd(xL,yi,m,dir),c=exitCut(xL,yi,e.x,e.y,dir);
   beam(xL,yi,c.x,c.y);
-  if(imgKind()==='virtual'){   // K4 虚像：反向延长虚线到虚像保留（撤屏态同）
-    beamDash(xL,yi,imgX(),axisY-imgH());
+  if(imgKind()==='virtual'){   // K4 虚像：反向延长虚线到该物点自己的虚像点（撤屏态同）；R7-A2 三物点各对各自像点
+    beamDash(xL,yi,imgX(),axisY+(y0-axisY)*mag());
   }
 }
 function drawRays(){
   if(!st.rays||!st.lit) return;
-  var px0=xOfU(st.u),py0=axisY-hoPx();   // G6 单物点（物顶一点）；K4 入眼光线裁切链已全删
+  var px0=xOfU(st.u),hO=hoPx();   // K4 入眼光线裁切链已全删
+  // R7-A2（蔡总 23:23 条3-e）：F 图案上端/中部横臂/下端三物点，各发一条平行光+一条过光心光=6 线；
+  // 像面处 3 对交点=倒立 F 像（与 drawPattern 的 fPattern 三特征 axisY+hI / axisY+0.5hI / axisY 逐点对齐）
+  var pts=[axisY-hO,axisY-0.5*hO,axisY];
   ctx.save();
   if(st.handA>0) ctx.globalAlpha=1-0.45*st.handA;   // H6 遮挡：通光量连续渐减
-  traceRay(px0,py0,xLens,py0,0,1);       // ① 平行主轴入射 → 折射过像方焦点
-  var mC=(axisY-py0)/(xLens-px0);
-  traceRay(px0,py0,xLens,axisY,mC,1);    // ② 过光心直穿不改方向
+  for(var i=0;i<3;i++){
+    var py0=pts[i];
+    traceRay(px0,py0,xLens,py0,0,1);       // ① 平行主轴入射 → 折射过像方焦点
+    var mC=(axisY-py0)/(xLens-px0);
+    traceRay(px0,py0,xLens,axisY,mC,1);    // ② 过光心直穿不改方向
+  }
   ctx.restore();
 }
 // ===== 绘制：亮底+光轴+cm 刻度；三件骑光轴（F3 去桌面/滑轨，排版照 c5s1） =====
@@ -655,16 +661,15 @@ var bReset=document.getElementById('btn-reset');
 if(bReset) bReset.addEventListener('click',function(){
   if(st.anim) return;
   st.u=21; setF(F_DEF_CM); st.vSc=19.1;
-  st.obj='F'; st.lit=true;
+  st.obj='F'; st.lit=false;   // R7-A2（条3-c）：重置回初始全关态
   st.screenOn=true; st.screenA=1; st.eye=false; st.eyeA=0; st.eyeOff=0; st.eyeX=null;
-  st.hand=false; st.handA=0; st.marks=true; st.rays=true;
+  st.hand=false; st.handA=0; st.marks=false; st.rays=false;
   st.rows=[]; st.fTip=false; st.touched=false; st.snapI=0; st.eyeTip=false; st.eyeTipShown=false;
   renderRec();
-  ['btn-hand'].forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.remove('on'); });
-  ['btn-marks','btn-rays'].forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.add('on'); });
+  ['btn-hand','btn-marks','btn-rays'].forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.remove('on'); });
   syncLitBtn();
   if(bNs){ bNs.textContent='撤屏'; bNs.classList.remove('on'); }
-  openPanel('read');
+  openPanel(null);
   st.wasSharp=isSharp();
   if(window.playClick) playClick();
   draw();
@@ -696,6 +701,7 @@ if(btnFull) btnFull.addEventListener('click',function(){if(st.anim)return;if(ful
 // ===== 动画 tick：自动寻像滑屏 + 撤屏淡出/眼飞入（两向对称） =====
 // J9 淡入淡出 ±0.06/帧→±0.028/帧（≈600ms）：蔡总 18:51「太快效果不明显」；tick fading 条件不变
 var HAND_FADE=0.028;
+var tickN=0;   // R7-A2 几何自愈节流计数
 function tick(){
   // F4③加固：主体 try/catch——单帧异常 console.error 留痕、不杀 rAF（探针 b4：修复前一次异常即断链=整页卡死根因）
   try{
@@ -716,7 +722,11 @@ function tick(){
   }else{
     var fading=(st.hand&&st.handA<1)||(!st.hand&&st.handA>0);   // H6 遮光板淡入淡出 ±HAND_FADE/帧（J9 ≈600ms），到 0 才停绘
     if(fading) st.handA=Math.max(0,Math.min(1,st.handA+(st.hand?HAND_FADE:-HAND_FADE)));
-    if(glowFx.length||(st.rays&&st.lit)||fading) draw();   // G6 流动虚线需逐帧重绘
+    draw();   // R7-A2（蔡总 23:23 条3-f）：rAF 常驻逐帧重绘——旧闸门 (st.rays&&st.lit) 在初始全关后不再供帧，首帧若早于 sprite/几何就绪即永久空白
+    if((tickN=(tickN+1)%30)===0){   // 几何自愈：壳/iframe 0 尺寸首绘（W/H 落 640×360 兜底）时 30 帧一查重算（cv RO 漏报兜底）
+      var rr=cv.getBoundingClientRect();
+      if(rr.width>0&&rr.height>0&&(Math.abs(rr.width-W)>1||Math.abs(rr.height-H)>1)) resize();
+    }
   }
   }catch(err){ console.error('[c5s3] tick 单帧异常（已捕获，rAF 继续）:',err); }
   requestAnimationFrame(tick);
@@ -737,10 +747,12 @@ if(window.ResizeObserver){
 // ===== 初始化：u=21cm(>2f)、f=10cm、屏在清晰像位 v=19.1cm——进页即见倒立缩小实像 =====
 setF(F_DEF_CM);
 layout(); resize();
-openPanel('read');
+openPanel(null);   // R7-A2（条3-c）：初始不弹读数面板（btn-read 初态 off）
 st.wasSharp=isSharp();
 renderRec(); syncFull();
 draw(); requestAnimationFrame(tick);
+document.addEventListener('visibilitychange',function(){ if(!document.hidden) resize(); });   // R7-A2 空白兜底：壳展开/回前台重算重绘
+setTimeout(function(){ resize(); },300);   // R7-A2 空白兜底：首绘早于壳展开或 sprite 就绪时 300ms 强制重算重绘
 window.__c5s3dbg={
   get st(){return st;}, get W(){return W;}, get H(){return H;}, get axisY(){return axisY;}, get S(){return S;}, get xLens(){return xLens;},
   vImg:vImg, imgKind:imgKind, mag:mag,

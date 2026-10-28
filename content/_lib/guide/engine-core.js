@@ -22,7 +22,8 @@
    实现：fireStep 最开头拦截——enginePaused 时只续轮询不计时；api.isAudioPlaying() 为真则 250ms 后重试，
    80 次（=20s）上限后强制播防死等。三触发路径（tickSteps 电平 / sched after·delay / bindEventTriggers 事件）
    公共入口都是 fireStep，queue 全路径生效。不带 queue 的条目（用户动作类）行为完全不变=仍可打断。
-   vB 侧配合：api 新增 isAudioPlaying()（curAudio 在播且未 paused/ended 为真）。doReset 清 queueTries。 */
+   vB 侧配合：api 新增 isAudioPlaying()（curAudio 在播且未 paused/ended 为真）。doReset 清 queueTries。
+   R7-A1 扩展：fireError 同款拦截（errors 条目 queue:true，键 err#id），纠错语音不再掐断在播解说。 */
 /* 【接口契约3·EG3-1 重置】window.GUIDE_RESET={all:fn} / window.GuideEngine.reset=同一函数
    调用时机=页面重置 handler 的最后一行（页面 state 已清零、UI 已同步之后；先调引擎会让 intro 读到旧状态）。
    语义=实验+语音+字幕全部从头：清 firedSteps/hold/errLast/freeLast/freePrev/recCache/taskState + resetG()，
@@ -189,6 +190,16 @@ function fireStep(step,mode){
   if(api.onStep)api.onStep(step,mode);
 }
 function fireError(err){
+  /* 【接口契约6扩展·R7-A1】queue:true 纠错条等当前语音播完再播（250ms轮询、80次=20s上限强制播防死等）；
+     暂停期间只续轮询不发火；键用 err#id 防撞 steps 同 id。不带 queue 的纠错条行为不变=仍可打断。 */
+  if(err.queue){
+    if(enginePaused){setTimeout(function(){fireError(err);},250);return;}
+    var aqe=getApi();
+    if(aqe&&aqe.isAudioPlaying&&aqe.isAudioPlaying()){
+      if((queueTries['err#'+err.id]=(queueTries['err#'+err.id]||0)+1)<=80){setTimeout(function(){fireError(err);},250);return;}
+      queueTries['err#'+err.id]=0;
+    }else queueTries['err#'+err.id]=0;
+  }
   var api=getApi();
   if(api.onError)api.onError(err);
 }

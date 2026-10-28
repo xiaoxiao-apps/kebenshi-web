@@ -8,10 +8,12 @@ window.C5S1_GUIDE={
       {id:'c5s1-b-s1',repeat:true,trigger:'delay:10300',say:'从左上角托盘拖出光源，点一下本体点亮它。',audio:'c5s1-b-s1'},
       {id:'c5s1-b-s2',repeat:true,trigger:'R.bench.source!==null && (R.bench.source.type===\'bulb\' ? R.bench.source.on!==true : !(R.bench.source.on[0]||R.bench.source.on[1]||R.bench.source.on[2]))',say:'点光源上的红色按钮开光，光沿直线传播。',audio:'c5s1-b-s2'},
       {id:'c5s1-b-s3',repeat:true,trigger:'R.bench.lens===null && R.bench.source!==null && (R.bench.source.type===\'bulb\' ? R.bench.source.on===true : (R.bench.source.on[0]||R.bench.source.on[1]||R.bench.source.on[2]))',say:'没有透镜时光沿直线走，把透镜拖到主轴上。',audio:'c5s1-b-s3'},
-      {id:'c5s1-b-s4',repeat:true,trigger:'R.bench.lens!==null && R.bench.lens.kind===\'convex\' && R.bench.source!==null && (R.bench.source.type===\'bulb\' ? R.bench.source.on===true : (R.bench.source.on[0]||R.bench.source.on[1]||R.bench.source.on[2]))',say:'平行光经凸透镜，会聚在另一侧的焦点F。',audio:'c5s1-b-s4'},
-      {id:'c5s1-b-s5',repeat:true,trigger:'R.bench.lens!==null && R.bench.lens.kind===\'concave\' && R.bench.source!==null && (R.bench.source.type===\'bulb\' ? R.bench.source.on===true : (R.bench.source.on[0]||R.bench.source.on[1]||R.bench.source.on[2]))',say:'凹透镜让光发散，反向延长线交在虚焦点。',audio:'c5s1-b-s5'},
-      {id:'c5s1-b-s6',repeat:true,trigger:'R.bench.source!==null && R.bench.source.type===\'bulb\' && R.bench.source.on===true && R.bench.source.snapped===true && R.bench.lens!==null',say:'焦点发出的光出来变平行光，光路可逆！',audio:'c5s1-b-s6'},
-      {id:'c5s1-b-s7',repeat:true,trigger:'after:c5s1-b-s6@6000',say:'因此我们得出结论：凸透镜会聚光，凹透镜发散光。',audio:'c5s1-b-s7'}
+      {id:'c5s1-b-s4',repeat:true,queue:true,trigger:'R.bench.lens!==null && R.bench.lens.kind===\'convex\' && R.bench.source!==null && (R.bench.source.type===\'bulb\' ? R.bench.source.on===true : (R.bench.source.on[0]||R.bench.source.on[1]||R.bench.source.on[2]))',say:'平行光通过凸透镜汇聚到一点，我们把这一点称之为凸透镜的焦点，焦点到凸透镜中心的距离称之为焦距。',audio:'c5s1-b-s4'},
+      {id:'c5s1-b-s5',repeat:true,queue:true,trigger:'R.bench.lens!==null && R.bench.lens.kind===\'concave\' && R.bench.source!==null && (R.bench.source.type===\'bulb\' ? R.bench.source.on===true : (R.bench.source.on[0]||R.bench.source.on[1]||R.bench.source.on[2]))',say:'凹透镜让光发散，反向延长线交在虚焦点。',audio:'c5s1-b-s5'},
+      {id:'c5s1-b-s6',repeat:true,queue:true,trigger:'R.bench.source!==null && R.bench.source.type===\'bulb\' && R.bench.source.on===true && R.bench.source.snapped===true && R.bench.lens!==null',say:'焦点发出的光出来变平行光，光路可逆！',audio:'c5s1-b-s6'},
+      /* R7-A1：s7 拆凸/凹两条结论——s7 只讲凸透镜（after s6），s7b 只讲凹透镜（after s5，没用过凹透镜则永不发火）；均只播一次 */
+      {id:'c5s1-b-s7',repeat:false,queue:true,trigger:'after:c5s1-b-s6@6000',say:'因此我们得出结论：凸透镜对光有会聚作用。',audio:'c5s1-b-s7'},
+      {id:'c5s1-b-s7b',repeat:false,queue:true,trigger:'after:c5s1-b-s5@6000',say:'因此我们得出结论：凹透镜对光有发散作用。',audio:'c5s1-b-s7b'}
     ],
     errors:[
       {id:'c5s1-b-e1',trigger:'event:change:#cb-virtual:R.bench.lens!==null&&R.bench.lens.kind===\'concave\'&&!document.getElementById(\'cb-virtual\').checked',fix:'不对哟～没有虚线就看不到虚焦点啦，勾回来吧。',audio:'c5s1-b-e1'},
@@ -43,9 +45,9 @@ window.C5S1_GUIDE={
   audios:{
     'c5s1-b-intro':'guide/audio/c5s1-b-intro.mp3',
     'c5s1-b-s1':'guide/audio/c5s1-b-s1.mp3','c5s1-b-s2':'guide/audio/c5s1-b-s2.mp3',
-    'c5s1-b-s3':'guide/audio/c5s1-b-s3.mp3','c5s1-b-s4':'guide/audio/c5s1-b-s4.mp3',
+    'c5s1-b-s3':'guide/audio/c5s1-b-s3.mp3','c5s1-b-s4':'guide/audio/c5s1-b-s4.mp3?v=20261028v7',
     'c5s1-b-s5':'guide/audio/c5s1-b-s5.mp3','c5s1-b-s6':'guide/audio/c5s1-b-s6.mp3',
-    'c5s1-b-s7':'guide/audio/c5s1-b-s7.mp3',
+    'c5s1-b-s7':'guide/audio/c5s1-b-s7.mp3?v=20261028v7','c5s1-b-s7b':'guide/audio/c5s1-b-s7b.mp3?v=20261028v7',
     'c5s1-b-e1':'guide/audio/c5s1-b-e1.mp3','c5s1-b-e2':'guide/audio/c5s1-b-e2.mp3',
     'c5s1-b-f1':'guide/audio/c5s1-b-f1.mp3','c5s1-b-f2':'guide/audio/c5s1-b-f2.mp3',
     'c5s1-b-f3':'guide/audio/c5s1-b-f3.mp3','c5s1-b-f4':'guide/audio/c5s1-b-f4.mp3',
