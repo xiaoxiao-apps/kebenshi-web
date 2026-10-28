@@ -538,7 +538,7 @@
   });
 
   /* ---------- 启动 ---------- */
-  fetch('data/catalog.json?v=20261026')
+  fetch('data/catalog.json?v=20261028')
     .then(function (r) { return r.json(); })
     .then(function (data) {
       catalog = data.subjects || {};
