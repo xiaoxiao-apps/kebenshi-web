@@ -76,7 +76,8 @@ window.C3S3_GUIDE={
     ],
     errors:[
       {id:'e4',trigger:"event:click:#lq-lamp-btn:R.paused===true",fix:'不对哟～时间暂停着呢，点「开始」再点灯呀。',audio:'c3s3-e4'},
-      {id:'e5',trigger:"R.heating===false && R.waterTemp<=R.ambTemp+2 && (!R.liquefy || R.liquefy.collectedPct===0)@8000",fix:'还没产生水蒸气哟～先点燃酒精灯把水烧热。',audio:'c3s3-e5'}
+      /* R3-K2 蔡总精确参数：开场白(intro-liquefy 实测11.040s)播完后等5s无动作→首催(@16000)，之后每10s仍无动作再催一次(interval:10000，引擎契约4)；点灯即瓦解条件不再催 */
+      {id:'e5',interval:10000,trigger:"R.heating===false && R.waterTemp<=R.ambTemp+2 && (!R.liquefy || R.liquefy.collectedPct===0)@16000",fix:'还没产生水蒸气哟～先点燃酒精灯把水烧热。',audio:'c3s3-e5'}
     ],
     free:[
       {trigger:"R.liquefy && R.liquefy.collectedPct>=100",note:'收集满啦！这些水全是水蒸气液化变回来的，厉害吧？',audio:'c3s3-f7'},

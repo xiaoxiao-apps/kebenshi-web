@@ -14,6 +14,10 @@
    切换处调用 window.GUIDE_SCENE&&window.GUIDE_SCENE.change()。 */
 /* 【接口契约1·EG3b】free 条目新增可选字段 cooldown:<毫秒>（如 cooldown:1000 实现「点一次报一次」），
    事件型与电平型 free 节流均取 fr.cooldown||8000，缺省 8000 与旧行为一致。 */
+/* 【接口契约5·R3-K2】errors 条目可选字段 interval:<毫秒> = 重播节流（缺省 5000，与旧行为一致）。
+   与 hold 型 trigger 组合语义：holdMs = 首催等待（进场后条件持续满足 holdMs 才首播），
+   interval = 之后的重播节奏（每 interval 再催一次），**不重新累积 holdMs**。
+   用例：c3s3 液化 e5 = @16000 + interval:10000 → intro 实测 11.04s 播完再等 5s 首催，之后每 10s 仍无动作再催一次。 */
 /* 【接口契约3·EG3-1 重置】window.GUIDE_RESET={all:fn} / window.GuideEngine.reset=同一函数
    调用时机=页面重置 handler 的最后一行（页面 state 已清零、UI 已同步之后；先调引擎会让 intro 读到旧状态）。
    语义=实验+语音+字幕全部从头：清 firedSteps/hold/errLast/freeLast/freePrev/recCache/taskState + resetG()，
@@ -265,12 +269,17 @@ function tickErrors(mode){
         if(hold[er.id]==null)hold[er.id]=now();
         else if(now()-hold[er.id]>=p.holdMs){
           hold[er.id]=null;
-          if(throttle(errLast,er.id,5000))fireError(er);
+          if(throttle(errLast,er.id,er.interval||5000)){/* R3-K2：interval 可选重播节流，缺省 5000 与旧行为一致 */
+            fireError(er);
+            /* R3-K2：带 interval 的 error 重播节奏 = interval，不重新累积 holdMs
+               （否则首催 16s、之后每 16s，达不到「每 10s 催一次」） */
+            if(er.interval)hold[er.id]=now()-(p.holdMs-er.interval);
+          }
         }
       }else hold[er.id]=null;
       continue;
     }
-    if(v&&throttle(errLast,er.id,5000))fireError(er);
+    if(v&&throttle(errLast,er.id,er.interval||5000))fireError(er);/* R3-K2：interval 缺省 5000 */
   }
 }
 /* free：边沿+节流，同类 ≥8s 不重播 */
@@ -306,7 +315,7 @@ function bindEventTriggers(){
         var p=parseTrigger(er.trigger);
         if(!p||p.evt!==evt||p.el!==elSel)return;
         var ok=(p.expr==null)?true:evalParsed(p);
-        if(ok&&throttle(errLast,er.id,5000)){clearPendingSchedules();fireError(er);}
+        if(ok&&throttle(errLast,er.id,er.interval||5000)){clearPendingSchedules();fireError(er);}/* R3-K2：interval 缺省 5000 */
       });
       /* 通用版增补（c4s4 设计书 §5.1-2 发现的阻塞缺陷）：事件回调原来只发 errors/free 不发 steps，
          event:input:#slider-i 型步骤会永不触发。repeat 步走 repLast+EVT_DEBOUNCE 去抖（EG3a：事件型秒响，
