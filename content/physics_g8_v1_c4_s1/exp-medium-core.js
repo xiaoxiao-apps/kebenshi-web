@@ -377,8 +377,8 @@ function maybeFromQuery(){ /* 2026-10-04 下线:初始空台,复验用 __c4s1dbg
 
 var cbRay=document.getElementById('cb-ray'); if(cbRay) cbRay.addEventListener('change',function(){ showRay=cbRay.checked; });
 var btnPlay=document.getElementById('btn-play'); if(btnPlay) btnPlay.addEventListener('click',function(){ pen.on=true; pulse.on=true; pulse.t0=performance.now(); if(window.playClick) playClick(); });
-var btnPause=document.getElementById('btn-pause'); if(btnPause) btnPause.addEventListener('click',function(){ paused=!paused; btnPause.textContent=paused?'继续':'暂停'; if(window.playClick) playClick(); });
-var btnReset=document.getElementById('btn-reset'); if(btnReset) btnReset.addEventListener('click',function(){ angle=initialAngle; lastDeg=99; pen.on=false; pulse.on=false; pen.x=150; pen.y=benchTopY()-14; resetMedia(); if(window.playClick) playClick(); });
+var btnPause=document.getElementById('btn-pause'); if(btnPause) btnPause.addEventListener('click',function(){ paused=!paused; window.GUIDE_PAUSE && window.GUIDE_PAUSE.set(paused); btnPause.textContent=paused?'继续':'暂停'; if(window.playClick) playClick(); });
+var btnReset=document.getElementById('btn-reset'); if(btnReset) btnReset.addEventListener('click',function(){ angle=initialAngle; lastDeg=99; pen.on=false; pulse.on=false; pen.x=150; pen.y=benchTopY()-14; resetMedia(); if(window.playClick) playClick(); window.GUIDE_RESET && window.GUIDE_RESET.all(); });
 var btnMute=document.getElementById('btn-mute'); if(btnMute) btnMute.addEventListener('click',function(){ window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick) playClick(); });
 var btnFull=document.getElementById('btn-full');
 function pickFn(el,names){for(var i=0;i<names.length;i++){var fn=el[names[i]];if(typeof fn==='function')return fn;}return null;}
@@ -440,6 +440,22 @@ function mediaOnStage(id){for(var i=0;i<media.length;i++){var m=media[i];if(m.id
 /* R2-F1/F2：放置事件沿（落地瞬间记 placedT，1.5s 瞬态窗口=假→真→假自然边沿；移动不触发，收起再放下才再触发） */
 function placedRecently(id){for(var i=0;i<media.length;i++){var m=media[i];
   if(m.id===id&&m.placedT&&(m.state==='active'||m.state==='falling')&&performance.now()-m.placedT<1500)return true;}return false;}
+/* R3-W4 L1：光束是否真正穿透指定介质（复用 computePath 段类型判据；短路求值——仅该介质在台时才跑一次 computePath，
+   且 trigger 里前置 smokeOn/laserOn 门控，故每帧至多一次几何求值，无需额外缓存） */
+function beamThrough(id){
+  for(var i=0;i<media.length;i++){
+    var m=media[i];
+    if(m.id===id && (m.state==='active'||m.state==='falling')){
+      var segs=computePath(emitPt(),angle);
+      for(var j=0;j<segs.length;j++) if(segs[j].m && segs[j].m.id===id) return true;
+    }
+  }
+  return false;
+}
+/* R3-W4 L2：放置时刻（performance.now 时基，与引擎 G.t 同源）——供 guide-data 用 (G.t-placedT)>N 做「放下后延时提醒」，
+   替代引擎不支持的 after:id@N && guard 复合语法（after 调度触发时不复检 expr，无法挂 !laserOn 门控）。0=未放置/已收回 */
+function placedTOf(id){for(var i=0;i<media.length;i++){var m=media[i];if(m.id===id&&(m.state==='active'||m.state==='falling'))return m.placedT||0;}return 0;}
+/* R3-W4 C4S1M 门面新增 5 getter：laserThroughSmoke / laserThroughWater / laserThroughGlass（穿透判据）+ waterPlacedT / glassPlacedT（放置时刻） */
 window.C4S1M={
   get laserOn(){return pen.on;},
   get pulseOn(){return pulse.on;},
@@ -452,6 +468,11 @@ window.C4S1M={
   get glassOn(){return mediaOnStage('glass_brick');},
   get smokeJustPlaced(){return placedRecently('smoke_box');},
   get waterJustPlaced(){return placedRecently('water_tank');},
-  get glassJustPlaced(){return placedRecently('glass_brick');}
+  get glassJustPlaced(){return placedRecently('glass_brick');},
+  get laserThroughSmoke(){return beamThrough('smoke_box');},
+  get laserThroughWater(){return beamThrough('water_tank');},
+  get laserThroughGlass(){return beamThrough('glass_brick');},
+  get waterPlacedT(){return placedTOf('water_tank');},
+  get glassPlacedT(){return placedTOf('glass_brick');}
 };
 })();

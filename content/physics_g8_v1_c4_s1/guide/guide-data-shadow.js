@@ -3,7 +3,10 @@
    设计书：docs/c4s1-guide-design.md §B/§4/§5，文案逐字照抄禁改写。
    状态源：window.C4S1S（exp-shadow-core.js L552 后暴露的只读 getter 门面）。
    R.mode('pinhole'|'hand') 是普通状态字段；引擎 mode 由 GUIDE_CFG.mode='refract' 钉死，
-   切手影不会触发 onModeEnter/intro 重播。全部 steps repeat:true。 */
+   切手影不会触发 onModeEnter/intro 重播。全部 steps repeat:true。
+   R3-W4（蔡总反馈11）L3：新增 s-concl-hand——手影模式玩过（handM>=2.6 持续4s）后补结论性话语，
+   与 pinhole 的 s-concl 按 R.mode 天然互斥；切模式经 GUIDE_SCENE.change 清 repLast 可再触发。
+   小孔结论升级（C4 标可选）本轮不做，待蔡总拍板。 */
 window.C4S1S_GUIDE={
   refract:{
     intro:{
@@ -18,6 +21,7 @@ window.C4S1S_GUIDE={
       {id:'s-s4',repeat:true,trigger:"R.mode==='hand'",say:'手影模式！台灯和小手替换了蜡烛。点亮台灯看看。',audio:'c4s1s-s4'},
       {id:'s-s5',repeat:true,trigger:"R.mode==='hand' && R.handM!==null",say:'光幕上出现黑黑的手影！把手移近台灯试试。',audio:'c4s1s-s5'},
       {id:'s-s6',repeat:true,trigger:"R.handM!==null && R.handM>=2.6",say:'手越靠近台灯，影子越大！换个距离再试试？',audio:'c4s1s-s6'},
+      {id:'s-concl-hand',repeat:true,trigger:"R.mode==='hand' && R.handM!==null && R.handM>=2.6@4000",say:'因此我们得出结论：光沿直线传播，当光被不透明的小手挡住时，后面就会形成影子。手影游戏就是利用这个原理做的。',audio:'c4s1s-concl-hand'},
       {id:'s-concl',repeat:true,trigger:"R.mode==='pinhole' && R.imgM>=1.4 && R.candleDragT>R.screenDragT@6000",say:'因此我们得出结论：光沿直线传播，穿过小孔成的是倒立的实像。',audio:'c4s1s-concl'}
     ],
     errors:[
@@ -40,6 +44,7 @@ window.C4S1S_GUIDE={
     'c4s1s-s4':'guide/audio/c4s1s-s4.mp3?v=20261027g1',
     'c4s1s-s5':'guide/audio/c4s1s-s5.mp3?v=20261027g1',
     'c4s1s-s6':'guide/audio/c4s1s-s6.mp3?v=20261027g1',
+    'c4s1s-concl-hand':'guide/audio/c4s1s-concl-hand.mp3?v=20261028v1',
     'c4s1s-concl':'guide/audio/c4s1s-concl.mp3?v=20261027r2',
     'c4s1s-e1':'guide/audio/c4s1s-e1.mp3?v=20261027r4',
     'c4s1s-e2':'guide/audio/c4s1s-e2.mp3',

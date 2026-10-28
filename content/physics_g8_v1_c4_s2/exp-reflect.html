@@ -16,18 +16,22 @@
   .title{font-size:13px;font-weight:600;color:#111827;white-space:nowrap}
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
   canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
-  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:92px;background:transparent;pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;align-content:flex-start;gap:8px;padding:8px 10px;z-index:20}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;height:64px;background:transparent;pointer-events:none;display:flex;flex-wrap:nowrap;justify-content:center;align-items:stretch;gap:4px;padding:4px 10px;z-index:20}
   .ctrlbar>*{pointer-events:auto}
-  .group{display:flex;flex-direction:column;gap:5px;background:rgba(255,255,255,.55);border-radius:10px;padding:6px 12px;flex:0 0 auto}
+  .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.55);border-radius:10px;padding:4px 8px;flex:0 0 auto;justify-content:center}
   .glabel{font-size:11px;color:#5b6472;white-space:nowrap;letter-spacing:.5px;line-height:1}
-  .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:28px}
+  .gctrl{display:flex;align-items:center;gap:4px;flex:1;min-height:28px}
   .gctrl label{font-size:13px;cursor:pointer;white-space:nowrap}
   button{border:0;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s}
   button:hover{background:#1d4ed8}
   button.secondary{background:#6b7280}
   button.secondary:hover{background:#4b5563}
   button:disabled{background:#c3cad6;cursor:not-allowed}
-  input[type=range]{width:120px;height:26px}
+  input[type=range]{width:90px;height:26px}
+  /* R3-W4 L4：全屏一行——滑杆分宽压缩，粗糙度组默认隐藏（仅 surface=rough 时 JS 显示） */
+  #fold-slider{width:70px}
+  #rough-slider{width:60px}
+  #rough-box{display:none;gap:4px;align-items:center}
   select,button{min-height:26px}
   /* R2-F7：读数定宽+等宽数字，防拖滑杆时控制栏逐帧回流抖动 */
   #ang-val{font-size:13px;min-width:40px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
@@ -58,7 +62,7 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
   <div class="group">
     <div class="glabel">折纸板</div>
     <div class="gctrl">
-      <input id="fold-slider" type="range" min="0" max="85" step="1" value="0" style="width:90px">
+      <input id="fold-slider" type="range" min="0" max="85" step="1" value="0">
       <span id="fold-val">0°</span>
     </div>
   </div>
@@ -68,8 +72,7 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
       <label><input type="radio" name="beam-mode" value="single" checked> 单光线</label>
       <label><input type="radio" name="beam-mode" value="beam"> 平行光束</label>
       <select id="surface"><option value="smooth">平面镜</option><option value="rough">粗糙面</option></select>
-      <input id="rough-slider" type="range" min="0" max="100" step="5" value="40" style="width:80px" disabled>
-      <span id="rough-val">0</span>
+      <span id="rough-box"><input id="rough-slider" type="range" min="0" max="100" step="5" value="40" disabled><span id="rough-val">0</span></span>
     </div>
   </div>
   <div class="group">
@@ -77,7 +80,7 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
     <div class="gctrl">
       <label><input type="checkbox" id="cb-normal"> 法线</label>
       <label><input type="checkbox" id="cb-arc"> 角度弧</label>
-      <label><input type="checkbox" id="cb-arrow"> 光线箭头</label>
+      <label><input type="checkbox" id="cb-arrow"> 箭头</label>
     </div>
   </div>
   <div class="group">
@@ -99,10 +102,10 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
 <script src="../_lib/v1/sfx.js?v=20261027r1"></script>
 <script src="exp-reflect-audio.js?v=20261027r1"></script>
 <script src="exp-reflect-render.js?v=20261027r4"></script>
-<script src="exp-reflect-core.js?v=20261027r4"></script>
+<script src="exp-reflect-core.js?v=20261028v1"></script>
 <div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
 <script>window.GUIDE_CFG={state:window.RFX,mode:'refract'};/* core 已加载，window.RFX 已存在；GUIDE_DATA 由 guide-data.js 末尾双赋值 */</script>
-<script src="guide/guide-data.js?v=20261027r4"></script>
+<script src="guide/guide-data.js?v=20261028v1"></script>
 <script src="../_lib/guide/engine-core.js?v=20261027r3"></script>
 <script src="../_lib/guide/vB-core.js?v=20261027r3"></script>
 </body>

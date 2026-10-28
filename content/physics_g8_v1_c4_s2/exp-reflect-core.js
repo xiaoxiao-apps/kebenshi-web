@@ -9,6 +9,7 @@ R.ctx=cv.getContext('2d');
 var slider=document.getElementById('ang-slider'),angVal=document.getElementById('ang-val');
 var foldSlider=document.getElementById('fold-slider'),foldVal=document.getElementById('fold-val');
 var roughSlider=document.getElementById('rough-slider'),roughVal=document.getElementById('rough-val');
+var roughBox=document.getElementById('rough-box');/* R3-W4 L4：粗糙度滑杆+值外包容器，默认 display:none，仅 surface=rough 显示 */
 var surfaceSel=document.getElementById('surface');
 var beamRadios=document.getElementsByName('beam-mode');
 var hintEl=document.getElementById('hint');
@@ -64,6 +65,7 @@ foldSlider.addEventListener('input',function(){
 });
 function syncSurface(){
   var isRough=surfaceSel.value==='rough';
+  if(roughBox)roughBox.style.display=isRough?'inline-flex':'none';/* R3-W4 L4：rough 面才露粗糙度滑杆 */
   roughSlider.disabled=!isRough;
   R.rough=isRough?+roughSlider.value:0;
   roughVal.textContent=R.rough;
@@ -92,16 +94,13 @@ document.getElementById('btn-reset').addEventListener('click',function(ev){
   surfaceSel.value='smooth'; syncSurface();
   for(var i=0;i<beamRadios.length;i++){ if(beamRadios[i].value==='single') beamRadios[i].checked=true; }
   setAngleDeg(45,'click'); clickFx(ev);
+  window.GUIDE_RESET && window.GUIDE_RESET.all();
 });
 
 document.getElementById('cb-normal').addEventListener('change',function(){R.showNormal=this.checked;if(!loopOn)R.draw();});
 document.getElementById('cb-arc').addEventListener('change',function(){R.showArc=this.checked;if(!loopOn)R.draw();});
 document.getElementById('cb-arrow').addEventListener('change',function(){R.showArrow=this.checked;if(!loopOn)R.draw();});
-/* R2-F9(A案)：语音到步自动帮勾法线——s4 trigger 末位调用，置 showNormal=true 并同步勾选框（幂等） */
-R.autoCheckNormal=function(){
-  if(!R.showNormal){ R.showNormal=true; var el=document.getElementById('cb-normal'); if(el)el.checked=true; if(!loopOn)R.draw(); }
-  return true;
-};
+/* R3-W4（蔡总反馈12）：删除旧「自动勾法线」函数——语音不再自动帮用户勾法线，改由用户亲手勾 #cb-normal 触发 s4（guide-data event:change） */
 
 function updateHint(){
   if(!hintEl)return;

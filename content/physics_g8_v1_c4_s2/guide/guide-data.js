@@ -6,7 +6,13 @@
    特殊 trigger 约定（同 c4s3 引擎）：
      "after:c4s2-s1@6000"               = 依赖步触发后延时 6s（规范§2.4，禁 <6000）
      "event:input:#ang-slider:EXPR"     = 滑杆 input capture 即时判态（需引擎适配 A3/A4：tickSteps 跳过 evt 型，事件分发扩展到 steps）
-   s1 闸门 13700 = intro afinfo 实测 12.72s + 1s 余量取整百（2026-10-27 G2 波实测回填）。 */
+   R3-W4（蔡总反馈12）一步一播改造：
+     · s1 删 intro 等待闸门（原 13700ms 模式驻留门控）——用户开激光=电平变化即响，引擎 say() 无条件打断欢迎词；
+     · s4 由「电平+自动勾法线函数」回退为 event:change:#cb-normal（用户亲手勾法线才播），core 已删该自动勾选函数；
+     · s5 由 after:c4s2-s4@6000 自动接力改为 event:change:#cb-arc（用户勾角度弧才播）；
+     · s4/s5 guard 用 document.getElementById(...).checked===true——引擎事件 capture 早于 core bubble 写 R.showNormal/showArc，
+       故读 DOM .checked（浏览器派发 change 前已更新）判「勾上」而非「取消勾」，避免取消勾选时误播；
+     · s2（after:c4s2-s1@6000 光线命名）保留：蔡总 R2 点名内容、跟随开激光动作的自然延续，非自动接力滥用。 */
 window.C4S2_GUIDE={
   refract:{
     intro:{
@@ -14,11 +20,11 @@ window.C4S2_GUIDE={
       audio:'c4s2-intro'
     },
     steps:[
-      {id:'c4s2-s1',repeat:true,trigger:"R.laserOn===true && R.beamMode==='single' && R.fold===0 && R.rough===0 && !R.pulse.reverse && (G.t-G.modeEnterT)>13700",say:'激光开啦！这束红光射向平面镜，叫入射光线。',audio:'c4s2-s1'},
+      {id:'c4s2-s1',repeat:true,trigger:"R.laserOn===true && R.beamMode==='single' && R.fold===0 && R.rough===0 && !R.pulse.reverse",say:'激光开啦！这束红光射向平面镜，叫入射光线。',audio:'c4s2-s1'},
       {id:'c4s2-s2',repeat:true,trigger:'after:c4s2-s1@6000',say:'光打在镜面的 O 点——入射点；反射光也从 O 射出，这条光线叫做反射光线。',audio:'c4s2-s2'},
       {id:'c4s2-s3',repeat:true,trigger:"event:input:#ang-slider:R.laserOn===true && R.beamMode==='single' && R.fold===0 && !R.pulse.reverse",say:'拖动滑杆改入射角，反射角马上跟着变！你看到了吗？',audio:'c4s2-s3'},
-      {id:'c4s2-s4',repeat:true,trigger:"R.laserOn===true && R.beamMode==='single' && R.fold===0 && R.rough===0 && !R.pulse.reverse && G.angChangeCount>=1 && (G.t-G.lastAngChangeT)>800 && R.autoCheckNormal()",say:'金色虚线是法线，垂直镜面，角都从它量起。再拖拖滑杆。',audio:'c4s2-s4'},
-      {id:'c4s2-s5',repeat:true,trigger:'after:c4s2-s4@6000',say:'看角弧：∠r 和 ∠i 相等，反射角等于入射角！折折纸板试试？',audio:'c4s2-s5'},
+      {id:'c4s2-s4',repeat:true,trigger:"event:change:#cb-normal:R.laserOn===true && R.beamMode==='single' && R.fold===0 && R.rough===0 && !R.pulse.reverse && document.getElementById('cb-normal').checked===true",say:'金色虚线是法线，垂直镜面，角都从它量起。再拖拖滑杆。',audio:'c4s2-s4'},
+      {id:'c4s2-s5',repeat:true,trigger:"event:change:#cb-arc:document.getElementById('cb-arc').checked===true",say:'看角弧：∠r 和 ∠i 相等，反射角等于入射角！折折纸板试试？',audio:'c4s2-s5'},
       {id:'c4s2-s6',repeat:true,trigger:"R.fold>0 && R.laserOn===true && R.beamMode==='single' && !R.pulse.reverse",say:'纸板一折，反射光线所在的平面没有了，光照不到这个平面上，所以就看不到反射光线了。这说明入射光、反射光和法线三线共面。',audio:'c4s2-s6'},
       {id:'c4s2-s6b',repeat:true,trigger:"R.fold>0 && R.laserOn===true && R.beamMode==='beam' && R.rough===0",say:'纸板一折，折过去那半边就不在反射光所在的平面里了，上面自然没有反射光——每条光线都这样，三线共面对平行光同样成立。',audio:'c4s2-s6b'},
       {id:'c4s2-s7',repeat:true,trigger:"R.pulse.reverse===true && R.laserOn===true && R.fold===0",say:'光路可逆！逆着反射光路射入，就沿原入射路射出。',audio:'c4s2-s7'},

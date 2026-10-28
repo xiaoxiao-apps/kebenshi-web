@@ -481,7 +481,7 @@ if(holePlus) holePlus.addEventListener('click',function(){ setHole(holeR+2); if(
 function updateCtrlVisibility(){ var brd=findActiveBoard(); if(grpHole) grpHole.style.display=(mode==='pinhole'&&brd?'flex':'none'); }
 var modeRadios=document.querySelectorAll('input[name="mode"]');
 modeRadios.forEach(function(r){ r.addEventListener('change',function(){ if(r.checked) switchMode(r.value); }); });
-var btnReset=document.getElementById('btn-reset'); if(btnReset) btnReset.addEventListener('click',function(){ resetAll(); if(window.playClick) playClick(); });
+var btnReset=document.getElementById('btn-reset'); if(btnReset) btnReset.addEventListener('click',function(){ resetAll(); if(window.playClick) playClick(); window.GUIDE_RESET && window.GUIDE_RESET.all(); });
 var btnMute=document.getElementById('btn-mute'); if(btnMute) btnMute.addEventListener('click',function(){ window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick) playClick(); });
 var btnFull=document.getElementById('btn-full');
 function pickFn(el,names){for(var i=0;i<names.length;i++){var fn=el[names[i]];if(typeof fn==='function')return fn;}return null;}
