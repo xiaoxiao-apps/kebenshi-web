@@ -26,8 +26,10 @@ window.C3S1_GUIDE={
       {trigger:"event:input:#power-slider:R.heating===true",note:'加热功率越大，水温升得越快，换个功率再试试？',audio:'c3s1-f1'},
       {trigger:"R.iceMass>0 && R.waterTemp>5",note:'冰在吸热熔化，水温往下掉，盯着读数看变化吧。',audio:'c3s1-f2'},
       {trigger:"event:input:#amb-slider:R.simTime>0",note:'环境温度一变，水最后凉到的温度也变，再拖拖看？',audio:'c3s1-f3'},
-      {trigger:"R.selectedThermometer!=null && R.thermometers.some(t=>t.id===R.selectedThermometer && t.type!=='clinical')",note:'观察温度计架：不同温度计量程不同——实验室的能测零下20到110摄氏度，电子的零下30到120，瓶式的没有刻度。测之前先想想会不会超量程哦！',audio:'c3s1-f4'},
-      {trigger:"R.selectedThermometer!=null && R.thermometers.some(t=>t.id===R.selectedThermometer && t.type==='clinical')",note:'你选的是体温计！量程只有35到42摄氏度，分度值0.1度，缩口让它离开人体读数也不降。测之前一定先看当前温度超没超量程，超过42度会把玻璃管胀破！',audio:'c3s1-f5'},
+      {trigger:"event:click:.rack-item[data-type=lab]:R.thermometers.length<6",cooldown:1000,note:'你选的是实验室温度计！它能测零下20到110摄氏度，分度值1度。测之前先想想会不会超量程哦！',audio:'c3s1-f4a'},
+      {trigger:"event:click:.rack-item[data-type=digital]:R.thermometers.length<6",cooldown:1000,note:'你选的是电子温度计！它能测零下30到120摄氏度，分度值0.1度，读数更精确。测之前先想想会不会超量程哦！',audio:'c3s1-f4b'},
+      {trigger:"event:click:.rack-item[data-type=diy]:R.thermometers.length<6",cooldown:1000,note:'你选的是自制瓶式温度计！它没有刻度，只能看液柱升降判断温度变化，读不出具体数值哦。',audio:'c3s1-f4c'},
+      {trigger:"event:click:.rack-item[data-type=clinical]:R.thermometers.length<6",cooldown:1000,note:'你选的是体温计！量程只有35到42摄氏度，分度值0.1度，缩口让它离开人体读数也不降。测之前一定先看当前温度超没超量程，超过42度会把玻璃管胀破！',audio:'c3s1-f5'},
       {trigger:"R.thermometers.some(t=>t.type==='clinical' && t.inWater) && R.waterTemp>=42",note:'哎呀，水温超过体温计的量程42摄氏度啦！快把它拿出来，换成实验室温度计吧！',audio:'c3s1-f6'},
       {trigger:"event:click:#btn-ice",cooldown:1000,note:'加冰啦！冰块吸热熔化，注意看水温有什么变化。',audio:'c3s1-f7'}
     ]
@@ -47,7 +49,9 @@ window.C3S1_GUIDE={
     'c3s1-f1':'guide/audio/c3s1-f1.mp3?v=20261027g1',
     'c3s1-f2':'guide/audio/c3s1-f2.mp3?v=20261027g1',
     'c3s1-f3':'guide/audio/c3s1-f3.mp3?v=20261027g1',
-    'c3s1-f4':'guide/audio/c3s1-f4.mp3',
+    'c3s1-f4a':'guide/audio/c3s1-f4a.mp3',
+    'c3s1-f4b':'guide/audio/c3s1-f4b.mp3',
+    'c3s1-f4c':'guide/audio/c3s1-f4c.mp3',
     'c3s1-f5':'guide/audio/c3s1-f5.mp3',
     'c3s1-f6':'guide/audio/c3s1-f6.mp3',
     'c3s1-f7':'guide/audio/c3s1-f7.mp3'
