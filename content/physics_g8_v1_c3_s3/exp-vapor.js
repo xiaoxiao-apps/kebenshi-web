@@ -216,7 +216,7 @@ function bindEvapUI() {
   bindSlider('evap-wind', v => { state.evap.factors.wind = v; }, '');
   bindSlider('evap-cool-temp', v => { state.evap.cooling.baseT = v; }, '℃');
   bindSlider('evap-cool-wind', v => { state.evap.cooling.wind = v; }, '');
-  document.getElementById('evap-reset-drops').addEventListener('click', () => { state.evap.factors.volumes = [1, 1]; state.evap.factors.fastShown = false; state.evap.factors.slowShown = false; playClick(); });
+  document.getElementById('evap-reset-drops').addEventListener('click', () => { state.evap.factors.volumes = [1, 1]; state.evap.factors.winner = null; state.evap.factors._fastToast = false; playClick(); });
   document.querySelectorAll('.evap-coat-btn').forEach((btn, i) => {
     btn.addEventListener('click', () => {
       const c = state.evap.cooling;
@@ -259,6 +259,7 @@ function updateCoolingCoatButtons() {
 
 function switchEvapSub(sub) {
   state.evapSub = sub;
+  state.evap.factors.winner = null; /* 蔡总R2：切子台清winner，回台重新比，配合trigger 13s闸门不重播抢intro */
   document.querySelectorAll('.sub-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.sub === sub));
   document.getElementById('evap-factors-controls').style.display = sub === 'factors' ? 'block' : 'none';
   document.getElementById('evap-cooling-controls').style.display = sub === 'cooling' ? 'block' : 'none';
@@ -274,7 +275,7 @@ function switchEvapSub(sub) {
 function checkEvapToasts() {
   if (state.mode !== 'evap') return;
   const f = state.evap.factors;
-  if (state.evapSub === 'factors' && f.fastShown && !f._fastToast) {
+  if (state.evapSub === 'factors' && f.winner != null && !f._fastToast) {
     f._fastToast = true;
     showToast('小结：温度越高、表面积越大、空气流动越快，蒸发就越旺盛；让这三个条件反过来，蒸发就会减慢。');
   }

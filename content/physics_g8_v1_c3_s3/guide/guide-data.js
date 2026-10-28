@@ -36,7 +36,7 @@ window.C3S3_GUIDE={
       {id:'s8',repeat:true,trigger:"R.evapSub==='factors' && R.evap.factors.temp>35",say:'液体温度调高，蒸发变快啦！再试试调大表面积吧。',audio:'c3s3-s8'},
       {id:'s9',repeat:true,trigger:"R.evapSub==='factors' && R.evap.factors.area>1.5",say:'表面积摊大，蒸发更快！接下来再试试调大风速吧。',audio:'c3s3-s9'},
       {id:'s10',repeat:true,trigger:"R.evapSub==='factors' && R.evap.factors.wind>2",say:'空气流速加快，蒸发更快，有风天干得快，发现了吗？',audio:'c3s3-s10'},
-      {id:'s11',repeat:true,trigger:"R.evapSub==='factors' && R.evap.factors.slowShown===true",say:'咦，对照组反而快！三个因素被调低啦，再调回去试试？',audio:'c3s3-s11'},
+      /* s11已删（蔡总R2·B3-F1）：「对照组反而快」教学内容并入左胜free f10；mp3/audios项保留不引用 */
       {id:'s12',repeat:true,trigger:"R.evapSub==='cooling' && R.evap.cooling.alcohol[0]>0",say:'酒精涂上啦！它开始蒸发，盯紧温度计看好戏哦。',audio:'c3s3-s12'},
       {id:'s13',repeat:true,trigger:"R.evap.cooling.conclusionShown===true",say:'涂酒精的示数更低！蒸发吸热致冷，你看到了吗？',audio:'c3s3-s13'},
       {id:'s14',repeat:true,trigger:"R.evapSub==='paper' && R.evap.paper.lit && R.evap.paper.water>0 && !R.evap.paper.boiling && !R.evap.paper.burning",say:'火苗舔着纸锅，水在升温纸却烧不着，神奇吧？接着看！',audio:'c3s3-s14'},
@@ -48,7 +48,8 @@ window.C3S3_GUIDE={
       {id:'e3',trigger:"R.evap.paper.burning===true && !R.evap.paper.burnVoiceSaid",fix:'哎呀烧着啦！没水吸热，纸温冲到183℃着火点。',audio:'c3s3-e3'}/* 只播一遍：burnVoiceSaid由physics燃烧2.5s后置位（留首播窗口） */
     ],
     free:[
-      {trigger:"R.evapSub==='factors' && R.evap.factors.fastShown===true && R.evap.factors.volumes[1]<0.7",note:'右边液滴干得快，温度高表面积大，换个条件再试试？',audio:'c3s3-f4'},
+      {trigger:"R.evapSub==='factors' && R.evap.factors.winner===1 && performance.now()-G.modeEnterT>13000",note:'右边液滴干得快！它先只剩 5% 啦——温度高、表面积大、风更大，蒸发当然更快，换个条件再试试？',audio:'c3s3-f4'},
+      {trigger:"R.evapSub==='factors' && R.evap.factors.winner===0 && performance.now()-G.modeEnterT>13000",note:'左边液滴干得快！它先只剩 5% 了，右边三个条件被调低啦，调回去再比一次？',audio:'c3s3-f10'},
       {trigger:"R.evapSub==='cooling' && R.evap.cooling.alcohol[0]<=0",note:'点温度计下面的「涂酒精」，对比才看得出来了。',audio:'c3s3-f5'},
       {trigger:"event:click:#paper-water-btn:!R.evap.paper.lit",note:'水加好啦！纸锅贴着水，温度被压住，接着点火看看。',audio:'c3s3-f6'},
       {trigger:"event:click:#evap-fan-hit",cooldown:1000,note:'扇动扇子，加快空气流动，蒸发变快了。',audio:'c3s3-f9'}/* Q4扇子语音：core checkFanClick命中派发 */
@@ -108,12 +109,13 @@ window.C3S3_GUIDE={
     'c3s3-f1':'guide/audio/c3s3-f1.mp3?v=20261027g1',
     'c3s3-f2':'guide/audio/c3s3-f2.mp3?v=20261027g1',
     'c3s3-f3':'guide/audio/c3s3-f3.mp3?v=20261027g1',
-    'c3s3-f4':'guide/audio/c3s3-f4.mp3?v=20261027g1',
+    'c3s3-f4':'guide/audio/c3s3-f4.mp3?v=20261027r4',
     'c3s3-f5':'guide/audio/c3s3-f5.mp3?v=20261027g1',
     'c3s3-f6':'guide/audio/c3s3-f6.mp3?v=20261027g1',
     'c3s3-f7':'guide/audio/c3s3-f7.mp3?v=20261027g1',
     'c3s3-f8':'guide/audio/c3s3-f8.mp3?v=20261027g1',
-    'c3s3-f9':'guide/audio/c3s3-f9.mp3'
+    'c3s3-f9':'guide/audio/c3s3-f9.mp3',
+    'c3s3-f10':'guide/audio/c3s3-f10.mp3?v=20261027r4'
   }
 };
 window.GUIDE_DATA=window.C3S3_GUIDE;

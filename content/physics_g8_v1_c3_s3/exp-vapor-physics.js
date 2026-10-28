@@ -55,7 +55,7 @@ function makeInitialState(overrides) {
     hissAnnounced: false, quietAnnounced: false,
     evapSub: 'factors',
     evap: {
-      factors: { temp: 35, area: 1.5, wind: 2.0, fanBoost: 0, volumes: [1, 1], fastShown: false, slowShown: false },
+      factors: { temp: 35, area: 1.5, wind: 2.0, fanBoost: 0, volumes: [1, 1], winner: null },
       cooling: { baseT: amb, wind: 2.0, alcohol: [0, 0], drop: [0, 0], withTemp: amb, withoutTemp: amb, conclusionShown: false },
       paper: { lit: false, water: 0, filling: false, waterTemp: amb, paperTemp: amb, boiling: false, burning: false, burnVoiceSaid: false, burnVoiceTimer: 0, conclusionShown: false }
     },
@@ -154,9 +154,11 @@ function stepEvaporationFactors(state, dtReal) {
     const surface = Math.pow(Math.max(0.001, V), 2 / 3);
     f.volumes[i] = Math.max(0, V - rates[i] * surface * dt);
   }
-  /* 仅差值判定，删绝对阈值项（蔡总2026-10-27三4：对照组自然蒸干误报"对照组反而快"）；打平不播任何一边 */
-  if (!f.fastShown && (f.volumes[0] - f.volumes[1] > 0.25)) f.fastShown = true;
-  if (!f.slowShown && (f.volumes[1] - f.volumes[0] > 0.25)) f.slowShown = true;
+  /* 蔡总R2：谁先蒸到剩5%谁赢，才报「X边干得快」；打平不报 */
+  if (f.winner == null) {
+    if (f.volumes[1] <= 0.05 && f.volumes[1] < f.volumes[0]) f.winner = 1;
+    else if (f.volumes[0] <= 0.05 && f.volumes[0] < f.volumes[1]) f.winner = 0;
+  }
 }
 
 function stepEvapCooling(state, dtReal) {
