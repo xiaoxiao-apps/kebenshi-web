@@ -1,20 +1,22 @@
 'use strict';
 /* c3s2 熔化凝固探究馆 · B 语音版数据（§B/§4；G1波按A5-G3引导语规范改写文案）。R=window.C3S2_STATE（§B-1 Proxy 暴露）。
    mode 由引擎轮询 R.mode 自动切（melt→freeze 转场自动播 freeze intro）。
-   熔化晶体线 s1→s2→s3→s4；熔化石蜡线 s1→s4（s4 用 hold 表达式双路覆盖：晶体全熔旗标 或 石蜡变软旗标，
-   持续6s才播）。石蜡熔化无自动凝固（meltedFrac 恒 0），需 btn-pre-melt 进 freeze（S2-core:1023-1043）走 s7→s9；
-   凝固晶体线 s5→s6→s8。 */
+   R2：steps 头部 s0（event:input:#sample-select）衔接「先选样品再点灯」；熔化晶体线 s1→s2→s3→s4a；熔化石蜡线 s1→s4b
+   （s4a/s4b 按 R.sample 分流，hold@6000 才播；样品无关文案，冰亦走 s4a）。石蜡熔化无自动凝固（meltedFrac 恒 0），
+   需 btn-pre-melt 进 freeze（S2-core:1023-1043）走 s7→s9；凝固晶体线 s5→s6→s8。 */
 window.C3S2_GUIDE={
   melt:{
     intro:{
-      text:'欢迎来到熔化凝固探究馆！这个实验我们看晶体海波和非晶体石蜡怎么熔化。先点燃酒精灯记温度，跟我来！',
+      text:'欢迎来到熔化凝固探究馆！先在右侧选好样品：海波是晶体，石蜡是非晶体，冰也是晶体。选好样品，点燃酒精灯，跟我来！',
       audio:'c3s2-intro-melt'
     },
     steps:[
+      {id:'s0',repeat:true,trigger:"event:input:#sample-select",say:'好，样品选定了！接下来点燃酒精灯，开始加热吧。',audio:'c3s2-s0'},
       {id:'s1',repeat:true,trigger:"R.heating===true && R.phaseName==='固态'",say:'酒精灯点着啦！水浴传热，样品温度慢慢升，盯紧温度计。',audio:'c3s2-s1'},
       {id:'s2',repeat:true,trigger:"R.phaseName==='固液共存' && R.sample!=='paraffin'",say:'到熔点啦！晶体边吸热边熔化，温度停住不动，看到了吗？',audio:'c3s2-s2'},
       {id:'s3',repeat:true,trigger:"R.fullyMeltedAnnounced===true",say:'全化成液体啦！接下来看温度，它又开始往上升咯。',audio:'c3s2-s3'},
-      {id:'s4',repeat:true,trigger:"(R.fullyMeltedAnnounced===true || (R.sample==='paraffin' && R.paraffinHeatAnnounced===true))@6000",say:'通过刚才的实验，我们发现：晶体熔化吸热、温度不变，石蜡没熔点边熔边升温。记住它哦！',audio:'c3s2-s4'}
+      {id:'s4a',repeat:true,trigger:"R.sample!=='paraffin' && R.fullyMeltedAnnounced===true@6000",say:'通过刚才的实验，我们发现：晶体熔化时要吸热，但温度保持在熔点不变。记住它哦！',audio:'c3s2-s4a'},
+      {id:'s4b',repeat:true,trigger:"R.sample==='paraffin' && R.paraffinHeatAnnounced===true@6000",say:'通过刚才的实验，我们发现：石蜡是非晶体，没有熔点，边吸热边变软，温度一直上升。记住它哦！',audio:'c3s2-s4b'}
     ],
     errors:[
       {id:'e1',trigger:"R.paused===true && R.heating===true@3000",fix:'不对哟～还暂停着呢，点「继续」按钮恢复，实验才会跑哦。',audio:'c3s2-e1'},
@@ -43,12 +45,14 @@ window.C3S2_GUIDE={
     ]
   },
   audios:{
-    'c3s2-intro-melt':'guide/audio/c3s2-intro-melt.mp3?v=20261027g1',
+    'c3s2-intro-melt':'guide/audio/c3s2-intro-melt.mp3?v=20261027r4',
     'c3s2-intro-freeze':'guide/audio/c3s2-intro-freeze.mp3?v=20261027g1',
+    'c3s2-s0':'guide/audio/c3s2-s0.mp3?v=20261027r4',
     'c3s2-s1':'guide/audio/c3s2-s1.mp3?v=20261027g1',
     'c3s2-s2':'guide/audio/c3s2-s2.mp3?v=20261027g1',
     'c3s2-s3':'guide/audio/c3s2-s3.mp3?v=20261027g1',
-    'c3s2-s4':'guide/audio/c3s2-s4.mp3?v=20261027g1',
+    'c3s2-s4a':'guide/audio/c3s2-s4a.mp3?v=20261027r4',
+    'c3s2-s4b':'guide/audio/c3s2-s4b.mp3?v=20261027r4',
     'c3s2-s5':'guide/audio/c3s2-s5.mp3?v=20261027g1',
     'c3s2-s6':'guide/audio/c3s2-s6.mp3?v=20261027g1',
     'c3s2-s7':'guide/audio/c3s2-s7.mp3?v=20261027g1',

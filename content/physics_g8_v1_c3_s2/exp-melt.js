@@ -143,6 +143,7 @@ function bindCustomSelect(id, callback) {
       opt.classList.add('active');
     }
     callback(value);
+    select.dispatchEvent(new Event('input'));  // R2 F4：custom-option 点击不触发原生 input（select 已 opacity:0/pointer-events:none），手动派发让语音引擎 event:input:#sample-select（s0）能听到；同 109-110 行 +/- 按钮做法
     playClick();
   }
 

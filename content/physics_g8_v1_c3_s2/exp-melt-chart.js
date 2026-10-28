@@ -24,8 +24,8 @@ let floatPanning = false, floatPanStartX = 0, floatPanStartRight = 0;
 let livePanRight = null; // null = 小图跟随最新数据
 let livePanning = false, livePanStartX = 0, livePanStartRight = 0;
 
-const LIVE_WINDOW = 60;   // 小图时间窗（分钟）：r13 单连续实验流，整段可见使熔化/凝固两平台同屏
-const FLOAT_WINDOW = 12;  // 悬浮窗实时曲线时间窗（分钟）
+const LIVE_WINDOW = 12;   // 小图时间窗（分钟）：R2 滑动小窗参照c3s3，整段回看走悬浮放大窗
+const FLOAT_WINDOW = 6;   // 悬浮窗实时曲线时间窗（分钟）
 
 /* ---------- 初始化 ---------- */
 function initChart() {
@@ -176,7 +176,7 @@ function renderToCtx(ctx, canvas, timeWindow, isFloat) {
   ctx.strokeStyle = CHART_COLORS.grid;
   ctx.lineWidth = 1;
   ctx.beginPath();
-  const xGridStep = isFloat ? 1 : 2;
+  const xGridStep = xRange > 16 ? 5 : xRange > 8 ? 1 : 0.5;  // R2：竖向网格密度参照c3s3（span自适应），滑动小窗下与汽化馆同款观感
   for (let t = Math.ceil(xMin / xGridStep) * xGridStep; t <= xMax + 0.001; t += xGridStep) {
     const x = xScale(t);
     ctx.moveTo(x, plotY);
