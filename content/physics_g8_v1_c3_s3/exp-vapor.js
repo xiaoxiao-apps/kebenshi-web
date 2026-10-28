@@ -34,7 +34,7 @@ function bindUI() {
 
   bindEvapUI();
   document.getElementById('btn-lamp').addEventListener('click', toggleLamp);
-  document.getElementById('btn-pause').addEventListener('click', () => { state.paused = !state.paused; document.getElementById('btn-pause').textContent = state.paused ? '开始' : '暂停'; if (!state.paused && state.heating) startBoil(); else stopBoil(); playClick(); });
+  document.getElementById('btn-pause').addEventListener('click', () => { state.paused = !state.paused; document.getElementById('btn-pause').textContent = state.paused ? '开始' : '暂停'; if (window.GUIDE_PAUSE) window.GUIDE_PAUSE.set(state.paused); if (!state.paused && state.heating) startBoil(); else stopBoil(); playClick(); });
   document.getElementById('btn-reset').addEventListener('click', resetAll);
   document.getElementById('btn-mute').addEventListener('click', () => { setSoundEnabled(!getSoundEnabled()); document.getElementById('btn-mute').textContent = getSoundEnabled() ? '🔊' : '🔇'; playClick(); });
   document.getElementById('btn-pause').textContent = state.paused ? '开始' : '暂停';
@@ -91,6 +91,9 @@ function resetAll() {
   document.getElementById('btn-lamp').classList.add('primary'); document.getElementById('btn-lamp').classList.remove('warn');
   if (!state.paused && state.heating) startBoil(); else stopBoil();
   playClick();
+  if (mode === 'liquefy' && typeof resetLiquefy === 'function') resetLiquefy(); /* R3-K2②：删 #lq-reset-btn 后，liquefy 3D 复位（收集杯水面等）由此补齐 */
+  if (window.GUIDE_PAUSE) window.GUIDE_PAUSE.set(state.paused); /* resetAll 重建 state 后 paused=false，引擎暂停同步解除 */
+  window.GUIDE_RESET && window.GUIDE_RESET.all(); /* 语音R3契约1：重置=实验+语音+字幕从头（evap-reset-drops 为局部重置，C1判定不接） */
 }
 
 function updateUI() {

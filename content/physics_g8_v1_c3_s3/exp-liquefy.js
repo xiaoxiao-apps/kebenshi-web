@@ -34,7 +34,9 @@ function initLiquefyDom() {
   if (typeof buildLiquefyScene === 'function') buildLiquefyScene();
 
   const lampBtn = document.getElementById('lq-lamp-btn');
-  const resetBtn = document.getElementById('lq-reset-btn');
+  /* R3-K2②：#lq-reset-btn 已删（与底部 #btn-reset 功能重复），原 handler 的
+     resetLiquefy 3D 复位已补进 exp-vapor.js resetAll；ensureLiquefyState/heating
+     复位由 resetAll 的 makeInitialState+懒重建覆盖，mainBtn 文案复位 resetAll:89-91 已有 */
 
   if (lampBtn) {
     lampBtn.addEventListener('click', () => {
@@ -48,24 +50,6 @@ function initLiquefyDom() {
       }
       if (state.heating) { if (typeof playIgnite === 'function') playIgnite(); }
       else { if (typeof playClick === 'function') playClick(); }
-      updateLiquefyUI();
-    });
-  }
-
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      ensureLiquefyState();
-      state.heating = false;
-      if (typeof updateFlame === 'function') updateFlame();
-      if (typeof resetLiquefy === 'function') resetLiquefy();
-      if (typeof resetAll === 'function') resetAll();
-      const mainBtn = document.getElementById('btn-lamp');
-      if (mainBtn) {
-        mainBtn.textContent = '点燃酒精灯';
-        mainBtn.classList.add('primary');
-        mainBtn.classList.remove('warn');
-      }
-      if (typeof playClick === 'function') playClick();
       updateLiquefyUI();
     });
   }

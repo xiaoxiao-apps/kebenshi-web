@@ -39,13 +39,20 @@ window.C3S3_GUIDE={
       /* s11已删（蔡总R2·B3-F1）：「对照组反而快」教学内容并入左胜free f10；mp3/audios项保留不引用 */
       {id:'s12',repeat:true,trigger:"R.evapSub==='cooling' && R.evap.cooling.alcohol[0]>0",say:'酒精涂上啦！它开始蒸发，盯紧温度计看好戏哦。',audio:'c3s3-s12'},
       {id:'s13',repeat:true,trigger:"R.evap.cooling.conclusionShown===true",say:'涂酒精的示数更低！蒸发吸热致冷，你看到了吗？',audio:'c3s3-s13'},
+      /* R3-K1①：纸锅子台开场，置于 s14 前——同帧多条按数组序只发第一条，进台瞬间必播引导 */
+      {id:'sPaperIntro',repeat:true,trigger:"R.evapSub==='paper'",say:'这个场景探究纸锅烧水！先加水，再划火柴点火。',audio:'c3s3-sPaperIntro'},
       {id:'s14',repeat:true,trigger:"R.evapSub==='paper' && R.evap.paper.lit && R.evap.paper.water>0 && !R.evap.paper.boiling && !R.evap.paper.burning",say:'火苗舔着纸锅，水在升温纸却烧不着，神奇吧？接着看！',audio:'c3s3-s14'},
       {id:'s15',repeat:true,trigger:"R.evap.paper.boiling===true",say:'纸锅里的水沸腾啦！水温压住纸温，到不了着火点。',audio:'c3s3-s15'},
-      {id:'s16',repeat:true,trigger:'after:s15@6000',say:'通过刚才的实验，我们发现：蒸发任何温度都发生，越热、越大、越快风就越快，还吸热致冷。记住它哦！',audio:'c3s3-s16'}
+      /* R3-K1③：s15 实测5.520s+300≈5800 接播「烧干」补句 */
+      {id:'s15b',repeat:true,trigger:'after:s15@5800',say:'但水随着沸腾越来越少，最终会烧干。',audio:'c3s3-s15b'},
+      /* R3-K1②：原 errors.e3 迁入 steps（after: 只追 step 的 fireCount，error 不计）；非 repeat 边沿一次性，重置由 GUIDE_RESET 清 firedSteps */
+      {id:'sBurn',trigger:"R.evap.paper.burning===true",say:'哎呀烧着啦！没水吸热，纸温冲到183℃着火点。',audio:'c3s3-e3'},
+      /* R3-K1②：结论移到最后——sBurn 音频6.480s+300≈6800，播完「点燃」再下结论，文案/音频不动 */
+      {id:'s16',repeat:true,trigger:'after:sBurn@6800',say:'通过刚才的实验，我们发现：蒸发任何温度都发生，越热、越大、越快风就越快，还吸热致冷。记住它哦！',audio:'c3s3-s16'}
     ],
     errors:[
-      {id:'e2',trigger:"event:click:#paper-match-btn:R.evap.paper.water===0 && !R.evap.paper.lit",fix:'不对哟～纸锅还没加水呢，空烧马上就着火啦。',audio:'c3s3-e2'},
-      {id:'e3',trigger:"R.evap.paper.burning===true && !R.evap.paper.burnVoiceSaid",fix:'哎呀烧着啦！没水吸热，纸温冲到183℃着火点。',audio:'c3s3-e3'}/* 只播一遍：burnVoiceSaid由physics燃烧2.5s后置位（留首播窗口） */
+      {id:'e2',trigger:"event:click:#paper-match-btn:R.evap.paper.water===0 && !R.evap.paper.lit",fix:'不对哟～纸锅还没加水呢，空烧马上就着火啦。',audio:'c3s3-e2'}
+      /* e3 已迁 steps.sBurn（R3-K1②，蔡总反馈7：结论放最后）；physics 的 burnVoiceSaid 旗标留着无副作用 */
     ],
     free:[
       {trigger:"R.evapSub==='factors' && R.evap.factors.winner===1 && performance.now()-G.modeEnterT>13000",note:'右边液滴干得快！它先只剩 5% 啦——温度高、表面积大、风更大，蒸发当然更快，换个条件再试试？',audio:'c3s3-f4'},
@@ -106,6 +113,8 @@ window.C3S3_GUIDE={
     'c3s3-e3':'guide/audio/c3s3-e3.mp3',
     'c3s3-e4':'guide/audio/c3s3-e4.mp3',
     'c3s3-e5':'guide/audio/c3s3-e5.mp3',
+    'c3s3-sPaperIntro':'guide/audio/c3s3-sPaperIntro.mp3?v=20261028v1',
+    'c3s3-s15b':'guide/audio/c3s3-s15b.mp3?v=20261028v1',
     'c3s3-f1':'guide/audio/c3s3-f1.mp3?v=20261027g1',
     'c3s3-f2':'guide/audio/c3s3-f2.mp3?v=20261027g1',
     'c3s3-f3':'guide/audio/c3s3-f3.mp3?v=20261027g1',

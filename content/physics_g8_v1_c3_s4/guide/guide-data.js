@@ -15,7 +15,13 @@ window.C3S4_GUIDE={
       {id:'s4',trigger:"R.phase==='deposit' && R.wallCrystal<0.25",say:'浇冷水啦，紫色蒸气变淡，要变回固态了。',audio:'c3s4-s4'},
       {id:'s5',repeat:true,trigger:'after:s4@4800',say:'器壁挂上亮晶晶的碘晶体，这叫凝华，放热。',audio:'c3s4-s5'},/* Q6防互踢：s4实测4.440s→4800ms后接播 */
       {id:'s6',repeat:true,trigger:"R.phase==='deposit' && R.vapor<=0.05 && R.wallCrystal>0.25",say:'蒸气散尽啦！全程固气互变没有液态，你发现了吗？',audio:'c3s4-s6'},
-      {id:'s7',repeat:true,trigger:'after:s6@6000',say:'通过刚才的实验，我们发现：固变气升华吸热，气变固凝华放热，都不经液态。记住它哦！',audio:'c3s4-s7'}
+      /* R3-K3（蔡总反馈9）：结论改「现象→本质命名」完整句式，超25字上限拆4条 after 链；
+         延时=前条 mp3 afinfo 实测+300（s7:5.064s→5400 / s8:3.672s→4000 / s9:4.920s→5200）；
+         与 s3/s5 即时命名刻意差异化：结论带主语+完整现象句+「这种现象叫做」正式定义句式 */
+      {id:'s7',repeat:true,trigger:'after:s6@6000',say:'固态碘受热，不经过液态直接变成紫色碘蒸气。',audio:'c3s4-s7'},
+      {id:'s8',repeat:true,trigger:'after:s7@5400',say:'这种现象叫做升华，升华要吸热。',audio:'c3s4-s8'},
+      {id:'s9',repeat:true,trigger:'after:s8@4000',say:'碘蒸气遇冷，不经过液态直接变成固态碘晶体。',audio:'c3s4-s9'},
+      {id:'s10',repeat:true,trigger:'after:s9@5200',say:'这种现象叫做凝华，凝华要放热。',audio:'c3s4-s10'}
     ],
     errors:[
       {id:'e1',trigger:"event:click:#btn-cold:R.vapor<=0 && R.phase!=='sublimate'",fix:'不对哟～还没有碘蒸气呢，先点「浇热水」吧。',audio:'c3s4-e1'},
@@ -35,7 +41,10 @@ window.C3S4_GUIDE={
     'c3s4-s4':'guide/audio/c3s4-s4.mp3',
     'c3s4-s5':'guide/audio/c3s4-s5.mp3',
     'c3s4-s6':'guide/audio/c3s4-s6.mp3?v=20261027g1',
-    'c3s4-s7':'guide/audio/c3s4-s7.mp3?v=20261027g1',
+    'c3s4-s7':'guide/audio/c3s4-s7.mp3?v=20261028v1',
+    'c3s4-s8':'guide/audio/c3s4-s8.mp3?v=20261028v1',
+    'c3s4-s9':'guide/audio/c3s4-s9.mp3?v=20261028v1',
+    'c3s4-s10':'guide/audio/c3s4-s10.mp3?v=20261028v1',
     'c3s4-e1':'guide/audio/c3s4-e1.mp3',
     'c3s4-e2':'guide/audio/c3s4-e2.mp3',
     'c3s4-f1':'guide/audio/c3s4-f1.mp3?v=20261027g1',

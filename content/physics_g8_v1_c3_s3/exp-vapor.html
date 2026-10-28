@@ -82,8 +82,7 @@
         <p class="evap-note">点燃酒精灯加热烧杯中的水，观察水蒸气在上方冷玻璃片上液化、凝结成水珠并沿玻璃片流下收集。</p>
         <div class="row" style="margin-top:6px;">
           <button class="btn primary" id="lq-lamp-btn" style="flex:1;">点燃酒精灯</button>
-          <button class="btn" id="lq-reset-btn" style="flex:1;margin-left:6px;">重置</button>
-        </div>
+        </div><!-- R3-K2②：#lq-reset-btn 已删（与底部 #btn-reset 功能重复，C3判定；liquefy 3D 复位补进 resetAll） -->
         <p class="evap-note" id="lq-hint-note">提示：水蒸气上升后遇冷玻璃片会液化成小水珠。</p>
       </div>
 
@@ -157,12 +156,12 @@
 <script src="exp-vapor-core.js?v=20261027r2"></script>
 <div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
 <script>window.GUIDE_CFG={state:window.C3S3_STATE};/* core 已加载；mode 由引擎轮询 R.mode 自动切 boil/evap/liquefy；GUIDE_DATA 由 guide-data.js 末尾双赋值 */</script>
-<script src="guide/guide-data.js?v=20261027r4"></script>
+<script src="guide/guide-data.js?v=20261028v1"></script>
 <script src="../_lib/guide/engine-core.js?v=20261027r3"></script>
 <script src="../_lib/guide/vB-core.js?v=20261027r3"></script>
 <script src="exp-vapor-chart.js?v=20261027r1"></script>
-<script src="exp-vapor.js?v=20261027r4"></script>
+<script src="exp-vapor.js?v=20261028v1"></script>
 <script src="exp-liquefy-core.js?v=20261027r1"></script>
-<script src="exp-liquefy.js?v=20261027r1"></script>
+<script src="exp-liquefy.js?v=20261028v1"></script>
 </body>
 </html>

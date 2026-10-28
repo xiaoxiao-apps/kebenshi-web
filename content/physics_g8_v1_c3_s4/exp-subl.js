@@ -73,6 +73,7 @@ function bindUI() {
   document.getElementById('btn-pause').addEventListener('click', () => {
     state.paused = !state.paused;
     document.getElementById('btn-pause').textContent = state.paused ? '开始' : '暂停';
+    if (window.GUIDE_PAUSE) window.GUIDE_PAUSE.set(state.paused); /* 语音R3契约2：暂停联动（音频续播不重播、tick冻结求值） */
     playClick();
   });
   document.getElementById('btn-reset').addEventListener('click', () => {
@@ -80,6 +81,7 @@ function bindUI() {
     if (window.SublimationPour) window.SublimationPour.reset();
     document.getElementById('btn-pause').textContent = '暂停';
     playClick();
+    window.GUIDE_RESET && window.GUIDE_RESET.all(); /* 语音R3契约1：重置=实验+语音+字幕从头（resetScene 不动 paused，无需补 setPause） */
   });
   document.getElementById('btn-mute').addEventListener('click', () => {
     setSoundEnabled(!getSoundEnabled());
