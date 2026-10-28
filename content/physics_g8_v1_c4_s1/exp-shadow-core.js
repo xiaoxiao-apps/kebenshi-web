@@ -24,6 +24,8 @@ var rayOn=true;
 var holeR=14;
 var mode='pinhole';
 var flys=[];
+/* R2-F4/F6：蜡烛初始位基准 + 蜡烛/光屏最近拖动手势时刻（引导层「谁在动」门控用） */
+var candleX0=0,lastCandleDragT=0,lastScreenDragT=0;
 
 function isBoard(id){ return TYPE[id]==='board'; }
 function renderName(id){ if(isBoard(id)) return 'board_with_hole'; return id; }
@@ -61,6 +63,7 @@ function setDefaultLayout(){
   ids.forEach(function(id){ var m=findById(id); if(m) m.lit=false; });
   function activeAt(id,fx,fy){ var m=findById(id); if(!m) return; m.state='active'; setStageSize(m); m.x=Math.round(W*fx); m.y=Math.round(fy); constrain(m); }
   activeAt('candle',0.22,benchTopY());
+  var _cm=findById('candle'); candleX0=_cm?_cm.x:0;
   activeAt('board1',0.50,benchTopY());
   activeAt('screen',0.80,benchTopY());
   ['desk_lamp','hand_shadow','laser_pen'].forEach(function(id){
@@ -103,7 +106,7 @@ function resize(){
     if(m.state==='flying') return;
     if(m.state==='active'||m.state==='falling'){
       setStageSize(m);
-      if(LOCKED[m.id]){ m.x=Math.round(m.x*W/oldW); m.y=benchTopY(); }
+      if(LOCKED[m.id]){ m.x=Math.round(m.x*W/oldW); m.y=benchTopY(); if(m.id==='candle')candleX0=Math.round(candleX0*W/oldW); }
       else if(m.t==='hand'){ m.x=Math.round(m.x*W/oldW); m.y=Math.round(m.y*H/oldH); }
       constrain(m);
     }
@@ -113,6 +116,8 @@ function resize(){
 
 function constrain(m){
   m.x=Math.max(m.w/2+6,Math.min(W-m.w/2-6,m.x));
+  /* R2-F5连带：孔板锁死后蜡烛限在板左侧（物理上过不去，u<=0 纠错场景不可达） */
+  if(m.id==='candle'){ var b=findById('board1'); if(b&&b.state==='active') m.x=Math.min(m.x,b.x-(m.w+b.w)/2+10); }
   if(LOCKED[m.id]){ m.y=benchTopY(); return; }
   var floor=benchTopY(),ceil=Math.min(m.h+6,floor);
   m.y=Math.max(ceil,Math.min(floor,m.y));
@@ -143,6 +148,7 @@ function hitActiveMedia(p){
   for(var i=media.length-1;i>=0;i--){
     var m=media[i];
     if(m.state==='flying' || (m.state!=='active' && m.state!=='falling')) continue;
+    if(m.id==='board1') continue; /* R2-F5：小孔立板不可移动（蔡总2026-10-27反馈7）；复验通道 __c4s2dbg.place 保留 */
     if(p.x>=m.x-m.w/2-12 && p.x<=m.x+m.w/2+12 && p.y>=m.y-m.h-12 && p.y<=m.y+12) return m;
   }
   return null;
@@ -436,6 +442,7 @@ cv.addEventListener('pointerdown',function(e){
 cv.addEventListener('pointermove',function(e){
   if(!dragInfo||dragInfo.k!=='med') return; var p=localPt(e),d=dragInfo,m=d.m;
   m.x=p.x-m.grab.dx; m.y=p.y-m.grab.dy; constrain(m);
+  if(m.id==='candle')lastCandleDragT=performance.now(); else if(m.id==='screen')lastScreenDragT=performance.now(); /* R2-F4/F6 */
   if(window.playTick){ var now=performance.now(); if(now-lastTick>80){ lastTick=now; playTick(); } }
   draw();
 });
@@ -559,7 +566,12 @@ window.C4S1S={
   get candleLit(){var m=findById('candle');return !!(m&&m.lit&&(m.state==='active'||m.state==='falling'));},
   get scene(){return computeScene();},
   get imgM(){var sc=computePinholeScene();return sc&&sc.ok?sc.m:null;},
-  get handM(){var sc=computeHandScene();return sc&&sc.ok?sc.m:null;}
+  get handM(){var sc=computeHandScene();return sc&&sc.ok?sc.m:null;},
+  /* R2-F4/F6：蜡烛位置基准 + 拖动手势时刻（G.t 同为 performance.now 时基） */
+  get candleX(){var m=findById('candle');return m?m.x:null;},
+  get candleX0(){return candleX0;},
+  get candleDragT(){return lastCandleDragT;},
+  get screenDragT(){return lastScreenDragT;}
 };
 initMedia(); setDefaultLayout(); resize(); syncFull(); rafId=requestAnimationFrame(loop);
 })();

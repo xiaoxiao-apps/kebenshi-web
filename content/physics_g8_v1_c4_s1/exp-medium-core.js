@@ -234,7 +234,8 @@ function drawArrows(segs){ if(!showRay) return; for(var i=0;i<segs.length;i++){ 
 function drawPulse(segs){
   if(!pen.on || !pulse.on) return;
   var e=performance.now()-pulse.t0,s=e*0.45,pos=null;
-  for(var i=0;i<segs.length;i++){ var p0=segs[i].a,p1=segs[i].b,L=Math.hypot(p1.x-p0.x,p1.y-p0.y)*segs[i].n; if(segs[i].t==='air'){ s-=L; continue; } if(s<=L){ var u=s/L; pos={x:p0.x+(p1.x-p0.x)*u,y:p0.y+(p1.y-p0.y)*u}; break; } s-=L; }
+  /* R2-F3：air 段不再跳过——光点全程可见，穿过介质后继续飞到画布边缘（n 加权保留=介质内视觉减速） */
+  for(var i=0;i<segs.length;i++){ var p0=segs[i].a,p1=segs[i].b,L=Math.hypot(p1.x-p0.x,p1.y-p0.y)*segs[i].n; if(s<=L){ var u=s/L; pos={x:p0.x+(p1.x-p0.x)*u,y:p0.y+(p1.y-p0.y)*u}; break; } s-=L; }
   if(!pos){ pulse.on=false; return; }
   spot(pos.x,pos.y,12,'rgba(255,100,80,.35)','rgba(255,100,80,0)');
   ctx.fillStyle='#ff6b5b'; ctx.beginPath(); ctx.arc(pos.x,pos.y,6,0,PI2); ctx.fill();
@@ -333,7 +334,7 @@ cv.addEventListener('pointerdown',function(e){
   }
   if(!m) m=hitActiveMedia(p);
   if(m){
-    if(m.state==='stored'){ m.state='active'; setActiveSize(m); constrain(m); m.liftT=performance.now(); }
+    if(m.state==='stored'){ m.state='active'; setActiveSize(m); constrain(m); m.liftT=performance.now(); m.wasStored=true; }
     else if(m.state==='falling'){ m.state='active'; m.vy=0; }
     m.grab={dx:p.x-m.x,dy:p.y-m.y}; dragInfo={k:'med',m:m};
   } else {
@@ -409,14 +410,14 @@ function stepPhysics(){
     var m=media[i];
     if(m.state==='returning'){
       var t=(now-m.ret.t0)/m.ret.dur;
-      if(t>=1){ m.state='stored'; m.x=m.ret.x1; m.y=m.ret.y1; var slot=null; for(var k=0;k<toolbox.slots.length;k++) if(toolbox.slots[k].id===m.id){slot=toolbox.slots[k];break;} if(slot){m.w=slot.w; m.h=slot.h;} delete m.ret; }
+      if(t>=1){ m.state='stored'; m.wasStored=false; m.placedT=0; m.x=m.ret.x1; m.y=m.ret.y1; var slot=null; for(var k=0;k<toolbox.slots.length;k++) if(toolbox.slots[k].id===m.id){slot=toolbox.slots[k];break;} if(slot){m.w=slot.w; m.h=slot.h;} delete m.ret; }
       else { m.x=m.ret.x0+(m.ret.x1-m.ret.x0)*t; m.y=m.ret.y0+(m.ret.y1-m.ret.y0)*t; }
       act=true;
     }
     if(m.state==='falling'){
       m.vy=(m.vy||0)+GRAVITY*dt; m.y+=m.vy*dt;
       var support=supportY(m);
-      if(m.y>=support){ m.y=support; m.vy=0; m.state='active'; }
+      if(m.y>=support){ m.y=support; m.vy=0; m.state='active'; if(m.wasStored){ m.placedT=performance.now(); m.wasStored=false; } }
       act=true;
     }
     if(m.state==='active' && m.t!=='laser_pen'){
@@ -432,10 +433,13 @@ function stepPhysics(){
   return act;
 }
 
-window.__c4s1dbg={ get media(){return media;}, get pen(){return pen;}, get W(){return W;}, get H(){return H;}, get benchY(){return benchTopY();}, emitPt:emitPt, computePath:computePath, rectOf:rectOf, segs:function(){return computePath(emitPt(),angle);}, place:function(id){ for(var i=0;i<media.length;i++) if(media[i].id===id){ var m=media[i]; m.state='active'; setActiveSize(m); m.x=Math.round(W/2); m.y=benchTopY(); constrain(m); return true; } return false; }, penOn:function(v){ pen.on=!!v; } };
+window.__c4s1dbg={ get media(){return media;}, get pen(){return pen;}, get W(){return W;}, get H(){return H;}, get benchY(){return benchTopY();}, emitPt:emitPt, computePath:computePath, rectOf:rectOf, segs:function(){return computePath(emitPt(),angle);}, place:function(id){ for(var i=0;i<media.length;i++) if(media[i].id===id){ var m=media[i]; m.state='active'; setActiveSize(m); m.x=Math.round(W/2); m.y=benchTopY(); constrain(m); m.placedT=performance.now(); return true; } return false; }, penOn:function(v){ pen.on=!!v; } };
 
 /* 语音讲解层状态暴露（设计书 docs/c4s1-guide-design.md §A-1.3；只读 getter 门面，引擎轮询；对象永不重赋值） */
 function mediaOnStage(id){for(var i=0;i<media.length;i++){var m=media[i];if(m.id===id&&(m.state==='active'||m.state==='falling'))return true;}return false;}
+/* R2-F1/F2：放置事件沿（落地瞬间记 placedT，1.5s 瞬态窗口=假→真→假自然边沿；移动不触发，收起再放下才再触发） */
+function placedRecently(id){for(var i=0;i<media.length;i++){var m=media[i];
+  if(m.id===id&&m.placedT&&(m.state==='active'||m.state==='falling')&&performance.now()-m.placedT<1500)return true;}return false;}
 window.C4S1M={
   get laserOn(){return pen.on;},
   get pulseOn(){return pulse.on;},
@@ -445,6 +449,9 @@ window.C4S1M={
   get activeCount(){var n=0;for(var i=0;i<media.length;i++){var s=media[i].state;if(s==='active'||s==='falling')n++;}return n;},
   get smokeOn(){return mediaOnStage('smoke_box');},
   get waterOn(){return mediaOnStage('water_tank');},
-  get glassOn(){return mediaOnStage('glass_brick');}
+  get glassOn(){return mediaOnStage('glass_brick');},
+  get smokeJustPlaced(){return placedRecently('smoke_box');},
+  get waterJustPlaced(){return placedRecently('water_tank');},
+  get glassJustPlaced(){return placedRecently('glass_brick');}
 };
 })();

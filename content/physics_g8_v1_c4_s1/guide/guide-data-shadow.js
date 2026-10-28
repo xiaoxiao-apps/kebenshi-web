@@ -12,15 +12,16 @@ window.C4S1S_GUIDE={
     },
     steps:[
       {id:'s-s1',repeat:true,trigger:"R.candleLit===true && R.imgM!==null",say:'点着啦！屏上的火焰像是倒立的！接下来拖近蜡烛看看。',audio:'c4s1s-s1'},
-      {id:'s-s2',repeat:true,trigger:"R.imgM!==null && R.imgM>=1.4",say:'蜡烛靠近小孔，像变大啦！再移远试试，会怎样？',audio:'c4s1s-s2'},
-      {id:'s-s3',repeat:true,trigger:"R.imgM!==null && R.imgM<=0.7",say:'蜡烛移远，像缩小了，还是倒立的。接下来切到手影模式吧。',audio:'c4s1s-s3'},
+      {id:'s-s2',repeat:true,trigger:"R.imgM!==null && R.imgM>=1.4 && (G.t-R.candleDragT)<2000 && (G.t-R.candleDragT)<(G.t-R.screenDragT)",say:'蜡烛靠近小孔，像变大啦！再移远试试，会怎样？',audio:'c4s1s-s2'},
+      {id:'s-s3',repeat:true,trigger:"R.imgM!==null && R.candleX<R.candleX0-4 && (G.t-R.candleDragT)<2000",say:'蜡烛移远，像缩小了，还是倒立的。接下来切到手影模式吧。',audio:'c4s1s-s3'},
+      {id:'s-s3b',repeat:true,trigger:"R.imgM!==null && (G.t-R.screenDragT)<2000 && (G.t-R.screenDragT)<(G.t-R.candleDragT)",say:'移动光屏也能改变像：离小孔越远，成的像越大；越近，像越小。',audio:'c4s1s-s3b'},
       {id:'s-s4',repeat:true,trigger:"R.mode==='hand'",say:'手影模式！台灯和小手替换了蜡烛。点亮台灯看看。',audio:'c4s1s-s4'},
       {id:'s-s5',repeat:true,trigger:"R.mode==='hand' && R.handM!==null",say:'光幕上出现黑黑的手影！把手移近台灯试试。',audio:'c4s1s-s5'},
       {id:'s-s6',repeat:true,trigger:"R.handM!==null && R.handM>=2.6",say:'手越靠近台灯，影子越大！换个距离再试试？',audio:'c4s1s-s6'},
-      {id:'s-concl',repeat:true,trigger:"R.mode==='pinhole' && R.imgM>=1.4@6000",say:'因此我们得出结论：光沿直线传播，穿过小孔成的是倒立的实像。',audio:'c4s1s-concl'}
+      {id:'s-concl',repeat:true,trigger:"R.mode==='pinhole' && R.imgM>=1.4 && R.candleDragT>R.screenDragT@6000",say:'因此我们得出结论：光沿直线传播，穿过小孔成的是倒立的实像。',audio:'c4s1s-concl'}
     ],
     errors:[
-      {id:'s-e1',trigger:"R.mode==='pinhole' && R.scene && (R.scene.missing==='candlePos' || R.scene.missing==='boardPos')@1500",fix:'不对哟～带孔板要放在蜡烛和光屏中间。',audio:'c4s1s-e1'},
+      {id:'s-e1',trigger:"R.mode==='pinhole' && R.scene && (R.scene.missing==='candlePos' || R.scene.missing==='boardPos')@1500",fix:'不对哟～蜡烛要放在带孔板的左边哦。',audio:'c4s1s-e1'},
       {id:'s-e2',trigger:"R.mode==='hand' && R.scene && R.scene.missing==='handNoImg'@1500",fix:'不对哟～把手移到灯和屏之间，影子才会出现。',audio:'c4s1s-e2'}
     ],
     free:[
@@ -35,11 +36,12 @@ window.C4S1S_GUIDE={
     'c4s1s-s1':'guide/audio/c4s1s-s1.mp3?v=20261027g1',
     'c4s1s-s2':'guide/audio/c4s1s-s2.mp3?v=20261027g1',
     'c4s1s-s3':'guide/audio/c4s1s-s3.mp3?v=20261027g1',
+    'c4s1s-s3b':'guide/audio/c4s1s-s3b.mp3',
     'c4s1s-s4':'guide/audio/c4s1s-s4.mp3?v=20261027g1',
     'c4s1s-s5':'guide/audio/c4s1s-s5.mp3?v=20261027g1',
     'c4s1s-s6':'guide/audio/c4s1s-s6.mp3?v=20261027g1',
     'c4s1s-concl':'guide/audio/c4s1s-concl.mp3?v=20261027r2',
-    'c4s1s-e1':'guide/audio/c4s1s-e1.mp3',
+    'c4s1s-e1':'guide/audio/c4s1s-e1.mp3?v=20261027r4',
     'c4s1s-e2':'guide/audio/c4s1s-e2.mp3',
     'c4s1s-f1':'guide/audio/c4s1s-f1.mp3',
     'c4s1s-f2':'guide/audio/c4s1s-f2.mp3',

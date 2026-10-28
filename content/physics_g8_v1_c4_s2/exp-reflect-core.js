@@ -7,7 +7,6 @@ var cv=document.getElementById('scene'), wrap=document.getElementById('scene-wra
 var R=window.RFX;
 R.ctx=cv.getContext('2d');
 var slider=document.getElementById('ang-slider'),angVal=document.getElementById('ang-val');
-var readI=document.getElementById('read-i'),readR=document.getElementById('read-r');
 var foldSlider=document.getElementById('fold-slider'),foldVal=document.getElementById('fold-val');
 var roughSlider=document.getElementById('rough-slider'),roughVal=document.getElementById('rough-val');
 var surfaceSel=document.getElementById('surface');
@@ -40,7 +39,6 @@ function setAngleDeg(d,snd){
   d=Math.max(0,Math.min(80,Math.round(d)));
   R.angleI=d*Math.PI/180;
   slider.value=d; angVal.textContent=d+'°';
-  readI.textContent=d+'°'; readR.textContent=d+'°';
   if(snd==='tick'&&window.playTick)window.playTick();
   if(snd==='click'&&window.playClick)window.playClick();
   if(!loopOn)R.draw();
@@ -86,6 +84,9 @@ document.getElementById('btn-reverse').addEventListener('click',function(ev){
 });
 document.getElementById('btn-reset').addEventListener('click',function(ev){
   R.pulse.active=false; R.pulse.loop=false; R.pulse.reverse=false; R.laserOn=false; R.fold=0; R.rough=0; R.beamMode='single';
+  /* R2-F9：重置恢复「显示项全不勾」新默认 */
+  ['cb-normal','cb-arc','cb-arrow'].forEach(function(id){var el=document.getElementById(id);if(el)el.checked=false;});
+  R.showNormal=false; R.showArc=false; R.showArrow=false;
   foldSlider.value=0; foldVal.textContent='0°';
   roughSlider.value=40; roughVal.textContent='40';
   surfaceSel.value='smooth'; syncSurface();
@@ -96,10 +97,11 @@ document.getElementById('btn-reset').addEventListener('click',function(ev){
 document.getElementById('cb-normal').addEventListener('change',function(){R.showNormal=this.checked;if(!loopOn)R.draw();});
 document.getElementById('cb-arc').addEventListener('change',function(){R.showArc=this.checked;if(!loopOn)R.draw();});
 document.getElementById('cb-arrow').addEventListener('change',function(){R.showArrow=this.checked;if(!loopOn)R.draw();});
-document.getElementById('cb-read').addEventListener('change',function(){
-  var d=this.checked?'':'none';
-  readI.parentNode.style.display=d; readR.parentNode.style.display=d;
-});
+/* R2-F9(A案)：语音到步自动帮勾法线——s4 trigger 末位调用，置 showNormal=true 并同步勾选框（幂等） */
+R.autoCheckNormal=function(){
+  if(!R.showNormal){ R.showNormal=true; var el=document.getElementById('cb-normal'); if(el)el.checked=true; if(!loopOn)R.draw(); }
+  return true;
+};
 
 function updateHint(){
   if(!hintEl)return;

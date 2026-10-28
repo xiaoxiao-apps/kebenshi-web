@@ -6,7 +6,7 @@ var R = window.RFX = {
   W:0,H:0, O:{x:0,y:0}, L:200, by:0, mirrorY:0, mirrorLen:0, boardH:0,
   penW:0,penH:0,
   pulse:{active:false,t0:0,dur:1600,reverse:false,loop:false},
-  showNormal:true, showArc:true, showRead:true,
+  showNormal:false, showArc:false,/* R2-F9：默认全不勾（读数并入角度弧 gate） */
   beamMode:'single', rough:0,
   dragFb:false, ripple:{t0:0,x:0,y:0},
   ctx:null
