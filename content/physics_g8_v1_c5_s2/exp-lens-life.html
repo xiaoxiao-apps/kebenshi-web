@@ -6,6 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-store">
 <meta http-equiv="Pragma" content="no-cache">
 <title>凸透镜的三大仪器 — 生活中的透镜</title>
+<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261028v1">
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
@@ -44,12 +45,6 @@
   table.rec th,table.rec td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:9px 13px;text-align:left;white-space:nowrap;color:#1e293b}
   table.rec th{background:transparent;font-weight:400;width:128px;color:#64748b}
   table.rec td{font-weight:600}
-  /* I7 橙色解说条（原气泡删除，hint/事件 toast 统一此出口）：暖黄底+琥珀描边+右上×；J7 动态长度：默认 max-width 70% 单行，与器材包围盒相交加 .narrow 收窄换行 2-3 行 */
-  #toast{display:none;position:absolute;left:50%;top:4%;transform:translateX(-50%);max-width:70%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:17px;font-weight:600;padding:12px 22px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:16;text-align:center;line-height:1.6;letter-spacing:.02em}
-  #toast.show{display:block}
-  #toast.narrow{max-width:46%}
-  #toast-x{position:absolute;top:3px;right:9px;cursor:pointer;color:#8a7c66;font-size:16px;line-height:1;user-select:none}
-  #toast-x:hover{color:#5b3a00}
   html.pseudo-fs{width:100%;height:100%}
   html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
 </style>
@@ -70,7 +65,6 @@
     <tr><th>实像标签</th><td id="pr-note">实像=光实际会聚、薄膜能承接</td></tr>
   </tbody></table>
 </div>
-<div id="toast"><span id="toast-txt"></span><span id="toast-x">×</span></div>
 </div>
 <div class="ctrlbar">
   <div class="group" id="grp-act">
@@ -109,6 +103,11 @@
 <script src="../_lib/v1/props.js?v=20261024"></script>
 <script src="../_lib/v1/props-optics.js?v=20261024"></script>
 <script src="../_lib/v1/sfx.js?v=20261024"></script>
-<script src="exp-lens-life-core.js?v=20261024"></script>
+<script src="exp-lens-life-core.js?v=20261028v1"></script>
+<div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
+<script>window.GUIDE_CFG={state:window.C5S2_STATE,get mode(){return window.C5S2_STATE.scene;}};</script>
+<script src="guide/guide-data.js?v=20261028v1"></script>
+<script src="../_lib/guide/engine-core.js?v=20261028v1"></script>
+<script src="../_lib/guide/vB-core.js?v=20261028v1"></script>
 </body>
 </html>

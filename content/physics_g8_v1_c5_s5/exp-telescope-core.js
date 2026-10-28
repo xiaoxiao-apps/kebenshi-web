@@ -19,7 +19,12 @@ var st={
   flow:false,
   showLabels:false
 };
-var drag=null,startPt=null,glowFx=[],toastTimer=null;
+/* guide 语音层暴露（B版标配）：不可枚举 getter 聚合派生量，零干扰 st 本体 */
+(function(){
+  Object.defineProperty(st,'matched',{enumerable:false,get:function(){return isMatch();}});
+  window.C5S5_STATE=st;
+})();
+var drag=null,startPt=null,glowFx=[];
 var flowT0=performance.now();
 // ===== 几何换算（cm→px 全部走 S 单点） =====
 function vObjCm(){ return st.near?(NEAR_U_K*st.fObj/(NEAR_U_K-1)):st.fObj; }   // 像距 v=uf/(u−f)；最远档 u→∞ ⇒ v=f物（供 lMatch 用）
@@ -261,7 +266,7 @@ function draw(){
   drawBg(); drawAxis(); drawGround(); drawObject();
   drawTelescope(); drawRays(); drawLenses(); drawDim(); drawObserver();
   drawGlowFx(); drawEyePeep();
-  updatePanel(); sayHint();
+  updatePanel();
 }
 // ===== 读数面板：f物/f目/镜筒距离/放大倍率=f物÷f目 实时 =====
 function updatePanel(){
@@ -272,38 +277,6 @@ function updatePanel(){
   if(pt) pt.textContent=st.L.toFixed(1)+' cm'+(isMatch()?'（已对焦）':'');
   if(pm) pm.textContent=magK().toFixed(magK()%1?2:0)+' 倍（f物÷f目）';
 }
-// ===== hint 状态机（橙色居中解说条，照 c5s3 I7）：当前可见分支同步教已产生视觉后果的操作 =====
-var toastEl=document.getElementById('toast'),toastTxt=document.getElementById('toast-txt'),toastXEl=document.getElementById('toast-x');
-var hintSt={key:null,dismissed:null};
-var ANGLE_SVG='<svg width="212" height="60" viewBox="0 0 212 60" xmlns="http://www.w3.org/2000/svg">'
- +'<line x1="6" y1="15" x2="150" y2="15" stroke="#b45309" stroke-width="1" opacity=".5"/>'
- +'<path d="M12 9 L18 15 L12 21 L15 15 Z" fill="#3f6212"/><line x1="148" y1="15" x2="14" y2="10" stroke="#dc2626" stroke-width="1.4"/><line x1="148" y1="15" x2="14" y2="20" stroke="#dc2626" stroke-width="1.4"/><circle cx="152" cy="15" r="4" fill="#334155"/>'
- +'<text x="160" y="19" font-size="12" fill="#5b3a00">裸眼视角小</text>'
- +'<line x1="6" y1="45" x2="150" y2="45" stroke="#b45309" stroke-width="1" opacity=".5"/>'
- +'<path d="M8 33 L20 45 L8 57 L13 45 Z" fill="#3f6212"/><line x1="148" y1="45" x2="10" y2="32" stroke="#dc2626" stroke-width="1.4"/><line x1="148" y1="45" x2="10" y2="58" stroke="#dc2626" stroke-width="1.4"/><circle cx="152" cy="45" r="4" fill="#334155"/>'
- +'<text x="160" y="49" font-size="12" fill="#5b3a00">望远镜视角大</text></svg>';
-function hintBranch(){
-  if(!st.everMatch) return {key:'h-tune',text:'望远镜已装好：物镜、目镜都挂在镜筒上。拖「镜筒长度」滑杆（或直接拖动目镜）调两镜间距——观察最远处物体时，匹配距离≈f物+f目='+lMatchCm().toFixed(0)+' cm，到位会有对焦光晕和提示音。'};
-  if(!st.angleSeen) return {key:'h-angle',html:'视角对比：'+ANGLE_SVG+'<div>裸眼看远处物体，视角很小；望远镜把远处物体的像拉近放大，进入眼睛的光张角变大——视角越大，看到的像越大。</div>'};
-  return {key:'h-free',text:'放大倍率=f物÷f目='+magK().toFixed(magK()%1?2:0)+' 倍。换器材卡的 f物/f目 看倍率变化；切「物距较近」后匹配距离稍大一些，要重新调镜筒长度；眼旁的「眼视图」气泡=人眼最终看到的像；开「光流」看光的传播方向。'};
-}
-function hideToast(){ if(toastEl) toastEl.classList.remove('show'); }
-function sayHint(){
-  if(!toastEl||toastTimer) return;   // 事件 toast 占用期间不抢
-  var o=hintBranch(); hintSt.key=o.key;
-  if(o.key==='h-angle') st.angleSeen=true;
-  if(hintSt.dismissed===o.key){ hideToast(); return; }
-  if(o.html){ if(toastTxt.innerHTML!==o.html) toastTxt.innerHTML=o.html; }
-  else{ if(toastTxt.textContent!==o.text) toastTxt.textContent=o.text; }
-  if(!toastEl.classList.contains('show')) toastEl.classList.add('show');
-}
-function showToast(msg){   // 事件 toast：覆盖解说条 4s，到时回落当前 hint
-  if(!toastEl) return;
-  if(toastTimer) clearTimeout(toastTimer);
-  toastTxt.textContent=msg; toastEl.classList.add('show');
-  toastTimer=setTimeout(function(){ toastTimer=null; sayHint(); },4000);
-}
-if(toastXEl) toastXEl.addEventListener('click',function(){ hintSt.dismissed=hintSt.key; hideToast(); });
 // ===== 对焦判定（边缘触发：光晕+音效，照 c5s3 glowFx/playMatch 先例） =====
 function checkMatch(){
   var m=isMatch();
@@ -311,7 +284,6 @@ function checkMatch(){
     st.everMatch=true;
     glowFx.push({x:xP2(),y:axisY,t0:performance.now(),c:'255,214,120'});   // R19 对焦光晕画在 P2（目镜前焦点=对焦态与 F物 刻度重合处）
     if(window.playMatch) playMatch();
-    showToast('对焦成功！镜筒距离 '+st.L.toFixed(1)+' cm ≈ f物+f目——从目镜后看到清晰、正立、放大的像（眼视图窗）');
   }
   st.wasMatch=m;
 }
@@ -323,7 +295,7 @@ function hitLensEye(p){ return Math.abs(p.x-xEyeLens())<eyeAp()*0.25+14&&Math.ab
 cv.addEventListener('pointerdown',function(e){
   var p=localPt(e); startPt=p; drag=null;
   if(hitLensEye(p)) drag={k:'tube'};
-  if(drag){ cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; sayHint(); draw(); }
+  if(drag){ cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; draw(); }
 });
 cv.addEventListener('pointermove',function(e){
   var p=localPt(e);
@@ -341,7 +313,7 @@ function endDrag(e){
   var p=localPt(e);
   var moved=Math.hypot(p.x-startPt.x,p.y-startPt.y)>=5;
   if(moved&&drag.k==='tube'&&window.playDrop) playDrop();
-  drag=null; cv.style.cursor=''; syncSlider(); sayHint(); draw();
+  drag=null; cv.style.cursor=''; syncSlider(); draw();
 }
 cv.addEventListener('pointerup',endDrag);
 cv.addEventListener('pointercancel',endDrag);
@@ -351,13 +323,13 @@ if(selFobj) selFobj.addEventListener('change',function(){
   st.fObj=+selFobj.value; st.wasMatch=false;
   syncTubeRange();   // R14 滑杆范围随 f物 联动
   if(window.playClick) playClick();
-  checkMatch(); sayHint(); draw();
+  checkMatch(); draw();
 });
 if(selFeye) selFeye.addEventListener('change',function(){
   st.fEye=+selFeye.value; st.wasMatch=false;
   syncTubeRange();   // R14 滑杆范围随 f目 联动
   if(window.playClick) playClick();
-  checkMatch(); sayHint(); draw();
+  checkMatch(); draw();
 });
 var rngT=document.getElementById('rng-tube'),lblT=document.getElementById('lbl-tube');
 function syncSlider(){
@@ -385,8 +357,7 @@ function setNear(v){
   syncTubeRange();   // R14 lMatch 随物距变，滑杆范围联动
   syncDistUI(); checkMatch();
   if(window.playClick) playClick();
-  showToast(v?'切到较近的物体：像距变大，两块凸透镜间的距离要稍大一些（匹配≈'+lMatchCm().toFixed(0)+' cm），重新调镜筒长度':'切到最远处的物体：匹配距离≈f物+f目='+lMatchCm().toFixed(0)+' cm');
-  sayHint(); draw();
+  draw();
 }
 if(bFar) bFar.addEventListener('click',function(){ setNear(false); });
 if(bNear) bNear.addEventListener('click',function(){ setNear(true); });
@@ -422,10 +393,8 @@ if(bReset) bReset.addEventListener('click',function(){
   if(selFeye) selFeye.value='10';
   if(bFlow) bFlow.classList.remove('on');
   syncDistUI(); syncSlider();
-  hintSt.key=null; hintSt.dismissed=null;
-  if(toastTimer){ clearTimeout(toastTimer); toastTimer=null; }
   if(window.playClick) playClick();
-  sayHint(); draw();
+  draw();
 });
 // ===== 全屏（照抄 c5s3 exp-image-law 现成实现：documentElement + html.pseudo-fs 降级） =====
 var btnFull=document.getElementById('btn-full');
@@ -457,12 +426,12 @@ window.addEventListener('resize',resize);
 // ===== 初始化：两镜已在轴+最远物距+镜筒在匹配点 =====
 layout(); resize();
 syncDistUI(); syncTubeRange(); syncSlider(); syncFull();   // R14 初始滑杆范围=lMatch±5、value=lMatch
-sayHint(); draw(); requestAnimationFrame(tick);
+draw(); requestAnimationFrame(tick);
 window.__c5s5dbg={
   get st(){return st;}, get W(){return W;}, get H(){return H;}, get S(){return S;}, get axisY(){return axisY;}, get xObjLens(){return xObjLens;},
   lMatch:lMatchCm, vObj:vObjCm, mag:magK, isMatch:isMatch,
   setL:function(v){ setL(v); draw(); },
-  setF:function(fo,fe){ st.fObj=fo||20; st.fEye=fe||10; if(selFobj)selFobj.value=String(st.fObj); if(selFeye)selFeye.value=String(st.fEye); st.wasMatch=false; syncTubeRange(); checkMatch(); syncSlider(); sayHint(); draw(); },
+  setF:function(fo,fe){ st.fObj=fo||20; st.fEye=fe||10; if(selFobj)selFobj.value=String(st.fObj); if(selFeye)selFeye.value=String(st.fEye); st.wasMatch=false; syncTubeRange(); checkMatch(); syncSlider(); draw(); },
   near:function(v){ setNear(!!v); }
 };
 })();

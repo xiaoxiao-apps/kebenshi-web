@@ -24,7 +24,14 @@ var st={
   glass:null,            // 'concave'|'convex'|null（挂眼前）
   showFlow:false,flowT0:0
 };
-var drag=null,startPt=null,dragGhost=null,glowFx=[],toolbox=null,toastTimer=null;
+/* guide 语音层暴露（B版标配）：不可枚举 getter 聚合派生量，零干扰 st 本体 */
+(function(){
+  Object.defineProperty(st,'mode',{enumerable:false,get:function(){return st.cond;}});
+  Object.defineProperty(st,'sharp',{enumerable:false,get:function(){return imgInfo().sharp;}});
+  Object.defineProperty(st,'imgWhere',{enumerable:false,get:function(){return imgInfo().where;}});
+  window.C5S4_STATE=st;
+})();
+var drag=null,startPt=null,dragGhost=null,glowFx=[],toolbox=null;
 
 // ===== 几何缓存（layout 单点重算，resize/全屏必走） =====
 var G={};
@@ -392,48 +399,6 @@ function updatePanel(){
   el('pr-img').textContent=info.sharp?'清晰像点 · 视网膜上':('模糊光斑 · 会聚在'+info.where);
 }
 
-// ===== 首屏 hint 橙色居中解说条（状态机分支，照 c5s3；× 关闭=同分支不再自动重弹） =====
-var toastEl=document.getElementById('toast'),toastTxt=document.getElementById('toast-txt'),toastXEl=document.getElementById('toast-x');
-var hintSt={key:null,dismissed:null};
-function hintBranch(){
-  if(st.cond==='normal'&&st.glass) return {key:'n-glass',text:'正常眼戴上眼镜反而模糊了：凹透镜使平行光先发散、凸透镜使平行光先会聚，会聚点偏离视网膜。这就是为什么不该随便戴别人的眼镜（点镜片看解说，拖回左下托盘可取下）'};
-  if(st.cond==='myopia'&&st.glass==='concave') return {key:'m-ok',text:'矫正成功！凹透镜使平行光先发散，再经晶状体会聚，会聚点重新拉回视网膜上——近视眼镜就是凹透镜。把树拖到远处再看矫正效果：戴凹镜看清远处时晶状体处于最放松的状态。试试关「自动」拖滑杆，看晶状体厚薄怎样移动会聚点'};
-  if(st.cond==='hyper'&&st.glass==='convex') return {key:'h-ok',text:'矫正成功！凸透镜使平行光先会聚，再经晶状体会聚，会聚点重新拉回视网膜上——远视眼镜（老花镜）就是凸透镜。戴着它把树拖近拖远：晶状体自动调节，远近的像都落在视网膜上。试试切换眼况，或关「自动」拖滑杆'};
-  if(st.glass) return {key:'g-wrong',text:'拖错镜型了：会聚点偏得离视网膜更远、光斑更散。近视要凹透镜、远视要凸透镜——把它拖回左下托盘，换另一片试试'};
-  if(!st.auto){
-    if(st.cond==='myopia') return {key:'manual',text:'自动调节已关：近视眼看远处物体，滑杆再怎么调薄也够不着清晰，需要凹透镜；把树拖近，滑杆调到合适厚度就能清晰。拖滑杆看会聚点在视网膜前来回移动'};
-    if(st.cond==='hyper') return {key:'manual',text:'自动调节已关：远视眼看近处物体，滑杆再怎么调厚也够不着清晰，需要凸透镜；把树拖远，滑杆调到合适厚度就能清晰。拖滑杆看会聚点在视网膜后来回移动'};
-    return {key:'manual',text:'自动调节已关：睫状体不再帮忙，拖「晶状体厚度」滑杆手动控制。看会聚点在光轴上怎样于视网膜前后来回移动，找到清晰像点；再拖动左侧的树改变远近，重新找清晰'};
-  }
-  if(st.cond==='myopia') return {key:'myopia',text:'近视眼：晶状体整体偏厚、折光能力太强，来自远处物体的平行光会聚在视网膜前，到达视网膜已是模糊光斑。把左下托盘的凹透镜拖到眼前试试；或把树拖近——近处物体眼睛能调清晰，这就是近视眼看近清楚、看远模糊'};
-  if(st.cond==='hyper') return {key:'hyper',text:'远视眼：晶状体整体偏薄、折光能力太弱，看近处物体时平行光还没会聚成一点就到了视网膜（会聚点在视网膜后，虚线延长可见）。把树拖近看模糊光斑，拖远眼睛又能调清晰；看近要戴左下托盘的凸透镜试试'};
-  return {key:'init',text:'正常眼看远处物体：来自物体的光可看作平行光，睫状体放松、晶状体较薄，平行光恰好会聚在视网膜上成清晰像点。把左侧的树随便拖远拖近：睫状体自动调节晶状体厚薄，像始终清晰落在视网膜上（点眼球或物体可看知识解说）。关「自动」拖滑杆，或把眼况切成「近视」「远视」'};
-}
-function hideToast(){ if(toastEl) toastEl.classList.remove('show'); }
-function sayHint(){
-  if(!toastEl||toastTimer) return;
-  var o=hintBranch(); hintSt.key=o.key;
-  if(hintSt.dismissed===o.key){ hideToast(); return; }
-  if(toastTxt.textContent!==o.text) toastTxt.textContent=o.text;
-  if(!toastEl.classList.contains('show')) toastEl.classList.add('show');
-  checkToastNarrow();
-}
-function showToast(msg){
-  if(!toastEl) return;
-  if(toastTimer) clearTimeout(toastTimer);
-  toastTxt.textContent=msg; toastEl.classList.add('show');
-  toastTimer=setTimeout(function(){ toastTimer=null; sayHint(); },4000);
-}
-function checkToastNarrow(){
-  if(!toastEl||!toastEl.classList.contains('show')) return;
-  var tr=toastEl.getBoundingClientRect(),cr=cv.getBoundingClientRect();
-  var exPx=cr.left+G.ex*(cr.width/W),eyTop=cr.top+(G.ey-G.R)*(cr.height/H);
-  var rr=G.R*(cr.width/W);
-  var hit=!(tr.right<exPx-rr||tr.left>exPx+rr||tr.bottom<eyTop);
-  toastEl.classList.toggle('narrow',hit);
-}
-if(toastXEl) toastXEl.addEventListener('click',function(){ hintSt.dismissed=hintSt.key; hideToast(); });
-
 // ===== 知识气泡（数字逐字，教材 P127）：点物体/晶状体/矫正镜触发，锚定跟随 =====
 var bubbleEl=document.getElementById('bubble'),bubbleTxt=document.getElementById('bubble-txt'),bubbleArr=document.getElementById('bubble-arrow');
 var bubSt={ax:0,ay:0};
@@ -539,18 +504,15 @@ function endDrag(e){
       st.glass=drag.kind;
       if(window.playDrop) playDrop();
       glowFx.push({x:G.xC,y:axisY,t0:performance.now(),c:'150,200,255'});
-      if(st.cond==='normal') showToast('正常眼戴上'+(st.glass==='concave'?'凹':'凸')+'透镜：像不再落在视网膜上，反而变模糊了——不该随便戴别人的眼镜');
-      else if((st.cond==='myopia'&&st.glass==='concave')||(st.cond==='hyper'&&st.glass==='convex')){
+      if((st.cond==='myopia'&&st.glass==='concave')||(st.cond==='hyper'&&st.glass==='convex')){
         if(window.SFX) SFX.tone(660,'sine',0.12,0.12);
-      }else{
-        showToast('拖错镜型了：光斑更散。近视用凹透镜、远视用凸透镜');
       }
     }
   }else if(drag.k==='obj'){
     if(Math.hypot(p.x-startPt.x,p.y-startPt.y)>=5) suppressClick=true;   // W3：拖树位移≥5px 后不误触知识气泡
   }
   drag=null; dragGhost=null; cv.style.cursor='';
-  syncUI(); sayHint(); draw();
+  syncUI(); draw();
 }
 cv.addEventListener('pointerup',endDrag);
 cv.addEventListener('pointercancel',endDrag);
@@ -596,13 +558,14 @@ function syncUI(){
 if(selCond) selCond.addEventListener('change',function(){
   st.cond=selCond.value;
   if(window.playClick) playClick();
-  hideBubble(); syncUI(); sayHint(); draw();
+  hideBubble(); syncUI(); draw();
+  window.GUIDE_SCENE&&window.GUIDE_SCENE.change();
 });
 if(btnAuto) btnAuto.addEventListener('click',function(){
   st.auto=!st.auto;
   if(!st.auto) st.tCmd=clamp01(tActNow());                         // W3 关自动=滑杆从当前厚度接手（t 同标度直传，无偏移）
   if(window.playClick) playClick();
-  syncUI(); sayHint(); draw();
+  syncUI(); draw();
 });
 function setT(v){
   st.tCmd=clamp01(v);
@@ -634,9 +597,9 @@ if(btnTable&&panelRead) btnTable.addEventListener('click',function(){
 if(btnReset) btnReset.addEventListener('click',function(){
   st.cond='normal'; st.auto=true; st.tCmd=0.32; st.glass=null; st.uK=UK_MAX;   // W3：树复位远端
   st.showFlow=false; wasSharp=true;                                // 初始态本就清晰，不触发成功音
-  hideBubble(); hintSt.dismissed=null;
+  hideBubble();
   if(window.playClick) playClick();
-  syncUI(); sayHint(); draw();
+  syncUI(); draw();
 });
 
 // ===== 全屏（照 c5s3 现成路线：documentElement + html.pseudo-fs 降级） =====
@@ -682,11 +645,11 @@ function tick(){
 
 layout();
 wasSharp=true;                       // 初始态（正常眼+自动+树在远端）本就清晰，加载不触发成功音/光晕
-resize(); syncUI(); sayHint(); draw(); requestAnimationFrame(tick);
+resize(); syncUI(); draw(); requestAnimationFrame(tick);
 
 window.__c5s4dbg={
   get st(){return st;}, get G(){return G;}, get W(){return W;}, get H(){return H;},
-  set:function(o){ Object.assign(st,o); syncUI(); sayHint(); draw(); },
+  set:function(o){ Object.assign(st,o); syncUI(); draw(); },
   info:imgInfo,tAct:tActNow,tr:traceRays,fEyeK:fEyeK,fReqK:fReqK,frNow:frNow,imgConv:imgConv,COND_FRNG:COND_FRNG,SHARP_TOL:SHARP_TOL
 };
 })();

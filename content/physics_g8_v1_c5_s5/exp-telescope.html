@@ -6,6 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>望远镜组装台 — 跨学科实践：制作望远镜</title>
+<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261028v1">
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
@@ -50,12 +51,6 @@
   table.rec th,table.rec td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:7px 11px;text-align:left;white-space:nowrap;color:#1e293b}
   table.rec th{background:transparent;font-weight:400;color:#64748b;width:128px}
   table.rec td{font-weight:600}
-  /* 橙色居中解说条 hint（照 c5s3 I7）：× 关闭=同分支不再自动重弹 */
-  #toast{display:none;position:absolute;left:50%;top:4%;transform:translateX(-50%);max-width:70%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:17px;line-height:1.65;letter-spacing:.02em;font-weight:600;padding:12px 34px 12px 18px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:16;text-align:left}
-  #toast.show{display:block}
-  #toast svg{vertical-align:middle;margin:2px 4px}
-  #toast-x{position:absolute;top:5px;right:11px;cursor:pointer;color:#8a7c66;font-size:19px;line-height:1;user-select:none}
-  #toast-x:hover{color:#3d3830}
   html.pseudo-fs{width:100%;height:100%}
   html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden}
 </style>
@@ -76,7 +71,6 @@
     <tr><th>放大倍率</th><td id="pr-mag">—</td></tr>
   </tbody></table>
 </div>
-<div id="toast"><span id="toast-txt"></span><span id="toast-x">×</span></div>
 </div>
 <div class="ctrlbar">
   <div class="group" id="grp-equip">
@@ -122,6 +116,11 @@
 <script src="../_lib/v1/props.js?v=20261024"></script>
 <script src="../_lib/v1/props-optics.js?v=20261024"></script>
 <script src="../_lib/v1/sfx.js?v=20261024"></script>
-<script src="exp-telescope-core.js?v=20261024"></script>
+<script src="exp-telescope-core.js?v=20261028v1"></script>
+<div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
+<script>window.GUIDE_CFG={state:window.C5S5_STATE,mode:'refract'};/* 单场景页：mode 照实设（照 c6s1/c6s2 先例） */</script>
+<script src="guide/guide-data.js?v=20261028v1"></script>
+<script src="../_lib/guide/engine-core.js?v=20261028v1"></script>
+<script src="../_lib/guide/vB-core.js?v=20261028v1"></script>
 </body>
 </html>
