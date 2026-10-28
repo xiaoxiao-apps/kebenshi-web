@@ -209,7 +209,7 @@ window.C4S1S={
 | s-s4 | true | `R.mode==='hand'` | mode 翻转 L474~475→switchMode L71；飞行 600ms 期间其余闸门全 null，不会抢话 | 手影模式！台灯和小手替换了蜡烛。 | c4s1s-s4 |
 | s-s5 | true | `R.mode==='hand' && R.handM!==null` | handM≠null ⇔ 灯亮+手在灯屏之间（computeHandScene ok L221）；灯未亮时 missing='lampOff' 静默等待；口径=core hint「光锥罩住手，光幕现黑手影」 | 台灯点亮，光幕上出现黑黑的手影。 | c4s1s-s5 |
 | s-s6 | true | `R.handM!==null && R.handM>=2.6` | m=(Sx−P.x)/(Ht.x−P.x)（L219）；默认 ≈2.07，2.6=手真实移近灯；口径=读数面板「手近灯 → 影变大」（L~334） | 手越靠近台灯，影子变得越大！ | c4s1s-s6 |
-| s-concl | true | `after:s-s2@6000` | 锚点=s-s2。**不锚数组最后一步 s-s6 的原因**：pinhole 是默认主线、s-s2 是主线完成步（近大规律=explain 成像特点核心句）；锚 s-s6 会让只玩小孔成像（多数路径）的学生永远听不到结论（r3 判例：流程走完没结论被点名）。手影分支的规律由 s-s6 文案自带收口。口径=explain「倒立的实像，能用屏承接」 | 因此我们得出结论：光沿直线传播，穿过小孔成的是倒立的实像。 | c4s1s-concl |
+| s-concl | true | `after:s-s2@6000` | 锚点=s-s2。**不锚数组最后一步 s-s6 的原因**：pinhole 是默认主线、s-s2 是主线完成步（近大规律=explain 成像特点核心句）；锚 s-s6 会让只玩小孔成像（多数路径）的学生永远听不到结论（r3 判例：流程走完没结论被点名）。手影分支的规律由 s-s6 文案自带收口。口径=explain「倒立的实像，能用屏承接」 | 通过刚才的实验现象我们可以看到：蜡烛火焰的光沿直线传播，穿过小孔后在光屏上形成倒立的实像。这说明光在同种均匀介质中是沿直线传播的。 | c4s1s-concl |
 
 > 口径核对：s-s1「倒立」、s-concl「倒立的实像」与 explain.html 三、小孔成像逐字对齐；「实像」仅出现在结论（能承接=屏上可见，学生已亲眼看屏）。影子 vs 像的区分（一个缺光一个有光）不进 25 字短条，留给 explain 页。
 > 可选扩展（验收后蔡总点头再加）：手影双结论 `s-concl2: after:s-s6@6000`「光沿直线传播，被手挡住就形成影子；影子和像不一样，一个缺光、一个有光。」
@@ -266,7 +266,7 @@ window.C4S1S={
 | c4s1s-s4 | step | 手影模式！台灯和小手替换了蜡烛。 | 16 | 4.5s |
 | c4s1s-s5 | step | 台灯点亮，光幕上出现黑黑的手影。 | 16 | 4.5s |
 | c4s1s-s6 | step | 手越靠近台灯，影子变得越大！ | 14 | 4.0s |
-| c4s1s-concl | 结论 | 因此我们得出结论：光沿直线传播，穿过小孔成的是倒立的实像。 | 29 | 8.0s |
+| c4s1s-concl | 结论 | 通过刚才的实验现象我们可以看到：蜡烛火焰的光沿直线传播，穿过小孔后在光屏上形成倒立的实像。这说明光在同种均匀介质中是沿直线传播的。 | 65 | 14.2s（afinfo实测14.184s） |
 | c4s1s-e1 | error | 不对哟～带孔板要放在蜡烛和光屏中间。 | 18 | 5.0s |
 | c4s1s-e2 | error | 不对哟～把手移到灯和屏之间，影子才会出现。 | 21 | 6.0s |
 | c4s1s-f1 | free | 孔小像清晰，孔大像更亮，看出区别了吗？ | 19 | 5.5s |
@@ -356,7 +356,7 @@ window.C4S1S_GUIDE={
       {id:'s-s4',repeat:true,trigger:"R.mode==='hand'",say:'手影模式！台灯和小手替换了蜡烛。',audio:'c4s1s-s4'},
       {id:'s-s5',repeat:true,trigger:"R.mode==='hand' && R.handM!==null",say:'台灯点亮，光幕上出现黑黑的手影。',audio:'c4s1s-s5'},
       {id:'s-s6',repeat:true,trigger:"R.handM!==null && R.handM>=2.6",say:'手越靠近台灯，影子变得越大！',audio:'c4s1s-s6'},
-      {id:'s-concl',repeat:true,trigger:'after:s-s2@6000',say:'因此我们得出结论：光沿直线传播，穿过小孔成的是倒立的实像。',audio:'c4s1s-concl'}
+      {id:'s-concl',repeat:true,queue:true,trigger:"R.mode==='pinhole' && R.imgM>=1.4 && R.candleDragT>R.screenDragT@6000",say:'通过刚才的实验现象我们可以看到：蜡烛火焰的光沿直线传播，穿过小孔后在光屏上形成倒立的实像。这说明光在同种均匀介质中是沿直线传播的。',audio:'c4s1s-concl'}/* R6（蔡总2026-10-28 21:36拍板「需要」）：结论升级「现象→本质」句式+queue对齐R5契约6；mp3重录 afinfo实测14.184s/85KB */
     ],
     errors:[
       {id:'s-e1',trigger:"R.mode==='pinhole' && R.scene && (R.scene.missing==='candlePos' || R.scene.missing==='boardPos')@1500",fix:'不对哟～带孔板要放在蜡烛和光屏中间。',audio:'c4s1s-e1'},
