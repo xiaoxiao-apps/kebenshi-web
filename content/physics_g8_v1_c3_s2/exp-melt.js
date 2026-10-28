@@ -2,7 +2,6 @@
 /* eslint-env browser */
 
 let isRotating = false, rotateStart = { x: 0, y: 0 };
-let lastTableCount = 0;
 
 function init() {
   initScene();
@@ -197,38 +196,21 @@ function updateUI() {
     ann.style.display = (show || state.freezeAnnotationShown) ? 'block' : 'none';
   }
 
+  // R4：照 c3s3 exp-vapor.js:122-129——表格与曲线分开按各自数据源增量重绘（lastTableCount/lastChartCount 在 exp-melt-chart.js）
   if (state.dataLog.length !== lastTableCount) {
     lastTableCount = state.dataLog.length;
     renderTable();
-    redrawChart();
     playDrip();
+  }
+  if ((state.chartLog || []).length !== lastChartCount) {
+    lastChartCount = (state.chartLog || []).length;
+    drawChart();
   }
 }
 
 function onDataRecorded() {
   renderTable();
-  redrawChart();
   playDrip();
-}
-
-function clearTable() {
-  state.dataLog = [];
-  state.lastRecordTime = -1;
-  lastTableCount = 0;
-  document.getElementById('data-tbody').innerHTML = '';
-}
-
-function renderTable() {
-  const tbody = document.getElementById('data-tbody');
-  tbody.innerHTML = '';
-  state.dataLog.forEach(pt => {
-    const tr = document.createElement('tr');
-    const phase = pt.heat === false ? '凝固' : '熔化';
-    tr.innerHTML = `<td>${pt.t}</td><td>${pt.T.toFixed(1)}</td><td>${phase}</td>`;
-    tbody.appendChild(tr);
-  });
-  const wrap = tbody.parentElement.parentElement;
-  wrap.scrollTop = wrap.scrollHeight;
 }
 
 function onPointerDown(e) {

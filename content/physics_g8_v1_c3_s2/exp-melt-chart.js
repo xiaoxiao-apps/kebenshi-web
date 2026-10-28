@@ -1,4 +1,4 @@
-/* exp-melt-chart.js — 温度-时间曲线系统（小图 + 放大悬浮窗） [r5i] */
+/* exp-melt-chart.js — 熔化凝固 T-t 曲线与数据表 [R4: 架构整体移植 c3s3 exp-vapor-chart.js——chartLog独立数据源+view/curWindow/maxStart/dataEnd四件套+bindChartGestures+drawChartTo单套大小图；保留c3s2教学要素：熔点平台虚线/加热冷却双色分段/图例/数据表/放大浮窗tabs/教材图/标题] */
 /* eslint-env browser */
 
 const CHART_SAMPLE_NAMES = { hypo: '海波', paraffin: '石蜡' };
@@ -15,40 +15,47 @@ const CHART_COLORS = {
   title: '#ffd54f'
 };
 
-let chartCanvas, chartCtx;
-let floatCanvas, floatCtx, floatWrap;
-let tooltipEl;
+let chartCanvas, chartCtx, floatCanvas, floatCtx, floatWrap, tooltipEl;
 let chartResizeObserver;
-let floatPanRight = null; // null = 自动跟随最新数据
-let floatPanning = false, floatPanStartX = 0, floatPanStartRight = 0;
-let livePanRight = null; // null = 小图跟随最新数据
-let livePanning = false, livePanStartX = 0, livePanStartRight = 0;
+let lastChartCount = 0;
+/* R4回归修复（主会话）：lastTableCount 原声明在 exp-melt.js:5，移植时被删而 :200 仍在用 →
+   updateUI 抛 ReferenceError 使 init() 中断、物理主循环不启动（simTime 恒 0）。
+   补回声明，与 lastChartCount 同层（let 顶层声明跨 script 共享，故 exp-melt.js 可读写）。 */
+let lastTableCount = 0;
+const CHART_SPAN = 6;  // 小图固定窗口（min），对齐 c3s3
+const BIG_SPAN = 12;   // 放大浮窗固定窗口（min），对齐 c3s3
+let chartView = { live: true, a: 0, b: CHART_SPAN, span: CHART_SPAN };
+let bigView = { live: true, a: 0, b: BIG_SPAN, span: BIG_SPAN };
 
-const LIVE_WINDOW = 6;    // 小图时间窗（分钟）：R3-J4 对齐 c3s3 CHART_SPAN=6（×10 下典型熔化全程≈6min，窗口=数据长度，曲线不再挤在纵坐标边）；整段回看走悬浮放大窗
-const FLOAT_WINDOW = 6;   // 悬浮窗实时曲线时间窗（分钟）
+function dataEnd() {
+  const d = state.chartLog || [];
+  return Math.max(d.length ? d[d.length - 1].t : 0, state.recordTime || 0);
+}
+function maxStart(v) { return Math.max(0, dataEnd() - v.span); }
+function curWindow(v) {
+  if (!v.live) return { a: v.a, b: v.b };
+  const b = Math.max(v.span, dataEnd());
+  return { a: b - v.span, b };
+}
 
 /* ---------- 初始化 ---------- */
 function initChart() {
   chartCanvas = document.getElementById('tt-chart');
   if (chartCanvas) chartCtx = chartCanvas.getContext('2d');
-
   floatCanvas = document.getElementById('float-tt-chart');
   if (floatCanvas) floatCtx = floatCanvas.getContext('2d');
-
   floatWrap = document.getElementById('chart-float');
   tooltipEl = document.getElementById('chart-tooltip');
 
-  bindChartHover(chartCanvas, LIVE_WINDOW);
-  bindChartHover(floatCanvas, FLOAT_WINDOW);
+  bindChartGestures(chartCanvas, chartView);
+  bindChartGestures(floatCanvas, bigView);
   bindFloatUI();
-  bindFloatPan();
-  bindLivePan();
 
   const liveBtn = document.getElementById('chart-live-btn');
   if (liveBtn) {
     liveBtn.addEventListener('click', () => {
-      livePanRight = null;
-      renderToCtx(chartCtx, chartCanvas, LIVE_WINDOW, false);
+      chartView.live = true;
+      drawChart();
       updateLiveBtn();
       if (typeof playClick === 'function') playClick();
     });
@@ -69,18 +76,57 @@ function initChart() {
     renderTextbookChart('melt-c');
   }
 
-  resizeChart();
+  window.addEventListener('resize', drawChart);
+  drawChart();
   updateChartTitle();
   updateLiveBtn();
 }
 
 function redrawChart() {
-  resizeChart();
+  drawChart();
   updateChartTitle();
 }
 
 // 兼容旧调用名
-function drawChart() { redrawChart(); }
+function drawChart() {
+  drawChartTo(chartCanvas, chartCtx, chartView);
+  if (floatOpen() && floatTabIs('live')) drawChartTo(floatCanvas, floatCtx, bigView);
+}
+
+function floatOpen() { return floatWrap && floatWrap.style.display !== 'none' && floatWrap.style.display !== ''; }
+function floatTabIs(tab) {
+  const activeTab = document.querySelector('.chart-float-tabs button.active');
+  return (activeTab ? activeTab.dataset.tab : 'live') === tab;
+}
+
+/* ---------- 手势（照搬 c3s3 bindChartGestures：拖拽平移+悬停tooltip+双击回当下） ---------- */
+function bindChartGestures(cv, v) {
+  if (!cv) return;
+  let drag = null;
+  cv.style.touchAction = 'none';
+  cv.addEventListener('pointerdown', e => {
+    const w = curWindow(v);
+    drag = { x: e.clientX, a: w.a };
+    v.live = false; v.a = w.a; v.b = w.b;
+    try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  cv.addEventListener('pointermove', e => {
+    if (drag) {
+      const plotW = Math.max(1, cv.clientWidth - 64);
+      const dm = -(e.clientX - drag.x) / plotW * v.span;
+      const a = Math.max(0, Math.min(maxStart(v), drag.a + dm));
+      v.a = a; v.b = a + v.span; v.live = false;
+      hideTooltip(); drawChart(); updateLiveBtn();
+      return;
+    }
+    const hit = findNearestPoint(cv, v, e.clientX, e.clientY);
+    if (hit) showTooltip(hit.pt, hit.x, hit.y, cv);
+    else hideTooltip();
+  });
+  cv.addEventListener('pointerup', () => { drag = null; updateLiveBtn(); });
+  cv.addEventListener('pointerleave', hideTooltip);
+  cv.addEventListener('dblclick', () => { v.live = true; drawChart(); updateLiveBtn(); });
+}
 
 /* ---------- 标题 ---------- */
 function getChartSampleTitle() {
@@ -95,8 +141,9 @@ function getChartSampleTitle() {
 
 function updateLiveBtn() {
   const btn = document.getElementById('chart-live-btn');
-  if (!btn) return;
-  btn.classList.toggle('show', livePanRight !== null);
+  if (btn) btn.classList.toggle('show', !chartView.live);
+  const latest = document.querySelector('.chart-float-latest');
+  if (latest) latest.classList.toggle('active', !bigView.live);
 }
 
 function updateChartTitle() {
@@ -119,193 +166,79 @@ function updateChartTitle() {
   if (floatHint) floatHint.textContent = '拖动回看历史·双击回最新';
 }
 
-function updateFloatLatestBtn() {
-  const btn = document.querySelector('.chart-float-latest');
-  if (!btn) return;
-  btn.classList.toggle('active', floatPanRight !== null);
-}
-
-/* ---------- 坐标范围（r11：y 轴固定 -15 ~ 110，不随数据扩缩） ---------- */
-function computeYRange() {
-  return { yMin: -15, yMax: 110, step: 20 };
-}
-
-/* 固定刻度线：0~100 每 20 一格；底部 -15 单独一条，顶部 110 单独一条（均不在 20 步进内） */
-function fixedTickList() {
-  const ticks = [];
-  for (let T = 0; T <= 100 + 0.001; T += 20) ticks.push(T);
-  ticks.push(-15);
-  ticks.push(110);
-  return ticks;
-}
-
-function computeXRange(windowMinutes, right) {
-  const data = state.dataLog || [];
-  // R3-J4：右缘取 max(末记录点, simTime连续值)——移植 c3s3 dataEnd()，窗口随 simTime 平滑滑动，不再等整数记录点跳格
-  const tMax = Math.max(data.length ? data[data.length - 1].t : 0, (state.simTime || 0) / 60);
-  const r = (typeof right === 'number') ? right : Math.max(windowMinutes, tMax);
-  const left = Math.max(0, r - windowMinutes);
-  return { xMin: left, xMax: r, tMax };
-}
-
-function getMargins(isFloat) {
-  return { top: 22, right: isFloat ? 34 : 28, bottom: 26, left: 42 };
-}
-
-/* ---------- 绘制 ---------- */
-function renderToCtx(ctx, canvas, timeWindow, isFloat) {
-  const w = canvas.width, h = canvas.height;
-  if (!w || !h) return;
+/* ---------- 绘制（照搬 c3s3 drawChartTo：yMin=0/yMax=110每10一格、xStep/xGrid按span自适应、margins统一、span<=20描点、clip裁剪） ---------- */
+function drawChartTo(cv, ctx, view) {
+  if (!cv || !ctx) return;
+  const rect = cv.parentElement.getBoundingClientRect();
+  cv.width = Math.max(1, rect.width); cv.height = Math.max(1, rect.height);
+  const w = cv.width, h = cv.height;
   ctx.clearRect(0, 0, w, h);
-
-  const data = state.dataLog || [];
-  const m = getMargins(isFloat);
-  const plotX = m.left;
-  const plotY = m.top;
-  const plotW = Math.max(1, w - m.left - m.right);
-  const plotH = Math.max(1, h - m.top - m.bottom);
-
-  const { xMin, xMax } = computeXRange(timeWindow, isFloat ? floatPanRight : livePanRight);
-  const { yMin, yMax } = computeYRange();
-  const xRange = xMax - xMin;
-  const yRange = yMax - yMin;
-
-  function xScale(t) { return plotX + (t - xMin) / xRange * plotW; }
-  function yScale(T) { return plotY + plotH - (T - yMin) / yRange * plotH; }
-
-  // 网格（r10：固定刻度线）
-  ctx.strokeStyle = CHART_COLORS.grid;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  const xGridStep = xRange > 16 ? 5 : xRange > 8 ? 1 : 0.5;  // R2：竖向网格密度参照c3s3（span自适应），滑动小窗下与汽化馆同款观感
-  for (let t = Math.ceil(xMin / xGridStep) * xGridStep; t <= xMax + 0.001; t += xGridStep) {
-    const x = xScale(t);
-    ctx.moveTo(x, plotY);
-    ctx.lineTo(x, plotY + plotH);
-  }
-  fixedTickList().forEach(T => {
-    const y = yScale(T);
-    ctx.moveTo(plotX, y);
-    ctx.lineTo(plotX + plotW, y);
-  });
+  const m = { top: 22, right: 24, bottom: 28, left: 40 };
+  const px = m.left, py = m.top, pw = Math.max(1, w - m.left - m.right), ph = Math.max(1, h - m.top - m.bottom);
+  const win = curWindow(view); const xMin = win.a, xMax = win.b;
+  const yMin = 0, yMax = 110;
+  const span = Math.max(0.001, xMax - xMin);
+  const xStep = span > 40 ? 10 : span > 16 ? 5 : span > 8 ? 2 : 1;
+  const xGrid = span > 16 ? 5 : span > 8 ? 1 : 0.5;
+  function xs(t) { return px + (t - xMin) / span * pw; }
+  function ys(T) { return py + ph - (T - yMin) / (yMax - yMin) * ph; }
+  ctx.strokeStyle = CHART_COLORS.grid; ctx.lineWidth = 1; ctx.beginPath();
+  for (let T = yMin; T <= yMax + 0.001; T += 10) { const y = ys(T); ctx.moveTo(px, y); ctx.lineTo(px + pw, y); }
+  for (let t = Math.ceil(xMin / xGrid) * xGrid; t <= xMax + 0.001; t += xGrid) { const x = xs(t); ctx.moveTo(x, py); ctx.lineTo(x, py + ph); }
   ctx.stroke();
+  ctx.strokeStyle = CHART_COLORS.axis; ctx.lineWidth = 1.5; ctx.beginPath();
+  ctx.moveTo(px, py); ctx.lineTo(px, py + ph); ctx.lineTo(px + pw, py + ph); ctx.stroke();
+  ctx.fillStyle = CHART_COLORS.tick; ctx.font = '11px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let T = yMin; T <= yMax + 0.001; T += 10) { const y = ys(T); ctx.fillText(String(T), px - 6, y); }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let t = Math.ceil(xMin / xStep) * xStep; t <= xMax + 0.001; t += xStep) { const x = xs(t); ctx.fillText(String(t), x, py + ph + 5); }
+  ctx.font = '10px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.fillText('t/min', px + pw - 4, py + ph - 5); ctx.textAlign = 'left'; ctx.fillText('T/℃', px + 4, py + 4);
+  if (!view.live) { ctx.fillStyle = '#ffd54f'; ctx.textAlign = 'right'; ctx.fillText('历史视图·双击回当下', px + pw, py - 8); }
 
-  // 坐标轴
-  ctx.strokeStyle = CHART_COLORS.axis;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(plotX, plotY);
-  ctx.lineTo(plotX, plotY + plotH);
-  ctx.lineTo(plotX + plotW, plotY + plotH);
-  ctx.stroke();
-
-  // 刻度与数字（r10：固定刻度线，含底部 -15）
-  ctx.fillStyle = CHART_COLORS.tick;
-  ctx.font = (isFloat ? '12px' : '11px') + ' sans-serif';
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'middle';
-  fixedTickList().forEach(T => {
-    const y = yScale(T);
-    ctx.beginPath();
-    ctx.strokeStyle = CHART_COLORS.axis;
-    ctx.lineWidth = 1;
-    ctx.moveTo(plotX - 5, y);
-    ctx.lineTo(plotX, y);
-    ctx.stroke();
-    ctx.fillText(String(Math.round(T)), plotX - 8, y);
-  });
-
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  // 自适应刻度间隔：保证相邻两位数字不重叠，且10/12 min窗口下至少5个刻度
-  const approxDigitW = ctx.measureText('00').width;
-  const minTickGapPx = approxDigitW + 16;
-  let xLabelStep = 1;
-  while (plotW / ((xMax - xMin) / xLabelStep) < minTickGapPx && xLabelStep < 60) xLabelStep++;
-  if ((xMax - xMin) / xLabelStep < 4) {
-    xLabelStep = Math.max(1, Math.floor((xMax - xMin) / 5));
-  }
-
-  for (let t = Math.ceil(xMin / xLabelStep) * xLabelStep; t <= xMax + 0.001; t += xLabelStep) {
-    const x = xScale(t);
-    ctx.beginPath();
-    ctx.strokeStyle = CHART_COLORS.axis;
-    ctx.lineWidth = 1;
-    ctx.moveTo(x, plotY + plotH);
-    ctx.lineTo(x, plotY + plotH + 4);
-    ctx.stroke();
-    ctx.fillText(String(Math.round(t)), x, plotY + plotH + 6);
-  }
-
-  // 轴名称：放到绘图区内侧，避免与刻度数字重叠
-  ctx.fillStyle = CHART_COLORS.tick;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-  ctx.fillText('T/℃', plotX + 4, plotY + 4);
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'bottom';
-  ctx.fillText('t/min', plotX + plotW - 4, plotY + plotH - 6);
-
-  // 熔点/凝固平台虚线
+  // 熔点/凝固点平台虚线（c3s2 教学要素，参照 c3s3 沸点虚线画法）
   const def = (typeof sampleDef === 'function') ? sampleDef() : null;
   if (def && def.kind === 'crystal' && typeof def.meltingPoint === 'number') {
     const mp = def.meltingPoint;
-    if (mp >= yMin && mp <= yMax) {
-      const y = yScale(mp);
-      ctx.strokeStyle = CHART_COLORS.plateau;
-      ctx.setLineDash([5, 5]);
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(plotX, y);
-      ctx.lineTo(plotX + plotW, y);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = '#5ad7ff';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'bottom';
-      ctx.font = (isFloat ? '12px' : '11px') + ' sans-serif';
-      const label = (state.mode === 'freeze' ? '凝固平台 ' : '熔点 ') + mp + '℃';
-      ctx.fillText(label, plotX + 4, y - 3);
-    }
+    const yMp = ys(mp);
+    ctx.strokeStyle = CHART_COLORS.plateau; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5; ctx.beginPath();
+    ctx.moveTo(px, yMp); ctx.lineTo(px + pw, yMp); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#5ad7ff'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+    const label = (state.mode === 'freeze' ? '凝固平台 ' : '熔点 ') + mp + '℃';
+    ctx.fillText(label, px + 4, yMp - 3);
   }
 
-  if (!data.length) return;
+  const data = state.chartLog || [];
+  if (data.length < 2) return;
+  ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip();
 
-  // 曲线（双色分段：加热暖色，冷却冷色）
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(plotX, plotY, plotW, plotH);
-  ctx.clip();
-
+  // 双色分段曲线（c3s2 教学要素：加热暖色/冷却冷色，逐段 stroke）
   function pointColor(pt) { return pt.heat === false ? CHART_COLORS.curveCool : CHART_COLORS.curveHeat; }
-
-  ctx.lineWidth = isFloat ? 3 : 2;
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
+  ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
   for (let i = 1; i < data.length; i++) {
+    const p0 = data[i - 1], p1 = data[i];
+    if (p1.t < xMin - 1 || p0.t > xMax + 1) continue;
     ctx.beginPath();
-    ctx.moveTo(xScale(data[i - 1].t), yScale(data[i - 1].T));
-    ctx.lineTo(xScale(data[i].t), yScale(data[i].T));
-    ctx.strokeStyle = pointColor(data[i]);
+    ctx.moveTo(xs(p0.t), ys(p0.T));
+    ctx.lineTo(xs(p1.t), ys(p1.T));
+    ctx.strokeStyle = pointColor(p1);
     ctx.stroke();
   }
 
-  // 描点
-  data.forEach(pt => {
-    const x = xScale(pt.t);
-    const y = yScale(pt.T);
-    ctx.beginPath();
-    ctx.arc(x, y, isFloat ? 3 : 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = pointColor(pt);
-    ctx.fill();
-  });
+  // 描点（照 c3s3：span<=20 才描点，r=2.5 白色）
+  if (span <= 20) {
+    data.forEach(pt => {
+      if (pt.t < xMin || pt.t > xMax) return;
+      ctx.beginPath(); ctx.arc(xs(pt.t), ys(pt.T), 2.5, 0, Math.PI * 2); ctx.fillStyle = CHART_COLORS.dot; ctx.fill();
+    });
+  }
 
-  // 图例（加热/冷却）：右上角，避开左上角 T/℃ 轴名
+  // 图例（c3s2 教学要素：加热/冷却，右上角）
   if (data.length) {
-    const lx = plotX + plotW - 70;
-    const ly = plotY + 8;
-    const r = isFloat ? 4 : 3;
-    ctx.font = (isFloat ? '12px' : '11px') + ' sans-serif';
+    const lx = px + pw - 70;
+    const ly = py + 8;
+    const r = 3;
+    ctx.font = '11px sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.beginPath();
@@ -326,104 +259,70 @@ function renderToCtx(ctx, canvas, timeWindow, isFloat) {
   ctx.restore();
 }
 
-function resizeChart() {
-  if (chartCanvas && chartCanvas.parentElement) {
-    const rect = chartCanvas.parentElement.getBoundingClientRect();
-    chartCanvas.width = Math.max(1, rect.width);
-    chartCanvas.height = Math.max(1, rect.height);
-    renderToCtx(chartCtx, chartCanvas, LIVE_WINDOW, false);
-  }
-  resizeFloatChart();
-}
-
-function resizeFloatChart() {
-  if (!floatWrap || floatWrap.style.display === 'none') return;
-  const activeTab = document.querySelector('.chart-float-tabs button.active');
-  const tab = activeTab ? activeTab.dataset.tab : 'live';
-  if (tab === 'live') {
-    if (!floatCanvas) return;
-    const rect = floatCanvas.parentElement.getBoundingClientRect();
-    floatCanvas.width = Math.max(1, rect.width);
-    floatCanvas.height = Math.max(1, rect.height);
-    renderToCtx(floatCtx, floatCanvas, FLOAT_WINDOW, true);
-  } else if (tab === 'textbook') {
-    renderTextbookChart(currentTextbookChart);
-  }
-}
-
-/* ---------- hover 气泡 ---------- */
-function bindChartHover(canvas, timeWindow) {
-  if (!canvas) return;
-  canvas.addEventListener('pointermove', e => {
-    if (livePanning) { hideTooltip(); return; }
-    const hit = findNearestPoint(canvas, timeWindow, e.clientX, e.clientY);
-    if (hit) showTooltip(hit.pt, hit.x, hit.y, hit.rect);
-    else hideTooltip();
-  });
-  canvas.addEventListener('pointerleave', hideTooltip);
-  canvas.addEventListener('pointerdown', e => {
-    if (livePanning) return;
-    const hit = findNearestPoint(canvas, timeWindow, e.clientX, e.clientY);
-    if (hit) showTooltip(hit.pt, hit.x, hit.y, hit.rect);
-    else hideTooltip();
-  });
-}
-
-function findNearestPoint(canvas, timeWindow, clientX, clientY) {
-  const data = state.dataLog || [];
-  if (!data.length || !canvas) return null;
-  const rect = canvas.getBoundingClientRect();
-  const isFloat = canvas === floatCanvas;
-  const m = getMargins(isFloat);
-  const plotW = Math.max(1, rect.width - m.left - m.right);
-  const plotH = Math.max(1, rect.height - m.top - m.bottom);
-  const { xMin, xMax } = computeXRange(timeWindow, isFloat ? floatPanRight : livePanRight);
-  const { yMin, yMax } = computeYRange();
-
-  const mx = clientX - rect.left;
-  const my = clientY - rect.top;
-  const tHover = xMin + (mx - m.left) / plotW * (xMax - xMin);
-
+/* ---------- hover 气泡（照搬 c3s3 findNearestPoint/showTooltip/hideTooltip） ---------- */
+function findNearestPoint(cv, view, clientX, clientY) {
+  const data = state.chartLog || [];
+  if (!data.length || !cv) return null;
+  const rect = cv.getBoundingClientRect();
+  // 与 drawChartTo 完全一致的几何参数，保证大小图都命中
+  const m = { top: 22, right: 24, bottom: 28, left: 40 };
+  const pw = Math.max(1, rect.width - m.left - m.right);
+  const ph = Math.max(1, rect.height - m.top - m.bottom);
+  const win = curWindow(view); const xMin = win.a, xMax = win.b;
+  const mx = clientX - rect.left, my = clientY - rect.top;
+  if (mx < m.left || mx > rect.width - m.right || my < m.top || my > rect.height - m.bottom) return null;
+  const span = Math.max(0.001, xMax - xMin);
+  const tHover = xMin + (mx - m.left) / pw * span;
   let best = null, bestDt = Infinity;
-  data.forEach(pt => {
-    const dt = Math.abs(pt.t - tHover);
-    if (dt < bestDt) { bestDt = dt; best = pt; }
-  });
+  data.forEach(pt => { if (pt.t < xMin || pt.t > xMax) return; const dt = Math.abs(pt.t - tHover); if (dt < bestDt) { bestDt = dt; best = pt; } });
   if (!best) return null;
-
-  const x = m.left + (best.t - xMin) / (xMax - xMin) * plotW;
-  const y = m.top + plotH - (best.T - yMin) / (yMax - yMin) * plotH;
-  const dist = Math.hypot(mx - x, my - y);
-  if (dist > (isFloat ? 34 : 26)) return null;
-  return { pt: best, x, y, rect };
+  const x = m.left + (best.t - xMin) / span * pw;
+  const y = m.top + ph - (best.T - 0) / 110 * ph;
+  return { pt: best, x, y };
 }
 
-function showTooltip(pt, x, y, rect) {
+function showTooltip(pt, x, y, cv) {
   if (!tooltipEl) return;
-  const phase = (typeof state !== 'undefined' && state.phaseName) ? state.phaseName : '';
-  tooltipEl.innerHTML = '时间 ' + pt.t + ' min<br>温度 ' + pt.T.toFixed(1) + ' ℃' + (phase ? '<br>物态：' + phase : '');
+  const phase = pt.heat === false ? '冷却' : '加热';
+  tooltipEl.innerHTML = '时间 ' + pt.t.toFixed(1) + ' min<br>温度 ' + pt.T.toFixed(1) + ' ℃<br>' + phase;
   tooltipEl.style.display = 'block';
-  const tw = tooltipEl.offsetWidth;
-  const th = tooltipEl.offsetHeight;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
-  let left = rect.left + x + 12;
-  let top = rect.top + y - th - 10;
-  if (left + tw > vw) left = rect.left + x - tw - 12;
+  const rect = cv.getBoundingClientRect();
+  const tw = tooltipEl.offsetWidth, th = tooltipEl.offsetHeight;
+  let left = rect.left + x + 12, top = rect.top + y - th - 10;
+  if (left + tw > window.innerWidth) left = rect.left + x - tw - 12;
   if (top < 0) top = rect.top + y + 16;
-  if (left < 0) left = 4;
-  if (top + th > vh) top = vh - th - 4;
+  tooltipEl.style.left = left + 'px'; tooltipEl.style.top = top + 'px';
+}
+function hideTooltip() { if (tooltipEl) tooltipEl.style.display = 'none'; }
 
-  tooltipEl.style.left = left + 'px';
-  tooltipEl.style.top = top + 'px';
+/* ---------- 数据表（继续读 dataLog，不动） ---------- */
+function renderTable() {
+  const tbody = document.getElementById('data-tbody');
+  tbody.innerHTML = '';
+  state.dataLog.forEach(pt => {
+    const tr = document.createElement('tr');
+    const phase = pt.heat === false ? '凝固' : '熔化';
+    tr.innerHTML = `<td>${pt.t}</td><td>${pt.T.toFixed(1)}</td><td>${phase}</td>`;
+    tbody.appendChild(tr);
+  });
+  const wrap = tbody.parentElement.parentElement;
+  wrap.scrollTop = wrap.scrollHeight;
 }
 
-function hideTooltip() {
-  if (tooltipEl) tooltipEl.style.display = 'none';
+function clearTable() {
+  state.dataLog = [];
+  state.lastRecordTime = -1;
+  state.chartLog = [];
+  state.lastChartIdx = -1;
+  state.recordTime = 0;
+  lastChartCount = 0;
+  chartView = { live: true, a: 0, b: CHART_SPAN, span: CHART_SPAN };
+  bigView = { live: true, a: 0, b: BIG_SPAN, span: BIG_SPAN };
+  document.getElementById('data-tbody').innerHTML = '';
+  drawChart();
 }
 
-/* ---------- 悬浮窗 ---------- */
+/* ---------- 悬浮窗（保留 DOM 与 tab/拖拽/改大小逻辑，绘制走 drawChartTo(floatCanvas,floatCtx,bigView)） ---------- */
 function bindFloatUI() {
   const openBtn = document.getElementById('chart-float-btn');
   if (openBtn) openBtn.addEventListener('click', () => { openChartFloat(); if (typeof playClick === 'function') playClick(); });
@@ -433,9 +332,9 @@ function bindFloatUI() {
 
   const latestBtn = document.querySelector('.chart-float-latest');
   if (latestBtn) latestBtn.addEventListener('click', () => {
-    floatPanRight = null;
-    resizeFloatChart();
-    updateFloatLatestBtn();
+    bigView.live = true;
+    drawChart();
+    updateLiveBtn();
     if (typeof playClick === 'function') playClick();
   });
 
@@ -488,7 +387,7 @@ function bindFloatUI() {
     });
     resizer.addEventListener('pointerup', () => {
       resizing = false;
-      resizeFloatChart();
+      drawChart();
     });
   }
 
@@ -505,7 +404,7 @@ function bindFloatUI() {
 
   if (typeof ResizeObserver !== 'undefined' && floatWrap) {
     chartResizeObserver = new ResizeObserver(() => {
-      if (floatWrap && floatWrap.style.display !== 'none') resizeFloatChart();
+      if (floatOpen() && floatTabIs('live')) drawChart();
     });
     chartResizeObserver.observe(floatWrap);
   }
@@ -520,120 +419,6 @@ function bindFloatUI() {
   }
 }
 
-function bindFloatPan() {
-  if (!floatCanvas) return;
-  const wrap = floatCanvas.parentElement;
-  if (!wrap) return;
-
-  function minutesPerPx() {
-    const rect = floatCanvas.getBoundingClientRect();
-    const m = getMargins(true);
-    const plotW = Math.max(1, rect.width - m.left - m.right);
-    return FLOAT_WINDOW / plotW;
-  }
-
-  function moveToRight(right) {
-    const data = state.dataLog || [];
-    const tMax = data.length ? data[data.length - 1].t : 0;
-    floatPanRight = Math.max(FLOAT_WINDOW, Math.min(right, Math.max(tMax, FLOAT_WINDOW)));
-    resizeFloatChart();
-    updateFloatLatestBtn();
-  }
-
-  let lastTapTime = 0, lastTapX = 0, lastTapY = 0;
-
-  wrap.addEventListener('pointerdown', e => {
-    if (e.target.closest('.chart-float-latest') || e.target.closest('.chart-float-close')) return;
-    floatPanning = true;
-    floatPanStartX = e.clientX;
-    floatPanStartRight = (typeof floatPanRight === 'number') ? floatPanRight : computeXRange(FLOAT_WINDOW).xMax;
-    try { wrap.setPointerCapture(e.pointerId); } catch (_) {}
-  });
-
-  wrap.addEventListener('pointermove', e => {
-    if (!floatPanning) return;
-    hideTooltip();
-    const dx = e.clientX - floatPanStartX;
-    moveToRight(floatPanStartRight - dx * minutesPerPx());
-  });
-
-  wrap.addEventListener('pointerup', e => {
-    floatPanning = false;
-    const now = Date.now();
-    if (now - lastTapTime < 350 && Math.hypot(e.clientX - lastTapX, e.clientY - lastTapY) < 10) {
-      floatPanRight = null;
-      resizeFloatChart();
-      updateFloatLatestBtn();
-    }
-    lastTapTime = now;
-    lastTapX = e.clientX;
-    lastTapY = e.clientY;
-  });
-  wrap.addEventListener('pointercancel', () => { floatPanning = false; });
-
-  wrap.addEventListener('wheel', e => {
-    if (!floatWrap || floatWrap.style.display === 'none') return;
-    const delta = e.deltaX || e.deltaY;
-    if (!delta) return;
-    e.preventDefault();
-    const mpp = minutesPerPx();
-    const currentRight = (typeof floatPanRight === 'number') ? floatPanRight : computeXRange(FLOAT_WINDOW).xMax;
-    moveToRight(currentRight + delta * mpp);
-  }, { passive: false });
-
-  wrap.addEventListener('dblclick', e => {
-    if (e.target.closest('.chart-float-latest') || e.target.closest('.chart-float-close')) return;
-    floatPanRight = null;
-    resizeFloatChart();
-    updateFloatLatestBtn();
-  });
-}
-
-function bindLivePan() {
-  if (!chartCanvas) return;
-
-  function minutesPerPx() {
-    const rect = chartCanvas.getBoundingClientRect();
-    const m = getMargins(false);
-    const plotW = Math.max(1, rect.width - m.left - m.right);
-    return LIVE_WINDOW / plotW;
-  }
-
-  function moveToRight(right) {
-    const data = state.dataLog || [];
-    const tMax = data.length ? data[data.length - 1].t : 0;
-    livePanRight = Math.max(LIVE_WINDOW, Math.min(right, Math.max(tMax, LIVE_WINDOW)));
-    renderToCtx(chartCtx, chartCanvas, LIVE_WINDOW, false);
-    updateLiveBtn();
-  }
-
-  chartCanvas.addEventListener('pointerdown', e => {
-    livePanning = true;
-    livePanStartX = e.clientX;
-    livePanStartRight = (typeof livePanRight === 'number') ? livePanRight : computeXRange(LIVE_WINDOW).xMax;
-    chartCanvas.style.cursor = 'grabbing';
-    try { chartCanvas.setPointerCapture(e.pointerId); } catch (_) {}
-  });
-
-  chartCanvas.addEventListener('pointermove', e => {
-    if (!livePanning) return;
-    hideTooltip();
-    const dx = e.clientX - livePanStartX;
-    moveToRight(livePanStartRight - dx * minutesPerPx());
-  });
-
-  chartCanvas.addEventListener('pointerup', () => { livePanning = false; chartCanvas.style.cursor = 'grab'; });
-  chartCanvas.addEventListener('pointercancel', () => { livePanning = false; chartCanvas.style.cursor = 'grab'; });
-
-  chartCanvas.addEventListener('dblclick', () => {
-    livePanRight = null;
-    renderToCtx(chartCtx, chartCanvas, LIVE_WINDOW, false);
-    updateLiveBtn();
-  });
-
-  chartCanvas.style.cursor = 'grab';
-}
-
 function openChartFloat() {
   if (!floatWrap) return;
   floatWrap.style.display = 'flex';
@@ -643,10 +428,10 @@ function openChartFloat() {
     floatWrap.style.left = '15vw';
     floatWrap.style.top = '20vh';
   }
-  floatPanRight = null;
-  updateFloatLatestBtn();
+  bigView.live = true;
+  updateLiveBtn();
   switchFloatTab('live');
-  resizeFloatChart();
+  drawChart();
   updateChartTitle();
 }
 
@@ -670,7 +455,7 @@ function switchFloatTab(tab) {
     p.classList.toggle('active', p.dataset.tab === tab);
   });
   if (tab !== 'textbook') hideSegmentCard();
-  if (tab === 'live') resizeFloatChart();
+  if (tab === 'live') drawChart();
   if (tab === 'textbook') renderTextbookChart(currentTextbookChart);
 }
 

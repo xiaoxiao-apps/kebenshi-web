@@ -55,6 +55,7 @@ const INITIAL = {
   sampleTemp: 25, bathTemp: 25, meltedFrac: 0,
   heating: false, simTime: 0, lastRecordTime: -1,
   dataLog: [], phaseName: '固态',
+  chartLog: [], lastChartIdx: -1, recordTime: 0,
   plateauAnnounced: false,
   fullyMeltedAnnounced: false,
   paraffinHeatAnnounced: false,
@@ -105,6 +106,9 @@ function resetPhysics() {
   state.heating = false;
   state.simTime = 0;
   state.lastRecordTime = -1;
+  state.chartLog = [];
+  state.lastChartIdx = -1;
+  state.recordTime = 0;
   state.phaseName = '固态';
   state.plateauAnnounced = false;
   state.fullyMeltedAnnounced = false;
@@ -849,12 +853,22 @@ function stepPhysics(dtReal) {
 }
 
 function recordData() {
-  const tMin = Math.floor(state.simTime / 60);
+  // R4：参照 c3s3 exp-vapor-physics.js recordData 母本——dataLog(表格,1min粒度,120容量)原样；新增 chartLog(曲线,0.5min粒度,4000容量,连续t)
+  const T = state.sampleTemp;
+  const rt = state.simTime / 60;
+  state.recordTime = rt;
+  const tMin = Math.floor(rt);
   if (tMin > state.lastRecordTime) {
     state.lastRecordTime = tMin;
-    state.dataLog.push({ t: tMin, T: state.sampleTemp, heat: !!state.heating, mode: state.mode });
+    state.dataLog.push({ t: tMin, T: T, heat: !!state.heating, mode: state.mode });
     if (state.dataLog.length > 120) state.dataLog.shift();
     if (typeof onDataRecorded === 'function') onDataRecorded();
+  }
+  const idx = Math.floor(rt / 0.5);
+  if (idx > state.lastChartIdx) {
+    state.lastChartIdx = idx;
+    state.chartLog.push({ t: idx * 0.5, T: T, heat: !!state.heating, mode: state.mode });
+    if (state.chartLog.length > 4000) state.chartLog.shift();
   }
 }
 
