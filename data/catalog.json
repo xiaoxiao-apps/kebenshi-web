@@ -487,6 +487,7 @@
     "type": "实验",
     "title": "平面镜成像探究馆",
     "path": "content/physics_g8_v1_c4_s3/exp-mirror.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c4_s3/thumb.svg"
    },
    {
@@ -585,6 +586,7 @@
     "type": "实验",
     "title": "透镜光学台",
     "path": "content/physics_g8_v1_c5_s1/exp-lens.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c5_s1/thumb1.svg"
    },
    {
@@ -609,6 +611,7 @@
     "type": "实验",
     "title": "凸透镜的三大仪器",
     "path": "content/physics_g8_v1_c5_s2/exp-lens-life.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c5_s2/thumb1.svg"
    },
    {
@@ -633,6 +636,7 @@
     "type": "实验",
     "title": "探究凸透镜成像的规律",
     "path": "content/physics_g8_v1_c5_s3/exp-image-law.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c5_s3/thumb1.svg"
    },
    {
@@ -657,6 +661,7 @@
     "type": "实验",
     "title": "眼睛与矫正",
     "path": "content/physics_g8_v1_c5_s4/exp-eye.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c5_s4/thumb1.svg"
    },
    {
@@ -681,6 +686,7 @@
     "type": "实验",
     "title": "望远镜组装台",
     "path": "content/physics_g8_v1_c5_s5/exp-telescope.html",
+    "voice": true,
     "thumb": "content/physics_g8_v1_c5_s5/thumb1.svg"
    },
    {
