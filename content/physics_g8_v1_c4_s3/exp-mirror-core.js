@@ -556,6 +556,8 @@ document.getElementById('btn-reset').addEventListener('click',function(ev){
   if(window.playClick)window.playClick();
   if(!loopOn)R.draw();
 });
+/* W5语音重置联动：m2/m3 分支提前 return，独立 listener 保证三模式全覆盖（注册序在后=状态清零后触发；变体页旧引擎无重置接口，&&短路安全） */
+document.getElementById('btn-reset').addEventListener('click',function(){window.GUIDE_RESET&&window.GUIDE_RESET.all();});
 layout();setMode('m1');startLoop();
 window.__mirDbg={
   get objX(){return Math.round(R.objX);},get imgX(){return Math.round(R.mirrorX+R.doCm*K);},

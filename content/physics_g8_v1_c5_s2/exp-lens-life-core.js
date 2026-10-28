@@ -799,6 +799,7 @@ if(btnReset) btnReset.addEventListener('click',function(){
   else if(state.scene==='proj') resetProj();
   else resetMag();
   if(window.playClick) playClick(); draw();
+  window.GUIDE_RESET&&window.GUIDE_RESET.all();
 });
 // ===== 场景2 动作卡（H2）：倒插投影片（平面镜钮已删） =====
 var btnFlip=document.getElementById('btn-flip');

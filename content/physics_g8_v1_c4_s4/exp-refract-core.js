@@ -45,7 +45,7 @@ function toggleLaser(){
   RR.laserOn=!RR.laserOn;
   if(RR.laserOn){if(window.playLight)window.playLight();}else{if(window.playSnuff)window.playSnuff();}
 }
-btnReset.addEventListener('click',reset);
+btnReset.addEventListener('click',function(){reset();window.GUIDE_RESET&&window.GUIDE_RESET.all();});
 
 // 全屏按钮照上一节 c4_s3 原版：系统卡文字钮 + documentElement 全屏 + html.pseudo-fs 降级
 var btnFull=document.getElementById('btn-full')||document.getElementById('fsBtn');

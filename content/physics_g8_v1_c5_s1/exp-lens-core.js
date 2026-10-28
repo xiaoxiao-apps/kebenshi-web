@@ -666,6 +666,7 @@ if(btnReset) btnReset.addEventListener('click',function(){
   if(state.animating) return;
   if(state.scene==='bench') resetBench(); else resetFocal();
   syncSlider(); if(window.playClick) playClick(); draw();
+  window.GUIDE_RESET&&window.GUIDE_RESET.all();
 });
 // ===== 场景切换钮（两态：☀️ 测焦距 / 🔦 返回光学台）+ 飞入飞出动画 =====
 var btnScene=document.getElementById('btn-scene');

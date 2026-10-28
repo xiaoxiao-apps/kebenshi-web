@@ -395,6 +395,7 @@ if(bReset) bReset.addEventListener('click',function(){
   syncDistUI(); syncSlider();
   if(window.playClick) playClick();
   draw();
+  window.GUIDE_RESET&&window.GUIDE_RESET.all();
 });
 // ===== 全屏（照抄 c5s3 exp-image-law 现成实现：documentElement + html.pseudo-fs 降级） =====
 var btnFull=document.getElementById('btn-full');

@@ -8,7 +8,7 @@ window.C5S3_GUIDE={
     steps:[
       {id:'c5s3-s1',repeat:true,trigger:'delay:9400',say:'拖动F光源改变物距u，拖光屏找清晰的像。',audio:'c5s3-s1'},
       {id:'c5s3-s2',repeat:true,trigger:'R.u-R.f>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))>0.6',say:'屏上像模糊啦，拖屏或点寻像找清晰像。',audio:'c5s3-s2'},
-      {id:'c5s3-s3',repeat:true,trigger:'R.u>2*R.f && R.u-R.f>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))<=0.6 && (G.t-G.modeEnterT)>16400',say:'现在u大于2f：倒立、缩小的实像。',audio:'c5s3-s3'},
+      {id:'c5s3-s3',repeat:true,trigger:'R.u>2*R.f && R.u-R.f>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))<=0.6',say:'现在u大于2f：倒立、缩小的实像。',audio:'c5s3-s3'},
       {id:'c5s3-s4',repeat:true,trigger:'R.u-R.f>0.25 && R.u<2*R.f && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))<=0.6',say:'f和2f之间：倒立、放大的实像。',audio:'c5s3-s4'},
       {id:'c5s3-s5',repeat:true,trigger:'Math.abs(R.u-2*R.f)<=0.25',say:'u等于2f：倒立等大的实像，大小分界。',audio:'c5s3-s5'},
       {id:'c5s3-s6',repeat:true,trigger:'Math.abs(R.u-R.f)<=0.25',say:'u等于f不成像，一倍焦距分虚实。',audio:'c5s3-s6'},

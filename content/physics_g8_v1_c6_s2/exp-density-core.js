@@ -1380,6 +1380,7 @@ if(btnReset) btnReset.addEventListener('click',function(){
   if(state.scene==='e3') resetE3(); else if(state.scene==='e4') resetE4(); else { genE5(); hideToast(); }
   if(window.playClick) playClick();
   dirty=true;
+  window.GUIDE_RESET&&window.GUIDE_RESET.all();
 });
 var btnMute=document.getElementById('btn-mute');
 if(btnMute) btnMute.addEventListener('click',function(){ if(state.animating)return; window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick)playClick(); });

@@ -1246,6 +1246,7 @@ if(btnReset) btnReset.addEventListener('click',function(){
   hideToast();
   if(window.playClick) playClick();
   dirty=true;
+  window.GUIDE_RESET&&window.GUIDE_RESET.all();
 });
 /* H5：「重置阶段一」按钮已删（蔡总 10-20 拍板）——系统卡「重置」语义不变=重置当前阶段；resetS1() 保留（系统卡重置在 s1 时仍调、dbg.reset 同用） */
 var btnMute=document.getElementById('btn-mute');

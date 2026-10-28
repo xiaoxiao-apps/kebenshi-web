@@ -106,6 +106,7 @@ document.getElementById('btn-reset').addEventListener('click',function(ev){
   prismS.value=0; prismV.textContent='0°';
   rS.value=255; gS.value=255; bS.value=255; syncNum('R');syncNum('G');syncNum('B'); if(btnLight)btnLight.textContent='点亮';
   setMode('m1'); updateMix(); updateHint(); if(!loopOn)R.draw();
+  window.GUIDE_RESET&&window.GUIDE_RESET.all();
 });
 
 function pos(ev){var r=cv.getBoundingClientRect(); return {x:ev.clientX-r.left,y:ev.clientY-r.top};}

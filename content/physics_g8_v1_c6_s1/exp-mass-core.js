@@ -970,7 +970,7 @@ function resetAll(){
   syncG(); syncObjBtns(); afterAct(); poke(); draw();
 }
 var btnReset=el('btn-reset');
-if(btnReset) btnReset.addEventListener('click',function(){ resetAll(); if(window.playClick) playClick(); });
+if(btnReset) btnReset.addEventListener('click',function(){ resetAll(); if(window.playClick) playClick(); window.GUIDE_RESET&&window.GUIDE_RESET.all(); });
 var btnMute=el('btn-mute');
 if(btnMute) btnMute.addEventListener('click',function(){ window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick) playClick(); });
 var btnFull=el('btn-full');

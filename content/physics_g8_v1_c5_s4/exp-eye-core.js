@@ -600,6 +600,7 @@ if(btnReset) btnReset.addEventListener('click',function(){
   hideBubble();
   if(window.playClick) playClick();
   syncUI(); draw();
+  window.GUIDE_RESET&&window.GUIDE_RESET.all();
 });
 
 // ===== 全屏（照 c5s3 现成路线：documentElement + html.pseudo-fs 降级） =====

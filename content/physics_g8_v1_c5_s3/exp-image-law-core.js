@@ -668,6 +668,7 @@ if(bReset) bReset.addEventListener('click',function(){
   st.wasSharp=isSharp();
   if(window.playClick) playClick();
   draw();
+  window.GUIDE_RESET&&window.GUIDE_RESET.all();
 });
 var btnMute=document.getElementById('btn-mute');
 if(btnMute) btnMute.addEventListener('click',function(){ window.muted=!window.muted; btnMute.textContent=window.muted?'🔇':'🔊'; if(window.playClick) playClick(); });
