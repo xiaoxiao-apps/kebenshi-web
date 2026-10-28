@@ -5,14 +5,20 @@
    R7-A2（蔡总 2026-10-28 23:23 条3）：①s3/s4 触发加 |u−2f|>0.25 排除带（s5 判定带 |u−2f|<=0.25，
    原 s3/s4 无排除带→u 恰=2f 时 s3/s5 双真、数组序 s3 在前抢先，误报「大于二倍焦距缩小」）；
    ②文案去字母改中文（intro/s1/s3~s7/e2 重录，afinfo 2026-10-29 实测：intro 10.080s、s1 4.560s、
-   s3 5.016s、s4 5.856s、s5 6.552s、s6 4.608s、s7 6.456s、e2 4.896s；intro 变长后 s1 delay:9400
+   s3 5.016s、s4 5.856s、s5 6.552s、s6 4.608s、s7 6.456s、e2 4.896s；intro 变长后 s1 按当时的延时值
    发火时 intro 未播完，靠 queue:true 依契约6 defer 至播完再上）；
-   ③全部 steps+errors 加 queue:true（重置后电平条等 intro 播完再上，不再掐欢迎词）；s11 结论改非 repeat 单次播 */
+   ③全部 steps+errors 加 queue:true（重置后电平条等 intro 播完再上，不再掐欢迎词）；s11 结论改非 repeat 单次播
+   R8-2（蔡总 2026-10-29 01:17 条3）：s1 延时 9400→11100 + 文案改「先点亮光源…」（重录）；新增 s1b=点亮光源后的播报（新录） */
 window.C5S3_GUIDE={
   refract:{
     intro:{text:'光具座探究成像规律，拖动光源改变物距，拖动光屏找像。一倍焦距和二倍焦距是两条分界线。',audio:'c5s3-intro'},
     steps:[
-      {id:'c5s3-s1',repeat:true,queue:true,trigger:'delay:9400',say:'拖动光源改变物距，拖动光屏找清晰的像。',audio:'c5s3-s1'},
+      /* R8-2（蔡总 2026-10-29 01:17 条3）：欢迎词之后先引导点亮光源——s1 延时抬到 11100（intro afinfo 实测 10.080s + 1s 取整百）
+         且文案改「先点亮光源…」；新增 s1b = 点亮光源后的播报（repeat:true 走上升沿，st.lit 假→真发一次，非持续电平故不自我复读）。
+         s1b 是**用户动作条 → 不加 queue**（契约6 R8-1 规则：用户一操作立即打断在播音频，含欢迎词）。
+         已 grep 核：全文件无 after:c5s3-s1 下游依赖（唯一 after: 是 s11 挂 s10），故 s1 改延时不需迁挂 */
+      {id:'c5s3-s1',repeat:true,queue:true,trigger:'delay:11100',say:'先点亮光源，再拖动光源改变物距，拖动光屏找清晰的像。',audio:'c5s3-s1'},
+      {id:'c5s3-s1b',repeat:true,trigger:'R.lit===true',say:'看，光源从上、中、下三处发出平行光，射向凸透镜。',audio:'c5s3-s1b'},
       {id:'c5s3-s2',repeat:true,queue:true,trigger:'R.u-R.f>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))>0.6',say:'屏上像模糊啦，拖屏或点寻像找清晰像。',audio:'c5s3-s2'},
       {id:'c5s3-s3',repeat:true,queue:true,trigger:'R.u>2*R.f && R.u-R.f>0.25 && Math.abs(R.u-2*R.f)>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))<=0.6',say:'现在物距大于二倍焦距，成倒立、缩小的实像。',audio:'c5s3-s3'},   /* R7-A2：加 |u−2f|>0.25 排除带，u=2f 时让位 s5 */
       {id:'c5s3-s4',repeat:true,queue:true,trigger:'R.u-R.f>0.25 && R.u<2*R.f && Math.abs(R.u-2*R.f)>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))<=0.6',say:'物距在一倍焦距和二倍焦距之间，成倒立、放大的实像。',audio:'c5s3-s4'},   /* R7-A2：同款排除带 */
@@ -39,7 +45,8 @@ window.C5S3_GUIDE={
   },
   audios:{
     'c5s3-intro':'guide/audio/c5s3-intro.mp3?v=20261029v1',
-    'c5s3-s1':'guide/audio/c5s3-s1.mp3?v=20261029v1','c5s3-s2':'guide/audio/c5s3-s2.mp3',
+    'c5s3-s1':'guide/audio/c5s3-s1.mp3?v=20261029v2','c5s3-s1b':'guide/audio/c5s3-s1b.mp3?v=20261029v2',
+    'c5s3-s2':'guide/audio/c5s3-s2.mp3',
     'c5s3-s3':'guide/audio/c5s3-s3.mp3?v=20261029v1','c5s3-s4':'guide/audio/c5s3-s4.mp3?v=20261029v1',
     'c5s3-s5':'guide/audio/c5s3-s5.mp3?v=20261029v1','c5s3-s6':'guide/audio/c5s3-s6.mp3?v=20261029v1',
     'c5s3-s7':'guide/audio/c5s3-s7.mp3?v=20261029v1','c5s3-s8':'guide/audio/c5s3-s8.mp3',

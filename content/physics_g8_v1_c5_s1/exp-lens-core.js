@@ -57,7 +57,7 @@ var showFocus=true,showVirtual=true,showLabels=false;   // 标注默认关
 var state={
   scene:'bench',
   animating:false,anim:null,   // anim={to,t0}；animating 期间锁全部输入
-  bench:{f:F_DEF_CM,d:D_DEF_CM,lens:null,source:null},   // f/d 均为 cm 语义（px 换算走 cmPx()）
+  bench:{f:F_DEF_CM,d:D_DEF_CM,lens:null,source:null,everConvex:false,everConcave:false},   // f/d 均为 cm 语义（px 换算走 cmPx()）；ever* = R8-2 统一结论旗标
   focal:{f:F_DEF_CM,d:FOCAL_D_DEF_CM,lens:null,screen:null}
 };
 window.C5S1_STATE=state;   // 语音讲解层状态暴露（设计书 §A-1 最小方案：稳定对象直接引用，无需 getter 聚合）
@@ -207,11 +207,19 @@ function traceRay(x0,y0,xL,yi,mIn,dir){
     beamDash(xL,yi,back,axisY);
   }
 }
+// R8-2（蔡总 2026-10-29 01:17 条1b）：统一结论旗标——「真的看到了光路」才置位（光源点亮 + 透镜就位 + 本帧确实在画经该透镜的折射光路），
+// 不是把透镜拖出来就置位。state.bench 经 window.C5S1_STATE 直暴露 → guide-data 用 R.bench.everConvex/everConcave 读。
+function markRaySeen(L){
+  if(VS!==state.bench||!L) return;
+  if(L.kind==='convex') state.bench.everConvex=true;
+  else if(L.kind==='concave') state.bench.everConcave=true;
+}
 function drawRays(){
   if(VS===state.focal){ drawSunRays(); return; }
   var s=VS.source; if(!s) return;
   var L=VS.lens;
   if(s.type==='pens'){
+    if(L&&(s.on[0]||s.on[1]||s.on[2])) markRaySeen(L);   // R8-2：至少一支笔亮 + 透镜就位 = 看到光路
     for(var i=0;i<3;i++){
       if(!s.on[i]) continue;
       var nz=nozzleOf(i),yi=nz.y;
@@ -237,6 +245,7 @@ function drawSunRays(){
 function drawBulbRays(){
   var s=VS.source,L=VS.lens;
   if(!s.on) return;
+  markRaySeen(L);   // R8-2：灯泡亮 + 透镜就位 = 看到光路（L 为 null 时 markRaySeen 内自动跳过）
   var bx=s.x,by=axisY, dir=L?(L.x>=bx?1:-1):1;
   var half=L?Math.min(dPx*0.42,H*0.154):H*0.154;   // 扇形半跨随孔径/H 比例
   for(var k=0;k<BULB_HS.length;k++){
@@ -647,6 +656,7 @@ function resetBench(){
   B.source=null; glowFx=[];
   B.lens={kind:'convex',x:clampLensX(Math.round(W*0.5))};
   B.f=F_DEF_CM; B.d=D_DEF_CM; setF(F_DEF_CM); setD(D_DEF_CM);
+  B.everConvex=false; B.everConcave=false;   // R8-2：统一结论旗标随重置清零——否则重置后 intro 一播完 b-s8 电平立真即刻复播=「开屏即结论」
   showFocus=true; showVirtual=true; showLabels=false; showFlow=false;
   if(btnFocus) btnFocus.classList.add('on');
   if(btnLabels) btnLabels.classList.remove('on');

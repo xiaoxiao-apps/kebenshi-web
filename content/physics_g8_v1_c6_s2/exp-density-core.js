@@ -66,7 +66,7 @@ function cbrt(v){ return Math.pow(v,1/3); }
 var state={
   scene:'e3',animating:false,anim:null,showLabels:false,   // R34：标注开关默认关（重置不影响）
   e3:{mat:'aluminum',v:20,records:[],dropT:0,
-      block:{loc:'source',x:0,y:0},mKnown:false,vKnown:false,converged:false,
+      block:{loc:'source',x:0,y:0},mKnown:false,vKnown:false,vPending:false,converged:false,
       cylFrac:E3_CYL_BASE/E3_CYL_CAP,cylTw:null,arw:null,drag:null},
   e4:{dual:false,sel:0,single:null,duals:null,lvl:TANK_BASE_L,drag:null,
       splashes:[],stack:null},
@@ -403,7 +403,7 @@ function e3Select(mat,v){   // 换材质/体积：新块落回源位、清空双
   if(mat) E.mat=mat;
   if(v) E.v=v;
   E.block.loc='source'; E.block.x=L.e3.src.x; E.block.y=L.e3.src.y;
-  E.mKnown=false; E.vKnown=false; E.converged=false; E.arw=null;
+  E.mKnown=false; E.vKnown=false; E.vPending=false; E.converged=false; E.arw=null;
   e3SetCyl(E3_CYL_BASE/E3_CYL_CAP);
   E.dropT=performance.now(); dirty=true;
   if(window.playDrop) playDrop();
@@ -447,11 +447,17 @@ function e3Drop(b){   // 放手：天平左盘列=称m / 量筒列=排水测V / 
   var B=L.e3,pn=e3PanL(),cy=e3CylMouth();
   if(overPan(b,pn)){
     b.loc='pan'; b.x=pn.x; b.y=B.bal.panTop; e3SetCyl(e3CylTargetFrac());
-    if(!state.e3.mKnown){ state.e3.mKnown=true; if(window.playMatch)playMatch(); e3CheckBoth(); }
+    if(!state.e3.mKnown){ state.e3.mKnown=true; if(window.playMatch)playMatch();
+      /* R8-3（蔡总条4b）：顺序错后补救——物块曾投过量筒(vPending)则自动补记体积，用户不用重投 */
+      if(state.e3.vPending){ state.e3.vPending=false; state.e3.vKnown=true; }
+      e3CheckBoth(); }
     else if(window.playDrop)playDrop();
   }else if(overCyl(b,cy)){
     b.loc='cyl'; b.x=B.cyl.x; b.y=B.cyl.y; e3SetCyl(e3CylTargetFrac());
-    if(!state.e3.vKnown){ state.e3.vKnown=true; if(window.playMatch)playMatch(); e3CheckBoth(); }
+    /* R8-3（蔡总条4b）：未称质量就投量筒=顺序错，不记体积/不汇聚/不入表/不打点，只由 guide e0 纠错；
+       置 vPending，待用户去称质量时自动补记（拍板：不用重投） */
+    if(!state.e3.mKnown){ state.e3.vPending=true; if(window.playDrop)playDrop(); }
+    else if(!state.e3.vKnown){ state.e3.vKnown=true; state.e3.vPending=false; if(window.playMatch)playMatch(); e3CheckBoth(); }
     else if(window.playDrop)playDrop();
   }else{
     b.loc='source'; b.x=B.src.x; b.y=B.src.y; e3SetCyl(e3CylTargetFrac());
@@ -1049,6 +1055,10 @@ function switchScene(to){
   if(state.animating||to===state.scene) return;
   state.anim={from:state.scene,to:to,t0:performance.now()};   // animating 期间锁全部输入
   state.scene=to; state.animating=true;
+  /* R8-3（蔡总条4d）：切场景=立即静音+作废在途定时器+清节流，旧场景语音不带进新场景。
+     引擎 GUIDE_SCENE.change 语义见 engine-core.js:461（onStop+clearPendingSchedules+清errLast/freeLast/freePrev/repLast+G.modeEnterT=now；不清 firedSteps/fireCount→切回不重播整套）。
+     注：c6s2 GUIDE_CFG.mode 恒为 'refract'（子场景 e3/e4/e5 引擎轮询不到 mode 变化），故须显式调 change() 停旧语音 */
+  window.GUIDE_SCENE&&window.GUIDE_SCENE.change();
   clearTimeout(e5OpenT);   // R2-e：进 e5 重挂开场闸门，离开即撤（重进 e5 开场白+步骤引导整套重来）
   if(to==='e5'){ e5FlagSet(false); e5OpenT=setTimeout(function(){ e5FlagSet(true); },E5_OPEN_GATE_MS); }
   hideToast(); syncGroups(); placeHint(); repositionPanels(); updateHint();
@@ -1377,7 +1387,7 @@ function resetE3(){
   var E=state.e3;
   E.mat='aluminum'; E.v=20; E.records=[]; E.dropT=performance.now();
   E.block.loc='source'; E.block.x=L.e3.src.x; E.block.y=L.e3.src.y;
-  E.mKnown=false; E.vKnown=false; E.converged=false; E.arw=null;
+  E.mKnown=false; E.vKnown=false; E.vPending=false; E.converged=false; E.arw=null;
   E.cylFrac=E3_CYL_BASE/E3_CYL_CAP; E.cylTw=null;
   syncE3Btns(); updatePanel(); updateHint(); dirty=true;
 }

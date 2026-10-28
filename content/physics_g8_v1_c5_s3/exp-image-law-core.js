@@ -30,9 +30,9 @@ function xOfU(u){ return xLens-u*S; }
 function xOfV(v){ return xLens+v*S; }
 var st={
   u:21,f:F_DEF_CM,vSc:19.1,           // 初始态：u=21(>2f=20)、f=10、屏在清晰像位 v=210/11≈19.1 → 进页即见倒立缩小实像
-  obj:'F',lit:false,   // R7-A2（蔡总 23:23 条3-c）：初始全关——光源/光路/F-2F/读数四钮初值 false，与 HTML 无 class="on" 同源
+  obj:'F',lit:false,   // R8-2（蔡总 2026-10-29 01:17 条3）：光路默认 ON（rays:true，HTML btn-rays 带 class="on"）；光源仍默认 OFF 保留「引导用户点亮」交互；F/2F 与读数默认 OFF
   screenOn:true,screenA:1,eye:false,eyeA:0,eyeOff:0,eyeX:null,
-  hand:false,handA:0,marks:false,rays:false,
+  hand:false,handA:0,marks:false,rays:true,
   rows:[],anim:null,
   fTip:false,touched:false,snapI:0,wasSharp:true,eyeTip:false,eyeTipShown:false
 };
@@ -132,18 +132,17 @@ function traceRay(x0,y0,xL,yi,mIn,dir){
   }
 }
 function drawRays(){
-  if(!st.rays||!st.lit) return;
+  if(!st.rays||!st.lit) return;   // 光源关时不画光线（R8-2 默认 rays ON / lit OFF → 点亮光源即见三条平行光）
   var px0=xOfU(st.u),hO=hoPx();   // K4 入眼光线裁切链已全删
-  // R7-A2（蔡总 23:23 条3-e）：F 图案上端/中部横臂/下端三物点，各发一条平行光+一条过光心光=6 线；
-  // 像面处 3 对交点=倒立 F 像（与 drawPattern 的 fPattern 三特征 axisY+hI / axisY+0.5hI / axisY 逐点对齐）
+  // R8-2（蔡总 2026-10-29 01:17 条3）：F 图案上端/中部横臂/下端三物点，只发出上中下三条平行光线，没有其他多余的斜光线
+  // → 旧②「过光心直穿」一路删除（R7-A2 曾为 3 物点×2 线=6 线）；①平行主轴入射 → 折射过像方焦点，三条折射线在像面
+  // 逐点落在 axisY−hO·m / axisY−0.5hO·m / axisY，与 drawPattern 的 fPattern 三特征对齐=倒立 F 像；
+  // 虚像态（u<f）反向延长虚线由 traceRay 内 beamDash 保留（三条折射线的反向延长线交于同侧虚像点，物理必需）
   var pts=[axisY-hO,axisY-0.5*hO,axisY];
   ctx.save();
   if(st.handA>0) ctx.globalAlpha=1-0.45*st.handA;   // H6 遮挡：通光量连续渐减
   for(var i=0;i<3;i++){
-    var py0=pts[i];
-    traceRay(px0,py0,xLens,py0,0,1);       // ① 平行主轴入射 → 折射过像方焦点
-    var mC=(axisY-py0)/(xLens-px0);
-    traceRay(px0,py0,xLens,axisY,mC,1);    // ② 过光心直穿不改方向
+    traceRay(px0,pts[i],xLens,pts[i],0,1);   // 平行主轴入射 → 折射过像方焦点
   }
   ctx.restore();
 }
@@ -381,6 +380,9 @@ function drawTray(){   // H7 暖米黄卡+「器材托盘」角标；缩略图�
   }
 }
 function draw(){
+  /* R8-2 加固3（蔡总 01:17 条3「打开之后怎么又是白屏」）：0 尺寸 canvas 上绘制整帧丢失=白屏，先 resize 再画。
+     resize() 内 W=Math.max(640,…) → cv.width=round(W*DPR) 恒 >0，其尾调 draw() 时守卫已不成立，无递归风险 */
+  if(cv.width===0||cv.height===0){ resize(); return; }
   drawBg(); drawAxis(); drawRuler(); drawMarks();
   drawRays(); drawLens(); drawHand(); drawObject();
   drawScreen(); drawImageOnScreen(); drawEye(); drawVirtualImage(); drawOffArrow();
@@ -661,12 +663,13 @@ var bReset=document.getElementById('btn-reset');
 if(bReset) bReset.addEventListener('click',function(){
   if(st.anim) return;
   st.u=21; setF(F_DEF_CM); st.vSc=19.1;
-  st.obj='F'; st.lit=false;   // R7-A2（条3-c）：重置回初始全关态
+  st.obj='F'; st.lit=false;   // R8-2（蔡总 01:17 条3）：重置回初始态=光路 ON / 光源 OFF / F-2F OFF / 读数 OFF（与 st 初值 + HTML class 三处同源）
   st.screenOn=true; st.screenA=1; st.eye=false; st.eyeA=0; st.eyeOff=0; st.eyeX=null;
-  st.hand=false; st.handA=0; st.marks=false; st.rays=false;
+  st.hand=false; st.handA=0; st.marks=false; st.rays=true;
   st.rows=[]; st.fTip=false; st.touched=false; st.snapI=0; st.eyeTip=false; st.eyeTipShown=false;
   renderRec();
-  ['btn-hand','btn-marks','btn-rays'].forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  ['btn-hand','btn-marks'].forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  var bRays=document.getElementById('btn-rays'); if(bRays) bRays.classList.add('on');   // R8-2：光路钮回 ON（否则按钮态与画面打架）
   syncLitBtn();
   if(bNs){ bNs.textContent='撤屏'; bNs.classList.remove('on'); }
   openPanel(null);
@@ -723,9 +726,14 @@ function tick(){
     var fading=(st.hand&&st.handA<1)||(!st.hand&&st.handA>0);   // H6 遮光板淡入淡出 ±HAND_FADE/帧（J9 ≈600ms），到 0 才停绘
     if(fading) st.handA=Math.max(0,Math.min(1,st.handA+(st.hand?HAND_FADE:-HAND_FADE)));
     draw();   // R7-A2（蔡总 23:23 条3-f）：rAF 常驻逐帧重绘——旧闸门 (st.rays&&st.lit) 在初始全关后不再供帧，首帧若早于 sprite/几何就绪即永久空白
-    if((tickN=(tickN+1)%30)===0){   // 几何自愈：壳/iframe 0 尺寸首绘（W/H 落 640×360 兜底）时 30 帧一查重算（cv RO 漏报兜底）
-      var rr=cv.getBoundingClientRect();
-      if(rr.width>0&&rr.height>0&&(Math.abs(rr.width-W)>1||Math.abs(rr.height-H)>1)) resize();
+    /* R8-2 加固1（蔡总 01:17 条3「打开之后怎么又是白屏，只有控制栏按钮」）：canvas attr 尺寸 vs CSS 尺寸×DPR 每帧核，
+       不一致立即 resize()。旧 30 帧自愈只比 W/H 变量、不比 canvas attr → DPR 变化（跨屏/系统缩放）或 attr 未同步
+       （壳层 display:none→block 展开、RO 漏报）时漏检；W/H 变量仍 30 帧一档核（0 尺寸首绘兜底），一次 getBoundingClientRect 复用两档 */
+    var rr=cv.getBoundingClientRect();
+    if(rr.width>0&&rr.height>0){
+      var attrBad=(cv.width!==Math.round(rr.width*DPR)||cv.height!==Math.round(rr.height*DPR));
+      tickN=(tickN+1)%30;
+      if(attrBad||(tickN===0&&(Math.abs(rr.width-W)>1||Math.abs(rr.height-H)>1))) resize();
     }
   }
   }catch(err){ console.error('[c5s3] tick 单帧异常（已捕获，rAF 继续）:',err); }
@@ -753,6 +761,7 @@ renderRec(); syncFull();
 draw(); requestAnimationFrame(tick);
 document.addEventListener('visibilitychange',function(){ if(!document.hidden) resize(); });   // R7-A2 空白兜底：壳展开/回前台重算重绘
 setTimeout(function(){ resize(); },300);   // R7-A2 空白兜底：首绘早于壳展开或 sprite 就绪时 300ms 强制重算重绘
+setTimeout(function(){ resize(); },1200);   // R8-2 加固2：慢机/壳动画延迟再补一档（300ms 一档不够时兜底）
 window.__c5s3dbg={
   get st(){return st;}, get W(){return W;}, get H(){return H;}, get axisY(){return axisY;}, get S(){return S;}, get xLens(){return xLens;},
   vImg:vImg, imgKind:imgKind, mag:mag,

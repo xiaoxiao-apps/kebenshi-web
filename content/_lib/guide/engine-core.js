@@ -23,7 +23,14 @@
    80 次（=20s）上限后强制播防死等。三触发路径（tickSteps 电平 / sched after·delay / bindEventTriggers 事件）
    公共入口都是 fireStep，queue 全路径生效。不带 queue 的条目（用户动作类）行为完全不变=仍可打断。
    vB 侧配合：api 新增 isAudioPlaying()（curAudio 在播且未 paused/ended 为真）。doReset 清 queueTries。
-   R7-A1 扩展：fireError 同款拦截（errors 条目 queue:true，键 err#id），纠错语音不再掐断在播解说。 */
+   R7-A1 扩展：fireError 同款拦截（errors 条目 queue:true，键 err#id），纠错语音不再掐断在播解说。
+   【R8-1】queue 可取消+重试前重判：defer 句柄登记进 queueTimers{}（键同 queueTries：steps=step.id / errors=err#id / free=free#…），
+   clearPendingSchedules() 一并 clearTimeout → GUIDE_SCENE.change / doReset / 事件型用户动作到来都能取消排队中的旧条目
+   （根治「切到密度场景，第一场景依然在播报」）；重试回调发火前先重判电平条件（parseTrigger.expr 非空且 evalParsed 为假 → 放弃发火并清 queueTries 键），
+   after:/delay: 型无 expr 不重判（其取消由 clearPendingSchedules 覆盖）。
+   【R8-1 规则·全站适用】queue:true 只用于**解说链续条**（after: 型依赖条、聚合结论条）与**纠错条**（errors）；
+   **用户动作条一律不加 queue**——用户一操作，vB say() 无条件 stopAudio 立即打断在播音频（含欢迎词），
+   立即播这一步，且不回头续播被打断的条目（"做到哪步播哪步，过去了就过去了"）。 */
 /* 【接口契约3·EG3-1 重置】window.GUIDE_RESET={all:fn} / window.GuideEngine.reset=同一函数
    调用时机=页面重置 handler 的最后一行（页面 state 已清零、UI 已同步之后；先调引擎会让 intro 读到旧状态）。
    语义=实验+语音+字幕全部从头：清 firedSteps/hold/errLast/freeLast/freePrev/recCache/taskState + resetG()，
@@ -47,8 +54,9 @@ var apiRef=null,loopOn=false;
 var enginePaused=false;/* EG3-2：页面暂停联动开关（只由 setPause 写，tick 读） */
 var curMode=null,G={},firedSteps={},hold={},errLast={},freeLast={},freePrev={},stepSched={};
 var queueTries={};/* 【接口契约6·R5】queue:true 条目的轮询计数（80 次=20s 上限强制播） */
+var queueTimers={};/* 【R8-1】queue defer 轮询句柄登记（键同 queueTries），clearPendingSchedules 可取消 */
 /* r4：repeat:true 步骤的边沿重触发状态（引擎私有，非 repeat 步骤不使用） */
-var repPrev={},repLast={},fireCount={},seenCount={},delayFired={};
+var repPrev={},repLast={},fireCount={},seenCount={},delayFired={},firedReal={};/* R8主会话热修：firedReal=步骤真发火锚点（过queue闸门、音频真起播才置真）；after:非repeat依赖定时器改挂它——旧挂fired（分发时刻）致焦距场景实测结论先于「光斑最小最亮」播（顺序反） */
 var REP_COOLDOWN=3000;
 var EVT_DEBOUNCE=500;/* EG3a：事件型 steps 去抖（用户动作到=秒响），电平型 repeat 仍走 REP_COOLDOWN */
 var fnCache={};
@@ -173,30 +181,42 @@ function updateG(){
 }
 
 /* ---------- 触发分发 ---------- */
+/* 【R8-1】queue defer 登记式轮询：句柄进 queueTimers（clearPendingSchedules 管辖可取消）；
+   重试发火前重判电平条件（expr 型条件已假 → 放弃发火并清 queueTries 键）；after:/delay: 型无 expr 跳过重判 */
+function queueDefer(key,trigger,retry){
+  if(queueTimers[key]!=null)clearTimeout(queueTimers[key]);
+  queueTimers[key]=setTimeout(function(){
+    queueTimers[key]=null;
+    var p=parseTrigger(trigger);
+    if(p&&p.expr!=null&&!evalParsed(p)){delete queueTries[key];return;}
+    retry();
+  },250);
+}
 function fireStep(step,mode){
-  /* 【接口契约6·R5】queue:true 解说条目：当前有语音在播则 defer 到播完再播（250ms 轮询，80 次=20s 上限强制播防死等）；
+  /* 【接口契约6·R5+R8-1】queue:true 解说条目：当前有语音在播则 defer 到播完再播（250ms 轮询，80 次=20s 上限强制播防死等）；
      暂停期间不计等待不发火（enginePaused 时只续轮询）；不带 queue 的条目（用户动作类）行为不变=仍可打断 */
   if(step.queue){
-    if(enginePaused){setTimeout(function(){fireStep(step,mode);},250);return;}
+    if(enginePaused){queueDefer(step.id,step.trigger,function(){fireStep(step,mode);});return;}
     var apq=getApi();
     if(apq&&apq.isAudioPlaying&&apq.isAudioPlaying()){
-      if((queueTries[step.id]=(queueTries[step.id]||0)+1)<=80){setTimeout(function(){fireStep(step,mode);},250);return;}
+      if((queueTries[step.id]=(queueTries[step.id]||0)+1)<=80){queueDefer(step.id,step.trigger,function(){fireStep(step,mode);});return;}
       queueTries[step.id]=0;
     }else queueTries[step.id]=0;
   }
+  firedReal[step.id]=true;/* R8主会话热修：真发火锚点（本行在queue闸门之后，走到这里=音频真起播） */
   fireCount[step.id]=(fireCount[step.id]||0)+1;/* r4：after: 依赖计数（repeat/非 repeat 都计） */
   if(step.saidFlag)G[step.saidFlag]=true;
   var api=getApi();
   if(api.onStep)api.onStep(step,mode);
 }
 function fireError(err){
-  /* 【接口契约6扩展·R7-A1】queue:true 纠错条等当前语音播完再播（250ms轮询、80次=20s上限强制播防死等）；
+  /* 【接口契约6扩展·R7-A1+R8-1】queue:true 纠错条等当前语音播完再播（250ms轮询、80次=20s上限强制播防死等）；
      暂停期间只续轮询不发火；键用 err#id 防撞 steps 同 id。不带 queue 的纠错条行为不变=仍可打断。 */
   if(err.queue){
-    if(enginePaused){setTimeout(function(){fireError(err);},250);return;}
+    if(enginePaused){queueDefer('err#'+err.id,err.trigger,function(){fireError(err);});return;}
     var aqe=getApi();
     if(aqe&&aqe.isAudioPlaying&&aqe.isAudioPlaying()){
-      if((queueTries['err#'+err.id]=(queueTries['err#'+err.id]||0)+1)<=80){setTimeout(function(){fireError(err);},250);return;}
+      if((queueTries['err#'+err.id]=(queueTries['err#'+err.id]||0)+1)<=80){queueDefer('err#'+err.id,err.trigger,function(){fireError(err);});return;}
       queueTries['err#'+err.id]=0;
     }else queueTries['err#'+err.id]=0;
   }
@@ -204,16 +224,16 @@ function fireError(err){
   if(api.onError)api.onError(err);
 }
 function fireFree(free){
-  /* 【接口契约6扩展·R5】queue:true 的 free 条目等当前语音播完再播（250ms轮询、80次=20s上限强制播防死等）；
+  /* 【接口契约6扩展·R5+R8-1】queue:true 的 free 条目等当前语音播完再播（250ms轮询、80次=20s上限强制播防死等）；
      暂停期间只续轮询不发火；不带 queue 的 free 条（用户动作类）行为不变=仍可打断。
      用例：c3s4-f2 浇热水动画条原在 s2 主条开播0.15s即掐断它（同一次点击双条互踢，浏览器实测81.57/81.72），
      加 queue 后接在 s2 播完再播。 */
   if(free.queue){
-    if(enginePaused){setTimeout(function(){fireFree(free);},250);return;}
     var fk='free#'+(free.audio||free.note);
+    if(enginePaused){queueDefer(fk,free.trigger,function(){fireFree(free);});return;}
     var apq=getApi();
     if(apq&&apq.isAudioPlaying&&apq.isAudioPlaying()){
-      if((queueTries[fk]=(queueTries[fk]||0)+1)<=80){setTimeout(function(){fireFree(free);},250);return;}
+      if((queueTries[fk]=(queueTries[fk]||0)+1)<=80){queueDefer(fk,free.trigger,function(){fireFree(free);});return;}
       queueTries[fk]=0;
     }else queueTries[fk]=0;
   }
@@ -263,7 +283,7 @@ function tickSteps(mode){
         var fc=fireCount[p.afterId]||0;
         if(fc>(seenCount[st.id]||0)&&stepSched[st.id]==null){seenCount[st.id]=fc;sched(st,mode,p.afterMs);}
         repPrev[st.id]=false;
-      }else if(fired[p.afterId])sched(st,mode,p.afterMs);
+      }else if(firedReal[p.afterId]&&stepSched[st.id]==null)sched(st,mode,p.afterMs);/* R8主会话热修：非repeat after依赖改挂「依赖条真发火」（firedReal）——防依赖条音频还在queue排队时after定时器早到、结论抢在依赖条前播（焦距场景实测顺序反）；repeat依赖走fireCount分支本就在真发火处自增，不受影响 */
       continue;
     }
     if(p.expr==null)continue;
@@ -343,6 +363,7 @@ function tickFree(mode){
 function clearPendingSchedules(){
   for(var k in stepSched){if(stepSched[k]!=null){clearTimeout(stepSched[k]);stepSched[k]=null;}}
   for(var h in hold)hold[h]=null;
+  for(var q in queueTimers){if(queueTimers[q]!=null){clearTimeout(queueTimers[q]);queueTimers[q]=null;}}/* R8-1：取消排队中的旧条目（切场景/重置/用户新动作） */
 }
 function bindEventTriggers(){
   function bind(elSel,evt){
@@ -416,7 +437,7 @@ function clearRepeatState(){
     if(!md||!md.steps)continue;
     for(var i=0;i<md.steps.length;i++){
       var id=md.steps[i].id;
-      delete fireCount[id];delete seenCount[id];delete repPrev[id];delete repLast[id];delete delayFired[id];
+      delete fireCount[id];delete seenCount[id];delete repPrev[id];delete repLast[id];delete delayFired[id];delete firedReal[id];
     }
   }
 }
@@ -461,6 +482,7 @@ window.GUIDE_PAUSE={set:setPause};
 function doReset(){
   resetG();
   firedSteps={};hold={};errLast={};freeLast={};freePrev={};queueTries={};
+  for(var q in queueTimers){if(queueTimers[q]!=null){clearTimeout(queueTimers[q]);queueTimers[q]=null;}}/* R8-1：curMode 为 null 时 onModeEnter 不跑，此处兜底取消排队 */
   recCache={n:-1,t:0};
   taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
   var apiR=getApi();
@@ -603,7 +625,7 @@ window.GuideEngine={
     tasksOn=!!opts.tasks;
     resetG();
     firedSteps={};hold={};errLast={};freeLast={};freePrev={};stepSched={};queueTries={};
-    repPrev={};repLast={};fireCount={};seenCount={};delayFired={};/* r4：repeat 状态；r6：delayFired */
+    repPrev={};repLast={};fireCount={};seenCount={};delayFired={};firedReal={};/* r4：repeat 状态；r6：delayFired；R8主会话：firedReal 真发火锚点 */
     recCache={n:-1,t:0};
     taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
     bindEventTriggers();

@@ -180,9 +180,9 @@ function beamDash(x0,y0,x1,y1){   // 反向延长虚线（c5s1 beamDash 写法�
   ctx.strokeStyle=COL_RAY; ctx.lineWidth=1.5; ctx.stroke();
   ctx.restore();
 }
-// ===== 场景1 光路（G6）：R7-A2 双物点（F 板上缘A+下缘B）各两线——平行光（水平入射→折射过后焦点）+过光心光（直穿）；
-// 两线族在像面交于同一点（倒立：A 上缘交像下端、B 下缘交像上端）；薄膜偏离像位→两线岔开=弥散
-// R7-A2 修号（蔡总 23:23 条2）：过光心续段斜率=入射斜率 (axisY-y0)/(xl-x0)；旧式 (y0-axisY)/(xl-x0) 反号致两线族永不交=「光线都不对」根因
+// ===== 场景1 光路（G6）：R8-2（蔡总 2026-10-29 01:17 条2）双物点（F 板上缘A+下缘B）各一条平行光（共 2 条），
+// 折射后过像方焦点延伸至像面交叉成像（倒立：A 上缘交像下端、B 下缘交像上端）；薄膜偏离像位→两线端点岔开=弥散。
+// 过光心光按蔡总 01:17 条2 删除（原话「仅仅发出两条平行光，并没有相交叉的那两条光线」）；放大镜 drawMagRays 保留不动（虚像靠过光心光的反向延长线定像位，蔡总已拍板）
 function drawRaysCam(){
   var x0=xLed(),xl=xLens(),fx=filmX(),fpx=F_CM*cmPx();
   var half=OBJ_H_CM/2*cmPx();
@@ -190,9 +190,7 @@ function drawRaysCam(){
   for(var k=0;k<2;k++){
     var y0=pts[k];
     beam(x0,y0,xl,y0);                              // 平行光：水平入射
-    beam(xl,y0,fx,y0+(axisY-y0)/fpx*(fx-xl));       // 折射后过后焦点射向像点
-    beam(x0,y0,xl,axisY);                           // 过光心光：直穿
-    beam(xl,axisY,fx,axisY+(axisY-y0)/(xl-x0)*(fx-xl));
+    beam(xl,y0,fx,y0+(axisY-y0)/fpx*(fx-xl));       // 折射后过像方焦点 (xl+fpx,axisY) 延伸至像面 fx
   }
 }
 // F 图案（中心锚）：竖笔+两横臂；倒立实像=镜像+上下翻转=scale(-1,-1) 变换后画同一图案
@@ -404,20 +402,17 @@ function drawLed2(){   // M2（蔡总 01:29 条2）：F 投影片整体在机身
   drawLedCropped(x,axisY);
   ctx.restore();
 }
-// H2/H8：R7-A2 双物点（F 板上缘+下缘）各两线——平行光折射过像点+过光心直穿；K2：入射段起点不变、透镜后段起点=透镜面（蔡总 02:21 连续穿筒根修）延长至幕布；像点=倒立（上缘交像下端）
+// H2/H8：R8-2（蔡总 2026-10-29 01:17 条2）双物点（F 板上缘+下缘）各一条平行光（共 2 条），折射后过各自像点延长至幕布交叉成像；
+// 过光心光两条斜线删除（同 drawRaysCam）。K2 规则原样保留：入射段起点不变、出射段自透镜面起连续穿筒 barrelR 延长至幕布；像点=倒立（上缘交像下端）
 function drawRaysProj(){
   var x0=xLed2(),xl=xLens2(),v=vImg2(),m=v/state.proj.u,half=OBJ_H_CM/2*cmPx();
   var Sx=xl+Math.round(v*cmPx());
   var pts=[axisY-half,axisY+half];   // 物点=F 板上缘+下缘
   for(var k=0;k<2;k++){
     var y0=pts[k],yS=axisY-(y0-axisY)*m;   // 该物点像位（倒立）
-    beam(x0,y0,xl,y0); beam(x0,y0,xl,axisY);
-    var outs=[[xl,y0,Sx-xl,yS-y0],[xl,axisY,Sx-xl,yS-axisY]];
-    for(var j=0;j<2;j++){
-      var ax=outs[j][0],ay=outs[j][1],dx=outs[j][2],dy=outs[j][3];
-      var t=(xScr2()-ax)/dx;   // 过像点延长到幕布
-      beam(ax,ay,ax+dx*t,ay+dy*t);
-    }
+    beam(x0,y0,xl,y0);                     // 平行光：水平入射
+    var dx=Sx-xl,dy=yS-y0,t=(xScr2()-xl)/dx;   // 出射段自透镜面 (xl,y0) 起，过像点 (Sx,yS) 延长到幕布
+    beam(xl,y0,xl+dx*t,y0+dy*t);
   }
 }
 // 幕布上的像（H2 骑轴）：对上=清晰放大倒立（倒插→正立）F；偏离=弥散（模糊度∝|v像−屏距|）；J3：画像前加幕面矩形 clip 硬保证（幕面 clip 硬保证，像+弥散永在幕内）
