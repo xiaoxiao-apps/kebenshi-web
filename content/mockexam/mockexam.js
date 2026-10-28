@@ -944,6 +944,43 @@ function newSeed() {
   startExam(EX.seed + 1);
 }
 
+/* 蔡总反馈15：初始恒进「选择范围」勾选屏——旧卷只作控件预填，恢复作答须用户显式点「继续上次组卷」 */
+let RESUME_EX = null;
+function restoreSetupFrom(saved) {
+  if (!saved) return;
+  if (Array.isArray(saved.chapters) && saved.chapters.length) {
+    $all('.chbox').forEach(b => { b.checked = saved.chapters.includes(+b.value); });
+  }
+  if (saved.N) {
+    document.getElementById('nSlider').value = saved.N;
+    document.getElementById('nLabel').textContent = saved.N;
+    $all('.preset').forEach(b => b.classList.toggle('on', +b.dataset.n === +saved.N));
+  }
+  const MIX_IDS = { choice:'mixChoice', multi:'mixMulti', blank:'mixBlank', experiment:'mixExp', calc:'mixCalc' };
+  if (saved.mix) Object.keys(MIX_IDS).forEach(t => {
+    const inp = document.getElementById(MIX_IDS[t]);
+    if (inp && saved.mix[t] != null) inp.value = saved.mix[t];
+  });
+  if (saved.mode) $all('input[name="gradeMode"]').forEach(r => { r.checked = (r.value === saved.mode); });
+}
+function resumeSaved() {
+  if (!RESUME_EX) return;
+  EX = RESUME_EX;
+  switchScreen('screenExam');
+  renderExam();
+  window.scrollTo(0, 0);
+}
+/* 回到设置屏时同步「继续上次组卷」指向当前卷，避免恢复出更早一份而丢掉刚做的 */
+function syncResumeBtn() {
+  const btn = document.getElementById('resumeBtn');
+  if (!btn) return;
+  if (EX) RESUME_EX = EX;
+  btn.hidden = !RESUME_EX;
+  if (RESUME_EX) {
+    btn.textContent = '继续上次组卷（' + RESUME_EX.N + ' 题' + (RESUME_EX.submitted ? '，已交卷' : '') + '）';
+  }
+}
+
 function initSetup() {
   const r = collectPool();
   POOL = r.pool; FIGMAP = r.figs; IS_SAMPLE = r.sample;
@@ -977,28 +1014,25 @@ function initSetup() {
     document.getElementById(id).addEventListener('input', () => updateMixHint(getN())));
   document.getElementById('mixReset').addEventListener('click', () => syncMixUI(getN()));
   document.getElementById('startBtn').addEventListener('click', () => startExam(Math.floor(Math.random() * 100000)));
+  document.getElementById('resumeBtn').addEventListener('click', resumeSaved);
 
   document.getElementById('newSeedBtn').addEventListener('click', newSeed);
-  document.getElementById('backSetupBtn').addEventListener('click', () => switchScreen('screenSetup'));
+  document.getElementById('backSetupBtn').addEventListener('click', () => { switchScreen('screenSetup'); syncResumeBtn(); });
   document.getElementById('submitExamBtn').addEventListener('click', () => {
     if (confirm('确认交卷？未作答的客观题将按 0 分判。')) submitExam();
   });
   document.getElementById('printBtn').addEventListener('click', () => doPrint(document.getElementById('printAnsChk').checked));
   document.getElementById('resultNewBtn').addEventListener('click', newSeed);
-  document.getElementById('resultBackBtn').addEventListener('click', () => switchScreen('screenSetup'));
+  document.getElementById('resultBackBtn').addEventListener('click', () => { switchScreen('screenSetup'); syncResumeBtn(); });
   document.getElementById('resultPrintBtn').addEventListener('click', () => doPrint(document.getElementById('resultPrintAnsChk').checked));
 
-  /* 恢复未完成/已完成的旧卷（seed 固定，刷新不跳题） */
-  const saved = loadEX();
-  if (saved) {
-    EX = saved;
-    if (EX.submitted || EX.mode === 'instant') {
-      switchScreen('screenExam'); renderExam();
-      renderExamFoot();
-    } else {
-      switchScreen('screenExam'); renderExam();
-    }
-  }
+  /* 蔡总反馈15：不再自动切到作答屏；旧卷（seed 固定，刷新不跳题）改为预填 + 显式「继续上次组卷」 */
+  RESUME_EX = loadEX();
+  restoreSetupFrom(RESUME_EX);
+  syncScopeUI();
+  updateMixHint(getN());
+  syncResumeBtn();
+  switchScreen('screenSetup');
 }
 
 if (typeof document !== 'undefined') {

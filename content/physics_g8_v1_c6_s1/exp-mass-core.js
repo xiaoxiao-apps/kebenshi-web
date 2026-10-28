@@ -9,6 +9,7 @@ var TILT_EPS=0.1;        // R20 平衡灵敏度窗（°）：|tiltTarget|≤0.1=
 var CAP_G=200;           // 本天平称量（g）——要求①「被测物体的质量不能超过称量」
 var NUT_STEP=0.5;        // 平衡螺母每次左旋/右旋（°）
 var NUT_INIT=-2.5;       // 初始未调平螺母偏置（°）
+var RIDER_INIT=0.5;      // 游码初始偏置（g）——蔡总反馈12：初值非零才有「拨回零刻度」的动作边沿（量程5g/分度0.1g）
 var NUT_LIM=4;           // 螺母偏置范围 ±（°）
 var LEV_EPS=0.3;         // 调平达成阈值（°）
 var MELT_RATE1=26;       // R22 单档熔化/制冰速率（%/s）——原 MELT_RATE 多档已随循环档位删除
@@ -41,7 +42,7 @@ var state={
   heatX:0,heatMoved:false,heating:false,freezing:false,   // R22 底座可挪 x + R40 拖过锁用户位 + 加热/制冰互斥布尔（heatX 由 layout 避让位写）
   knobAng:{heat:-135,freeze:-135},        // R31 旋钮指针当前角（°，off=−135/on=+135，tick 200ms 插值）
   objPos:{x:0,y:0},
-  rider:0,nut:NUT_INIT,tilt:NUT_INIT,leveled:false,matched:false,
+  rider:RIDER_INIT,nut:NUT_INIT,tilt:RIDER_INIT*K_TILT+NUT_INIT,leveled:false,matched:false,
   panW:[],               // 右盘砝码 id（恒按 g 降序=大在下小在上）
   loose:[],              // 桌面停驻砝码 {id,x}
   falls:[],              // 下坠中砝码 {id,x,y,vy,dest}
@@ -958,14 +959,14 @@ function resetAll(){
   state.ice=100; state.meltedOnce=false;
   state.heatX=L.heatX; state.heatMoved=false; state.heating=false; state.freezing=false;   // R40 重置回避让位并解锁跟随
   state.knobAng={heat:-135,freeze:-135};
-  state.rider=0; state.nut=NUT_INIT; state.tilt=NUT_INIT; state.leveled=false; state.matched=false;
+  state.rider=RIDER_INIT; state.nut=NUT_INIT; state.tilt=RIDER_INIT*K_TILT+NUT_INIT; state.leveled=false; state.matched=false;
   state.panW=[]; state.loose=[]; state.falls=[]; state.wPos={};
   state.bal={x:L.balX0,y:L.seat,vy:0,falling:false,moved:false,squash:0};
   state.drag=null; state.objDrop=null;
   state.seen={shape:false,state:false,pos:false}; state.alldone=false;
   hintOverride=null; glowFx=[];
-  if(rngRider) rngRider.value=0;
-  if(lblRider) lblRider.textContent='游码 0.0 g';
+  if(rngRider) rngRider.value=String(RIDER_INIT);
+  if(lblRider) lblRider.textContent='游码 '+RIDER_INIT.toFixed(1)+' g';
   syncG(); syncObjBtns(); afterAct(); poke(); draw();
 }
 var btnReset=el('btn-reset');
