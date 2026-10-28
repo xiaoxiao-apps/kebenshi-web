@@ -16,7 +16,7 @@ window.C3S1_GUIDE={
       {id:'s5',repeat:true,trigger:"R.iceMass>0 && R.waterTemp<=0.5",say:'看，冰水混合物！温度稳稳停在0℃，你看到了吗？',audio:'c3s1-s5'},
       {id:'s6',repeat:true,trigger:"R.heating && R.waterTemp>=99.5",say:'沸腾啦！气泡涌到水面，温度停在100℃不动咯。',audio:'c3s1-s6'},
       {id:'s7',repeat:true,trigger:'after:s6@6000',say:'通过刚才的实验，我们发现：冰水混合物0℃、沸水100℃，测温要用温度计。记住它哦！',audio:'c3s1-s7'},
-      {id:'s8',repeat:true,trigger:"R.heating===false && R.simTime>0 && R.iceMass<=0",say:'加热关闭啦。好，接下来我们看看水温怎么随时间慢慢降下来。',audio:'c3s1-s8'}
+      {id:'s8',repeat:true,trigger:"event:click:#btn-heat:R.heating===true",say:'加热关闭啦。好，接下来我们看看水温怎么随时间慢慢降下来。',audio:'c3s1-s8'}
     ],
     errors:[
       {id:'e1',trigger:"event:click:#btn-heat:R.heatPower===0 && !R.heating",fix:'不对哟～功率还是0，先把加热功率调大，再开加热呀。',audio:'c3s1-e1'},

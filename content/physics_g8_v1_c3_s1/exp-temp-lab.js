@@ -44,9 +44,14 @@ function bindUI() {
   document.getElementById('btn-pause').addEventListener('click', () => {
     paused = !paused;
     document.getElementById('btn-pause').textContent = paused ? '继续' : '暂停';
+    window.GUIDE_PAUSE && window.GUIDE_PAUSE.set(paused);
     playClick();
   });
-  document.getElementById('btn-reset').addEventListener('click', () => { resetAll(); playClick(); });
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    resetAll();
+    window.GUIDE_RESET && window.GUIDE_RESET.all();
+    playClick();
+  });
   document.getElementById('btn-mute').addEventListener('click', () => {
     setSoundEnabled(!getSoundEnabled());
     document.getElementById('btn-mute').textContent = getSoundEnabled() ? '🔊' : '🔇';
@@ -70,6 +75,7 @@ function bindUI() {
     state.timeScale = parseFloat(tsSel.value);
     playClick();
   });
+  if (tsSel) state.timeScale = parseFloat(tsSel.value);
   document.getElementById('btn-pause').textContent = '暂停';
 
   raycaster = new THREE.Raycaster();
@@ -106,8 +112,8 @@ function resetAll() {
   setHeating(false);
   document.getElementById('btn-pause').textContent = '暂停';
   const tsSel = document.getElementById('timescale-select');
-  if (tsSel) tsSel.value = '60';
-  state.timeScale = 60;
+  if (tsSel) tsSel.value = '10';
+  state.timeScale = 10;
   document.getElementById('amb-slider').value = INITIAL.ambTemp;
   document.getElementById('power-slider').value = INITIAL.heatPower;
   document.getElementById('vol-slider').value = INITIAL.volumeML;
@@ -587,7 +593,7 @@ function updateUI() {
   const clinicalOut = thermometers.find(t => t.type === 'clinical' && !t.inWater);
   if (clinicalOut) {
     shakeBtn.classList.add('active');
-    shakeBtn.textContent = `甩一甩体温计 #${clinicalOut.id}`;
+    shakeBtn.textContent = '甩一甩体温计';
   } else {
     shakeBtn.classList.remove('active');
     shakeBtn.textContent = '甩一甩体温计';
