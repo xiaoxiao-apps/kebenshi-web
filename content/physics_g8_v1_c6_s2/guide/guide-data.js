@@ -13,7 +13,8 @@ window.C6S2_GUIDE={
       {id:'c6s2-s4b',repeat:true,trigger:'R.scene===\'e3\' && R.e3.records.length>=1 && R.e3.mKnown===false && R.e3.vKnown===false && R.e3.block.loc===\'source\'',say:'好，我们现在换了一种体积，我们继续来测量。',audio:'c6s2-s4b'},
       {id:'c6s2-s5',repeat:true,queue:true,trigger:'R.scene===\'e3\' && R.e3.records.length>=2',say:'看，同种物质的点连成一条过原点的直线。',audio:'c6s2-s5'},
       /* R2-a：同材质三体积全测完→密度定义结论（严谨版；密度定义只由本条给出，s7 只讲成正比不重复定义） */
-      {id:'c6s2-s5a',repeat:true,queue:true,trigger:'R.scene===\'e3\' && (function(){var E=R.e3,vs={};E.records.forEach(function(r){if(r.mat===E.mat)vs[r.v]=1;});return Object.keys(vs).length>=3;})()',say:'看，这种材质的三个体积我们都测过了。数据告诉我们：同一种物质，质量与体积的比值是不变的。这个不变的比值，就叫做这种物质的密度，用字母ρ表示，ρ等于m除以V。科学家还发现，不同物质，这个比值一般不同。',audio:'c6s2-s5a'},
+      /* R11（蔡总 2026-10-29 14:26 条3）：同句内「用字母ρ表示」读对、「ρ等于m除以V」读 ROU（R10 误判整条禁动）——删 ROU 语境后半句，改『用字母ρ表示，等于质量除以体积』（与 R10 四条公式条同款验证句式）；重录 */
+      {id:'c6s2-s5a',repeat:true,queue:true,trigger:'R.scene===\'e3\' && (function(){var E=R.e3,vs={};E.records.forEach(function(r){if(r.mat===E.mat)vs[r.v]=1;});return Object.keys(vs).length>=3;})()',say:'看，这种材质的三个体积我们都测过了。数据告诉我们：同一种物质，质量与体积的比值是不变的。这个不变的比值，就叫做这种物质的密度，用字母ρ表示，等于质量除以体积。科学家还发现，不同物质，这个比值一般不同。',audio:'c6s2-s5a'},
       {id:'c6s2-s6',repeat:true,queue:true,trigger:'R.scene===\'e3\' && R.e3.records.some(function(a){return R.e3.records.some(function(b){return a.mat!==b.mat;});})',say:'好，接下来换种物质再测，看看比值一样吗。',audio:'c6s2-s6'},
       {id:'c6s2-s7',repeat:false,queue:true,trigger:'after:c6s2-s6@6000',say:'通过实验我们发现：同种物质质量与体积成正比。记住它哦！',audio:'c6s2-s7'},
       {id:'c6s2-s8',repeat:true,trigger:'R.scene===\'e5\' && R.e5.blocks.some(function(b){return b.solved;})',say:'太棒了，算出密度查表对号，物质身份揭晓！',audio:'c6s2-s8'},
@@ -52,7 +53,7 @@ window.C6S2_GUIDE={
     'c6s2-s1':'guide/audio/c6s2-s1.mp3?v=20261027g1','c6s2-s2':'guide/audio/c6s2-s2.mp3?v=20261028v7',
     'c6s2-s3':'guide/audio/c6s2-s3.mp3?v=20261027g1','c6s2-s4':'guide/audio/c6s2-s4.mp3?v=20261028v7',
     'c6s2-s4a':'guide/audio/c6s2-s4a.mp3?v=20261027r4','c6s2-s4b':'guide/audio/c6s2-s4b.mp3?v=20261029r10','c6s2-s5':'guide/audio/c6s2-s5.mp3?v=20261027g1',
-    'c6s2-s5a':'guide/audio/c6s2-s5a.mp3?v=20261027r4','c6s2-s6':'guide/audio/c6s2-s6.mp3?v=20261027g1',
+    'c6s2-s5a':'guide/audio/c6s2-s5a.mp3?v=20261029v6','c6s2-s6':'guide/audio/c6s2-s6.mp3?v=20261027g1',
     'c6s2-s7':'guide/audio/c6s2-s7.mp3?v=20261027g1','c6s2-s8':'guide/audio/c6s2-s8.mp3?v=20261027g1',
     'c6s2-e0':'guide/audio/c6s2-e0.mp3?v=20261028v7',
     'c6s2-e1':'guide/audio/c6s2-e1.mp3','c6s2-e2':'guide/audio/c6s2-e2.mp3',

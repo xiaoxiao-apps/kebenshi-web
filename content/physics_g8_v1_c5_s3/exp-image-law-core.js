@@ -717,6 +717,24 @@ if(btnFull) btnFull.addEventListener('click',function(){if(st.anim)return;if(ful
 // J9 淡入淡出 ±0.06/帧→±0.028/帧（≈600ms）：蔡总 18:51「太快效果不明显」；tick fading 条件不变
 var HAND_FADE=0.028;
 var tickN=0;   // R7-A2 几何自愈节流计数
+var tickErr=0,errBannerOn=false;   // R11 兜底(a)：tick 连续异常计数 / 异常横幅已画标记
+function drawErrBanner(){   // R11 兜底(a)：连续异常>10帧时在画布中央明示，防纯空白误导（蔡总 14:26 壳层白屏无从判断）；tickErr>10 期间每帧重画（半帧残绘也能留住横幅）
+  try{
+    ctx.save(); ctx.setTransform(DPR,0,0,DPR,0,0);
+    ctx.fillStyle='#dc2626'; ctx.textAlign='center'; ctx.font='700 22px '+FONT;
+    ctx.fillText('渲染异常，请刷新页面',W/2,H/2);
+    ctx.restore();
+  }catch(e2){
+    if(errBannerOn) return;
+    errBannerOn=true;
+    try{   // canvas 位图/上下文已死时退 DOM 横幅（一次性）
+      var d=document.createElement('div');
+      d.textContent='渲染异常，请刷新页面';
+      d.style.cssText='position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:9999;color:#dc2626;font:700 22px sans-serif;background:rgba(255,255,255,.92);padding:14px 22px;border:2px solid #dc2626;border-radius:12px;pointer-events:none';
+      document.body.appendChild(d);
+    }catch(e3){}
+  }
+}
 function tick(){
   // F4③加固：主体 try/catch——单帧异常 console.error 留痕、不杀 rAF（探针 b4：修复前一次异常即断链=整页卡死根因）
   try{
@@ -734,10 +752,12 @@ function tick(){
       if(t>=1){ st.anim=null; st.eye=false; st.eyeA=0; st.eyeOff=0; st.screenA=1; st.eyeX=null; }
     }
     draw();
+    tickErr=0;   // R11 兜底(a)：anim 分支同款整帧成功清零
   }else{
     var fading=(st.hand&&st.handA<1)||(!st.hand&&st.handA>0);   // H6 遮光板淡入淡出 ±HAND_FADE/帧（J9 ≈600ms），到 0 才停绘
     if(fading) st.handA=Math.max(0,Math.min(1,st.handA+(st.hand?HAND_FADE:-HAND_FADE)));
     draw();   // R7-A2（蔡总 23:23 条3-f）：rAF 常驻逐帧重绘——旧闸门 (st.rays&&st.lit) 在初始全关后不再供帧，首帧若早于 sprite/几何就绪即永久空白
+    tickErr=0;   // R11 兜底(a)：整帧成功=清零连续异常计数（下一帧全量重绘自然覆盖横幅）
     /* R8-2 加固1（蔡总 01:17 条3「打开之后怎么又是白屏，只有控制栏按钮」）：canvas attr 尺寸 vs CSS 尺寸×DPR 每帧核，
        不一致立即 resize()。旧 30 帧自愈只比 W/H 变量、不比 canvas attr → DPR 变化（跨屏/系统缩放）或 attr 未同步
        （壳层 display:none→block 展开、RO 漏报）时漏检；W/H 变量仍 30 帧一档核（0 尺寸首绘兜底），一次 getBoundingClientRect 复用两档 */
@@ -748,7 +768,11 @@ function tick(){
       if(attrBad||(tickN===0&&(Math.abs(rr.width-W)>1||Math.abs(rr.height-H)>1))) resize();
     }
   }
-  }catch(err){ console.error('[c5s3] tick 单帧异常（已捕获，rAF 继续）:',err); }
+  }catch(err){
+    console.error('[c5s3] tick 单帧异常（已捕获，rAF 继续）:',err);
+    tickErr++;
+    if(tickErr>10) drawErrBanner();   // R11 兜底(a)：连续异常>10帧=结构性故障，画布中央明示防纯空白误导
+  }
   requestAnimationFrame(tick);
 }
 window.addEventListener('resize',resize);
@@ -764,6 +788,80 @@ if(window.ResizeObserver){
     if(r.width>0&&r.height>0&&(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1)) resize();
   }).observe(cv);
 }
+// R11 兜底(b')：canvas 上下文丢失自愈（内存压力/跨屏可致 2d context lost=纯空白且 draw 全变 no-op）；restored 后强制重设 bitmap+重绘
+cv.addEventListener('contextlost',function(e){ e.preventDefault(); console.error('[c5s3] canvas contextlost'); });
+cv.addEventListener('contextrestored',function(){ console.warn('[c5s3] canvas contextrestored，强制 resize+draw'); try{ resize(); }catch(e){} });
+// ===== R11 兜底(c)：欢迎词看门狗（蔡总 14:26 壳层「无启动卡+欢迎词缺失」不可复现→core 侧兜底；vB/engine 只读禁改） =====
+// 机制：轮询发现 .gvb-start 启动卡（曾出现→被移除=用户已认可）后 500ms 内，若全页无任何 <audio> 在播、
+// 且 vB 字幕条(.gvb-caption)未显示（=欢迎词既没出声也没上屏，链路真丢），core 自建同款字幕+new Audio 补播 intro。
+// 任一证据（音频在播/字幕在屏）都视为欢迎词已成功，看门狗不介入；一次生命周期至多补播一次；text/sleep 模式不介入。
+(function(){
+  var seenStart=false,armedAt=0,fired=false,shimBar=null,shimAudio=null;
+  function anyAudioPlaying(){
+    var as=document.getElementsByTagName('audio');
+    for(var i=0;i<as.length;i++){ if(!as[i].paused&&!as[i].ended) return true; }
+    return false;
+  }
+  function vbCaptionActive(){
+    var bs=document.querySelectorAll('.gvb-caption.show');
+    for(var i=0;i<bs.length;i++){ if(bs[i]!==shimBar) return true; }   // 排除看门狗自己的 shim 字幕
+    return false;
+  }
+  function gvbMode(){ try{ return window.localStorage.getItem('gvb-mode')||'voice'; }catch(e){ return 'voice'; } }
+  function killShim(){
+    if(shimAudio){ try{ shimAudio.pause(); }catch(e){} shimAudio=null; }
+    if(shimBar&&shimBar.parentNode) shimBar.parentNode.removeChild(shimBar);
+    shimBar=null;
+  }
+  function fireShim(){
+    fired=true;
+    try{
+      var gd=window.GUIDE_DATA&&window.GUIDE_DATA.refract&&window.GUIDE_DATA.refract.intro;
+      if(!gd||!gd.text) return;
+      var AUD=(window.GUIDE_DATA&&window.GUIDE_DATA.audios)||{};
+      shimBar=document.createElement('div');
+      shimBar.className='guide-caption gvb-caption show';
+      shimBar.innerHTML='<span class="guide-caption-avatar">🎓</span><span class="guide-caption-text"></span>';
+      shimBar.querySelector('.guide-caption-text').textContent=gd.text;
+      shimBar.style.cssText+='display:flex;position:fixed;left:50%;transform:translateX(-50%);z-index:900;';
+      var cb=document.querySelector('.ctrlbar');
+      shimBar.style.bottom=(cb?Math.round(cb.getBoundingClientRect().height)+8:104)+'px';
+      (document.getElementById('guide-layer')||document.body).appendChild(shimBar);
+      var src=AUD[gd.audio];
+      var done=false;
+      function endShim(){ if(done)return; done=true; killShim(); }
+      if(src){
+        shimAudio=new Audio(src);
+        shimAudio.addEventListener('ended',function(){ setTimeout(endShim,400); });
+        shimAudio.addEventListener('error',function(){ setTimeout(endShim,Math.max(4000,gd.text.length*280)); });
+        var p=shimAudio.play();
+        if(p&&p.catch) p.catch(function(){ setTimeout(endShim,Math.max(4000,gd.text.length*280)); });   // autoplay 被拦：纯字幕驻留文字时长
+        setTimeout(endShim,20000);   // 兜底上限（ended 更早接管）
+      }else{
+        setTimeout(endShim,Math.max(4000,gd.text.length*280));
+      }
+      // vB 若随后自己醒来上屏真字幕：撤 shim 让位（避免双字幕）
+      var yield=setInterval(function(){
+        if(!shimBar){ clearInterval(yield); return; }
+        if(vbCaptionActive()&&shimBar){ killShim(); clearInterval(yield); }
+      },300);
+      setTimeout(function(){ clearInterval(yield); },25000);
+      console.warn('[c5s3] R11 看门狗：启动卡移除后 500ms 无音频无字幕，已补播欢迎词');
+    }catch(e){ console.error('[c5s3] R11 看门狗补播异常:',e); }
+  }
+  setInterval(function(){
+    if(fired) return;
+    var s=document.querySelector('.gvb-start');
+    if(s){ seenStart=true; return; }
+    if(!seenStart) return;
+    if(!armedAt){ armedAt=Date.now(); return; }
+    if(Date.now()-armedAt<500) return;
+    if(Date.now()-armedAt>60000){ fired=true; return; }   // 60s 新鲜窗：启动卡移除超 60s 才轮到看门狗=非本 bug 场景（如 fab 模式切换移除），退役防误补播
+    if(gvbMode()!=='voice') return;                       // text/sleep 是用户显式选择，不介入
+    if(anyAudioPlaying()||vbCaptionActive()){ fired=true; return; }   // 欢迎词已成功（出声或上屏），看门狗退役
+    fireShim();
+  },200);
+})();
 // ===== 初始化：u=21cm(>2f)、f=10cm、屏在清晰像位 v=19.1cm——进页即见倒立缩小实像 =====
 setF(F_DEF_CM);
 layout(); resize();
