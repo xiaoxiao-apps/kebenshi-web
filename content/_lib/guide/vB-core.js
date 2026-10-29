@@ -114,6 +114,7 @@ function start(){
                  '<span class="gvb-start-title">点击开启语音讲解</span></div>';/* EG1：删小字 .gvb-start-sub */
     el.addEventListener('click',function(){
       startAck=true;                         /* EG2-1：先确认，之后 say() 一律放行 */
+      if(window.GuideEngine&&window.GuideEngine.rearmPending)window.GuideEngine.rearmPending();/* R9主会话热修：认可=引导时钟归零+重武装未播条目（晚认可不丢首条引导） */
       removeStartLayer();
       disarmUnlock();
       if(pendingEntry){                      /* 优先正式开播被闸门拦下的第一条（通常是欢迎词） */
@@ -139,6 +140,7 @@ function start(){
   function unlockHandler(){
     if(mode!=='voice'){disarmUnlock();return;}
     disarmUnlock();
+    if(window.GuideEngine&&window.GuideEngine.rearmPending)window.GuideEngine.rearmPending();/* R9主会话热修：手势解锁认可同款重武装 */
     if(cur){/* 当前条仍在驻留窗口内：重播 */
       cur.at=now();render();
     }else if(lastIntro&&(now()-loadT)<8000){/* 已过期但页面加载 <8s：补播 intro */
@@ -164,6 +166,10 @@ function start(){
   function clearHide(){if(hideTimer){clearTimeout(hideTimer);hideTimer=null;}}
   function scheduleHide(ms){clearHide();hideTimer=setTimeout(hide,ms);}
   function hide(){
+    /* 【R9 蔡总 10-29】兜底驻留定时器不得掐灭仍在播的音频：旧 MAX_DUR=15s 到点 hide()→stopAudio() 连带掐音频
+       （结论 c6s2-s5a 21.7s 总在开播+15s 被掐=「结论没播完就停掉」终极根因，全库仅它超15s故只结论中招）；
+       音频仍在播则自递5s复查，ended/settle 会正常接管收尾 */
+    if(curAudio&&!curAudio.paused&&!curAudio.ended){ scheduleHide(5000); return; }
     clearHide();
     stopAudio();
     cur=null;

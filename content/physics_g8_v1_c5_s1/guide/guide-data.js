@@ -4,11 +4,18 @@
    R8-2（蔡总 2026-10-29 01:17 条1）：focal 场景 f-s1/f-s2/f-s3/f-f2 加 queue:true，f-s2/f-s3 改 repeat:false
    （根治 f-s2 电平+repeat 每 3s 自我复读、连带 f-s3 定时器反复重排）；bench 场景删凸/凹分开两条结论，
    改 b-s8 一条统一结论（凸凹全测完才发火，旗标 everConvex/everConcave 由 core 置位） */
+/* R9-2（蔡总 2026-10-29 09:40 条1a/条5e延伸）：①bench 首条引导 b-s1 裸 delay:10300 → 电平边沿型
+   '(G.t-G.modeEnterT)>10300 && R.bench.source===null' + queue:true（欢迎词真播完才播、已拖光源永久闭嘴）；
+   ②f-s2/f-s3 音频重录去掉裸字母 f（屏幕 say 保留符号）。core 侧同轮补画凸透镜左侧物方焦点 F′ */
 window.C5S1_GUIDE={
   bench:{
     intro:{text:'欢迎来到透镜光学台！凸透镜会聚光，凹透镜发散光。拖出光源和透镜，看看光路怎么变～',audio:'c5s1-b-intro'},
     steps:[
-      {id:'c5s1-b-s1',repeat:true,trigger:'delay:10300',say:'从左上角托盘拖出光源，点一下本体点亮它。',audio:'c5s1-b-s1'},
+      /* R9-2（蔡总 2026-10-29 09:40 条1a）：b-s1 裸 delay:10300 → 电平边沿型+queue。
+         病根同 c5s1-f-s1/c5s2 三场景 s1：delay 分支不求值条件、从进页起算，欢迎词（b-intro 9.312s，
+         且要等用户点「开启语音」才开口）没说完就到点抢播；且用户已拖出光源后到点照播=过期引导。
+         门 R.bench.source===null：已拖光源则此条永久闭嘴；queue:true=等欢迎词真播完再播。 */
+      {id:'c5s1-b-s1',repeat:true,queue:true,trigger:'(G.t-G.modeEnterT)>10300 && R.bench.source===null',say:'从左上角托盘拖出光源，点一下本体点亮它。',audio:'c5s1-b-s1'},
       {id:'c5s1-b-s2',repeat:true,trigger:'R.bench.source!==null && (R.bench.source.type===\'bulb\' ? R.bench.source.on!==true : !(R.bench.source.on[0]||R.bench.source.on[1]||R.bench.source.on[2]))',say:'点光源上的红色按钮开光，光沿直线传播。',audio:'c5s1-b-s2'},
       {id:'c5s1-b-s3',repeat:true,trigger:'R.bench.lens===null && R.bench.source!==null && (R.bench.source.type===\'bulb\' ? R.bench.source.on===true : (R.bench.source.on[0]||R.bench.source.on[1]||R.bench.source.on[2]))',say:'没有透镜时光沿直线走，把透镜拖到主轴上。',audio:'c5s1-b-s3'},
       {id:'c5s1-b-s4',repeat:true,queue:true,trigger:'R.bench.lens!==null && R.bench.lens.kind===\'convex\' && R.bench.source!==null && (R.bench.source.type===\'bulb\' ? R.bench.source.on===true : (R.bench.source.on[0]||R.bench.source.on[1]||R.bench.source.on[2]))',say:'平行光通过凸透镜汇聚到一点，我们把这一点称之为凸透镜的焦点，焦点到凸透镜中心的距离称之为焦距。',audio:'c5s1-b-s4'},
@@ -38,6 +45,8 @@ window.C5S1_GUIDE={
          定时器被反复重排 → 结论总落在 f-s2 播到一半时插入。光屏到位=一次性事件 → repeat:false + queue:true，
          f-s2 只发火一次 → f-s3 定时器只排一次（6s > f-s2 音频 5.208s 有余量） */
       {id:'c5s1-f-s1',repeat:true,queue:true,trigger:'(G.t-G.modeEnterT)>10600 && R.focal.screen.atF===false',say:'阳光可看作平行光，移动光屏找最小最亮的光斑。',audio:'c5s1-f-s1'},/* R8主会话热修：delay型改电平型+atF===false门——实测打桩秒到焦点时，delay:10600 的开场引导会在 s2「光斑最小最亮」之后才播=过期引导（delay 分支不求值 expr 无法加门，改电平边沿型）；已找到焦点则此引导永不播（蔡总「做到哪步播哪步，过去的不再播」）；未找到焦点超10.6s照播 */
+      /* R9-2（蔡总 09:40 条5e延伸）：f-s2/f-s3 音频重录=TTS 文本去掉裸字母 f（「焦距f」→「焦距」），
+         屏幕 say 保留符号 f 不动（屏上 F/2F/f 标注是教材写法，只改读音） */
       {id:'c5s1-f-s2',repeat:false,queue:true,trigger:'R.focal.screen.atF===true',say:'光斑最小最亮！屏到透镜的距离就是焦距f。',audio:'c5s1-f-s2'},
       {id:'c5s1-f-s3',repeat:false,queue:true,trigger:'after:c5s1-f-s2@6000',say:'因此我们得出结论：光斑到透镜的距离就是焦距f。',audio:'c5s1-f-s3'}
     ],
@@ -61,8 +70,8 @@ window.C5S1_GUIDE={
     'c5s1-b-f1':'guide/audio/c5s1-b-f1.mp3','c5s1-b-f2':'guide/audio/c5s1-b-f2.mp3',
     'c5s1-b-f3':'guide/audio/c5s1-b-f3.mp3','c5s1-b-f4':'guide/audio/c5s1-b-f4.mp3',
     'c5s1-f-intro':'guide/audio/c5s1-f-intro.mp3',
-    'c5s1-f-s1':'guide/audio/c5s1-f-s1.mp3','c5s1-f-s2':'guide/audio/c5s1-f-s2.mp3',
-    'c5s1-f-s3':'guide/audio/c5s1-f-s3.mp3',
+    'c5s1-f-s1':'guide/audio/c5s1-f-s1.mp3','c5s1-f-s2':'guide/audio/c5s1-f-s2.mp3?v=20261029v4',
+    'c5s1-f-s3':'guide/audio/c5s1-f-s3.mp3?v=20261029v4',
     'c5s1-f-f1':'guide/audio/c5s1-f-f1.mp3','c5s1-f-f2':'guide/audio/c5s1-f-f2.mp3',
     'c5s1-f-f3':'guide/audio/c5s1-f-f3.mp3'
   }

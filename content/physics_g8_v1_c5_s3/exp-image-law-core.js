@@ -30,9 +30,9 @@ function xOfU(u){ return xLens-u*S; }
 function xOfV(v){ return xLens+v*S; }
 var st={
   u:21,f:F_DEF_CM,vSc:19.1,           // 初始态：u=21(>2f=20)、f=10、屏在清晰像位 v=210/11≈19.1 → 进页即见倒立缩小实像
-  obj:'F',lit:false,   // R8-2（蔡总 2026-10-29 01:17 条3）：光路默认 ON（rays:true，HTML btn-rays 带 class="on"）；光源仍默认 OFF 保留「引导用户点亮」交互；F/2F 与读数默认 OFF
+  obj:'F',lit:false,   // R8-2（蔡总 2026-10-29 01:17 条3）：光路默认 ON（rays:true，HTML btn-rays 带 class="on"）；光源仍默认 OFF 保留「引导用户点亮」交互
   screenOn:true,screenA:1,eye:false,eyeA:0,eyeOff:0,eyeX:null,
-  hand:false,handA:0,marks:false,rays:true,
+  hand:false,handA:0,marks:true,rays:true,   // R9-2（蔡总 09:40 条4a）：F/2F 标记默认 ON（三处同源：st 初值 + HTML class="on" + reset）；读数面板仍默认 OFF
   rows:[],anim:null,
   fTip:false,touched:false,snapI:0,wasSharp:true,eyeTip:false,eyeTipShown:false
 };
@@ -135,10 +135,15 @@ function drawRays(){
   if(!st.rays||!st.lit) return;   // 光源关时不画光线（R8-2 默认 rays ON / lit OFF → 点亮光源即见三条平行光）
   var px0=xOfU(st.u),hO=hoPx();   // K4 入眼光线裁切链已全删
   // R8-2（蔡总 2026-10-29 01:17 条3）：F 图案上端/中部横臂/下端三物点，只发出上中下三条平行光线，没有其他多余的斜光线
-  // → 旧②「过光心直穿」一路删除（R7-A2 曾为 3 物点×2 线=6 线）；①平行主轴入射 → 折射过像方焦点，三条折射线在像面
-  // 逐点落在 axisY−hO·m / axisY−0.5hO·m / axisY，与 drawPattern 的 fPattern 三特征对齐=倒立 F 像；
+  // → 旧②「过光心直穿」一路删除（R7-A2 曾为 3 物点×2 线=6 线）；①平行主轴入射 → 折射过像方焦点。
+  // R9-2（蔡总 2026-10-29 09:40 条3）三物点锚定实测重算：f_led_panel.png(800×800) PIL 实测 F 字形 rows106-709（字高 604=0.755 图高）、
+  // 上横臂簇中心=字高 12.33%、中横臂簇中心=字高 49.17%；drawLedPanel 锚 (x,axisY)=板中心、boxH=2*hoPx、dh=boxH/0.756、dy=axisY−dh*0.509
+  // → 字形上缘=axisY−0.996*hoPx≈axisY−hO、中横臂中心=axisY−0.014*hoPx≈axisY（光轴上）、字形下缘=axisY+0.998*hoPx≈axisY+hO。
+  // 旧 pts=[axisY−hO, axisY−0.5hO, axisY] 的中/下两点是「像图案底缘骑轴」旧假设的残留（锚错，三条光全挤上半截=蔡总所见）
+  // → 改 [axisY−hO, axisY, axisY+hO]=上端/中横臂/下端（蔡总原话）。三条折射线在像面落点 axisY−δ*m（δ=入射高，m=v/u）
+  // = [axisY+hI, axisY, axisY−hI]（hI=hoPx*m），与居中后 fPattern 三特征逐点对齐（见 fPattern/drawPattern 的 R9-2 注）。
   // 虚像态（u<f）反向延长虚线由 traceRay 内 beamDash 保留（三条折射线的反向延长线交于同侧虚像点，物理必需）
-  var pts=[axisY-hO,axisY-0.5*hO,axisY];
+  var pts=[axisY-hO,axisY,axisY+hO];
   ctx.save();
   if(st.handA>0) ctx.globalAlpha=1-0.45*st.handA;   // H6 遮挡：通光量连续渐减
   for(var i=0;i<3;i++){
@@ -276,46 +281,46 @@ function drawEyePeep(){   // eyePeep 眼视图窗：撤屏态实时画眼睛观�
     ctx.fillText('不成像',cx,cy+4);
   }else if(k==='virtual'){   // G13 正立放大 F：高=窗高*0.7*clamp(|m|/4,0.25,1)，每帧随 u 连续变；窗内容不随眼位变（G15 核对✓）；J10 同乘 dimAlpha 变虚
     var hp=wh*0.7*Math.max(0.25,Math.min(1,Math.abs(mag())/4));
-    ctx.save(); ctx.globalAlpha*=dimAlpha(); ctx.translate(cx,cy+hp/2); ctx.scale(hp,hp); fPattern(ctx); ctx.restore();
+    ctx.save(); ctx.globalAlpha*=dimAlpha(); ctx.translate(cx,cy); ctx.scale(hp,hp); fPattern(ctx); ctx.restore();   // R9-2：fPattern 改居中(y∈[-0.5,0.5]) → translate 去掉 +hp/2 补偿，窗内位置/尺寸与旧版逐像素一致
   }else{   // u≥f 撤屏态：倒立实像小图（同随 |m| 连续缩放）
     var hr=wh*0.5*Math.max(0.25,Math.min(1,Math.abs(mag())/4));
-    ctx.save(); ctx.translate(cx,cy-hr/2-6); ctx.scale(-hr,-hr); fPattern(ctx); ctx.restore();
+    ctx.save(); ctx.translate(cx,cy-6); ctx.scale(-hr,-hr); fPattern(ctx); ctx.restore();   // R9-2：同上，旧 translate(cx,cy-hr/2-6) 的底缘骑轴补偿改为居中补偿 −6
     ctx.fillStyle='#b45309'; ctx.font='15px '+FONT;
     ctx.fillText('空中实像',cx,wy+wh-8);
   }
   ctx.restore();
 }
 // ===== 像的渲染：F 图案镜像(scale(-1,1))+上下翻转=实像；虚像正立不镜像；蜡烛→简笔火焰图案 =====
-function fPattern(c){   // I5 像图案=描边 F：几何照 c5s2 fPath（w=h*0.62，竖+上横+中横三笔 stroke、lineCap round）；
-  var w=0.62;           // 单位系 h=1，fPath 的 y∈[-0.5,0.5] 整体平移 −0.5 → y∈[-1,0]，底缘落光轴（drawPattern 已 translate 到 axisY）
-  c.save();
-  c.lineCap='round'; c.lineJoin='round'; c.lineWidth=0.16; c.strokeStyle='#f59e0b';
+function fPattern(c){   // I5 像图案=描边 F：几何照 c5s2 fPath（竖+上横+中横三笔 stroke、lineCap round）；
+  var w=0.62;           // R9-2（蔡总 2026-10-29 09:40 条3）单位几何改「骑轴居中」：y∈[-0.5,0.5]（旧 y∈[-1,0] 底缘骑轴）
+  c.save();             //   竖笔 -0.5→+0.5、上横臂 y=-0.5、中横臂 y=0（实测中横臂在字高 49.17%≈中心）；
+  c.lineCap='round'; c.lineJoin='round'; c.lineWidth=0.16; c.strokeStyle='#f59e0b';   //   w 保持 0.62 → 绘制宽高比不变（drawPattern 两轴同倍）
   c.beginPath();
-  c.moveTo(-w/2,-1);   c.lineTo(-w/2,0);          // 竖笔
-  c.moveTo(-w/2,-1);   c.lineTo(w/2,-1);          // 上横
-  c.moveTo(-w/2,-0.5); c.lineTo(w*0.28,-0.5);     // 中横
+  c.moveTo(-w/2,-0.5);  c.lineTo(-w/2,0.5);        // 竖笔
+  c.moveTo(-w/2,-0.5);  c.lineTo(w/2,-0.5);        // 上横
+  c.moveTo(-w/2,0);     c.lineTo(w*0.28,0);        // 中横
   c.stroke();
   c.restore();
 }
-function flamePattern(c){
+function flamePattern(c){   // R9-2：与 fPattern 同款平移 +0.5 居中（旧 y∈[-1,-0.05] 底缘骑轴 → y∈[-0.5,0.45]）
   c.fillStyle='#f59e0b';
-  c.beginPath(); c.moveTo(0,-0.05);
-  c.bezierCurveTo(0.30,-0.30,0.22,-0.72,0,-1);
-  c.bezierCurveTo(-0.22,-0.72,-0.30,-0.30,0,-0.05);
+  c.beginPath(); c.moveTo(0,0.45);
+  c.bezierCurveTo(0.30,0.20,0.22,-0.22,0,-0.5);
+  c.bezierCurveTo(-0.22,-0.22,-0.30,0.20,0,0.45);
   c.closePath(); c.fill();
   c.fillStyle='#fde68a';
-  c.beginPath(); c.moveTo(0,-0.14);
-  c.bezierCurveTo(0.13,-0.33,0.09,-0.55,0,-0.72);
-  c.bezierCurveTo(-0.09,-0.55,-0.13,-0.33,0,-0.14);
+  c.beginPath(); c.moveTo(0,0.36);
+  c.bezierCurveTo(0.13,0.17,0.09,-0.05,0,-0.22);
+  c.bezierCurveTo(-0.09,-0.05,-0.13,0.17,0,0.36);
   c.closePath(); c.fill();
 }
-function drawPattern(x,hI,inverted,alpha,blur){   // yBase=axisY；倒立=轴下，正立=轴上
-  if(!(hI>1.5)||x<-80||x>W+80) return;
-  ctx.save();
+function drawPattern(x,hI,inverted,alpha,blur){   // R9-2：像骑轴居中——translate 到 axisY 后单位跨度 1 映成 2*hI
+  if(!(hI>1.5)||x<-80||x>W+80) return;            //   调用方传的 hI=hoPx()*(v/u)=**像半高**（物全高=2*hoPx，见 drawObject 的 boxH=2*hoPx），
+  ctx.save();                                     //   故像全高=2*hI，k=±2*hI 使图案跨 axisY−hI..axisY+hI，与三条折射线落点逐点对齐；
   ctx.globalAlpha=Math.max(0,Math.min(1,alpha))*(1-0.5*st.handA);   // H6 像亮度系数=1−0.5*handA 连续
-  if(blur>0.4&&typeof ctx.filter==='string') ctx.filter='blur('+blur.toFixed(1)+'px)';
+  if(blur>0.4&&typeof ctx.filter==='string') ctx.filter='blur('+blur.toFixed(1)+'px)';   //   旧 k=±hI 配 y∈[-1,0] → 像只有半高且整条挂轴下（物像比例错 2×）
   ctx.translate(x,axisY);
-  var k=inverted?-hI:hI;
+  var k=inverted?-2*hI:2*hI;
   ctx.scale(k,k);   // 实像 scale(−,−)=镜像+上下翻转；虚像正立不镜像
   if(st.obj==='candle') flamePattern(ctx); else fPattern(ctx);
   ctx.restore();
@@ -663,13 +668,14 @@ var bReset=document.getElementById('btn-reset');
 if(bReset) bReset.addEventListener('click',function(){
   if(st.anim) return;
   st.u=21; setF(F_DEF_CM); st.vSc=19.1;
-  st.obj='F'; st.lit=false;   // R8-2（蔡总 01:17 条3）：重置回初始态=光路 ON / 光源 OFF / F-2F OFF / 读数 OFF（与 st 初值 + HTML class 三处同源）
+  st.obj='F'; st.lit=false;   // R8-2（蔡总 01:17 条3）+ R9-2（蔡总 09:40 条4a）：重置回初始态=光路 ON / F-2F ON / 光源 OFF / 读数 OFF（与 st 初值 + HTML class 三处同源）
   st.screenOn=true; st.screenA=1; st.eye=false; st.eyeA=0; st.eyeOff=0; st.eyeX=null;
-  st.hand=false; st.handA=0; st.marks=false; st.rays=true;
+  st.hand=false; st.handA=0; st.marks=true; st.rays=true;
   st.rows=[]; st.fTip=false; st.touched=false; st.snapI=0; st.eyeTip=false; st.eyeTipShown=false;
   renderRec();
-  ['btn-hand','btn-marks'].forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  ['btn-hand'].forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.remove('on'); });
   var bRays=document.getElementById('btn-rays'); if(bRays) bRays.classList.add('on');   // R8-2：光路钮回 ON（否则按钮态与画面打架）
+  var bMarks=document.getElementById('btn-marks'); if(bMarks) bMarks.classList.add('on');   // R9-2：F/2F 钮回 ON（同 rays 改法）
   syncLitBtn();
   if(bNs){ bNs.textContent='撤屏'; bNs.classList.remove('on'); }
   openPanel(null);

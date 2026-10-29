@@ -3,12 +3,14 @@ window.C6S2_GUIDE={
   refract:{
     intro:{text:'欢迎来到密度实验室！密度是物质的身份数值，ρ等于m除以V。先称质量，再测体积，跟我来！',audio:'c6s2-intro'},
     steps:[
-      {id:'c6s2-s1',repeat:true,queue:true,trigger:'delay:11300',say:'好，先在下方选材质和大小，把物块拖去天平和量筒。',audio:'c6s2-s1'},
-      {id:'c6s2-s2',repeat:true,trigger:'R.scene===\'e3\' && R.e3.mKnown===true && R.e3.vKnown===false',say:'称出质量啦！接下来拖进量筒测体积。',audio:'c6s2-s2'},/* R8主会话热修：加 vKnown===false 排除带——先投筒(vPending)再称质量的补救路径下，mKnown 与 vKnown 同帧变真，旧 trigger 使 s2/s4 双真、数组序 s2 抢先播「接下来拖进量筒测体积」=过期引导（体积已自动补记）；排除后该路径直接播 s4「质量和体积都齐啦」（蔡总「做到哪步播哪步」）；正常顺序（称完质量、体积未测）s2 照播 */
+      {id:'c6s2-s1',repeat:true,queue:true,trigger:'(G.t-G.modeEnterT)>11300 && R.scene===\'e3\' && R.e3.mKnown===false && R.e3.vKnown===false && R.e3.records.length===0 && R.e3.block.loc===\'source\'',say:'好，先在下方选材质和大小，把物块拖去天平和量筒。',audio:'c6s2-s1'},/* R9-3（修改3·蔡总条5c）：delay→电平边沿门——已称/已测/有记录/物块已离源位则条件永假=永久闭嘴，操作过就不再播过期引导 */
+      {id:'c6s2-s2',repeat:true,trigger:'R.scene===\'e3\' && R.e3.mKnown===true',say:'称出质量啦！接下来拖进量筒测体积。',audio:'c6s2-s2'},/* R9-3（修改2）：删上轮 vKnown===false 排除带——『投筒自动补记体积』机制已删（修改1），称完质量时 vKnown 必为 false，该门恒真=冗余；回退为纯 mKnown 上升沿（无 queue=动作即时），做到哪步播哪步 */
       {id:'c6s2-s3',repeat:true,queue:true,trigger:'R.scene===\'e3\' && R.e3.vKnown===true',say:'好，用排水法，水位差就是物块的体积。',audio:'c6s2-s3'},
       {id:'c6s2-s4',repeat:true,queue:true,trigger:'R.scene===\'e3\' && R.e3.records.length>=1',say:'质量和体积都齐啦！它们的比值会自动记入表格。',audio:'c6s2-s4'},
       /* R8-3（蔡总条4c：打完第1个点就该主动引导换体积，不等用户手动点）：record 入表后双测仍齐(mKnown&&vKnown===true)→真→立即发声引导；点新体积 e3Select 清双测→假；同材质第2、3个体积各提示一次(n>=1&&n<3) */
       {id:'c6s2-s4a',repeat:true,queue:true,trigger:'R.scene===\'e3\' && (function(){var E=R.e3,n=0;for(var i=0;i<E.records.length;i++)if(E.records[i].mat===E.mat)n++;return n>=1&&n<3&&E.mKnown===true&&E.vKnown===true;})()',say:'好，再换这种材质的另一个体积，先称质量、再用量筒测体积，跟刚才一样。',audio:'c6s2-s4a'},
+      /* R9-3（修改4·蔡总条5d，拍板两条都要）：换体积回应条——已有≥1记录 + e3Select 刚清空双测 + 物块回源位 = 用户刚点了新体积/材质，即时回应「换了一种体积，继续测量」；与 s4a 区分：s4a=双测仍齐(还没换,主动引导换)、s4b=双测已清(刚换,回应)，两条互斥不冲突；无 queue=动作即时回应 */
+      {id:'c6s2-s4b',repeat:true,trigger:'R.scene===\'e3\' && R.e3.records.length>=1 && R.e3.mKnown===false && R.e3.vKnown===false && R.e3.block.loc===\'source\'',say:'好，我们现在换了一种体积，我们继续来测量。',audio:'c6s2-s4b'},
       {id:'c6s2-s5',repeat:true,queue:true,trigger:'R.scene===\'e3\' && R.e3.records.length>=2',say:'看，同种物质的点连成一条过原点的直线。',audio:'c6s2-s5'},
       /* R2-a：同材质三体积全测完→密度定义结论（严谨版；密度定义只由本条给出，s7 只讲成正比不重复定义） */
       {id:'c6s2-s5a',repeat:true,queue:true,trigger:'R.scene===\'e3\' && (function(){var E=R.e3,vs={};E.records.forEach(function(r){if(r.mat===E.mat)vs[r.v]=1;});return Object.keys(vs).length>=3;})()',say:'看，这种材质的三个体积我们都测过了。数据告诉我们：同一种物质，质量与体积的比值是不变的。这个不变的比值，就叫做这种物质的密度，用字母ρ表示，ρ等于m除以V。科学家还发现，不同物质，这个比值一般不同。',audio:'c6s2-s5a'},
@@ -46,10 +48,10 @@ window.C6S2_GUIDE={
     tasks:[]
   },
   audios:{
-    'c6s2-intro':'guide/audio/c6s2-intro.mp3?v=20261027g1',
+    'c6s2-intro':'guide/audio/c6s2-intro.mp3?v=20261029r10',
     'c6s2-s1':'guide/audio/c6s2-s1.mp3?v=20261027g1','c6s2-s2':'guide/audio/c6s2-s2.mp3?v=20261028v7',
     'c6s2-s3':'guide/audio/c6s2-s3.mp3?v=20261027g1','c6s2-s4':'guide/audio/c6s2-s4.mp3?v=20261028v7',
-    'c6s2-s4a':'guide/audio/c6s2-s4a.mp3?v=20261027r4','c6s2-s5':'guide/audio/c6s2-s5.mp3?v=20261027g1',
+    'c6s2-s4a':'guide/audio/c6s2-s4a.mp3?v=20261027r4','c6s2-s4b':'guide/audio/c6s2-s4b.mp3?v=20261029r10','c6s2-s5':'guide/audio/c6s2-s5.mp3?v=20261027g1',
     'c6s2-s5a':'guide/audio/c6s2-s5a.mp3?v=20261027r4','c6s2-s6':'guide/audio/c6s2-s6.mp3?v=20261027g1',
     'c6s2-s7':'guide/audio/c6s2-s7.mp3?v=20261027g1','c6s2-s8':'guide/audio/c6s2-s8.mp3?v=20261027g1',
     'c6s2-e0':'guide/audio/c6s2-e0.mp3?v=20261028v7',

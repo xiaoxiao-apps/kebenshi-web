@@ -362,6 +362,13 @@ function drawAnnotations(){
       ctx.fillStyle='#ffc81e'; ctx.fill();
       ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=2; ctx.stroke();
       ctx.fillStyle='#1a1a1a'; ctx.font='700 16px "Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif'; haloText('F',fx,axisY-14); ctx.font='14px "Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif';
+      /* R9-2（蔡总 2026-10-29 09:40 条1b）：凸透镜左侧 xL−fPx 补画同款实心 F′（物方焦点，带撇与像方 F 区分）；
+         dimLine 仍只标右侧 xL→fx，不重复标尺寸；凹透镜分支的虚焦点画法不动 */
+      var vx2=xL-fPx;
+      ctx.beginPath(); ctx.arc(vx2,axisY,8,0,Math.PI*2);
+      ctx.fillStyle='#ffc81e'; ctx.fill();
+      ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle='#1a1a1a'; ctx.font='700 16px "Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif'; haloText('F′',vx2,axisY-14); ctx.font='14px "Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif';
       dimLine(xL,fx,fLabel);
     }else{
       var vx=xL-fPx;   // 虚焦点同式但空心环区分

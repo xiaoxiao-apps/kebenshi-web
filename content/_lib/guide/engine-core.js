@@ -30,7 +30,12 @@
    after:/delay: 型无 expr 不重判（其取消由 clearPendingSchedules 覆盖）。
    【R8-1 规则·全站适用】queue:true 只用于**解说链续条**（after: 型依赖条、聚合结论条）与**纠错条**（errors）；
    **用户动作条一律不加 queue**——用户一操作，vB say() 无条件 stopAudio 立即打断在播音频（含欢迎词），
-   立即播这一步，且不回头续播被打断的条目（"做到哪步播哪步，过去了就过去了"）。 */
+   立即播这一步，且不回头续播被打断的条目（"做到哪步播哪步，过去了就过去了"）。
+   【R9-2 结论保护v2·蔡总 2026-10-29 拍板】结论条=repeat:false 带 audio 或 say 含「结论/发现」语义（覆盖 repeat 型结论如 c6s2-s5a 21.7s）。
+   真发火时记 conclGuard={t,id,step,mode}；conclPlaying()=闸在+60s内+api.isAudioPlaying()。
+   保护期内：①free 即时反馈条不发火改 queueDefer 排队（tickFree 开头闸）；②queue 步骤条不发火改 queueDefer 排队（不走20s强制播上限）；
+   ③无queue动作条仍立即打断结论（用户赢）但记 conclResume——打断它的音频播完后 tick 自动续播结论一次（chain≤2防连环）。
+   新结论发火/切场景(GUIDE_SCENE.change)/重置(doReset)/语音认可(rearmPending) 均清零 conclGuard+conclResume（不保护/不续播旧结论）。 */
 /* 【接口契约3·EG3-1 重置】window.GUIDE_RESET={all:fn} / window.GuideEngine.reset=同一函数
    调用时机=页面重置 handler 的最后一行（页面 state 已清零、UI 已同步之后；先调引擎会让 intro 读到旧状态）。
    语义=实验+语音+字幕全部从头：清 firedSteps/hold/errLast/freeLast/freePrev/recCache/taskState + resetG()，
@@ -55,6 +60,9 @@ var enginePaused=false;/* EG3-2：页面暂停联动开关（只由 setPause 写
 var curMode=null,G={},firedSteps={},hold={},errLast={},freeLast={},freePrev={},stepSched={};
 var queueTries={};/* 【接口契约6·R5】queue:true 条目的轮询计数（80 次=20s 上限强制播） */
 var queueTimers={};/* 【R8-1】queue defer 轮询句柄登记（键同 queueTries），clearPendingSchedules 可取消 */
+var conclGuard={t:0,id:null,step:null,mode:null};/* 【R9-2保护闸v2】结论保护对象：结论条（repeat:false 或 say 含「结论/发现」语义，覆盖 repeat 型结论如 c6s2-s5a）真发火时置位；tickFree/tickSteps/fireStep 闸读；doReset/GUIDE_SCENE.change/rearmPending 清零 */
+var conclResume=null;/* 【R9-2保护闸v2】被无queue动作条打断的结论：{step,mode,guardId,chain,at}——打断它的音频播完后自动续播一次（chain≤2防连环）；切场景/重置/新结论清零 */
+function conclPlaying(){var a=getApi();return !!(conclGuard.t&&now()-conclGuard.t<60000&&a&&a.isAudioPlaying&&a.isAudioPlaying());}/* 保护生效=闸在且结论音频还在播（60s兜底） */
 /* r4：repeat:true 步骤的边沿重触发状态（引擎私有，非 repeat 步骤不使用） */
 var repPrev={},repLast={},fireCount={},seenCount={},delayFired={},firedReal={};/* R8主会话热修：firedReal=步骤真发火锚点（过queue闸门、音频真起播才置真）；after:非repeat依赖定时器改挂它——旧挂fired（分发时刻）致焦距场景实测结论先于「光斑最小最亮」播（顺序反） */
 var REP_COOLDOWN=3000;
@@ -197,6 +205,7 @@ function fireStep(step,mode){
      暂停期间不计等待不发火（enginePaused 时只续轮询）；不带 queue 的条目（用户动作类）行为不变=仍可打断 */
   if(step.queue){
     if(enginePaused){queueDefer(step.id,step.trigger,function(){fireStep(step,mode);});return;}
+    if(conclPlaying()&&conclGuard.id!==step.id){queueDefer(step.id,step.trigger,function(){fireStep(step,mode);});return;}/* 【R9-2v2】结论在播：queue步骤条等它播完（不走20s强制播上限——s5a 21.7s会被20s上限提前插；60s兜底解除；重试前重判电平条件） */
     var apq=getApi();
     if(apq&&apq.isAudioPlaying&&apq.isAudioPlaying()){
       if((queueTries[step.id]=(queueTries[step.id]||0)+1)<=80){queueDefer(step.id,step.trigger,function(){fireStep(step,mode);});return;}
@@ -204,6 +213,11 @@ function fireStep(step,mode){
     }else queueTries[step.id]=0;
   }
   firedReal[step.id]=true;/* R8主会话热修：真发火锚点（本行在queue闸门之后，走到这里=音频真起播） */
+  if((step.repeat===false||/结论|发现|告诉我们|规律/.test(step.say||''))&&step.audio){conclGuard={t:now(),id:step.id,step:step,mode:mode};conclResume=null;}/* 【R9-2保护闸v2】结论条真发火=保护起点（语义识别含 repeat 型结论，如 c6s2-s5a「数据告诉我们」21.7s）；新结论清旧续播 */
+  else if(conclGuard.t&&conclGuard.id!==step.id&&conclPlaying()){
+    if(step.queue){queueDefer(step.id,step.trigger,function(){fireStep(step,mode);});return;}/* 【R9-2v2】结论在播：queue步骤条排队等它播完（不走20s强制播上限） */
+    if(!conclResume||conclResume.guardId!==conclGuard.id||conclResume.chain<2)conclResume={step:conclGuard.step,mode:conclGuard.mode,guardId:conclGuard.id,chain:(conclResume&&conclResume.guardId===conclGuard.id?conclResume.chain+1:1),at:now()};/* 【R9-2v2】无queue动作条立即打断结论（用户赢）+记一次自动续播 */
+  }
   fireCount[step.id]=(fireCount[step.id]||0)+1;/* r4：after: 依赖计数（repeat/非 repeat 都计） */
   if(step.saidFlag)G[step.saidFlag]=true;
   var api=getApi();
@@ -214,11 +228,16 @@ function fireError(err){
      暂停期间只续轮询不发火；键用 err#id 防撞 steps 同 id。不带 queue 的纠错条行为不变=仍可打断。 */
   if(err.queue){
     if(enginePaused){queueDefer('err#'+err.id,err.trigger,function(){fireError(err);});return;}
+    if(conclPlaying()){queueDefer('err#'+err.id,err.trigger,function(){fireError(err);});return;}/* 【R9-2v2】结论在播：queue纠错条等它播完（不走20s强制播上限） */
     var aqe=getApi();
     if(aqe&&aqe.isAudioPlaying&&aqe.isAudioPlaying()){
       if((queueTries['err#'+err.id]=(queueTries['err#'+err.id]||0)+1)<=80){queueDefer('err#'+err.id,err.trigger,function(){fireError(err);});return;}
       queueTries['err#'+err.id]=0;
     }else queueTries['err#'+err.id]=0;
+  }
+  /* 【R9-2保护闸v2】非queue纠错条走到这里=立即发火=打断在播结论（用户刚做错必须立即纠）→ 记一次自动续播（打断它的音频播完后 tick 补播结论） */
+  if(conclPlaying()&&conclGuard.id!==err.id){
+    if(!conclResume||conclResume.guardId!==conclGuard.id||conclResume.chain<2)conclResume={step:conclGuard.step,mode:conclGuard.mode,guardId:conclGuard.id,chain:(conclResume&&conclResume.guardId===conclGuard.id?conclResume.chain+1:1),at:now()};
   }
   var api=getApi();
   if(api.onError)api.onError(err);
@@ -319,6 +338,8 @@ function tickSteps(mode){
 /* errors：电平触发可重复，同一条 5s 内不重播（§6.6）；@Ns=持续满足才触发，中断清零 */
 function tickErrors(mode){
   var md=DATA&&DATA[mode];if(!md||!md.errors)return;
+  /* 【R9-2保护闸v2·蔡总拍板规则】纠错条不受结论保护、仍立即发火（用户刚做错必须立即纠）；
+     打断在播结论时 fireError 记 conclResume——纠错音频播完后 tick 自动续播结论一次 */
   for(var i=0;i<md.errors.length;i++){
     var er=md.errors[i];
     var p=parseTrigger(er.trigger);
@@ -344,6 +365,15 @@ function tickErrors(mode){
 }
 /* free：边沿+节流，同类 ≥8s 不重播 */
 function tickFree(mode){
+  /* 【R9-2保护闸v2】结论在播期间：free 即时反馈条不发火改排队（queueDefer 句柄可取消、重试前重判电平条件）；解除/超时由 conclPlaying 统一判 */
+  if(conclPlaying()){
+      var mdg=DATA&&DATA[mode];
+      if(mdg&&mdg.free)for(var g=0;g<mdg.free.length;g++){(function(free,gi){
+        freePrev[mode+'#'+gi]=true;/* 边沿消费标记：本次上升沿由排队重试接管，防保护解除后电平路径二次发火 */
+        queueDefer('free#'+(free.audio||free.note),free.trigger,function(){fireFree(free);});
+      })(mdg.free[g],g);}
+      return;
+  }
   var md=DATA&&DATA[mode];if(!md||!md.free)return;
   for(var i=0;i<md.free.length;i++){
     var fr=md.free[i];
@@ -465,6 +495,7 @@ window.GUIDE_SCENE={
     if(api.onStop)api.onStop();          /* 立即静音 + 字幕条撤下 */
     clearPendingSchedules();             /* 作废在途 after/delay 定时器 + hold 计时 */
     errLast={};freeLast={};freePrev={};  /* 清节流：旧 error/free 不带进新子场景 */
+    conclGuard={t:0,id:null,step:null,mode:null};conclResume=null;                        /* 【R9-2v2】切场景不保护旧结论、不续播旧结论 */
     for(var id in repLast)delete repLast[id];/* repeat 冷却一并清，新子场景首次动作秒响 */
     G.modeEnterT=now();
   }
@@ -481,7 +512,7 @@ window.GUIDE_PAUSE={set:setPause};
 /* ---------- EG3-1【接口契约3】重置公共 API（实验+语音+字幕全部从头，重播当前模式 intro） ---------- */
 function doReset(){
   resetG();
-  firedSteps={};hold={};errLast={};freeLast={};freePrev={};queueTries={};
+  firedSteps={};hold={};errLast={};freeLast={};freePrev={};queueTries={};conclGuard={t:0,id:null,step:null,mode:null};conclResume=null;/* R9-2v2：重置不保护/不续播旧结论 */
   for(var q in queueTimers){if(queueTimers[q]!=null){clearTimeout(queueTimers[q]);queueTimers[q]=null;}}/* R8-1：curMode 为 null 时 onModeEnter 不跑，此处兜底取消排队 */
   recCache={n:-1,t:0};
   taskState={idx:0,done:false,allDone:false,answered:{},wrongPick:{}};
@@ -567,6 +598,14 @@ function tick(){
     updateG();
     var mode=(window.GUIDE_CFG&&window.GUIDE_CFG.mode)||(R&&R.mode);
     if(mode&&mode!==curMode)onModeEnter(mode);
+    /* 【R9-2保护闸v2】结论续播：被无queue动作条打断的结论，在打断它的音频播完后自动补播一次（仅同场景；切场景/重置/新结论已清零；chain≤2防连环） */
+    if(conclResume&&!conclPlaying()){
+      var ar=getApi();
+      if(!(ar&&ar.isAudioPlaying&&ar.isAudioPlaying())){
+        var rs=conclResume;conclResume=null;
+        if(rs.mode===curMode)fireStep(rs.step,rs.mode);
+      }
+    }
     if(curMode){
       tickSteps(curMode);
       /* everMatched 须在 steps 边沿判定之后置位，否则 m1-s5（!G.everMatched）永远不触发 */
@@ -633,6 +672,16 @@ window.GuideEngine={
   },
   Caption:Caption,
   reset:window.GUIDE_RESET.all,/* EG3-1【接口契约3】=GUIDE_RESET.all 同一函数 */
+  rearmPending:function(){/* 【R9主会话热修】语音认可时刻（启动层点击/手势解锁）=引导时钟归零+重武装全部firing状态。
+     修：认可晚于进页10s+时，电平边沿型/delay型首条引导在「未认可」态边沿已消耗或定时已到期（say被启动闸丢弃但fired/repPrev/repLast已记），认可后永久哑火（蔡总习惯先摆弄再点开启，实测复现）。
+     语义=「从现在所处位置重新引导」：清fired/节流/在途定时，电平条按当前状态重判边沿、delay/时间门从认可时刻重计；intro不重播（走vB pendingEntry/showEntry路径）；切场景/重置语义不变（GUIDE_SCENE.change/doReset各自清零）。 */
+    G.modeEnterT=now();
+    for(var k in stepSched){if(stepSched[k]!=null){clearTimeout(stepSched[k]);stepSched[k]=null;}}
+    for(var q in queueTimers){if(queueTimers[q]!=null){clearTimeout(queueTimers[q]);queueTimers[q]=null;}}
+    firedSteps={};hold={};errLast={};freeLast={};freePrev={};queueTries={};
+    repPrev={};repLast={};fireCount={};seenCount={};delayFired={};firedReal={};
+    conclGuard={t:0,id:null,step:null,mode:null};conclResume=null;
+  },
   pause:setPause,/* EG3-2【接口契约4】=GUIDE_PAUSE.set 同一函数 */
   getG:function(){return G;},
   getMode:function(){return curMode;},
