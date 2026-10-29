@@ -34,9 +34,15 @@ var st={
   screenOn:true,screenA:1,eye:false,eyeA:0,eyeOff:0,eyeX:null,
   hand:false,handA:0,marks:true,rays:true,   // R9-2（蔡总 09:40 条4a）：F/2F 标记默认 ON（三处同源：st 初值 + HTML class="on" + reset）；读数面板仍默认 OFF
   rows:[],anim:null,
-  fTip:false,touched:false,snapI:0,wasSharp:true,eyeTip:false,eyeTipShown:false
+  fTip:false,touched:false,snapI:0,wasSharp:true,eyeTip:false,eyeTipShown:false,
+  lastActT:0   // R10（蔡总 2026-10-29 13:03 条1）：最近一次「瞎操作」时刻，与引擎 now() 同时基（performance.now()）；初值0→G.t-0 巨大→提醒条 s1c 条件假不误发
 };
 window.C5S3_STATE=st;   // 语音讲解层状态暴露（设计书 §B-1 最小方案：稳定对象直接引用，无需 getter 聚合）
+/* R10：document 级 capture 监听 pointerdown——一个监听覆盖画布拖拽/控制栏按钮/滑杆；点光源按钮本身不算「瞎操作」（closest 排除） */
+document.addEventListener('pointerdown',function(e){
+  if(e.target&&e.target.closest&&e.target.closest('#btn-lit'))return;
+  st.lastActT=performance.now();
+},true);
 var drag=null,startPt=null,toolbox=null,trayCard=null,glowFx=[];
 function layout(){
   axisY=Math.round(H*0.40);

@@ -13,8 +13,8 @@ window.C6S3_GUIDE={
       {id:'c6s3-s1-s3a',repeat:true,queue:true,trigger:'R.s1.cylMl>0.5 && R.s1.vConf===null && R.s1.beaker.loc!==\'drag\'',say:'第四步读体积：在右边特写区上下拖动眼睛，让视线跟凹液面最低处相平——俯视读数偏大、仰视偏小；平视后点「✓ 确认读数」。',audio:'c6s3-s1-s3a'},/* R9-3（修改7·蔡总条7）：删「眼睛不在平视位」门 Math.abs(eyeT-0.5)>0.077——读数时眼睛已拖平且平视位保留，该门恒假致永不发火；删门后「拖眼睛到平视再读数」指引就算眼睛已平也无害 */
       {id:'c6s3-s1-s4',repeat:true,trigger:'R.s1.vConf!==null',say:'好，平视凹液面最低处，体积V读出来了。',audio:'c6s3-s1-s4'},
       {id:'c6s3-s1-s4a',repeat:true,queue:true,trigger:'R.s1.vConf!==null && R.s1.m2===null',say:'第五步，把烧杯和剩余盐水放回天平左盘，横梁平稳后点「记录 m₂」。',audio:'c6s3-s1-s4a'},
-      {id:'c6s3-s1-s5',repeat:true,trigger:'R.s1.m2!==null',say:'好，m₂也有了：量筒里盐水的质量m等于m₁减m₂，密度ρ等于m除以V，已经自动算好填进表。',audio:'c6s3-s1-s5'},
-      {id:'c6s3-s1-s6',repeat:false,queue:true,trigger:'after:c6s3-s1-s5@11500',say:'通过实验我们发现：盐水密度ρ等于m除以V。记住它哦！',audio:'c6s3-s1-s6'}
+      {id:'c6s3-s1-s5',repeat:true,trigger:'R.s1.m2!==null',say:'好，m₂也有了：量筒里盐水的质量m等于m₁减m₂，密度用ρ表示，等于质量除以体积，已经自动算好填进表。',audio:'c6s3-s1-s5'},/* R10（蔡总 2026-10-29 13:03 条2）：ρ段改「用ρ表示，等于质量除以体积」（公式语境ρ被念ROU→复用s5a验证读对语境），屏幕符号m₂/m/m₁保留、TTS中文化重录 */
+      {id:'c6s3-s1-s6',repeat:false,queue:true,trigger:'after:c6s3-s1-s5@11500',say:'通过实验我们发现：盐水密度用ρ表示，等于质量除以体积。记住它哦！',audio:'c6s3-s1-s6'}/* R10：同款ρ语境改法，重录 */
     ],
     errors:[
       {id:'c6s3-s1-e1',queue:true,trigger:'R.s1.cylMl>0.5 && (R.s1.eyeT<0.15||R.s1.eyeT>0.85)',fix:'不对哟～要平视凹液面最低处再读数。',audio:'c6s3-s1-e1'}
@@ -27,7 +27,7 @@ window.C6S3_GUIDE={
     tasks:[]
   },
   s2:{
-    intro:{text:'欢迎来到小石块密度实验！我们用天平测质量，排水法测体积，跟我来！',audio:'c6s3-s2-intro'},
+    intro:{text:'好，我们接下来测一测石块的密度。',audio:'c6s3-s2-intro'},/* R10（蔡总 2026-10-29 13:03 条3）：石块场景欢迎词改连贯句式（蔡总原话），旧「欢迎来到小石块密度实验…」7.176s→重录；s2-s0 门 >8200 仍 > 新音频时长 */
     steps:[
       {id:'c6s3-s2-s0',repeat:true,queue:true,trigger:'(G.t-G.modeEnterT)>8200 && R.s2.cur.m===null',say:'好，第一步先测质量：把石块拖到天平左盘，等横梁平稳，质量会自动记下来。',audio:'c6s3-s2-s0'},/* R9-3（修改6·蔡总条6a）：delay→电平边沿门——石块质量已测(cur.m!==null)=第一步已做完则条件永假=永久闭嘴 */
       {id:'c6s3-s2-s1',repeat:true,trigger:'R.s2.cur.m!==null',say:'好，石块质量m测好啦！接下来测体积。',audio:'c6s3-s2-s1'},
@@ -38,7 +38,7 @@ window.C6S3_GUIDE={
       {id:'c6s3-s2-s3',repeat:true,trigger:'R.s2.stone!==null && R.s2.stone.loc===\'cyl\' && !R.s2.stone.sinkTw',say:'看，石块沉底啦，说明它密度比水大；水位升高的体积就是它的体积。',audio:'c6s3-s2-s3'},
       {id:'c6s3-s2-s4a',repeat:true,queue:true,trigger:'R.s2.stone!==null && R.s2.stone.loc===\'cyl\' && !R.s2.stone.sinkTw && R.s2.cur.v2===null',say:'第五步，水面平稳后平视读出V₂，点确认；石块体积V等于V₂减V₁。',audio:'c6s3-s2-s4a'},/* R9-3（修改7·蔡总条7根因）：删眼睛平视门——石块沉底后 eyeT 仍保留读V1时的平视位致本门恒假、第五步引导永不发火=V1之后沉默；删门后链条 V1读出→拖石块→沉底解说→第五步读V2引导→结论 恢复 */
       {id:'c6s3-s2-s4',repeat:true,trigger:'R.s2.cur.v2!==null',say:'好，V₂读出，V等于V₂减V₁。',audio:'c6s3-s2-s4'},
-      {id:'c6s3-s2-s5',repeat:true,queue:true,trigger:'after:c6s3-s2-s4@4900',say:'通过实验我们发现：石块密度ρ等于m除以V。还能点「换石块」再测。',audio:'c6s3-s2-s5'}
+      {id:'c6s3-s2-s5',repeat:true,queue:true,trigger:'after:c6s3-s2-s4@4900',say:'通过实验我们发现：石块密度用ρ表示，等于质量除以体积。还能点「换石块」再测。',audio:'c6s3-s2-s5'}/* R10：ρ段改「用ρ表示，等于质量除以体积」，重录 */
     ],
     errors:[
       {id:'c6s3-s2-e1',queue:true,trigger:'R.s2.cur.v2!==null && R.s2.cur.m===null',fix:'不对哟～应先测质量，沾水再称m会偏大。',audio:'c6s3-s2-e1'}
@@ -56,16 +56,16 @@ window.C6S3_GUIDE={
     'c6s3-s1-s2':'guide/audio/c6s3-s1-s2.mp3?v=20261029r10','c6s3-s1-s2a':'guide/audio/c6s3-s1-s2a.mp3?v=20261027r4',
     'c6s3-s1-s3':'guide/audio/c6s3-s1-s3.mp3?v=20261027r4','c6s3-s1-s3a':'guide/audio/c6s3-s1-s3a.mp3?v=20261027r4',
     'c6s3-s1-s4':'guide/audio/c6s3-s1-s4.mp3?v=20261029r10','c6s3-s1-s4a':'guide/audio/c6s3-s1-s4a.mp3?v=20261029r10',
-    'c6s3-s1-s5':'guide/audio/c6s3-s1-s5.mp3?v=20261029r10','c6s3-s1-s6':'guide/audio/c6s3-s1-s6.mp3?v=20261027g1',
+    'c6s3-s1-s5':'guide/audio/c6s3-s1-s5.mp3?v=20261029v5','c6s3-s1-s6':'guide/audio/c6s3-s1-s6.mp3?v=20261029v5',
     'c6s3-s1-e1':'guide/audio/c6s3-s1-e1.mp3',
     'c6s3-s1-f1':'guide/audio/c6s3-s1-f1.mp3',
-    'c6s3-s2-intro':'guide/audio/c6s3-s2-intro.mp3?v=20261027g1',
+    'c6s3-s2-intro':'guide/audio/c6s3-s2-intro.mp3?v=20261029v5',
     'c6s3-s2-s0':'guide/audio/c6s3-s2-s0.mp3?v=20261027r4',
     'c6s3-s2-s1':'guide/audio/c6s3-s2-s1.mp3?v=20261029r10','c6s3-s2-s1a':'guide/audio/c6s3-s2-s1a.mp3?v=20261027r4',
     'c6s3-s2-s2a':'guide/audio/c6s3-s2-s2a.mp3?v=20261029r10','c6s3-s2-s2':'guide/audio/c6s3-s2-s2.mp3?v=20261029r10',
     'c6s3-s2-s3a':'guide/audio/c6s3-s2-s3a.mp3?v=20261027r4','c6s3-s2-s3':'guide/audio/c6s3-s2-s3.mp3?v=20261027r4',
     'c6s3-s2-s4a':'guide/audio/c6s3-s2-s4a.mp3?v=20261029r10','c6s3-s2-s4':'guide/audio/c6s3-s2-s4.mp3?v=20261029r10',
-    'c6s3-s2-s5':'guide/audio/c6s3-s2-s5.mp3?v=20261027r4','c6s3-s2-e1':'guide/audio/c6s3-s2-e1.mp3',
+    'c6s3-s2-s5':'guide/audio/c6s3-s2-s5.mp3?v=20261029v5','c6s3-s2-e1':'guide/audio/c6s3-s2-e1.mp3',
     'c6s3-s2-f1':'guide/audio/c6s3-s2-f1.mp3'
   }
 };

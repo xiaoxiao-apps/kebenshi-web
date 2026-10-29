@@ -1,7 +1,7 @@
 /* content/physics_g8_v1_c6_s2/guide/guide-data.js */
 window.C6S2_GUIDE={
   refract:{
-    intro:{text:'欢迎来到密度实验室！密度是物质的身份数值，ρ等于m除以V。先称质量，再测体积，跟我来！',audio:'c6s2-intro'},
+    intro:{text:'欢迎来到密度实验室！密度是物质的身份数值，用ρ表示，等于质量除以体积。先称质量，再测体积，跟我来！',audio:'c6s2-intro'},/* R10（蔡总 2026-10-29 13:03 条2）：公式语境「ρ等于m除以V」被 TTS 念 ROU；改复用验证过读对的「用ρ表示」语境（s5a 同款），屏幕字幕同步；重录 */
     steps:[
       {id:'c6s2-s1',repeat:true,queue:true,trigger:'(G.t-G.modeEnterT)>11300 && R.scene===\'e3\' && R.e3.mKnown===false && R.e3.vKnown===false && R.e3.records.length===0 && R.e3.block.loc===\'source\'',say:'好，先在下方选材质和大小，把物块拖去天平和量筒。',audio:'c6s2-s1'},/* R9-3（修改3·蔡总条5c）：delay→电平边沿门——已称/已测/有记录/物块已离源位则条件永假=永久闭嘴，操作过就不再播过期引导 */
       {id:'c6s2-s2',repeat:true,trigger:'R.scene===\'e3\' && R.e3.mKnown===true',say:'称出质量啦！接下来拖进量筒测体积。',audio:'c6s2-s2'},/* R9-3（修改2）：删上轮 vKnown===false 排除带——『投筒自动补记体积』机制已删（修改1），称完质量时 vKnown 必为 false，该门恒真=冗余；回退为纯 mKnown 上升沿（无 queue=动作即时），做到哪步播哪步 */
@@ -48,7 +48,7 @@ window.C6S2_GUIDE={
     tasks:[]
   },
   audios:{
-    'c6s2-intro':'guide/audio/c6s2-intro.mp3?v=20261029r10',
+    'c6s2-intro':'guide/audio/c6s2-intro.mp3?v=20261029v5',
     'c6s2-s1':'guide/audio/c6s2-s1.mp3?v=20261027g1','c6s2-s2':'guide/audio/c6s2-s2.mp3?v=20261028v7',
     'c6s2-s3':'guide/audio/c6s2-s3.mp3?v=20261027g1','c6s2-s4':'guide/audio/c6s2-s4.mp3?v=20261028v7',
     'c6s2-s4a':'guide/audio/c6s2-s4a.mp3?v=20261027r4','c6s2-s4b':'guide/audio/c6s2-s4b.mp3?v=20261029r10','c6s2-s5':'guide/audio/c6s2-s5.mp3?v=20261027g1',
