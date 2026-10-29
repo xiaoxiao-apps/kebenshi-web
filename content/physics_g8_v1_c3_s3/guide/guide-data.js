@@ -36,7 +36,6 @@ window.C3S3_GUIDE={
       {id:'s8',repeat:true,trigger:"R.evapSub==='factors' && R.evap.factors.temp>35",say:'液体温度调高，蒸发变快啦！再试试调大表面积吧。',audio:'c3s3-s8'},
       {id:'s9',repeat:true,trigger:"R.evapSub==='factors' && R.evap.factors.area>1.5",say:'表面积摊大，蒸发更快！接下来再试试调大风速吧。',audio:'c3s3-s9'},
       {id:'s10',repeat:true,trigger:"R.evapSub==='factors' && R.evap.factors.wind>2",say:'空气流速加快，蒸发更快，有风天干得快，发现了吗？',audio:'c3s3-s10'},
-      /* s11已删（蔡总R2·B3-F1）：「对照组反而快」教学内容并入左胜free f10；mp3/audios项保留不引用 */
       {id:'s12',repeat:true,trigger:"R.evapSub==='cooling' && R.evap.cooling.alcohol[0]>0",say:'酒精涂上啦！它开始蒸发，盯紧温度计看好戏哦。',audio:'c3s3-s12'},
       {id:'s13',repeat:true,trigger:"R.evap.cooling.conclusionShown===true",say:'涂酒精的示数更低！蒸发吸热致冷，你看到了吗？',audio:'c3s3-s13'},
       /* R3-K1①：纸锅子台开场，置于 s14 前——同帧多条按数组序只发第一条，进台瞬间必播引导 */
@@ -98,7 +97,6 @@ window.C3S3_GUIDE={
     'c3s3-s8':'guide/audio/c3s3-s8.mp3?v=20261027g1',
     'c3s3-s9':'guide/audio/c3s3-s9.mp3?v=20261027g1',
     'c3s3-s10':'guide/audio/c3s3-s10.mp3?v=20261027g1',
-    'c3s3-s11':'guide/audio/c3s3-s11.mp3?v=20261027g1',
     'c3s3-s12':'guide/audio/c3s3-s12.mp3?v=20261027g1',
     'c3s3-s13':'guide/audio/c3s3-s13.mp3?v=20261027g1',
     'c3s3-s14':'guide/audio/c3s3-s14.mp3?v=20261027g1',
