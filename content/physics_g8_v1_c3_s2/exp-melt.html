@@ -64,6 +64,10 @@ select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:non
 #canvas-container { touch-action:none; }
 #app { height:100vh; height:100dvh; }
 @media (max-width:720px) { .control-panel { width:calc(50vw - 22px); padding:10px; } .data-panel { width:calc(50vw - 22px); } .slider-row { grid-template-columns:52px 18px 1fr 18px 42px; gap:4px; font-size:12px; } .slider-row label { font-size:11px; } .stepper-btn { width:18px; height:18px; font-size:10px; } .row label, .row .value { font-size:12px; } }
+/* A5-FAIL4：.close 触控域扩到 44×44，负 margin 抵消占位使 glyph 视觉原位不动；
+   #seg-title 右侧留白使其盒不与 44×44 关闭钮相交（文字左对齐、渲染位置不变）。 */
+.segment-card .close { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; margin:-9px -17px 0 0; }
+#seg-title { margin-right:28px; }
 </style>
 </head>
 <body>
