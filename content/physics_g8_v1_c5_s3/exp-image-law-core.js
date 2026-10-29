@@ -380,6 +380,7 @@ function drawMarks(){   // F/2F 双侧刻度点常驻（显示开关可关）
   ctx.restore();
 }
 function drawTray(){   // H7 暖米黄卡+「器材托盘」角标；缩略图归一化防出界（探针断言 bbox⊂卡片矩形）
+  if(!toolbox)return;   // init 前素材未就绪：跳过本帧托盘，init 后自愈（防白屏）
   toolbox.drawCard(ctx);
   ctx.save(); ctx.fillStyle='#8a6d3b'; ctx.textAlign='left'; ctx.font='15px '+FONT;
   ctx.fillText('器材托盘',trayCard.x+8,trayCard.y+16); ctx.restore();

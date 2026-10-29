@@ -252,7 +252,8 @@ function esc(s) {
 }
 function partPoints(q, pi) {
   const n = q.parts && q.parts.length ? q.parts.length : 1;
-  return Math.round(q.points / n);
+  const base = Math.floor(q.points / n);   // 前 n-1 份保底取整，末份吃余数，保证 Σpart === q.points
+  return pi === n - 1 ? q.points - base * (n - 1) : base;
 }
 /* 判一个小问：ans 为作答（choice=索引 / multi=索引数组 / blank=字符串数组 / open=作答文本，分数在 EX.open）
  * 返回 {ok, score, full}；open 题 ok=null（自评制）；blank 带 keyPoints 时按要点比例给部分分（ok: 满分true/部分分null/0分false） */

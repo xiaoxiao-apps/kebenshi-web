@@ -23,7 +23,7 @@ window.C5S3_GUIDE={
       /* R10：提醒条——未点亮光源时任何瞎操作（lastActT 由 core document 级 pointerdown 刷新，排除 #btn-lit）当帧发「请先点亮光源」。
          电平边沿型：操作刷新 lastActT→条件假→下一帧真上升沿即发火；repeat 边沿+引擎 REP_COOLDOWN=3000 天然防刷屏（连点3秒内只提醒一次）；
          **不加 queue**=动作响应立即播，打断欢迎词符合蔡总规矩（R8-1 契约6：用户动作条一律不加 queue） */
-      {id:'c5s3-s1c',repeat:true,trigger:'R.lit===false && (G.t-R.lastActT)>=0 && (G.t-R.lastActT)<1500',say:'请先点亮光源。',audio:'c5s3-s1c'},
+      {id:'c5s3-s1c',repeat:true,trigger:'R.lastActT>0 && R.lit===false && (G.t-R.lastActT)>=0 && (G.t-R.lastActT)<1500',say:'请先点亮光源。',audio:'c5s3-s1c'},
       {id:'c5s3-s2',repeat:true,queue:true,trigger:'R.lit===true && R.u-R.f>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))>0.6',say:'屏上像模糊啦，拖屏或点寻像找清晰像。',audio:'c5s3-s2'},/* R10：加已点亮门（蔡总：只有点亮才触发接下来的步骤），下同 s3~s10/e1~e3/f1~f4 共15条 */
       {id:'c5s3-s3',repeat:true,queue:true,trigger:'R.lit===true && R.u>2*R.f && R.u-R.f>0.25 && Math.abs(R.u-2*R.f)>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))<=0.6',say:'现在物距大于二倍焦距，成倒立、缩小的实像。',audio:'c5s3-s3'},   /* R7-A2：加 |u−2f|>0.25 排除带，u=2f 时让位 s5 */
       {id:'c5s3-s4',repeat:true,queue:true,trigger:'R.lit===true && R.u-R.f>0.25 && R.u<2*R.f && Math.abs(R.u-2*R.f)>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))<=0.6',say:'物距在一倍焦距和二倍焦距之间，成倒立、放大的实像。',audio:'c5s3-s4'},   /* R7-A2：同款排除带 */
