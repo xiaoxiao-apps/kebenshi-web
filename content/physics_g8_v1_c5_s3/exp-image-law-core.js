@@ -39,8 +39,9 @@ var st={
 };
 window.C5S3_STATE=st;   // 语音讲解层状态暴露（设计书 §B-1 最小方案：稳定对象直接引用，无需 getter 聚合）
 /* R10：document 级 capture 监听 pointerdown——一个监听覆盖画布拖拽/控制栏按钮/滑杆；点光源按钮本身不算「瞎操作」（closest 排除） */
+/* R12（蔡总 2026-10-29 15:56 二次反馈）：排除门扩到 vB UI 全部元素（.gvb-start 启动卡/.gvb-caption 字幕条/.gvb-replay 重播钮，class 均以 gvb- 开头，已核 vB-core）——真鼠标点「开启语音」曾冒泡到此监听刷新 lastActT→下一帧 s1c 提醒条上升沿真→say() 掐灭刚起播的欢迎词；el.click() 不触发 pointerdown 故前两轮复现不出 */
 document.addEventListener('pointerdown',function(e){
-  if(e.target&&e.target.closest&&e.target.closest('#btn-lit'))return;
+  if(e.target&&e.target.closest&&e.target.closest('#btn-lit,[class^="gvb-"],[class*=" gvb-"]'))return;
   st.lastActT=performance.now();
 },true);
 var drag=null,startPt=null,toolbox=null,trayCard=null,glowFx=[];
