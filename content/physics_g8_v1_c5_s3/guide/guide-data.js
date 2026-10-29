@@ -11,7 +11,7 @@
    R8-2（蔡总 2026-10-29 01:17 条3）：s1 延时 9400→11100 + 文案改「先点亮光源…」（重录）；新增 s1b=点亮光源后的播报（新录） */
 window.C5S3_GUIDE={
   refract:{
-    intro:{text:'光具座探究成像规律，拖动光源改变物距，拖动光屏找像。一倍焦距和二倍焦距是两条分界线。',audio:'c5s3-intro'},
+    intro:{text:'欢迎来到探究凸透镜成像规律！拖动光源改变物距，拖动光屏找像。',audio:'c5s3-intro'},
     steps:[
       /* R8-2（蔡总 2026-10-29 01:17 条3）：欢迎词之后先引导点亮光源——s1 延时抬到 11100（intro afinfo 实测 10.080s + 1s 取整百）
          且文案改「先点亮光源…」；新增 s1b = 点亮光源后的播报（repeat:true 走上升沿，st.lit 假→真发一次，非持续电平故不自我复读）。
@@ -49,7 +49,7 @@ window.C5S3_GUIDE={
     tasks:[]
   },
   audios:{
-    'c5s3-intro':'guide/audio/c5s3-intro.mp3?v=20261029v1',
+    'c5s3-intro':'guide/audio/c5s3-intro.mp3?v=20261029v8',
     'c5s3-s1':'guide/audio/c5s3-s1.mp3?v=20261029v2','c5s3-s1b':'guide/audio/c5s3-s1b.mp3?v=20261029v2',
     'c5s3-s1c':'guide/audio/c5s3-s1c.mp3?v=20261029v5',
     'c5s3-s2':'guide/audio/c5s3-s2.mp3',
