@@ -60,9 +60,107 @@ function start(){
   }
   function place(){
     bar.style.bottom=bottomOff()+'px';
-    fab.style.bottom=fabBottom()+'px';
+    if(!fabDocked)fab.style.bottom=fabBottom()+'px';
   }
-  window.addEventListener('resize',function(){if(cur)place();else fab.style.bottom=fabBottom()+'px';});
+  window.addEventListener('resize',function(){
+    refreshSafe();
+    if(!narrow()){if(fabDocked)undock();}        /* 宽屏恢复 right:14px 原定位 */
+    else if(!fabDocked&&curPos){fabDocked=true;} /* 旋转到窄屏且有记忆位 → 重新吸边半藏 */
+    if(fabDocked)reapplyDock();
+    else if(cur)place();
+    else fab.style.bottom=fabBottom()+'px';
+  });
+
+  /* ---------- P1a 金球拖动吸边（蔡总 2026-10-30）：位移<5px=点击（三态循环零变化）；≥5px=跟手拖动，
+     松手吸附最近左/右缘并半藏(露60%)，位置写 localStorage('gvb-fab-pos') 跨页记忆；
+     半藏仅 (max-width:900px) 生效，宽屏保持 right:14px 原定位；拖动避开 iOS 安全区 env(safe-area-inset-*)。 ---------- */
+  var LS_POS='gvb-fab-pos';
+  var fabDocked=false,curPos=null,justDragged=false;
+  var mqNarrow=(window.matchMedia&&window.matchMedia('(max-width:900px)'))||null;
+  function narrow(){return !!(mqNarrow&&mqNarrow.matches);}
+  var safe={top:0,right:0,bottom:0,left:0};
+  function refreshSafe(){
+    try{
+      var p=document.createElement('div');
+      p.style.cssText='position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;'+
+        'padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);'+
+        'padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);';
+      document.body.appendChild(p);
+      var cs=window.getComputedStyle(p);
+      safe={top:parseFloat(cs.paddingTop)||0,right:parseFloat(cs.paddingRight)||0,
+            bottom:parseFloat(cs.paddingBottom)||0,left:parseFloat(cs.paddingLeft)||0};
+      if(p.parentNode)p.parentNode.removeChild(p);
+    }catch(e){safe={top:0,right:0,bottom:0,left:0};}
+  }
+  function fabW(){return fab.offsetWidth||52;}
+  function clampTop(t){
+    var w=fabW(),mn=safe.top+4,mx=Math.max(mn,window.innerHeight-w-safe.bottom-4);
+    return Math.min(Math.max(t,mn),mx);
+  }
+  function reapplyDock(){
+    if(!curPos)return;
+    var w=fabW(),hide=narrow();
+    fab.style.bottom='auto';
+    fab.style.top=clampTop(curPos.top)+'px';
+    if(curPos.edge==='left'){
+      fab.style.left=(hide?safe.left-0.4*w:8+safe.left)+'px';fab.style.right='auto';
+    }else{
+      fab.style.right=(hide?safe.right-0.4*w:8+safe.right)+'px';fab.style.left='auto';
+    }
+    fab.classList.add('gvb-docked');
+  }
+  function undock(){
+    fabDocked=false;curPos=null;
+    fab.classList.remove('gvb-docked');
+    fab.style.left='auto';fab.style.right='';fab.style.top='auto';fab.style.bottom='';fab.style.transition='';
+    place();
+  }
+  function persistPos(){if(curPos)lsSet(LS_POS,JSON.stringify({edge:curPos.edge,top:Math.round(curPos.top)}));}
+  var dragState=null;
+  fab.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    justDragged=false;
+    var r=fab.getBoundingClientRect();
+    dragState={sx:e.clientX,sy:e.clientY,ox:r.left,oy:r.top,w:r.width,moved:false,id:e.pointerId};
+    try{fab.setPointerCapture(e.pointerId);}catch(_){}
+  });
+  fab.addEventListener('pointermove',function(e){
+    if(!dragState)return;
+    var dx=e.clientX-dragState.sx,dy=e.clientY-dragState.sy;
+    if(!dragState.moved){
+      if(Math.sqrt(dx*dx+dy*dy)<5)return;
+      dragState.moved=true;fabDocked=true;fab.style.transition='none';refreshSafe();
+    }
+    if(e.cancelable)e.preventDefault();
+    var w=dragState.w,left=dragState.ox+dx,top=dragState.oy+dy;
+    left=Math.min(Math.max(left,safe.left-w*0.4),Math.max(safe.left-w*0.4,window.innerWidth-safe.right-w*0.6));
+    fab.style.left=left+'px';fab.style.top=clampTop(top)+'px';fab.style.right='auto';fab.style.bottom='auto';
+    curPos={edge:(left+w/2<window.innerWidth/2)?'left':'right',top:clampTop(top)};
+  });
+  function endDrag(e){
+    if(!dragState)return;
+    var moved=dragState.moved;dragState=null;
+    try{fab.releasePointerCapture(e.pointerId);}catch(_){}
+    if(!moved)return;                 /* <5px：当点击，交给 click 循环三态 */
+    justDragged=true;
+    fab.style.transition='';
+    reapplyDock();                    /* 吸附最近缘并半藏 */
+    persistPos();
+  }
+  fab.addEventListener('pointerup',endDrag);
+  fab.addEventListener('pointercancel',function(){dragState=null;fab.style.transition='';});
+  /* 载入记忆位：仅窄屏应用吸边半藏；宽屏保持 right:14px 原定位不动 */
+  refreshSafe();
+  try{
+    var rawPos=lsGet(LS_POS,null);
+    if(rawPos){
+      var pp=JSON.parse(rawPos);
+      if(pp&&(pp.edge==='left'||pp.edge==='right')&&typeof pp.top==='number'){
+        curPos={edge:pp.edge,top:pp.top};
+        if(narrow()){fabDocked=true;reapplyDock();}
+      }
+    }
+  }catch(e){}
 
   /* ---------- 配音播放 ---------- */
   var curAudio=null;
@@ -267,6 +365,7 @@ function start(){
     if(persist!==false)lsSet(LS_MODE,mode);
   }
   fab.addEventListener('click',function(){
+    if(justDragged){justDragged=false;return;}/* P1a：拖动松手误触发的 click 不切三态 */
     mode=mode==='voice'?'text':mode==='text'?'sleep':'voice';
     if(mode==='voice')startAck=true;/* EG2-1 防死锁a：用户显式手势切到语音=同意播音 */
     applyMode(true);

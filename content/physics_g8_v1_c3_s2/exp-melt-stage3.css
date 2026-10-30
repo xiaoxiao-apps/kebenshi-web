@@ -176,3 +176,31 @@
   .slider-row.select-row .custom-select { grid-column: 2 / 3; width: 100% !important; min-width: 100% !important; }
   .custom-select-trigger { font-size: 12px !important; padding: 0 5px !important; min-width: 0; }
 }
+
+/* ---------- P0 曲线浮窗矮屏适配（蔡总 2026-10-30）：仅 (max-height:420px) 生效。
+   tt-chart 收起为贴底 dock 条（仅标题+展开钮，高≤44px），点展开才浮出且限高 calc(100vh - 8px) 内滚动；
+   (min-height:421px) 完全不进此媒体块 = 桌面/竖屏现状逐像素一致（dock DOM 也不创建）。 ---------- */
+@media (max-height: 420px) {
+  .tt-dock {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 70;
+    display: flex; flex-direction: column;
+    max-height: calc(100vh - 8px);
+    background: rgba(24,24,34,.98);
+    border-top: 1px solid rgba(255,255,255,.14);
+    box-shadow: 0 -8px 28px rgba(0,0,0,.5);
+  }
+  .tt-dock-bar {
+    flex: 0 0 auto; height: 44px; width: 100%;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 0 calc(14px + env(safe-area-inset-right)) 0 calc(14px + env(safe-area-inset-left));
+    background: rgba(30,30,44,.98); border: 0; cursor: pointer; text-align: left;
+  }
+  .tt-dock-title { font-size: 13px; font-weight: 600; color: #ffd54f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tt-dock-toggle { flex: 0 0 auto; font-size: 12px; font-weight: 600; color: #5ad7ff; white-space: nowrap; }
+  .tt-dock-body { display: none; flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 8px 10px; }
+  .tt-dock.expanded .tt-dock-body { display: block; }
+  .tt-dock-body #chart-wrap { height: 200px; min-height: 200px; width: 100%; }
+  /* 让开贴底 dock 条，避免遮挡播放/重置/静音控制 */
+  .bottom-controls { bottom: calc(52px + env(safe-area-inset-bottom)); }
+}
+

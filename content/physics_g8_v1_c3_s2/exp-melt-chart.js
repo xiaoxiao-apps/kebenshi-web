@@ -707,3 +707,81 @@ function showPointCard(name) {
   document.getElementById('seg-phase').textContent = '状态：' + d.phase;
   document.getElementById('segment-card').style.display = 'block';
 }
+
+/* ---------- P0 曲线浮窗矮屏适配（蔡总 2026-10-30）：仅 (max-height:420px) 生效。
+   把 #chart-wrap 移入贴底 dock 条（默认收起=仅标题+展开钮≤44px），点展开才浮出并限高滚动；
+   tall 屏（含桌面 1280×800）MQ 不匹配 → engage 从不执行、DOM 零改动 = 现状逐像素一致。 ---------- */
+(function () {
+  const dockMQ = window.matchMedia ? window.matchMedia('(max-height:420px)') : null;
+  if (!dockMQ) return;
+  let dock = null, bodyEl = null, barEl = null, toggleEl = null, titleEl = null;
+  let chartWrap = null, originParent = null, originNext = null, engaged = false;
+
+  function currentTitle() {
+    const t = document.getElementById('chart-title');
+    return t ? t.textContent : '温度时间曲线';
+  }
+  function redraw() { if (typeof drawChart === 'function') drawChart(); }
+  function buildDock() {
+    if (dock) return;
+    dock = document.createElement('div');
+    dock.className = 'tt-dock collapsed';
+    barEl = document.createElement('button');
+    barEl.type = 'button';
+    barEl.className = 'tt-dock-bar';
+    barEl.setAttribute('aria-label', '展开或收起温度时间曲线');
+    titleEl = document.createElement('span');
+    titleEl.className = 'tt-dock-title';
+    toggleEl = document.createElement('span');
+    toggleEl.className = 'tt-dock-toggle';
+    toggleEl.textContent = '展开 ⤢';
+    barEl.appendChild(titleEl);
+    barEl.appendChild(toggleEl);
+    bodyEl = document.createElement('div');
+    bodyEl.className = 'tt-dock-body';
+    dock.appendChild(barEl);
+    dock.appendChild(bodyEl);
+    barEl.addEventListener('click', function () {
+      const open = dock.classList.toggle('expanded');
+      toggleEl.textContent = open ? '收起 ⤡' : '展开 ⤢';
+      if (open) requestAnimationFrame(redraw);
+      if (typeof playClick === 'function') playClick();
+    });
+    (document.getElementById('ui-layer') || document.body).appendChild(dock);
+  }
+  function engage() {
+    if (engaged) return;
+    chartWrap = document.getElementById('chart-wrap');
+    if (!chartWrap) return;
+    buildDock();
+    originParent = chartWrap.parentNode;
+    originNext = chartWrap.nextSibling;
+    bodyEl.appendChild(chartWrap);
+    dock.classList.remove('expanded');
+    dock.classList.add('collapsed');
+    toggleEl.textContent = '展开 ⤢';
+    titleEl.textContent = currentTitle();
+    dock.style.display = '';
+    engaged = true;
+    requestAnimationFrame(redraw);
+  }
+  function disengage() {
+    if (!engaged) return;
+    if (chartWrap && originParent) originParent.insertBefore(chartWrap, originNext || null);
+    if (dock) dock.style.display = 'none';
+    engaged = false; originParent = null; originNext = null;
+    requestAnimationFrame(redraw);
+  }
+  function sync() {
+    if (dockMQ.matches) engage(); else disengage();
+    if (engaged && titleEl) titleEl.textContent = currentTitle();
+  }
+  function init() {
+    sync();
+    if (dockMQ.addEventListener) dockMQ.addEventListener('change', sync);
+    else if (dockMQ.addListener) dockMQ.addListener(sync);
+    window.addEventListener('resize', function () { if (engaged && titleEl) titleEl.textContent = currentTitle(); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();

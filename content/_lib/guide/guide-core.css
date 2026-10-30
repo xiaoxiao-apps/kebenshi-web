@@ -176,8 +176,11 @@
   font-size:26px;line-height:1;cursor:pointer;user-select:none;
   box-shadow:0 3px 10px rgba(30,41,59,.25);
   transition:transform .15s,opacity .2s;
-  pointer-events:auto;
+  pointer-events:auto;touch-action:none;/* P1a：拖动金球时不触发页面滚动 */
 }
+/* P1a 吸边半藏态：位置(left/right/top)由 vB-core.js 内联写入，仅(max-width:900px)半藏；
+   此处只保证过渡平滑，不改几何，宽屏保持 right:14px 原定位。 */
+.gvb-fab.gvb-docked{transition:opacity .2s;}
 .gvb-fab:hover{transform:scale(1.06)}
 .gvb-fab-face{pointer-events:none}
 /* r4 反馈②③：角标两态——sleep 💤 用基础位=圆外右上角（恢复 r2 第1版，无白底托）；

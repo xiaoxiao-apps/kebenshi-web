@@ -190,3 +190,84 @@ function clearTable() {
   bigView = { live: true, a: 0, b: BIG_SPAN, span: BIG_SPAN };
   document.getElementById('data-tbody').innerHTML = ''; drawChart();
 }
+
+/* ---------- P0 曲线浮窗矮屏适配（蔡总 2026-10-30）：仅 (max-height:420px) 生效，与 c3s2 同款。
+   把 #chart-wrap 移入贴底 dock 条（默认收起=仅标题+展开钮≤44px），点展开才浮出并限高滚动；
+   tall 屏（含桌面 1280×800）MQ 不匹配 → engage 从不执行、DOM 零改动 = 现状逐像素一致。
+   本页 #chart-wrap 原在 #data-boil 内，dock 仅在沸腾模式（#data-boil 可见）显示，避免蒸发/液化模式误露。 ---------- */
+(function () {
+  const dockMQ = window.matchMedia ? window.matchMedia('(max-height:420px)') : null;
+  if (!dockMQ) return;
+  let dock = null, bodyEl = null, barEl = null, toggleEl = null, titleEl = null;
+  let chartWrap = null, originParent = null, originNext = null, engaged = false;
+
+  function redraw() { if (typeof drawChart === 'function') drawChart(); }
+  function boilVisible() {
+    const b = document.getElementById('data-boil');
+    return !!b && b.style.display !== 'none';
+  }
+  function buildDock() {
+    if (dock) return;
+    dock = document.createElement('div');
+    dock.className = 'tt-dock collapsed';
+    barEl = document.createElement('button');
+    barEl.type = 'button';
+    barEl.className = 'tt-dock-bar';
+    barEl.setAttribute('aria-label', '展开或收起温度时间曲线');
+    titleEl = document.createElement('span');
+    titleEl.className = 'tt-dock-title';
+    titleEl.textContent = 'T-t 曲线';
+    toggleEl = document.createElement('span');
+    toggleEl.className = 'tt-dock-toggle';
+    toggleEl.textContent = '展开 ⤢';
+    barEl.appendChild(titleEl);
+    barEl.appendChild(toggleEl);
+    bodyEl = document.createElement('div');
+    bodyEl.className = 'tt-dock-body';
+    dock.appendChild(barEl);
+    dock.appendChild(bodyEl);
+    barEl.addEventListener('click', function () {
+      const open = dock.classList.toggle('expanded');
+      toggleEl.textContent = open ? '收起 ⤡' : '展开 ⤢';
+      if (open) requestAnimationFrame(redraw);
+      if (typeof playClick === 'function') playClick();
+    });
+    (document.getElementById('ui-layer') || document.body).appendChild(dock);
+  }
+  function syncDockVisible() { if (dock) dock.style.display = boilVisible() ? '' : 'none'; }
+  function engage() {
+    if (engaged) return;
+    chartWrap = document.getElementById('chart-wrap');
+    if (!chartWrap) return;
+    buildDock();
+    originParent = chartWrap.parentNode;
+    originNext = chartWrap.nextSibling;
+    bodyEl.appendChild(chartWrap);
+    dock.classList.remove('expanded');
+    dock.classList.add('collapsed');
+    toggleEl.textContent = '展开 ⤢';
+    engaged = true;
+    syncDockVisible();
+    requestAnimationFrame(redraw);
+  }
+  function disengage() {
+    if (!engaged) return;
+    if (chartWrap && originParent) originParent.insertBefore(chartWrap, originNext || null);
+    if (dock) dock.style.display = 'none';
+    engaged = false; originParent = null; originNext = null;
+    requestAnimationFrame(redraw);
+  }
+  function sync() { if (dockMQ.matches) { engage(); syncDockVisible(); } else disengage(); }
+  function init() {
+    sync();
+    if (dockMQ.addEventListener) dockMQ.addEventListener('change', sync);
+    else if (dockMQ.addListener) dockMQ.addListener(sync);
+    /* 模式切换（沸腾/蒸发/液化）时同步 dock 显隐 */
+    const b = document.getElementById('data-boil');
+    if (b && typeof MutationObserver !== 'undefined') {
+      new MutationObserver(syncDockVisible).observe(b, { attributes: true, attributeFilter: ['style'] });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
