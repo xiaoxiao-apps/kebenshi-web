@@ -202,5 +202,10 @@
   .tt-dock-body #chart-wrap { height: 200px; min-height: 200px; width: 100%; }
   /* 让开贴底 dock 条，避免遮挡播放/重置/静音控制 */
   .bottom-controls.bottom-controls { bottom: calc(52px + env(safe-area-inset-bottom)); }
+  /* 二修（蔡总 11:14 真机截图）：面板收短+内部滚动，给抬升后的控制排让出落脚带。
+     注①：exp-melt.html:21-22 内联 style 已有同款 max-height:calc(100vh - 180px)（无 !important），
+     外部规则同值被内联覆盖=修不动，故升 !important；注②：180px 预留不够（面板 top:100 + 抬升控制排占至 vh-113），
+     实测 844x390 仍叠 33px，改预留 215px（三档视口全过，桌面 MQ 不匹配零影响） */
+  .control-panel, .data-panel { max-height: calc(100vh - 215px) !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
 }
 
