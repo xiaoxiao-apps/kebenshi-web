@@ -177,35 +177,92 @@
   .custom-select-trigger { font-size: 12px !important; padding: 0 5px !important; min-width: 0; }
 }
 
-/* ---------- P0 曲线浮窗矮屏适配（蔡总 2026-10-30）：仅 (max-height:420px) 生效。
-   tt-chart 收起为贴底 dock 条（仅标题+展开钮，高≤44px），点展开才浮出且限高 calc(100vh - 8px) 内滚动；
-   (min-height:421px) 完全不进此媒体块 = 桌面/竖屏现状逐像素一致（dock DOM 也不创建）。 ---------- */
+/* ---------- 矮屏布局重构（蔡总 2026-10-30 11:32 方向纠偏）：dock 方案作废，仅 (max-height:420px) 生效。
+   三层互不占地：A 曲线走 #tt-entry 浮钮 + .tt-overlay 居中卡（零常驻占地）；
+   B 两面板改 fixed 侧浮层默认离屏（.collapsed），靠 30px 竖标签唤出，实验台 canvas 独占全宽；
+   C 控制排回桌面同值 bottom:16px（底部已无 dock）。
+   (min-height:421px) 完全不进此媒体块 + JS 矮屏分支不执行 = 桌面/竖屏现状逐像素一致。 ---------- */
 @media (max-height: 420px) {
-  .tt-dock {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 70;
+  /* A 曲线浮层：原浮窗与 dock 残留一律不显示 */
+  .chart-float, #chart-float, .tt-dock, .tt-dock-bar, .tt-dock-body { display: none !important; }
+  #tt-entry {
+    position: fixed; right: 10px; bottom: calc(76px + env(safe-area-inset-bottom));
+    width: 44px; height: 44px; z-index: 65;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 22px; border: 1px solid rgba(255,255,255,.22);
+    background: rgba(30,30,44,.72); color: #ffd54f; font-size: 19px; line-height: 1;
+    cursor: pointer; backdrop-filter: blur(4px);
+  }
+  #tt-entry:active { background: rgba(60,60,84,.9); }
+  .tt-overlay {
+    position: fixed; inset: 0; z-index: 66;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.45);
+  }
+  .tt-overlay-card {
+    position: relative; width: 92vw; height: min(62vh, 340px);
     display: flex; flex-direction: column;
-    max-height: calc(100vh - 8px);
-    background: rgba(24,24,34,.98);
-    border-top: 1px solid rgba(255,255,255,.14);
-    box-shadow: 0 -8px 28px rgba(0,0,0,.5);
+    padding: 8px; background: rgba(24,24,34,.98);
+    border: 1px solid rgba(255,255,255,.16); border-radius: 12px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.55);
   }
-  .tt-dock-bar {
-    flex: 0 0 auto; height: 44px; width: 100%;
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    padding: 0 calc(14px + env(safe-area-inset-right)) 0 calc(14px + env(safe-area-inset-left));
-    background: rgba(30,30,44,.98); border: 0; cursor: pointer; text-align: left;
+  .tt-overlay-close {
+    position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; z-index: 2;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,.15); border-radius: 10px;
+    background: #2c2c40; color: #e0e0f0; font-size: 20px; line-height: 1; cursor: pointer;
   }
-  .tt-dock-title { font-size: 13px; font-weight: 600; color: #ffd54f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tt-dock-toggle { flex: 0 0 auto; font-size: 12px; font-weight: 600; color: #5ad7ff; white-space: nowrap; }
-  .tt-dock-body { display: none; flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 8px 10px; }
-  .tt-dock.expanded .tt-dock-body { display: block; }
-  .tt-dock-body #chart-wrap { height: 200px; min-height: 200px; width: 100%; }
-  /* 让开贴底 dock 条，避免遮挡播放/重置/静音控制 */
-  .bottom-controls.bottom-controls { bottom: calc(52px + env(safe-area-inset-bottom)); }
-  /* 二修（蔡总 11:14 真机截图）：面板收短+内部滚动，给抬升后的控制排让出落脚带。
-     注①：exp-melt.html:21-22 内联 style 已有同款 max-height:calc(100vh - 180px)（无 !important），
-     外部规则同值被内联覆盖=修不动，故升 !important；注②：180px 预留不够（面板 top:100 + 抬升控制排占至 vh-113），
-     实测 844x390 仍叠 33px，改预留 215px（三档视口全过，桌面 MQ 不匹配零影响） */
-  .control-panel, .data-panel { max-height: calc(100vh - 215px) !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+  /* 移入浮层后 #chart-wrap 撑满卡片（内联 style 有 height:180px/flex:0 0 auto，需 !important 覆盖） */
+  .tt-overlay-card #chart-wrap { flex: 1 1 auto; width: 100%; height: auto !important; min-height: 0 !important; }
+
+  /* B 面板侧浮层：默认 .collapsed 离屏，竖标签唤出 */
+  .control-panel, .data-panel {
+    position: fixed !important; top: 70px !important; bottom: auto !important;
+    /* 限高到 #tt-entry 上沿（entry bottom:76 + 44 高 = 距屏底 120），展开时不与浮钮/控制排叠遮 */
+    max-height: calc(100vh - 190px) !important; overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    background: rgba(30,30,44,.94) !important; border-radius: 12px; z-index: 60;
+    transition: transform .22s ease;
+  }
+  .control-panel { left: 8px !important; right: auto !important; width: 200px !important; }
+  .data-panel { right: 8px !important; left: auto !important; width: 220px !important; }
+  .control-panel.collapsed { transform: translateX(-110%); }
+  .data-panel.collapsed { transform: translateX(110%); }
+  .panel-tab {
+    position: fixed; top: 35%; width: 30px; height: 96px; z-index: 59;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,.18); color: #e8ecf4;
+    background: rgba(30,30,44,.7); font-size: 13px; font-weight: 600; letter-spacing: 2px;
+    writing-mode: vertical-rl; cursor: pointer; backdrop-filter: blur(4px);
+  }
+  .panel-tab.tab-left { left: 0; border-left: 0; border-radius: 0 10px 10px 0; }
+  .panel-tab.tab-right { right: 0; border-right: 0; border-radius: 10px 0 0 10px; }
+  .panel-collapse {
+    position: absolute; top: 0; right: 0; width: 44px; height: 44px; z-index: 3;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 10px; background: transparent;
+    color: #9090a5; font-size: 18px; line-height: 1; cursor: pointer;
+  }
+  .panel-collapse:active { background: rgba(255,255,255,.08); }
+  .panel .panel-title { position: relative; padding-right: 40px; min-height: 44px; display: flex; align-items: center; }
+  /* 实验台独占全宽，不被浮层挤 */
+  #canvas-container { left: 0 !important; right: 0 !important; width: 100vw !important; }
+
+  /* C 控制排：底部已无 dock，回桌面同值 */
+  .bottom-controls.bottom-controls { bottom: 16px; }
+
+  /* D 首进三气泡指路 */
+  .qd-hint-bubble {
+    position: fixed; z-index: 70; max-width: 160px; padding: 6px 9px;
+    background: rgba(24,30,44,.96); border: 1px solid rgba(90,215,255,.55); border-radius: 10px;
+    color: #e8f4ff; font-size: 11px; line-height: 1.5; pointer-events: none;
+    box-shadow: 0 4px 14px rgba(0,0,0,.4);
+  }
+}
+
+/* 超矮屏（≤340px，如 640×300）：96px 竖标签会伸进 #tt-entry 带（top:35% + 96 > vh - 120），
+   收短到 72px 让两者错开；仍属窄屏体系，(min-height:341px) 不受影响。 */
+@media (max-height: 340px) {
+  .panel-tab { height: 72px; }
 }
 

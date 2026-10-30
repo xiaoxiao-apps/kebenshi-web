@@ -708,79 +708,153 @@ function showPointCard(name) {
   document.getElementById('segment-card').style.display = 'block';
 }
 
-/* ---------- P0 曲线浮窗矮屏适配（蔡总 2026-10-30）：仅 (max-height:420px) 生效。
-   把 #chart-wrap 移入贴底 dock 条（默认收起=仅标题+展开钮≤44px），点展开才浮出并限高滚动；
+/* ---------- 矮屏布局重构（蔡总 2026-10-30 11:32 方向纠偏，dock 方案作废）：仅 (max-height:420px) 分支执行。
+   A 曲线零占地：浮钮 #tt-entry → 遮罩卡 .tt-overlay，开时把 #chart-wrap 移入并重绘，关时移回原位；
+   B 两面板 fixed 侧浮层默认 .collapsed 离屏 + 30px 竖标签唤出 + 标题栏收起钮；
+   D 首进三气泡指路（localStorage 'qd-narrow-hint' 记一次，6 秒自消或点消）。
    tall 屏（含桌面 1280×800）MQ 不匹配 → engage 从不执行、DOM 零改动 = 现状逐像素一致。 ---------- */
 (function () {
-  const dockMQ = window.matchMedia ? window.matchMedia('(max-height:420px)') : null;
-  if (!dockMQ) return;
-  let dock = null, bodyEl = null, barEl = null, toggleEl = null, titleEl = null;
-  let chartWrap = null, originParent = null, originNext = null, engaged = false;
+  const narrowMQ = window.matchMedia ? window.matchMedia('(max-height:420px)') : null;
+  if (!narrowMQ) return;
+  const HINT_KEY = 'qd-narrow-hint';
+  let engaged = false;
+  let entry = null, overlay = null;
+  let tabs = [], collapseBtns = [];
+  let chartWrap = null, originParent = null, originNext = null;
 
-  function currentTitle() {
-    const t = document.getElementById('chart-title');
-    return t ? t.textContent : '温度时间曲线';
-  }
   function redraw() { if (typeof drawChart === 'function') drawChart(); }
-  function buildDock() {
-    if (dock) return;
-    dock = document.createElement('div');
-    dock.className = 'tt-dock collapsed';
-    barEl = document.createElement('button');
-    barEl.type = 'button';
-    barEl.className = 'tt-dock-bar';
-    barEl.setAttribute('aria-label', '展开或收起温度时间曲线');
-    titleEl = document.createElement('span');
-    titleEl.className = 'tt-dock-title';
-    toggleEl = document.createElement('span');
-    toggleEl.className = 'tt-dock-toggle';
-    toggleEl.textContent = '展开 ⤢';
-    barEl.appendChild(titleEl);
-    barEl.appendChild(toggleEl);
-    bodyEl = document.createElement('div');
-    bodyEl.className = 'tt-dock-body';
-    dock.appendChild(barEl);
-    dock.appendChild(bodyEl);
-    barEl.addEventListener('click', function () {
-      const open = dock.classList.toggle('expanded');
-      toggleEl.textContent = open ? '收起 ⤡' : '展开 ⤢';
-      if (open) requestAnimationFrame(redraw);
-      if (typeof playClick === 'function') playClick();
-    });
-    (document.getElementById('ui-layer') || document.body).appendChild(dock);
-  }
-  function engage() {
-    if (engaged) return;
+  function click() { if (typeof playClick === 'function') playClick(); }
+
+  /* --- A 曲线浮层 --- */
+  function openOverlay() {
+    if (overlay) return;
     chartWrap = document.getElementById('chart-wrap');
     if (!chartWrap) return;
-    buildDock();
     originParent = chartWrap.parentNode;
     originNext = chartWrap.nextSibling;
-    bodyEl.appendChild(chartWrap);
-    dock.classList.remove('expanded');
-    dock.classList.add('collapsed');
-    toggleEl.textContent = '展开 ⤢';
-    titleEl.textContent = currentTitle();
-    dock.style.display = '';
-    engaged = true;
+    overlay = document.createElement('div');
+    overlay.className = 'tt-overlay';
+    const card = document.createElement('div');
+    card.className = 'tt-overlay-card';
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'tt-overlay-close';
+    close.textContent = '×';
+    close.setAttribute('aria-label', '关闭温度时间曲线');
+    close.addEventListener('click', function () { closeOverlay(); click(); });
+    card.appendChild(close);
+    card.appendChild(chartWrap);
+    overlay.appendChild(card);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeOverlay(); });
+    document.body.appendChild(overlay);
     requestAnimationFrame(redraw);
+  }
+  function closeOverlay() {
+    if (!overlay) return;
+    if (chartWrap && originParent) originParent.insertBefore(chartWrap, originNext || null);
+    overlay.remove();
+    overlay = null; chartWrap = null; originParent = null; originNext = null;
+    requestAnimationFrame(redraw);
+  }
+  function buildEntry() {
+    entry = document.createElement('button');
+    entry.type = 'button';
+    entry.id = 'tt-entry';
+    entry.textContent = '📈';
+    entry.setAttribute('aria-label', '放大查看温度时间曲线');
+    entry.addEventListener('click', function () { openOverlay(); click(); });
+    document.body.appendChild(entry);
+  }
+
+  /* --- B 面板侧浮层 --- */
+  function buildPanels() {
+    [{ sel: '.control-panel', side: 'left', name: '参数' },
+     { sel: '.data-panel', side: 'right', name: '读数' }].forEach(function (d) {
+      const panel = document.querySelector(d.sel);
+      if (!panel) return;
+      panel.classList.add('collapsed');
+      const tab = document.createElement('button');
+      tab.type = 'button';
+      tab.className = 'panel-tab tab-' + d.side;
+      tab.textContent = d.name;
+      tab.setAttribute('aria-label', '展开' + d.name + '面板');
+      tab.addEventListener('click', function () {
+        panel.classList.remove('collapsed');
+        tab.style.display = 'none';
+        click();
+      });
+      document.body.appendChild(tab);
+      tabs.push(tab);
+
+      const title = panel.querySelector('.panel-title');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'panel-collapse';
+      btn.textContent = '×';
+      btn.setAttribute('aria-label', '收起' + d.name + '面板');
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        panel.classList.add('collapsed');
+        tab.style.display = '';
+        click();
+      });
+      (title || panel).appendChild(btn);
+      collapseBtns.push(btn);
+    });
+  }
+
+  /* --- D 首进三气泡指路 --- */
+  function showHints() {
+    let seen = null;
+    try { seen = window.localStorage.getItem(HINT_KEY); } catch (_) {}
+    if (seen) return;
+    try { window.localStorage.setItem(HINT_KEY, '1'); } catch (_) {}
+    const bubbles = [];
+    function bubble(text, style) {
+      const b = document.createElement('div');
+      b.className = 'qd-hint-bubble';
+      b.textContent = text;
+      b.style.cssText = style;
+      document.body.appendChild(b);
+      bubbles.push(b);
+    }
+    const vw = window.innerWidth, vh = window.innerHeight;
+    if (tabs[0]) { const r = tabs[0].getBoundingClientRect(); bubble('① 点「参数」拉出实验条件', 'left:' + (r.right + 6) + 'px;top:' + (r.top + 8) + 'px;'); }
+    if (tabs[1]) { const r = tabs[1].getBoundingClientRect(); bubble('② 点「读数」看数据与曲线', 'right:' + (vw - r.left + 6) + 'px;top:' + (r.top + 8) + 'px;'); }
+    if (entry) { const r = entry.getBoundingClientRect(); bubble('③ 点这里放大温度曲线', 'right:' + (vw - r.left + 6) + 'px;bottom:' + (vh - r.top + 6) + 'px;'); }
+    function clear() {
+      clearTimeout(timer);
+      bubbles.forEach(function (b) { b.remove(); });
+      document.removeEventListener('pointerdown', clear);
+    }
+    const timer = setTimeout(clear, 6000);
+    document.addEventListener('pointerdown', clear);
+  }
+
+  function engage() {
+    if (engaged) return;
+    engaged = true;
+    buildEntry();
+    buildPanels();
+    requestAnimationFrame(showHints);
   }
   function disengage() {
     if (!engaged) return;
-    if (chartWrap && originParent) originParent.insertBefore(chartWrap, originNext || null);
-    if (dock) dock.style.display = 'none';
-    engaged = false; originParent = null; originNext = null;
-    requestAnimationFrame(redraw);
+    engaged = false;
+    closeOverlay();
+    if (entry) { entry.remove(); entry = null; }
+    tabs.forEach(function (t) { t.remove(); });
+    tabs = [];
+    collapseBtns.forEach(function (b) { b.remove(); });
+    collapseBtns = [];
+    document.querySelectorAll('.control-panel.collapsed, .data-panel.collapsed').forEach(function (p) { p.classList.remove('collapsed'); });
+    document.querySelectorAll('.qd-hint-bubble').forEach(function (b) { b.remove(); });
   }
-  function sync() {
-    if (dockMQ.matches) engage(); else disengage();
-    if (engaged && titleEl) titleEl.textContent = currentTitle();
-  }
+  function sync() { if (narrowMQ.matches) engage(); else disengage(); }
   function init() {
     sync();
-    if (dockMQ.addEventListener) dockMQ.addEventListener('change', sync);
-    else if (dockMQ.addListener) dockMQ.addListener(sync);
-    window.addEventListener('resize', function () { if (engaged && titleEl) titleEl.textContent = currentTitle(); });
+    if (narrowMQ.addEventListener) narrowMQ.addEventListener('change', sync);
+    else if (narrowMQ.addListener) narrowMQ.addListener(sync);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
