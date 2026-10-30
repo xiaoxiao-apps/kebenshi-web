@@ -201,6 +201,6 @@
   .tt-dock.expanded .tt-dock-body { display: block; }
   .tt-dock-body #chart-wrap { height: 200px; min-height: 200px; width: 100%; }
   /* 让开贴底 dock 条，避免遮挡播放/重置/静音控制 */
-  .bottom-controls { bottom: calc(52px + env(safe-area-inset-bottom)); }
+  .bottom-controls.bottom-controls { bottom: calc(52px + env(safe-area-inset-bottom)); }
 }
 
