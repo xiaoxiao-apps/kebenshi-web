@@ -812,7 +812,7 @@ cv.addEventListener('contextrestored',function(){ console.warn('[c5s3] canvas co
     for(var i=0;i<bs.length;i++){ if(bs[i]!==shimBar) return true; }   // 排除看门狗自己的 shim 字幕
     return false;
   }
-  function gvbMode(){ try{ return window.localStorage.getItem('gvb-mode')||'voice'; }catch(e){ return 'voice'; } }
+  function gvbMode(){ try{ return window.localStorage.getItem('gvb-mode2')||'voice'; }catch(e){ return 'voice'; } }
   function killShim(){
     if(shimAudio){ try{ shimAudio.pause(); }catch(e){} shimAudio=null; }
     if(shimBar&&shimBar.parentNode) shimBar.parentNode.removeChild(shimBar);

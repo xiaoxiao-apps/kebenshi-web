@@ -190,6 +190,9 @@
   font-size:14px;line-height:1;pointer-events:none;
   filter:drop-shadow(0 1px 2px rgba(30,41,59,.35));
 }
+/* 单7：吸边半藏时角标翻到 fab 可见的左侧（原右上角随半藏出视口=状态不可见的根因）；
+   必须排在 .mode-text 规则之前——同特异性后者胜出，🔇 居中托不受影响 */
+.gvb-fab.gvb-docked .gvb-fab-badge{right:auto;left:-6px}
 .gvb-fab.mode-text .gvb-fab-badge{
   left:50%;top:50%;right:auto;transform:translate(-50%,-50%);
   width:56%;height:56%;border-radius:50%;
@@ -199,9 +202,30 @@
   box-shadow:0 1px 3px rgba(30,41,59,.3);
   filter:none;
 }
+/* 单8：docked 右缘半藏时 text 态居中托随角标出视口=状态又不可见；
+   排在 .mode-text 规则之后（同特异性后者胜出），贴 fab 可见左侧，同 sleep 💤 位 */
+.gvb-fab.gvb-docked.mode-text .gvb-fab-badge{
+  left:-6px;right:auto;transform:none;
+  width:auto;height:auto;border-radius:0;
+  background:none;border:none;box-shadow:none;
+}
 /* sleep 休眠态：头像半透明 */
 .gvb-fab.mode-sleep{opacity:.45}
 .gvb-fab.mode-sleep:hover{opacity:.8}
+
+/* 单7：切态浮提示小卡（贴 fab 外侧，位置由 vB-core.js 内联写入；触摸门与桌面同款） */
+.gvb-mode-hint{
+  position:fixed;z-index:59;
+  transform:translateY(-50%);
+  max-width:min(230px,calc(100vw - 96px));
+  background:rgba(15,23,42,.92);color:#fff;
+  font-size:12.5px;line-height:1.45;font-weight:600;
+  border-radius:10px;padding:7px 11px;
+  box-shadow:0 4px 14px rgba(15,23,42,.32);
+  pointer-events:none;opacity:0;
+  transition:opacity .2s ease;
+}
+.gvb-mode-hint.show{opacity:1}
 
 /* r3 反馈①：autoplay 被拦（NotAllowedError）时的全屏语音启动层，点任意处解锁并立即补播当前条 */
 .gvb-start{

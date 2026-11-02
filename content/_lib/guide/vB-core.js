@@ -4,7 +4,8 @@
    r2 的解说队列机制整体删除，防刷屏交给 engine 的 3s 步骤冷却 / 5s 纠错节流。
    audio ended → 字幕 +400ms 后隐藏、🔁 重播、启动层、三态、collapsed/sleep 判断全部保持现状。 */
 (function(){
-var LS_MODE='gvb-mode';
+/* 单7：LS 键 gvb-mode→gvb-mode2，旧键弃读不迁移=一次性救回被半藏角标静默切走的设备（默认回 voice） */
+var LS_MODE='gvb-mode2';
 var MAX_DUR=15000;      /* 配音同步兜底上限 */
 var END_TAIL=400;       /* audio ended 后字幕再驻留 */
 
@@ -69,6 +70,7 @@ function start(){
   }
   window.addEventListener('resize',function(){
     refreshSafe();
+    hideHint();                                 /* 单7：尺寸变了浮提示定位失效，直接收掉 */
     if(!hideFab()){if(fabDocked)undock();}        /* 宽屏（非触摸门）恢复 right:14px 原定位 */
     else if(!fabDocked&&curPos){fabDocked=true;} /* 旋转到窄屏/触摸门且有记忆位 → 重新吸边半藏 */
     if(fabDocked)reapplyDock();
@@ -348,6 +350,36 @@ function start(){
     render();
   });
 
+  /* ---------- 单7：切态浮提示（角标半藏后唯一可见的状态反馈，2.5s 自隐） ---------- */
+  var HINT_TXT={text:'已切字幕-only·轻点金球回语音',sleep:'老师休眠中·轻点金球唤醒',voice:'语音已恢复'};
+  var hintEl=null,hintT=null;
+  function hideHint(){
+    if(hintT){clearTimeout(hintT);hintT=null;}
+    if(!hintEl)return;
+    var e=hintEl;hintEl=null;
+    e.classList.remove('show');
+    setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},220);
+  }
+  function showHint(){
+    hideHint();
+    if(!HINT_TXT[mode])return;
+    var el=document.createElement('div');
+    el.className='gvb-mode-hint';
+    el.textContent=HINT_TXT[mode];
+    LAYER.appendChild(el);
+    var r=fab.getBoundingClientRect(),h=el.offsetHeight||0,w=el.offsetWidth||0;
+    var vh=window.innerHeight||360,vw=window.innerWidth||360;
+    var top=Math.min(Math.max(r.top+r.height/2,h/2+8+safe.top),Math.max(h/2+8+safe.top,vh-h/2-8-safe.bottom));
+    el.style.top=Math.round(top)+'px';
+    /* 贴 fab 外侧：右缘吸边→卡在左；左缘吸边→翻到右，避免出视口 */
+    if(r.left+r.width/2<vw/2){el.style.left=Math.round(r.right+8)+'px';el.style.right='auto';}
+    else{el.style.right=Math.round(vw-r.left+8)+'px';el.style.left='auto';}
+    hintEl=el;
+    void el.offsetWidth;
+    el.classList.add('show');
+    hintT=setTimeout(hideHint,2500);
+  }
+
   /* ---------- 三态循环 ---------- */
   function missedWindow(){
     if(!cur)return 0;
@@ -384,6 +416,7 @@ function start(){
     mode=mode==='voice'?'text':mode==='text'?'sleep':'voice';
     if(mode==='voice')startAck=true;/* EG2-1 防死锁a：用户显式手势切到语音=同意播音 */
     applyMode(true);
+    showHint();
   });
 
   /* ---------- 初始化 + 接入引擎 ---------- */
