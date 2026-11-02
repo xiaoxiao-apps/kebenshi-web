@@ -32,6 +32,9 @@ var st={
   window.C5S4_STATE=st;
 })();
 var drag=null,startPt=null,dragGhost=null,glowFx=[],toolbox=null;
+/* 单2b 托盘可收起：触摸门(pointer:coarse&hover:none)内默认 trayOpen=false=drawTray 不绘，
+   左缘「器材」竖标签(ChartEntry.tray)点开；非触摸门或无 chart-entry.js 恒 true=常绘（桌面零介入）。 */
+var trayOpen=!(window.ChartEntry&&window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)').matches);
 
 // ===== 几何缓存（layout 单点重算，resize/全屏必走） =====
 var G={};
@@ -319,6 +322,7 @@ function haloText(t,x,y){
   ctx.strokeText(t,x,y); ctx.restore(); ctx.fillText(t,x,y);
 }
 function drawTray(){
+  if(!trayOpen) return;   // 单2b：托盘收起时不绘（已挂载镜片 st.glass 不受影响，drawGlassMounted 独立）
   toolbox.drawCard(ctx);
   ctx.save();
   ctx.fillStyle='#8a7c66'; ctx.font='14px '+FONT; ctx.textAlign='left';
@@ -462,7 +466,7 @@ function hitObj(p){
 // ===== 交互 =====
 cv.addEventListener('pointerdown',function(e){
   var p=localPt(e); startPt=p; drag=null; dragGhost=null;
-  if(toolbox.pointInCard(p)){
+  if(trayOpen&&toolbox.pointInCard(p)){
     var slot=toolbox.hitSlot(p);
     if(slot&&(slot.id==='lens_concave'||slot.id==='lens_convex')){
       var kind=slot.id==='lens_concave'?'concave':'convex';
@@ -481,7 +485,7 @@ cv.addEventListener('pointerdown',function(e){
 cv.addEventListener('pointermove',function(e){
   var p=localPt(e);
   if(!drag){
-    cv.style.cursor=(hitGlassMounted(p)||hitObj(p)||(toolbox.pointInCard(p)&&toolbox.hitSlot(p)))?'pointer':'';
+    cv.style.cursor=(hitGlassMounted(p)||hitObj(p)||(trayOpen&&toolbox.pointInCard(p)&&toolbox.hitSlot(p)))?'pointer':'';
     return;
   }
   if(drag.k==='glass'){ dragGhost.x=p.x; dragGhost.y=p.y; }
@@ -497,7 +501,7 @@ function endDrag(e){
   if(drag.k==='glass'){
     var moved=Math.hypot(p.x-startPt.x,p.y-startPt.y)>=5;
     if(moved) suppressClick=true;
-    var backInTray=toolbox.pointInCard(p)||toolbox.rectInCard({L:p.x-30,R:p.x+30,T:p.y-30,B:p.y+30});
+    var backInTray=trayOpen&&(toolbox.pointInCard(p)||toolbox.rectInCard({L:p.x-30,R:p.x+30,T:p.y-30,B:p.y+30}));
     if(moved&&backInTray){
       st.glass=null;                                                 // 拖回托盘=取下
       if(window.playDrop) playDrop();
@@ -521,7 +525,7 @@ cv.addEventListener('click',function(e){                           // 静态点�
   if(drag) return;
   if(suppressClick){ suppressClick=false; return; }                // 拖拽落点后不误触知识气泡
   var p=localPt(e);
-  if(toolbox.pointInCard(p)||hitGlassMounted(p)) return;
+  if((trayOpen&&toolbox.pointInCard(p))||hitGlassMounted(p)) return;
   if(knowledgeTap(p)){ glowFx.push({x:p.x,y:p.y,t0:performance.now(),c:'255,214,120'}); if(window.playClick) playClick(); }
   else hideBubble();
 });
@@ -654,4 +658,18 @@ window.__c5s4dbg={
   set:function(o){ Object.assign(st,o); syncUI(); draw(); },
   info:imgInfo,tAct:tActNow,tr:traceRays,fEyeK:fEyeK,fReqK:fReqK,frNow:frNow,imgConv:imgConv,COND_FRNG:COND_FRNG,SHARP_TOL:SHARP_TOL
 };
+
+/* 单2b：左缘「器材」竖标签接管 trayOpen（触摸门内生成；点标签展开，展开时点画布空白收回） */
+if(window.ChartEntry) ChartEntry.tray({
+  label:'器材',
+  setOpen:function(v){ trayOpen=v; },
+  redraw:function(){ draw(); },
+  isBlankHit:function(e){
+    if(e.target!==cv) return false;
+    var p=localPt(e);
+    if(hitGlassMounted(p)||hitObj(p)) return false;
+    if(trayOpen&&toolbox&&toolbox.pointInCard(p)) return false;
+    return true;
+  }
+});
 })();

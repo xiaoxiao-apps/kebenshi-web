@@ -4,6 +4,8 @@
 PROPS.SPRITE_BASE='../_lib/v1/sprites/'; // R29：删 SPRITE_VER 钉死，统一听 props.js（否则压缩缓存 bump 到不了实验页）
 var cv=document.getElementById('scene'),wrap=document.getElementById('scene-wrap');
 var R=window.MRR;
+/* 单2b：触摸门内 canvas 器材托盘默认收起（ChartEntry.tray 竖标签展开）；变体页无 chart-entry.js → 恒 true 零介入 */
+R.trayOpen=!(window.ChartEntry&&window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)').matches);
 if(!R.m2)R.m2={};
 R.ctx=cv.getContext('2d');
 var objS=document.getElementById('obj-slider');
@@ -322,7 +324,7 @@ function m3HitSlot(p){var m=R.m3;if(!m.tray)return null;return m.tray.hitSlot(p)
 cv.addEventListener('pointermove',function(ev){
   var p=pos(ev);
   if(R.mode==='m2'){
-    var m=R.m2,hS=hitM2S(p),hSc=hitM2Screen(p),hE=hitM2Eye(p),hTray=m.tray&&m.tray.hitSlot(p);
+    var m=R.m2,hS=hitM2S(p),hSc=hitM2Screen(p),hE=hitM2Eye(p),hTray=R.trayOpen&&m.tray&&m.tray.hitSlot(p);
     cv.style.cursor=(hS||hSc||hE||hTray||m.dragS||m.dragScreen||m.eye.dragEye||m.heldItem)?'pointer':'default';
     if(!dragging)return;
     if(Math.hypot(p.x-downPt.x,p.y-downPt.y)>3)downMoved=true;
@@ -335,7 +337,7 @@ cv.addEventListener('pointermove',function(ev){
     startLoop();return;
   }
   if(R.mode==='m3'){
-    var m=R.m3,ht=m.tray&&m.tray.hitSlot(p),hp=(m.top.state==='placed'&&hitM3Mirror(p,m.top))||(m.bottom.state==='placed'&&hitM3Mirror(p,m.bottom)),hh=(m.top.state==='held'&&dragging==='top')||(m.bottom.state==='held'&&dragging==='bottom');
+    var m=R.m3,ht=R.trayOpen&&m.tray&&m.tray.hitSlot(p),hp=(m.top.state==='placed'&&hitM3Mirror(p,m.top))||(m.bottom.state==='placed'&&hitM3Mirror(p,m.bottom)),hh=(m.top.state==='held'&&dragging==='top')||(m.bottom.state==='held'&&dragging==='bottom');
     cv.style.cursor=(ht||hp||hh)?'pointer':'default';
     if(!dragging)return;
     if(Math.hypot(p.x-downPt.x,p.y-downPt.y)>3)downMoved=true;
@@ -345,7 +347,7 @@ cv.addEventListener('pointermove',function(ev){
     startLoop();return;
   }
   R.hoverObj=hitObj(p);R.hoverEq=(R.eqState==='placed'&&hitEq(p));
-  var hitTray=R.eqTray&&R.eqTray.hitSlot(p);
+  var hitTray=R.trayOpen&&R.eqTray&&R.eqTray.hitSlot(p);
   cv.style.cursor=(R.hoverObj||R.hoverEq||(R.eqState==='tray'&&hitTray)||(R.eqState==='held'))?'pointer':'default';
   if(!dragging)return;
   if(Math.hypot(p.x-downPt.x,p.y-downPt.y)>3)downMoved=true;
@@ -367,7 +369,7 @@ cv.addEventListener('pointerdown',function(ev){
   if(R.mode==='m2'){
     downPt=p;downMoved=false;
     if(hitM2S(p)){dragging='m2s';R.m2.dragS=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
-    var slot=R.m2.tray&&R.m2.tray.hitSlot(p);
+    var slot=R.trayOpen&&R.m2.tray&&R.m2.tray.hitSlot(p);
     if(slot){
       var id=slot.id,m=R.m2;
       if(id==='screen'){m.heldItem='screen';m.screen.state='held';m.screen.heldX=p.x;m.screen.heldY=p.y;}
@@ -382,7 +384,7 @@ cv.addEventListener('pointerdown',function(ev){
   }
   if(R.mode==='m3'){
     downPt=p;downMoved=false;
-    var m=R.m3,slot=m.tray&&m.tray.hitSlot(p);
+    var m=R.m3,slot=R.trayOpen&&m.tray&&m.tray.hitSlot(p);
     if(slot){
       var idx=slot.x<m.tray.card.x+m.tray.card.w*0.5?0:1,key=idx===0?'top':'bottom';
       if(m[key].state==='tray'){m[key].state='held';m[key].heldX=p.x;m[key].heldY=p.y;m.heldItem=key;dragging=key;downMoved=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
@@ -393,7 +395,7 @@ cv.addEventListener('pointerdown',function(ev){
   }
   if(R.mode!=='m1')return;
   downPt=p;downMoved=false;
-  if(R.eqState==='tray'&&R.eqTray&&R.eqTray.hitSlot(p)){
+  if(R.eqState==='tray'&&R.trayOpen&&R.eqTray&&R.eqTray.hitSlot(p)){
     R.eqState='held';R.eqScale=0.4;R.eqHeldX=p.x;R.eqHeldY=p.y;
     dragging='eq';downMoved=true;
     cv.setPointerCapture(ev.pointerId);ev.preventDefault();
@@ -469,15 +471,15 @@ function endDrag(ev){
     if(dragging==='screen'||dragging==='eye'){
       var item=dragging==='screen'?m.screen:m.eye,slot=m.tray.slots[dragging==='screen'?0:1];
       item.heldX=p.x;item.heldY=p.y;
-      if(m.tray.pointInCard(p)){item.state='tray';m.heldItem=null;}
+      if(R.trayOpen&&m.tray.pointInCard(p)){item.state='tray';m.heldItem=null;}
       else{item.x=p.x;item.y=p.y;item.state='placed';m.heldItem=null;}
     }
     if(dragging==='m2screen'){
-      if(m.tray.pointInCard(p)){m.screen.state='tray';}
+      if(R.trayOpen&&m.tray.pointInCard(p)){m.screen.state='tray';}
       else{m.screen.state='placed';}
     }
     if(dragging==='m2eye'){
-      if(m.tray.pointInCard(p)){m.eye.state='tray';}
+      if(R.trayOpen&&m.tray.pointInCard(p)){m.eye.state='tray';}
       else{m.eye.state='placed';}
     }
     checkScreenAtSp();checkEyeInBeam();m.dragS=false;m.dragScreen=false;m.eye.dragEye=false;
@@ -488,7 +490,7 @@ function endDrag(ev){
     if(dragging==='top'||dragging==='bottom'){
       var mr=m[dragging];
       mr.heldX=p.x;mr.heldY=p.y;
-      if(m.tray.pointInCard(p)){mr.state='tray';}
+      if(R.trayOpen&&m.tray.pointInCard(p)){mr.state='tray';}
       else{checkM3(true);}
     }
     m.heldItem=null;dragging=null;downPt=null;downMoved=false;updateHint();startLoop();return;
@@ -496,7 +498,7 @@ function endDrag(ev){
   if(dragging==='obj'&&!downMoved)toggleLit();
   else if(dragging==='eq'&&R.eqState==='held'&&R.eqTray){
     var p=ev?pos(ev):{x:R.eqHeldX,y:R.eqHeldY};
-    if(R.eqTray.pointInCard(p)){
+    if(R.trayOpen&&R.eqTray.pointInCard(p)){
       var slot=R.eqTray.slots[0];
       R.eqStow={t0:performance.now(),x0:R.eqHeldX,y0:R.eqHeldY,x1:slot.x,y1:slot.y+slot.h/2};
       R.eqState='stowing';R.eqOn=false;R.hoverEq=false;
@@ -559,6 +561,29 @@ document.getElementById('btn-reset').addEventListener('click',function(ev){
 /* W5语音重置联动：m2/m3 分支提前 return，独立 listener 保证三模式全覆盖（注册序在后=状态清零后触发；变体页旧引擎无重置接口，&&短路安全） */
 document.getElementById('btn-reset').addEventListener('click',function(){window.GUIDE_RESET&&window.GUIDE_RESET.all();});
 layout();setMode('m1');startLoop();
+/* 单2b：canvas 器材托盘可收起（触摸门内左缘竖标签「器材」；点标签展开、点画布空白收回；三模式各自的托盘+器材命中逻辑不变） */
+if(window.ChartEntry)ChartEntry.tray({
+  label:'器材',
+  setOpen:function(v){R.trayOpen=v;},
+  redraw:function(){startLoop();if(!loopOn)R.draw();},
+  isBlankHit:function(ev){
+    if(ev.target!==cv)return false;
+    var p=pos(ev);
+    if(R.mode==='m2'){
+      var m2=R.m2;
+      return !(hitM2S(p)||hitM2Screen(p)||hitM2Eye(p)||(R.trayOpen&&m2.tray&&(m2.tray.pointInCard(p)||m2.tray.hitSlot(p))));
+    }
+    if(R.mode==='m3'){
+      var m3=R.m3;
+      function nearSlot(s){return s&&Math.hypot(p.x-s.x,p.y-s.y)<=s.r+12;}
+      return !((m3.top.state==='placed'&&hitM3Mirror(p,m3.top))||(m3.top.state==='slot'&&nearSlot(m3.topSlot))
+        ||(m3.bottom.state==='placed'&&hitM3Mirror(p,m3.bottom))||(m3.bottom.state==='slot'&&nearSlot(m3.bottomSlot))
+        ||(R.trayOpen&&m3.tray&&(m3.tray.pointInCard(p)||m3.tray.hitSlot(p))));
+    }
+    return !(hitObj(p)||(R.eqState!=='off'&&hitEq(p))
+      ||(R.trayOpen&&R.eqState!=='off'&&R.eqTray&&(R.eqTray.pointInCard(p)||R.eqTray.hitSlot(p))));
+  }
+});
 window.__mirDbg={
   get objX(){return Math.round(R.objX);},get imgX(){return Math.round(R.mirrorX+R.doCm*K);},
   get eqX(){return Math.round(R.eqX);},get matched(){return R.matched;},get lit(){return R.objLit;}

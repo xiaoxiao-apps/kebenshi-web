@@ -191,93 +191,20 @@ function clearTable() {
   document.getElementById('data-tbody').innerHTML = ''; drawChart();
 }
 
-/* ---------- 触摸门曲线浮层（蔡总 2026-11-02 移动端全量铺·单2a）：
-   侧边面板收起/竖标签/点外收回/首进气泡逻辑已迁 _lib/guide/side-dock.js（共享件）；
-   本页仅保留 A 曲线浮钮 #tt-entry（右缘半藏露60%，点按先 .full 全显再开浮层）+ 遮罩卡 .tt-overlay，
-   开时把 #chart-wrap 移入并重绘，关时移回；F 读数面板内 T-t 曲线行（#btn-chart-zoom 所在 .row）engage 时隐藏、disengage 还原。
-   门控 = (pointer:coarse) and (hover:none)。桌面（pointer:fine）MQ 不匹配 → engage 从不执行、DOM 零改动。 ---------- */
-(function () {
-  const touchMQ = window.matchMedia ? window.matchMedia('(pointer:coarse) and (hover:none)') : null;
-  if (!touchMQ) return;
-  let engaged = false;
-  let entry = null, overlay = null;
-  let zoomRow = null;
-  let chartWrap = null, originParent = null, originNext = null;
-
-  function redraw() { if (typeof drawChart === 'function') drawChart(); }
-  function click() { if (typeof playClick === 'function') playClick(); }
-
-  /* --- A 曲线浮层 --- */
-  function openOverlay() {
-    if (overlay) return;
-    chartWrap = document.getElementById('chart-wrap');
-    if (!chartWrap) return;
-    originParent = chartWrap.parentNode;
-    originNext = chartWrap.nextSibling;
-    overlay = document.createElement('div');
-    overlay.className = 'tt-overlay';
-    const card = document.createElement('div');
-    card.className = 'tt-overlay-card';
-    const close = document.createElement('button');
-    close.type = 'button';
-    close.className = 'tt-overlay-close';
-    close.textContent = '×';
-    close.setAttribute('aria-label', '关闭温度时间曲线');
-    close.addEventListener('click', function () { closeOverlay(); click(); });
-    card.appendChild(close);
-    card.appendChild(chartWrap);
-    overlay.appendChild(card);
-    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeOverlay(); });
-    document.body.appendChild(overlay);
-    requestAnimationFrame(redraw);
-  }
-  function closeOverlay() {
-    if (!overlay) return;
-    if (chartWrap && originParent) originParent.insertBefore(chartWrap, originNext || null);
-    overlay.remove();
-    overlay = null; chartWrap = null; originParent = null; originNext = null;
-    if (entry) entry.classList.remove('full'); /* D 浮层关→浮钮回右缘半藏 */
-    requestAnimationFrame(redraw);
-  }
-  function buildEntry() {
-    entry = document.createElement('button');
-    entry.type = 'button';
-    entry.id = 'tt-entry';
-    entry.textContent = '📈';
-    entry.setAttribute('aria-label', '放大查看温度时间曲线');
-    entry.addEventListener('click', function () { entry.classList.add('full'); openOverlay(); click(); }); /* D 点按先全显再开浮层 */
-    document.body.appendChild(entry);
-  }
-
-  /* --- F 读数面板内 T-t 曲线行隐藏（#chart-wrap 本体由 CSS 触摸门隐藏） --- */
-  function hideZoomRow() {
-    const btn = document.getElementById('btn-chart-zoom');
-    zoomRow = btn ? btn.closest('.row') : null;
-    if (zoomRow) zoomRow.style.display = 'none';
-  }
-  function restoreZoomRow() {
-    if (zoomRow) { zoomRow.style.display = ''; zoomRow = null; }
-  }
-
-  function engage() {
-    if (engaged) return;
-    engaged = true;
-    buildEntry();
-    hideZoomRow();
-  }
-  function disengage() {
-    if (!engaged) return;
-    engaged = false;
-    closeOverlay();
-    restoreZoomRow();
-    if (entry) { entry.remove(); entry = null; }
-  }
-  function sync() { if (touchMQ.matches) engage(); else disengage(); }
-  function init() {
-    sync();
-    if (touchMQ.addEventListener) touchMQ.addEventListener('change', sync);
-    else if (touchMQ.addListener) touchMQ.addListener(sync);
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
-})();
+/* ---------- 触摸门曲线浮层（蔡总 2026-11-02 移动端全量铺·单2b）：
+   页内 📈浮钮/.tt-overlay 浮层 IIFE 已删除，迁共享件 _lib/guide/chart-entry.js（行为与单1验收态逐条一致）。
+   F 读数面板内 T-t 曲线行（#btn-chart-zoom 所在 .row）经 getHiddenEls 交共享件 engage 时隐藏、disengage 还原；
+   #chart-wrap 本体隐藏仍由 exp-vapor.css 触摸门规则承担（.data-panel #chart-wrap）。
+   门控 = (pointer:coarse) and (hover:none)；桌面 MQ 不匹配 → 共享件零介入。 ---------- */
+if (window.ChartEntry) {
+  ChartEntry.attach({
+    title: '温度时间曲线',
+    getChartEl: function () { return document.getElementById('chart-wrap'); },
+    getHiddenEls: function () {
+      const btn = document.getElementById('btn-chart-zoom');
+      const row = btn ? btn.closest('.row') : null;
+      return row ? [row] : [];
+    },
+    redraw: function () { if (typeof drawChart === 'function') drawChart(); }
+  });
+}

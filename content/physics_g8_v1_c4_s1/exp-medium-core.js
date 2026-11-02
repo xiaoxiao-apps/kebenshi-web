@@ -14,6 +14,9 @@ if(q.ang){ initialAngle=Math.max(-A_MAX,Math.min(A_MAX,parseFloat(q.ang)*Math.PI
 var NAT={laser_pen:{w:324,h:90},smoke_box:{w:800,h:516},water_tank:{w:800,h:310},glass_brick:{w:800,h:631}};
 var BTN_FX=0.77006,BTN_FY=0.35;
 var toolbox=PROPS.toolbox.create({card:{x:16,y:16,w:220,h:92,r:10,fill:'#dce6f2',stroke:'#b8c6da'},items:[{id:'glass_brick',x:40,y:58},{id:'water_tank',x:110,y:58},{id:'smoke_box',x:180,y:58}],fit:56,nat:NAT});
+/* 单2b 托盘可收起：触摸门(pointer:coarse&hover:none)内默认 trayOpen=false=不绘托盘卡与 stored 件，
+   左缘「器材」竖标签(ChartEntry.tray)点开；非触摸门或无 chart-entry.js 恒 true=常绘（桌面零介入）。 */
+var trayOpen=!(window.ChartEntry&&window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)').matches);
 var media=[];
 var dragInfo=null,startPt=null;
 var GRAVITY=2600;
@@ -252,6 +255,7 @@ function drawMedia(){
   var now=performance.now(), dragM=dragInfo && dragInfo.k==='med'?dragInfo.m:null;
   for(var i=0;i<media.length;i++){
     var m=media[i],lift=0;
+    if(m.state==='stored'&&!trayOpen) continue; /* 单2b：托盘收起时 stored 件不绘（已拖出 active/falling 不受影响） */
     if(m.liftT){ var t=(now-m.liftT)/120; if(t>=1) m.liftT=0; else lift=-5*easeOut(Math.min(1,t)); }
     var h=m.h, y=m.y+lift;
     if(m===dragM && (dragM.state==='active'||dragM.state==='falling')){
@@ -277,7 +281,7 @@ function updateTurbidUI(){
 function draw(){
   updateTurbidUI();
   PROPS.bench(ctx,W,H);
-  toolbox.drawCard(ctx);
+  if(trayOpen) toolbox.drawCard(ctx); /* 单2b：托盘收起时不绘卡 */
   var p0=emitPt(),segs=computePath(p0,angle);
   drawMedia();
   for(var i=0;i<media.length;i++) if(media[i].t==='smoke' && media[i].state==='active') drawSmokeDrift(media[i]);
@@ -328,7 +332,7 @@ function hitActiveMedia(p){
 cv.addEventListener('pointerdown',function(e){
   var p=localPt(e);
   var m=null;
-  if(toolbox.pointInCard(p)){
+  if(trayOpen&&toolbox.pointInCard(p)){
     var slot=toolbox.hitSlot(p);
     if(slot){ for(var idx=media.length-1;idx>=0;idx--){ if(media[idx].id===slot.id && media[idx].state==='stored'){ m=media[idx]; break; } } }
   }
@@ -359,7 +363,7 @@ window.addEventListener('pointerup',function(e){
   if(!dragInfo) return;
   if(dragInfo.k==='med'){
     var m=dragInfo.m, p=localPt(e);
-    if(toolbox.pointInCard(p) || rectInCard(bbox(m))){
+    if(trayOpen&&(toolbox.pointInCard(p) || rectInCard(bbox(m)))){
       var now=performance.now();
       var dist=Math.hypot(m.x-m.storedX,m.y-m.storedY);
       m.ret={x0:m.x,y0:m.y,x1:m.storedX,y1:m.storedY,t0:now,dur:Math.min(1000,dist/0.35)};
@@ -434,6 +438,23 @@ function stepPhysics(){
 }
 
 window.__c4s1dbg={ get media(){return media;}, get pen(){return pen;}, get W(){return W;}, get H(){return H;}, get benchY(){return benchTopY();}, emitPt:emitPt, computePath:computePath, rectOf:rectOf, segs:function(){return computePath(emitPt(),angle);}, place:function(id){ for(var i=0;i<media.length;i++) if(media[i].id===id){ var m=media[i]; m.state='active'; setActiveSize(m); m.x=Math.round(W/2); m.y=benchTopY(); constrain(m); m.placedT=performance.now(); return true; } return false; }, penOn:function(v){ pen.on=!!v; } };
+
+/* 单2b：左缘「器材」竖标签接管 trayOpen（触摸门内生成；点标签展开，展开时点画布空白收回） */
+if(window.ChartEntry) ChartEntry.tray({
+  label:'器材',
+  setOpen:function(v){ trayOpen=v; },
+  redraw:function(){ draw(); },
+  isBlankHit:function(e){
+    if(e.target!==cv) return false;
+    var p=localPt(e);
+    if(hitActiveMedia(p)) return false;
+    if(trayOpen&&(toolbox.pointInCard(p)||toolbox.hitSlot(p))) return false;
+    var b=btnWorld(); if(Math.hypot(p.x-b.x,p.y-b.y)<b.r+5) return false;
+    var ept=emitPt(); if(Math.hypot(p.x-ept.x,p.y-ept.y)<32) return false;
+    if(Math.hypot(p.x-pen.x,p.y-pen.y)<60) return false;
+    return true;
+  }
+});
 
 /* 语音讲解层状态暴露（设计书 docs/c4s1-guide-design.md §A-1.3；只读 getter 门面，引擎轮询；对象永不重赋值） */
 function mediaOnStage(id){for(var i=0;i<media.length;i++){var m=media[i];if(m.id===id&&(m.state==='active'||m.state==='falling'))return true;}return false;}

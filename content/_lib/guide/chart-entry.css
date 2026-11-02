@@ -1,0 +1,58 @@
+/* chart-entry.css — 共享曲线浮钮/浮层 + 托盘器材竖标签样式（蔡总 2026-11-02 移动端全量铺·单2b）
+   门控 = (pointer:coarse) and (hover:none)：触摸门内 chart-entry.js 生成 #tt-entry 浮钮与 .tt-overlay 浮层；
+   .ce-tray-tab = canvas 托盘页左缘「器材」竖标签（top:55% 避开 side-dock 参数标签 top:30%）。
+   数值与 c3s2 exp-melt-stage3.css / c3s3 exp-vapor.css 单1验收态逐值一致（两页原规则保留，双份同值零漂移）。
+   非触摸门：类/ID 从不生成 + 所有规则均在 @media 内 → 桌面零介入。 */
+
+@media (pointer:coarse) and (hover:none) {
+  /* A 曲线浮钮：右缘半藏露60%（右移40%宽+10px贴缘），点按加 .full 先全显再开浮层 */
+  #tt-entry {
+    position: fixed; right: 10px; bottom: calc(56px + env(safe-area-inset-bottom));
+    width: 44px; height: 44px; z-index: 65;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 22px; border: 1px solid rgba(255,255,255,.22);
+    background: rgba(30,30,44,.72); color: #ffd54f; font-size: 19px; line-height: 1;
+    cursor: pointer; backdrop-filter: blur(4px);
+    transform: translateX(calc(40% + 10px));
+    transition: transform .18s ease;
+  }
+  #tt-entry.full { transform: translateX(0); }
+  #tt-entry:active { background: rgba(60,60,84,.9); }
+
+  /* 遮罩浮层 + 居中卡 + × 关闭钮 */
+  .tt-overlay {
+    position: fixed; inset: 0; z-index: 66;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.45);
+  }
+  .tt-overlay-card {
+    position: relative; width: 92vw; height: min(62vh, 340px);
+    display: flex; flex-direction: column;
+    padding: 8px; background: rgba(24,24,34,.98);
+    border: 1px solid rgba(255,255,255,.16); border-radius: 12px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.55);
+  }
+  .tt-overlay-close {
+    position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; z-index: 2;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,.15); border-radius: 10px;
+    background: #2c2c40; color: #e0e0f0; font-size: 20px; line-height: 1; cursor: pointer;
+  }
+  /* 移入浮层的曲线宿主撑满卡片（宿主页内联 height/flex 需 !important 覆盖） */
+  .tt-overlay-card .tt-in-card { flex: 1 1 auto; width: 100%; height: auto !important; min-height: 0 !important; }
+
+  /* canvas 托盘页左缘「器材」竖标签（side-dock.css .panel-tab 同款样式，top:55%） */
+  .ce-tray-tab {
+    position: fixed; left: 0; top: 55%; width: 30px; height: 96px; z-index: 59;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,.18); border-left: 0; border-radius: 0 10px 10px 0;
+    color: #e8ecf4; background: rgba(30,30,44,.7);
+    font-size: 13px; font-weight: 600; letter-spacing: 2px;
+    writing-mode: vertical-rl; cursor: pointer; backdrop-filter: blur(4px);
+  }
+}
+
+/* 超矮屏（≤340px）：竖标签收短到 72px，与 side-dock.css 同规则 */
+@media (pointer:coarse) and (hover:none) and (max-height: 340px) {
+  .ce-tray-tab { height: 72px; }
+}

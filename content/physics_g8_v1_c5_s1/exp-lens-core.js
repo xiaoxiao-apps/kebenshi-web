@@ -68,6 +68,9 @@ var VS=state.bench;          // 当前渲染视图（render 入口写点；动�
 var drag=null,startPt=null,glowFx=[];
 var showFlow=false,flowT0=0;   // 光流动画：默认关（静态实线）；开=虚线脉冲沿光路流动
 var toolbox=null,toastTimer=null;
+/* 单2b 托盘可收起：触摸门(pointer:coarse&hover:none)内默认 trayOpen=false=drawTray 不绘（仅场景一有托盘），
+   左缘「器材」竖标签(ChartEntry.tray)点开；非触摸门或无 chart-entry.js 恒 true=常绘（桌面零介入）。 */
+var trayOpen=!(window.ChartEntry&&window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)').matches);
 function easeInOut(t){ return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2; }
 function sunX(){ return Math.round(W*SUN_X_FRAC); }
 function sunY(){ return Math.round(H*SUN_Y_FRAC); }
@@ -147,6 +150,7 @@ function drawAxis(){
   ctx.restore();
 }
 function drawTray(){
+  if(!trayOpen) return;   // 单2b：托盘收起时不绘卡与缩略图
   toolbox.drawCard(ctx);
   var slots=toolbox.slots;
   for(var i=0;i<slots.length;i++){
@@ -492,14 +496,14 @@ function hitPens(p){
   var bot=axisY+yOff+RAY_OFF+NOZ_FY*PEN_H;         // 最下支笔底
   return p.x>=s.x-PEN_W/2-10 && p.x<=s.x+PEN_W/2+10 && p.y>=top-8 && p.y<=bot+8;
 }
-function inCtrlArea(p){ return toolbox.pointInCard(p)||p.y>H-ctrlBandH; }
+function inCtrlArea(p){ return (trayOpen&&toolbox.pointInCard(p))||p.y>H-ctrlBandH; }
 
 // ===== 交互（动画期间锁全部输入） =====
 cv.addEventListener('pointerdown',function(e){
   if(state.animating) return;
   var p=localPt(e); startPt=p; drag=null;
   var B=state.bench;
-  if(state.scene==='bench'&&toolbox.pointInCard(p)){
+  if(state.scene==='bench'&&trayOpen&&toolbox.pointInCard(p)){
     var slot=toolbox.hitSlot(p);
     if(slot&&(slot.id==='pens'||slot.id==='bulb')){
       var t=slot.id;
@@ -530,7 +534,7 @@ cv.addEventListener('pointermove',function(e){
   if(state.animating) return;
   var p=localPt(e);
   if(!drag){
-    cv.style.cursor=(hitBtn(p)>=0||hitBulb(p)||hitScreen(p)||hitLens(p)||hitPens(p)||(state.scene==='bench'&&toolbox.pointInCard(p)&&toolbox.hitSlot(p)))?'pointer':'';
+    cv.style.cursor=(hitBtn(p)>=0||hitBulb(p)||hitScreen(p)||hitLens(p)||hitPens(p)||(state.scene==='bench'&&trayOpen&&toolbox.pointInCard(p)&&toolbox.hitSlot(p)))?'pointer':'';
     return;
   }
   var S=cur();
@@ -760,4 +764,18 @@ window.__c5s1dbg={ get state(){return state;}, get W(){return W;}, get H(){retur
   bulb:function(on,x){ state.bench.source={type:'bulb',x:x?clampBulbX(x):Math.round(W*BULB_X_FRAC),on:!!on,snapped:false}; draw(); },
   screen:function(x){ state.focal.screen={x:x?clampScreenX(x):Math.round(W*SC_SCREEN_X_FRAC),atF:false}; draw(); },
   setF:function(v){ setF(Math.max(F_MIN_CM,Math.min(F_MAX_CM,v))); syncSlider(); draw(); } };
+
+/* 单2b：左缘「器材」竖标签接管 trayOpen（触摸门内生成；点标签展开，展开时点画布空白收回） */
+if(window.ChartEntry) ChartEntry.tray({
+  label:'器材',
+  setOpen:function(v){ trayOpen=v; },
+  redraw:function(){ draw(); },
+  isBlankHit:function(e){
+    if(e.target!==cv) return false;
+    var p=localPt(e);
+    if(hitBtn(p)>=0||hitBulb(p)||hitScreen(p)||hitLens(p)||hitPens(p)) return false;
+    if(state.scene==='bench'&&trayOpen&&toolbox.pointInCard(p)) return false;
+    return true;
+  }
+});
 })();

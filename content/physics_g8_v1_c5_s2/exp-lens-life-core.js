@@ -80,6 +80,9 @@ function clampV(v){ return Math.max(V_MIN,Math.min(V_MAX,v)); }
 function clampU2(u){ return Math.max(U2_MIN,Math.min(U2_MAX,u)); }
 function clampU3(u){ return Math.max(U3_MIN,Math.min(U3_MAX,u)); }
 var toolboxMag=null;   // 场景3 托盘（仅备光屏一件，layout 构建）
+/* 单2b 托盘可收起：触摸门(pointer:coarse&hover:none)内默认 trayOpen=false=drawTray 不绘（仅场景3 有托盘），
+   左缘「器材」竖标签(ChartEntry.tray)点开；非触摸门或无 chart-entry.js 恒 true=常绘（桌面零介入）。 */
+var trayOpen=!(window.ChartEntry&&window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)').matches);
 // ===== 场景1 几何（G2/G3）：F 固定+筒伸缩，xLens=装配体内相对量（F→透镜=u）；canvas y 向下，倒立实像画轴下方 =====
 function panelCH(){ return hLed/PANEL_HF; }   // K1：整图绘制高 ch=boxH/PANEL_HF（boxH=hLed=F 板可视高，源矩形=全图不裁切）
 function panelCW(){                            // K1：整图绘制宽 cw=ch*natW/natH 同源不变形（800×800 探针→cw=ch；F 板可视宽=cw*PANEL_WF=boxH*(606-198)/(710-105) 同源宽高比）
@@ -144,7 +147,7 @@ function drawAxis(){
   ctx.restore();
 }
 function drawTray(){
-  if(state.scene!=='mag'||!toolboxMag) return;   // G4：场景1 托盘已删（整机拖）；场景3 托盘仅备光屏一件
+  if(state.scene!=='mag'||!toolboxMag||!trayOpen) return;   // G4：场景1 托盘已删（整机拖）；场景3 托盘仅备光屏一件；单2b：收起时不绘
   toolboxMag.drawCard(ctx);
   var c=toolboxMag.card;
   ctx.save(); ctx.fillStyle='#8a6d3b'; ctx.font='15px sans-serif'; ctx.textAlign='left';
@@ -639,7 +642,7 @@ function camBBox(){   // G2/G3：装配体包围盒=F 板可视左缘→薄膜�
 function hitCam(p){ var b=camBBox(); return p.x>=b.x0&&p.x<=b.x1&&p.y>=b.y0&&p.y<=b.y1; }   // G3 整相机拖命中
 function hitLensAt(xl,p){ return Math.abs(p.x-xl)<lensH*0.22+10&&Math.abs(p.y-axisY)<lensH/2+14; }
 function hitMagScreen(p){ return state.mag.screenX!==null&&Math.abs(p.x-state.mag.screenX)<44&&p.y>axisY-H*0.17-10&&p.y<axisY+H*0.17+10; }
-function hitMagTray(p){ return !!toolboxMag&&state.mag.screenX===null&&toolboxMag.pointInCard(p)&&!!toolboxMag.hitSlot(p); }
+function hitMagTray(p){ return trayOpen&&!!toolboxMag&&state.mag.screenX===null&&toolboxMag.pointInCard(p)&&!!toolboxMag.hitSlot(p); }
 // J5：眼拖拽命中已删——眼为常量固定位（xEye/yEye）
 // ===== 对焦边检+挑战判定 =====
 function checkFocus(){
@@ -707,7 +710,7 @@ function endDrag(e){
   var p=localPt(e),moved=Math.hypot(p.x-startPt.x,p.y-startPt.y)>=5;
   if(drag.k==='screen'){   // H3：释放点在托盘卡内→回收；否则留光轴（y 自动骑轴）；虚像区释放→K5 照旧
     var Mg=state.mag;
-    if(toolboxMag&&toolboxMag.pointInCard(p)){
+    if(toolboxMag&&trayOpen&&toolboxMag.pointInCard(p)){
       Mg.screenX=null;
     }else{
       Mg.screenX=Math.max(34,Math.min(W-60,p.x));
@@ -885,4 +888,18 @@ window.__c5s2dbg={ get state(){return state;}, get W(){return W;}, get H(){retur
   barrelL:barrelL, barrelR:barrelR, barrelDia:barrelDia, lensX2:lensX2, tube1R:tube1R,   // K2/M3 探针口（筒1 通道/行程映射断言用）
   setU3:function(v){ state.mag.u=clampU3(v); draw(); },
   vImg3:vImg3, xEye:xEye, yEye:yEye, dimAlpha:dimAlpha, imgHCm3:imgHCm3 };   // J5/J10 探针口
+
+/* 单2b：左缘「器材」竖标签接管 trayOpen（触摸门内生成；点标签展开，展开时点画布空白收回） */
+if(window.ChartEntry) ChartEntry.tray({
+  label:'器材',
+  setOpen:function(v){ trayOpen=v; },
+  redraw:function(){ draw(); },
+  isBlankHit:function(e){
+    if(e.target!==cv||state.animating) return false;
+    var p=localPt(e);
+    if(state.scene==='cam') return !(hitTube(p)||hitCam(p));
+    if(state.scene==='proj') return !hitLensAt(xLens2(),p);
+    return !(hitLensAt(xLens3(),p)||hitMagTray(p)||hitMagScreen(p)||(trayOpen&&toolboxMag&&toolboxMag.pointInCard(p)));
+  }
+});
 })();

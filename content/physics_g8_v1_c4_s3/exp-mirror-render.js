@@ -66,15 +66,15 @@ function drawM2(c){
   c.textAlign='left';c.fillText('S′',m.Sp.x+10,m.Sp.y+5);
   c.fillStyle='#64748b';c.font='12px sans-serif';c.textAlign='center';
   c.fillText('虚像',m.Sp.x,m.Sp.y-16);c.restore();
-  /* M2 托盘 */
-  if(m.tray){
+  /* M2 托盘（单2b：触摸门收起时整块不绘） */
+  if(m.tray&&R.trayOpen!==false){
     m.tray.drawCard(c);
   }
-  if(m.tray&&m.screen.state==='tray'){
+  if(m.tray&&R.trayOpen!==false&&m.screen.state==='tray'){
     var s0=m.tray.slots[0];
     PROPS.screen(c,s0.x,s0.y,{h:s0.h});
   }
-  if(m.tray&&m.eye.state==='tray'){
+  if(m.tray&&R.trayOpen!==false&&m.eye.state==='tray'){
     var s1=m.tray.slots[1];
     PROPS.observer_eye(c,s1.x,s1.y,{h:40,dir:'left'});
   }
@@ -260,9 +260,9 @@ function drawM3(c){
   c.save();c.strokeStyle='#cbd5e1';c.lineWidth=1.5;c.setLineDash([5,4]);
   [m.topSlot,m.bottomSlot].forEach(function(s){c.beginPath();c.arc(s.x,s.y,s.r,0,7);c.stroke();});
   c.restore();
-  // 托盘
-  if(m.tray)m.tray.drawCard(c);
-  if(m.tray){
+  // 托盘（单2b：触摸门收起时整块不绘）
+  if(m.tray&&R.trayOpen!==false)m.tray.drawCard(c);
+  if(m.tray&&R.trayOpen!==false){
     m.tray.slots.forEach(function(s,i){if((i===0&&m.top.state==='tray')||(i===1&&m.bottom.state==='tray'))PROPS.mirror_plate(c,s.x,s.y+12,{len:44});}); /* R22 薄镜片缩略图：水平不旋转 */
   }
   // 镜子
@@ -340,12 +340,12 @@ R.draw=function(){
   /* 刻度尺仅在重合瞬间出现 */
   if(R.matched)drawRuler(c);
   /* 托盘卡片常显；缩略图只在 tray 态画，避免与收回动画重叠 */
-  if(R.eqState!=='off'&&R.eqTray){
+  if(R.eqState!=='off'&&R.eqTray&&R.trayOpen!==false){
     R.eqTray.drawCard(c);
     c.font='bold 12px sans-serif';c.textAlign='center';c.fillStyle='#475569';
     var tc=R.eqTray.card;c.fillText('等效蜡烛',tc.x+tc.w/2,tc.y+tc.h-8);
   }
-  if(R.eqState==='tray'&&R.eqTray){
+  if(R.eqState==='tray'&&R.eqTray&&R.trayOpen!==false){
     var slot=R.eqTray.slots[0];
     PROPS.candle(c,slot.x,slot.y+slot.h/2,{h:slot.h,lit:false});
   }

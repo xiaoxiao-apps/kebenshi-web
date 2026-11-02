@@ -45,6 +45,9 @@ document.addEventListener('pointerdown',function(e){
   st.lastActT=performance.now();
 },true);
 var drag=null,startPt=null,toolbox=null,trayCard=null,glowFx=[];
+/* 单2b 托盘可收起：触摸门(pointer:coarse&hover:none)内默认 trayOpen=false=drawTray 不绘，
+   左缘「器材」竖标签(ChartEntry.tray)点开；非触摸门或无 chart-entry.js 恒 true=常绘（桌面零介入）。 */
+var trayOpen=!(window.ChartEntry&&window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)').matches);
 function layout(){
   axisY=Math.round(H*0.40);
   S=cmPx(); xLens=Math.round(W*0.42);   // I2 主体居中：0.40W→0.42W（探针 W1440/H766 默认 u=21/v=19.1 构图 bbox 中心 0.365W→0.385W；
@@ -380,7 +383,7 @@ function drawMarks(){   // F/2F 双侧刻度点常驻（显示开关可关）
   ctx.restore();
 }
 function drawTray(){   // H7 暖米黄卡+「器材托盘」角标；缩略图归一化防出界（探针断言 bbox⊂卡片矩形）
-  if(!toolbox)return;   // init 前素材未就绪：跳过本帧托盘，init 后自愈（防白屏）
+  if(!toolbox||!trayOpen)return;   // init 前素材未就绪：跳过本帧托盘，init 后自愈（防白屏）；单2b：收起时不绘
   toolbox.drawCard(ctx);
   ctx.save(); ctx.fillStyle='#8a6d3b'; ctx.textAlign='left'; ctx.font='15px '+FONT;
   ctx.fillText('器材托盘',trayCard.x+8,trayCard.y+16); ctx.restore();
@@ -499,7 +502,7 @@ function inCtrlArea(p){ return toolbox.pointInCard(p)||p.y>H-ctrlBandH; }
 cv.addEventListener('pointerdown',function(e){
   if(st.anim) return;
   var p=localPt(e); startPt=p; drag=null;
-  if(toolbox.pointInCard(p)){
+  if(trayOpen&&toolbox.pointInCard(p)){
     var slot=toolbox.hitSlot(p);
     if(slot&&(slot.id==='f_led'||slot.id==='candle')){   // 换用物体：物高语义不变 3.0cm，F 图案像↔火焰图案像
       st.obj=(slot.id==='candle')?'candle':'F';
@@ -519,7 +522,7 @@ cv.addEventListener('pointermove',function(e){
   if(st.anim) return;
   var p=localPt(e);
   if(!drag){
-    cv.style.cursor=(hitObj(p)||hitScreen(p)||hitEye(p)||(toolbox.pointInCard(p)&&toolbox.hitSlot(p)))?'pointer':'';
+    cv.style.cursor=(hitObj(p)||hitScreen(p)||hitEye(p)||(trayOpen&&toolbox.pointInCard(p)&&toolbox.hitSlot(p)))?'pointer':'';
     return;
   }
   if(drag.k==='obj'){
@@ -549,10 +552,10 @@ function endDrag(e){
   if(drag.k==='obj'){
     if(moved){
       if(window.playDrop) playDrop();
-      if(st.obj==='candle'&&toolbox.pointInCard(p)){   // 蜡烛拖回托盘=换回 F 形光源
+      if(st.obj==='candle'&&trayOpen&&toolbox.pointInCard(p)){   // 蜡烛拖回托盘=换回 F 形光源（单2b：托盘收起时该区域=空白不换）
         st.obj='F';
       }
-    }else if(!toolbox.pointInCard(startPt)){
+    }else if(!(trayOpen&&toolbox.pointInCard(startPt))){
       if(st.obj==='candle'){   // K6 点蜡烛=点亮/熄灭蜡烛（换回 F 仅拖回托盘一条路径）
         st.lit=!st.lit; syncLitBtn();
         if(window.playClick) playClick();
@@ -887,4 +890,18 @@ window.__c5s3dbg={
   textbook:function(){ document.getElementById('btn-textbook').click(); },
   rows:function(){ return st.rows; }
 };
+
+/* 单2b：左缘「器材」竖标签接管 trayOpen（触摸门内生成；点标签展开，展开时点画布空白收回） */
+if(window.ChartEntry) ChartEntry.tray({
+  label:'器材',
+  setOpen:function(v){ trayOpen=v; },
+  redraw:function(){ draw(); },
+  isBlankHit:function(e){
+    if(e.target!==cv||st.anim) return false;
+    var p=localPt(e);
+    if(hitObj(p)||hitScreen(p)||hitEye(p)) return false;
+    if(trayOpen&&toolbox&&toolbox.pointInCard(p)) return false;
+    return true;
+  }
+});
 })();
