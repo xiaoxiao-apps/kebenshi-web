@@ -71,9 +71,10 @@ function start(){
   window.addEventListener('resize',function(){
     refreshSafe();
     hideHint();                                 /* 单7：尺寸变了浮提示定位失效，直接收掉 */
-    if(!hideFab()){if(fabDocked)undock();}        /* 宽屏（非触摸门）恢复 right:14px 原定位 */
-    else if(!fabDocked&&curPos){fabDocked=true;} /* 旋转到窄屏/触摸门且有记忆位 → 重新吸边半藏 */
+    if(!hideFab()){if(fabDocked||popped)undock();}  /* 宽屏（非触摸门）恢复 right:14px 原定位 */
+    else if(!fabDocked&&!popped&&curPos){fabDocked=true;} /* 旋转到窄屏/触摸门且有记忆位 → 重新吸边半藏（单9：弹出态豁免） */
     if(fabDocked)reapplyDock();
+    else if(touchGate())reapplyPop();    /* 单9：弹出态随当前边重新定位（curPos 记忆不动） */
     else if(cur)place();
     else fab.style.bottom=fabBottom()+'px';
   });
@@ -83,7 +84,7 @@ function start(){
      单6b：半藏在触摸门内全宽度生效（原仅 (max-width:900px)），宽屏桌面仍保持 right:14px 原定位；
      拖动避开 iOS 安全区 env(safe-area-inset-*)。 ---------- */
   var LS_POS='gvb-fab-pos';
-  var fabDocked=false,curPos=null,justDragged=false;
+  var fabDocked=false,curPos=null,justDragged=false,popped=false;/* 单9：popped=点弹出态（resize 不得强制重 dock） */
   var mqNarrow=(window.matchMedia&&window.matchMedia('(max-width:900px)'))||null;
   function narrow(){return !!(mqNarrow&&mqNarrow.matches);}
   /* 单6b：半藏判定 = 触摸门（全宽度）或窄屏（桌面窄窗保留原行为） */
@@ -109,6 +110,7 @@ function start(){
   }
   function reapplyDock(){
     if(!curPos)return;
+    popped=false;                       /* 单9：一切重吸边路径统一清弹出标记 */
     var w=fabW(),hide=hideFab();
     fab.style.bottom='auto';
     fab.style.top=clampTop(curPos.top)+'px';
@@ -119,8 +121,22 @@ function start(){
     }
     fab.classList.add('gvb-docked');
   }
+  /* 单9：docked 轻点=完整弹出（保留 curPos 记忆，点空白可原位缩回）；仅触摸门走到这里 */
+  function reapplyPop(){
+    if(!curPos){fab.style.left='auto';fab.style.right='';fab.style.top='auto';place();return;}
+    fab.style.bottom='auto';
+    fab.style.top=clampTop(curPos.top)+'px';
+    if(curPos.edge==='left'){fab.style.left=(14+safe.left)+'px';fab.style.right='auto';}
+    else{fab.style.left='auto';fab.style.right=(14+safe.right)+'px';}
+  }
+  function popOut(){
+    fabDocked=false;popped=true;
+    fab.classList.remove('gvb-docked');
+    fab.style.transition='';
+    reapplyPop();
+  }
   function undock(){
-    fabDocked=false;curPos=null;
+    fabDocked=false;curPos=null;popped=false;
     fab.classList.remove('gvb-docked');
     fab.style.left='auto';fab.style.right='';fab.style.top='auto';fab.style.bottom='';fab.style.transition='';
     place();
@@ -178,6 +194,27 @@ function start(){
     fabDocked=true;
     reapplyDock();
   }
+
+  /* ---------- 单9：触摸门内点空白（位移<6px、非fab/非hint卡）=缩回半藏；
+     capture 纯监听不 preventDefault，canvas 物件点击/拖动原语义照旧；docked 态点空白无动作；
+     缩回不写 LS（拖拽记忆 gvb-fab-pos 逻辑逐字节不变） ---------- */
+  var blankTap=null;
+  document.addEventListener('pointerdown',function(e){
+    blankTap=null;
+    if(!touchGate()||fabDocked)return;
+    if(fab.contains(e.target))return;
+    blankTap={x:e.clientX,y:e.clientY};
+  },{capture:true});
+  document.addEventListener('pointerup',function(e){
+    if(!blankTap)return;
+    var dx=e.clientX-blankTap.x,dy=e.clientY-blankTap.y;blankTap=null;
+    if(dx*dx+dy*dy>=36)return;
+    if(fabDocked||fab.contains(e.target))return;
+    var t=e.target;
+    if(t&&t.closest&&t.closest('.gvb-mode-hint'))return;
+    fabDocked=true;reapplyDock();
+  },{capture:true});
+  document.addEventListener('pointercancel',function(){blankTap=null;},{capture:true});
 
   /* ---------- 配音播放 ---------- */
   var curAudio=null;
@@ -352,6 +389,8 @@ function start(){
 
   /* ---------- 单7：切态浮提示（角标半藏后唯一可见的状态反馈，2.5s 自隐） ---------- */
   var HINT_TXT={text:'已切字幕-only·轻点金球回语音',sleep:'老师休眠中·轻点金球唤醒',voice:'语音已恢复'};
+  /* 单9：docked 轻点弹出时报当前状态（与三态切换文案区分），复用同卡同 2.5s 自隐 */
+  var POP_HINT={voice:'当前：语音+字幕·再点切换·点空白缩回',text:'当前：只字幕·再点切换·点空白缩回',sleep:'当前：休眠·再点切换·点空白缩回'};
   var hintEl=null,hintT=null;
   function hideHint(){
     if(hintT){clearTimeout(hintT);hintT=null;}
@@ -360,12 +399,13 @@ function start(){
     e.classList.remove('show');
     setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},220);
   }
-  function showHint(){
+  function showHint(msg){
     hideHint();
-    if(!HINT_TXT[mode])return;
+    var txt=msg||HINT_TXT[mode];
+    if(!txt)return;
     var el=document.createElement('div');
     el.className='gvb-mode-hint';
-    el.textContent=HINT_TXT[mode];
+    el.textContent=txt;
     LAYER.appendChild(el);
     var r=fab.getBoundingClientRect(),h=el.offsetHeight||0,w=el.offsetWidth||0;
     var vh=window.innerHeight||360,vw=window.innerWidth||360;
@@ -390,7 +430,7 @@ function start(){
   function applyMode(persist){
     fab.classList.remove('mode-voice','mode-text','mode-sleep');
     fab.classList.add('mode-'+mode);
-    setBadge(mode==='voice'?null:mode==='text'?'🔇':'💤');
+    setBadge(mode==='voice'?(touchGate()?'🔊':null):mode==='text'?'🔇':'💤');/* 单9：触摸门内 voice 补🔊角标，桌面 voice 仍无角标 */
     fab.title=mode==='voice'?'语音+字幕':mode==='text'?'只字幕':'老师休眠中，点击唤醒';
     if(mode==='sleep'){
       removeStartLayer();
@@ -413,6 +453,12 @@ function start(){
   }
   fab.addEventListener('click',function(){
     if(justDragged){justDragged=false;return;}/* P1a：拖动松手误触发的 click 不切三态 */
+    /* 单9：触摸门内 docked 轻点 = 完整弹出 + 报当前状态（不进三态循环） */
+    if(fabDocked&&touchGate()){
+      popOut();
+      showHint(POP_HINT[mode]);
+      return;
+    }
     mode=mode==='voice'?'text':mode==='text'?'sleep':'voice';
     if(mode==='voice')startAck=true;/* EG2-1 防死锁a：用户显式手势切到语音=同意播音 */
     applyMode(true);
