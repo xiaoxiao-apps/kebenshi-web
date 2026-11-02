@@ -8,8 +8,8 @@
 <title>熔化凝固探究馆</title>
 <link rel="stylesheet" href="exp-melt-stage3.css?v=20261102v1">
 <link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261102v1">
-<link rel="stylesheet" href="../_lib/guide/side-dock.css?v=20261102v1">
-<link rel="stylesheet" href="../_lib/guide/chart-entry.css?v=20261102v2">
+<link rel="stylesheet" href="../_lib/guide/side-dock.css?v=20261102v2">
+<link rel="stylesheet" href="../_lib/guide/chart-entry.css?v=20261102v3">
 <style>
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
 html, body { width:100%; height:100%; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei",sans-serif; background:#1a1a24; color:#f0f0f0; }
@@ -70,6 +70,14 @@ select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:non
    #seg-title 右侧留白使其盒不与 44×44 关闭钮相交（文字左对齐、渲染位置不变）。 */
 .segment-card .close { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; margin:-9px -17px 0 0; }
 #seg-title { margin-right:28px; }
+</style>
+<style>
+/* K-单4a(20261102v4): 触摸档bottom-controls单行化横滑(蔡总11-02 13:18 GO)；非触摸门零介入 */
+@media (pointer:coarse) and (hover:none){
+.bottom-controls{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;align-items:stretch;max-width:calc(100vw - 24px);max-height:70px;scrollbar-width:none}
+.bottom-controls::-webkit-scrollbar{display:none}
+.bottom-controls>*{flex:0 0 auto}
+}
 </style>
 </head>
 <body>
@@ -171,8 +179,8 @@ select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:non
 <script src="guide/guide-data.js?v=20261027r5"></script>
 <script src="../_lib/guide/engine-core.js?v=20261028v13"></script>
 <script src="../_lib/guide/vB-core.js?v=20261102v1"></script>
-<script src="../_lib/guide/side-dock.js?v=20261102v1"></script>
-<script src="../_lib/guide/chart-entry.js?v=20261102v2"></script>
+<script src="../_lib/guide/side-dock.js?v=20261102v2"></script>
+<script src="../_lib/guide/chart-entry.js?v=20261102v3"></script>
 <script src="exp-melt-chart.js?v=20261102v2"></script>
 <script src="exp-melt.js?v=20261102v1"></script>
 <script src="/content/_lib/mobile-guard.js?v=20261102v1" defer></script>

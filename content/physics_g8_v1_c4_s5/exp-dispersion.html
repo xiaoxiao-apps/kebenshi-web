@@ -45,6 +45,22 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
 .rgb-num.invalid{border-color:#e03131;background:#fff0f0;color:#e03131;font-weight:700}
 </style>
 <link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261030v1">
+<style>
+/* K-单4a(20261102v4): 触摸档控制栏单行化横滑(蔡总11-02 13:18 GO)；非触摸门零介入(桌面1280单行现状保留) */
+@media (pointer:coarse) and (hover:none){
+.ctrlbar{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;justify-content:center;justify-content:safe center;align-items:stretch;height:auto;min-height:0;max-height:70px;padding-top:4px;padding-bottom:4px;scrollbar-width:none}
+.ctrlbar::-webkit-scrollbar{display:none}
+.ctrlbar>*{flex:0 0 auto}
+.ctrlbar .group{padding:3px 8px}
+.ctrlbar .glabel{font-size:10px}
+.ctrlbar .gctrl{min-height:24px;gap:4px}
+.ctrlbar .gctrl label{font-size:12px}
+.ctrlbar button{padding:4px 7px;font-size:12px}
+.ctrlbar select{padding:3px 5px;font-size:12px}
+.ctrlbar input[type=range]{width:84px}
+.ctrlbar .readout{font-size:12px}
+}
+</style>
 </head>
 <body class="mode-m1">
 <header>

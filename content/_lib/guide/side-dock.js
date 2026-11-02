@@ -19,6 +19,40 @@
 
   function click() { if (typeof playClick === 'function') playClick(); }
 
+  /* 单4b：竖标签可上下拖——pointerdown 记起点，位移≥6px 进拖动态改 top 并抑制点击；
+     <6px 松手=点击原语义。top clamp 屏高 8%~80%；拖毕位置会话内保持（tabTops 记忆，重建时恢复）。 */
+  var tabTops = {};
+  var DRAG_TH = 6;
+  function clampTabTop(top) {
+    var vh = window.innerHeight || 360;
+    return Math.max(vh * 0.08, Math.min(vh * 0.80, top));
+  }
+  function makeTabDraggable(tab, key) {
+    if (tabTops[key] != null) tab.style.top = clampTabTop(tabTops[key]) + 'px';
+    var startY = 0, startTop = 0, holding = false, moved = false;
+    tab.addEventListener('pointerdown', function (e) {
+      holding = true; moved = false;
+      startY = e.clientY;
+      startTop = tab.getBoundingClientRect().top;
+      tab.setPointerCapture(e.pointerId);
+    });
+    tab.addEventListener('pointermove', function (e) {
+      if (!holding) return;
+      var dy = e.clientY - startY;
+      if (!moved && Math.abs(dy) < DRAG_TH) return;
+      moved = true;
+      var top = clampTabTop(startTop + dy);
+      tab.style.top = top + 'px';
+      tabTops[key] = top;
+      e.preventDefault();
+    });
+    tab.addEventListener('pointerup', function () { holding = false; });
+    tab.addEventListener('pointercancel', function () { holding = false; moved = false; });
+    tab.addEventListener('click', function (e) {
+      if (moved) { moved = false; e.stopImmediatePropagation(); e.preventDefault(); }
+    }, true);
+  }
+
   function resolveSide(el) {
     var v = (el.getAttribute('data-sidedock') || '').trim().toLowerCase();
     if (v === 'left' || v === 'right') return v;
@@ -45,6 +79,7 @@
       tab.className = 'panel-tab tab-' + side;
       tab.textContent = label;
       tab.setAttribute('aria-label', '展开' + label + '面板');
+      makeTabDraggable(tab, 'sd:' + side + ':' + label); /* 单4b：先注册拖拽(含点击抑制)，再注册开面板 */
       tab.addEventListener('click', function () {
         el.classList.remove('collapsed');
         tab.style.display = 'none';

@@ -18,13 +18,14 @@
   .sd-left.collapsed { transform: translateX(-110%); }
   .sd-right.collapsed { transform: translateX(110%); }
 
-  /* 左右缘 30×96 竖标签（右缘垂直预算：top 30%） */
+  /* 左右缘 30×96 竖标签（右缘垂直预算：top 30%）；单4b：半透明0.6+可上下拖(touch-action:none) */
   .panel-tab {
     position: fixed; top: 30%; width: 30px; height: 96px; z-index: 59;
     display: flex; align-items: center; justify-content: center;
     border: 1px solid rgba(255,255,255,.18); color: #e8ecf4;
-    background: rgba(30,30,44,.7); font-size: 13px; font-weight: 600; letter-spacing: 2px;
+    background: rgba(30,30,44,.6); font-size: 13px; font-weight: 600; letter-spacing: 2px;
     writing-mode: vertical-rl; cursor: pointer; backdrop-filter: blur(4px);
+    touch-action: none; user-select: none; -webkit-user-select: none;
   }
   .panel-tab.tab-left { left: 0; border-left: 0; border-radius: 0 10px 10px 0; }
   .panel-tab.tab-right { right: 0; border-right: 0; border-radius: 10px 0 0 10px; }

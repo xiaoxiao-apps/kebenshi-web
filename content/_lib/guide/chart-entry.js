@@ -17,6 +17,40 @@
 
   function click() { if (typeof playClick === 'function') playClick(); }
 
+  /* 单4b：竖标签可上下拖——pointerdown 记起点，位移≥6px 进拖动态改 top 并抑制点击；
+     <6px 松手=点击原语义。top clamp 屏高 8%~80%；拖毕位置会话内保持（trayTabTop 记忆）。 */
+  var trayTabTop = null;
+  var DRAG_TH = 6;
+  function clampTabTop(top) {
+    var vh = window.innerHeight || 360;
+    return Math.max(vh * 0.08, Math.min(vh * 0.80, top));
+  }
+  function makeTabDraggable(tab) {
+    if (trayTabTop != null) tab.style.top = clampTabTop(trayTabTop) + 'px';
+    var startY = 0, startTop = 0, holding = false, moved = false;
+    tab.addEventListener('pointerdown', function (e) {
+      holding = true; moved = false;
+      startY = e.clientY;
+      startTop = tab.getBoundingClientRect().top;
+      tab.setPointerCapture(e.pointerId);
+    });
+    tab.addEventListener('pointermove', function (e) {
+      if (!holding) return;
+      var dy = e.clientY - startY;
+      if (!moved && Math.abs(dy) < DRAG_TH) return;
+      moved = true;
+      var top = clampTabTop(startTop + dy);
+      tab.style.top = top + 'px';
+      trayTabTop = top;
+      e.preventDefault();
+    });
+    tab.addEventListener('pointerup', function () { holding = false; });
+    tab.addEventListener('pointercancel', function () { holding = false; moved = false; });
+    tab.addEventListener('click', function (e) {
+      if (moved) { moved = false; e.stopImmediatePropagation(); e.preventDefault(); }
+    }, true);
+  }
+
   /* ================= API 1：曲线浮钮/浮层 ================= */
   var chartCfg = null;
   var cEngaged = false;
@@ -120,6 +154,7 @@
     trayTab.className = 'ce-tray-tab';
     trayTab.textContent = (trayCfg && trayCfg.label) || '器材';
     trayTab.setAttribute('aria-label', '展开' + ((trayCfg && trayCfg.label) || '器材') + '托盘');
+    makeTabDraggable(trayTab); /* 单4b：先注册拖拽(含点击抑制)，再注册开托盘 */
     trayTab.addEventListener('click', function () { setTray(true); click(); });
     document.body.appendChild(trayTab);
     /* 初始同步：触摸门内默认收起（页内 trayOpen 初始 false），标签可见 */

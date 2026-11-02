@@ -25,6 +25,30 @@ function typeOf(id){ return {smoke_box:'smoke',water_tank:'water',glass_brick:'g
 function nOf(id){ return {smoke_box:1,water_tank:1.33,glass_brick:1.5}[id]; }
 
 function benchTopY(){ return H*0.80; }
+/* 移动端单4b修正轮：触摸门内笔下限联动——有水槽 floor=max(benchTopY,min(target,limit))；
+   target=benchTopY-0.25*tankH+45.5（emit=penY-45.5 落水面下约0.583×水柱）；
+   limit=min(H-16,ctrlbarTop逻辑-8)，ctrlbar读不到回退H-16；桌面恒 benchTopY() 逐字节不变 */
+var touchMQ4b=window.matchMedia?window.matchMedia('(pointer:coarse) and (hover:none)'):null;
+function penFloorY(){
+  var base=benchTopY();
+  if(!(touchMQ4b&&touchMQ4b.matches)) return base;
+  var on=false,tankH=0;
+  for(var i=0;i<media.length;i++){ var m=media[i]; if(m.id==='water_tank'&&(m.state==='active'||m.state==='falling')){ on=true; tankH=m.h; break; } }
+  if(!on) return base;
+  var target=base-0.25*tankH+45.5;
+  var limit=H-16;
+  try{
+    var cb=document.querySelector('.ctrlbar');
+    if(cb){
+      var cs=window.getComputedStyle(cb);
+      if(cs.display!=='none'&&cs.visibility!=='hidden'){
+        var cbr=cb.getBoundingClientRect(),r=cv.getBoundingClientRect();
+        if(cbr.width>0&&cbr.height>0&&r.height>0) limit=Math.min(H-16,(cbr.top-r.top)*(H/r.height)-8);
+      }
+    }
+  }catch(_){ limit=H-16; }
+  return Math.max(base,Math.min(target,limit));
+}
 function benchH(){ return H*0.04; }
 function rand(seed){ var x=Math.sin(seed)*10000; return x-Math.floor(x); }
 function easeOut(t){ return 1-Math.pow(1-Math.min(1,t),3); }
@@ -54,7 +78,7 @@ function penMetrics(){ var s=pen.h/90,w=324*s,h=90*s; return {w:w,h:h,ax:w*0.479
 function emitPt(){ var m=penMetrics(),c=Math.cos(angle),s=Math.sin(angle); return {x:pen.x+m.ax*c-m.ay*s,y:pen.y+m.ax*s+m.ay*c}; }
 function btnWorld(){ var m=penMetrics(),c=Math.cos(angle),s=Math.sin(angle); return {x:pen.x+m.bx*c-m.by*s,y:pen.y+m.bx*s+m.by*c,r:Math.max(5,m.h/90*12)}; }
 
-function resize(){ DPR=window.devicePixelRatio||1; var r=cv.getBoundingClientRect(); W=Math.max(640,r.width); H=Math.max(360,r.height); cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR); ctx.setTransform(DPR,0,0,DPR,0,0); pen.y=Math.min(benchTopY(),Math.max(120,pen.y)); draw(); }
+function resize(){ DPR=window.devicePixelRatio||1; var r=cv.getBoundingClientRect(); W=Math.max(640,r.width); H=Math.max(360,r.height); cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR); ctx.setTransform(DPR,0,0,DPR,0,0); pen.y=Math.min(penFloorY(),Math.max(120,pen.y)); draw(); }
 
 function rectOf(m){
   var L=m.x-m.w/2,R=m.x+m.w/2,T=m.y-m.h,B=m.y;
@@ -352,7 +376,7 @@ cv.addEventListener('pointermove',function(e){
   if(!dragInfo) return; var p=localPt(e),d=dragInfo;
   if(d.k==='btn') return;
   if(d.k==='rotate'){ var a=Math.atan2(p.y-pen.y,p.x-pen.x); angle=Math.max(-A_MAX,Math.min(A_MAX,a)); var deg=Math.round(angle*180/Math.PI); if(deg!==lastDeg && window.playTick){ lastDeg=deg; playTick(); } }
-  else if(d.k==='movePen'){ pen.x=Math.max(40,Math.min(W-40,p.x+d.ox)); pen.y=Math.max(100,Math.min(benchTopY(),p.y+d.oy)); }
+  else if(d.k==='movePen'){ pen.x=Math.max(40,Math.min(W-40,p.x+d.ox)); pen.y=Math.max(100,Math.min(penFloorY(),p.y+d.oy)); }
   else if(d.k==='med'){
     var m=d.m, nx=p.x-m.grab.dx, ny=p.y-m.grab.dy;
     m.x=nx; m.y=ny; constrain(m);
@@ -437,7 +461,7 @@ function stepPhysics(){
   return act;
 }
 
-window.__c4s1dbg={ get media(){return media;}, get pen(){return pen;}, get W(){return W;}, get H(){return H;}, get benchY(){return benchTopY();}, emitPt:emitPt, computePath:computePath, rectOf:rectOf, segs:function(){return computePath(emitPt(),angle);}, place:function(id){ for(var i=0;i<media.length;i++) if(media[i].id===id){ var m=media[i]; m.state='active'; setActiveSize(m); m.x=Math.round(W/2); m.y=benchTopY(); constrain(m); m.placedT=performance.now(); return true; } return false; }, penOn:function(v){ pen.on=!!v; } };
+window.__c4s1dbg={ get media(){return media;}, get pen(){return pen;}, get W(){return W;}, get H(){return H;}, get benchY(){return benchTopY();}, get floorY(){return penFloorY();}, emitPt:emitPt, computePath:computePath, rectOf:rectOf, segs:function(){return computePath(emitPt(),angle);}, place:function(id){ for(var i=0;i<media.length;i++) if(media[i].id===id){ var m=media[i]; m.state='active'; setActiveSize(m); m.x=Math.round(W/2); m.y=benchTopY(); constrain(m); m.placedT=performance.now(); return true; } return false; }, penOn:function(v){ pen.on=!!v; } };
 
 /* 单2b：左缘「器材」竖标签接管 trayOpen（触摸门内生成；点标签展开，展开时点画布空白收回） */
 if(window.ChartEntry) ChartEntry.tray({

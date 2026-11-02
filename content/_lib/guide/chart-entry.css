@@ -41,14 +41,15 @@
   /* 移入浮层的曲线宿主撑满卡片（宿主页内联 height/flex 需 !important 覆盖） */
   .tt-overlay-card .tt-in-card { flex: 1 1 auto; width: 100%; height: auto !important; min-height: 0 !important; }
 
-  /* canvas 托盘页左缘「器材」竖标签（side-dock.css .panel-tab 同款样式，top:55%） */
+  /* canvas 托盘页左缘「器材」竖标签（side-dock.css .panel-tab 同款样式，top:55%）；单4b：半透明0.6+可上下拖 */
   .ce-tray-tab {
     position: fixed; left: 0; top: 55%; width: 30px; height: 96px; z-index: 59;
     display: flex; align-items: center; justify-content: center;
     border: 1px solid rgba(255,255,255,.18); border-left: 0; border-radius: 0 10px 10px 0;
-    color: #e8ecf4; background: rgba(30,30,44,.7);
+    color: #e8ecf4; background: rgba(30,30,44,.6);
     font-size: 13px; font-weight: 600; letter-spacing: 2px;
     writing-mode: vertical-rl; cursor: pointer; backdrop-filter: blur(4px);
+    touch-action: none; user-select: none; -webkit-user-select: none;
   }
 }
 
