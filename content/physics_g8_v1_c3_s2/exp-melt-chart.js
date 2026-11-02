@@ -708,18 +708,20 @@ function showPointCard(name) {
   document.getElementById('segment-card').style.display = 'block';
 }
 
-/* ---------- 矮屏布局重构（蔡总 2026-10-30 11:32 方向纠偏，dock 方案作废）：仅 (max-height:420px) 分支执行。
-   A 曲线零占地：浮钮 #tt-entry → 遮罩卡 .tt-overlay，开时把 #chart-wrap 移入并重绘，关时移回原位；
-   B 两面板 fixed 侧浮层默认 .collapsed 离屏 + 30px 竖标签唤出 + 标题栏收起钮；
+/* ---------- 触摸门布局（蔡总 2026-11-02 移动端全量铺·单1，替换原 max-height:420px 矮屏门控）：
+   门控 = (pointer:coarse) and (hover:none)，手机+平板横竖屏全生效。
+   A 曲线：浮钮 #tt-entry（右缘半藏露60%，点按先 .full 全显再开浮层）→ 遮罩卡 .tt-overlay，
+     开时把 #chart-wrap 移入并重绘（.data-panel 内的 F 隐藏规则随之失效=浮层内正常显示），关时移回；
+   B 两面板 fixed 侧浮层默认 .collapsed 离屏 + 30px 竖标签唤出 + 标题栏收起钮 + 点面板/标签外自动收回；
    D 首进三气泡指路（localStorage 'qd-narrow-hint' 记一次，6 秒自消或点消）。
-   tall 屏（含桌面 1280×800）MQ 不匹配 → engage 从不执行、DOM 零改动 = 现状逐像素一致。 ---------- */
+   桌面（pointer:fine）MQ 不匹配 → engage 从不执行、DOM 零改动 = 现状逐像素一致。 ---------- */
 (function () {
-  const narrowMQ = window.matchMedia ? window.matchMedia('(max-height:420px)') : null;
-  if (!narrowMQ) return;
+  const touchMQ = window.matchMedia ? window.matchMedia('(pointer:coarse) and (hover:none)') : null;
+  if (!touchMQ) return;
   const HINT_KEY = 'qd-narrow-hint';
   let engaged = false;
   let entry = null, overlay = null;
-  let tabs = [], collapseBtns = [];
+  let tabs = [], collapseBtns = [], pairs = [];
   let chartWrap = null, originParent = null, originNext = null;
 
   function redraw() { if (typeof drawChart === 'function') drawChart(); }
@@ -754,6 +756,7 @@ function showPointCard(name) {
     if (chartWrap && originParent) originParent.insertBefore(chartWrap, originNext || null);
     overlay.remove();
     overlay = null; chartWrap = null; originParent = null; originNext = null;
+    if (entry) entry.classList.remove('full'); /* D 浮层关→浮钮回右缘半藏 */
     requestAnimationFrame(redraw);
   }
   function buildEntry() {
@@ -762,7 +765,7 @@ function showPointCard(name) {
     entry.id = 'tt-entry';
     entry.textContent = '📈';
     entry.setAttribute('aria-label', '放大查看温度时间曲线');
-    entry.addEventListener('click', function () { openOverlay(); click(); });
+    entry.addEventListener('click', function () { entry.classList.add('full'); openOverlay(); click(); }); /* D 点按先全显再开浮层 */
     document.body.appendChild(entry);
   }
 
@@ -785,6 +788,7 @@ function showPointCard(name) {
       });
       document.body.appendChild(tab);
       tabs.push(tab);
+      pairs.push({ panel: panel, tab: tab });
 
       const title = panel.querySelector('.panel-title');
       const btn = document.createElement('button');
@@ -831,30 +835,45 @@ function showPointCard(name) {
     document.addEventListener('pointerdown', clear);
   }
 
+  /* --- B 点外收回：pointerdown 落在面板/标签/曲线浮层之外 → 展开的面板自动 .collapsed（× 收起钮保留） --- */
+  function onDocDown(e) {
+    const t = e.target;
+    if (t && t.closest && t.closest('.control-panel, .data-panel, .panel-tab, .tt-overlay')) return;
+    pairs.forEach(function (pr) {
+      if (!pr.panel.classList.contains('collapsed')) {
+        pr.panel.classList.add('collapsed');
+        pr.tab.style.display = '';
+      }
+    });
+  }
+
   function engage() {
     if (engaged) return;
     engaged = true;
     buildEntry();
     buildPanels();
+    document.addEventListener('pointerdown', onDocDown);
     requestAnimationFrame(showHints);
   }
   function disengage() {
     if (!engaged) return;
     engaged = false;
     closeOverlay();
+    document.removeEventListener('pointerdown', onDocDown);
     if (entry) { entry.remove(); entry = null; }
     tabs.forEach(function (t) { t.remove(); });
     tabs = [];
+    pairs = [];
     collapseBtns.forEach(function (b) { b.remove(); });
     collapseBtns = [];
     document.querySelectorAll('.control-panel.collapsed, .data-panel.collapsed').forEach(function (p) { p.classList.remove('collapsed'); });
     document.querySelectorAll('.qd-hint-bubble').forEach(function (b) { b.remove(); });
   }
-  function sync() { if (narrowMQ.matches) engage(); else disengage(); }
+  function sync() { if (touchMQ.matches) engage(); else disengage(); }
   function init() {
     sync();
-    if (narrowMQ.addEventListener) narrowMQ.addEventListener('change', sync);
-    else if (narrowMQ.addListener) narrowMQ.addListener(sync);
+    if (touchMQ.addEventListener) touchMQ.addEventListener('change', sync);
+    else if (touchMQ.addListener) touchMQ.addListener(sync);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

@@ -7,8 +7,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
   <title>温度实验室</title>
   <link rel="stylesheet" href="temp-lab.css?v=20261027r1" />
-<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261030v1" />
-<style>html,body{-webkit-tap-highlight-color:transparent}#canvas-container{touch-action:none}#app{height:100vh;height:100dvh}.hint{display:none!important}/* 解说条已删（蔡总拍板：加语音页不要解说条），temp-lab.css 属红线禁改，用内联覆盖隐藏 */</style>
+<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261102v1" />
+<style>html,body{-webkit-tap-highlight-color:transparent}#canvas-container{touch-action:none}#app{height:100vh;height:100dvh}.hint{display:none!important}/* 解说条已删（蔡总拍板：加语音页不要解说条），temp-lab.css 属红线禁改，用内联覆盖隐藏 */
+/* E 垃圾桶拖删（蔡总 2026-11-02 移动端全量铺·单1，替换侧边栏隐藏方案）：触摸门内常驻垃圾桶隐藏，
+   拖动温度计期间视口左下显示 56×56 红色删除标志（pointer-events:none，命中判定走 JS rect），
+   指针进入放大 1.15 亮红，松手在标志内=执行原删除语义；桌面垃圾桶常显不变。 */
+#drag-trash-mark{display:none}
+@media (pointer:coarse) and (hover:none){
+#trash-bin{display:none!important}
+#drag-trash-mark{position:fixed;left:calc(16px + env(safe-area-inset-left));bottom:calc(16px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:rgba(229,57,53,.88);border:2px solid rgba(255,255,255,.75);color:#fff;font-size:26px;line-height:1;align-items:center;justify-content:center;z-index:90;pointer-events:none;transition:transform .12s ease,background .12s ease}
+#drag-trash-mark.show{display:flex}
+#drag-trash-mark.hot{transform:scale(1.15);background:#ff1744}
+}</style>
 </head>
 <body>
   <div id="app">
@@ -91,19 +101,20 @@
       </div>
 
       <div id="trash-bin">🗑️<div class="trash-label">垃圾桶</div></div>
+      <div id="drag-trash-mark" aria-hidden="true">🗑</div>
       <button id="clinical-shake">甩一甩体温计</button>
     </div>
   </div>
 
   <script src="three.min.js?v=20261027r1"></script>
   <script src="exp-temp-lab-audio.js?v=20261027r1"></script>
-  <script src="exp-temp-lab-core.js?v=20261027r2"></script>
+  <script src="exp-temp-lab-core.js?v=20261102v1"></script>
   <div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
   <script>window.GUIDE_CFG={state:window.C3S1_STATE,mode:'refract'};/* core 已加载，window.C3S1_STATE 已存在；GUIDE_DATA 由 guide-data.js 末尾双赋值 */</script>
   <script src="guide/guide-data.js?v=20261028v1"></script>
   <script src="../_lib/guide/engine-core.js?v=20261028v13"></script>
-  <script src="../_lib/guide/vB-core.js?v=20261030v1"></script>
-  <script src="exp-temp-lab.js?v=20261028v1"></script>
-<script src="/content/_lib/mobile-guard.js?v=20261030v1" defer></script>
+  <script src="../_lib/guide/vB-core.js?v=20261102v1"></script>
+  <script src="exp-temp-lab.js?v=20261102v1"></script>
+<script src="/content/_lib/mobile-guard.js?v=20261102v1" defer></script>
 </body>
 </html>

@@ -159,10 +159,28 @@ function onPointerDown(e) {
 function startDragTherm(id, point) {
   selectedThermometer = id;
   draggedTherm = id;
-  const trashEl = document.getElementById('trash-bin');
-  if (trashEl) trashEl.classList.add('lit'); // 拖动时点亮垃圾桶
+  if (isTouchGate()) {
+    const m = dragMark();
+    if (m) { m.classList.remove('hot'); m.classList.add('show'); } // E 触摸门：拖动期间左下红标现身（常驻垃圾桶已隐藏）
+  } else {
+    const trashEl = document.getElementById('trash-bin');
+    if (trashEl) trashEl.classList.add('lit'); // 拖动时点亮垃圾桶
+  }
   const t = thermometers.find(x => x.id === id);
   if (t) dragOffset.copy(point).sub(t.meshGroup.position);
+}
+
+/* E 垃圾桶拖删（蔡总 2026-11-02 移动端全量铺·单1）：触摸门 = (pointer:coarse) and (hover:none)。
+   拖动中指针进红标 rect → .hot 放大反馈；pointerup 在红标内 → removeThermometer（原垃圾桶删除语义），
+   否则 snapThermometer 原地放下；拖动结束红标隐藏。桌面走原 #trash-bin 常显路径，逐像素不变。 */
+const TOUCH_MQ = window.matchMedia ? window.matchMedia('(pointer:coarse) and (hover:none)') : null;
+function isTouchGate() { return !!(TOUCH_MQ && TOUCH_MQ.matches); }
+function dragMark() { return document.getElementById('drag-trash-mark'); }
+function markContains(x, y) {
+  const m = dragMark();
+  if (!m || !m.classList.contains('show')) return false;
+  const r = m.getBoundingClientRect();
+  return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
 }
 
 function removeThermometer(t) {
@@ -192,7 +210,10 @@ function onPointerMove(e) {
       const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(camera.getWorldDirection(new THREE.Vector3()), new THREE.Vector3(0, 0, 0));
       const point = new THREE.Vector3();
       if (raycaster.ray.intersectPlane(plane, point)) startDragTherm(ptrDownThermId, point);
-      else { selectedThermometer = ptrDownThermId; draggedTherm = ptrDownThermId; dragOffset.set(0, 0, 0); }
+      else {
+        selectedThermometer = ptrDownThermId; draggedTherm = ptrDownThermId; dragOffset.set(0, 0, 0);
+        if (isTouchGate()) { const m = dragMark(); if (m) { m.classList.remove('hot'); m.classList.add('show'); } }
+      }
     }
   }
   if (isRotating) {
@@ -204,6 +225,10 @@ function onPointerMove(e) {
   if (!draggedTherm) return;
   lastPointerClient.x = e.clientX;
   lastPointerClient.y = e.clientY;
+  if (isTouchGate()) { // E 拖动中指针进红标 → 放大1.15亮红反馈
+    const m = dragMark();
+    if (m && m.classList.contains('show')) m.classList.toggle('hot', markContains(e.clientX, e.clientY));
+  }
   updateMouse(e);
   raycaster.setFromCamera(mouse, camera);
   const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(camera.getWorldDirection(new THREE.Vector3()), new THREE.Vector3(0, 0, 0));
@@ -216,8 +241,8 @@ function onPointerMove(e) {
 }
 
 function onPointerUp(e) {
+  const touch = isTouchGate();
   const trashEl = document.getElementById('trash-bin');
-  if (draggedTherm && trashEl) trashEl.classList.remove('lit');
   if (ptrDownThermId != null && !ptrDragStarted) {
     const t = thermometers.find(x => x.id === ptrDownThermId);
     if (t) { toggleThermometerInOut(t); playClick(); }
@@ -228,7 +253,9 @@ function onPointerUp(e) {
       const cx = (e && typeof e.clientX === 'number') ? e.clientX : lastPointerClient.x;
       const cy = (e && typeof e.clientY === 'number') ? e.clientY : lastPointerClient.y;
       let inTrash = false;
-      if (trashEl) {
+      if (touch) {
+        inTrash = markContains(cx, cy); // E 触摸门：命左下红标即删（须在红标隐藏前判定）
+      } else if (trashEl) {
         const r = trashEl.getBoundingClientRect();
         inTrash = cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
       }
@@ -236,6 +263,8 @@ function onPointerUp(e) {
       else snapThermometer(t);
     }
   }
+  if (draggedTherm && trashEl) trashEl.classList.remove('lit');
+  if (draggedTherm) { const m = dragMark(); if (m) m.classList.remove('show', 'hot'); } // E 拖动结束红标隐藏
   ptrDownPos = null;
   ptrDownThermId = null;
   ptrDragStarted = false;

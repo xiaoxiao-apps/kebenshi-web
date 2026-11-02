@@ -177,22 +177,28 @@
   .custom-select-trigger { font-size: 12px !important; padding: 0 5px !important; min-width: 0; }
 }
 
-/* ---------- 矮屏布局重构（蔡总 2026-10-30 11:32 方向纠偏）：dock 方案作废，仅 (max-height:420px) 生效。
-   三层互不占地：A 曲线走 #tt-entry 浮钮 + .tt-overlay 居中卡（零常驻占地）；
-   B 两面板改 fixed 侧浮层默认离屏（.collapsed），靠 30px 竖标签唤出，实验台 canvas 独占全宽；
-   C 控制排回桌面同值 bottom:16px（底部已无 dock）。
-   (min-height:421px) 完全不进此媒体块 + JS 矮屏分支不执行 = 桌面/竖屏现状逐像素一致。 ---------- */
-@media (max-height: 420px) {
+/* ---------- 矮屏布局重构（蔡总 2026-10-30 11:32 方向纠偏）：dock 方案作废。
+   2026-11-02 门控升级：max-height:420px → (pointer:coarse) and (hover:none) 触摸门，手机+平板横竖屏全生效。
+   三层互不占地：A 曲线走 #tt-entry 浮钮（右缘半藏露60%，点按先全显再开浮层）+ .tt-overlay 居中卡；
+   B 两面板改 fixed 侧浮层默认离屏（.collapsed），靠 30px 竖标签唤出，点面板/标签外自动收回，实验台 canvas 独占全宽；
+   C 控制排回桌面同值 bottom:16px。右缘垂直预算：panel-tab top:30% / #tt-entry bottom:56+safe / 金球 fab bottom:110+safe（vB-core）。
+   F 读数面板内曲线（#chart-wrap+标题行）触摸门内移除，曲线统一走 📈 浮层。
+   桌面（pointer:fine）完全不进此媒体块 + JS 触摸分支不执行 = 现状逐像素一致。 ---------- */
+@media (pointer:coarse) and (hover:none) {
   /* A 曲线浮层：原浮窗与 dock 残留一律不显示 */
   .chart-float, #chart-float, .tt-dock, .tt-dock-bar, .tt-dock-body { display: none !important; }
   #tt-entry {
-    position: fixed; right: 10px; bottom: calc(76px + env(safe-area-inset-bottom));
+    position: fixed; right: 10px; bottom: calc(56px + env(safe-area-inset-bottom));
     width: 44px; height: 44px; z-index: 65;
     display: flex; align-items: center; justify-content: center;
     border-radius: 22px; border: 1px solid rgba(255,255,255,.22);
     background: rgba(30,30,44,.72); color: #ffd54f; font-size: 19px; line-height: 1;
     cursor: pointer; backdrop-filter: blur(4px);
+    /* D 半隐藏：右移 40%宽+10px 贴缘，露 60%；点击加 .full 先全显再开浮层 */
+    transform: translateX(calc(40% + 10px));
+    transition: transform .18s ease;
   }
+  #tt-entry.full { transform: translateX(0); }
   #tt-entry:active { background: rgba(60,60,84,.9); }
   .tt-overlay {
     position: fixed; inset: 0; z-index: 66;
@@ -214,12 +220,14 @@
   }
   /* 移入浮层后 #chart-wrap 撑满卡片（内联 style 有 height:180px/flex:0 0 auto，需 !important 覆盖） */
   .tt-overlay-card #chart-wrap { flex: 1 1 auto; width: 100%; height: auto !important; min-height: 0 !important; }
+  /* F 读数面板内曲线移除：留在 .data-panel 里的曲线与其标题行隐藏（移入 .tt-overlay-card 后选择器不命中，自动恢复） */
+  .data-panel #chart-wrap, .data-panel .chart-title-row { display: none !important; }
 
   /* B 面板侧浮层：默认 .collapsed 离屏，竖标签唤出 */
   .control-panel, .data-panel {
     position: fixed !important; top: 70px !important; bottom: auto !important;
-    /* 限高到 #tt-entry 上沿（entry bottom:76 + 44 高 = 距屏底 120），展开时不与浮钮/控制排叠遮 */
-    max-height: calc(100vh - 190px) !important; overflow-y: auto !important;
+    /* 限高到金球 fab 上沿（fab bottom:110+52高=162，再留 8），展开时不与浮钮/fab/控制排叠遮 */
+    max-height: calc(100vh - 240px) !important; overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
     background: rgba(30,30,44,.94) !important; border-radius: 12px; z-index: 60;
     transition: transform .22s ease;
@@ -229,7 +237,7 @@
   .control-panel.collapsed { transform: translateX(-110%); }
   .data-panel.collapsed { transform: translateX(110%); }
   .panel-tab {
-    position: fixed; top: 35%; width: 30px; height: 96px; z-index: 59;
+    position: fixed; top: 30%; width: 30px; height: 96px; z-index: 59;
     display: flex; align-items: center; justify-content: center;
     border: 1px solid rgba(255,255,255,.18); color: #e8ecf4;
     background: rgba(30,30,44,.7); font-size: 13px; font-weight: 600; letter-spacing: 2px;
@@ -260,9 +268,8 @@
   }
 }
 
-/* 超矮屏（≤340px，如 640×300）：96px 竖标签会伸进 #tt-entry 带（top:35% + 96 > vh - 120），
-   收短到 72px 让两者错开；仍属窄屏体系，(min-height:341px) 不受影响。 */
-@media (max-height: 340px) {
+/* 超矮屏（≤340px，如 640×300）：96px 竖标签会伸进 #tt-entry 带，收短到 72px 让两者错开；仅触摸门内生效。 */
+@media (pointer:coarse) and (hover:none) and (max-height: 340px) {
   .panel-tab { height: 72px; }
 }
 

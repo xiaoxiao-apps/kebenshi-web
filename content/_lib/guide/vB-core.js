@@ -54,7 +54,12 @@ function start(){
     var cb=document.querySelector('.ctrlbar');
     return cb?Math.round(cb.getBoundingClientRect().height)+8:104;
   }
+  /* C 右缘垂直预算（蔡总 2026-11-02 移动端全量铺·单1）：触摸门 = (pointer:coarse) and (hover:none)，
+     金球 fab 固定 bottom=110+安全区，压在 📈 浮钮（bottom:56+44高=100）上方互不交叠；桌面走原 ctrlbar 自适应。 */
+  var mqTouch=(window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)'))||null;
+  function touchGate(){return !!(mqTouch&&mqTouch.matches);}
   function fabBottom(){
+    if(touchGate())return 110+((typeof safe==='object'&&safe)?safe.bottom:0);
     var cb=document.querySelector('.ctrlbar');
     return cb?Math.round(cb.getBoundingClientRect().height)+14:110;
   }
