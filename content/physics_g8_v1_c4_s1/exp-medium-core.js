@@ -25,17 +25,23 @@ function typeOf(id){ return {smoke_box:'smoke',water_tank:'water',glass_brick:'g
 function nOf(id){ return {smoke_box:1,water_tank:1.33,glass_brick:1.5}[id]; }
 
 function benchTopY(){ return H*0.80; }
-/* 移动端单4b修正轮：触摸门内笔下限联动——有水槽 floor=max(benchTopY,min(target,limit))；
-   target=benchTopY-0.25*tankH+45.5（emit=penY-45.5 落水面下约0.583×水柱）；
-   limit=min(H-16,ctrlbarTop逻辑-8)，ctrlbar读不到回退H-16；桌面恒 benchTopY() 逐字节不变 */
+/* 移动端单4b修正轮+单5b推广：触摸门内笔下限联动——对每个已放(active/falling)介质按类型算 target：
+   water_tank: target=benchTopY-0.25*tankH+45.5（单4b原公式逐字节不变）；
+   smoke_box/glass_brick: contentTop=m.y-m.h, target=contentTop+0.65*contentH+45.5（emit 落体深65%）；
+   floor=max(benchTopY, min(各 target 之最大者, limit))；limit=min(H-16,ctrlbarTop逻辑-8)，读不到回退H-16；
+   无介质/桌面恒 benchTopY() 逐字节不变 */
 var touchMQ4b=window.matchMedia?window.matchMedia('(pointer:coarse) and (hover:none)'):null;
 function penFloorY(){
   var base=benchTopY();
   if(!(touchMQ4b&&touchMQ4b.matches)) return base;
-  var on=false,tankH=0;
-  for(var i=0;i<media.length;i++){ var m=media[i]; if(m.id==='water_tank'&&(m.state==='active'||m.state==='falling')){ on=true; tankH=m.h; break; } }
-  if(!on) return base;
-  var target=base-0.25*tankH+45.5;
+  var target=-Infinity;
+  for(var i=0;i<media.length;i++){
+    var m=media[i];
+    if(!(m.state==='active'||m.state==='falling')) continue;
+    if(m.id==='water_tank'){ var t=base-0.25*m.h+45.5; if(t>target) target=t; }
+    else if(m.id==='smoke_box'||m.id==='glass_brick'){ var ct=m.y-m.h; var t2=ct+0.65*m.h+45.5; if(t2>target) target=t2; }
+  }
+  if(target===-Infinity) return base;
   var limit=H-16;
   try{
     var cb=document.querySelector('.ctrlbar');
