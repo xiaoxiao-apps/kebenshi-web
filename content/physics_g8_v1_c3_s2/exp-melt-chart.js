@@ -708,20 +708,16 @@ function showPointCard(name) {
   document.getElementById('segment-card').style.display = 'block';
 }
 
-/* ---------- 触摸门布局（蔡总 2026-11-02 移动端全量铺·单1，替换原 max-height:420px 矮屏门控）：
-   门控 = (pointer:coarse) and (hover:none)，手机+平板横竖屏全生效。
-   A 曲线：浮钮 #tt-entry（右缘半藏露60%，点按先 .full 全显再开浮层）→ 遮罩卡 .tt-overlay，
-     开时把 #chart-wrap 移入并重绘（.data-panel 内的 F 隐藏规则随之失效=浮层内正常显示），关时移回；
-   B 两面板 fixed 侧浮层默认 .collapsed 离屏 + 30px 竖标签唤出 + 标题栏收起钮 + 点面板/标签外自动收回；
-   D 首进三气泡指路（localStorage 'qd-narrow-hint' 记一次，6 秒自消或点消）。
+/* ---------- 触摸门曲线浮层（蔡总 2026-11-02 移动端全量铺·单2a）：
+   侧边面板收起/竖标签/点外收回/首进气泡逻辑已迁 _lib/guide/side-dock.js（共享件）；
+   本页仅保留 A 曲线浮钮 #tt-entry（右缘半藏露60%，点按先 .full 全显再开浮层）+ 遮罩卡 .tt-overlay，
+   开时把 #chart-wrap 移入并重绘，关时移回。门控 = (pointer:coarse) and (hover:none)。
    桌面（pointer:fine）MQ 不匹配 → engage 从不执行、DOM 零改动 = 现状逐像素一致。 ---------- */
 (function () {
   const touchMQ = window.matchMedia ? window.matchMedia('(pointer:coarse) and (hover:none)') : null;
   if (!touchMQ) return;
-  const HINT_KEY = 'qd-narrow-hint';
   let engaged = false;
   let entry = null, overlay = null;
-  let tabs = [], collapseBtns = [], pairs = [];
   let chartWrap = null, originParent = null, originNext = null;
 
   function redraw() { if (typeof drawChart === 'function') drawChart(); }
@@ -769,105 +765,16 @@ function showPointCard(name) {
     document.body.appendChild(entry);
   }
 
-  /* --- B 面板侧浮层 --- */
-  function buildPanels() {
-    [{ sel: '.control-panel', side: 'left', name: '参数' },
-     { sel: '.data-panel', side: 'right', name: '读数' }].forEach(function (d) {
-      const panel = document.querySelector(d.sel);
-      if (!panel) return;
-      panel.classList.add('collapsed');
-      const tab = document.createElement('button');
-      tab.type = 'button';
-      tab.className = 'panel-tab tab-' + d.side;
-      tab.textContent = d.name;
-      tab.setAttribute('aria-label', '展开' + d.name + '面板');
-      tab.addEventListener('click', function () {
-        panel.classList.remove('collapsed');
-        tab.style.display = 'none';
-        click();
-      });
-      document.body.appendChild(tab);
-      tabs.push(tab);
-      pairs.push({ panel: panel, tab: tab });
-
-      const title = panel.querySelector('.panel-title');
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'panel-collapse';
-      btn.textContent = '×';
-      btn.setAttribute('aria-label', '收起' + d.name + '面板');
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        panel.classList.add('collapsed');
-        tab.style.display = '';
-        click();
-      });
-      (title || panel).appendChild(btn);
-      collapseBtns.push(btn);
-    });
-  }
-
-  /* --- D 首进三气泡指路 --- */
-  function showHints() {
-    let seen = null;
-    try { seen = window.localStorage.getItem(HINT_KEY); } catch (_) {}
-    if (seen) return;
-    try { window.localStorage.setItem(HINT_KEY, '1'); } catch (_) {}
-    const bubbles = [];
-    function bubble(text, style) {
-      const b = document.createElement('div');
-      b.className = 'qd-hint-bubble';
-      b.textContent = text;
-      b.style.cssText = style;
-      document.body.appendChild(b);
-      bubbles.push(b);
-    }
-    const vw = window.innerWidth, vh = window.innerHeight;
-    if (tabs[0]) { const r = tabs[0].getBoundingClientRect(); bubble('① 点「参数」拉出实验条件', 'left:' + (r.right + 6) + 'px;top:' + (r.top + 8) + 'px;'); }
-    if (tabs[1]) { const r = tabs[1].getBoundingClientRect(); bubble('② 点「读数」看数据与曲线', 'right:' + (vw - r.left + 6) + 'px;top:' + (r.top + 8) + 'px;'); }
-    if (entry) { const r = entry.getBoundingClientRect(); bubble('③ 点这里放大温度曲线', 'right:' + (vw - r.left + 6) + 'px;bottom:' + (vh - r.top + 6) + 'px;'); }
-    function clear() {
-      clearTimeout(timer);
-      bubbles.forEach(function (b) { b.remove(); });
-      document.removeEventListener('pointerdown', clear);
-    }
-    const timer = setTimeout(clear, 6000);
-    document.addEventListener('pointerdown', clear);
-  }
-
-  /* --- B 点外收回：pointerdown 落在面板/标签/曲线浮层之外 → 展开的面板自动 .collapsed（× 收起钮保留） --- */
-  function onDocDown(e) {
-    const t = e.target;
-    if (t && t.closest && t.closest('.control-panel, .data-panel, .panel-tab, .tt-overlay')) return;
-    pairs.forEach(function (pr) {
-      if (!pr.panel.classList.contains('collapsed')) {
-        pr.panel.classList.add('collapsed');
-        pr.tab.style.display = '';
-      }
-    });
-  }
-
   function engage() {
     if (engaged) return;
     engaged = true;
     buildEntry();
-    buildPanels();
-    document.addEventListener('pointerdown', onDocDown);
-    requestAnimationFrame(showHints);
   }
   function disengage() {
     if (!engaged) return;
     engaged = false;
     closeOverlay();
-    document.removeEventListener('pointerdown', onDocDown);
     if (entry) { entry.remove(); entry = null; }
-    tabs.forEach(function (t) { t.remove(); });
-    tabs = [];
-    pairs = [];
-    collapseBtns.forEach(function (b) { b.remove(); });
-    collapseBtns = [];
-    document.querySelectorAll('.control-panel.collapsed, .data-panel.collapsed').forEach(function (p) { p.classList.remove('collapsed'); });
-    document.querySelectorAll('.qd-hint-bubble').forEach(function (b) { b.remove(); });
   }
   function sync() { if (touchMQ.matches) engage(); else disengage(); }
   function init() {

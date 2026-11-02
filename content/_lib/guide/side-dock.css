@@ -1,0 +1,54 @@
+/* side-dock.css — 共享侧边浮层组件样式（蔡总 2026-11-02 移动端全量铺·单2a）
+   门控 = (pointer:coarse) and (hover:none)：手机+平板横竖屏全生效；桌面(pointer:fine)零介入。
+   side-dock.js 触摸门内给每个受管容器加 .sd-dock + .sd-left/.sd-right + .collapsed，
+   并在 body 追加 .panel-tab 竖标签、容器标题追加 .panel-collapse(×)。
+   非触摸门：这些类从不添加 + 本文件所有规则均在 @media 内 → 容器原布局逐像素不变。 */
+
+@media (pointer:coarse) and (hover:none) {
+  /* 受管容器 → fixed 侧浮层，默认 .collapsed 离屏；限高到金球 fab 上沿避免叠遮 */
+  .sd-dock {
+    position: fixed !important; top: 70px !important; bottom: auto !important;
+    max-height: calc(100vh - 240px) !important; overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    background: rgba(30,30,44,.94) !important; border-radius: 12px; z-index: 60;
+    transition: transform .22s ease;
+  }
+  .sd-left { left: 8px !important; right: auto !important; width: 200px !important; }
+  .sd-right { right: 8px !important; left: auto !important; width: 220px !important; }
+  .sd-left.collapsed { transform: translateX(-110%); }
+  .sd-right.collapsed { transform: translateX(110%); }
+
+  /* 左右缘 30×96 竖标签（右缘垂直预算：top 30%） */
+  .panel-tab {
+    position: fixed; top: 30%; width: 30px; height: 96px; z-index: 59;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,.18); color: #e8ecf4;
+    background: rgba(30,30,44,.7); font-size: 13px; font-weight: 600; letter-spacing: 2px;
+    writing-mode: vertical-rl; cursor: pointer; backdrop-filter: blur(4px);
+  }
+  .panel-tab.tab-left { left: 0; border-left: 0; border-radius: 0 10px 10px 0; }
+  .panel-tab.tab-right { right: 0; border-right: 0; border-radius: 10px 0 0 10px; }
+
+  /* 标题栏收起钮 × */
+  .panel-collapse {
+    position: absolute; top: 0; right: 0; width: 44px; height: 44px; z-index: 3;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 10px; background: transparent;
+    color: #9090a5; font-size: 18px; line-height: 1; cursor: pointer;
+  }
+  .panel-collapse:active { background: rgba(255,255,255,.08); }
+  .sd-dock .panel-title { position: relative; padding-right: 40px; min-height: 44px; display: flex; align-items: center; }
+
+  /* 首进指路气泡 */
+  .qd-hint-bubble {
+    position: fixed; z-index: 70; max-width: 160px; padding: 6px 9px;
+    background: rgba(24,30,44,.96); border: 1px solid rgba(90,215,255,.55); border-radius: 10px;
+    color: #e8f4ff; font-size: 11px; line-height: 1.5; pointer-events: none;
+    box-shadow: 0 4px 14px rgba(0,0,0,.4);
+  }
+}
+
+/* 超矮屏（≤340px，如 640×300）：96px 竖标签收短到 72px 与右缘浮钮错开；仅触摸门内生效 */
+@media (pointer:coarse) and (hover:none) and (max-height: 340px) {
+  .panel-tab { height: 72px; }
+}

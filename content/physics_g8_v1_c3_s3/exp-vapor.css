@@ -147,10 +147,10 @@ select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:non
 
 /* ---------- 矮屏布局重构（蔡总 2026-10-30 11:32 方向纠偏）：dock 方案作废。
    2026-11-02 门控升级：max-height:420px → (pointer:coarse) and (hover:none) 触摸门，手机+平板横竖屏全生效。
-   三层互不占地：A 曲线走 #tt-entry 浮钮（右缘半藏露60%，点按先全显再开浮层）+ .tt-overlay 居中卡；
-   B 两面板改 fixed 侧浮层默认离屏（.collapsed），靠 30px 竖标签唤出，点面板/标签外自动收回，实验台 canvas 独占全宽；
-   C 控制排回桌面同值 bottom:16px。右缘垂直预算：panel-tab top:30% / #tt-entry bottom:56+safe / 金球 fab bottom:110+safe（vB-core）。
-   F 读数面板内曲线（#chart-wrap+T-t曲线行）触摸门内移除，曲线统一走 📈 浮层。与 c3s2 同款。
+   2026-11-02 单2a：B 面板侧浮层（收起/竖标签/×/点外收回/首进气泡）迁共享件 _lib/guide/side-dock.{css,js}，本页只留：
+   A 曲线走 #tt-entry 浮钮（右缘半藏露60%，点按先全显再开浮层）+ .tt-overlay 居中卡；
+   F 读数面板内曲线（#chart-wrap+T-t曲线行）触摸门内移除，曲线统一走 📈 浮层；
+   C 控制排回桌面同值 bottom:16px；实验台 canvas 独占全宽。与 c3s2 同款。
    桌面（pointer:fine）完全不进此媒体块 + JS 触摸分支不执行 = 现状逐像素一致。 ---------- */
 @media (pointer:coarse) and (hover:none) {
   /* A 曲线浮层：原浮窗与 dock 残留一律不显示 */
@@ -191,53 +191,11 @@ select { position:absolute; opacity:0; width:1px; height:1px; pointer-events:non
   /* F 读数面板内曲线移除：留在 .data-panel 里的曲线隐藏（T-t曲线行由 chart.js 触摸分支隐藏；移入浮层后自动恢复） */
   .data-panel #chart-wrap { display: none !important; }
 
-  /* B 面板侧浮层：默认 .collapsed 离屏，竖标签唤出 */
-  .control-panel, .data-panel {
-    position: fixed !important; top: 70px !important; bottom: auto !important;
-    /* 限高到金球 fab 上沿（fab bottom:110+52高=162，再留 8），展开时不与浮钮/fab/控制排叠遮 */
-    max-height: calc(100vh - 240px) !important; overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    background: rgba(30,30,44,.94) !important; border-radius: 12px; z-index: 60;
-    transition: transform .22s ease;
-  }
-  .control-panel { left: 8px !important; right: auto !important; width: 200px !important; }
-  .data-panel { right: 8px !important; left: auto !important; width: 220px !important; }
-  .control-panel.collapsed { transform: translateX(-110%); }
-  .data-panel.collapsed { transform: translateX(110%); }
-  .panel-tab {
-    position: fixed; top: 30%; width: 30px; height: 96px; z-index: 59;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid rgba(255,255,255,.18); color: #e8ecf4;
-    background: rgba(30,30,44,.7); font-size: 13px; font-weight: 600; letter-spacing: 2px;
-    writing-mode: vertical-rl; cursor: pointer; backdrop-filter: blur(4px);
-  }
-  .panel-tab.tab-left { left: 0; border-left: 0; border-radius: 0 10px 10px 0; }
-  .panel-tab.tab-right { right: 0; border-right: 0; border-radius: 10px 0 0 10px; }
-  .panel-collapse {
-    position: absolute; top: 0; right: 0; width: 44px; height: 44px; z-index: 3;
-    display: inline-flex; align-items: center; justify-content: center;
-    border: 0; border-radius: 10px; background: transparent;
-    color: #9090a5; font-size: 18px; line-height: 1; cursor: pointer;
-  }
-  .panel-collapse:active { background: rgba(255,255,255,.08); }
-  .panel .panel-title { position: relative; padding-right: 40px; min-height: 44px; display: flex; align-items: center; }
-  /* 实验台独占全宽，不被浮层挤 */
+  /* B 面板侧浮层（收起/竖标签/×/点外收回）已迁 _lib/guide/side-dock.css（共享件），本页不再重复。
+     实验台独占全宽，不被浮层挤： */
   #canvas-container { left: 0 !important; right: 0 !important; width: 100vw !important; }
 
   /* C 控制排：底部已无 dock，回桌面同值 */
   .bottom-controls.bottom-controls { bottom: 16px; }
-
-  /* D 首进三气泡指路 */
-  .qd-hint-bubble {
-    position: fixed; z-index: 70; max-width: 160px; padding: 6px 9px;
-    background: rgba(24,30,44,.96); border: 1px solid rgba(90,215,255,.55); border-radius: 10px;
-    color: #e8f4ff; font-size: 11px; line-height: 1.5; pointer-events: none;
-    box-shadow: 0 4px 14px rgba(0,0,0,.4);
-  }
-}
-
-/* 超矮屏（≤340px，如 640×300）：96px 竖标签会伸进 #tt-entry 带，收短到 72px 让两者错开；仅触摸门内生效。 */
-@media (pointer:coarse) and (hover:none) and (max-height: 340px) {
-  .panel-tab { height: 72px; }
 }
 

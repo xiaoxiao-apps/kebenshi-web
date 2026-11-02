@@ -7,6 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>升华凝华观察站</title>
 <link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261030v1">
+<link rel="stylesheet" href="../_lib/guide/side-dock.css?v=20261102v1">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
   html, body { width:100%; height:100%; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei",sans-serif; background:#1a1a24; color:#f0f0f0; }
@@ -93,7 +94,7 @@
       <button class="mode-tab active" data-mode="iodine">① 碘的演示</button>
     </div>
 
-    <div class="panel control-panel" id="iodine-panel">
+    <div class="panel control-panel" id="iodine-panel" data-sidedock="left" data-sidedock-label="参数">
       <div class="panel-title">参数</div>
       <div class="ctl-row">
         <label>热水温度</label>
@@ -117,7 +118,7 @@
       </div>
     </div>
 
-    <div class="panel data-panel">
+    <div class="panel data-panel" data-sidedock="right" data-sidedock-label="读数">
       <div class="panel-title">读数面板</div>
       <div class="row"><label>碘蒸气充满度</label><span id="r-vapor" class="value">0%</span></div>
       <div class="row"><label>固态碘剩余</label><span id="r-iodine" class="value">100%</span></div>
@@ -179,6 +180,7 @@
 <script src="../_lib/guide/engine-core.js?v=20261028v13"></script>
 <script src="../_lib/guide/vB-core.js?v=20261030v1"></script>
 <script src="exp-subl-pour.js?v=20261027r1"></script>
+<script src="../_lib/guide/side-dock.js?v=20261102v1"></script>
 <script src="exp-subl.js?v=20261028v1"></script>
 <script src="/content/_lib/mobile-guard.js?v=20261030v1" defer></script>
 </body>

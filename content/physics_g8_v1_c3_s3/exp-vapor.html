@@ -8,6 +8,7 @@
 <title>汽化液化探究馆</title>
 <link rel="stylesheet" href="exp-vapor.css?v=20261102v1">
 <link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261102v1">
+<link rel="stylesheet" href="../_lib/guide/side-dock.css?v=20261102v1">
 <style>html,body{-webkit-tap-highlight-color:transparent}#canvas-container{touch-action:none}#app{height:100vh;height:100dvh}.hint{display:none!important}/* 解说条已删（蔡总拍板：加语音页不要解说条），exp-vapor.css 属红线禁改，用内联覆盖隐藏 */</style>
 </head>
 <body>
@@ -21,7 +22,7 @@
       <button class="mode-tab" data-mode="liquefy">③ 液化探究</button>
     </div>
     <a id="back-to-index" href="index.html">‹ 返回</a>
-    <div class="panel control-panel">
+    <div class="panel control-panel" data-sidedock-label="参数" data-sidedock-hint="① 点「参数」拉出实验条件">
       <div class="panel-title">参数</div>
       <div id="boil-panel">
       <div class="slider-row select-row"><label>火力</label>
@@ -87,7 +88,7 @@
       </div>
 
     </div>
-    <div class="panel data-panel">
+    <div class="panel data-panel" data-sidedock-label="读数" data-sidedock-hint="② 点「读数」看数据与曲线">
       <div class="panel-title">数据面板</div>
       <div id="data-boil">
         <div class="row"><label>水温</label><span id="r-water-temp" class="value">25.0 ℃</span></div>
@@ -159,6 +160,7 @@
 <script src="guide/guide-data.js?v=20261030v7"></script>
 <script src="../_lib/guide/engine-core.js?v=20261028v13"></script>
 <script src="../_lib/guide/vB-core.js?v=20261102v1"></script>
+<script src="../_lib/guide/side-dock.js?v=20261102v1"></script>
 <script src="exp-vapor-chart.js?v=20261102v1"></script>
 <script src="exp-vapor.js?v=20261028v1"></script>
 <script src="exp-liquefy-core.js?v=20261027r1"></script>
