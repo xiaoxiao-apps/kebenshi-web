@@ -108,7 +108,7 @@ function resize(){
   measureCtrl(); layout();
   draw();
 }
-function localPt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+function localPt(e){ var r=cv.getBoundingClientRect(); var sx=r.width?W/r.width:1,sy=r.height?H/r.height:1; return {x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy}; } /* 移动端单3:显示→逻辑缩放换算 */
 function heatBoxTop(){ return L.seat-L.heatW*0.58*0.55; }   // heat_source 顶盘 y（组件几何同源）
 // ===== 质量算式（读数面板/读数卡共用） =====
 function massR(){ var s=0; state.panW.forEach(function(id){ s+=WEIGHT_G[id]; }); return s; }

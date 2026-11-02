@@ -1063,7 +1063,7 @@ function switchScene(to){
   if(window.playClick) playClick();
   dirty=true;
 }
-function ptOf(ev){ var r=cv.getBoundingClientRect(); return {x:ev.clientX-r.left,y:ev.clientY-r.top}; }
+function ptOf(ev){ var r=cv.getBoundingClientRect(); var sx=r.width?W/r.width:1,sy=r.height?H/r.height:1; return {x:(ev.clientX-r.left)*sx,y:(ev.clientY-r.top)*sy}; } /* 移动端单3:显示→逻辑缩放换算 */
 var lastTick=0;
 cv.addEventListener('pointerdown',function(ev){
   if(state.animating) return;

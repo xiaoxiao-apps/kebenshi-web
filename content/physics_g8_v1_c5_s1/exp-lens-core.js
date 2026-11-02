@@ -470,7 +470,7 @@ function updatePanel(){
 }
 
 // ===== 命中检测 =====
-function localPt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+function localPt(e){ var r=cv.getBoundingClientRect(); var sx=r.width?W/r.width:1,sy=r.height?H/r.height:1; return {x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy}; } /* 移动端单3:显示→逻辑缩放换算 */
 function hitBtn(p){
   var s=cur().source; if(!s||s.type!=='pens') return -1;
   for(var i=0;i<3;i++){ var b=btnOf(i); if(Math.hypot(p.x-b.x,p.y-b.y)<b.r+5) return i; }

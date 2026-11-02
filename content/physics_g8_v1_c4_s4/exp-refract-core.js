@@ -77,27 +77,29 @@ if(btnFull){btnFull.addEventListener('click',function(){if(fullEl()||document.do
 window.addEventListener('DOMContentLoaded',function(){
   var cv=document.getElementById('cv');
   var drag=null,clickSuppress=0;
+  /* 移动端单3:显示→逻辑缩放换算,全部命中/拖动路径共用 */
+  function lgPt(e){var r=cv.getBoundingClientRect(),v=window.RRDraw&&window.RRDraw.vp;var sx=v&&r.width?v.W/r.width:1,sy=v&&r.height?v.H/r.height:1;return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};}
   if(cv&&window.RRDraw&&window.RRDraw.init)window.RRDraw.init(cv);
   if(cv){
     cv.addEventListener('click',function(e){
       if(clickSuppress>0){clickSuppress=0;return;}
       var hit=window.RRDraw&&window.RRDraw.penHit;
       if(!hit)return;
-      var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+      var lp=lgPt(e),mx=lp.x,my=lp.y;
       if(Math.hypot(mx-hit.x,my-hit.y)<=hit.r)toggleLaser();
     });
     cv.addEventListener('mousemove',function(e){
       if(drag)return;
       var hit=window.RRDraw&&window.RRDraw.penHit;
       if(!hit){cv.style.cursor='';return;}
-      var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+      var lp=lgPt(e),mx=lp.x,my=lp.y;
       if(Math.hypot(mx-hit.x,my-hit.y)<=hit.r)cv.style.cursor='pointer';
       else cv.style.cursor=penBodyHit(mx,my)?'grab':'';
     });
     cv.addEventListener('pointerdown',function(e){
       var hit=window.RRDraw&&window.RRDraw.penHit;
       if(!hit)return;
-      var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+      var lp=lgPt(e),mx=lp.x,my=lp.y;
       if(Math.hypot(mx-hit.x,my-hit.y)<=hit.r+12||penBodyHit(mx,my)){
         drag={sx:mx,sy:my,moved:false};
         cv.setPointerCapture(e.pointerId);
@@ -105,7 +107,7 @@ window.addEventListener('DOMContentLoaded',function(){
     });
     cv.addEventListener('pointermove',function(e){
       if(!drag)return;
-      var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+      var lp=lgPt(e),mx=lp.x,my=lp.y;
       if(Math.hypot(mx-drag.sx,my-drag.sy)>4)drag.moved=true;
       var O=window.RRDraw&&window.RRDraw.O;
       if(!O)return;
@@ -120,7 +122,7 @@ window.addEventListener('DOMContentLoaded',function(){
       clickSuppress=1;
       if(!drag.moved){ // 轻点仅红钮开关灯；笔身其他处轻点不触发（蔡总 09:09：拖拽区扩到整笔身后防误触）
         var hit=window.RRDraw&&window.RRDraw.penHit;
-        var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+        var lp=lgPt(e),mx=lp.x,my=lp.y;
         if(hit&&Math.hypot(mx-hit.x,my-hit.y)<=hit.r)toggleLaser();
       }
       drag=null;cv.style.cursor='';

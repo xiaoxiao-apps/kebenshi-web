@@ -112,7 +112,7 @@ function updateHint(){
   hintEl.textContent='点激光笔红钮开关激光；拖笔身改入射角';
 }
 // 笔底中心锚点容器坐标换算 + 移动拖拽（命中笔口或 E 端点 30px 内）
-function pos(ev){var r=cv.getBoundingClientRect();return{x:ev.clientX-r.left,y:ev.clientY-r.top};}
+function pos(ev){var r=cv.getBoundingClientRect();var sx=r.width?R.W/r.width:1,sy=r.height?R.H/r.height:1;return{x:(ev.clientX-r.left)*sx,y:(ev.clientY-r.top)*sy};}/* 移动端单3:显示→逻辑缩放换算 */
 function hitRedButton(p){
   var pp=R.penPose(),th=pp.angle*Math.PI/180,c=Math.cos(-th),s=Math.sin(-th);
   var dx=p.x-pp.x, dy=p.y-pp.y;

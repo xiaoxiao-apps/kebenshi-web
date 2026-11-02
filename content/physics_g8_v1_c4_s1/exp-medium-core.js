@@ -120,7 +120,7 @@ function computePath(p0,a0){
   return segs;
 }
 
-function localPt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+function localPt(e){ var r=cv.getBoundingClientRect(); var sx=r.width?W/r.width:1,sy=r.height?H/r.height:1; return {x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy}; } /* 移动端单3:显示→逻辑缩放换算 */
 function spot(x,y,R,c,h){ var g=ctx.createRadialGradient(x,y,0,x,y,R); g.addColorStop(0,c); g.addColorStop(1,h); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,R,0,PI2); ctx.fill(); }
 
 // 蒸汽雾：参照 可交互教材/器材制作库.md 条目9（软边sprite贴片雾，c3s4 蔡总验收版）2D 适配：

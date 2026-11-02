@@ -292,7 +292,7 @@ function checkMatch(){
 }
 function setL(v){ st.L=clampL(v); syncSlider(); checkMatch(); }
 // ===== 命中检测 =====
-function localPt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+function localPt(e){ var r=cv.getBoundingClientRect(); var sx=r.width?W/r.width:1,sy=r.height?H/r.height:1; return {x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy}; } /* 移动端单3:显示→逻辑缩放换算 */
 function hitLensEye(p){ return Math.abs(p.x-xEyeLens())<eyeAp()*0.25+14&&Math.abs(p.y-axisY)<eyeAp()/2+10; }
 // ===== 交互：拖目镜=调镜筒长度（核心交互，R5 后两镜常驻光轴） =====
 cv.addEventListener('pointerdown',function(e){

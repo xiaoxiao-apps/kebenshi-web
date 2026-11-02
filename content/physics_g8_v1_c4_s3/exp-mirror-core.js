@@ -313,7 +313,7 @@ function toggleLit(){
   }else{if(window.playSnuff)window.playSnuff();R.imgAlpha=0.4;}
   updateHint();
 }
-function pos(ev){var r=cv.getBoundingClientRect();return{x:ev.clientX-r.left,y:ev.clientY-r.top};}
+function pos(ev){var r=cv.getBoundingClientRect();var sx=r.width?R.W/r.width:1,sy=r.height?R.H/r.height:1;return{x:(ev.clientX-r.left)*sx,y:(ev.clientY-r.top)*sy};}/* 移动端单3:显示→逻辑缩放换算 */
 function hitObj(p){return Math.abs(p.x-R.objX)<Math.max(18,R.candleH*0.14)&&p.y>=R.candleY-R.candleH-12&&p.y<=R.candleY+8;}
 function hitEq(p){return Math.abs(p.x-R.eqX)<Math.max(18,R.candleH*0.14)&&p.y>=R.candleY-R.candleH-12&&p.y<=R.candleY+8;}
 function hitM2S(p){var m=R.m2;return Math.abs(p.x-m.candle.x)<Math.max(16,m.candle.h*0.12)&&p.y>=m.candle.y-m.candle.h-12&&p.y<=m.candle.y+8;}

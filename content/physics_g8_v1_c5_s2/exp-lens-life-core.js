@@ -632,7 +632,7 @@ function updatePanel(){
   if(pnat) pnat.textContent='倒立/缩小/实像'+(isFocused()?'（清晰）':'（弥散）');
 }
 // ===== 命中检测 =====
-function localPt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+function localPt(e){ var r=cv.getBoundingClientRect(); var sx=r.width?W/r.width:1,sy=r.height?H/r.height:1; return {x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy}; } /* 移动端单3:显示→逻辑缩放换算 */
 function hitTube(p){   // 后筒可拖区：前筒长 90% 处到薄膜端
   return p.x>xLens()+tubeLf*0.9&&p.x<filmX()+16&&Math.abs(p.y-axisY)<tubeDia*0.75;
 }

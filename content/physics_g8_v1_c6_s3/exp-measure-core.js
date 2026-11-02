@@ -776,7 +776,7 @@ function nearBeakerMouth(p){   // 加盐区：盐罐口悬空于烧杯口上方�
   var b=beakerBox(),mx=b.x+b.w/2;   // 烧杯口中心/口宽=b.w
   return p.y<b.y-cmPx(MOUTH_LIFT)&&p.y>b.y-cmPx(MOUTH_BAND)&&Math.abs(p.x-mx)<b.w*0.45;
 }
-function ptOf(ev){ var r=cv.getBoundingClientRect(); return {x:ev.clientX-r.left,y:ev.clientY-r.top}; }
+function ptOf(ev){ var r=cv.getBoundingClientRect(); var sx=r.width?W/r.width:1,sy=r.height?H/r.height:1; return {x:(ev.clientX-r.left)*sx,y:(ev.clientY-r.top)*sy}; } /* 移动端单3:显示→逻辑缩放换算 */
 cv.addEventListener('pointerdown',function(ev){
   if(state.animating) return;
   var p=ptOf(ev);

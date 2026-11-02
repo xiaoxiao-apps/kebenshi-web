@@ -132,6 +132,7 @@ var RRDraw = window.RRDraw = {
     var r = cv.parentElement ? cv.parentElement.getBoundingClientRect() : { width: 800, height: 600 };
     W = Math.max(280, r.width || 800);
     H = Math.max(200, r.height || 600);
+    RRDraw.vp = { W: W, H: H }; /* 移动端单3:供命中层做显示→逻辑缩放换算 */
     dpr = window.devicePixelRatio || 1;
     cv.width = Math.round(W * dpr);
     cv.height = Math.round(H * dpr);

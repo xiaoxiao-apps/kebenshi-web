@@ -109,7 +109,7 @@ document.getElementById('btn-reset').addEventListener('click',function(ev){
   window.GUIDE_RESET&&window.GUIDE_RESET.all();
 });
 
-function pos(ev){var r=cv.getBoundingClientRect(); return {x:ev.clientX-r.left,y:ev.clientY-r.top};}
+function pos(ev){var r=cv.getBoundingClientRect(); var sx=r.width?R.W/r.width:1,sy=r.height?R.H/r.height:1; return {x:(ev.clientX-r.left)*sx,y:(ev.clientY-r.top)*sy};}/* 移动端单3:显示→逻辑缩放换算 */
 function hitSun(p){return Math.hypot(p.x-R.source.x,p.y-R.source.y)<R.sunR+8;}
 function hitPrism(p){var py=R.prism.y, ph=R.prism.h; return Math.abs(p.x-R.prism.x)<40 && p.y>=py-ph-20 && p.y<=py+10;}
 cv.addEventListener('pointermove',function(ev){

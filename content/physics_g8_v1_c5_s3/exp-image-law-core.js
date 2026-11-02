@@ -483,7 +483,7 @@ function renderRec(){
   tb.innerHTML=htm||'<tr><td colspan="6" style="color:#94a3b8;font-weight:400">暂无记录——点「记一笔」写入当前状态</td></tr>';
 }
 // ===== 交互：拖 F 光源跨三区实时成像；拖屏调 v；托盘蜡烛拖上滑轨替换物体 =====
-function localPt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+function localPt(e){ var r=cv.getBoundingClientRect(); var sx=r.width?W/r.width:1,sy=r.height?H/r.height:1; return {x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy}; } /* 移动端单3:显示→逻辑缩放换算 */
 function hitObj(p){
   var x=xOfU(st.u),hw=Math.max(24,2.2*S);   // H4 命中区半宽≥24px
   return Math.abs(p.x-x)<hw&&p.y>axisY-hoPx()-16&&p.y<axisY+hoPx()+16;   // G12 裁切后 F 板骑轴：命中区=板高±16
