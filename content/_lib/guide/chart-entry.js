@@ -8,7 +8,7 @@
      样式在 chart-entry.css（c3s2/c3s3 页内原 CSS 规则保留，双份同值零漂移）。
 
    API 2  ChartEntry.tray({label, setOpen, isBlankHit, redraw})
-     canvas 托盘页左缘竖标签（.ce-tray-tab 30×96 left:0 top:55%，避开 side-dock 参数标签）：
+     canvas 托盘页左缘竖标签（.ce-tray-tab 30×96 left:0，单6b 初始 top=26%vh；拖拽记忆优先）：
      点标签 = 展开托盘(setOpen(true)+重绘+标签隐藏)；托盘展开时点标签外空白(isBlankHit(e)===true) = 收回
      (setOpen(false)+重绘+标签复现)。器材拖拽命中逻辑由各页 core.js 自理，本组件不碰 canvas。
      非触摸门：标签从不生成，托盘常绘（trayOpen 由页内门控初始化决定）。 */

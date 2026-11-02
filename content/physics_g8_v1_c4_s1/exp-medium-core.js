@@ -25,21 +25,16 @@ function typeOf(id){ return {smoke_box:'smoke',water_tank:'water',glass_brick:'g
 function nOf(id){ return {smoke_box:1,water_tank:1.33,glass_brick:1.5}[id]; }
 
 function benchTopY(){ return H*0.80; }
-/* 移动端单4b修正轮+单5b推广：触摸门内笔下限联动——对每个已放(active/falling)介质按类型算 target：
-   water_tank: target=benchTopY-0.25*tankH+45.5（单4b原公式逐字节不变）；
-   smoke_box/glass_brick: contentTop=m.y-m.h, target=contentTop+0.65*contentH+45.5（emit 落体深65%）；
-   floor=max(benchTopY, min(各 target 之最大者, limit))；limit=min(H-16,ctrlbarTop逻辑-8)，读不到回退H-16；
-   无介质/桌面恒 benchTopY() 逐字节不变 */
-var touchMQ4b=window.matchMedia?window.matchMedia('(pointer:coarse) and (hover:none)'):null;
+/* 移动端单6a：笔下限去门控+三介质统一公式——全设备(触摸+桌面)生效；对每个 active/falling 介质
+   target=benchTopY-0.25*m.h+45.5（水槽单4b原公式逐字节=此式；烟雾箱/玻璃砖由5b的0.65体深式改统一式）；
+   floor=max(base, min(各 target 之最大者, limit))；limit=min(H-16,ctrlbarTop逻辑-8)，读不到回退H-16；无介质=base */
 function penFloorY(){
   var base=benchTopY();
-  if(!(touchMQ4b&&touchMQ4b.matches)) return base;
   var target=-Infinity;
   for(var i=0;i<media.length;i++){
     var m=media[i];
     if(!(m.state==='active'||m.state==='falling')) continue;
-    if(m.id==='water_tank'){ var t=base-0.25*m.h+45.5; if(t>target) target=t; }
-    else if(m.id==='smoke_box'||m.id==='glass_brick'){ var ct=m.y-m.h; var t2=ct+0.65*m.h+45.5; if(t2>target) target=t2; }
+    var t=base-0.25*m.h+45.5; if(t>target) target=t;
   }
   if(target===-Infinity) return base;
   var limit=H-16;

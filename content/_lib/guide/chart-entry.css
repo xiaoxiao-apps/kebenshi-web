@@ -1,6 +1,6 @@
 /* chart-entry.css — 共享曲线浮钮/浮层 + 托盘器材竖标签样式（蔡总 2026-11-02 移动端全量铺·单2b）
    门控 = (pointer:coarse) and (hover:none)：触摸门内 chart-entry.js 生成 #tt-entry 浮钮与 .tt-overlay 浮层；
-   .ce-tray-tab = canvas 托盘页左缘「器材」竖标签（top:55% 避开 side-dock 参数标签 top:30%）。
+   .ce-tray-tab = canvas 托盘页左缘「器材」竖标签（单6b：初始 top:26% = 蔡总触摸截图值）。
    数值与 c3s2 exp-melt-stage3.css / c3s3 exp-vapor.css 单1验收态逐值一致（两页原规则保留，双份同值零漂移）。
    非触摸门：类/ID 从不生成 + 所有规则均在 @media 内 → 桌面零介入。 */
 
@@ -41,9 +41,9 @@
   /* 移入浮层的曲线宿主撑满卡片（宿主页内联 height/flex 需 !important 覆盖） */
   .tt-overlay-card .tt-in-card { flex: 1 1 auto; width: 100%; height: auto !important; min-height: 0 !important; }
 
-  /* canvas 托盘页左缘「器材」竖标签（side-dock.css .panel-tab 同款样式，top:55%）；单4b：半透明0.6+可上下拖 */
+  /* canvas 托盘页左缘「器材」竖标签（side-dock.css .panel-tab 同款样式）；单4b：半透明0.6+可上下拖；单6b：初始 top 26% */
   .ce-tray-tab {
-    position: fixed; left: 0; top: 55%; width: 30px; height: 96px; z-index: 59;
+    position: fixed; left: 0; top: 26%; width: 30px; height: 96px; z-index: 59;
     display: flex; align-items: center; justify-content: center;
     border: 1px solid rgba(255,255,255,.18); border-left: 0; border-radius: 0 10px 10px 0;
     color: #e8ecf4; background: rgba(30,30,44,.6);

@@ -69,8 +69,8 @@ function start(){
   }
   window.addEventListener('resize',function(){
     refreshSafe();
-    if(!narrow()){if(fabDocked)undock();}        /* 宽屏恢复 right:14px 原定位 */
-    else if(!fabDocked&&curPos){fabDocked=true;} /* 旋转到窄屏且有记忆位 → 重新吸边半藏 */
+    if(!hideFab()){if(fabDocked)undock();}        /* 宽屏（非触摸门）恢复 right:14px 原定位 */
+    else if(!fabDocked&&curPos){fabDocked=true;} /* 旋转到窄屏/触摸门且有记忆位 → 重新吸边半藏 */
     if(fabDocked)reapplyDock();
     else if(cur)place();
     else fab.style.bottom=fabBottom()+'px';
@@ -78,11 +78,14 @@ function start(){
 
   /* ---------- P1a 金球拖动吸边（蔡总 2026-10-30）：位移<5px=点击（三态循环零变化）；≥5px=跟手拖动，
      松手吸附最近左/右缘并半藏(露60%)，位置写 localStorage('gvb-fab-pos') 跨页记忆；
-     半藏仅 (max-width:900px) 生效，宽屏保持 right:14px 原定位；拖动避开 iOS 安全区 env(safe-area-inset-*)。 ---------- */
+     单6b：半藏在触摸门内全宽度生效（原仅 (max-width:900px)），宽屏桌面仍保持 right:14px 原定位；
+     拖动避开 iOS 安全区 env(safe-area-inset-*)。 ---------- */
   var LS_POS='gvb-fab-pos';
   var fabDocked=false,curPos=null,justDragged=false;
   var mqNarrow=(window.matchMedia&&window.matchMedia('(max-width:900px)'))||null;
   function narrow(){return !!(mqNarrow&&mqNarrow.matches);}
+  /* 单6b：半藏判定 = 触摸门（全宽度）或窄屏（桌面窄窗保留原行为） */
+  function hideFab(){return touchGate()||narrow();}
   var safe={top:0,right:0,bottom:0,left:0};
   function refreshSafe(){
     try{
@@ -104,7 +107,7 @@ function start(){
   }
   function reapplyDock(){
     if(!curPos)return;
-    var w=fabW(),hide=narrow();
+    var w=fabW(),hide=hideFab();
     fab.style.bottom='auto';
     fab.style.top=clampTop(curPos.top)+'px';
     if(curPos.edge==='left'){
@@ -154,7 +157,7 @@ function start(){
   }
   fab.addEventListener('pointerup',endDrag);
   fab.addEventListener('pointercancel',function(){dragState=null;fab.style.transition='';});
-  /* 载入记忆位：仅窄屏应用吸边半藏；宽屏保持 right:14px 原定位不动 */
+  /* 载入记忆位：窄屏/触摸门应用吸边半藏；宽屏桌面保持 right:14px 原定位不动 */
   refreshSafe();
   try{
     var rawPos=lsGet(LS_POS,null);
@@ -162,10 +165,17 @@ function start(){
       var pp=JSON.parse(rawPos);
       if(pp&&(pp.edge==='left'||pp.edge==='right')&&typeof pp.top==='number'){
         curPos={edge:pp.edge,top:pp.top};
-        if(narrow()){fabDocked=true;reapplyDock();}
+        if(hideFab()){fabDocked=true;reapplyDock();}
       }
     }
   }catch(e){}
+  /* 单6b：触摸门内无拖拽记忆 → 初始即右缘半藏，中心 y=73%vh（蔡总触摸截图值）；桌面不执行 */
+  if(!curPos&&touchGate()){
+    var fh=fab.offsetHeight||fabW(),vh=window.innerHeight||360;
+    curPos={edge:'right',top:clampTop(vh*0.73-fh/2)};
+    fabDocked=true;
+    reapplyDock();
+  }
 
   /* ---------- 配音播放 ---------- */
   var curAudio=null;
