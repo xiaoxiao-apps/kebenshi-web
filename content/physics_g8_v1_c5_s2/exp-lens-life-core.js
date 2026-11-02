@@ -80,9 +80,10 @@ function clampV(v){ return Math.max(V_MIN,Math.min(V_MAX,v)); }
 function clampU2(u){ return Math.max(U2_MIN,Math.min(U2_MAX,u)); }
 function clampU3(u){ return Math.max(U3_MIN,Math.min(U3_MAX,u)); }
 var toolboxMag=null;   // 场景3 托盘（仅备光屏一件，layout 构建）
-/* 单2b 托盘可收起：触摸门(pointer:coarse&hover:none)内默认 trayOpen=false=drawTray 不绘（仅场景3 有托盘），
-   左缘「器材」竖标签(ChartEntry.tray)点开；非触摸门或无 chart-entry.js 恒 true=常绘（桌面零介入）。 */
-var trayOpen=!(window.ChartEntry&&window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)').matches);
+/* 单2b 托盘可收起 + 单10b③：trayOpen 恒初始 true（桌面常绘逐字节不变；触摸门初始展开=进页仪器卡可见，
+   engage 不强制收起经 ChartEntry.tray initialOpen:true 声明）；点空白收回/左缘标签原语义不变。 */
+var trayOpen=true;
+var TOUCH_GATE=!!(window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)').matches);   /* 单10b③：仅触摸门放宽 G4 场景闸 */
 // ===== 场景1 几何（G2/G3）：F 固定+筒伸缩，xLens=装配体内相对量（F→透镜=u）；canvas y 向下，倒立实像画轴下方 =====
 function panelCH(){ return hLed/PANEL_HF; }   // K1：整图绘制高 ch=boxH/PANEL_HF（boxH=hLed=F 板可视高，源矩形=全图不裁切）
 function panelCW(){                            // K1：整图绘制宽 cw=ch*natW/natH 同源不变形（800×800 探针→cw=ch；F 板可视宽=cw*PANEL_WF=boxH*(606-198)/(710-105) 同源宽高比）
@@ -147,7 +148,8 @@ function drawAxis(){
   ctx.restore();
 }
 function drawTray(){
-  if(state.scene!=='mag'||!toolboxMag||!trayOpen) return;   // G4：场景1 托盘已删（整机拖）；场景3 托盘仅备光屏一件；单2b：收起时不绘
+  if(!toolboxMag||!trayOpen) return;   // 单2b：收起时不绘
+  if(state.scene!=='mag'&&!TOUCH_GATE) return;   // G4 桌面：场景1/2 托盘已删逐字节不变；单10b③ 触摸门：展开态全场景仪器卡可见（进页即见）
   toolboxMag.drawCard(ctx);
   var c=toolboxMag.card;
   ctx.save(); ctx.fillStyle='#8a6d3b'; ctx.font='15px sans-serif'; ctx.textAlign='left';
@@ -832,6 +834,7 @@ function switchScene(to){
   if(state.animating||to===state.scene) return;
   var from=state.scene;
   state.scene=to;                       // 三场景子状态完全隔离，返回原样恢复
+  syncTrayVis();                        // 单10b②：按本场景托盘有无货开关竖标签
   state.animating=true; state.anim={from:from,to:to,t0:performance.now()};
   syncSceneUI();
   if(window.playClick) playClick();
@@ -890,16 +893,21 @@ window.__c5s2dbg={ get state(){return state;}, get W(){return W;}, get H(){retur
   vImg3:vImg3, xEye:xEye, yEye:yEye, dimAlpha:dimAlpha, imgHCm3:imgHCm3 };   // J5/J10 探针口
 
 /* 单2b：左缘「器材」竖标签接管 trayOpen（触摸门内生成；点标签展开，展开时点画布空白收回） */
+/* 单10b②：托盘库存逐场景——仅场景3（放大镜）备光屏一件；场景1/2 无库存 → 触摸门标签隐藏 */
+function syncTrayVis(){ if(window.ChartEntry&&window.ChartEntry.traySetVisible) window.ChartEntry.traySetVisible(state.scene==='mag'); }
 if(window.ChartEntry) ChartEntry.tray({
   label:'器材',
+  initialOpen:true,   /* 单10b③：触摸门进页托盘展开=仪器卡可见（桌面不经 engage 逐字节不变） */
   setOpen:function(v){ trayOpen=v; },
   redraw:function(){ draw(); },
   isBlankHit:function(e){
     if(e.target!==cv||state.animating) return false;
     var p=localPt(e);
-    if(state.scene==='cam') return !(hitTube(p)||hitCam(p));
-    if(state.scene==='proj') return !hitLensAt(xLens2(),p);
+    var onCard=trayOpen&&!!toolboxMag&&toolboxMag.pointInCard(p);   /* 单10b③：展开态仪器卡是托盘 UI 非空白（点卡不收回） */
+    if(state.scene==='cam') return !(hitTube(p)||hitCam(p)||onCard);
+    if(state.scene==='proj') return !(hitLensAt(xLens2(),p)||onCard);
     return !(hitLensAt(xLens3(),p)||hitMagTray(p)||hitMagScreen(p)||(trayOpen&&toolboxMag&&toolboxMag.pointInCard(p)));
   }
 });
+syncTrayVis();   /* 单10b②：初始场景（cam 无库存）标签开关同步；engage 取其记忆值 */
 })();

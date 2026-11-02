@@ -230,6 +230,8 @@ btnRec.addEventListener('click',function(ev){clickFx(ev);recFill();});
 btnClear.addEventListener('click',function(ev){clickFx(ev);recClear();if(window.playClick)window.playClick();});
 function setMode(m){
   R.mode=m;document.body.className='mode-'+m;
+  /* 单10b②：托盘库存逐模式——M1 无库存（等效蜡烛钮引入前托盘不绘）→ 触摸门标签隐藏；M2 光屏/眼、M3 双镜有库存 */
+  if(window.ChartEntry&&window.ChartEntry.traySetVisible)window.ChartEntry.traySetVisible(m!=='m1');
   var btns=document.querySelectorAll('#mode-m1,#mode-m2,#mode-m3');
   btns.forEach(function(b){b.classList.toggle('on',b.dataset.mode===m);});
   if(m==='m2'){layoutM2();R.m2.showRay=false;R.m2.showExt=false;R.m2.showNormal=false;R.m2.showSym=false;R.m2.animT=0;R.m2.heldItem=null;

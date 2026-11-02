@@ -75,6 +75,8 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
 .rec-panel table.rec{width:auto;font-size:10px;table-layout:auto}
 .rec-panel table.rec th{width:auto}
 .rec-panel .rp-foot button{pointer-events:auto}
+/* P-单10a(20261103): 带钮面板整体恢复pe:auto——6c的.rec-panel pe:none误伤面板内2钮(记录/清除),整卡显式打开=可接受;桌面同修=6c回归授权 */
+#rec-panel{pointer-events:auto}
 </style>
 </head>
 <body class="mode-m1">
@@ -156,7 +158,7 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
 <script src="../_lib/v1/props.js?v=20261024"></script>
 <script src="../_lib/v1/sfx.js?v=20261024"></script>
 <script src="exp-mirror-render.js?v=20261026g1"></script>
-<script src="exp-mirror-core.js?v=20261102v3"></script>
+<script src="exp-mirror-core.js?v=20261102v4"></script>
 <div id="guide-layer"><!-- 讲解层叠加容器：内容由 guide/vB.js 运行时注入；生产实验页 exp-mirror.html 零改动 --></div>
 <script src="guide/script.js?v=20261026g8"></script>
 <script src="guide/engine.js?v=20261026g8"></script>

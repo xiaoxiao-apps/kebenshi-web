@@ -703,6 +703,7 @@ function switchScene(){
   if(state.animating) return;
   cur().f=fCmV; cur().d=dCmV;                    // 活跃值（cm）存回当前场景
   state.scene=(state.scene==='bench')?'focal':'bench';
+  syncTrayVis();                                  // 单10b②：仅场景一有托盘库存；场景二标签隐藏+托盘强制收起
   var T=cur(); setF(T.f); setD(T.d);             // 载入目标场景（两场景状态完全隔离）
   state.animating=true; state.anim={to:state.scene,t0:performance.now()};
   syncSceneUI(); syncSlider();
@@ -766,6 +767,8 @@ window.__c5s1dbg={ get state(){return state;}, get W(){return W;}, get H(){retur
   setF:function(v){ setF(Math.max(F_MIN_CM,Math.min(F_MAX_CM,v))); syncSlider(); draw(); } };
 
 /* 单2b：左缘「器材」竖标签接管 trayOpen（触摸门内生成；点标签展开，展开时点画布空白收回） */
+/* 单10b②：托盘库存逐场景——仅场景一（光学台）有库存；场景二（测焦距）无 → 触摸门标签隐藏 */
+function syncTrayVis(){ if(window.ChartEntry&&window.ChartEntry.traySetVisible) window.ChartEntry.traySetVisible(state.scene==='bench'); }
 if(window.ChartEntry) ChartEntry.tray({
   label:'器材',
   setOpen:function(v){ trayOpen=v; },
@@ -778,4 +781,5 @@ if(window.ChartEntry) ChartEntry.tray({
     return true;
   }
 });
+syncTrayVis();   /* 单10b②：初始场景（bench 有库存）标签开关同步；engage 取其记忆值 */
 })();

@@ -88,6 +88,8 @@
 .rec-panel table.rec{width:auto;font-size:14px;table-layout:auto}
 .rec-panel table.rec th{width:auto}
 .rec-panel table.rec th,.rec-panel table.rec td{padding:5px 8px}
+/* P-单10a(20261103): 带✕/带滚动面板整体恢复pe:auto——6c的.rec-panel pe:none误伤✕(.rp-x)与overflow滚动(规律卡滑不动);纯读数#panel-read仍pe:none穿透 */
+#panel-rec,#panel-law{pointer-events:auto}
 </style>
 </head>
 <body>
@@ -174,7 +176,7 @@
 <script src="../_lib/v1/props.js?v=20261024"></script>
 <script src="../_lib/v1/props-optics.js?v=20261024"></script>
 <script src="../_lib/v1/sfx.js?v=20261024"></script>
-<script src="../_lib/guide/chart-entry.js?v=20261102v3"></script>
+<script src="../_lib/guide/chart-entry.js?v=20261102v4"></script>
 <script src="exp-image-law-core.js?v=20261102v3"></script>
 <script>window.GUIDE_CFG={state:window.C5S3_STATE,mode:'refract'};</script>
 <script src="guide/guide-data.js?v=20261029v9"></script>

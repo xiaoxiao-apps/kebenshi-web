@@ -89,6 +89,8 @@
 .ctrlbar select{padding:3px 5px;font-size:12px}
 .ctrlbar input[type=range]{width:84px}
 .ctrlbar .readout{font-size:12px}
+/* P-单10a(20261103): 读数面板触摸门内与canvas「读数特写」框并排(蔡总11-03反馈5)——特写框右上锚定x1=0.988W/宽=min(0.32W,cmPx(200)),面板右缘=特写左缘−8px(calc随视口自适应),顶贴页头底(理想特写中心对齐因面板高284>2×中心y82.5不可达,clamp保完整在视口);placePanel内联left/top由!important覆盖;桌面现状不变 */
+#panel-read{left:auto!important;right:calc(1.2vw + min(32vw, 38.46vh - 13.08px) + 8px)!important;top:0!important;bottom:auto!important}
 }
 /* P-单6c(20261102v6): 单5a两修复去门控全局化(蔡总11-02 22:03 GO): 读数面板三件套(fit-content/max60vw/padding字号收档/pe:none)+#panel-read fit-content+rp-note限宽全局生效含桌面 */
 .rec-panel{width:fit-content;min-width:0;max-width:60vw;padding:10px 10px;font-size:14px;pointer-events:none}

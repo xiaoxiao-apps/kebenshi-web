@@ -76,6 +76,8 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
 .rec-panel table.rec{width:auto;font-size:10px;table-layout:auto}
 .rec-panel table.rec th{width:auto}
 .rec-panel .rp-foot button{pointer-events:auto}
+/* P-单10a(20261103): 带钮面板整体恢复pe:auto——6c的.rec-panel pe:none误伤面板内2钮(记录/清除),整卡显式打开=可接受;桌面同修=6c回归授权 */
+#rec-panel{pointer-events:auto}
 </style>
 </head>
 <body class="mode-m1">
@@ -156,9 +158,9 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
 </div>
 <script src="../_lib/v1/props.js?v=20261024"></script>
 <script src="../_lib/v1/sfx.js?v=20261024"></script>
-<script src="../_lib/guide/chart-entry.js?v=20261102v3"></script>
+<script src="../_lib/guide/chart-entry.js?v=20261102v4"></script>
 <script src="exp-mirror-render.js?v=20261102v2"></script>
-<script src="exp-mirror-core.js?v=20261102v3"></script>
+<script src="exp-mirror-core.js?v=20261102v4"></script>
 <div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
 <script>window.GUIDE_CFG={state:window.MRR,get mode(){return window.MRR&&window.MRR.mode}};/* MRR 由 render.js 创建、core 原地 mutate；mode 轮询 m1/m2/m3 */</script>
 <script src="guide/guide-data.js?v=20261028v1"></script>
