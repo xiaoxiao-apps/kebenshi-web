@@ -74,7 +74,40 @@
   }
 
   /* ---------- 数据 ---------- */
-  function cardsOf(subject) { return (catalog && catalog[subject]) || []; }
+  // 默认排序：按章（catalog 章首次出现序）分组；章内讲解/实验严格交替（讲解起，
+  // 多出顺延，队内保原相对序）→ 其余类型原序 → 小结 → 练习收尾；组卷置全表最末。
+  function defaultOrder(list) {
+    if (!list || !list.length) return list || [];
+    var chapterKeys = [];
+    var byChapter = {};
+    var i;
+    for (i = 0; i < list.length; i++) {
+      var k = list[i].chapter || '';
+      if (!byChapter[k]) { byChapter[k] = []; chapterKeys.push(k); }
+      byChapter[k].push(list[i]);
+    }
+    var out = [];
+    var tail = []; // 组卷
+    chapterKeys.forEach(function (k) {
+      var jiang = [], shi = [], other = [], xiaojie = [], lianxi = [];
+      byChapter[k].forEach(function (c) {
+        if (c.type === '组卷') tail.push(c);
+        else if (c.type === '讲解') jiang.push(c);
+        else if (c.type === '实验') shi.push(c);
+        else if (c.type === '小结') xiaojie.push(c);
+        else if (c.type === '练习') lianxi.push(c);
+        else other.push(c);
+      });
+      var n = Math.max(jiang.length, shi.length);
+      for (var j = 0; j < n; j++) {
+        if (j < jiang.length) out.push(jiang[j]);
+        if (j < shi.length) out.push(shi[j]);
+      }
+      out = out.concat(other, xiaojie, lianxi);
+    });
+    return out.concat(tail);
+  }
+  function cardsOf(subject) { return defaultOrder((catalog && catalog[subject]) || []); }
   function findCard(id) {
     var list = cardsOf(state.subject);
     for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
