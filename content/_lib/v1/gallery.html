@@ -60,6 +60,8 @@
 <script src="./props.js?v=20261024"></script>
 <script src="./props-optics.js?v=20261024"></script>
 <script src="./props-density.js?v=20261024"></script>
+<!-- c7 力学器材库 props-mech.js：16件（2026-11-04 单A；视觉原创，PhET 仅借交互语义） -->
+<script src="./props-mech.js?v=20261104"></script>
 <script src="./sfx.js?v=20261024"></script>
 <script>
 // PROPS.SPRITE_BASE 默认为 'sprites/'，与 gallery.html 同目录，正确无需覆写
@@ -106,7 +108,22 @@ const PROPS_LIST=[
   {id:'weight_set_missing',name:'砝码组(缺件态)',fn:'weight_set',vector:true,opts:[{w:150},{w:150,missing:['100','20']}],badge:'c6s12 r1',desc:'missing=已拖出id数组盒内不画（变体2缺100g与20g）；变体1满盒对照'},
   {id:'stone',name:'小石块',fn:'stone',vector:true,opts:[{size:60,seed:1},{size:52,seed:2},{size:66,seed:3,wet:1}],badge:'c6s34 新增',desc:'不规则多面体2.5D（投影常量同material_block）；seed确定性轮廓（6~8顶点，同seed同形、异seed视觉可辨）；变体3 wet:1湿水态加深约15%+顶面高光增强；size按V∈15~20cm³派生'},
   {id:'salt_jar',name:'盐罐',fn:'salt_jar',tall:true,vector:true,opts:[{},{pour:0.7}],badge:'c6s34 新增',desc:'广口玻璃罐+白盐堆积（sin伪随机细颗粒）；saltLevel=80缺省直立；pour=0.7绕底面中心倾~45°+罐口确定性盐粒流（抛物线白点）；返回{w,h,mouth}'},
-  {id:'seed_grains',name:'种粒(选种)',fn:'seed_grains',tall:true,vector:true,opts:[{rho:1.00,t:1,w:160,h:120,level:0.8},{rho:1.12,t:1,w:160,h:120,level:0.8}],badge:'c6s34 新增',desc:'饱满粒(#d9b36c系,恒沉底)+空瘪粒(#b8975a系,rho≥HOLLOW_CRIT=1.05时t插值浮至液面下缘)；t=smoothstep禁回弹；变体1 rho=1.00全沉对照/变体2 rho=1.12空瘪上浮'}
+  {id:'seed_grains',name:'种粒(选种)',fn:'seed_grains',tall:true,vector:true,opts:[{rho:1.00,t:1,w:160,h:120,level:0.8},{rho:1.12,t:1,w:160,h:120,level:0.8}],badge:'c6s34 新增',desc:'饱满粒(#d9b36c系,恒沉底)+空瘪粒(#b8975a系,rho≥HOLLOW_CRIT=1.05时t插值浮至液面下缘)；t=smoothstep禁回弹；变体1 rho=1.00全沉对照/变体2 rho=1.12空瘪上浮'},
+  {id:'plasticine',name:'橡皮泥(按压形变)',fn:'plasticine',vector:true,opts:[{},{press:0.5},{press:1}],badge:'c7 新增',desc:'橙色圆饼；opt.press 0-1 顶面凹陷+摊开联动(松手复原与否由调用页决定)；返回{w,h,tip}'},
+  {id:'hand_press',name:'手指按压(sprite)',fn:'hand_press',tall:true,opts:[{},{angle:-18},{h:100}],badge:'c7 新增',desc:'PIL原创sprite 512×512(食指下按+灰袖口)；(x,y)=指尖；opt.angle绕指尖旋转；返回{w,h,tip}'},
+  {id:'spring_horizontal',name:'水平弹簧(支架+拉环)',fn:'spring_horizontal',wide:true,vector:true,opts:[{},{stretch:0.7},{stretch:-0.7}],badge:'c7 新增',desc:'左灰立柱底座固定+右拉环；opt.stretch -1..1 圈距线性(负=压缩)；返回{axisY,end,ring}'},
+  {id:'spring_vertical',name:'竖直弹簧(10圈顶环底钩)',fn:'spring_vertical',tall:true,vector:true,opts:[{},{stretch:0.5},{stretch:1}],badge:'c7 新增',desc:'PhET参照语义：螺旋10圈、圈距随stretch线性变疏、灰黑金属线；mounts.hook=hook_weight snap点；返回{h,top,hook,mounts}'},
+  {id:'bar_magnet',name:'条形磁体(N/S)',fn:'bar_magnet',vector:true,opts:[{},{label:true},{label:true,angle:-20}],badge:'c7 新增',desc:'左S蓝右N红；opt.label白字N/S；opt.angle旋转；返回{w,h,angle,poles{N,S}}'},
+  {id:'iron_ball',name:'小铁球',fn:'iron_ball',vector:true,opts:[{},{r:26},{r:10}],badge:'c7 新增',desc:'银灰球+高光；opt.r半径；返回{r,center}'},
+  {id:'ball_track_table',name:'木框浅蓝桌面舞台(斜面槽)',fn:'ball_track_table',size:{w:520,h:200},vector:true,opts:[{w:460}],badge:'c7 新增',desc:'木色边框+浅蓝台面+左上斜面槽(球滚下入口)；返回{w,h,top{l,t,r,b},ramp}供页内轨迹计算'},
+  {id:'door',name:'门(合页+开角+作用点)',fn:'door',tall:true,vector:true,opts:[{},{open:0.6},{open:0.3,pointMark:0.85}],badge:'c7 新增',desc:'opt.open 0-1 透视窄化；opt.pointMark 0-1 门板黑点作用点；返回{w,h,panelW,hinge,point}(E2三要素箭头起点)'},
+  {id:'magnet_cart',name:'磁车(磁体插槽)',fn:'magnet_cart',wide:true,vector:true,opts:[{},{dir:'left'},{w:110}],badge:'c7 新增',desc:'木色平板车+四轮+顶面磁体插槽；mounts.magnet=放bar_magnet；opt.dir车头朝向；返回{w,h,deck,head,mounts}'},
+  {id:'spring_meter',name:'弹簧测力计(0-5N)',fn:'spring_meter',size:{w:520,h:300},vector:true,opts:[{},{reading:3},{reading:4.6,orientation:'h',h:80}],badge:'c7 新增',desc:'主刻度1.0..5.0+0.2小格+指针+顶环+底挂钩；opt.reading指针+内弹簧伸长联动；orientation v|h(变体3水平小尺寸)；mounts.hook；返回{w,h,top,hook,reading,mounts}'},
+  {id:'hook_weight',name:'钩码(柱高∝质量)',fn:'hook_weight',vector:true,opts:[{g:250},{g:100},{g:50}],badge:'c7 新增',desc:'金属圆柱+顶钩；opt.g 50/100/250或自定义→尺寸线性档、质量印柱面；PROPS.weightGeom单源；顶钩与弹簧底钩snap由页对齐；返回{w,h,hook,g}'},
+  {id:'ruler_flex',name:'直尺(弯曲)',fn:'ruler_flex',wide:true,vector:true,opts:[{},{bend:0.9},{bend:-0.7}],badge:'c7 新增',desc:'米色长尺+刻度线；opt.bend -1..1 二次曲线弯曲+左端固定夹；返回{len,bend,tip,ctrl}'},
+  {id:'rubber_band',name:'橡皮筋(拉伸)',fn:'rubber_band',wide:true,vector:true,opts:[{},{stretch:0.6},{stretch:1}],badge:'c7 新增',desc:'褐色环带；opt.stretch 0..1 环拉长变细；返回{w,h}'},
+  {id:'earth_globe',name:'地球球体(spots点选)',fn:'earth_globe',tall:true,size:{w:520,h:420},vector:true,opts:[{r:80},{r:60,spots:[{lat:35,lon:20,label:'欧亚'},{lat:-20,lon:-60,label:'南美'}]},{r:80,spots:[{lat:-25,lon:135,label:'澳洲'}]}],badge:'c7 新增',desc:'蓝球+绿陆块blob原创简化+高光；opt.spots[{lat,lon,label}]简化投影(x=cx+r·cosLat·sinLon)返回点位+visible背面判定'},
+  {id:'person_pin',name:'小人重力箭头桩',fn:'person_pin',vector:true,opts:[{},{arrow:'down'},{arrow:'up'}],badge:'c7 新增',desc:'简化矢量小人(圆头+躯干腿,无真脸)；opt.arrow down=粉色重力G/up=支持力F；opt.scale身高；返回{h,foot,head,arrow}'}
 ];
 const CARD_SIZES={wide:{w:520,h:160},tall:{w:300,h:420},normal:{w:300,h:160}};
 function sizeOf(item){return item.size||CARD_SIZES[item.wide?'wide':(item.tall?'tall':'normal')];}
@@ -292,7 +309,25 @@ function initDeskBendCard(){
   paint();wrap._lbBig=paint;
   wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(cvs);return wrap;
 }
-function initGallery(){const g=document.getElementById('gallery');PROPS_LIST.forEach(function(item){g.appendChild(drawCard(item));});g.appendChild(initBenchCard());g.appendChild(initToolboxCard());g.appendChild(initDeskCard());g.appendChild(initDeskBendCard());(document.getElementById('rules-grid')||g).appendChild(initPlaceRuleCard());g.appendChild(initRoomCard());} // R32：放置规则卡归三区
+function initPlumbCard(){
+  const wrap=document.createElement('div');wrap.className='prop-card';
+  const lab=document.createElement('div');lab.className='prop-label';lab.textContent='plumb_line';
+  const name=document.createElement('div');name.className='prop-name';name.textContent='铅垂线(恒竖直)';
+  const b=document.createElement('span');b.className='pill';b.style.marginLeft='8px';b.style.background='var(--gold)';b.textContent='c7 新增';name.appendChild(b);
+  const desc=document.createElement('div');desc.textContent='顶吸盘+细线+锥形铅锤；线恒竖直向下不随opt旋转；opt.len线长；锚=吸盘(顶)故用自定义卡(顶锚向下画)；返回{len,top,bob,tip}';desc.style.cssText='font-size:11px;color:#999;margin:2px 0';
+  const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=520;cvs.height=280;
+  const ctx0=cvs.getContext('2d');
+  function paint(g){const ctx=(g&&g.canvas)?g:ctx0;ctx.imageSmoothingEnabled=true;
+    ctx.fillStyle='#f5f2ec';ctx.fillRect(0,0,520,280);
+    PROPS.plumb_line(ctx,110,26,{len:190});
+    PROPS.plumb_line(ctx,280,26,{len:140});
+    PROPS.plumb_line(ctx,430,26,{len:80});
+    ctx.fillStyle='#999';ctx.font='11px sans-serif';ctx.textAlign='center';
+    ctx.fillText('变体1:len=190',110,272);ctx.fillText('变体2:len=140',280,272);ctx.fillText('变体3:len=80',430,272);}
+  paint();wrap._lbBig=paint;
+  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(desc);wrap.appendChild(cvs);return wrap;
+}
+function initGallery(){const g=document.getElementById('gallery');PROPS_LIST.forEach(function(item){g.appendChild(drawCard(item));});g.appendChild(initPlumbCard());g.appendChild(initBenchCard());g.appendChild(initToolboxCard());g.appendChild(initDeskCard());g.appendChild(initDeskBendCard());(document.getElementById('rules-grid')||g).appendChild(initPlaceRuleCard());g.appendChild(initRoomCard());} // R32：放置规则卡归三区
 function initDemo(){
   const cvs=document.getElementById('demo'),ctx=cvs.getContext('2d');ctx.imageSmoothingEnabled=true;
   cvs.width=760;cvs.height=220;
