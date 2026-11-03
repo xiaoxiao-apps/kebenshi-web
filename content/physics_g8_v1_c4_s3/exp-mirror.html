@@ -18,7 +18,7 @@
   .title{font-size:13px;font-weight:600;color:#111827;white-space:nowrap}
   .hint{font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400;margin-left:8px}
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
-  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}/* 单11b①：触摸拖器材时浏览器别把手势判成平移(缺此=pointercancel中断拖拽+失效坐标致器材消失);全站同类canvas页(lens/mass/density/measure)一致;桌面鼠标无touch-action语义逐字节不变 */
   .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(100,108,120,.55),rgba(100,108,120,.28) 70%,rgba(100,108,120,0));pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:8px;padding:8px 10px;z-index:20}
   .ctrlbar>*{pointer-events:auto}
   .group{display:flex;flex-direction:column;gap:5px;background:rgba(240,242,245,.82);border-radius:10px;padding:6px 10px}
@@ -160,7 +160,7 @@ html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;hei
 <script src="../_lib/v1/sfx.js?v=20261024"></script>
 <script src="../_lib/guide/chart-entry.js?v=20261102v4"></script>
 <script src="exp-mirror-render.js?v=20261102v2"></script>
-<script src="exp-mirror-core.js?v=20261102v4"></script>
+<script src="exp-mirror-core.js?v=20261102v5"></script>
 <div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
 <script>window.GUIDE_CFG={state:window.MRR,get mode(){return window.MRR&&window.MRR.mode}};/* MRR 由 render.js 创建、core 原地 mutate；mode 轮询 m1/m2/m3 */</script>
 <script src="guide/guide-data.js?v=20261028v1"></script>

@@ -69,7 +69,7 @@ function resize(){
   cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
   ctx.setTransform(DPR,0,0,DPR,0,0);
   if(ctrlEl) ctrlEl.classList.toggle('compact',H<COMPACT_H);
-  measureCtrl(); proportions(); layout();
+  measureCtrl(); proportions(); layout(); dropDragCache();   // 单11a：尺寸变→离屏缓存作废
   var C=state.cam;
   C.u=clampU(C.u); C.vTube=clampV(C.vTube);
   state.proj.u=clampU2(state.proj.u); state.mag.u=clampU3(state.mag.u);
@@ -80,10 +80,10 @@ function clampV(v){ return Math.max(V_MIN,Math.min(V_MAX,v)); }
 function clampU2(u){ return Math.max(U2_MIN,Math.min(U2_MAX,u)); }
 function clampU3(u){ return Math.max(U3_MIN,Math.min(U3_MAX,u)); }
 var toolboxMag=null;   // 场景3 托盘（仅备光屏一件，layout 构建）
-/* 单2b 托盘可收起 + 单10b③：trayOpen 恒初始 true（桌面常绘逐字节不变；触摸门初始展开=进页仪器卡可见，
-   engage 不强制收起经 ChartEntry.tray initialOpen:true 声明）；点空白收回/左缘标签原语义不变。 */
+/* 单2b 托盘可收起 + 单11a：trayOpen 初始 true=桌面常绘逐字节不变；触摸门 engage 收起（10b③ initialOpen 已撤），
+   场景1/2 进页干净=无托盘框无标签、仪器全在台上直绘；点空白收回/左缘标签原语义不变。 */
 var trayOpen=true;
-var TOUCH_GATE=!!(window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)').matches);   /* 单10b③：仅触摸门放宽 G4 场景闸 */
+var TOUCH_GATE=!!(window.matchMedia&&window.matchMedia('(pointer:coarse) and (hover:none)').matches);   /* 单11a：仅用于拖拽简绘路径；桌面不进=逐字节不变 */
 // ===== 场景1 几何（G2/G3）：F 固定+筒伸缩，xLens=装配体内相对量（F→透镜=u）；canvas y 向下，倒立实像画轴下方 =====
 function panelCH(){ return hLed/PANEL_HF; }   // K1：整图绘制高 ch=boxH/PANEL_HF（boxH=hLed=F 板可视高，源矩形=全图不裁切）
 function panelCW(){                            // K1：整图绘制宽 cw=ch*natW/natH 同源不变形（800×800 探针→cw=ch；F 板可视宽=cw*PANEL_WF=boxH*(606-198)/(710-105) 同源宽高比）
@@ -149,7 +149,7 @@ function drawAxis(){
 }
 function drawTray(){
   if(!toolboxMag||!trayOpen) return;   // 单2b：收起时不绘
-  if(state.scene!=='mag'&&!TOUCH_GATE) return;   // G4 桌面：场景1/2 托盘已删逐字节不变；单10b③ 触摸门：展开态全场景仪器卡可见（进页即见）
+  if(state.scene!=='mag') return;   // G4：托盘框+货仅场景3（单11a 触摸/桌面同闸；桌面原语义逐字节不变，场景1/2 仪器走各自直绘）
   toolboxMag.drawCard(ctx);
   var c=toolboxMag.card;
   ctx.save(); ctx.fillStyle='#8a6d3b'; ctx.font='15px sans-serif'; ctx.textAlign='left';
@@ -539,6 +539,15 @@ function drawEyePeep(){
   ctx.restore();
 }
 function drawMagScreen(x){ PROPS.screen(ctx,x,axisY+Math.round(SCR_AX*scrH),{h:scrH}); }   // G5/G9：屏高 0.32H、屏面中心骑轴
+/* 单11a：光幕之后的绘制组（物体灯箱/人眼/眼视图窗/标注/光晕）——拖拽简绘时缓存底图不含此组，
+   每帧在光幕之上按原序补绘，保证 z 序与半透叠色与全量重绘逐像素一致 */
+function drawMagPost(){
+  drawLedCropped(xLed3(),axisY,true);
+  PROPS.observer_eye(ctx,xEye(),yEye(),{h:eyeH()});   // J5：眼常量固定位（拖拽已删）
+  drawEyePeep();
+  if(showLabels) drawLabelsMag();
+  drawGlowFx();
+}
 function drawLabelsMag(){
   var xl=xLens3(),fpx=F_CM*cmPx();
   dimLine(xLed3(),xl,axisY+tubeDia*0.5+30,'u='+state.mag.u.toFixed(1)+' cm');
@@ -559,7 +568,7 @@ function drawLabelsMag(){
 // ===== 场景视图渲染入口：飞入飞出=旧场景上方飞出/新场景下方飞入 =====
 function renderCam(dy){
   ctx.save(); ctx.translate(0,dy);
-  drawAxis(); drawTray(); drawCamera();
+  drawAxis(); drawCamera();
   if(showRays) drawRaysCam();
   drawLensFilm(); drawFilmImage(); drawFilmPeep(); drawLed();
   if(showLabels) drawLabelsCam();
@@ -586,16 +595,36 @@ function renderMag(dy){
   PROPS.lens_convex(ctx,xLens3(),axisY,{h:lensH,f:F_CM});
   drawMagImage();
   var sx=(drag&&drag.k==='screen')?drag.sx:state.mag.screenX;
-  if(sx!=null) drawMagScreen(sx);
-  drawLedCropped(xLed3(),axisY,true);
-  PROPS.observer_eye(ctx,xEye(),yEye(),{h:eyeH()});   // J5：眼常量固定位（拖拽已删）
-  drawEyePeep();
-  if(showLabels) drawLabelsMag();
-  drawGlowFx();
+  if(sx!=null&&!dragCacheBuild) drawMagScreen(sx);   // 单11a：建缓存时跳过被拖光幕（跟手层每帧单独画）
+  if(!dragCacheBuild) drawMagPost();   // 单11a：建缓存时跳过光幕后组（跟手层在光幕之上按原序补绘）
   ctx.restore();
 }
 function renderScene(s,dy){ if(s==='cam') renderCam(dy); else if(s==='proj') renderProj(dy); else renderMag(dy); }
+/* 单11a 卡顿修（蔡总 11-03 07:29 反馈1）：场景3 触摸拖光幕每帧全量重绘（弥散 ctx.filter×2+灯箱 shadowBlur+12 条光束+
+   pointermove 与 tick 各绘一次=实测 3 绘/帧）→ 拖拽期改「离屏缓存跟手简绘」：底图（不含被拖光幕）缓存一次，
+   每帧只 blit+画光幕。仅触摸门进此路径，桌面走原全量重绘逐字节不变；缓存随拖拽结束释放（不常驻显存）。 */
+var dragCv=null,dragCtx=null,dragKey='',dragCacheBuild=false;
+function dragFastOn(){ return TOUCH_GATE&&!!drag&&drag.k==='screen'&&state.scene==='mag'&&!state.animating; }
+function dragKeyNow(){ return W+'x'+H+'x'+DPR+'|'+state.mag.u+'|'+state.mag.screenX+'|'+trayOpen+'|'+showRays+'|'+showLabels+'|'+PROPS.spriteReady('f_led_panel')+'|'+PROPS.spriteReady('observer_eye'); }
+function buildDragCache(){
+  if(!dragCv){ dragCv=document.createElement('canvas'); dragCtx=dragCv.getContext('2d'); }
+  var w=Math.round(W*DPR),h=Math.round(H*DPR);
+  if(dragCv.width!==w||dragCv.height!==h){ dragCv.width=w; dragCv.height=h; }
+  dragCtx.setTransform(DPR,0,0,DPR,0,0);
+  var sv=ctx; ctx=dragCtx; dragCacheBuild=true;
+  drawBg(); renderScene(state.scene,0);
+  dragCacheBuild=false; ctx=sv; dragKey=dragKeyNow();
+}
+function dropDragCache(){ dragCv=null; dragCtx=null; dragKey=''; }
 function draw(){
+  if(dragFastOn()){
+    if(!dragCv||dragKey!==dragKeyNow()) buildDragCache();
+    ctx.drawImage(dragCv,0,0,W,H);
+    drawMagScreen(drag.sx);
+    drawMagPost();   // 单11a：光幕后组每帧补绘（z 序=全量重绘逐像素一致，修前简绘丢灯箱/眼/标注/光晕）
+    updatePanel();
+    return;
+  }
   drawBg();
   var a=state.anim;
   if(!a) renderScene(state.scene,0);
@@ -709,6 +738,7 @@ cv.addEventListener('pointermove',function(e){
 });
 function endDrag(e){
   if(!drag) return;
+  dropDragCache();   // 单11a：拖拽结束释放离屏缓存（回全量重绘，光幕落位/回收原语义）
   var p=localPt(e),moved=Math.hypot(p.x-startPt.x,p.y-startPt.y)>=5;
   if(drag.k==='screen'){   // H3：释放点在托盘卡内→回收；否则留光轴（y 自动骑轴）；虚像区释放→K5 照旧
     var Mg=state.mag;
@@ -893,11 +923,10 @@ window.__c5s2dbg={ get state(){return state;}, get W(){return W;}, get H(){retur
   vImg3:vImg3, xEye:xEye, yEye:yEye, dimAlpha:dimAlpha, imgHCm3:imgHCm3 };   // J5/J10 探针口
 
 /* 单2b：左缘「器材」竖标签接管 trayOpen（触摸门内生成；点标签展开，展开时点画布空白收回） */
-/* 单10b②：托盘库存逐场景——仅场景3（放大镜）备光屏一件；场景1/2 无库存 → 触摸门标签隐藏 */
+/* 单11a：托盘+标签只属场景3（mag）——场景1/2 无库存：标签隐藏、托盘强制收起、进页干净；场景3 标签在→点开→点空白收回复现标签 */
 function syncTrayVis(){ if(window.ChartEntry&&window.ChartEntry.traySetVisible) window.ChartEntry.traySetVisible(state.scene==='mag'); }
 if(window.ChartEntry) ChartEntry.tray({
   label:'器材',
-  initialOpen:true,   /* 单10b③：触摸门进页托盘展开=仪器卡可见（桌面不经 engage 逐字节不变） */
   setOpen:function(v){ trayOpen=v; },
   redraw:function(){ draw(); },
   isBlankHit:function(e){

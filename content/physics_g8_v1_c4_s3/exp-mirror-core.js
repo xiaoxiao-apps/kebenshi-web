@@ -17,7 +17,7 @@ var btnRec=document.getElementById('btn-rec'),btnClear=document.getElementById('
 var hintEl=document.getElementById('hint');
 var recPanel=document.getElementById('rec-panel');
 var recRows=[].slice.call(document.querySelectorAll('#rec-table tbody tr'));
-var dragging=null,downPt=null,downMoved=false,loopOn=false;
+var dragging=null,downPt=null,downMoved=false,loopOn=false,dragFromTray=false;/* 单11b②：dragFromTray=本次拖拽是否从托盘槽位取出(pointercancel中断时据此复位回槽,已放置器材则保原位) */
 var K=20;R.k=K;
 R.m2.showSym=false;
 if(!R.m3)R.m3={angle:45,showPath:false,top:null,bottom:null,tray:null,inEye:false,flowT:0,rayT0:0,animT:0,pathT0:0};
@@ -370,18 +370,18 @@ cv.addEventListener('pointerdown',function(ev){
   var p=pos(ev);clickFx(ev);
   if(R.mode==='m2'){
     downPt=p;downMoved=false;
-    if(hitM2S(p)){dragging='m2s';R.m2.dragS=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
+    if(hitM2S(p)){dragging='m2s';dragFromTray=false;R.m2.dragS=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
     var slot=R.trayOpen&&R.m2.tray&&R.m2.tray.hitSlot(p);
     if(slot){
       var id=slot.id,m=R.m2;
       if(id==='screen'){m.heldItem='screen';m.screen.state='held';m.screen.heldX=p.x;m.screen.heldY=p.y;}
       else if(id==='eye'){m.heldItem='eye';m.eye.state='held';m.eye.heldX=p.x;m.eye.heldY=p.y;}
-      dragging=id;downMoved=true;
+      dragging=id;downMoved=true;dragFromTray=true;
       cv.setPointerCapture(ev.pointerId);ev.preventDefault();
       if(window.playPick)window.playPick();return;
     }
-    if(hitM2Screen(p)){dragging='m2screen';R.m2.dragScreen=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
-    if(hitM2Eye(p)){dragging='m2eye';R.m2.eye.dragEye=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
+    if(hitM2Screen(p)){dragging='m2screen';dragFromTray=false;R.m2.dragScreen=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
+    if(hitM2Eye(p)){dragging='m2eye';dragFromTray=false;R.m2.eye.dragEye=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
     return;
   }
   if(R.mode==='m3'){
@@ -389,26 +389,26 @@ cv.addEventListener('pointerdown',function(ev){
     var m=R.m3,slot=R.trayOpen&&m.tray&&m.tray.hitSlot(p);
     if(slot){
       var idx=slot.x<m.tray.card.x+m.tray.card.w*0.5?0:1,key=idx===0?'top':'bottom';
-      if(m[key].state==='tray'){m[key].state='held';m[key].heldX=p.x;m[key].heldY=p.y;m.heldItem=key;dragging=key;downMoved=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
+      if(m[key].state==='tray'){m[key].state='held';m[key].heldX=p.x;m[key].heldY=p.y;m.heldItem=key;dragging=key;downMoved=true;dragFromTray=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
     }
-    if((m.top.state==='placed'||m.top.state==='slot')&&hitM3Mirror(p,m.top)){m.top.state='held';m.top.heldX=p.x;m.top.heldY=p.y;dragging='top';downMoved=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
-    if((m.bottom.state==='placed'||m.bottom.state==='slot')&&hitM3Mirror(p,m.bottom)){m.bottom.state='held';m.bottom.heldX=p.x;m.bottom.heldY=p.y;dragging='bottom';downMoved=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
+    if((m.top.state==='placed'||m.top.state==='slot')&&hitM3Mirror(p,m.top)){m.top.state='held';m.top.heldX=p.x;m.top.heldY=p.y;dragging='top';dragFromTray=false;downMoved=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
+    if((m.bottom.state==='placed'||m.bottom.state==='slot')&&hitM3Mirror(p,m.bottom)){m.bottom.state='held';m.bottom.heldX=p.x;m.bottom.heldY=p.y;dragging='bottom';dragFromTray=false;downMoved=true;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
     return;
   }
   if(R.mode!=='m1')return;
   downPt=p;downMoved=false;
   if(R.eqState==='tray'&&R.trayOpen&&R.eqTray&&R.eqTray.hitSlot(p)){
     R.eqState='held';R.eqScale=0.4;R.eqHeldX=p.x;R.eqHeldY=p.y;
-    dragging='eq';downMoved=true;
+    dragging='eq';downMoved=true;dragFromTray=true;
     cv.setPointerCapture(ev.pointerId);ev.preventDefault();
     if(window.playPick)window.playPick();return;
   }
   if(R.eqState==='placed'&&hitEq(p)){
-    dragging='eq';R.eqLift=false;
+    dragging='eq';R.eqLift=false;dragFromTray=false;
     cv.setPointerCapture(ev.pointerId);ev.preventDefault();
     return;
   }
-  if(hitObj(p)){dragging='obj';cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
+  if(hitObj(p)){dragging='obj';dragFromTray=false;cv.setPointerCapture(ev.pointerId);ev.preventDefault();if(window.playPick)window.playPick();return;}
 });
 function pointInPoly(px,py,poly){
   if(!poly||poly.length<4)return false;
@@ -468,8 +468,15 @@ function computeM3Path(){
   m.inEye=false;updateHint();
 }
 function endDrag(ev){
+  var cancelled=ev&&ev.type==='pointercancel';/* 单11b②：中断(触摸被系统手势/滚动抢占)时cancel事件带失效坐标(0,0),绝不据其放置器材(会飞到画布外=消失);从托盘取出的复位回槽,已放置的保原位 */
   if(R.mode==='m2'){
-    var m=R.m2,p=ev?pos(ev):{x:R.eqHeldX,y:R.eqHeldY};
+    var m=R.m2;
+    if(cancelled){
+      if(dragFromTray&&(dragging==='screen'||dragging==='eye')){(dragging==='screen'?m.screen:m.eye).state='tray';}
+      m.heldItem=null;m.dragS=false;m.dragScreen=false;m.eye.dragEye=false;
+      dragging=null;downPt=null;downMoved=false;dragFromTray=false;updateHint();startLoop();if(!loopOn)R.draw();return;
+    }
+    var p=ev?pos(ev):{x:R.eqHeldX,y:R.eqHeldY};
     if(dragging==='screen'||dragging==='eye'){
       var item=dragging==='screen'?m.screen:m.eye,slot=m.tray.slots[dragging==='screen'?0:1];
       item.heldX=p.x;item.heldY=p.y;
@@ -485,17 +492,27 @@ function endDrag(ev){
       else{m.eye.state='placed';}
     }
     checkScreenAtSp();checkEyeInBeam();m.dragS=false;m.dragScreen=false;m.eye.dragEye=false;
-    dragging=null;downPt=null;downMoved=false;updateHint();startLoop();return;
+    dragging=null;downPt=null;downMoved=false;dragFromTray=false;updateHint();startLoop();return;
   }
   if(R.mode==='m3'){
-    var m=R.m3,p=ev?pos(ev):{x:0,y:0};
+    var m=R.m3;
+    if(cancelled){
+      if(dragFromTray&&(dragging==='top'||dragging==='bottom')){m[dragging].state='tray';}
+      m.heldItem=null;dragging=null;downPt=null;downMoved=false;dragFromTray=false;updateHint();startLoop();if(!loopOn)R.draw();return;
+    }
+    var p=ev?pos(ev):{x:0,y:0};
     if(dragging==='top'||dragging==='bottom'){
       var mr=m[dragging];
       mr.heldX=p.x;mr.heldY=p.y;
       if(R.trayOpen&&m.tray.pointInCard(p)){mr.state='tray';}
       else{checkM3(true);}
     }
-    m.heldItem=null;dragging=null;downPt=null;downMoved=false;updateHint();startLoop();return;
+    m.heldItem=null;dragging=null;downPt=null;downMoved=false;dragFromTray=false;updateHint();startLoop();return;
+  }
+  if(cancelled){
+    if(R.eqState==='held'){R.eqState=dragFromTray?'tray':'placed';if(dragFromTray)R.eqScale=0.35;}
+    R.eqLift=false;dragging=null;downPt=null;downMoved=false;dragFromTray=false;
+    updateHint();startLoop();if(!loopOn)R.draw();return;
   }
   if(dragging==='obj'&&!downMoved)toggleLit();
   else if(dragging==='eq'&&R.eqState==='held'&&R.eqTray){
@@ -514,7 +531,7 @@ function endDrag(ev){
   }
   else if(dragging&&downMoved&&window.playDrop)window.playDrop();
   R.eqLift=false;
-  dragging=null;downPt=null;downMoved=false;
+  dragging=null;downPt=null;downMoved=false;dragFromTray=false;
   updateHint();startLoop();if(!loopOn)R.draw();
 }
 cv.addEventListener('pointerup',endDrag);cv.addEventListener('pointercancel',endDrag);

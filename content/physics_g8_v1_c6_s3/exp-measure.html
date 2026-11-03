@@ -28,10 +28,10 @@
   button.secondary{background:#6b7280}
   button.secondary:hover{background:#4b5563}
   button:disabled{opacity:.35;cursor:default}
-  /* 引入式按钮物理按压两态（阶段钮/换石块/数据表/标注） */
-  button.stg,button#btn-newstone,button#btn-table,button#btn-labels{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s;padding:7px 11px}
-  button.stg:hover,button#btn-newstone:hover,button#btn-table:hover,button#btn-labels:hover{background:linear-gradient(#f8fafc,#d2deeb)}
-  button.stg.on,button#btn-newstone.on,button#btn-table.on,button#btn-labels.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
+  /* 引入式按钮物理按压两态（阶段钮/换石块/数据表/读数面板/标注）；P-单11d(20261103): #btn-read补入两态组——原漏配恒呈蓝底"已开"样且core的on类无视觉(蔡总11-03 07:29反馈4),对齐image-law #btn-read先例,触摸+桌面同修 */
+  button.stg,button#btn-newstone,button#btn-table,button#btn-read,button#btn-labels{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s;padding:7px 11px}
+  button.stg:hover,button#btn-newstone:hover,button#btn-table:hover,button#btn-read:hover,button#btn-labels:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  button.stg.on,button#btn-newstone.on,button#btn-table.on,button#btn-read.on,button#btn-labels.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
   /* 阶段专属控件卡：非当前阶段移出 flex 流（c6s2 先例，杜绝隐藏卡占位） */
   .group.flyout{display:none}
   /* 小窗紧凑档（core resize 判定 H<600 加 .compact） */
