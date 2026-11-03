@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>三要素推门工坊 — 力</title>
+<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261102v2">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;-webkit-tap-highlight-color:transparent}
+  body{font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;background:#f5f2ec;color:#3d3830;overflow:hidden}
+  header{position:fixed;top:0;left:0;right:0;height:34px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f5f2ec;border-bottom:1px solid rgba(0,0,0,0.12);z-index:10}
+  .back{font-size:13px;color:#2563eb;text-decoration:none;white-space:nowrap}
+  .back:hover{text-decoration:underline}
+  .title{font-size:13px;font-weight:600;color:#2b2620;white-space:nowrap}
+  .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
+  .hintbar{position:absolute;left:50%;transform:translateX(-50%);top:10px;max-width:82%;background:rgba(255,166,87,.93);color:#4a2c00;font-size:14px;font-weight:600;line-height:1.5;padding:8px 16px;border-radius:10px;box-shadow:0 3px 10px rgba(0,0,0,.18);pointer-events:none;z-index:16;text-align:center;opacity:0;transition:opacity .4s}
+  .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:nowrap;overflow-x:auto;justify-content:center;justify-content:safe center;align-items:stretch;gap:8px;padding:8px 12px;font-family:inherit;z-index:20}
+  .ctrlbar>*{pointer-events:auto;flex:0 0 auto}
+  .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px}
+  .glabel{font-size:14px;color:#8a7c66;white-space:nowrap;letter-spacing:.5px;line-height:1}
+  .gctrl{display:flex;align-items:center;gap:6px;flex:1;min-height:40px}
+  .gctrl label{font-size:14px;cursor:pointer;white-space:nowrap;color:#3d3830}
+  button{border:0;border-radius:8px;padding:9px 13px;font-size:14px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s;white-space:nowrap}
+  button:hover{background:#1d4ed8}
+  button.secondary{background:#6b7280}
+  button.secondary:hover{background:#4b5563}
+  button:disabled{opacity:.35;cursor:default}
+  button#btn-push{background:#ea580c}
+  button#btn-push:hover{background:#c2410c}
+  button#btn-push.on{background:#9a3412;box-shadow:inset 0 2px 5px rgba(0,0,0,.4)}
+  input[type=range]{width:130px;accent-color:#d97706}
+  .rlabel{font-size:15px;color:#854d0e;min-width:64px;text-align:right;font-variant-numeric:tabular-nums}
+  .ctrlbar.compact .glabel{font-size:12px}
+  .ctrlbar.compact .gctrl{min-height:32px}
+  .ctrlbar.compact button{padding:5px 7px;font-size:13px}
+  .ctrlbar.compact input[type=range]{width:96px}
+  .ctrlbar.compact .rlabel{font-size:13px;min-width:0}
+  :fullscreen .ctrlbar,html.pseudo-fs .ctrlbar{flex-wrap:nowrap;gap:6px;padding:6px 10px;overflow-x:auto}
+  :fullscreen .ctrlbar .glabel,html.pseudo-fs .ctrlbar .glabel{font-size:11px}
+  :fullscreen .ctrlbar button,html.pseudo-fs .ctrlbar button{padding:4px 8px;font-size:13px}
+  :fullscreen .ctrlbar input[type=range],html.pseudo-fs .ctrlbar input[type=range]{width:110px}
+  .rec-panel{display:none;position:absolute;width:fit-content;min-width:0;max-width:60vw;background:rgba(255,255,255,0.45);border-radius:16px;padding:10px 10px;font-size:14px;z-index:15;pointer-events:none}
+  .rec-panel.show{display:block}
+  .rec-panel .rp-title{font-size:15px;font-weight:600;color:#b45309;margin-bottom:8px}
+  table.rec{border-collapse:collapse;font-size:14px;background:transparent;table-layout:auto}
+  table.rec th,table.rec td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:5px 9px;text-align:left;white-space:nowrap;color:#1e293b}
+  table.rec th{background:transparent;font-weight:400;color:#64748b}
+  table.rec td{font-weight:600}
+  html.pseudo-fs{width:100%;height:100%}
+  html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;height:100dvh;z-index:2147483000;overflow:hidden}
+</style>
+<style>
+@media (pointer:coarse) and (hover:none){
+.ctrlbar{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;height:auto;min-height:0;max-height:70px;padding-top:4px;padding-bottom:4px;scrollbar-width:none}
+.ctrlbar::-webkit-scrollbar{display:none}
+.ctrlbar>*{flex:0 0 auto}
+.ctrlbar .group{padding:3px 8px}
+.ctrlbar .glabel{font-size:10px}
+.ctrlbar .gctrl{min-height:24px;gap:4px}
+.ctrlbar .gctrl label{font-size:12px}
+.ctrlbar button{padding:4px 7px;font-size:12px}
+.ctrlbar input[type=range]{width:84px}
+.ctrlbar .rlabel{font-size:12px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="title">力 · 三要素推门工坊</div>
+  <a class="back" href="./index.html">← 返回实验卡页</a>
+</header>
+<div class="scene-wrap">
+<canvas id="scene"></canvas>
+<div class="hintbar" id="hint"></div>
+<div class="rec-panel" id="panel-read">
+  <div class="rp-title">读数面板</div>
+  <table class="rec"><tbody>
+    <tr><th>作用点（离轴）</th><td id="rd-point">—</td></tr>
+    <tr><th>方向（与门面夹角）</th><td id="rd-dir">—</td></tr>
+    <tr><th>大小</th><td id="rd-size">—</td></tr>
+    <tr><th>转动效果</th><td id="rd-eff">—</td></tr>
+    <tr><th>门开度</th><td id="rd-open">—</td></tr>
+  </tbody></table>
+</div>
+</div>
+<div class="ctrlbar">
+  <div class="group" id="grp-point">
+    <div class="glabel">作用点（离门轴远近）</div>
+    <div class="gctrl">
+      <input type="range" id="rng-point" min="5" max="100" step="1" value="75">
+      <span class="rlabel" id="lbl-point">75 %</span>
+    </div>
+  </div>
+  <div class="group" id="grp-dir">
+    <div class="glabel">方向（角度盘）</div>
+    <div class="gctrl">
+      <input type="range" id="rng-dir" min="-90" max="90" step="1" value="0">
+      <span class="rlabel" id="lbl-dir">90°</span>
+    </div>
+  </div>
+  <div class="group" id="grp-size">
+    <div class="glabel">大小</div>
+    <div class="gctrl">
+      <input type="range" id="rng-size" min="0" max="10" step="0.5" value="5">
+      <span class="rlabel" id="lbl-size">5.0 N</span>
+    </div>
+  </div>
+  <div class="group" id="grp-act">
+    <div class="glabel">推门</div>
+    <div class="gctrl">
+      <button id="btn-push">开始推门</button>
+      <button id="btn-close" class="secondary">关上门</button>
+    </div>
+  </div>
+  <div class="group" id="grp-sys">
+    <div class="glabel">系统</div>
+    <div class="gctrl">
+      <button id="btn-table">读数面板</button>
+      <button id="btn-reset" class="secondary">重置</button>
+      <button id="btn-mute">🔊</button>
+      <button id="btn-full" class="secondary">全屏</button>
+    </div>
+  </div>
+</div>
+<div id="guide-layer"></div>
+<script src="../_lib/v1/props.js?v=20261104"></script>
+<script src="../_lib/v1/props-mech.js?v=20261104"></script>
+<script src="../_lib/v1/sfx.js?v=20261104"></script>
+<script src="exp-elements-core.js?v=20261104"></script>
+<script src="guide/guide-data.js?v=20261104"></script>
+<script>window.GUIDE_CFG={state:window.C7S1_STATE,mode:'elements'};window.GUIDE_DATA=window.C7S1_GUIDE;</script>
+<script src="../_lib/guide/engine-core.js?v=20261028v13"></script>
+<script src="../_lib/guide/vB-core.js?v=20261102v3"></script>
+<script src="/content/_lib/mobile-guard.js?v=20261030v1" defer></script>
+</body>
+</html>
