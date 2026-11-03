@@ -24,7 +24,8 @@ window.C5S3_GUIDE={
          电平边沿型：操作刷新 lastActT→条件假→下一帧真上升沿即发火；repeat 边沿+引擎 REP_COOLDOWN=3000 天然防刷屏（连点3秒内只提醒一次）；
          **不加 queue**=动作响应立即播，打断欢迎词符合蔡总规矩（R8-1 契约6：用户动作条一律不加 queue） */
       {id:'c5s3-s1c',repeat:true,trigger:'R.lastActT>0 && R.lit===false && (G.t-R.lastActT)>=0 && (G.t-R.lastActT)<1500',say:'请先点亮光源。',audio:'c5s3-s1c'},
-      {id:'c5s3-s2',repeat:true,queue:true,trigger:'R.lit===true && R.u-R.f>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))>0.6',say:'屏上像模糊啦，拖屏或点寻像找清晰像。',audio:'c5s3-s2'},/* R10：加已点亮门（蔡总：只有点亮才触发接下来的步骤），下同 s3~s10/e1~e3/f1~f4 共15条 */
+      /* 单15a（蔡总 11-03 11:15）：撤屏态（观察眼/空中实像）无任何「屏上像」语义播报——s2/e1 前置 R.screenOn===true 闸；音频文案零改只加闸 */
+      {id:'c5s3-s2',repeat:true,queue:true,trigger:'R.screenOn===true && R.lit===true && R.u-R.f>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))>0.6',say:'屏上像模糊啦，拖屏或点寻像找清晰像。',audio:'c5s3-s2'},/* R10：加已点亮门（蔡总：只有点亮才触发接下来的步骤），下同 s3~s10/e1~e3/f1~f4 共15条 */
       {id:'c5s3-s3',repeat:true,queue:true,trigger:'R.lit===true && R.u>2*R.f && R.u-R.f>0.25 && Math.abs(R.u-2*R.f)>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))<=0.6',say:'现在物距大于二倍焦距，成倒立、缩小的实像。',audio:'c5s3-s3'},   /* R7-A2：加 |u−2f|>0.25 排除带，u=2f 时让位 s5 */
       {id:'c5s3-s4',repeat:true,queue:true,trigger:'R.lit===true && R.u-R.f>0.25 && R.u<2*R.f && Math.abs(R.u-2*R.f)>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))<=0.6',say:'物距在一倍焦距和二倍焦距之间，成倒立、放大的实像。',audio:'c5s3-s4'},   /* R7-A2：同款排除带 */
       {id:'c5s3-s5',repeat:true,queue:true,trigger:'R.lit===true && Math.abs(R.u-2*R.f)<=0.25',say:'物距等于二倍焦距，成倒立、等大的实像，这是放大缩小的分界点。',audio:'c5s3-s5'},
@@ -36,7 +37,7 @@ window.C5S3_GUIDE={
       {id:'c5s3-s11',repeat:false,queue:true,trigger:'after:c5s3-s10@6000',say:'因此我们得出结论：一倍焦距分虚实，二倍焦距分大小。',audio:'c5s3-s11'}
     ],
     errors:[
-      {id:'c5s3-e1',queue:true,trigger:'event:click:#btn-record:R.lit===true && R.u-R.f>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))>0.6',fix:'不对哟～屏上像还模糊，先寻像再记录哦。',audio:'c5s3-e1'},
+      {id:'c5s3-e1',queue:true,trigger:'event:click:#btn-record:R.screenOn===true && R.lit===true && R.u-R.f>0.25 && Math.abs(R.vSc-R.u*R.f/(R.u-R.f))>0.6',fix:'不对哟～屏上像还模糊，先寻像再记录哦。',audio:'c5s3-e1'},/* 单15a：撤屏态禁播屏上像语义 */
       {id:'c5s3-e2',queue:true,trigger:'event:click:#btn-auto:R.lit===true && Math.abs(R.u-R.f)<=0.25',fix:'不对哟～物距等于一倍焦距时不成像，寻像也没用呀。',audio:'c5s3-e2'},
       {id:'c5s3-e3',queue:true,trigger:'event:click:#btn-auto:R.lit===true && R.f-R.u>0.25',fix:'不对哟～虚像屏接不到，撤屏用眼睛看。',audio:'c5s3-e3'}
     ],
