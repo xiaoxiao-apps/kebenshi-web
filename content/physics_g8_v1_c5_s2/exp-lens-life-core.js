@@ -63,7 +63,7 @@ function layout(){
   toolboxMag=PROPS.toolbox.create({card:cardM,items:[{id:'screen',x:cardM.x+150,y:cardM.y+Math.round(cardH/2)}],fit:fit,nat:{screen:{w:280,h:467}}});
 }
 function resize(){
-  DPR=window.devicePixelRatio||1;
+  DPR=TOUCH_GATE?Math.min(window.devicePixelRatio||1,2):(window.devicePixelRatio||1);   /* 单12④：触摸门 dpr cap2（dpr3 软件光栅填充率省 44%）；桌面原 DPR 逐字节不变 */
   var r=cv.getBoundingClientRect();
   W=Math.max(640,r.width); H=Math.max(360,r.height);
   cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
@@ -259,7 +259,7 @@ function drawLensFilm(){
   ctx.fill(); ctx.stroke(); ctx.restore();
 }
 // K1 F 光源=无底座灯箱 f_led_panel（蔡总 23:14 授权 wan2.7 重生成）：整图绘制不裁切；lit=①离屏 source-atop 暖罩 30%（原 0.55 降）②主画布 lighter+shadowBlur 沿 F 轮廓=笔画发光叠两层；大径向光晕已删
-var ledLitCv=null,ledLitKey='';
+var ledLitCv=null,ledLitKey='',ledGlowCv=null,ledGlowKey='',ledGlowM=0;
 function drawLedCropped(x,yc,lit){
   var id='f_led_panel';
   if(!PROPS.spriteReady(id)) return;
@@ -275,12 +275,31 @@ function drawLedCropped(x,yc,lit){
       oc.globalCompositeOperation='source-atop';   // 只罩 F 板不透明像素=板面暖亮（K1：30%）
       oc.fillStyle='rgba(255,214,120,0.30)'; oc.fillRect(0,0,cw,ch);
     }
-    ctx.save();
-    ctx.globalCompositeOperation='lighter';
-    ctx.shadowColor='rgba(255,214,120,0.85)'; ctx.shadowBlur=ch*0.18;   // K1：shadow 沿 F 轮廓=笔画发光
-    ctx.drawImage(ledLitCv,dx,dy); ctx.drawImage(ledLitCv,dx,dy);       // 叠两层增强
-    ctx.restore();
-    ctx.drawImage(ledLitCv,dx,dy);   // K1 热修：光晕后 source-over 重描 F 面板，防 lighter 把奶白面板吹成纯白丢笔画
+    if(TOUCH_GATE){   /* 单12①发光 bake 化：「lighter 叠两层+shadowBlur 笔画发光」预渲染进离屏一次（档位 key 变化重建），
+       每帧 lighter blit 成品+source-over 重描面板，per-frame shadowBlur=0；桌面原路径逐字节不变 */
+      if(!ledGlowCv||ledGlowKey!==key){
+        ledGlowM=Math.ceil(ch*0.36)+4;
+        ledGlowCv=document.createElement('canvas');
+        ledGlowCv.width=Math.max(1,Math.round(cw))+2*ledGlowM; ledGlowCv.height=Math.max(1,Math.round(ch))+2*ledGlowM; ledGlowKey=key;
+        var gc=ledGlowCv.getContext('2d');
+        gc.translate(ledGlowM,ledGlowM);
+        gc.globalCompositeOperation='lighter';
+        gc.shadowColor='rgba(255,214,120,0.85)'; gc.shadowBlur=ch*0.18;   // K1 同参：shadow 沿 F 轮廓=笔画发光
+        gc.drawImage(ledLitCv,0,0); gc.drawImage(ledLitCv,0,0);            // 叠两层增强（原语义）
+      }
+      ctx.save();
+      ctx.globalCompositeOperation='lighter';
+      ctx.drawImage(ledGlowCv,dx-ledGlowM,dy-ledGlowM);
+      ctx.restore();
+      ctx.drawImage(ledLitCv,dx,dy);   // K1 热修语义保留：source-over 重描 F 面板防丢笔画
+    }else{
+      ctx.save();
+      ctx.globalCompositeOperation='lighter';
+      ctx.shadowColor='rgba(255,214,120,0.85)'; ctx.shadowBlur=ch*0.18;   // K1：shadow 沿 F 轮廓=笔画发光
+      ctx.drawImage(ledLitCv,dx,dy); ctx.drawImage(ledLitCv,dx,dy);       // 叠两层增强
+      ctx.restore();
+      ctx.drawImage(ledLitCv,dx,dy);   // K1 热修：光晕后 source-over 重描 F 面板，防 lighter 把奶白面板吹成纯白丢笔画
+    }
   }else{
     ctx.drawImage(img,0,0,img.naturalWidth,img.naturalHeight,dx,dy,cw,ch);
   }
@@ -541,13 +560,7 @@ function drawEyePeep(){
 function drawMagScreen(x){ PROPS.screen(ctx,x,axisY+Math.round(SCR_AX*scrH),{h:scrH}); }   // G5/G9：屏高 0.32H、屏面中心骑轴
 /* 单11a：光幕之后的绘制组（物体灯箱/人眼/眼视图窗/标注/光晕）——拖拽简绘时缓存底图不含此组，
    每帧在光幕之上按原序补绘，保证 z 序与半透叠色与全量重绘逐像素一致 */
-function drawMagPost(){
-  drawLedCropped(xLed3(),axisY,true);
-  PROPS.observer_eye(ctx,xEye(),yEye(),{h:eyeH()});   // J5：眼常量固定位（拖拽已删）
-  drawEyePeep();
-  if(showLabels) drawLabelsMag();
-  drawGlowFx();
-}
+/* 单12：光幕后组拆为 灯箱(renderMag 内联 bake blit) + renderMagHighB（眼/窗/标注，缓存层可复用）；语句序与拆前逐字节一致 */
 function drawLabelsMag(){
   var xl=xLens3(),fpx=F_CM*cmPx();
   dimLine(xLed3(),xl,axisY+tubeDia*0.5+30,'u='+state.mag.u.toFixed(1)+' cm');
@@ -566,62 +579,131 @@ function drawLabelsMag(){
   ctx.restore();
 }
 // ===== 场景视图渲染入口：飞入飞出=旧场景上方飞出/新场景下方飞入 =====
+/* 单12②光路分层：三场景各拆 Low（光路下层）/HighA（光路上层·灯箱前）/HighB（灯箱后）——包装函数语句序与拆前逐字节一致（桌面零漂移）。
+   灯箱发光恒走每帧「bake 成品 lighter blit」=加法叠到真实底图（保晕色与修前一致；进透明缓存层会变 alpha 合成偏金，实测肉眼可见） */
+function renderCamLow(){ drawAxis(); drawCamera(); }
+function renderCamHighA(){ drawLensFilm(); drawFilmImage(); drawFilmPeep(); }
+function renderCamHighB(){ if(showLabels) drawLabelsCam(); }
 function renderCam(dy){
   ctx.save(); ctx.translate(0,dy);
-  drawAxis(); drawCamera();
+  renderCamLow();
   if(showRays) drawRaysCam();
-  drawLensFilm(); drawFilmImage(); drawFilmPeep(); drawLed();
-  if(showLabels) drawLabelsCam();
+  renderCamHighA();
+  drawLed();
+  renderCamHighB();
   drawGlowFx();
   ctx.restore();
 }
-function renderProj(dy){
-  ctx.save(); ctx.translate(0,dy);
+function renderProjLow(){
   drawRightScreen();         // H2：幕布常显右端（平面镜/天花板已删）
   drawAxis();
   drawProjBody();          // G8 黑盒机身先画，投影片/光路/透镜叠上
   drawLed2();
-  if(showRays) drawRaysProj();
+}
+function renderProjHigh(){
   PROPS.lens_convex(ctx,xLens2(),axisY,{h:lensH,f:F2_CM});
   drawProjImage(xScr2(),axisY);
   if(showLabels) drawLabelsProj();
+}
+function renderProj(dy){
+  ctx.save(); ctx.translate(0,dy);
+  renderProjLow();
+  if(showRays) drawRaysProj();
+  renderProjHigh();
   drawGlowFx();
   ctx.restore();
 }
-function renderMag(dy){
-  ctx.save(); ctx.translate(0,dy);
-  drawAxis(); drawTray();
-  if(showRays) drawMagRays();
+function renderMagLow(){ drawAxis(); drawTray(); }
+function renderMagHighA(){   // 光路上层·灯箱前段（u 相关）：透镜+虚像+光幕
   PROPS.lens_convex(ctx,xLens3(),axisY,{h:lensH,f:F_CM});
   drawMagImage();
   var sx=(drag&&drag.k==='screen')?drag.sx:state.mag.screenX;
-  if(sx!=null&&!dragCacheBuild) drawMagScreen(sx);   // 单11a：建缓存时跳过被拖光幕（跟手层每帧单独画）
-  if(!dragCacheBuild) drawMagPost();   // 单11a：建缓存时跳过光幕后组（跟手层在光幕之上按原序补绘）
+  if(sx!=null) drawMagScreen(sx);
+}
+function renderMagHighB(){   // 灯箱后段：眼/眼视图窗/标注
+  PROPS.observer_eye(ctx,xEye(),yEye(),{h:eyeH()});   // J5：眼常量固定位（拖拽已删）
+  drawEyePeep();
+  if(showLabels) drawLabelsMag();
+}
+function renderMag(dy){
+  ctx.save(); ctx.translate(0,dy);
+  renderMagLow();
+  if(showRays) drawMagRays();
+  renderMagHighA();
+  drawLedCropped(xLed3(),axisY,true);
+  renderMagHighB();
+  drawGlowFx();
   ctx.restore();
 }
 function renderScene(s,dy){ if(s==='cam') renderCam(dy); else if(s==='proj') renderProj(dy); else renderMag(dy); }
-/* 单11a 卡顿修（蔡总 11-03 07:29 反馈1）：场景3 触摸拖光幕每帧全量重绘（弥散 ctx.filter×2+灯箱 shadowBlur+12 条光束+
-   pointermove 与 tick 各绘一次=实测 3 绘/帧）→ 拖拽期改「离屏缓存跟手简绘」：底图（不含被拖光幕）缓存一次，
-   每帧只 blit+画光幕。仅触摸门进此路径，桌面走原全量重绘逐字节不变；缓存随拖拽结束释放（不常驻显存）。 */
-var dragCv=null,dragCtx=null,dragKey='',dragCacheBuild=false;
+function renderLowScene(){ if(state.scene==='cam') renderCamLow(); else if(state.scene==='proj') renderProjLow(); else renderMagLow(); }
+function renderHighAScene(){ if(state.scene==='cam') renderCamHighA(); else if(state.scene==='proj') renderProjHigh(); else renderMagHighA(); }
+function renderHighBScene(){ if(state.scene==='cam') renderCamHighB(); else if(state.scene==='mag') renderMagHighB(); }   // proj 无灯箱后段=空层跳过
+function liveLedScene(){ if(state.scene==='cam') drawLed(); else if(state.scene==='mag') drawLedCropped(xLed3(),axisY,true); }   // 每帧 bake 成品 lighter blit（shadowBlur=0）
+function drawRaysScene(){ if(state.scene==='cam') drawRaysCam(); else if(state.scene==='proj') drawRaysProj(); else drawMagRays(); }
+/* 单11a 卡顿修（蔡总 11-03 07:29 反馈1）+单12③：场景3 触摸拖光幕=「双离屏缓存跟手简绘」——
+   below（不含被拖光幕/灯箱/光幕后组）+above（灯箱后段；眼视图窗 ctx.filter 冻结进缓存）各缓存一次，
+   每帧=blit below+画光幕+灯箱 bake blit+blit above+光晕。仅触摸门进此路径，桌面走原全量重绘逐字节不变；缓存随拖拽结束释放。 */
+var dragCv=null,dragCtx=null,dragUpCv=null,dragUpCtx=null,dragKey='';
+/* 单12② idle 分层缓存（光路开流动虚线期）：low/highA/highB 随状态键失效重建；③切场景 snapshot：动画期双 blit */
+var idleCv=null,idleCtx=null,idleACv=null,idleACtx=null,idleBCv=null,idleBCtx=null,idleKey='';
+var snapFromCv=null,snapToCv=null;
 function dragFastOn(){ return TOUCH_GATE&&!!drag&&drag.k==='screen'&&state.scene==='mag'&&!state.animating; }
+function idleFastOn(){ return TOUCH_GATE&&showRays&&!state.animating&&!drag; }
 function dragKeyNow(){ return W+'x'+H+'x'+DPR+'|'+state.mag.u+'|'+state.mag.screenX+'|'+trayOpen+'|'+showRays+'|'+showLabels+'|'+PROPS.spriteReady('f_led_panel')+'|'+PROPS.spriteReady('observer_eye'); }
+function idleKeyNow(){ return W+'x'+H+'x'+DPR+'|'+state.scene+'|'+state.cam.u+'|'+state.cam.vTube+'|'+state.proj.u+'|'+state.proj.flipped+'|'+state.mag.u+'|'+state.mag.screenX+'|'+trayOpen+'|'+showLabels+'|'+PROPS.spriteReady('f_led_panel')+'|'+PROPS.spriteReady('observer_eye'); }
 function buildDragCache(){
-  if(!dragCv){ dragCv=document.createElement('canvas'); dragCtx=dragCv.getContext('2d'); }
   var w=Math.round(W*DPR),h=Math.round(H*DPR);
-  if(dragCv.width!==w||dragCv.height!==h){ dragCv.width=w; dragCv.height=h; }
-  dragCtx.setTransform(DPR,0,0,DPR,0,0);
-  var sv=ctx; ctx=dragCtx; dragCacheBuild=true;
-  drawBg(); renderScene(state.scene,0);
-  dragCacheBuild=false; ctx=sv; dragKey=dragKeyNow();
+  if(!dragCv){ dragCv=document.createElement('canvas'); dragCtx=dragCv.getContext('2d'); dragUpCv=document.createElement('canvas'); dragUpCtx=dragUpCv.getContext('2d'); }
+  dragCv.width=w; dragCv.height=h; dragUpCv.width=w; dragUpCv.height=h;
+  dragCtx.setTransform(DPR,0,0,DPR,0,0); dragUpCtx.setTransform(DPR,0,0,DPR,0,0);
+  var sv=ctx;
+  ctx=dragCtx; drawBg(); renderMagLow(); if(showRays) drawMagRays(); PROPS.lens_convex(ctx,xLens3(),axisY,{h:lensH,f:F_CM}); drawMagImage();
+  ctx=dragUpCtx; renderMagHighB();
+  ctx=sv; dragKey=dragKeyNow();
 }
-function dropDragCache(){ dragCv=null; dragCtx=null; dragKey=''; }
+function buildIdleCaches(){
+  var w=Math.round(W*DPR),h=Math.round(H*DPR);
+  if(!idleCv){
+    idleCv=document.createElement('canvas'); idleCtx=idleCv.getContext('2d');
+    idleACv=document.createElement('canvas'); idleACtx=idleACv.getContext('2d');
+    idleBCv=document.createElement('canvas'); idleBCtx=idleBCv.getContext('2d');
+  }
+  idleCv.width=w; idleCv.height=h; idleACv.width=w; idleACv.height=h; idleBCv.width=w; idleBCv.height=h;
+  idleCtx.setTransform(DPR,0,0,DPR,0,0); idleACtx.setTransform(DPR,0,0,DPR,0,0); idleBCtx.setTransform(DPR,0,0,DPR,0,0);
+  var sv=ctx;
+  ctx=idleCtx; drawBg(); renderLowScene();
+  ctx=idleACtx; renderHighAScene();
+  ctx=idleBCtx; renderHighBScene();
+  ctx=sv; idleKey=idleKeyNow();
+}
+function buildSnapCanvas(scene){   // 单12③：场景静态帧 snapshot（含 bg 不透明：飞入飞出两帧竖直铺满零交叠，发光加法晕色保真）
+  var c=document.createElement('canvas');
+  c.width=Math.round(W*DPR); c.height=Math.round(H*DPR);
+  var sc=c.getContext('2d'); sc.setTransform(DPR,0,0,DPR,0,0);
+  var sv=ctx; ctx=sc; drawBg(); renderScene(scene,0); ctx=sv;
+  return c;
+}
+function dropDragCache(){ dragCv=null; dragCtx=null; dragUpCv=null; dragUpCtx=null; dragKey=''; idleCv=null; idleCtx=null; idleACv=null; idleACtx=null; idleBCv=null; idleBCtx=null; idleKey=''; snapFromCv=null; snapToCv=null; }   // 单11a+单12：拖拽结束/尺寸变→全部离屏缓存作废释放
 function draw(){
   if(dragFastOn()){
     if(!dragCv||dragKey!==dragKeyNow()) buildDragCache();
     ctx.drawImage(dragCv,0,0,W,H);
     drawMagScreen(drag.sx);
-    drawMagPost();   // 单11a：光幕后组每帧补绘（z 序=全量重绘逐像素一致，修前简绘丢灯箱/眼/标注/光晕）
+    drawLedCropped(xLed3(),axisY,true);   // 单12①：bake 成品 lighter blit（修前每帧 shadowBlur×2）
+    ctx.drawImage(dragUpCv,0,0,W,H);   // 单12③：灯箱后段 blit（修前每帧重绘含 ctx.filter 弥散）
+    drawGlowFx();
+    updatePanel();
+    return;
+  }
+  if(idleFastOn()){   // 单12②：光路开 idle=blit Low+只绘流动虚线层（十几条 lineTo）+blit HighA+灯箱 bake blit+blit HighB+光晕
+    if(!idleCv||idleKey!==idleKeyNow()) buildIdleCaches();
+    ctx.drawImage(idleCv,0,0,W,H);
+    drawRaysScene();
+    ctx.drawImage(idleACv,0,0,W,H);
+    liveLedScene();
+    if(state.scene!=='proj') ctx.drawImage(idleBCv,0,0,W,H);
+    drawGlowFx();
     updatePanel();
     return;
   }
@@ -630,7 +712,12 @@ function draw(){
   if(!a) renderScene(state.scene,0);
   else{
     var e=easeInOut(Math.min(1,(performance.now()-a.t0)/ANIM_DUR));
-    renderScene(a.from,-H*e); renderScene(a.to,H*(1-e));
+    if(TOUCH_GATE&&snapFromCv&&snapToCv){   // 单12③：动画期每帧=双 snapshot blit（修前每帧双场景全量重绘）
+      ctx.drawImage(snapFromCv,0,-H*e,W,H);
+      ctx.drawImage(snapToCv,0,H*(1-e),W,H);
+    }else{
+      renderScene(a.from,-H*e); renderScene(a.to,H*(1-e));
+    }
   }
   updatePanel();
 }
@@ -863,8 +950,10 @@ function syncSceneUI(){
 function switchScene(to){
   if(state.animating||to===state.scene) return;
   var from=state.scene;
+  if(TOUCH_GATE) snapFromCv=buildSnapCanvas(from);   // 单12③：from snapshot 须在 state.scene 变更前建（drawTray 读 state.scene）
   state.scene=to;                       // 三场景子状态完全隔离，返回原样恢复
   syncTrayVis();                        // 单10b②：按本场景托盘有无货开关竖标签
+  if(TOUCH_GATE) snapToCv=buildSnapCanvas(to);   // 单12③：to snapshot 建完才起 t0=动画时长不被建帧吃掉
   state.animating=true; state.anim={from:from,to:to,t0:performance.now()};
   syncSceneUI();
   if(window.playClick) playClick();
@@ -899,6 +988,7 @@ function tick(){
   if(state.animating){
     if(performance.now()-state.anim.t0>=ANIM_DUR){
       state.animating=false; state.anim=null;
+      snapFromCv=null; snapToCv=null;   // 单12③：动画结束即释放双 snapshot（不常驻显存）
     }
     draw();
   }else if(glowFx.length||showRays) draw();   // G6：光路开关开启时持续供帧（流动虚线动画）
