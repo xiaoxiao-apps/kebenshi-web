@@ -105,7 +105,8 @@ button { font-family: inherit; cursor: pointer; }
 .qd-card:hover { transform: translateY(-3px); box-shadow: var(--qd-shadow-lg); }
 .qd-thumb { aspect-ratio: 16 / 10; width: 100%; object-fit: cover; display: block; background: #eef1f8; }
 .qd-thumb-fallback {
-  aspect-ratio: 16 / 10; display: flex; align-items: center; justify-content: center;
+  aspect-ratio: 16 / 10; width: 100%; align-self: stretch; flex: none;
+  display: flex; align-items: center; justify-content: center;
   font-size: 52px; color: #fff;
 }
 .qd-thumb-fallback[data-t="实验"] { background: linear-gradient(135deg, #3f7ff8, #7a5cf0); }
