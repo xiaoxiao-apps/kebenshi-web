@@ -19,7 +19,7 @@ window.C5S3_GUIDE={
          已 grep 核：全文件无 after:c5s3-s1 下游依赖（唯一 after: 是 s11 挂 s10），故 s1 改延时不需迁挂 */
       /* R10（蔡总 2026-10-29 13:03 条1）：s1 由裸 delay:11100 改电平门——没点亮才播、已点亮永久闭嘴（过期引导不再出现）；queue:true 保留（等 intro 播完） */
       {id:'c5s3-s1',repeat:true,queue:true,trigger:'(G.t-G.modeEnterT)>11100 && R.lit===false',say:'先点亮光源，再拖动光源改变物距，拖动光屏找清晰的像。',audio:'c5s3-s1'},
-      {id:'c5s3-s1b',repeat:true,trigger:'R.lit===true',say:'看，光源从上、中、下三处发出平行光，射向凸透镜。',audio:'c5s3-s1b'},
+      {id:'c5s3-s1b',repeat:true,trigger:'R.lit===true',say:'看，从光源顶部发两条特殊光线，一条平行主轴、过透镜后经过焦点，另一条直穿光心，两线交点就是像的位置。',audio:'c5s3-s1b'},   /* 单14a（蔡总 11-03 10:34）：光线改经典二特殊光线法，文案同步（重录） */
       /* R10：提醒条——未点亮光源时任何瞎操作（lastActT 由 core document 级 pointerdown 刷新，排除 #btn-lit）当帧发「请先点亮光源」。
          电平边沿型：操作刷新 lastActT→条件假→下一帧真上升沿即发火；repeat 边沿+引擎 REP_COOLDOWN=3000 天然防刷屏（连点3秒内只提醒一次）；
          **不加 queue**=动作响应立即播，打断欢迎词符合蔡总规矩（R8-1 契约6：用户动作条一律不加 queue） */
@@ -50,7 +50,7 @@ window.C5S3_GUIDE={
   },
   audios:{
     'c5s3-intro':'guide/audio/c5s3-intro.mp3?v=20261029v8',
-    'c5s3-s1':'guide/audio/c5s3-s1.mp3?v=20261029v2','c5s3-s1b':'guide/audio/c5s3-s1b.mp3?v=20261029v2',
+    'c5s3-s1':'guide/audio/c5s3-s1.mp3?v=20261029v2','c5s3-s1b':'guide/audio/c5s3-s1b.mp3?v=20261103v1',
     'c5s3-s1c':'guide/audio/c5s3-s1c.mp3?v=20261029v5',
     'c5s3-s2':'guide/audio/c5s3-s2.mp3',
     'c5s3-s3':'guide/audio/c5s3-s3.mp3?v=20261029v1','c5s3-s4':'guide/audio/c5s3-s4.mp3?v=20261029v1',

@@ -137,28 +137,24 @@ function traceRay(x0,y0,xL,yi,mIn,dir){
   if(Math.abs(m)<1e-9){ var cp=exitCut(xL,yi,dir>0?W+2:-2,yi,dir); beam(xL,yi,cp.x,cp.y); return; }   // u=f：出射平行
   var e=refractEnd(xL,yi,m,dir),c=exitCut(xL,yi,e.x,e.y,dir);
   beam(xL,yi,c.x,c.y);
-  if(imgKind()==='virtual'){   // K4 虚像：反向延长虚线到该物点自己的虚像点（撤屏态同）；R7-A2 三物点各对各自像点
+  if(imgKind()==='virtual'){   // K4 虚像：反向延长虚线到该物点自己的虚像点（撤屏态同）；单14a 二特殊光线各自对应同一虚像顶
     beamDash(xL,yi,imgX(),axisY+(y0-axisY)*mag());
   }
 }
 function drawRays(){
-  if(!st.rays||!st.lit) return;   // 光源关时不画光线（R8-2 默认 rays ON / lit OFF → 点亮光源即见三条平行光）
-  var px0=xOfU(st.u),hO=hoPx();   // K4 入眼光线裁切链已全删
-  // R8-2（蔡总 2026-10-29 01:17 条3）：F 图案上端/中部横臂/下端三物点，只发出上中下三条平行光线，没有其他多余的斜光线
-  // → 旧②「过光心直穿」一路删除（R7-A2 曾为 3 物点×2 线=6 线）；①平行主轴入射 → 折射过像方焦点。
-  // R9-2（蔡总 2026-10-29 09:40 条3）三物点锚定实测重算：f_led_panel.png(800×800) PIL 实测 F 字形 rows106-709（字高 604=0.755 图高）、
-  // 上横臂簇中心=字高 12.33%、中横臂簇中心=字高 49.17%；drawLedPanel 锚 (x,axisY)=板中心、boxH=2*hoPx、dh=boxH/0.756、dy=axisY−dh*0.509
-  // → 字形上缘=axisY−0.996*hoPx≈axisY−hO、中横臂中心=axisY−0.014*hoPx≈axisY（光轴上）、字形下缘=axisY+0.998*hoPx≈axisY+hO。
-  // 旧 pts=[axisY−hO, axisY−0.5hO, axisY] 的中/下两点是「像图案底缘骑轴」旧假设的残留（锚错，三条光全挤上半截=蔡总所见）
-  // → 改 [axisY−hO, axisY, axisY+hO]=上端/中横臂/下端（蔡总原话）。三条折射线在像面落点 axisY−δ*m（δ=入射高，m=v/u）
-  // = [axisY+hI, axisY, axisY−hI]（hI=hoPx*m），与居中后 fPattern 三特征逐点对齐（见 fPattern/drawPattern 的 R9-2 注）。
-  // 虚像态（u<f）反向延长虚线由 traceRay 内 beamDash 保留（三条折射线的反向延长线交于同侧虚像点，物理必需）
-  var pts=[axisY-hO,axisY,axisY+hO];
+  if(!st.rays||!st.lit) return;   // 光源关时不画光线（R8-2 默认 rays ON / lit OFF → 点亮光源即见两条特殊光线）
+  var px0=xOfU(st.u),yTop=axisY-hoPx();   // 单14a 物点=F 顶部（R9-2 实测字形上缘≈axisY−hoPx）；K4 入眼光线裁切链已全删
+  // 单14a（蔡总 11-03 10:34）：改经典二特殊光线法，删旧「上/中/下三物点各一条平行光」画法：
+  // Ray1 平行主轴入射 → 折射过像方焦点 F'（mIn=0，refractSlope 得 m=+hoPx/fPx，出射线过 (xLens+fPxV,axisY)）
+  // Ray2 过光心直进不折（过 (xLens,axisY)；yi=axisY → refractSlope 恒等 mIn）
+  // 两线交点=像顶：解析 y=axisY+hoPx*v/u=绘制的倒立像顶（drawPattern 跨 axisY±hI，hI=hoPx*v/u）
+  // u<f：traceRay 内 beamDash 把两出射线反向延长虚线交于物侧虚像顶（axisY−hoPx*m，虚像绘法既有保留）
+  // u=f：两出射线斜率同为 hoPx/(f*S) → 平行无交点（不成像语义保留，refractEnd/exitCut 原路径不崩）
+  var m2=hoPx()/(st.u*S);   // Ray2 入射斜率=物高px/物距px（st.u≥U_MIN_CM>0 无除零）
   ctx.save();
   if(st.handA>0) ctx.globalAlpha=1-0.45*st.handA;   // H6 遮挡：通光量连续渐减
-  for(var i=0;i<3;i++){
-    traceRay(px0,pts[i],xLens,pts[i],0,1);   // 平行主轴入射 → 折射过像方焦点
-  }
+  traceRay(px0,yTop,xLens,yTop,0,1);      // Ray1
+  traceRay(px0,yTop,xLens,axisY,m2,1);    // Ray2
   ctx.restore();
 }
 // ===== 绘制：亮底+光轴+cm 刻度；三件骑光轴（F3 去桌面/滑轨，排版照 c5s1） =====
