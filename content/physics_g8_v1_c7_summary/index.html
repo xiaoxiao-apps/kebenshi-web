@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本章小结 · 第七章 力</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:linear-gradient(180deg,#f7fbff 0%,#eef4f9 100%); color:#1f2937;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh; overflow-y:auto;
+  }
+  .wrap { max-width:860px; margin:0 auto; padding:28px 20px 60px; }
+  header h1 { font-size:26px; font-weight:800; letter-spacing:1px; color:#111827; }
+  header .sub { margin-top:8px; font-size:13px; color:#6b7280; line-height:1.7; }
+  .sec { margin-top:30px; }
+  .sec-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .sec-head h2 { font-size:20px; font-weight:800; color:#111827; }
+  .sec-head .chip { font-size:11px; font-weight:600; color:#2563eb; background:rgba(37,99,235,.1); padding:3px 10px; border-radius:99px; }
+  .kb {
+    background:#fff; border:1px solid rgba(17,24,39,.07); border-radius:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+    padding:16px 18px; margin-bottom:12px;
+  }
+  .kb h3 { font-size:15px; font-weight:700; color:#2563eb; margin-bottom:10px; }
+  .kb p, .kb li { font-size:14px; line-height:1.9; color:#374151; }
+  .kb p { margin-bottom:6px; }
+  .kb ul, .kb ol { padding-left:22px; margin-bottom:4px; }
+  .kb li { margin-bottom:6px; }
+  .kb b { color:#b45309; font-weight:700; }
+  .tbl { width:100%; border-collapse:collapse; margin:10px 0 4px; font-size:13px; }
+  .tbl th, .tbl td { border:1px solid rgba(17,24,39,.14); padding:7px 8px; text-align:center; color:#374151; }
+  .tbl th { color:#2563eb; font-weight:700; background:rgba(37,99,235,.06); }
+  .note { margin-top:36px; font-size:12px; color:#9ca3af; line-height:1.8; border-top:1px dashed rgba(17,24,39,.18); padding-top:14px; }
+  @media (max-width:560px){
+    .wrap { padding:20px 14px 48px; }
+    header h1 { font-size:22px; }
+    .kb { padding:14px; }
+    .tbl { font-size:12px; }
+    .tbl th, .tbl td { padding:6px 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📋 本章小结</h1>
+    <div class="sub">八年级下册 · 第七章 力 ｜ 收录：「力」、「弹力」、「重力」</div>
+  </header>
+  <main id="summaryRoot"></main>
+  <div class="note">本页为第七章「力」纯知识点速记小结，内容依据本章各节已审核的实验卡片页与语音引导语整理，数字/单位逐字对照。配套题目见「本章练习」。</div>
+</div>
+<script>
+/* ===== 本章小结数据（第七章 力） =====
+ * 结构：SUMMARIES 数组，每项含 section 字段；页面由数组渲染。
+ * 块类型：lines=段落（数组，支持 <b> 加粗）、list=有序/无序列表（{ordered,items}）、table={head,rows}。
+ * 内容依据：八下-第7章-转录.md 全章知识点清单（数字事实逐字对照，禁改）+ 八下-第7章-设计书单.md §①章级。
+ * 页码溯源（仅注释，不进用户可见串）：s1=P2~P6、s2=P7~P10、s3=P11~P16。
+ * 零题目：本页为纯概念/定义/公式/数字速记，练习题见 physics_g8_v1_c7_practice。
+ */
+const SUMMARIES = [
+  {
+    section: '力',
+    chip: '定义 · 单位 · 三要素 · 示意图 · 相互',
+    blocks: [
+      {
+        title: '什么是力',
+        lines: [
+          '力（force）是<b>物体对物体的作用</b>，通常用符号 <b>F</b> 表示。推、拉、吸引等作用都概括为「作用」。',
+          '发生作用的两个物体中，施加力的物体叫<b>施力物体</b>，受到力的物体叫<b>受力物体</b>。人推车：人是施力物体，车是受力物体。',
+          '人可以对物体施力，<b>物体也可以对别的物体施力</b>：推土机推土、磁体吸引铁钉。'
+        ]
+      },
+      {
+        title: '力的单位（数字速记）',
+        lines: [
+          '力的单位是<b>牛顿</b>（newton），简称<b>牛</b>，符号 <b>N</b>。',
+          '<b>托起两枚鸡蛋所用的力大约是 1 N</b>。'
+        ]
+      },
+      {
+        title: '力的两个作用效果',
+        list: {
+          ordered: true,
+          items: [
+            '<b>力可以使物体发生形变</b>——手指按橡皮泥留下凹痕、手拉弹簧使它变长；',
+            '<b>力可以改变物体的运动状态</b>——运动状态的变化包括：<b>由静止开始运动、由运动变为静止、运动快慢或方向改变</b>。磁体靠近静止的小铁球，球由静到动；沿球运动方向放磁体，球加速；在路径侧旁放磁体，球拐弯偏转。'
+          ]
+        }
+      },
+      {
+        title: '力的三要素',
+        lines: [
+          '<b>大小、方向、作用点</b>叫作力的三要素，它们<b>都影响力的作用效果</b>。',
+          '想想做做：关门时，越靠近门轴的地方推门，越不容易把门关上——作用点不同，效果不同。'
+        ]
+      },
+      {
+        title: '力的示意图画法',
+        list: {
+          ordered: false,
+          items: [
+            '在受力物体上，沿力的方向画一条<b>带箭头的线段</b>；',
+            '<b>箭头</b>表示力的<b>方向</b>；',
+            '线段的<b>起点或终点</b>表示力的<b>作用点</b>；',
+            '同一图中，<b>力越大线段画得越长</b>；有时还可以用<b>数值和单位</b>标出力的大小。'
+          ]
+        }
+      },
+      {
+        title: '力的作用是相互的',
+        lines: [
+          '一个物体对另一个物体施力时，<b>同时也受到另一个物体对它的力</b>——物体间<b>力的作用是相互的</b>，施力物体同时也是受力物体。',
+          '三例：手提水桶，手对桶施加向上的拉力，桶同时也向下拉手；穿旱冰鞋的人用力推墙，自己向后滑离墙面；两辆小车各载磁体、同名磁极相对，释放后<b>两车同时</b>反向弹开。'
+        ]
+      }
+    ]
+  },
+  {
+    section: '弹力',
+    chip: '弹性 · 弹力 · 弹簧测力计',
+    blocks: [
+      {
+        title: '弹性与塑性',
+        lines: [
+          '<b>弹性</b>：物体受力时发生形变，不受力时又<b>恢复原状</b>的性质——撑竿、直尺、橡皮筋都有弹性。',
+          '<b>塑性形变</b>：形变后<b>不能自动恢复</b>原状——橡皮泥按成什么样就是什么样。',
+          '科学世界·材料的力学性能：还有<b>脆性</b>——受力到一定值时突然断裂（如掰碎饼干）。新材料：铝合金、碳纤维、形状记忆合金。'
+        ]
+      },
+      {
+        title: '弹力',
+        lines: [
+          '发生形变的物体要<b>恢复原状</b>，对与它<b>接触的物体</b>产生力的作用，这种力叫<b>弹力（elastic force）</b>。',
+          '放在桌面上的水杯：水杯受到的桌面<b>支持力</b>、桌面受到的水杯<b>压力</b>，都属于弹力。'
+        ]
+      },
+      {
+        title: '弹性限度',
+        lines: [
+          '弹性是有限度的：物体的形变<b>超过一定的限度</b>，撤去力后也<b>不能恢复原状</b>，这个限度叫<b>弹性限度</b>。',
+          '使用弹簧时，<b>不能超过它的弹性限度</b>。'
+        ]
+      },
+      {
+        title: '弹簧测力计的原理与种类',
+        lines: [
+          '测力计是<b>测量力的大小</b>的工具。弹簧测力计的原理：<b>在弹性限度内，弹簧受到的拉力越大，弹簧的伸长量就越大</b>。',
+          '常见的测力计：<b>握力计、指针式测力计、数显式测力计</b>。'
+        ]
+      },
+      {
+        title: '弹簧测力计使用五步',
+        list: {
+          ordered: true,
+          items: [
+            '<b>看</b>——观察测力计的<b>测量范围（量程）</b>，认清<b>每一小格表示多少牛</b>（分度值）；',
+            '<b>调</b>——检查<b>指针是否指在零刻度线</b>，不指零要先<b>调零</b>；',
+            '<b>感受</b>——用手拉挂钩，使指针分别指到 <b>1 N、3 N、5 N</b>，感受这三个力的大小；',
+            '<b>测</b>——测量时让弹簧沿被测力的方向伸展；改测<b>水平方向</b>的拉力时，要在水平方向<b>重新调零</b>再测；',
+            '<b>读</b>——指针稳定后再读数；加在测力计上的力<b>不允许超过它的最大测量值</b>，否则会损坏测力计。'
+          ]
+        }
+      }
+    ]
+  },
+  {
+    section: '重力',
+    chip: 'G=mg · 竖直向下 · 重心 · 万有引力',
+    blocks: [
+      {
+        title: '什么是重力',
+        lines: [
+          '由于<b>地球的吸引</b>而使物体受到的力叫<b>重力（gravity）</b>，通常用符号 <b>G</b> 表示。',
+          '<b>地球附近的所有物体都受到重力的作用</b>：溪水从高处流向低处、上抛的石块最终落回地面、飞机投放的物资会落地。'
+        ]
+      },
+      {
+        title: '重力的大小 G=mg（数字速记）',
+        lines: [
+          '实验表明：<b>物体所受的重力跟它的质量成正比</b>。',
+          '公式：<b>G = mg</b>，其中 g = G/m，单位是<b>牛每千克（N/kg）</b>。',
+          '<b>g = 9.8 N/kg</b>；在粗略计算中，可以取 <b>g = 10 N/kg</b>。'
+        ]
+      },
+      {
+        title: '例题速记',
+        lines: [
+          '质量 0.25 kg 的木块所受的重力：<b>G = mg = 0.25 kg × 10 N/kg = 2.5 N</b>；',
+          '重力为 450 N 的人的质量：<b>m = G/g = 450 N ÷ 10 N/kg = 45 kg</b>。'
+        ]
+      },
+      {
+        title: '重力的方向：竖直向下',
+        lines: [
+          '用细线悬挂物体，静止时沿细线向下的方向就是重力的方向——<b>竖直向下</b>。',
+          '应用：<b>铅垂线</b>——建筑工人用悬挂重物的细线确定竖直方向，检查砌的墙是否竖直。',
+          '想想议议：地球是球形的，南美洲的居民脚朝「上」也站得很稳——在地球上各地，「下」都是<b>指向地心</b>的方向。注意：竖直向下<b>不等于</b>「垂直于接触面向下」。'
+        ]
+      },
+      {
+        title: '重心',
+        lines: [
+          '重力的作用好像作用在物体上的某一点，这一点叫物体的<b>重心（center of gravity）</b>。',
+          '<b>形状规则、质量分布均匀</b>的物体，重心在它的<b>几何中心</b>：方形薄板的重心在<b>两条对角线的交点</b>，球的重心在<b>球心</b>，粗细均匀的直棒的重心在棒的<b>中点</b>。'
+        ]
+      },
+      {
+        title: '万有引力',
+        lines: [
+          '牛顿发现：宇宙间的物体，大到天体、小到尘埃，都存在<b>互相吸引</b>的力，这就是<b>万有引力（universal gravitation）</b>。',
+          '地球对它附近物体的吸引，使水向低处流、使抛出的石块落回地面。'
+        ]
+      },
+      {
+        title: '科学世界·飞出地球（时间线速记）',
+        list: {
+          ordered: false,
+          items: [
+            '<b>1957 年</b>：苏联发射世界第一颗人造地球卫星；',
+            '<b>1961 年</b>：加加林成为进入太空第一人；<b>1969 年</b>：阿波罗 11 号载人登月；',
+            '<b>1970 年</b>：我国成功发射「东方红一号」卫星；',
+            '<b>2003 年</b>：神舟五号载人飞船升空，杨利伟进入太空；',
+            '<b>2011 年</b>：天宫一号发射；<b>2016 年</b>：天宫二号发射；',
+            '<b>2022 年 11 月 3 日</b>：梦天实验舱完成转位，中国空间站形成「T」字基本构型。'
+          ]
+        }
+      }
+    ]
+  }
+];
+
+/* ===== 渲染：SUMMARIES 数组 → 页面 ===== */
+function renderBlock(b){
+  let inner = '';
+  if (b.lines && b.lines.length){
+    inner += b.lines.map(l => `<p>${l}</p>`).join('');
+  }
+  if (b.list){
+    const tag = b.list.ordered ? 'ol' : 'ul';
+    inner += `<${tag}>` + b.list.items.map(it => `<li>${it}</li>`).join('') + `</${tag}>`;
+  }
+  if (b.table){
+    inner += '<table class="tbl"><tr>' + b.table.head.map(h => `<th>${h}</th>`).join('') + '</tr>'
+      + b.table.rows.map(r => '<tr>' + r.map(c => `<td>${c}</td>`).join('') + '</tr>').join('')
+      + '</table>';
+  }
+  return `<div class="kb"><h3>${b.title}</h3>${inner}</div>`;
+}
+function renderSummary(){
+  const root = document.getElementById('summaryRoot');
+  if (!root) return;
+  root.innerHTML = SUMMARIES.map(sec =>
+    `<section class="sec">`
+    + `<div class="sec-head"><h2>${sec.section}</h2><span class="chip">${sec.chip}</span></div>`
+    + sec.blocks.map(renderBlock).join('')
+    + '</section>'
+  ).join('');
+}
+document.addEventListener('DOMContentLoaded', renderSummary);
+</script>
+<script src="/content/_lib/mobile-guard.js?v=20261030v1" defer></script>
+</body>
+</html>
