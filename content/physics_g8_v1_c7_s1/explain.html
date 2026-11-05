@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 力</title>
+<style>
+:root{--ink:#3d3830;--ink2:#6f6455;--green:#3a7d44;--green-bg:#e9f4ea;--brown:#b45309;--brown-bg:#fff4d6;--cyan:#0e7490;--cyan-bg:#e2f3fa;--card:#fffdf7;--card2:#f7f2e8;--line:rgba(0,0,0,.08)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100dvh;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f2ec;color:var(--ink);font-size:15px;line-height:1.85}
+.back-btn{display:inline-flex;align-items:center;margin:12px 0 0 14px;padding:8px 14px;min-height:40px;max-width:calc(100% - 28px);border-radius:10px;background:#fff;border:1px solid var(--line);color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+.container{max-width:720px;margin:0 auto;padding:6px 14px 40px}
+.page-header{text-align:center;padding:14px 0 4px}
+.page-title{margin:0;font-size:22px}
+.page-subtitle{margin:6px 0 0;color:var(--ink2);font-size:13px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;padding:10px 14px;min-height:44px;border-radius:10px;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.tab-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:panelIn .25s ease}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(60,50,30,.05)}
+.card h2{font-size:17px;margin:4px 0 10px}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:2px}
+.chip.brown{background:var(--brown-bg);color:var(--brown)}
+.chip.green{background:var(--green-bg);color:var(--green)}
+.key-point{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.key-point p{margin:4px 0}
+.kp-title{font-weight:800;color:var(--green);margin:0 0 6px}
+.question-box{background:var(--brown-bg);border-left:4px solid var(--brown);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.question-box h4{margin:0 0 6px;color:var(--brown);font-size:14px}
+.question-box p{margin:4px 0}
+.reveal-btn{margin-top:8px;padding:10px 14px;min-height:44px;border-radius:10px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+.reveal-ans{display:none;margin-top:10px;background:#fff;border:1px dashed var(--green);border-radius:10px;padding:10px 12px;font-size:14px}
+.question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+.steps{list-style:none;padding:0;margin:10px 0;counter-reset:st}
+.steps li{margin:8px 0}
+.st-head{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;min-height:44px;background:var(--card2);border:1px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit}
+.st-head::before{counter-increment:st;content:counter(st);flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}
+.st-body{display:none;padding:10px 14px 10px 46px;font-size:14px;color:var(--ink2)}
+.steps li.open .st-body{display:block;animation:panelIn .25s ease}
+.ex-step{display:none;background:var(--green-bg);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+.ex-step.show{display:block;animation:panelIn .25s ease}
+.btn-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:10px 14px;min-height:44px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.primary{background:var(--green);color:#fff}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink2)}
+.btn:disabled{opacity:.4;cursor:default}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.data-table th,.data-table td{border:1px solid var(--line);padding:7px 8px;text-align:center}
+.data-table th{background:var(--card2)}
+.note{font-size:13px;color:var(--ink2);background:var(--cyan-bg);border-left:4px solid var(--cyan);border-radius:0 10px 10px 0;padding:10px 12px;margin:12px 0}
+.summary-box{background:var(--card2);border-radius:12px;padding:12px 14px;margin:12px 0}
+.summary-box ul{margin:6px 0;padding-left:20px}
+.summary-box li{margin:4px 0}
+.fig{margin:12px 0;text-align:center}
+.fig svg{max-width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:10px}
+.fig figcaption{font-size:12px;color:var(--ink2);margin-top:6px}
+@media (max-width:375px){body{font-size:14px}}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">力是物体对物体的作用 · 作用效果 · 三要素与示意图 · 力的相互性</p>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="e1">力是什么</button>
+    <button class="tab-btn" data-tab="e2">作用效果</button>
+    <button class="tab-btn" data-tab="e3">三要素与示意图</button>
+    <button class="tab-btn" data-tab="e4">力的相互性</button>
+    <button class="tab-btn" data-tab="e5">例题与小结</button>
+  </div>
+
+  <!-- E1 力是什么 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、从「推与拉」说起 <span class="chip brown">导入</span></h2>
+      <p>推桌子、拉弹簧、提水桶时，我们的肌肉会感到紧张——这是因为有力作用在物体上。可奇怪的是，磁体并不接触铁钉，隔着一段距离也能把铁钉吸过来。<strong>两个物体不接触，也能有力的作用吗？</strong>要回答这个问题，得先弄清「力」到底是什么。</p>
+      <div class="key-point">
+        <p class="kp-title">力是物体对物体的作用</p>
+        <p>在物理学中，<strong>力（force）是物体对物体的作用</strong>，通常用字母 <strong>F</strong> 表示。发生作用的两个物体，一个是<strong>施力物体</strong>，另一个是<strong>受力物体</strong>。</p>
+        <p>人推车，人是施力物体、车是受力物体；磁体吸引铁钉，磁体是施力物体、铁钉是受力物体。力不能脱离物体而单独存在。</p>
+      </div>
+      <div class="question-box">
+        <h4>💬 思考讨论</h4>
+        <p>两个物体不接触，就一定没有力的作用吗？举出你的例子。</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>不接触也可以有力的作用。</strong>例如磁体吸引铁钉、地球吸引地面上的一切物体（重力），都不需要直接接触。所以判断有没有力，要看有没有施力物体和受力物体，而不是看有没有接触。</p>
+        </div>
+      </div>
+      <div class="key-point">
+        <p class="kp-title">力的单位</p>
+        <p>在国际单位制中，力的单位是<strong>牛顿</strong>，简称<strong>牛</strong>，符号 <strong>N</strong>。</p>
+        <p>建立一点「量级感」：<strong>托起两个鸡蛋所用的力大约是 1 N</strong>。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- E2 作用效果 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>二、力的作用效果 <span class="chip brown">核心概念</span></h2>
+      <p>力作用在物体上会产生效果。力的作用效果有下面两种：</p>
+      <div class="key-point">
+        <p class="kp-title">效果一：力可以改变物体的形状</p>
+        <p>力可以使物体发生<strong>形变</strong>。例如橡皮泥被手指按出凹坑、弹簧被拉长或被压短，都是形状发生了改变。</p>
+      </div>
+      <div class="key-point">
+        <p class="kp-title">效果二：力可以改变物体的运动状态</p>
+        <p>物体<strong>运动状态的改变</strong>包括：由静止变为运动、由运动变为静止、运动的<strong>快慢</strong>改变、运动的<strong>方向</strong>改变。例如小铁球在磁体作用下由静止变为运动、越滚越快、或拐弯，都是运动状态发生了改变。</p>
+      </div>
+      <div class="question-box">
+        <h4>💬 再想一步</h4>
+        <p>用力踢球，脚接触球的一瞬间球被压瘪了一点，随后球由静止飞了出去。这说明什么？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>一个力可以同时产生两种效果。</strong>脚对球的力，既使球发生了形变（被压瘪），又改变了球的运动状态（由静止变为运动）。两种效果可以同时发生。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E3 三要素与示意图 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>三、力的三要素 <span class="chip brown">核心概念</span></h2>
+      <p>用同样大的力推门：手离门轴越远越省力，离门轴越近越费劲——这是<strong>作用点</strong>不同；垂直门面推最管用，顺着门面推等于白推——这是<strong>方向</strong>不同；用的力越大，门转得越快——这是<strong>大小</strong>不同。</p>
+      <div class="key-point">
+        <p class="kp-title">力的三要素</p>
+        <p><strong>力的大小、方向、作用点</strong>都能影响力的作用效果，把它们叫作<strong>力的三要素</strong>。三要素中任何一个改变，力的作用效果也随之改变。</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>四、力的示意图 <span class="chip brown">作图规范</span></h2>
+      <p>为了形象、方便地表示力，常用一条带箭头的线段把力的三要素表示出来，这样的图叫<strong>力的示意图</strong>。画法要遵守下面四条规范，点击逐条查看：</p>
+      <ul class="steps" id="drawSteps">
+        <li><button class="st-head" type="button">起点画在受力物体上</button><div class="st-body">线段的起点（作用点）要画在<strong>受力物体</strong>上，表示力作用在这个物体上。</div></li>
+        <li><button class="st-head" type="button">沿力的方向画线段</button><div class="st-body">从作用点起，沿着力的方向画一条线段，在线段的末端画上<strong>箭头</strong>表示力的方向。</div></li>
+        <li><button class="st-head" type="button">线段越长表示力越大</button><div class="st-body">在同一幅图中，力越大，线段画得<strong>越长</strong>；力越小，线段越短。线段的长短表示力的大小。</div></li>
+        <li><button class="st-head" type="button">标出力的数值和单位</button><div class="st-body">在箭头旁边标出力的<strong>数值和单位</strong>（如 F = 4 N），把力的大小说清楚。</div></li>
+      </ul>
+      <figure class="fig">
+        <svg viewBox="0 0 340 178" width="340" height="178" role="img" aria-label="力的示意图四规范">
+          <rect x="34" y="66" width="76" height="72" rx="4" fill="#e7eef7" stroke="#7f93ad" stroke-width="2"/>
+          <text x="72" y="107" font-size="12" fill="#5f6a76" text-anchor="middle" font-family="sans-serif">受力物体</text>
+          <line x1="72" y1="102" x2="248" y2="102" stroke="#e03131" stroke-width="3.5"/>
+          <path d="M258 102 L242 94 L242 110 Z" fill="#e03131"/>
+          <circle cx="72" cy="102" r="4" fill="#e03131"/>
+          <text x="72" y="160" font-size="11" fill="#b45309" text-anchor="middle" font-family="sans-serif">① 起点在物体上</text>
+          <text x="150" y="88" font-size="11" fill="#b45309" text-anchor="middle" font-family="sans-serif">③ 越长力越大</text>
+          <text x="250" y="80" font-size="11" fill="#b45309" text-anchor="middle" font-family="sans-serif">② 箭头指方向</text>
+          <text x="170" y="130" font-size="12" font-weight="bold" fill="#e03131" text-anchor="middle" font-family="sans-serif">④ 标数值单位 F = … N</text>
+        </svg>
+        <figcaption>力的示意图：起点、方向、长度、标注，一条带箭头的线段说清三要素。</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <!-- E4 力的相互性 -->
+  <div class="tab-panel" id="panel-e4">
+    <div class="card">
+      <h2>五、力的作用是相互的 <span class="chip brown">核心规律</span></h2>
+      <p>你用手推墙，会感到墙也在推你，身体不由自主地向后退；划船时桨向后推水，水同时向前推桨，船就前进了。这些现象都说明：<strong>力总是成对出现的</strong>。</p>
+      <div class="key-point">
+        <p class="kp-title">力的相互性</p>
+        <p>一个物体对另一个物体施力时，<strong>也同时受到另一个物体对它的力</strong>。也就是说，<strong>物体间力的作用是相互的</strong>。</p>
+        <p>这样的一对力叫<strong>相互作用力</strong>：它们大小相等、方向相反、作用在同一条直线上，且分别作用在<strong>两个</strong>不同的物体上。</p>
+      </div>
+      <div class="question-box">
+        <h4>💬 迷思辨析 ①</h4>
+        <p>把球向上抛出，球离开手后继续向上飞。这时球还受到一个手给的、向上的推力吗？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>不受。</strong>力不能脱离物体而存在，球离开手以后，手不再和球接触、也就不再对球施力。球能继续向上，是因为它具有<strong>惯性</strong>，而不是因为还受到向前的推力。此时球只受重力（忽略空气阻力）。</p>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>💬 迷思辨析 ②</h4>
+        <p>鸡蛋碰石头，鸡蛋碎了而石头没事。是不是石头对鸡蛋的力，比鸡蛋对石头的力大？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>不是。</strong>相互作用力总是<strong>大小相等</strong>的，与两个物体的软硬、大小无关。鸡蛋碰石头时，两者受到的力一样大；鸡蛋碎掉，是因为它承受力的本领弱（壳脆），并不是它受到的力更大。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E5 例题与小结 -->
+  <div class="tab-panel" id="panel-e5">
+    <div class="card">
+      <h2>六、例题：画力的示意图 <span class="chip green">学以致用</span></h2>
+      <div class="question-box">
+        <h4>✏️ 例题 1</h4>
+        <p>一盏吊灯被绳子吊着静止不动，绳对灯有一个竖直向上、大小为 4 N 的拉力。请用力的示意图表示这个拉力。</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>受力物体是<strong>灯</strong>，拉力方向<strong>竖直向上</strong>、大小 <strong>4 N</strong>。起点画在灯上，沿竖直向上方向画一条带箭头的线段，标出 F = 4 N：</p>
+          <figure class="fig">
+            <svg viewBox="0 0 320 190" width="320" height="190" role="img" aria-label="吊灯受 4N 竖直向上拉力的示意图">
+              <rect x="60" y="14" width="200" height="10" fill="#cbbfa6"/>
+              <line x1="160" y1="24" x2="160" y2="86" stroke="#8a8266" stroke-width="3"/>
+              <path d="M128 86 L192 86 L178 126 L142 126 Z" fill="#f6d98a" stroke="#c9a227" stroke-width="2"/>
+              <rect x="150" y="126" width="20" height="9" fill="#e0c56a" stroke="#c9a227" stroke-width="1.5"/>
+              <line x1="160" y1="106" x2="160" y2="52" stroke="#e03131" stroke-width="3.5"/>
+              <path d="M160 44 L152 58 L168 58 Z" fill="#e03131"/>
+              <circle cx="160" cy="106" r="4" fill="#e03131"/>
+              <text x="172" y="70" font-size="15" font-weight="bold" fill="#e03131" font-family="sans-serif">F = 4 N</text>
+              <text x="160" y="160" font-size="12" fill="#6f6455" text-anchor="middle" font-family="sans-serif">起点在灯上 · 方向竖直向上 · 标 F=4N</text>
+            </svg>
+            <figcaption>绳对灯的拉力示意图。</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>✏️ 例题 2</h4>
+        <p>一个人用 75 N 的力水平向右推地面上的箱子。请用力的示意图表示这个推力。</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>受力物体是<strong>箱子</strong>，推力方向<strong>水平向右</strong>、大小 <strong>75 N</strong>。起点画在箱子上，沿水平向右方向画一条带箭头的线段，标出 F = 75 N：</p>
+          <figure class="fig">
+            <svg viewBox="0 0 320 178" width="320" height="178" role="img" aria-label="水平向右 75N 推箱子的示意图">
+              <line x1="18" y1="140" x2="302" y2="140" stroke="#8a8266" stroke-width="3"/>
+              <rect x="52" y="80" width="72" height="60" rx="4" fill="#d9b98a" stroke="#a9822f" stroke-width="2"/>
+              <line x1="52" y1="110" x2="124" y2="110" stroke="#a9822f" stroke-width="1.5"/>
+              <line x1="88" y1="110" x2="238" y2="110" stroke="#e03131" stroke-width="3.5"/>
+              <path d="M248 110 L232 102 L232 118 Z" fill="#e03131"/>
+              <circle cx="88" cy="110" r="4" fill="#e03131"/>
+              <text x="150" y="98" font-size="15" font-weight="bold" fill="#e03131" font-family="sans-serif">F = 75 N</text>
+              <text x="160" y="164" font-size="12" fill="#6f6455" text-anchor="middle" font-family="sans-serif">起点在箱子上 · 方向水平向右 · 标 F=75N</text>
+            </svg>
+            <figcaption>人推箱子的推力示意图。</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="summary-box">
+        <p><strong>本节小结</strong></p>
+        <ul>
+          <li>力是物体对物体的作用，符号 F；有施力物体就有受力物体，力不能脱离物体存在。</li>
+          <li>力的单位是牛顿（牛），符号 N；托起两个鸡蛋所用的力约 1 N。</li>
+          <li>力的作用效果有两种：改变物体的形状（形变）、改变物体的运动状态（快慢或方向）。</li>
+          <li>力的三要素：大小、方向、作用点，任一改变都会改变作用效果。</li>
+          <li>力的示意图：起点画在受力物体上、沿力方向画线段、越长表示力越大、标出数值和单位。</li>
+          <li>物体间力的作用是相互的；相互作用力大小相等、方向相反、作用在同一直线上、分别作用在两个物体上。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+document.querySelectorAll('#tabs .tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('#tabs .tab-btn').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+document.querySelectorAll('.reveal-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var box=btn.closest('.question-box');
+    var open=box.classList.toggle('open');
+    btn.textContent=open?'🙈 收起答案':'💡 点击揭晓答案';
+  });
+});
+document.querySelectorAll('.steps .st-head').forEach(function(h){
+  h.addEventListener('click',function(){h.parentElement.classList.toggle('open')});
+});
+})();
+</script>
+<script src="/content/_lib/mobile-guard.js?v=20261030v1" defer></script>
+</body>
+</html>

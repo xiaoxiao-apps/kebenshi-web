@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 重力</title>
+<style>
+:root{--ink:#3d3830;--ink2:#6f6455;--green:#3a7d44;--green-bg:#e9f4ea;--brown:#b45309;--brown-bg:#fff4d6;--cyan:#0e7490;--cyan-bg:#e2f3fa;--card:#fffdf7;--card2:#f7f2e8;--line:rgba(0,0,0,.08)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100dvh;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f2ec;color:var(--ink);font-size:15px;line-height:1.85}
+.back-btn{display:inline-flex;align-items:center;margin:12px 0 0 14px;padding:8px 14px;min-height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+.container{max-width:720px;margin:0 auto;padding:6px 14px 40px}
+.page-header{text-align:center;padding:14px 0 4px}
+.page-title{margin:0;font-size:22px}
+.page-subtitle{margin:6px 0 0;color:var(--ink2);font-size:13px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;padding:10px 14px;min-height:44px;border-radius:10px;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.tab-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:panelIn .25s ease}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(60,50,30,.05)}
+.card h2{font-size:17px;margin:4px 0 10px}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:2px}
+.chip.brown{background:var(--brown-bg);color:var(--brown)}
+.chip.green{background:var(--green-bg);color:var(--green)}
+.key-point{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.key-point p{margin:4px 0}
+.kp-title{font-weight:800;color:var(--green);margin:0 0 6px}
+.question-box{background:var(--brown-bg);border-left:4px solid var(--brown);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.question-box h4{margin:0 0 6px;color:var(--brown);font-size:14px}
+.question-box p{margin:4px 0}
+.reveal-btn{margin-top:8px;padding:10px 14px;min-height:44px;border-radius:10px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+.reveal-ans{display:none;margin-top:10px;background:#fff;border:1px dashed var(--green);border-radius:10px;padding:10px 12px;font-size:14px}
+.question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.data-table th,.data-table td{border:1px solid var(--line);padding:7px 8px;text-align:center}
+.data-table th{background:var(--card2)}
+.note{font-size:13px;color:var(--ink2);background:var(--cyan-bg);border-left:4px solid var(--cyan);border-radius:0 10px 10px 0;padding:10px 12px;margin:12px 0}
+.summary-box{background:var(--card2);border-radius:12px;padding:12px 14px;margin:12px 0}
+.summary-box ul{margin:6px 0;padding-left:20px}
+.summary-box li{margin:4px 0}
+@media (max-width:375px){body{font-size:14px}}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">重力 · G=mg · 方向竖直向下 · 重心 · 万有引力</p>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="e1">重力与G=mg</button>
+    <button class="tab-btn" data-tab="e2">方向与重心</button>
+    <button class="tab-btn" data-tab="e3">万有引力与辨析</button>
+  </div>
+
+  <!-- E1 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、从「下」说起 <span class="chip brown">导入</span></h2>
+      <p>水往低处流，跳起来必定落回地面——这些事看起来理所当然，但你有没有想过：<strong>「下」到底是哪个方向？</strong>南美洲的人脚朝上（相对我们），为什么不会掉进太空？这一节就来解开重力的秘密。</p>
+    </div>
+
+    <div class="card">
+      <h2>二、重力的定义 <span class="chip green">核心概念</span></h2>
+      <div class="key-point">
+        <p class="kp-title">重力（Gravity）</p>
+        <p>由于<strong>地球的吸引</strong>而使物体受到的力，叫做重力。通常用字母 <strong>G</strong> 表示。</p>
+        <p>地球附近的<strong>一切物体</strong>都受到重力的作用，无论它在地面、空中还是水中。</p>
+      </div>
+      <p>重力的施力物体是地球，受力物体是被吸引的物体。重力的单位是<strong>牛顿（N）</strong>。</p>
+    </div>
+
+    <div class="card">
+      <h2>三、探究：重力的大小跟质量的关系 <span class="chip brown">课标必做实验</span></h2>
+      <p><strong>实验器材：</strong>弹簧测力计、质量分别为 50g、100g、250g 的钩码若干。</p>
+      <p><strong>实验步骤：</strong>将钩码逐个挂在弹簧测力计上，待指针稳定后读数（即重力 G），把质量 m 和重力 G 记入数据表，然后在 G-m 坐标系中描点、连线。</p>
+      <p><strong>实验数据示例：</strong></p>
+      <table class="data-table">
+        <tr><th>次数</th><th>m/kg</th><th>G/N</th><th>G÷m / (N/kg)</th></tr>
+        <tr><td>1</td><td>0.050</td><td>0.49</td><td>9.8</td></tr>
+        <tr><td>2</td><td>0.100</td><td>0.98</td><td>9.8</td></tr>
+        <tr><td>3</td><td>0.150</td><td>1.47</td><td>9.8</td></tr>
+        <tr><td>4</td><td>0.250</td><td>2.45</td><td>9.8</td></tr>
+      </table>
+      <div class="key-point">
+        <p class="kp-title">实验结论</p>
+        <p>G-m 图像是一条<strong>过原点的直线</strong>，说明物体所受的重力跟它的质量<strong>成正比</strong>。</p>
+        <p>G ÷ m 的比值恒定，约等于 9.8 N/kg。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>四、公式 G = mg <span class="chip green">核心公式</span></h2>
+      <div class="key-point">
+        <p class="kp-title">G = mg</p>
+        <p>其中 <strong>g = 9.8 N/kg</strong>（粗略计算取 10 N/kg）。</p>
+        <p><strong>g 的物理含义：</strong>质量为 1 kg 的物体，在地球表面受到的重力为 9.8 N。</p>
+      </div>
+      <p>注意：g 不是固定不变的，它随纬度和海拔略有变化，但在初中阶段统一取 9.8 N/kg。</p>
+
+      <div class="question-box">
+        <h4>✏️ 例题 1</h4>
+        <p>一块木块的质量为 0.25 kg，它受到的重力是多少？（g 取 10 N/kg）</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>G = mg = 0.25 kg × 10 N/kg = <strong>2.5 N</strong>。</p>
+        </div>
+      </div>
+
+      <div class="question-box">
+        <h4>✏️ 例题 2</h4>
+        <p>一个人受到的重力为 450 N，他的质量是多少？（g 取 10 N/kg）</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>由 G = mg 得 m = G ÷ g = 450 N ÷ 10 N/kg = <strong>45 kg</strong>。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E2 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>五、重力的方向——竖直向下 <span class="chip green">核心概念</span></h2>
+      <div class="key-point">
+        <p class="kp-title">方向：竖直向下</p>
+        <p>重力的方向总是<strong>竖直向下</strong>的（指向地心的方向）。</p>
+      </div>
+      <p><strong>铅垂线</strong>是利用重力方向制成的工具：一根细线悬挂重物，线总是沿竖直方向。建筑工人用铅垂线检查墙壁是否竖直——墙面与铅垂线平行，墙就是竖直的。</p>
+      <div class="note">
+        <p>📌 <strong>辨析：竖直向下 ≠ 垂直于接触面向下</strong></p>
+        <p>斜面倾斜时，「垂直于斜面」的方向不是竖直方向。重力的方向只与地球有关，与物体所处的表面无关。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>六、重心 <span class="chip brown">概念</span></h2>
+      <p>重力在物体上的作用效果，好像集中作用在某一点，这个点叫做物体的<strong>重心</strong>。</p>
+      <div class="key-point">
+        <p class="kp-title">规则均匀物体的重心位置</p>
+        <p>• 方形薄板：两条对角线的交点</p>
+        <p>• 均匀球体：球心</p>
+        <p>• 均匀直棒：棒的中点</p>
+      </div>
+      <p><strong>不倒翁原理：</strong>不倒翁底部是圆形且重心很低，倾斜时重心升高，重力使它回到原来位置。重心越低、底面越大，物体越稳。</p>
+    </div>
+  </div>
+
+  <!-- E3 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>七、万有引力 <span class="chip green">拓展</span></h2>
+      <p>牛顿发现：宇宙间<strong>一切物体</strong>之间都存在相互吸引的力，这就是<strong>万有引力</strong>。重力是万有引力在地球表面附近的一个表现。</p>
+      <p>正是因为万有引力，行星围绕太阳运转，月球围绕地球运转，人造卫星也不会飞离地球。</p>
+      <div class="note">
+        <p>📌 <strong>中国航天里程碑</strong></p>
+        <p>• 1970 年：「东方红一号」卫星发射成功，中国成为第五个独立发射卫星的国家。</p>
+        <p>• 2003 年：「神舟五号」载人飞船，杨利伟成为中国第一位进入太空的航天员。</p>
+        <p>• 2021 年至今：中国空间站建成并长期有人驻留。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>八、迷思辨析：质量 vs 重力 <span class="chip brown">易错点</span></h2>
+      <div class="question-box">
+        <h4>💬 月球上的称重</h4>
+        <p>把同一个物体带到月球上：用天平称，质量读数<strong>不变</strong>；用弹簧测力计称，重力读数变为地球上的<strong>约 1/6</strong>。为什么？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>质量</strong>是物体本身所含物质的多少，是物体的属性，不随位置改变。</p>
+          <p><strong>重力</strong>是天体对物体的吸引力，随位置（天体）改变。月球对物体的引力约为地球的 1/6，所以同一物体在月球上重力变为地球上的 1/6，但质量纹丝不动。</p>
+          <p>公式对比：G<sub>月</sub> = m × g<sub>月</sub> = m × (g/6) = G<sub>地</sub> / 6。</p>
+        </div>
+      </div>
+      <table class="data-table">
+        <tr><th>物理量</th><th>符号</th><th>本质</th><th>随位置变化？</th><th>测量工具</th></tr>
+        <tr><td>质量</td><td>m</td><td>物体所含物质的多少</td><td>不变</td><td>天平</td></tr>
+        <tr><td>重力</td><td>G</td><td>天体对物体的吸引力</td><td>变（月球约 1/6）</td><td>弹簧测力计</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>九、「下」的终极答案 <span class="chip green">回收悬念</span></h2>
+      <p>地球是球形的，所谓「竖直向下」就是<strong>指向地心的方向</strong>。站在中国，脚下指向地心；站在南美洲，脚下同样指向地心。每个人的「下」都指向地心，所以南美洲的人稳稳当当，不会掉进太空。</p>
+    </div>
+
+    <div class="card">
+      <div class="summary-box">
+        <p><strong>本节小结</strong></p>
+        <ul>
+          <li>重力：由于地球的吸引而使物体受到的力，符号 G，单位 N。</li>
+          <li>G = mg，g = 9.8 N/kg（粗略取 10）；g 的含义：1 kg 物体受重力 9.8 N。</li>
+          <li>重力与质量成正比（G-m 图像为过原点的直线）。</li>
+          <li>重力方向：竖直向下（指向地心）；铅垂线应用。</li>
+          <li>重心：重力的等效作用点；规则均匀物体在几何中心。</li>
+          <li>万有引力：宇宙间一切物体互相吸引；重力是其在地球表面的表现。</li>
+          <li>质量 vs 重力：质量是属性不随位置变，重力随天体变（月球约 1/6）。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+document.querySelectorAll('#tabs .tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('#tabs .tab-btn').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+document.querySelectorAll('.reveal-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var box=btn.closest('.question-box');
+    var open=box.classList.toggle('open');
+    btn.textContent=open?'🙈 收起答案':'💡 点击揭晓答案';
+  });
+});
+})();
+</script>
+<script src="/content/_lib/mobile-guard.js?v=20261030v1" defer></script>
+</body>
+</html>

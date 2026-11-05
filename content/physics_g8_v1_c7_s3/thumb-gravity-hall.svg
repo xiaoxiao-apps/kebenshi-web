@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f0f7ff"/>
+      <stop offset="100%" stop-color="#e4edf7"/>
+    </linearGradient>
+    <linearGradient id="meter" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#b8c4d0"/>
+      <stop offset="100%" stop-color="#8a9aaa"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)" rx="12"/>
+  <!-- 测力计主体 -->
+  <rect x="155" y="40" width="50" height="180" rx="8" fill="url(#meter)" stroke="#6b7f8f" stroke-width="2"/>
+  <rect x="160" y="50" width="40" height="100" rx="4" fill="#fff" stroke="#ccc" stroke-width="1"/>
+  <!-- 刻度 -->
+  <line x1="163" y1="60" x2="175" y2="60" stroke="#333" stroke-width="1.5"/>
+  <line x1="163" y1="80" x2="175" y2="80" stroke="#333" stroke-width="1.5"/>
+  <line x1="163" y1="100" x2="175" y2="100" stroke="#333" stroke-width="1.5"/>
+  <line x1="163" y1="120" x2="175" y2="120" stroke="#333" stroke-width="1.5"/>
+  <line x1="163" y1="140" x2="175" y2="140" stroke="#333" stroke-width="1.5"/>
+  <text x="180" y="64" font-size="9" fill="#555" font-family="sans-serif">5</text>
+  <text x="180" y="84" font-size="9" fill="#555" font-family="sans-serif">4</text>
+  <text x="180" y="104" font-size="9" fill="#555" font-family="sans-serif">3</text>
+  <text x="180" y="124" font-size="9" fill="#555" font-family="sans-serif">2</text>
+  <text x="180" y="144" font-size="9" fill="#555" font-family="sans-serif">1</text>
+  <!-- 指针 -->
+  <line x1="165" y1="105" x2="195" y2="105" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- 挂钩 -->
+  <rect x="172" y="220" width="16" height="8" rx="3" fill="#7d8a96"/>
+  <path d="M180 228 Q180 240 174 244 Q168 248 168 256" stroke="#7d8a96" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- 钩码 -->
+  <rect x="156" y="256" width="48" height="30" rx="4" fill="#4a5568" stroke="#2d3748" stroke-width="1.5"/>
+  <text x="180" y="276" font-size="11" fill="#fff" text-anchor="middle" font-family="sans-serif" font-weight="bold">100g</text>
+  <rect x="160" y="288" width="40" height="26" rx="4" fill="#5a6577" stroke="#2d3748" stroke-width="1.5"/>
+  <text x="180" y="305" font-size="10" fill="#fff" text-anchor="middle" font-family="sans-serif" font-weight="bold">50g</text>
+  <!-- 重力箭头 -->
+  <line x1="180" y1="318" x2="180" y2="348" stroke="#dc2626" stroke-width="3"/>
+  <polygon points="180,354 174,342 186,342" fill="#dc2626"/>
+  <text x="195" y="345" font-size="12" fill="#dc2626" font-family="sans-serif" font-weight="bold">G</text>
+  <!-- G-m 坐标图 -->
+  <rect x="320" y="50" width="280" height="260" rx="10" fill="#fff" stroke="#d1d9e2" stroke-width="1.5"/>
+  <!-- 坐标轴 -->
+  <line x1="360" y1="280" x2="580" y2="280" stroke="#64748b" stroke-width="2"/>
+  <line x1="360" y1="280" x2="360" y2="70" stroke="#64748b" stroke-width="2"/>
+  <text x="570" y="298" font-size="11" fill="#64748b" font-family="sans-serif">m/kg</text>
+  <text x="340" y="80" font-size="11" fill="#64748b" font-family="sans-serif">G/N</text>
+  <!-- 网格 -->
+  <line x1="360" y1="230" x2="580" y2="230" stroke="#e8ecf0" stroke-width="0.8"/>
+  <line x1="360" y1="180" x2="580" y2="180" stroke="#e8ecf0" stroke-width="0.8"/>
+  <line x1="360" y1="130" x2="580" y2="130" stroke="#e8ecf0" stroke-width="0.8"/>
+  <line x1="420" y1="70" x2="420" y2="280" stroke="#e8ecf0" stroke-width="0.8"/>
+  <line x1="480" y1="70" x2="480" y2="280" stroke="#e8ecf0" stroke-width="0.8"/>
+  <line x1="540" y1="70" x2="540" y2="280" stroke="#e8ecf0" stroke-width="0.8"/>
+  <!-- 地球直线 (蓝) -->
+  <line x1="360" y1="280" x2="555" y2="88" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- 描点 -->
+  <circle cx="410" cy="231" r="5" fill="#2563eb"/>
+  <circle cx="460" cy="182" r="5" fill="#2563eb"/>
+  <circle cx="510" cy="133" r="5" fill="#2563eb"/>
+  <circle cx="555" cy="88" r="5" fill="#2563eb"/>
+  <!-- 月球直线 (紫) -->
+  <line x1="360" y1="280" x2="540" y2="248" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="6,4" stroke-linecap="round"/>
+  <circle cx="420" cy="269" r="4.5" fill="#7c3aed"/>
+  <circle cx="480" cy="259" r="4.5" fill="#7c3aed"/>
+  <circle cx="540" cy="248" r="4.5" fill="#7c3aed"/>
+  <!-- 图例 -->
+  <line x1="380" y1="95" x2="400" y2="95" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="405" y="99" font-size="11" fill="#2563eb" font-family="sans-serif">地球 g=9.8</text>
+  <line x1="380" y1="112" x2="400" y2="112" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="4,3"/>
+  <text x="405" y="116" font-size="11" fill="#7c3aed" font-family="sans-serif">月球 g≈1.6</text>
+  <!-- 标题 -->
+  <text x="460" y="335" font-size="14" fill="#334155" text-anchor="middle" font-family="sans-serif" font-weight="bold">G-m 图像：正比例直线</text>
+</svg>

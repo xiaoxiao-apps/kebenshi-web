@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识讲解 · 弹力</title>
+<style>
+:root{--ink:#3d3830;--ink2:#6f6455;--green:#3a7d44;--green-bg:#e9f4ea;--brown:#b45309;--brown-bg:#fff4d6;--cyan:#0e7490;--cyan-bg:#e2f3fa;--card:#fffdf7;--card2:#f7f2e8;--line:rgba(0,0,0,.08)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100dvh;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f2ec;color:var(--ink);font-size:15px;line-height:1.85}
+.back-btn{display:inline-flex;align-items:center;margin:12px 0 0 14px;padding:8px 14px;min-height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+.container{max-width:720px;margin:0 auto;padding:6px 14px 40px}
+.page-header{text-align:center;padding:14px 0 4px}
+.page-title{margin:0;font-size:22px}
+.page-subtitle{margin:6px 0 0;color:var(--ink2);font-size:13px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;padding:10px 14px;min-height:44px;border-radius:10px;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.tab-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:panelIn .25s ease}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(60,50,30,.05)}
+.card h2{font-size:17px;margin:4px 0 10px}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:2px}
+.chip.brown{background:var(--brown-bg);color:var(--brown)}
+.chip.green{background:var(--green-bg);color:var(--green)}
+.key-point{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.key-point p{margin:4px 0}
+.kp-title{font-weight:800;color:var(--green);margin:0 0 6px}
+.question-box{background:var(--brown-bg);border-left:4px solid var(--brown);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0}
+.question-box h4{margin:0 0 6px;color:var(--brown);font-size:14px}
+.question-box p{margin:4px 0}
+.reveal-btn{margin-top:8px;padding:10px 14px;min-height:44px;border-radius:10px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+.reveal-ans{display:none;margin-top:10px;background:#fff;border:1px dashed var(--green);border-radius:10px;padding:10px 12px;font-size:14px}
+.question-box.open .reveal-ans{display:block;animation:panelIn .25s ease}
+.steps{list-style:none;padding:0;margin:10px 0;counter-reset:st}
+.steps li{margin:8px 0}
+.st-head{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;min-height:44px;background:var(--card2);border:1px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit}
+.st-head::before{counter-increment:st;content:counter(st);flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}
+.st-body{display:none;padding:10px 14px 10px 46px;font-size:14px;color:var(--ink2)}
+.steps li.open .st-body{display:block;animation:panelIn .25s ease}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:13px;font-weight:700}
+.chain .node{background:var(--cyan-bg);color:var(--cyan);border-radius:8px;padding:4px 10px}
+.chain .arr{color:var(--brown)}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.data-table th,.data-table td{border:1px solid var(--line);padding:7px 8px;text-align:center}
+.data-table th{background:var(--card2)}
+.note{font-size:13px;color:var(--ink2);background:var(--cyan-bg);border-left:4px solid var(--cyan);border-radius:0 10px 10px 0;padding:10px 12px;margin:12px 0}
+.summary-box{background:var(--card2);border-radius:12px;padding:12px 14px;margin:12px 0}
+.summary-box ul{margin:6px 0;padding-left:20px}
+.summary-box li{margin:4px 0}
+.fig{display:block;margin:10px auto;max-width:100%}
+.fig-cap{text-align:center;font-size:12px;color:var(--ink2);margin:2px 0 10px}
+@media (max-width:375px){body{font-size:14px}}
+</style>
+</head>
+<body>
+<a class="back-btn" href="index.html">‹ 返回本节</a>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📖 知识讲解</h1>
+    <p class="page-subtitle">弹性与塑性 · 弹力 · 微小形变与弹性限度 · 弹簧测力计</p>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="e1">弹性 · 塑性 · 弹力</button>
+    <button class="tab-btn" data-tab="e2">微小形变与弹性限度</button>
+    <button class="tab-btn" data-tab="e3">弹簧测力计</button>
+  </div>
+
+  <!-- E1 -->
+  <div class="tab-panel active" id="panel-e1">
+    <div class="card">
+      <h2>一、从撑竿跳高说起 <span class="chip brown">导入</span></h2>
+      <p>撑竿跳高运动员借助一根竿子，能越过 6 m 高的横杆。想一想：竿子被压得弯成一个大弧，为什么不断？为什么它又能把运动员高高地弹上去？答案就藏在竿子的<strong>弹性</strong>和它产生的<strong>弹力</strong>里。</p>
+    </div>
+    <div class="card">
+      <h2>二、弹性与塑性 <span class="chip brown">核心概念</span></h2>
+      <p>弹簧、橡皮筋等物体，受力时发生形变，撤去力后又恢复原来的形状——物体这种<strong>受力时发生形变，不受力时又自动恢复原状</strong>的性质，叫作<strong>弹性</strong>。</p>
+      <p>橡皮泥、面团等物体，受力时发生形变，撤去力后<strong>不能</strong>自动恢复原状——这种性质叫作<strong>塑性</strong>，对应的形变叫<strong>塑性形变</strong>。</p>
+      <table class="data-table">
+        <tr><th>性质</th><th>撤去力后</th><th>常见物体</th></tr>
+        <tr><td>弹性</td><td>自动恢复原状</td><td>弹簧、橡皮筋、直尺（限度内）</td></tr>
+        <tr><td>塑性</td><td>不能自动恢复原状</td><td>橡皮泥、面团</td></tr>
+      </table>
+      <div class="question-box">
+        <h4>💬 思考讨论</h4>
+        <p>把直尺压在桌边向下掰，松手后尺子弹回原状；用力过猛，尺子就弯回去不了了。这说明弹性是有条件的吗？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>是的。</strong>物体的弹性有一定限度，超过这个限度，撤去力后物体就不能恢复原状（详见「弹性限度」）。</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>三、弹力 <span class="chip green">重点</span></h2>
+      <div class="key-point">
+        <p class="kp-title">弹力的定义</p>
+        <p>物体由于发生形变，要恢复原状，就会对<strong>与它接触的物体</strong>产生力的作用，这种力叫作<strong>弹力</strong>。</p>
+        <p>产生弹力的两个条件：① 物体间相互接触并挤压（或拉伸）；② 物体发生了形变、要恢复原状。</p>
+      </div>
+      <p>撑竿跳的竿子被压弯后要恢复原状，就对人产生向上的弹力，把人弹向高空；拉弓时弓发生形变，要恢复原状，就对箭产生弹力。</p>
+      <h2 style="margin-top:16px">四、形变溯源：支持力和压力是谁形变产生的？ <span class="chip brown">易错</span></h2>
+      <p>把水杯放在桌面上：水杯受到的<strong>支持力</strong>，是<strong>桌面</strong>被压发生形变、要恢复原状，对水杯产生的力；桌面受到的<strong>压力</strong>，是<strong>水杯</strong>底部发生形变、要恢复原状，对桌面产生的力。记一条箭头链条——<strong>谁形变 → 谁想恢复 → 就对与它接触的物体施力</strong>：</p>
+      <div class="chain"><span class="node">桌面形变（被杯压）</span><span class="arr">→</span><span class="node">桌面想恢复</span><span class="arr">→</span><span class="node">对杯施力＝杯受到的支持力</span></div>
+      <div class="chain"><span class="node">水杯形变（底被挤压）</span><span class="arr">→</span><span class="node">水杯想恢复</span><span class="arr">→</span><span class="node">对桌面施力＝桌面受到的压力</span></div>
+      <div class="question-box">
+        <h4>💬 辨析</h4>
+        <p>「水杯受到的支持力是水杯自己形变产生的」，这句话对吗？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>不对。</strong>受力物体是水杯，这个力是<strong>施力物体桌面</strong>形变、要恢复原状时对水杯产生的。判断弹力「谁产生」，看的是<strong>施力物体的形变</strong>，不是受力物体的形变。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E2 -->
+  <div class="tab-panel" id="panel-e2">
+    <div class="card">
+      <h2>五、微小形变：看不见的形变也存在 <span class="chip green">放大法</span></h2>
+      <p>桌面、玻璃瓶这些坚硬的物体，受力时也发生形变吗？形变太小，肉眼看不见，怎么办？——用<strong>放大法</strong>把微小形变「放大」成看得见的现象。</p>
+      <svg class="fig" width="210" height="240" viewBox="0 0 210 240" role="img" aria-label="玻璃瓶细管放大微小形变示意图">
+        <defs><clipPath id="bottleClip"><ellipse cx="105" cy="165" rx="52" ry="50"/></clipPath></defs>
+        <rect x="101" y="22" width="8" height="70" fill="#e2f0fa" stroke="#7fa8c4" stroke-width="2"/>
+        <rect x="103.5" y="34" width="3" height="56" fill="#d64f42"/>
+        <rect x="85" y="92" width="40" height="16" rx="3" fill="#4b3a2f"/>
+        <rect x="98" y="104" width="14" height="16" fill="#dff0fb" stroke="#7fa8c4" stroke-width="2"/>
+        <ellipse cx="105" cy="165" rx="52" ry="50" fill="#dff0fb" fill-opacity="0.75" stroke="#7fa8c4" stroke-width="3"/>
+        <g clip-path="url(#bottleClip)"><rect x="53" y="135" width="104" height="80" fill="#d64f42"/></g>
+        <line x1="119" y1="34" x2="150" y2="34" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="152" y="38" font-size="11" fill="#2563eb">捏瓶后水柱上升</text>
+        <line x1="33" y1="165" x2="47" y2="165" stroke="#dc2626" stroke-width="3"/>
+        <path d="M 47 165 L 40 161 L 40 169 Z" fill="#dc2626"/>
+        <line x1="177" y1="165" x2="163" y2="165" stroke="#dc2626" stroke-width="3"/>
+        <path d="M 163 165 L 170 161 L 170 169 Z" fill="#dc2626"/>
+        <text x="20" y="185" font-size="11" fill="#dc2626">捏</text>
+        <text x="172" y="185" font-size="11" fill="#dc2626">捏</text>
+      </svg>
+      <p class="fig-cap">玻璃瓶细管装置：双手捏瓶，瓶的微小形变使细管中的红色水柱明显上升（教材图 7.2-5 原型）</p>
+      <p>椭圆形厚壁玻璃瓶装满带红色素的水，用带孔橡胶塞塞紧，一根细玻璃管竖插在塞子中。用手捏瓶的两侧：瓶子的形变小得肉眼看不见，但瓶内容积稍一变小，水就被「挤」进细管，<strong>细管中的水柱明显上升</strong>；松手后瓶子恢复原状，水柱回落。</p>
+      <div class="key-point">
+        <p class="kp-title">关键结论</p>
+        <p>一切物体受力时都会发生形变，有的形变明显（弹簧、橡皮筋），有的形变非常微小（桌面、玻璃瓶），微小形变可以用放大法显示出来。</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>六、弹性限度 <span class="chip brown">使用红线</span></h2>
+      <p>弹簧的伸长量超过一定限度后，撤去拉力，弹簧<strong>不能恢复到原来的形状</strong>，这个限度叫作<strong>弹性限度</strong>。</p>
+      <p>使用弹簧（以及弹簧测力计）时，施加的力不能超过弹性限度，否则弹簧会被拉直、拉坏，留下永久变形——这就是弹簧的「使用红线」。</p>
+      <div class="question-box">
+        <h4>💬 联系生活</h4>
+        <p>拉力器上的弹簧为什么用久了会「松」，越拉越长回不去？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>长期用超过弹性限度的力拉弹簧，弹簧发生了<strong>永久形变</strong>，撤去拉力也不能恢复原长，所以「回不去」了。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E3 -->
+  <div class="tab-panel" id="panel-e3">
+    <div class="card">
+      <h2>七、弹簧测力计的原理 <span class="chip green">重点</span></h2>
+      <div class="key-point">
+        <p class="kp-title">原理</p>
+        <p>在弹性限度内，弹簧受到的<strong>拉力越大，弹簧的伸长量就越大</strong>。弹簧测力计就是根据这个原理制成的。</p>
+      </div>
+      <p><strong>措辞陷阱：</strong>是「伸长量」越大，不是「长度」越长。伸长量 = 现在的长度 − 弹簧原长。拉力为 0 时弹簧也有原长，所以「拉力越大，弹簧越长」的说法不严谨，考试中「拉力与伸长量成正比关系（限度内）」才是标准表述。</p>
+      <div class="question-box">
+        <h4>💬 辨析</h4>
+        <p>「在弹性限度内，弹簧的长度与受到的拉力成正比」，这句话对吗？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p><strong>不对。</strong>成比例的是<strong>伸长量</strong>与拉力，不是长度与拉力。长度 = 原长 + 伸长量，原长不为零，所以长度与拉力不成正比（拉力为 0 时长度也不为 0）。</p>
+        </div>
+      </div>
+      <p>构造：弹簧测力计主要由<strong>弹簧、指针、刻度盘、挂钩</strong>组成，力的单位是牛（N）。</p>
+    </div>
+    <div class="card">
+      <h2>八、弹簧测力计的使用（五步） <span class="chip brown">实验技能</span></h2>
+      <ul class="steps" id="useSteps">
+        <li><button class="st-head" type="button">看量程</button><div class="st-body">观察测力计的量程（测量范围），加在它上的力不允许超过量程，否则会损坏测力计。实验室常用测力计量程为 0～5 N。</div></li>
+        <li><button class="st-head" type="button">认分度值</button><div class="st-body">认清刻度盘上每个小格代表多少牛（分度值），常用测力计的分度值是 0.2 N，读数时才能读得准。</div></li>
+        <li><button class="st-head" type="button">调零</button><div class="st-body">测量前检查指针是否指在零刻度线上，不指零要先调零；沿哪个方向使用，就在那个方向上调零。</div></li>
+        <li><button class="st-head" type="button">沿轴线方向测</button><div class="st-body">测量时，拉力的方向要沿弹簧的轴线方向，不能斜拉挂钩，也不能倒挂拉外壳；读数要等指针停稳后再读。</div></li>
+        <li><button class="st-head" type="button">平视读数</button><div class="st-body">视线要与刻度盘垂直（正对指针）读数，读出数值别忘了单位 N。</div></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>九、例题 · 读数 <span class="chip green">教材图 7.2-4 型</span></h2>
+      <div class="question-box">
+        <h4>✏️ 例题 1 · 两只测力计的读数</h4>
+        <p>两只弹簧测力计的量程都是 0～5 N、分度值都是 0.2 N。甲表指针指在 1 N 后第 2 个小格处；乙表指针指在 3 N 后第 3 个小格处。两表的读数各是多少？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>甲：1 N + 2 × 0.2 N = <strong>1.4 N</strong>；乙：3 N + 3 × 0.2 N = <strong>3.6 N</strong>。读数 = 整牛数 + 小格数 × 分度值，单位是牛（N）。</p>
+        </div>
+      </div>
+      <div class="question-box">
+        <h4>✏️ 例题 2 · 伸长量</h4>
+        <p>一根弹簧原长 10 cm，在弹性限度内挂上 2 N 的钩码后长 12 cm。求：① 弹簧的伸长量；② 若在限度内挂 3 N 的钩码，弹簧的长度是多少？</p>
+        <button class="reveal-btn" type="button">💡 点击揭晓答案</button>
+        <div class="reveal-ans">
+          <p>① 伸长量 = 现长 − 原长 = 12 cm − 10 cm = <strong>2 cm</strong>。</p>
+          <p>② 限度内伸长量与拉力成正比：2 N 伸长 2 cm，则 3 N 伸长 3 cm，弹簧长度 = 10 cm + 3 cm = <strong>13 cm</strong>。</p>
+        </div>
+      </div>
+      <p class="note">📌 拓展：除了弹簧测力计，还有握力计、拉力计等测力工具，它们的共同点都是把力的大小转换成容易观察的形变量。</p>
+      <div class="summary-box">
+        <p><strong>本节小结</strong></p>
+        <ul>
+          <li>弹性：受力形变、撤力自动恢复原状；塑性：撤力不能自动恢复原状。</li>
+          <li>弹力：物体发生形变要恢复原状时，对与它接触的物体产生的力；支持力＝桌面形变产生，压力＝水杯形变产生。</li>
+          <li>一切物体受力都发生形变，微小形变用放大法显示（玻璃瓶细管）。</li>
+          <li>弹性限度：超过限度，撤力也不能恢复原状。</li>
+          <li>测力计原理：在弹性限度内，弹簧受到的拉力越大，弹簧的伸长量越大（伸长量 ≠ 长度）。</li>
+          <li>使用五步：看量程 → 认分度值 → 调零 → 沿轴线方向测 → 平视读数。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+document.querySelectorAll('#tabs .tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('#tabs .tab-btn').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+document.querySelectorAll('.reveal-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var box=btn.closest('.question-box');
+    var open=box.classList.toggle('open');
+    btn.textContent=open?'🙈 收起答案':'💡 点击揭晓答案';
+  });
+});
+document.querySelectorAll('.steps .st-head').forEach(function(h){
+  h.addEventListener('click',function(){h.parentElement.classList.toggle('open')});
+});
+})();
+</script>
+<script src="/content/_lib/mobile-guard.js?v=20261030v1" defer></script>
+</body>
+</html>

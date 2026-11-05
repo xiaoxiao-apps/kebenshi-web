@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>力的作用效果观察站 — 力</title>
+<title>力的探究工坊 — 力</title>
 <link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261102v2">
 <style>
   *{box-sizing:border-box}
@@ -18,8 +18,6 @@
   .title{font-size:13px;font-weight:600;color:#2b2620;white-space:nowrap}
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
   canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
-  /* 橙色解说条（pointer-events:none，位置由 core placeHint 调整） */
-  .hintbar{position:absolute;left:50%;transform:translateX(-50%);top:10px;max-width:82%;background:rgba(255,166,87,.93);color:#4a2c00;font-size:14px;font-weight:600;line-height:1.5;padding:8px 16px;border-radius:10px;box-shadow:0 3px 10px rgba(0,0,0,.18);pointer-events:none;z-index:16;text-align:center;opacity:0;transition:opacity .4s}
   .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(238,233,224,.80),rgba(238,233,224,.44) 70%,rgba(238,233,224,0));pointer-events:none;display:flex;flex-wrap:nowrap;overflow-x:auto;justify-content:center;justify-content:safe center;align-items:stretch;gap:8px;padding:8px 12px;font-family:inherit;z-index:20}
   .ctrlbar>*{pointer-events:auto;flex:0 0 auto}
   .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #ddd5c4;border-radius:10px;padding:5px 9px;transition:opacity .3s ease,transform .3s ease}
@@ -32,9 +30,9 @@
   button.secondary{background:#6b7280}
   button.secondary:hover{background:#4b5563}
   button:disabled{opacity:.35;cursor:default}
-  button.scn,button.place{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s;padding:7px 11px}
-  button.scn:hover,button.place:hover{background:linear-gradient(#f8fafc,#d2deeb)}
-  button.scn.on,button.place.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
+  button.scn,button.place,button.pick{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s;padding:7px 11px}
+  button.scn:hover,button.place:hover,button.pick:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  button.scn.on,button.place.on,button.pick.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
   input[type=range]{width:130px;accent-color:#d97706}
   .rlabel{font-size:15px;color:#854d0e;min-width:66px;text-align:right;font-variant-numeric:tabular-nums}
   .ctrlbar.compact .glabel{font-size:12px}
@@ -55,8 +53,6 @@
   table.rec th,table.rec td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:5px 9px;text-align:left;white-space:nowrap;color:#1e293b}
   table.rec th{background:transparent;font-weight:400;color:#64748b}
   table.rec td{font-weight:600}
-  #c7toast{display:none;position:absolute;left:50%;top:13%;transform:translateX(-50%);max-width:82%;background:rgba(255,244,214,.96);border:1px solid #e0a20a;color:#5b3a00;font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:16;text-align:center}
-  #c7toast.show{display:block}
   html.pseudo-fs{width:100%;height:100%}
   html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;height:100dvh;z-index:2147483000;overflow:hidden}
 </style>
@@ -78,33 +74,68 @@
 </head>
 <body>
 <header>
-  <div class="title">力 · 力的作用效果观察站</div>
-  <a class="back" href="./index.html">← 返回实验卡页</a>
+  <div class="title">力 · 力的探究工坊</div>
+  <a class="back" href="./index.html">← 返回本节</a>
 </header>
 <div class="scene-wrap">
 <canvas id="scene"></canvas>
-<div class="hintbar" id="hint"></div>
 <div class="rec-panel" id="panel-read">
   <div class="rp-title">读数面板</div>
-  <div id="sec-a">
+  <div id="sec-effect">
     <table class="rec"><tbody>
       <tr><th>按压力</th><td id="rd-press">—</td></tr>
       <tr><th>橡皮泥凹坑</th><td id="rd-dent">—</td></tr>
       <tr><th>弹簧形变</th><td id="rd-stretch">—</td></tr>
       <tr><th>松手后</th><td id="rd-after">—</td></tr>
-    </tbody></table>
-  </div>
-  <div id="sec-b" style="display:none">
-    <table class="rec"><tbody>
       <tr><th>磁体放法</th><td id="rd-place">—</td></tr>
       <tr><th>小球速度</th><td id="rd-vel">—</td></tr>
       <tr><th>运动变化</th><td id="rd-change">—</td></tr>
     </tbody></table>
   </div>
+  <div id="sec-door" style="display:none">
+    <table class="rec"><tbody>
+      <tr><th>作用点（离轴）</th><td id="rd-point">—</td></tr>
+      <tr><th>方向（与门面夹角）</th><td id="rd-dir">—</td></tr>
+      <tr><th>大小</th><td id="rd-size">—</td></tr>
+      <tr><th>转动效果</th><td id="rd-eff">—</td></tr>
+      <tr><th>门开度</th><td id="rd-open">—</td></tr>
+    </tbody></table>
+  </div>
+  <div id="sec-draw" style="display:none">
+    <table class="rec"><tbody>
+      <tr><th>起点</th><td id="rd-d-start">—</td></tr>
+      <tr><th>方向</th><td id="rd-d-dir">—</td></tr>
+      <tr><th>线段长度</th><td id="rd-d-len">—</td></tr>
+      <tr><th>标注</th><td id="rd-d-label">—</td></tr>
+      <tr><th>判分</th><td id="rd-d-res">—</td></tr>
+    </tbody></table>
+  </div>
+  <div id="sec-cart" style="display:none">
+    <table class="rec"><tbody>
+      <tr><th>左车速度</th><td id="rd-vl">—</td></tr>
+      <tr><th>右车速度</th><td id="rd-vr">—</td></tr>
+      <tr><th>状态</th><td id="rd-st">—</td></tr>
+    </tbody></table>
+  </div>
+  <div id="sec-pull" style="display:none">
+    <table class="rec"><tbody>
+      <tr><th>左表读数</th><td id="rd-pl">—</td></tr>
+      <tr><th>右表读数</th><td id="rd-pr">—</td></tr>
+      <tr><th>两力关系</th><td id="rd-prel">—</td></tr>
+      <tr><th>方向</th><td id="rd-pdir">—</td></tr>
+    </tbody></table>
+  </div>
 </div>
-<div id="c7toast"></div>
 </div>
 <div class="ctrlbar">
+  <div class="group" id="grp-scene">
+    <div class="glabel">工坊站点</div>
+    <div class="gctrl">
+      <button id="btn-scene-effect" class="scn">🎯 效果舞台</button>
+      <button id="btn-scene-elements" class="scn">🚪 推门工坊</button>
+      <button id="btn-scene-mutual" class="scn">🤝 相互舞台</button>
+    </div>
+  </div>
   <div class="group" id="grp-a-press">
     <div class="glabel">按压力（橡皮泥）</div>
     <div class="gctrl">
@@ -140,6 +171,85 @@
       <button id="btn-reset-b" class="secondary">复位小球</button>
     </div>
   </div>
+  <div class="group" id="grp-board">
+    <div class="glabel">推门工坊</div>
+    <div class="gctrl">
+      <button id="btn-board-door" class="scn">🚪 推门</button>
+      <button id="btn-board-draw" class="scn">📐 你来画</button>
+    </div>
+  </div>
+  <div class="group" id="grp-e-point">
+    <div class="glabel">作用点（离门轴远近）</div>
+    <div class="gctrl">
+      <input type="range" id="rng-point" min="5" max="100" step="1" value="75">
+      <span class="rlabel" id="lbl-point">75 %</span>
+    </div>
+  </div>
+  <div class="group" id="grp-e-dir">
+    <div class="glabel">方向（角度盘）</div>
+    <div class="gctrl">
+      <input type="range" id="rng-dir" min="-90" max="90" step="1" value="0">
+      <span class="rlabel" id="lbl-dir">90°</span>
+    </div>
+  </div>
+  <div class="group" id="grp-e-size">
+    <div class="glabel">大小</div>
+    <div class="gctrl">
+      <input type="range" id="rng-size" min="0" max="10" step="0.5" value="5">
+      <span class="rlabel" id="lbl-size">5.0 N</span>
+    </div>
+  </div>
+  <div class="group" id="grp-e-act">
+    <div class="glabel">推门</div>
+    <div class="gctrl">
+      <button id="btn-push">开始推门</button>
+      <button id="btn-close" class="secondary">关上门</button>
+    </div>
+  </div>
+  <div class="group" id="grp-d-len">
+    <div class="glabel">③ 线段长度（每格 1 N）</div>
+    <div class="gctrl">
+      <button id="btn-len-1" class="pick">1 格</button>
+      <button id="btn-len-2" class="pick">2 格</button>
+      <button id="btn-len-3" class="pick">3 格</button>
+      <button id="btn-len-4" class="pick">4 格</button>
+    </div>
+  </div>
+  <div class="group" id="grp-d-label">
+    <div class="glabel">④ 标注</div>
+    <div class="gctrl">
+      <button id="btn-lab-f4n" class="pick">F=4N</button>
+      <button id="btn-lab-4n" class="pick">4N</button>
+      <button id="btn-lab-f" class="pick">F</button>
+    </div>
+  </div>
+  <div class="group" id="grp-d-act">
+    <div class="glabel">判分</div>
+    <div class="gctrl">
+      <button id="btn-draw-check">检查</button>
+      <button id="btn-draw-clear" class="secondary">重画</button>
+    </div>
+  </div>
+  <div class="group" id="grp-c-step">
+    <div class="glabel">相互舞台</div>
+    <div class="gctrl">
+      <button id="btn-c-step1" class="scn">🚗 磁车对弹</button>
+      <button id="btn-c-step2" class="scn">⚖ 测力计对拉</button>
+    </div>
+  </div>
+  <div class="group" id="grp-c-run">
+    <div class="glabel">相互作用</div>
+    <div class="gctrl">
+      <button id="btn-c-release">释放</button>
+      <button id="btn-c-reset" class="secondary">复位小车</button>
+    </div>
+  </div>
+  <div class="group" id="grp-p-run">
+    <div class="glabel">对拉</div>
+    <div class="gctrl">
+      <button id="btn-p-relax" class="secondary">松手</button>
+    </div>
+  </div>
   <div class="group" id="grp-sys">
     <div class="glabel">系统</div>
     <div class="gctrl">
@@ -149,21 +259,14 @@
       <button id="btn-full" class="secondary">全屏</button>
     </div>
   </div>
-  <div class="group" id="grp-scene">
-    <div class="glabel">舞台</div>
-    <div class="gctrl">
-      <button id="btn-scene-a" class="scn">🖐 形变舞台</button>
-      <button id="btn-scene-b" class="scn">🧲 运动舞台</button>
-    </div>
-  </div>
 </div>
 <div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
 <script src="../_lib/v1/props.js?v=20261104"></script>
 <script src="../_lib/v1/props-mech.js?v=20261104"></script>
 <script src="../_lib/v1/sfx.js?v=20261104"></script>
-<script src="exp-effect-core.js?v=20261104"></script>
-<script src="guide/guide-data.js?v=20261104"></script>
-<script>window.GUIDE_CFG={state:window.C7S1_STATE,mode:'effect'};window.GUIDE_DATA=window.C7S1_GUIDE;</script>
+<script src="exp-workshop-core.js?v=20261106"></script>
+<script src="guide/guide-data.js?v=20261106"></script>
+<script>window.GUIDE_CFG={state:window.C7S1_STATE};/* 多场景页不设 mode key：引擎每帧轮询 R.mode（effect/elements/mutual） */window.GUIDE_DATA=window.C7S1_GUIDE;</script>
 <script src="../_lib/guide/engine-core.js?v=20261028v13"></script>
 <script src="../_lib/guide/vB-core.js?v=20261102v3"></script>
 <script src="/content/_lib/mobile-guard.js?v=20261030v1" defer></script>

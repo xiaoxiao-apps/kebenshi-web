@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>重力与质量的关系 — 重力</title>
+<title>重力探究馆 — 重力</title>
 <link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261102v2">
 <style>
   *{box-sizing:border-box}
@@ -18,7 +18,6 @@
   .title{font-size:13px;font-weight:600;color:#2b2620;white-space:nowrap}
   .scene-wrap{position:fixed;top:34px;left:0;right:0;bottom:0}
   canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
-  .hintbar{position:absolute;left:50%;transform:translateX(-50%);top:10px;max-width:82%;background:rgba(255,166,87,.93);color:#4a2c00;font-size:14px;font-weight:600;line-height:1.5;padding:8px 16px;border-radius:10px;box-shadow:0 3px 10px rgba(0,0,0,.18);pointer-events:none;z-index:16;text-align:center;opacity:0;transition:opacity .4s}
   .ctrlbar{position:fixed;left:0;right:0;bottom:0;min-height:96px;background:linear-gradient(to top,rgba(232,237,242,.80),rgba(232,237,242,.44) 70%,rgba(232,237,242,0));pointer-events:none;display:flex;flex-wrap:nowrap;overflow-x:auto;justify-content:center;justify-content:safe center;align-items:stretch;gap:8px;padding:8px 12px;font-family:inherit;z-index:20}
   .ctrlbar>*{pointer-events:auto;flex:0 0 auto}
   .group{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.86);border:1px solid #cdd6de;border-radius:10px;padding:5px 9px}
@@ -34,6 +33,7 @@
   button.wt:hover{background:linear-gradient(#f8fafc,#d2deeb)}
   button.wt.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
   input[type=checkbox]{accent-color:#d97706;width:16px;height:16px}
+  input[type=range]{accent-color:#d97706}
   .ctrlbar.compact .glabel{font-size:12px}
   .ctrlbar.compact .gctrl{min-height:32px}
   .ctrlbar.compact .gctrl label{font-size:12px}
@@ -41,15 +41,11 @@
   :fullscreen .ctrlbar,html.pseudo-fs .ctrlbar{flex-wrap:nowrap;gap:6px;padding:6px 10px;overflow-x:auto}
   :fullscreen .ctrlbar .glabel,html.pseudo-fs .ctrlbar .glabel{font-size:11px}
   :fullscreen .ctrlbar button,html.pseudo-fs .ctrlbar button{padding:4px 8px;font-size:13px}
-  .rec-panel{display:none;position:absolute;width:fit-content;min-width:0;max-width:60vw;background:rgba(255,255,255,0.45);border-radius:16px;padding:10px 10px;font-size:14px;z-index:15;pointer-events:none}
-  .rec-panel.show{display:block}
-  .rec-panel .rp-title{font-size:15px;font-weight:600;color:#b45309;margin-bottom:8px}
-  table.rec{border-collapse:collapse;font-size:14px;background:transparent;table-layout:auto}
-  table.rec th,table.rec td{border:none;border-bottom:1px solid rgba(0,0,0,.08);padding:5px 9px;text-align:left;white-space:nowrap;color:#1e293b}
-  table.rec th{background:transparent;font-weight:400;color:#64748b}
-  table.rec td{font-weight:600}
   html.pseudo-fs{width:100%;height:100%}
   html.pseudo-fs body{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;height:100dvh;z-index:2147483000;overflow:hidden}
+  .scene-btn{border:2px solid transparent;border-radius:12px;padding:8px 16px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;background:linear-gradient(#fdfefe,#e2e8f0);color:#334155;box-shadow:0 2px 6px rgba(30,41,59,.18);transition:all .2s}
+  .scene-btn:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  .scene-btn.active{border-color:#2563eb;background:linear-gradient(#dbeafe,#bfdbfe);color:#1d4ed8;box-shadow:0 2px 10px rgba(37,99,235,.25)}
 </style>
 <style>
 @media (pointer:coarse) and (hover:none){
@@ -66,24 +62,20 @@
 </head>
 <body>
 <header>
-  <div class="title">重力 · 重力质量关系探究馆</div>
-  <a class="back" href="./index.html">← 返回实验卡页</a>
+  <div class="title">重力 · 重力探究馆</div>
+  <a class="back" href="./index.html">← 返回</a>
 </header>
 <div class="scene-wrap">
 <canvas id="scene"></canvas>
-<div class="hintbar" id="hint"></div>
-<div class="rec-panel" id="panel-read">
-  <div class="rp-title">读数面板</div>
-  <table class="rec"><tbody>
-    <tr><th>钩码总质量 m</th><td id="rd-mass">—</td></tr>
-    <tr><th>重力 G（读数）</th><td id="rd-g">—</td></tr>
-    <tr><th>G÷m</th><td id="rd-ratio">—</td></tr>
-    <tr><th>已记录组数</th><td id="rd-count">—</td></tr>
-    <tr><th>状态</th><td id="rd-status">—</td></tr>
-  </tbody></table>
-</div>
 </div>
 <div class="ctrlbar">
+  <div class="group" id="grp-nav">
+    <div class="glabel">场景</div>
+    <div class="gctrl">
+      <button id="btn-s1" class="scene-btn active">⚖️ 大小站</button>
+      <button id="btn-s2" class="scene-btn">🧭 方向站</button>
+    </div>
+  </div>
   <div class="group" id="grp-weight">
     <div class="glabel">钩码（步进挂）</div>
     <div class="gctrl">
@@ -97,21 +89,28 @@
     <div class="glabel">记录</div>
     <div class="gctrl">
       <button id="btn-record">记录</button>
-      <button id="btn-clear" class="secondary">清空数据</button>
+      <button id="btn-clear" class="secondary">清空</button>
     </div>
   </div>
   <div class="group" id="grp-opt">
     <div class="glabel">选项</div>
     <div class="gctrl">
       <label><input type="checkbox" id="chk-g10">粗略 g=10</label>
-      <label><input type="checkbox" id="chk-vec-g" checked>重力G箭头</label>
-      <label><input type="checkbox" id="chk-vec-f" checked>拉力F箭头</label>
+      <label><input type="checkbox" id="chk-moon">🌙 月球</label>
+    </div>
+  </div>
+  <div class="group" id="grp-dir" style="display:none">
+    <div class="glabel">方向站控制</div>
+    <div class="gctrl">
+      <input type="range" id="rng-tilt" min="-30" max="30" step="1" value="0" style="width:100px">
+      <span id="lbl-tilt" style="font-size:13px;min-width:40px;color:#854d0e">0°</span>
+      <button id="btn-wall-check" class="wt">🧱 工人查墙</button>
+      <button id="btn-zoom-out" class="wt">🚀 拉远</button>
     </div>
   </div>
   <div class="group" id="grp-sys">
     <div class="glabel">系统</div>
     <div class="gctrl">
-      <button id="btn-table">读数面板</button>
       <button id="btn-reset" class="secondary">重置</button>
       <button id="btn-mute">🔊</button>
       <button id="btn-full" class="secondary">全屏</button>
@@ -122,8 +121,8 @@
 <script src="../_lib/v1/props.js?v=20261104"></script>
 <script src="../_lib/v1/props-mech.js?v=20261104"></script>
 <script src="../_lib/v1/sfx.js?v=20261104"></script>
-<script src="exp-gravity-core.js?v=20261104"></script>
-<script src="guide/guide-data.js?v=20261104"></script>
+<script src="exp-gravity-hall-core.js?v=20261106"></script>
+<script src="guide/guide-data.js?v=20261106"></script>
 <script>window.GUIDE_CFG={state:window.C7S3_STATE,mode:'gravity'};window.GUIDE_DATA=window.C7S3_GUIDE;</script>
 <script src="../_lib/guide/engine-core.js?v=20261028v13"></script>
 <script src="../_lib/guide/vB-core.js?v=20261102v3"></script>
