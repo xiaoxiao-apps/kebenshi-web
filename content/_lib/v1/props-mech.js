@@ -7,17 +7,17 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-mech.js — 第七章「力」力学器材标准件 v1（2026-11-04，c7 单A，16件）
+ * props-mech.js — 第七章「力」力学器材标准件 v1（2026-11-04，c7 单A，16件；2026-11-06 C7V2-D1 增补 glass_bottle_tube=17件）
  * 约定同 props-optics/props-density：IIFE 挂 global.PROPS；(x,y)=底面中心锚点
  * （吊挂件=底钩锚点向上画；旋转件=中心锚点）；有挂载点的件返回几何含 mounts:{锚名:{x,y}}（世界坐标）。
  * 视觉全原创（PhET masses-and-springs 仅借交互语义：圈距线性变疏/柱高∝质量档/顶钩底钩 snap）。
  * 件清单：plasticine / hand_press / spring_horizontal / spring_vertical / bar_magnet /
  *   iron_ball / ball_track_table / door / magnet_cart / spring_meter / hook_weight /
- *   ruler_flex / rubber_band / plumb_line / earth_globe / person_pin
+ *   ruler_flex / rubber_band / plumb_line / earth_globe / person_pin / glass_bottle_tube(C7V2-D1)
  * ============================================================ */
 
 // MECH_IDS: 本文件件名清单（gallery 与下游 B 单索引用）
-PROPS.MECH_IDS = ['plasticine','hand_press','spring_horizontal','spring_vertical','bar_magnet','iron_ball','ball_track_table','door','magnet_cart','spring_meter','hook_weight','ruler_flex','rubber_band','plumb_line','earth_globe','person_pin'];
+PROPS.MECH_IDS = ['plasticine','hand_press','spring_horizontal','spring_vertical','bar_magnet','iron_ball','ball_track_table','door','magnet_cart','spring_meter','hook_weight','ruler_flex','rubber_band','plumb_line','earth_globe','person_pin','glass_bottle_tube'];
 
 // plasticine: 橡皮泥（橙色圆饼）。(x,y)=底面中心；opt.size 默认70；opt.press 0-1 → 顶面凹陷深度+宽度摊开联动
 // 松手是否复原由调用页决定（件只按 opt.press 画）。返回 {w,h,tip:{x,y}}（tip=凹陷底中心）
@@ -673,5 +673,122 @@ PROPS.person_pin = function(ctx, x, y, opt){
 };
 
 /* == APPEND-POINT: 力学件增补插入此处 == */
+
+// glass_bottle_tube: 玻璃瓶细管（微小形变放大法教具，教材P10练习4图7.2-5原型；设计书§2 s2场景①）。
+// (x,y)=瓶底中心；w=整体宽（默认110）、h=整体高（瓶底→细管顶，默认240）
+// opt.squeeze 0..1 捏力→细管水柱顶面联动上升：基线（塞顶上方）→接近管顶（squeeze=1 不溢出），变化肉眼明显
+// 结构：椭圆形厚壁玻璃瓶（半透明浅蓝+瓶身左缘白高光+厚壁双线）装满红色水（颈部带液面）
+//       + 深色带孔橡胶塞 + 细玻璃管竖直插过塞心（管内红色水柱、顶面凹弯月可见）
+// 用法：const r = PROPS.glass_bottle_tube(ctx, 260, 380, 110, 240, {squeeze: 0.5}); // r.waterTopY=水柱顶面y像素
+// 返回 {waterTopY}（细管内水柱顶面世界y坐标，页面标注/对齐用）
+PROPS.glass_bottle_tube = function(ctx, x, y, w, h, opt){
+  if (w !== null && typeof w === 'object') { opt = w; w = 0; h = 0; } // 兼容 gallery 4参调用 (ctx,x,y,opt)
+  opt = opt || {};
+  w = w || opt.w || 110;
+  h = h || opt.h || 240;
+  const sq = Math.max(0, Math.min(1, opt.squeeze || 0));
+  // === 竖直布局（h 比例）===
+  const bx = w * 0.5, by = h * 0.28, cy = y - by;          // 瓶身椭圆（底触 y）
+  const nRx = Math.max(7, w * 0.115);                      // 瓶颈半宽
+  const neckTop = y - h * 0.645;                           // 瓶颈顶
+  const wall = Math.max(2, w * 0.045);                     // 厚壁厚
+  const stopT = y - h * 0.735, stopB = neckTop + h * 0.012; // 橡胶塞顶/底
+  const tw = Math.max(3.5, w * 0.05);                      // 细管外半宽
+  const tubeTopY = y - h * 0.98;                           // 细管顶
+  const waterBaseY = neckTop + h * 0.03;                   // 颈部液面（装满）
+  const wTop0 = stopT - h * 0.03;                          // 水柱基线（squeeze=0）
+  const wTopMax = tubeTopY + h * 0.045;                    // 水柱上限（squeeze=1，不溢出）
+  const waterTopY = wTop0 - (wTop0 - wTopMax) * sq;
+  // 颈-身交接点（瓶颈侧线落在瓶身椭圆上的参数角，上方左右两点）
+  const cosJ = Math.min(1, nRx / bx);
+  const sinJ = -Math.sqrt(1 - cosJ * cosJ);
+  const thL = Math.atan2(sinJ, -cosJ);
+  const thR = Math.atan2(sinJ, cosJ);
+  const joinY = cy + by * sinJ;
+  // 瓶轮廓单路径（颈左壁↓ → 沿椭圆经左/底/右 → 颈右壁↑）
+  function bottlePath(){
+    ctx.beginPath();
+    ctx.moveTo(x - nRx, neckTop);
+    ctx.lineTo(x - nRx, joinY);
+    ctx.ellipse(x, cy, bx, by, 0, thL, thR, true);
+    ctx.lineTo(x + nRx, neckTop);
+    ctx.closePath();
+  }
+  ctx.save();
+  // 1) 厚壁玻璃瓶身（半透明浅蓝渐变）
+  const gG = ctx.createLinearGradient(x - bx, 0, x + bx, 0);
+  gG.addColorStop(0, 'rgba(198,224,242,0.85)');
+  gG.addColorStop(0.45, 'rgba(226,241,251,0.62)');
+  gG.addColorStop(1, 'rgba(180,210,234,0.85)');
+  bottlePath(); ctx.fillStyle = gG; ctx.fill();
+  // 2) 瓶内红色水（clip 轮廓内，液面以下装满）
+  ctx.save();
+  bottlePath(); ctx.clip();
+  const gB = ctx.createLinearGradient(0, waterBaseY, 0, y);
+  gB.addColorStop(0, '#e0574a'); gB.addColorStop(1, '#b93a30');
+  ctx.fillStyle = gB;
+  ctx.fillRect(x - bx, waterBaseY, bx * 2, y - waterBaseY);
+  ctx.restore();
+  // 3) 颈部液面椭圆（带描边=液面可见）
+  ctx.fillStyle = '#ef6a5c';
+  ctx.beginPath(); ctx.ellipse(x, waterBaseY, nRx * 0.82, Math.max(1.5, w * 0.022), 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = 'rgba(150,50,40,0.6)'; ctx.lineWidth = 1; ctx.stroke();
+  // 4) 厚壁双线：外轮廓描边 + 内壁线（颈两侧短竖线 + 内椭圆下弧）
+  ctx.strokeStyle = '#8fb6d2'; ctx.lineWidth = Math.max(1.6, w * 0.02);
+  bottlePath(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(127,168,196,0.85)'; ctx.lineWidth = Math.max(1.2, w * 0.013);
+  ctx.beginPath();
+  ctx.moveTo(x - nRx + wall, neckTop + 2); ctx.lineTo(x - nRx + wall, joinY + wall * 1.2);
+  ctx.moveTo(x + nRx - wall, neckTop + 2); ctx.lineTo(x + nRx - wall, joinY + wall * 1.2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x, cy, bx - wall, by - wall, 0, thL, thR, true);
+  ctx.stroke();
+  // 5) 瓶身左缘白色高光弧
+  ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = Math.max(2.2, w * 0.035); ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.ellipse(x, cy, bx * 0.86, by * 0.86, 0, Math.PI * 0.72, Math.PI * 1.28);
+  ctx.stroke();
+  // 6) 深色带孔橡胶塞（下宽上窄梯形 + 顶面椭圆 2.5D）
+  const sBw = nRx + w * 0.03, sTw = nRx * 0.92;
+  ctx.lineCap = 'butt';
+  ctx.fillStyle = '#4b3a2f'; ctx.strokeStyle = '#33261d'; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(x - sBw, stopB);
+  ctx.lineTo(x + sBw, stopB);
+  ctx.lineTo(x + sTw, stopT);
+  ctx.lineTo(x - sTw, stopT);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#5d4a3c';
+  ctx.beginPath(); ctx.ellipse(x, stopT, sTw, Math.max(2, w * 0.03), 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  // 7) 细玻璃管（竖直双壁线插过塞心 + 管口加厚缘）
+  ctx.strokeStyle = 'rgba(125,166,196,0.95)'; ctx.lineWidth = Math.max(1.2, w * 0.014); ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x - tw, stopT); ctx.lineTo(x - tw, tubeTopY);
+  ctx.moveTo(x + tw, stopT); ctx.lineTo(x + tw, tubeTopY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x - tw - 1.5, tubeTopY); ctx.lineTo(x + tw + 1.5, tubeTopY);
+  ctx.stroke();
+  // 8) 管内红色水柱（顶面凹弯月=中心微低；穿过塞孔连到颈部液面）
+  const cw = Math.max(1.8, tw * 0.6);
+  ctx.beginPath();
+  ctx.moveTo(x - cw, waterTopY);
+  ctx.quadraticCurveTo(x, waterTopY + cw * 0.9, x + cw, waterTopY);
+  ctx.lineTo(x + cw, waterBaseY);
+  ctx.lineTo(x - cw, waterBaseY);
+  ctx.closePath();
+  const gC = ctx.createLinearGradient(x - cw, 0, x + cw, 0);
+  gC.addColorStop(0, '#c94437'); gC.addColorStop(0.5, '#e8564a'); gC.addColorStop(1, '#bd3a2f');
+  ctx.fillStyle = gC; ctx.fill();
+  // 弯月面深色描边（顶面弯月可见）
+  ctx.strokeStyle = 'rgba(140,45,35,0.75)'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x - cw, waterTopY);
+  ctx.quadraticCurveTo(x, waterTopY + cw * 0.9, x + cw, waterTopY);
+  ctx.stroke();
+  ctx.restore();
+  return {waterTopY: waterTopY};
+};
 
 })(typeof window !== 'undefined' ? window : globalThis);

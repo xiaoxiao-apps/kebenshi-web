@@ -60,8 +60,8 @@
 <script src="./props.js?v=20261024"></script>
 <script src="./props-optics.js?v=20261024"></script>
 <script src="./props-density.js?v=20261024"></script>
-<!-- c7 力学器材库 props-mech.js：16件（2026-11-04 单A；视觉原创，PhET 仅借交互语义） -->
-<script src="./props-mech.js?v=20261104"></script>
+<!-- c7 力学器材库 props-mech.js：17件（2026-11-04 单A 16件 + 2026-11-06 C7V2-D1 glass_bottle_tube；视觉原创，PhET 仅借交互语义） -->
+<script src="./props-mech.js?v=20261106"></script>
 <script src="./sfx.js?v=20261024"></script>
 <script>
 // PROPS.SPRITE_BASE 默认为 'sprites/'，与 gallery.html 同目录，正确无需覆写
@@ -123,7 +123,8 @@ const PROPS_LIST=[
   {id:'ruler_flex',name:'直尺(弯曲)',fn:'ruler_flex',wide:true,vector:true,opts:[{},{bend:0.9},{bend:-0.7}],badge:'c7 新增',desc:'米色长尺+刻度线；opt.bend -1..1 二次曲线弯曲+左端固定夹；返回{len,bend,tip,ctrl}'},
   {id:'rubber_band',name:'橡皮筋(拉伸)',fn:'rubber_band',wide:true,vector:true,opts:[{},{stretch:0.6},{stretch:1}],badge:'c7 新增',desc:'褐色环带；opt.stretch 0..1 环拉长变细；返回{w,h}'},
   {id:'earth_globe',name:'地球球体(spots点选)',fn:'earth_globe',tall:true,size:{w:520,h:420},vector:true,opts:[{r:80},{r:60,spots:[{lat:35,lon:20,label:'欧亚'},{lat:-20,lon:-60,label:'南美'}]},{r:80,spots:[{lat:-25,lon:135,label:'澳洲'}]}],badge:'c7 新增',desc:'蓝球+绿陆块blob原创简化+高光；opt.spots[{lat,lon,label}]简化投影(x=cx+r·cosLat·sinLon)返回点位+visible背面判定'},
-  {id:'person_pin',name:'小人重力箭头桩',fn:'person_pin',vector:true,opts:[{},{arrow:'down'},{arrow:'up'}],badge:'c7 新增',desc:'简化矢量小人(圆头+躯干腿,无真脸)；opt.arrow down=粉色重力G/up=支持力F；opt.scale身高；返回{h,foot,head,arrow}'}
+  {id:'person_pin',name:'小人重力箭头桩',fn:'person_pin',vector:true,opts:[{},{arrow:'down'},{arrow:'up'}],badge:'c7 新增',desc:'简化矢量小人(圆头+躯干腿,无真脸)；opt.arrow down=粉色重力G/up=支持力F；opt.scale身高；返回{h,foot,head,arrow}'},
+  {id:'glass_bottle_tube',name:'玻璃瓶细管',fn:'glass_bottle_tube',tall:true,vector:true,opts:[{w:88,h:230,squeeze:0},{w:88,h:230,squeeze:0.6},{w:88,h:230,squeeze:1}],badge:'c7 新增',desc:'捏瓶水柱上升——微小形变放大法（弹力节教具）；椭圆厚壁玻璃瓶(半透明+左缘白高光+厚壁双线)装满红水+带孔橡胶塞+细管竖插塞心(水柱顶面凹弯月)；opt.squeeze 0..1 水柱基线→近管顶不溢出；返回{waterTopY}'}
 ];
 const CARD_SIZES={wide:{w:520,h:160},tall:{w:300,h:420},normal:{w:300,h:160}};
 function sizeOf(item){return item.size||CARD_SIZES[item.wide?'wide':(item.tall?'tall':'normal')];}
