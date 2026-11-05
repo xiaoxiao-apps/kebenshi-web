@@ -807,11 +807,23 @@
     "volume": "下册",
     "chapter": "第7章 力",
     "section": "力",
+    "type": "讲解",
+    "title": "力",
+    "path": "content/physics_g8_v1_c7_s1/explain.html",
+    "thumb": null
+   },
+   {
+    "id": "physics_g8_v1_c7_s1/exp-workshop",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "下册",
+    "chapter": "第7章 力",
+    "section": "力",
     "type": "实验",
-    "title": "力 · 实验卡",
-    "path": "content/physics_g8_v1_c7_s1/index.html",
+    "title": "力的探究工坊",
+    "path": "content/physics_g8_v1_c7_s1/exp-workshop.html",
     "voice": true,
-    "thumb": "content/physics_g8_v1_c7_s1/thumb1.svg"
+    "thumb": "content/physics_g8_v1_c7_s1/thumb-workshop.svg"
    },
    {
     "id": "physics_g8_v1_c7_s2/index",
@@ -820,11 +832,23 @@
     "volume": "下册",
     "chapter": "第7章 力",
     "section": "弹力",
+    "type": "讲解",
+    "title": "弹力",
+    "path": "content/physics_g8_v1_c7_s2/explain.html",
+    "thumb": null
+   },
+   {
+    "id": "physics_g8_v1_c7_s2/exp-elastic-lab",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "下册",
+    "chapter": "第7章 力",
+    "section": "弹力",
     "type": "实验",
-    "title": "弹力 · 实验卡",
-    "path": "content/physics_g8_v1_c7_s2/index.html",
+    "title": "弹力实验室",
+    "path": "content/physics_g8_v1_c7_s2/exp-elastic-lab.html",
     "voice": true,
-    "thumb": "content/physics_g8_v1_c7_s2/thumb1.svg"
+    "thumb": "content/physics_g8_v1_c7_s2/thumb-elastic-lab.svg"
    },
    {
     "id": "physics_g8_v1_c7_s3/index",
@@ -833,11 +857,23 @@
     "volume": "下册",
     "chapter": "第7章 力",
     "section": "重力",
+    "type": "讲解",
+    "title": "重力",
+    "path": "content/physics_g8_v1_c7_s3/explain.html",
+    "thumb": null
+   },
+   {
+    "id": "physics_g8_v1_c7_s3/exp-gravity-hall",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "下册",
+    "chapter": "第7章 力",
+    "section": "重力",
     "type": "实验",
-    "title": "重力 · 实验卡",
-    "path": "content/physics_g8_v1_c7_s3/index.html",
+    "title": "重力探究馆",
+    "path": "content/physics_g8_v1_c7_s3/exp-gravity-hall.html",
     "voice": true,
-    "thumb": "content/physics_g8_v1_c7_s3/thumb1.svg"
+    "thumb": "content/physics_g8_v1_c7_s3/thumb-gravity-hall.svg"
    },
    {
     "id": "physics_g8_v1_c7_summary/index",
