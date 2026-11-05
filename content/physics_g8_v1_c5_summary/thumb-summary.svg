@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <!-- c5 本章小结缩略图：知识清单卡+凸透镜/三条特殊光线/成像箭头（原创矢量） -->
+  <defs>
+    <linearGradient id="bgS" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7fbff"/><stop offset="1" stop-color="#e8f0f8"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bgS)"/>
+  <!-- 知识清单卡 -->
+  <rect x="60" y="72" width="330" height="216" rx="18" fill="#ffffff" stroke="#dbe4ee" stroke-width="2"/>
+  <rect x="60" y="72" width="330" height="52" rx="18" fill="#2563eb"/>
+  <rect x="60" y="106" width="330" height="18" fill="#2563eb"/>
+  <text x="225" y="106" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle" font-family="sans-serif">📋 本章小结</text>
+  <!-- 清单行：勾+文字条 -->
+  <g font-family="sans-serif">
+    <circle cx="96" cy="164" r="11" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <path d="M91 164 l4 4 l7 -8" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="118" y="170" font-size="17" fill="#334155">凸透镜 · 会聚 · 焦点</text>
+    <circle cx="96" cy="208" r="11" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <path d="M91 208 l4 4 l7 -8" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="118" y="214" font-size="17" fill="#334155">三条特殊光线作图</text>
+    <circle cx="96" cy="252" r="11" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <path d="M91 252 l4 4 l7 -8" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="118" y="258" font-size="17" fill="#334155">成像规律 · 实像虚像</text>
+  </g>
+  <!-- 右侧：凸透镜+三条特殊光线+成像箭头 -->
+  <g font-family="sans-serif">
+    <line x1="430" y1="200" x2="628" y2="200" stroke="#94a3b8" stroke-width="2"/>
+    <path d="M440 155 L500 155 L560 245" fill="none" stroke="#f59e0b" stroke-width="2"/>
+    <line x1="440" y1="155" x2="560" y2="245" stroke="#f59e0b" stroke-width="2"/>
+    <path d="M440 155 L500 245 L560 245" fill="none" stroke="#f59e0b" stroke-width="2"/>
+    <path d="M500 125 Q512 200 500 275 Q488 200 500 125" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+    <polygon points="500,116 494,128 506,128" fill="#2563eb"/>
+    <polygon points="500,284 494,272 506,272" fill="#2563eb"/>
+    <line x1="470" y1="194" x2="470" y2="206" stroke="#475569" stroke-width="2"/>
+    <line x1="530" y1="194" x2="530" y2="206" stroke="#475569" stroke-width="2"/>
+    <text x="470" y="222" font-size="13" font-weight="bold" fill="#475569" text-anchor="middle">F</text>
+    <text x="530" y="222" font-size="13" font-weight="bold" fill="#475569" text-anchor="middle">F</text>
+    <line x1="440" y1="200" x2="440" y2="158" stroke="#dc2626" stroke-width="3.5"/>
+    <polygon points="440,148 434,160 446,160" fill="#dc2626"/>
+    <line x1="560" y1="200" x2="560" y2="242" stroke="#2563eb" stroke-width="3.5"/>
+    <polygon points="560,252 554,240 566,240" fill="#2563eb"/>
+    <text x="524" y="304" font-size="13" fill="#475569" text-anchor="middle">u=2f：倒立等大实像</text>
+    <text x="440" y="140" font-size="12" fill="#dc2626" text-anchor="middle">物</text>
+    <text x="576" y="262" font-size="12" fill="#2563eb">像</text>
+  </g>
+  <text x="320" y="44" font-size="26" font-weight="bold" fill="#1d4ed8" text-anchor="middle" font-family="sans-serif">第五章「透镜及其应用」知识速记</text>
+  <text x="320" y="330" font-size="16" fill="#64748b" text-anchor="middle" font-family="sans-serif">纯概念零题目 · 配套题目见本章练习</text>
+</svg>
