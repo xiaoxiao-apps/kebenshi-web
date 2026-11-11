@@ -1,49 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <!-- c6 本章小结缩略图：知识清单卡+托盘天平/ρ=m/V 公式牌（原创矢量） -->
-  <defs>
-    <linearGradient id="bgS" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f7fbff"/><stop offset="1" stop-color="#e8f0f8"/>
-    </linearGradient>
-  </defs>
-  <rect width="640" height="360" fill="url(#bgS)"/>
-  <!-- 知识清单卡 -->
-  <rect x="60" y="72" width="330" height="216" rx="18" fill="#ffffff" stroke="#dbe4ee" stroke-width="2"/>
-  <rect x="60" y="72" width="330" height="52" rx="18" fill="#2563eb"/>
-  <rect x="60" y="106" width="330" height="18" fill="#2563eb"/>
-  <text x="225" y="106" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle" font-family="sans-serif">📋 本章小结</text>
-  <!-- 清单行：勾+文字条 -->
-  <g font-family="sans-serif">
-    <circle cx="96" cy="164" r="11" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
-    <path d="M91 164 l4 4 l7 -8" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"/>
-    <text x="118" y="170" font-size="17" fill="#334155">质量 · 天平使用步骤</text>
-    <circle cx="96" cy="208" r="11" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
-    <path d="M91 208 l4 4 l7 -8" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"/>
-    <text x="118" y="214" font-size="17" fill="#334155">密度 ρ=m/V · 单位</text>
-    <circle cx="96" cy="252" r="11" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
-    <path d="M91 252 l4 4 l7 -8" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"/>
-    <text x="118" y="258" font-size="17" fill="#334155">量筒 · 测物质密度</text>
-  </g>
-  <!-- 右上：ρ=m/V 公式牌 -->
-  <g>
-    <rect x="452" y="88" width="140" height="48" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
-    <text x="522" y="120" font-size="22" font-weight="bold" fill="#92400e" text-anchor="middle" font-family="sans-serif">ρ = m/V</text>
-  </g>
-  <!-- 右下：托盘天平 -->
-  <g font-family="sans-serif">
-    <line x1="464" y1="204" x2="448" y2="230" stroke="#475569" stroke-width="1.5"/>
-    <line x1="464" y1="204" x2="480" y2="230" stroke="#475569" stroke-width="1.5"/>
-    <path d="M442 230 q22 16 44 0" fill="none" stroke="#475569" stroke-width="3"/>
-    <line x1="596" y1="204" x2="580" y2="230" stroke="#475569" stroke-width="1.5"/>
-    <line x1="596" y1="204" x2="612" y2="230" stroke="#475569" stroke-width="1.5"/>
-    <path d="M574 230 q22 16 44 0" fill="none" stroke="#475569" stroke-width="3"/>
-    <rect x="456" y="214" width="16" height="14" rx="2" fill="#94a3b8"/>
-    <rect x="588" y="214" width="16" height="14" rx="2" fill="#fbbf24" stroke="#b45309" stroke-width="1.5"/>
-    <rect x="460" y="196" width="140" height="8" rx="4" fill="#475569"/>
-    <rect x="544" y="190" width="9" height="8" rx="1.5" fill="#dc2626"/>
-    <rect x="526" y="204" width="8" height="56" fill="#475569"/>
-    <rect x="492" y="260" width="76" height="12" rx="4" fill="#475569"/>
-    <text x="530" y="298" font-size="14" fill="#64748b" text-anchor="middle">托盘天平：左物右码</text>
-  </g>
-  <text x="320" y="44" font-size="26" font-weight="bold" fill="#1d4ed8" text-anchor="middle" font-family="sans-serif">第六章「质量与密度」知识速记</text>
-  <text x="320" y="330" font-size="16" fill="#64748b" text-anchor="middle" font-family="sans-serif">纯概念零题目 · 配套题目见本章练习</text>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+<g transform="translate(12,12) scale(0.96)"><rect x="240" y="286" width="120" height="20" rx="10" fill="#b08a52" stroke="#3d3830" stroke-width="2.5"/><rect x="290" y="150" width="20" height="142" rx="8" fill="#c9a86a" stroke="#3d3830" stroke-width="2.5"/><rect x="150" y="132" width="300" height="16" rx="8" fill="#c9a86a" stroke="#3d3830" stroke-width="2.5"/><circle cx="300" cy="140" r="12" fill="#f2c14e" stroke="#3d3830" stroke-width="2.5"/><line x1="158" y1="148" x2="132" y2="192" stroke="#3d3830" stroke-width="2.4"/><line x1="158" y1="148" x2="186" y2="192" stroke="#3d3830" stroke-width="2.4"/><path d="M126,192 Q159,232 192,192 Z" fill="#d9b877" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><line x1="442" y1="148" x2="416" y2="192" stroke="#3d3830" stroke-width="2.4"/><line x1="442" y1="148" x2="470" y2="192" stroke="#3d3830" stroke-width="2.4"/><path d="M410,192 Q443,232 476,192 Z" fill="#d9b877" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><rect x="144" y="164" width="30" height="26" rx="7" fill="#e8734a" stroke="#3d3830" stroke-width="2"/><circle cx="428" cy="205" r="5" fill="#3d3830"/><circle cx="429.75" cy="203.25" r="1.5" fill="#ffffff"/><circle cx="456" cy="205" r="5" fill="#3d3830"/><circle cx="457.75" cy="203.25" r="1.5" fill="#ffffff"/><path d="M432.0,216 q10.0,6 20,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/></g><g transform="translate(312,96) scale(1.05)"><path d="M-30,8 L-30,-16 L-15,-3 L0,-22 L15,-3 L30,-16 L30,8 Z" fill="#f2c14e" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><circle cx="-30" cy="-18" r="4" fill="#e85d4a"/><circle cx="0" cy="-25" r="4" fill="#e85d4a"/><circle cx="30" cy="-18" r="4" fill="#e85d4a"/></g><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(552,260) scale(1.0)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(88,96) scale(0.75)" fill="#e8a04a"/>
 </svg>

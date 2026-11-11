@@ -1,54 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <!-- c2 本章练习缩略图：题卷+波形小题+红笔批改（原创矢量） -->
-  <defs>
-    <linearGradient id="bgP" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f7fbff"/><stop offset="1" stop-color="#e8f0f8"/>
-    </linearGradient>
-  </defs>
-  <rect width="640" height="360" fill="url(#bgP)"/>
-  <!-- 题卷 -->
-  <rect x="150" y="66" width="340" height="228" rx="18" fill="#ffffff" stroke="#dbe4ee" stroke-width="2"/>
-  <rect x="150" y="66" width="340" height="52" rx="18" fill="#f59e0b"/>
-  <rect x="150" y="100" width="340" height="18" fill="#f59e0b"/>
-  <text x="320" y="100" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle" font-family="sans-serif">📝 本章练习 · 自测卷</text>
-  <g font-family="sans-serif">
-    <!-- 第1题：单选 ABCD -->
-    <text x="180" y="160" font-size="16" fill="#334155">1</text>
-    <circle cx="222" cy="155" r="11" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
-    <text x="222" y="160" font-size="12" fill="#64748b" text-anchor="middle">A</text>
-    <circle cx="262" cy="155" r="11" fill="#dcfce7" stroke="#16a34a" stroke-width="2.5"/>
-    <text x="262" y="160" font-size="12" font-weight="bold" fill="#15803d" text-anchor="middle">B</text>
-    <circle cx="302" cy="155" r="11" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
-    <text x="302" y="160" font-size="12" fill="#64748b" text-anchor="middle">C</text>
-    <circle cx="342" cy="155" r="11" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
-    <text x="342" y="160" font-size="12" fill="#64748b" text-anchor="middle">D</text>
-    <text x="400" y="161" font-size="17" fill="#16a34a" font-weight="bold">✓</text>
-    <!-- 第2题：波形小题 -->
-    <text x="180" y="212" font-size="16" fill="#334155">2</text>
-    <rect x="205" y="178" width="126" height="58" rx="6" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
-    <line x1="212" y1="207" x2="324" y2="207" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 3"/>
-    <path d="M214 207 q8 -16 16 0 q8 16 16 0 q8 -16 16 0 q8 16 16 0 q8 -16 16 0 q8 16 16 0" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
-    <text x="268" y="231" font-size="9" fill="#64748b" text-anchor="middle">比较音调与响度</text>
-    <text x="400" y="212" font-size="17" fill="#16a34a" font-weight="bold">✓</text>
-    <!-- 第3题：填空判错 -->
-    <text x="180" y="258" font-size="16" fill="#334155">3</text>
-    <rect x="205" y="242" width="126" height="26" rx="6" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
-    <text x="215" y="259" font-size="13" fill="#b91c1c" text-decoration="line-through">340 m/s</text>
-    <text x="400" y="259" font-size="17" fill="#dc2626" font-weight="bold">✗</text>
-    <text x="424" y="259" font-size="12" fill="#2563eb">重做</text>
-  </g>
-  <!-- 铅笔 -->
-  <g transform="rotate(38 118 268)">
-    <rect x="104" y="200" width="26" height="110" rx="4" fill="#fbbf24" stroke="#b45309" stroke-width="2"/>
-    <polygon points="104,310 130,310 117,338" fill="#fde68a" stroke="#b45309" stroke-width="2"/>
-    <polygon points="112,328 122,328 117,338" fill="#334155"/>
-    <rect x="104" y="200" width="26" height="18" rx="4" fill="#f87171" stroke="#b45309" stroke-width="2"/>
-  </g>
-  <!-- 星星 -->
-  <g fill="#f59e0b">
-    <polygon points="540,110 546,126 563,126 549,136 554,152 540,142 526,152 531,136 517,126 534,126"/>
-    <polygon points="556,220 560,231 572,231 562,238 566,249 556,242 546,249 550,238 540,231 552,231" opacity=".7"/>
-  </g>
-  <text x="320" y="42" font-size="26" font-weight="bold" fill="#b45309" text-anchor="middle" font-family="sans-serif">第二章「声现象」原创自测</text>
-  <text x="320" y="332" font-size="16" fill="#64748b" text-anchor="middle" font-family="sans-serif">即时判分 · 逐题解析 · 一键重做</text>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+<path d="M206,80 H430 V232 L378,286 H212 Q200,286 200,274 V92 Q200,80 212,80 Z" fill="#fffdf8" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><path d="M430,232 L378,286 V244 Q378,232 390,232 Z" fill="#efe8d8" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><rect x="232" y="112" width="164" height="8" rx="4" fill="#d9d2c2"/><rect x="232" y="142" width="140" height="8" rx="4" fill="#d9d2c2"/><rect x="232" y="172" width="154" height="8" rx="4" fill="#d9d2c2"/><path d="M252,222 l24,26 l48,-58" fill="none" stroke="#e05252" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(398,96) rotate(46)"><path d="M0,16 L40,1 L40,31 Z" fill="#f0d3a5" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><path d="M0,16 L12,11.5 L12,20.5 Z" fill="#3d3830"/><rect x="40" y="1" width="116" height="30" rx="4" fill="#b08ad6" stroke="#3d3830" stroke-width="2.5"/><rect x="40" y="11" width="116" height="9" fill="#ffffff" opacity="0.35"/><rect x="156" y="1" width="18" height="30" rx="3" fill="#c9c2b2" stroke="#3d3830" stroke-width="2.5"/><rect x="174" y="3" width="26" height="26" rx="10" fill="#f2a6a0" stroke="#3d3830" stroke-width="2.5"/><circle cx="70" cy="12" r="3.6" fill="#3d3830"/><circle cx="92" cy="12" r="3.6" fill="#3d3830"/><path d="M74,20 q7,6 14,0" fill="none" stroke="#3d3830" stroke-width="2.6" stroke-linecap="round"/></g><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(150,120) scale(1.0)" fill="#b08ad6"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(120,250) scale(0.65)" fill="#b08ad6"/><circle cx="536" cy="286" r="13" fill="#b08ad6" opacity="0.55"/><circle cx="566" cy="252" r="8" fill="#b08ad6" opacity="0.4"/>
 </svg>
