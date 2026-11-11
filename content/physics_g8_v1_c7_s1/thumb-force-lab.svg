@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <!-- 顶部横梁 -->
+  <rect x="206" y="56" width="128" height="16" rx="8" fill="#b0763f" stroke="#3d3830" stroke-width="2.5"/>
+  <!-- Q弹簧（螺旋折线，圆头圆角） -->
+  <path d="M270 76 L302 96 L238 116 L302 136 L238 156 L302 176 L270 192" fill="none" stroke="#e8a93d" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 挂钩 -->
+  <path d="M270 190 v10 a7 7 0 0 0 12 5" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- 挂码（眯眼Q脸） -->
+  <rect x="222" y="206" width="96" height="84" rx="18" fill="#7fb5c9" stroke="#3d3830" stroke-width="2.5"/>
+  <path d="M246 234 q8 -9 16 0" fill="none" stroke="#3d3830" stroke-width="3.4" stroke-linecap="round"/>
+  <path d="M278 234 q8 -9 16 0" fill="none" stroke="#3d3830" stroke-width="3.4" stroke-linecap="round"/>
+  <path d="M256 256 q14 10 28 0" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/>
+  <ellipse cx="242" cy="252" rx="7" ry="4.5" fill="#f2b8a0" opacity="0.75"/>
+  <ellipse cx="298" cy="252" rx="7" ry="4.5" fill="#f2b8a0" opacity="0.75"/>
+  <!-- 小门点缀（右侧） -->
+  <rect x="444" y="152" width="104" height="152" rx="12" fill="#e58f7c" stroke="#3d3830" stroke-width="2.5"/>
+  <rect x="460" y="168" width="72" height="120" rx="9" fill="#f2b8a0" stroke="#3d3830" stroke-width="2.2"/>
+  <circle cx="520" cy="230" r="7" fill="#b0763f" stroke="#3d3830" stroke-width="2.4"/>
+  <!-- 星星点缀 -->
+  <path d="M566 76 l7 15 15 7 -15 7 -7 15 -7 -15 -15 -7 15 -7 z" fill="#e8a93d"/>
+  <path d="M150 292 l5 11 11 5 -11 5 -5 11 -5 -11 -11 -5 11 -5 z" fill="#e8a93d"/>
+</svg>

@@ -7,7 +7,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>重力探究馆 — 重力</title>
-<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261102v2">
+<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261111">
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;-webkit-tap-highlight-color:transparent}
@@ -32,8 +32,8 @@
   button.wt{border:1px solid #94a3b8;background:linear-gradient(#fdfefe,#dbe4ee);color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.25);transition:all .12s;padding:7px 11px}
   button.wt:hover{background:linear-gradient(#f8fafc,#d2deeb)}
   button.wt.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.35);transform:translateY(1px)}
-  input[type=checkbox]{accent-color:#d97706;width:16px;height:16px}
-  input[type=range]{accent-color:#d97706}
+  input[type=checkbox]{accent-color:#2563eb;width:16px;height:16px}
+  input[type=range]{accent-color:#2563eb}
   .ctrlbar.compact .glabel{font-size:12px}
   .ctrlbar.compact .gctrl{min-height:32px}
   .ctrlbar.compact .gctrl label{font-size:12px}
@@ -76,34 +76,19 @@
       <button id="btn-s2" class="scene-btn">🧭 方向站</button>
     </div>
   </div>
-  <div class="group" id="grp-weight">
-    <div class="glabel">钩码（步进挂）</div>
+  <div class="group" id="grp-env">
+    <div class="glabel">环境</div>
     <div class="gctrl">
-      <button id="btn-w50" class="wt">+50g</button>
-      <button id="btn-w100" class="wt">+100g</button>
-      <button id="btn-w250" class="wt">+250g</button>
-      <button id="btn-unload" class="wt">减一个</button>
-    </div>
-  </div>
-  <div class="group" id="grp-act">
-    <div class="glabel">记录</div>
-    <div class="gctrl">
-      <button id="btn-record">记录</button>
-      <button id="btn-clear" class="secondary">清空</button>
-    </div>
-  </div>
-  <div class="group" id="grp-opt">
-    <div class="glabel">选项</div>
-    <div class="gctrl">
-      <label><input type="checkbox" id="chk-g10">粗略 g=10</label>
-      <label><input type="checkbox" id="chk-moon">🌙 月球</label>
+      <span style="font-size:13px">🌍 地球</span>
+      <input type="range" id="rng-env" min="0" max="1" step="1" value="0" style="width:110px">
+      <span style="font-size:13px">🌙 月球</span>
     </div>
   </div>
   <div class="group" id="grp-dir" style="display:none">
     <div class="glabel">方向站控制</div>
     <div class="gctrl">
       <input type="range" id="rng-tilt" min="-30" max="30" step="1" value="0" style="width:100px">
-      <span id="lbl-tilt" style="font-size:13px;min-width:40px;color:#854d0e">0°</span>
+      <span id="lbl-tilt" style="font-size:13px;min-width:40px;color:#334155">0°</span>
       <button id="btn-wall-check" class="wt">🧱 工人查墙</button>
       <button id="btn-zoom-out" class="wt">🚀 拉远</button>
     </div>
@@ -118,11 +103,11 @@
   </div>
 </div>
 <div id="guide-layer"></div>
-<script src="../_lib/v1/props.js?v=20261104"></script>
-<script src="../_lib/v1/props-mech.js?v=20261104"></script>
-<script src="../_lib/v1/sfx.js?v=20261104"></script>
-<script src="exp-gravity-hall-core.js?v=20261106"></script>
-<script src="guide/guide-data.js?v=20261106"></script>
+<script src="../_lib/v1/props.js?v=20261111"></script>
+<script src="../_lib/v1/props-mech.js?v=20261111"></script>
+<script src="../_lib/v1/sfx.js?v=20261111"></script>
+<script src="exp-gravity-hall-core.js?v=20261111"></script>
+<script src="guide/guide-data.js?v=20261111"></script>
 <script>window.GUIDE_CFG={state:window.C7S3_STATE,mode:'gravity'};window.GUIDE_DATA=window.C7S3_GUIDE;</script>
 <script src="../_lib/guide/engine-core.js?v=20261028v13"></script>
 <script src="../_lib/guide/vB-core.js?v=20261102v3"></script>
