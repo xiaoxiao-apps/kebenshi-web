@@ -7,17 +7,17 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-mech.js — 第七章「力」力学器材标准件 v1（2026-11-04，c7 单A，16件；2026-11-06 C7V2-D1 增补 glass_bottle_tube=17件）
+ * props-mech.js — 第七章「力」力学器材标准件 v1（2026-11-04，c7 单A，16件；2026-11-06 C7V2-D1 增补 glass_bottle_tube=17件；2026-11-11 C7V3-R1 重绘 spring_horizontal/hand_press/spring_meter + 增补 hook_link=18件）
  * 约定同 props-optics/props-density：IIFE 挂 global.PROPS；(x,y)=底面中心锚点
  * （吊挂件=底钩锚点向上画；旋转件=中心锚点）；有挂载点的件返回几何含 mounts:{锚名:{x,y}}（世界坐标）。
  * 视觉全原创（PhET masses-and-springs 仅借交互语义：圈距线性变疏/柱高∝质量档/顶钩底钩 snap）。
  * 件清单：plasticine / hand_press / spring_horizontal / spring_vertical / bar_magnet /
  *   iron_ball / ball_track_table / door / magnet_cart / spring_meter / hook_weight /
- *   ruler_flex / rubber_band / plumb_line / earth_globe / person_pin / glass_bottle_tube(C7V2-D1)
+ *   ruler_flex / rubber_band / plumb_line / earth_globe / person_pin / glass_bottle_tube(C7V2-D1) / hook_link(C7V3-R1)
  * ============================================================ */
 
 // MECH_IDS: 本文件件名清单（gallery 与下游 B 单索引用）
-PROPS.MECH_IDS = ['plasticine','hand_press','spring_horizontal','spring_vertical','bar_magnet','iron_ball','ball_track_table','door','magnet_cart','spring_meter','hook_weight','ruler_flex','rubber_band','plumb_line','earth_globe','person_pin','glass_bottle_tube'];
+PROPS.MECH_IDS = ['plasticine','hand_press','spring_horizontal','spring_vertical','bar_magnet','iron_ball','ball_track_table','door','magnet_cart','spring_meter','hook_weight','ruler_flex','rubber_band','plumb_line','earth_globe','person_pin','glass_bottle_tube','hook_link'];
 
 // plasticine: 橡皮泥（橙色圆饼）。(x,y)=底面中心；opt.size 默认70；opt.press 0-1 → 顶面凹陷深度+宽度摊开联动
 // 松手是否复原由调用页决定（件只按 opt.press 画）。返回 {w,h,tip:{x,y}}（tip=凹陷底中心）
@@ -50,35 +50,89 @@ PROPS.plasticine = function(ctx, x, y, opt){
   return {w: 2 * a, h: h, tip: {x: x, y: y - h + dentD}};
 };
 
-// hand_press: 手指按压 sprite（sprites/hand_press.png，指尖在图底中央）。(x,y)=指尖；opt.angle 旋转度（绕指尖）；opt.h/opt.w/opt.scale 尺寸（默认显示高140）
-// 返回 {w,h,tip:{x,y}}（sprite 未就绪返回 0 尺寸+虚线占位框）
+// hand_press: 真实手型按压（C7V3-R1 矢量重绘，替代 sprite）：贝塞尔轮廓手掌+拇指+食指按压姿态（指节弧度/指甲小弧/手腕收口），肤色填充+深一档描边。
+// (x,y)=食指尖；opt.press 0..1 食指屈度（0=直压，1=屈压，指尖位恒为锚点）；opt.angle 旋转度（绕指尖）；opt.h 显示高默认140（或 opt.scale 倍率）
+// 返回 {w,h,tip:{x,y}}
 PROPS.hand_press = function(ctx, x, y, opt){
   opt = opt || {};
-  const id = 'hand_press';
+  const p = Math.max(0, Math.min(1, opt.press || 0));
+  const H = opt.h || 140 * (opt.scale || 1);
+  const k = H / 140;
   const a = (opt.angle || 0) * Math.PI / 180;
-  ctx.save(); ctx.translate(x, y);
+  ctx.save();
+  ctx.translate(x, y);
   if (a) ctx.rotate(a);
-  if (!PROPS.spriteReady(id)) {
-    const w = opt.h || 140;
-    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
-    ctx.strokeRect(-w / 2, -w, w, w);
-    ctx.setLineDash([]);
-    ctx.restore();
-    return {w: 0, h: 0, tip: {x: x, y: y}};
+  ctx.scale(k, k);
+  // 设计坐标：指尖(0,0)、向上为负；屈度 p → 指节向右弓出 b
+  const b = 4 + p * 13;
+  const skin = ctx.createLinearGradient(-46, -140, 30, 0);
+  skin.addColorStop(0, '#f7d3ad'); skin.addColorStop(0.55, '#efc095'); skin.addColorStop(1, '#e2aa7c');
+  ctx.fillStyle = skin;
+  ctx.strokeStyle = '#bd8055'; ctx.lineWidth = 1.7;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  // 手腕收口（前臂短段，顶部圆收）
+  ctx.beginPath();
+  ctx.moveTo(-33, -96);
+  ctx.bezierCurveTo(-37, -116, -33, -131, -26, -137);
+  ctx.bezierCurveTo(-18, -142, 2, -142, 10, -137);
+  ctx.bezierCurveTo(17, -131, 19, -115, 15, -96);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // 手掌（手背轮廓）
+  ctx.beginPath();
+  ctx.moveTo(-34, -100);
+  ctx.bezierCurveTo(-41, -84, -38, -66, -30, -56);
+  ctx.bezierCurveTo(-18, -46, 6, -44, 18, -50);
+  ctx.bezierCurveTo(28, -56, 30, -78, 26, -92);
+  ctx.bezierCurveTo(20, -104, -22, -108, -34, -100);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // 拇指（掌左上斜伸，圆头+指甲小弧）
+  ctx.beginPath();
+  ctx.moveTo(-30, -92);
+  ctx.bezierCurveTo(-42, -86, -50, -70, -48, -56);
+  ctx.bezierCurveTo(-47, -48, -38, -45, -33, -51);
+  ctx.bezierCurveTo(-28, -59, -26, -75, -24, -86);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#f0c6a8'; ctx.strokeStyle = 'rgba(150,92,52,0.65)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(-43.5, -53, 3.6, 4.6, 0.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  // 蜷曲的中指/无名指/小指（掌右侧三段鼓包，自上而下渐短）
+  ctx.fillStyle = skin; ctx.strokeStyle = '#bd8055'; ctx.lineWidth = 1.6;
+  const curls = [[-72, 30], [-57, 33], [-44, 29]];
+  for (let i = 0; i < 3; i++) {
+    const cy0 = curls[i][0], rr = curls[i][1];
+    ctx.beginPath();
+    ctx.moveTo(12, cy0 - 8);
+    ctx.bezierCurveTo(22, cy0 - 9, rr - 2, cy0 - 7, rr, cy0);
+    ctx.bezierCurveTo(rr + 2, cy0 + 7, 22, cy0 + 9, 12, cy0 + 8);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // 指节弧度褶（鼓包顶上小弧）
+    ctx.strokeStyle = 'rgba(160,98,58,0.5)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(rr - 6, cy0, 4.5, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke();
+    ctx.strokeStyle = '#bd8055'; ctx.lineWidth = 1.6;
   }
-  const img = PROPS.img(id);
-  let s;
-  if (opt.h) s = opt.h / img.naturalHeight;
-  else if (opt.w) s = opt.w / img.naturalWidth;
-  else s = opt.scale || 140 / img.naturalHeight;
-  const w = img.naturalWidth * s, h = img.naturalHeight * s;
-  ctx.drawImage(img, -w / 2, -h, w, h);
+  // 食指（按压主指：指尖(0,0)→指节，屈度 p 弓出）
+  ctx.beginPath();
+  ctx.moveTo(-6, -3);
+  ctx.bezierCurveTo(-8 + b * 0.55, -22, -7 + b * 0.85, -45, -3, -64);
+  ctx.bezierCurveTo(-1, -70, 10, -70, 12, -64);
+  ctx.bezierCurveTo(14 + b * 0.85, -45, 13 + b * 0.55, -20, 6.5, -3);
+  ctx.bezierCurveTo(4, 1.5, -3.5, 1.5, -6, -3);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // 食指指节褶（两道小弧，随屈度加深）
+  ctx.strokeStyle = 'rgba(160,98,58,' + (0.35 + 0.35 * p) + ')'; ctx.lineWidth = 1.1;
+  ctx.beginPath(); ctx.arc(b * 0.7 + 2, -30, 5.5, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
+  ctx.beginPath(); ctx.arc(b * 0.45 + 2, -48, 5, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
+  // 食指尖指甲（小弧，亮一档）
+  ctx.fillStyle = '#f2c9ab'; ctx.strokeStyle = 'rgba(150,92,52,0.65)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(0.5, -7.5, 4, 5.2, 0.08, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   ctx.restore();
-  return {w: w, h: h, tip: {x: x, y: y}};
+  return {w: 84 * k, h: H, tip: {x: x, y: y}};
 };
 
-// spring_horizontal: 水平弹簧（左端灰立柱+底座固定支架，圈距随拉伸线性变化，右端拉环）。(x,y)=支架底座底中心
-// opt.stretch -1..1（负=压缩）；opt.len 自然长默认130；opt.h 支架高默认70
+// 阻尼回弹参数（C7V3-R1，页面直操松手用）：页面按 x(t)=A·e^(−ζt)·cos(ωt) 驱动 opt.stretch，晃1-2下归位
+PROPS.DAMP = {zeta: 0.18, omega: 14};
+
+// spring_horizontal: 水平弹簧（C7V3-R1 PhET masses-and-springs 风格重绘：圆润螺旋线圈=二次贝塞尔连续绕线、圈距随伸长渐变(拉伸变疏/压缩变密)、线圈明暗双面(上亮下暗细描边)、两端直引线+锚环；左灰立柱底座支架保留）。
+// (x,y)=支架底座底中心；opt.stretch -1..1（负=压缩）；opt.len 自然长默认130；opt.h 支架高默认70；opt.vel 可选（回弹相位由页面按 PROPS.DAMP 驱动，件只按 stretch 画）
 // 返回 {axisY,end:{x,y},ring:{x,y}}（end=弹簧右端锚点，ring=拉环圆心，页面连力/挂物用）
 PROPS.spring_horizontal = function(ctx, x, y, opt){
   opt = opt || {};
@@ -88,7 +142,7 @@ PROPS.spring_horizontal = function(ctx, x, y, opt){
   const axisY = y - h * 0.62;
   const baseW = h * 0.9, postW = Math.max(8, h * 0.16);
   const x0 = x + postW / 2 + 4;               // 弹簧起点（立柱右侧）
-  const L = L0 * (1 + 0.6 * st);              // 当前长（圈距线性）
+  const L = L0 * (1 + 0.6 * st);              // 当前长（圈距线性：拉伸变疏/压缩变密）
   const x1 = x0 + L;                          // 弹簧右端
   ctx.save();
   ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 1.2;
@@ -98,20 +152,37 @@ PROPS.spring_horizontal = function(ctx, x, y, opt){
   // 立柱
   ctx.fillStyle = '#b6bcc6';
   ctx.beginPath(); ctx.roundRect(x - postW / 2, axisY - h * 0.20, postW, (y - 8) - (axisY - h * 0.20), 2); ctx.fill(); ctx.stroke();
-  // 螺旋圈（正弦，圈距随 L 线性）
-  const coils = 9, r = h * 0.20, lead = 8;
-  ctx.strokeStyle = '#5b6068'; ctx.lineWidth = Math.max(2, h * 0.035); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.beginPath();
-  ctx.moveTo(x0, axisY);
-  const N = 72;
-  for (let i = 1; i <= N; i++) {
-    const t = i / N;
-    ctx.lineTo(x0 + lead + (L - lead * 2) * t, axisY - r * Math.sin(t * coils * Math.PI * 2));
+  // === PhET 风格螺旋：每圈两段二次贝塞尔连续绕线，圆润线帽 ===
+  const coils = 9, r = h * 0.20, lead = 10;
+  const coilX0 = x0 + lead, coilX1 = x1 - lead;
+  const pitch = (coilX1 - coilX0) / coils;
+  const w = Math.max(2.6, h * 0.05);          // 线径
+  function coilPath(){
+    ctx.beginPath();
+    ctx.moveTo(x0, axisY);
+    ctx.lineTo(coilX0, axisY);                // 左直引线
+    for (let i = 0; i < coils; i++) {
+      const sx = coilX0 + i * pitch;
+      ctx.quadraticCurveTo(sx + pitch * 0.25, axisY - 2 * r, sx + pitch * 0.5, axisY);
+      ctx.quadraticCurveTo(sx + pitch * 0.75, axisY + 2 * r, sx + pitch, axisY);
+    }
+    ctx.lineTo(x1, axisY);                    // 右直引线
   }
-  ctx.lineTo(x1, axisY);
-  ctx.stroke();
-  // 右端拉环
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  // 细描边（底层暗轮廓）
+  coilPath(); ctx.strokeStyle = '#3f444c'; ctx.lineWidth = w + 2.2; ctx.stroke();
+  // 线材主体
+  coilPath(); ctx.strokeStyle = '#aab2bb'; ctx.lineWidth = w; ctx.stroke();
+  // 明暗双面：上半亮线 / 下半暗线（同路径微偏移细描）
+  ctx.save(); ctx.translate(0, -w * 0.22);
+  coilPath(); ctx.strokeStyle = 'rgba(242,246,250,0.85)'; ctx.lineWidth = w * 0.36; ctx.stroke();
+  ctx.restore();
+  ctx.save(); ctx.translate(0, w * 0.24);
+  coilPath(); ctx.strokeStyle = 'rgba(66,72,82,0.5)'; ctx.lineWidth = w * 0.32; ctx.stroke();
+  ctx.restore();
+  // 两端锚环：左端固定环（立柱侧）+ 右端拉环
   ctx.strokeStyle = '#4b5563'; ctx.lineWidth = Math.max(2, h * 0.03);
+  ctx.beginPath(); ctx.arc(x0 - 1, axisY, Math.max(4, h * 0.06), 0, Math.PI * 2); ctx.stroke();
   ctx.beginPath(); ctx.arc(x1 + 7, axisY, 7, 0, Math.PI * 2); ctx.stroke();
   ctx.restore();
   return {axisY: axisY, end: {x: x1, y: axisY}, ring: {x: x1 + 7, y: axisY}};
@@ -333,89 +404,152 @@ PROPS.magnet_cart = function(ctx, x, y, opt){
   return {w: w, h: wheelR * 2 + deckT, deck: {x: x, y: deckY}, head: {x: x + dir * w / 2, y: deckY + deckT / 2}, mounts: {magnet: {x: x, y: deckY}}};
 };
 
-// spring_meter: 弹簧测力计（0-5N 刻度面板：主刻度1.0..5.0+0.2小格、指针、顶环、底挂钩；内部弹簧伸长与读数联动）。
-// (x,y)=底挂钩锚点（竖直态向上画；orientation:'h' 水平态=绕锚点旋转，顶环在左、挂钩在右）。
-// opt.reading 0-5 → 指针位+弹簧伸长；opt.h 总长默认230；面板浅色原创。
-// 返回 {w,h,top:{x,y},hook:{x,y},reading:{x,y},mounts:{hook:{x,y}}}（top=顶环圆心；hook=挂钩snap点(挂hook_weight)；reading=指针尖世界坐标）
+// spring_meter: 弹簧测力计（C7V3-R1 照蔡总实物照片重绘，条形盒式）：青绿(#3f8f96系)条形盒身+上下圆头盖+白色面板顶部弧形花边+双列刻度(左右各0..5N，主刻度整数+0.2小格)+面板中央竖直黑槽+红色指针横标+顶部银色金属吊环+底部挂钩组件(金属挂片+J形钩)。
+// 锚点改吊环顶：(x,y)=吊环顶；表身与刻度固定不动。
+// opt.F 0..5 受力 → d=F/5*槽长，红指针+挂片+J钩整体下移 d（挂钩伸出底槽位移可见）；opt.orientation 'v'(默认)|'h'（同规格旋转90°：环左钩右，刻度数字正立可读不镜像）；opt.h 总长默认230。
+// 返回 {w,h,hookX,hookY,bodyTop,bodyBot,reading,top,mounts:{hook}}（hookX/hookY=J钩尖实时世界坐标，供钩码/互挂 snap；bodyTop/bodyBot=盒身顶/底中心世界坐标；reading=F）
 PROPS.spring_meter = function(ctx, x, y, opt){
   opt = opt || {};
   const H = opt.h || 230;
-  const rd = Math.max(0, Math.min(5, opt.reading || 0));
+  const F = Math.max(0, Math.min(5, opt.F || 0));
   const horiz = opt.orientation === 'h';
-  // 局部坐标：锚(0,0)=挂钩底，向上为负
-  const bw = H * 0.21;                 // 壳体宽
-  const hookL = H * 0.09;
-  const bodyB = -hookL, bodyT = -H * 0.86;
-  const ringR = H * 0.036, ringCY = -H + ringR * 0.9;
-  const winT = bodyT + H * 0.055, winB = bodyB - H * 0.05;
-  const winL = -bw * 0.30, winR = bw * 0.30;
-  function ptrY(v){ return winT + (winB - winT) * (v / 5); }
-  const pY = ptrY(rd);
-  ctx.save(); ctx.translate(x, y);
+  // 局部坐标：锚(0,0)=吊环顶，向下为正
+  const bw = H * 0.22;                    // 盒身宽
+  const ringR = H * 0.042;                // 吊环半径
+  const ringCY = ringR + 1;               // 吊环圆心（环顶=锚点）
+  const bodyT = ringR * 2 + H * 0.025;    // 盒身顶
+  const bodyB = H * 0.86;                 // 盒身底（下方留 J 钩行程）
+  const capR = bw * 0.5;                  // 圆头盖半径
+  const panelL = -bw * 0.42, panelR = bw * 0.42;
+  const panelT = bodyT + H * 0.04, panelB = bodyB - H * 0.035;
+  const slotW = Math.max(3, H * 0.017);   // 中央黑槽宽
+  const slotT = panelT + H * 0.062;       // 槽顶=0刻度
+  const slotB = panelB - H * 0.02;        // 槽底=5刻度
+  const slotLen = slotB - slotT;
+  const d = F / 5 * slotLen;              // 指针/挂片/J钩整体位移
+  const ptrY = slotT + d;
+  const hr = H * 0.026;                   // J钩弧半径
+  const stemY = bodyB + H * 0.012 + d;    // J钩茎底（F=0 收进底槽仅露钩，随 d 下移伸出可见）
+  const hookTip = {x: 1.782 * hr, y: stemY};
+  ctx.save();
+  ctx.translate(x, y);
   if (horiz) ctx.rotate(-Math.PI / 2);
-  ctx.lineCap = 'round';
-  // 顶环 + 短茎
-  ctx.strokeStyle = '#5b6068'; ctx.lineWidth = Math.max(2, H * 0.016);
+  ctx.lineJoin = 'round';
+  // 顶部金属吊环（银色圆环：暗描边+金属体+高光弧）
+  ctx.strokeStyle = '#5f676f'; ctx.lineWidth = Math.max(2.4, H * 0.017);
   ctx.beginPath(); ctx.arc(0, ringCY, ringR, 0, Math.PI * 2); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0, ringCY + ringR); ctx.lineTo(0, bodyT); ctx.stroke();
-  // 壳体（浅色面板）
+  ctx.strokeStyle = '#c3cad1'; ctx.lineWidth = Math.max(1.4, H * 0.010);
+  ctx.beginPath(); ctx.arc(0, ringCY, ringR, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = Math.max(1, H * 0.005);
+  ctx.beginPath(); ctx.arc(0, ringCY, ringR, Math.PI * 1.05, Math.PI * 1.45); ctx.stroke();
+  // 环-盒短茎
+  ctx.strokeStyle = '#8b939b'; ctx.lineWidth = Math.max(2, H * 0.013);
+  ctx.beginPath(); ctx.moveTo(0, ringCY + ringR); ctx.lineTo(0, bodyT + capR * 0.3); ctx.stroke();
+  // 青绿条形盒身（上下圆头盖=整圆角）
   const gb = ctx.createLinearGradient(-bw / 2, 0, bw / 2, 0);
-  gb.addColorStop(0, '#f4eeda'); gb.addColorStop(0.5, '#fbf7ea'); gb.addColorStop(1, '#e7dfc6');
-  ctx.fillStyle = gb; ctx.strokeStyle = '#8a8266'; ctx.lineWidth = Math.max(1.4, H * 0.008);
-  ctx.beginPath(); ctx.roundRect(-bw / 2, bodyT, bw, bodyB - bodyT, bw * 0.22); ctx.fill(); ctx.stroke();
-  // 刻度窗（白底）
-  ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#b7ae92'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.roundRect(winL, winT, winR - winL, winB - winT, 3); ctx.fill(); ctx.stroke();
-  // 内部弹簧（窗顶→指针，圈距随读数变疏=伸长联动）
-  const coils = 7, sw = (winR - winL) * 0.26;
-  ctx.strokeStyle = '#6b7280'; ctx.lineWidth = Math.max(1.6, H * 0.009);
-  ctx.beginPath(); ctx.moveTo(0, winT + 2);
-  const N = 60;
-  for (let i = 1; i <= N; i++) {
-    const t = i / N;
-    ctx.lineTo(sw * Math.sin(t * coils * Math.PI * 2), winT + 2 + (pY - winT - 4) * t);
-  }
-  ctx.stroke();
-  // 刻度：主刻度 0..5 每 1N（数字标签）+ 小格每 0.2N；刻度线在窗右缘，0 上 5 下
-  ctx.strokeStyle = '#3f4650'; ctx.fillStyle = '#3f4650';
-  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  const fs = Math.max(8, H * 0.042);
-  ctx.font = fs + 'px sans-serif';
-  for (let v = 0; v <= 5.0001; v += 0.2) {
-    const ty = ptrY(v);
-    const major = Math.abs(v - Math.round(v)) < 0.01;
-    ctx.lineWidth = major ? 1.6 : 0.9;
+  gb.addColorStop(0, '#57a9b0'); gb.addColorStop(0.4, '#3f8f96'); gb.addColorStop(1, '#2d6d75');
+  ctx.fillStyle = gb; ctx.strokeStyle = '#275c63'; ctx.lineWidth = Math.max(1.3, H * 0.007);
+  ctx.beginPath(); ctx.roundRect(-bw / 2, bodyT, bw, bodyB - bodyT, capR); ctx.fill(); ctx.stroke();
+  // 盒身左缘高光
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = Math.max(1.4, H * 0.008); ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-bw * 0.34, bodyT + capR * 1.1); ctx.lineTo(-bw * 0.34, bodyB - capR * 1.1); ctx.stroke();
+  ctx.lineCap = 'butt';
+  // 白色面板（顶部弧形花边=排半圆扇贝弧）
+  ctx.fillStyle = '#fbfaf6'; ctx.strokeStyle = '#c8d2cf'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(panelL, panelT, panelR - panelL, panelB - panelT, 3); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#7fb3b8'; ctx.lineWidth = Math.max(1, H * 0.005);
+  const scN = 5, scPad = (panelR - panelL) * 0.08;
+  const scW = (panelR - panelL - scPad * 2) / scN, scY = panelT + H * 0.024;
+  for (let i = 0; i < scN; i++) {
     ctx.beginPath();
-    ctx.moveTo(winR - 2, ty);
-    ctx.lineTo(winR - 2 - (major ? (winR - winL) * 0.30 : (winR - winL) * 0.15), ty);
+    ctx.arc(panelL + scPad + scW * (i + 0.5), scY, scW * 0.5, Math.PI, 0);
     ctx.stroke();
-    if (major) ctx.fillText(v.toFixed(1), winL + (winR - winL) * 0.52, ty);
   }
-  // 单位 N（窗顶上方壳面）
-  ctx.textAlign = 'center';
-  ctx.font = 'bold ' + Math.round(fs * 1.05) + 'px sans-serif';
-  ctx.fillText('N', 0, bodyT + H * 0.028);
-  // 指针（红三角+横线，指窗右缘刻度）
-  ctx.fillStyle = '#d64545'; ctx.strokeStyle = '#d64545'; ctx.lineWidth = Math.max(1.6, H * 0.008);
-  ctx.beginPath(); ctx.moveTo(winL + 1, pY); ctx.lineTo(winR - 1, pY); ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(winR - 1, pY);
-  ctx.lineTo(winR - 1 - (winR - winL) * 0.16, pY - (winR - winL) * 0.07);
-  ctx.lineTo(winR - 1 - (winR - winL) * 0.16, pY + (winR - winL) * 0.07);
-  ctx.closePath(); ctx.fill();
-  // 底挂钩：茎+钩弧
-  ctx.strokeStyle = '#5b6068'; ctx.lineWidth = Math.max(2, H * 0.014);
-  ctx.beginPath(); ctx.moveTo(0, bodyB); ctx.lineTo(0, -hookL * 0.5); ctx.stroke();
-  ctx.beginPath(); ctx.arc(hookL * 0.26, -hookL * 0.30, hookL * 0.34, Math.PI * 0.75, Math.PI * 2.05); ctx.stroke();
+  // 单位 N（花边下、槽顶上方；水平态反向旋转=正立可读）
+  ctx.fillStyle = '#3a4a4c'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = 'bold ' + Math.max(7, H * 0.034) + 'px sans-serif';
+  ctx.save(); ctx.translate(0, panelT + H * 0.045);
+  if (horiz) ctx.rotate(Math.PI / 2);
+  ctx.fillText('N', 0, 0);
   ctx.restore();
-  // 世界坐标锚点（水平态=绕锚点 -90° 旋转：局部(lx,ly)→世界(x+ly, y-lx)）
+  // 双列刻度：左右各 0..5N，主刻度整数(带数字)+0.2小格；刻度线在面板外缘，数字靠槽侧
+  const fs = Math.max(6.5, H * 0.030);
+  ctx.font = fs + 'px sans-serif';
+  ctx.strokeStyle = '#3a4a4c'; ctx.fillStyle = '#3a4a4c';
+  const tkMaj = H * 0.024, tkMin = H * 0.013;
+  for (let v = 0; v <= 5.0001; v += 0.2) {
+    const ty = slotT + slotLen * (v / 5);
+    const major = Math.abs(v - Math.round(v)) < 0.01;
+    const tl = major ? tkMaj : tkMin;
+    ctx.lineWidth = major ? 1.4 : 0.8;
+    ctx.beginPath(); ctx.moveTo(panelL + 2, ty); ctx.lineTo(panelL + 2 + tl, ty); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(panelR - 2, ty); ctx.lineTo(panelR - 2 - tl, ty); ctx.stroke();
+    if (major) {
+      const lab = String(Math.round(v));
+      ctx.save(); ctx.translate(panelL + 4 + tl, ty);
+      if (horiz) ctx.rotate(Math.PI / 2);
+      ctx.textAlign = 'left'; ctx.fillText(lab, 0, 0);
+      ctx.restore();
+      ctx.save(); ctx.translate(panelR - 4 - tl, ty);
+      if (horiz) ctx.rotate(Math.PI / 2);
+      ctx.textAlign = 'right'; ctx.fillText(lab, 0, 0);
+      ctx.restore();
+    }
+  }
+  // 面板中央竖直黑槽
+  ctx.fillStyle = '#22262b';
+  ctx.beginPath(); ctx.roundRect(-slotW / 2, slotT, slotW, slotLen, slotW * 0.4); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.14)';
+  ctx.fillRect(-slotW / 2 + 0.8, slotT + 1.5, slotW * 0.3, slotLen - 3);
+  // === 受力下移组件（挂片+红指针横标，随 d 整体下移）===
+  // 金属挂片（槽内滑块）
+  const gp = ctx.createLinearGradient(-slotW * 1.4, 0, slotW * 1.4, 0);
+  gp.addColorStop(0, '#7d858d'); gp.addColorStop(0.5, '#d3d8dd'); gp.addColorStop(1, '#6f777f');
+  ctx.fillStyle = gp; ctx.strokeStyle = '#4b5158'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(-slotW * 1.4, ptrY - H * 0.011, slotW * 2.8, H * 0.022, 2); ctx.fill(); ctx.stroke();
+  // 红色指针横标（横贯面板中部，两端尖角）
+  const pW = bw * 0.30, pH = Math.max(2.5, H * 0.012);
+  ctx.fillStyle = '#d84343'; ctx.strokeStyle = '#9c2f2f'; ctx.lineWidth = 0.9;
+  ctx.beginPath();
+  ctx.moveTo(-pW, ptrY - pH * 0.32);
+  ctx.lineTo(pW, ptrY - pH * 0.32);
+  ctx.lineTo(pW + pH * 0.6, ptrY);
+  ctx.lineTo(pW, ptrY + pH * 0.32);
+  ctx.lineTo(-pW, ptrY + pH * 0.32);
+  ctx.lineTo(-pW - pH * 0.6, ptrY);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.fillRect(-pW + 1.5, ptrY - pH * 0.28, pW * 2 - 3, pH * 0.22);
+  // 底盖出槽口（暗色，J钩茎从此伸出）
+  ctx.fillStyle = '#1f2429';
+  ctx.beginPath(); ctx.roundRect(-slotW * 0.8, bodyB - H * 0.018, slotW * 1.6, H * 0.018, 1.5); ctx.fill();
+  // === J形钩组件（挂片下方整体，随 d 下移=挂钩伸出底槽可见位移）===
+  // 金属挂片茎（扁条，从底槽口伸出段）
+  const stemW = Math.max(2.2, H * 0.013);
+  const gs = ctx.createLinearGradient(-stemW, 0, stemW, 0);
+  gs.addColorStop(0, '#7d858d'); gs.addColorStop(0.5, '#cfd4d9'); gs.addColorStop(1, '#6f777f');
+  ctx.fillStyle = gs; ctx.strokeStyle = '#4b5158'; ctx.lineWidth = 0.9;
+  ctx.beginPath(); ctx.roundRect(-stemW / 2, bodyB - H * 0.015, stemW, stemY - bodyB + H * 0.015, stemW * 0.4); ctx.fill(); ctx.stroke();
+  ctx.lineCap = 'round';
+  // 挂环小圈（底槽口处）
+  ctx.strokeStyle = '#5f676f'; ctx.lineWidth = Math.max(1.6, H * 0.009);
+  ctx.beginPath(); ctx.arc(0, bodyB + H * 0.004 + d, Math.max(2.5, H * 0.012), 0, Math.PI * 2); ctx.stroke();
+  // J形钩（茎底→下弯→右挑，钩尖朝上）
+  ctx.lineWidth = Math.max(2, H * 0.013);
+  ctx.beginPath();
+  ctx.arc(0.891 * hr, stemY - 0.454 * hr, hr, Math.PI * 0.85, Math.PI * 0.15, true);
+  ctx.stroke();
+  ctx.restore();
+  // 世界坐标（水平态=绕锚点 -90°：局部(lx,ly)→世界(x+ly, y-lx)）
   function W(lx, ly){ return horiz ? {x: x + ly, y: y - lx} : {x: x + lx, y: y + ly}; }
+  const tipW = W(hookTip.x, hookTip.y);
   return {
-    w: horiz ? H : bw, h: horiz ? bw : H,
-    top: W(0, ringCY - ringR),
-    hook: W(0, 0),
-    reading: W(winR, pY),
-    mounts: {hook: W(0, 0)}
+    w: horiz ? H + H * 0.06 : bw, h: horiz ? bw : H + H * 0.06,
+    hookX: tipW.x, hookY: tipW.y,
+    bodyTop: W(0, bodyT), bodyBot: W(0, bodyB),
+    reading: F,
+    top: {x: x, y: y},
+    mounts: {hook: {x: tipW.x, y: tipW.y}}
   };
 };
 
@@ -673,6 +807,52 @@ PROPS.person_pin = function(ctx, x, y, opt){
 };
 
 /* == APPEND-POINT: 力学件增补插入此处 == */
+
+// hook_link: 双钩互挂件（C7V3-R1 新增，相互舞台「测力计对拉」用）：两个 C 形金属钩交叉互挂——左钩开口向右、右钩开口向左，交叠处右钩压左钩；opt.tension 0..1 越大两钩贴合越紧（中心距收拢）+微形变（沿受力轴压扁）。
+// (x,y)=交叠段中心；opt.s 整体宽默认90。
+// 返回 {leftX,leftY,rightX,rightY}（两端锚点世界坐标：left=左钩尾柄端、right=右钩尾柄端，接测力计挂钩/立柱用）
+PROPS.hook_link = function(ctx, x, y, opt){
+  opt = opt || {};
+  const S = opt.s || 90;
+  const t = Math.max(0, Math.min(1, opt.tension || 0));
+  const R = S * 0.24;                        // C钩半径
+  const dist = R * (1.05 - 0.28 * t);        // 两钩圆心距（tension 越大钩尖互插越深=贴合越紧）
+  const c = dist / 2;
+  const lw = Math.max(3, S * 0.075);         // 钩线径
+  const tail = S * 0.20;                     // 尾柄长
+  const sq = 1 - 0.07 * t;                   // 微形变（横向压扁系数）
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  function hook(dir){
+    // dir=-1 左钩（开口向右，弧经左侧）；dir=+1 右钩（开口向左，弧经右侧）
+    ctx.save();
+    ctx.translate(dir * c, 0);
+    ctx.scale(sq, 1);
+    const a0 = dir < 0 ? Math.PI * 0.28 : Math.PI * 1.28;
+    const a1 = dir < 0 ? Math.PI * 1.72 : Math.PI * 0.72;
+    function path(){
+      ctx.beginPath();
+      ctx.arc(0, 0, R, a0, a1, false);       // 顺时针：左钩经π(左半)、右钩经0(右半)
+      ctx.moveTo(dir * R, 0);                // 尾柄自 C 背点起笔（独立子路径，避免弦线横穿钩口）
+      ctx.lineTo(dir * (R + tail), 0);
+    }
+    path(); ctx.strokeStyle = '#41464e'; ctx.lineWidth = lw + 2; ctx.stroke();   // 暗描边
+    path(); ctx.strokeStyle = '#9aa2ab'; ctx.lineWidth = lw; ctx.stroke();       // 金属体
+    // 上缘亮线（明暗双面，两端各收0.22rad避免溢出钩口）
+    ctx.beginPath(); ctx.arc(0, 0, R - lw * 0.22, a0 + 0.22, a1 - 0.22, false);
+    ctx.strokeStyle = 'rgba(240,244,248,0.7)'; ctx.lineWidth = lw * 0.3; ctx.stroke();
+    ctx.restore();
+    // 尾柄端圆头
+    ctx.beginPath(); ctx.arc(dir * (c + (R + tail) * sq), 0, lw * 0.42, 0, Math.PI * 2);
+    ctx.fillStyle = '#7d858d'; ctx.fill();
+  }
+  hook(-1);   // 左钩（下层）
+  hook(1);    // 右钩（上层，交叠处压左钩）
+  ctx.restore();
+  const lx = x - (c + (R + tail) * sq), rx = x + (c + (R + tail) * sq);
+  return {leftX: lx, leftY: y, rightX: rx, rightY: y};
+};
 
 // glass_bottle_tube: 玻璃瓶细管（微小形变放大法教具，教材P10练习4图7.2-5原型；设计书§2 s2场景①）。
 // (x,y)=瓶底中心；w=整体宽（默认110）、h=整体高（瓶底→细管顶，默认240）
