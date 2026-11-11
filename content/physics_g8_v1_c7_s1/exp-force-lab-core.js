@@ -1,6 +1,8 @@
 /* exp-force-lab-core.js — c7s1「力的实验室」（C7V3-R2：五场景融合，飞入飞出切换）
    站点：①形变站 ②运动站 ③推门工坊(门/你来画) ④相互舞台(磁车/对拉) ⑤测力计工作台
-   蔡总指令：无提示条；文字提示全走字幕；「站点/测量方式/位型」用语约定；直操优先 */
+   蔡总指令：无提示条；文字提示全走字幕；「站点/测量方式/位型」用语约定；直操优先
+   C7V3-R5：浮卡遮挡修复——画布浮卡/伸长量面板统一定位（可拖动+localStorage位置记忆，
+   默认停靠不挡区域标题/模式按钮的桌面空区）；场景⑤ meterH +20% */
 (function(){
 PROPS.SPRITE_BASE='../_lib/v1/sprites/';
 var ANIM_DUR=600,TWEEN_MS=380;
@@ -156,7 +158,9 @@ function layoutPull(){
 }
 function layoutMeter(){
   var beamY=Math.max(L.zoneB+10,Math.round(H*0.13));
-  var meterH=clamp(Math.round(L.seat-beamY-TRAY_N*32-46),110,190);
+  /* R5 视觉优化：表体比例 +20%（clamp 上下限 110/190→132/228），双列刻度更清晰；
+     挂钩联动逻辑不变（挂码容量仍由 hangWeight 按 seat 剩余高度自适应限容） */
+  var meterH=clamp(Math.round((L.seat-beamY-TRAY_N*32-46)*1.2),132,228);
   L.mt={beamY:beamY,cx:Math.round(W*0.38),meterH:meterH,
         trayX:Math.round(W*0.74),
         hx:clamp(Math.round(W*0.34),meterH+80,Math.max(meterH+80,W-300)),hy:L.seat-30};
@@ -199,6 +203,41 @@ function ghostCard(x,y,w,h){
   rrPath(x,y,w,h,10);
   ctx.fillStyle='rgba(255,255,255,0.45)'; ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,0.85)'; ctx.lineWidth=1.5; ctx.stroke();
+}
+/* ===== 浮卡统一定位（C7V3-R5）：可拖动+localStorage位置记忆，默认停靠角落避开标题带/按钮带 ===== */
+var CARD_MEM_KEY='c7s1_forceLab_cardPos_v1';
+var cardMem={},cardDrag=null;
+try{ cardMem=JSON.parse(localStorage.getItem(CARD_MEM_KEY)||'{}')||{}; }catch(e){ cardMem={}; }
+function saveCardMem(){ try{ localStorage.setItem(CARD_MEM_KEY,JSON.stringify(cardMem)); }catch(e){} }
+function cardTopSafe(){ return (L.zoneR?(L.zoneR.y+L.zoneR.h):44)+6; }   /* 顶部 zone 控件带下沿 */
+function cardDefaultPos(key,w,h){
+  /* 默认坐标选择理由（R5 验收：不落在区域标题 y 带、不落在模式按钮 rect 内）：
+     · 区域标题带 titleY≈zoneB+18、模式按钮带 zoneR 均在画布上部（y<150），默认卡取 y≈L.by-70
+       （桌面上沿 by 之上、器材作用区之下：悬挂弹簧/墙面搁板/木块拖拽带最低到 seat≈by+45），上下都不沾；
+     · 画布底部 by..fy 为 wood_desk 全宽立面围板，浮卡不得停靠（会盖住桌面前沿），故不用 br/bl 贴底角；
+     · deform → 右下：玻璃瓶（桌面位，bx±bottleW）右侧的桌面空区；
+     · meter  → 左下：立柱底座（cx±70）/水平位型（hx 起）左侧的桌面空区（右下被砝码托盘 trayX±70 占用）；
+     · ext（伸长量面板，DOM）→ 左上但压到 zone 按钮带之下（原版落在静态流位置=左上角，正好盖住
+       「竖直挂钩码/水平拖木块」模式切换按钮，R5 缺陷②）。 */
+  if(key==='deform') return {x:Math.min(W-w-16,L.df?L.df.bx+L.df.bottleW+30:W-w-16),y:Math.max(cardTopSafe(),L.by-h-10)};
+  if(key==='meter')  return {x:16,y:Math.max(cardTopSafe(),L.by-h-10)};
+  return {x:14,y:cardTopSafe()};
+}
+function cardRect(key,w,h){
+  var p=cardMem[key]||cardDefaultPos(key,w,h);
+  var top=cardTopSafe();
+  var x=clamp(p.x,8,Math.max(8,W-w-8));
+  var y=clamp(p.y,top,Math.max(top,L.fy-h-8));
+  return {x:x,y:y,w:w,h:h,key:key};
+}
+function activeCardRect(){   /* 当前视图可拖的画布浮卡 */
+  if(state.view==='deform') return cardRect('deform',200,54);
+  if(state.view==='meterv'||state.view==='meterh') return cardRect('meter',208,74);
+  return null;
+}
+function cardGrip(x,y){   /* 右下角拖动提示点 */
+  ctx.fillStyle='#94a3b8'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+  ctx.fillText('⠿ 拖动',x,y);
 }
 function drawArrow(x0,y0,x1,y1,color,lw){
   var dx=x1-x0,dy=y1-y0,d=Math.hypot(dx,dy); if(d<4) return;
@@ -338,7 +377,10 @@ function renderDeform(){
 }
 function FT2(t){ return state.f.ts[t].def; }
 function lengthCard(){
-  var f=state.f,ts=f.ts,x=W-216,y=L.zoneB+10;
+  var f=state.f,ts=f.ts;
+  /* R5：浮卡可拖动+位置记忆；原固定右上（W-216, zoneB+10）压住「墙面位」区域标题（缺陷①），
+     默认改停右下桌面空区（见 cardDefaultPos 坐标理由） */
+  var cr=cardRect('deform',200,54),x=cr.x,y=cr.y;
   ghostCard(x,y,200,54);
   ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
   var L0,Lnow,Lafter,unit='cm';
@@ -352,8 +394,9 @@ function lengthCard(){
   ctx.fillText('L='+fmt(Lnow,1)+unit,x+84,y+35);
   ctx.fillStyle='#2563eb';
   ctx.fillText('L′='+Lafter,x+150,y+35);
-  ctx.fillStyle='#94a3b8'; ctx.font='10px sans-serif';
+  ctx.fillStyle='#94a3b8'; ctx.font='10px sans-serif'; ctx.textAlign='left';
   ctx.fillText('（L′=松手后）',x+12,y+50);
+  cardGrip(x+192,y+50);
 }
 function permLen(t){
   var ts=state.f.ts[t];
@@ -1257,7 +1300,9 @@ function drawRefLinesV(g,disp,now){
   }
 }
 function drawReadCard(disp,now){
-  var mt=L.mt,sc=SC(),x=16,y=L.zoneB+10;
+  var mt=L.mt,sc=SC();
+  /* R5：读数浮卡可拖动+位置记忆；默认停左下桌面空区（右下被砝码托盘占用，见 cardDefaultPos） */
+  var cr=cardRect('meter',208,74),x=cr.x,y=cr.y;
   ghostCard(x,y,208,74);
   ctx.font='600 13px sans-serif'; ctx.textAlign='left';
   ctx.fillStyle='#334155';
@@ -1268,9 +1313,10 @@ function drawReadCard(disp,now){
   ctx.fillStyle='#2563eb'; ctx.font='bold 15px sans-serif';
   ctx.fillText('指针读数 '+fmt(disp,2)+' N',x+12,y+62);
   if(!sc.zeroed){
-    ctx.fillStyle='#b91c1c'; ctx.font='600 11px sans-serif';
+    ctx.fillStyle='#b91c1c'; ctx.font='600 11px sans-serif'; ctx.textAlign='left';
     ctx.fillText('⚠ 指针未调零',x+150,y+20);
   }
+  cardGrip(x+200,y+70);
 }
 function renderMeterH(now){
   var mt=L.mt,S=state.s,sc=S.h;
@@ -1618,6 +1664,7 @@ function pickSlot(needW,needH,avoidRects){
   }
   return best;
 }
+var extRect=null;   /* 伸长量面板（DOM）当前 rect，R5：供读数面板 pickSlot 避让 */
 function avoidRects(){
   var rs=[{x:0,y:H-ctrlBandH,w:W,h:ctrlBandH+40}];
   if(L.zoneR) rs.push(L.zoneR);
@@ -1627,7 +1674,8 @@ function avoidRects(){
     rs.push({x:df.hangX-100,y:df.beamY-40,w:200,h:L.seat-df.beamY+50});
     rs.push({x:df.bx-df.bottleW,y:df.beamY-40,w:df.bottleW*2,h:L.seat-df.beamY+50});
     rs.push({x:df.wallX-70,y:df.beamY-40,w:140,h:L.seat-df.beamY+50});
-    rs.push({x:W-220,y:L.zoneB+6,w:208,h:62});   // 长度三栏浮卡
+    var cd=cardRect('deform',200,54);
+    rs.push({x:cd.x-4,y:cd.y-4,w:cd.w+8,h:cd.h+8});   // 长度三栏浮卡（R5：实时卡位）
   }else if(v==='motion'){
     var mo=L.mo;
     rs.push({x:mo.tx-mo.tw/2-10,y:mo.ty-mo.th-40,w:mo.tw+20,h:mo.th+60});
@@ -1648,7 +1696,9 @@ function avoidRects(){
     var mt=L.mt;
     rs.push({x:mt.cx-mt.meterH*0.3-80,y:mt.beamY-40,w:mt.meterH*0.6+160,h:L.seat-mt.beamY+60});
     rs.push({x:mt.trayX-80,y:mt.beamY,w:160,h:L.seat-mt.beamY+30});
-    rs.push({x:12,y:L.zoneB+6,w:216,h:82});      // 读数数字卡
+    var cm=cardRect('meter',208,74);
+    rs.push({x:cm.x-4,y:cm.y-4,w:cm.w+8,h:cm.h+8});     // 读数数字卡（R5：实时卡位）
+    if(extRect) rs.push({x:extRect.x-4,y:extRect.y-4,w:extRect.w+8,h:extRect.h+8});   // 伸长量面板（R5）
   }
   return rs;
 }
@@ -1657,8 +1707,20 @@ function placeReadPanel(){
   var slot=pickSlot(el.offsetWidth||260,el.offsetHeight||170,avoidRects());
   el.style.left=slot.x+'px'; el.style.top=slot.y+'px';
 }
+function placeExtPanel(){
+  /* R5：伸长量面板统一定位——原版无 left/top（静态流位置=左上角），正好盖住 zone 里的
+     「竖直挂钩码/水平拖木块」模式切换按钮（缺陷②）；现默认压到按钮带之下，且可拖+位置记忆 */
+  var el=document.getElementById('panel-ext'); if(!el) return;
+  var w=el.offsetWidth||210,h=el.offsetHeight||130;
+  var top=cardTopSafe();
+  var p=cardMem['ext']||cardDefaultPos('ext',w,h);
+  var x=clamp(p.x,8,Math.max(8,W-w-8));
+  var y=clamp(p.y,top,Math.max(top,L.fy-h-8));
+  el.style.left=x+'px'; el.style.top=y+'px';
+  extRect={x:x,y:y,w:w,h:h};
+}
 var openP=null;
-function repositionPanels(){ if(openP==='read') placeReadPanel(); }
+function repositionPanels(){ measureZones(); placeExtPanel(); if(openP==='read') placeReadPanel(); }
 function openPanel(){
   openP=(openP==='read')?null:'read';
   document.getElementById('panel-read').classList.toggle('show',openP==='read');
@@ -1775,6 +1837,29 @@ on('btn-reset','click',guard(function(){
 }));
 on('btn-mute','click',function(){ window.muted=!window.muted; var b=document.getElementById('btn-mute'); if(b)b.textContent=window.muted?'🔇':'🔊'; if(window.playClick)playClick(); });
 on('panel-ext','click',function(){ state.s.extTouched=true; var el=document.getElementById('panel-ext'); if(el) el.classList.add('touched'); });
+/* R5：伸长量面板标题条拖拽（位置记忆 localStorage） */
+(function(){
+  var el=document.getElementById('panel-ext'); if(!el) return;
+  var title=el.querySelector('.rp-title'); if(!title) return;
+  title.style.cursor='move'; title.style.touchAction='none';
+  title.style.userSelect='none'; title.style.webkitUserSelect='none';
+  var d=null;
+  title.addEventListener('pointerdown',function(ev){
+    var r=el.getBoundingClientRect();
+    d={dx:ev.clientX-r.left,dy:ev.clientY-r.top};
+    if(title.setPointerCapture&&ev.pointerId!=null){ try{ title.setPointerCapture(ev.pointerId); }catch(e){} }
+    ev.preventDefault();
+  });
+  title.addEventListener('pointermove',function(ev){
+    if(!d) return;
+    var wr=document.getElementById('scene-wrap').getBoundingClientRect();
+    cardMem['ext']={x:ev.clientX-wr.left-d.dx,y:ev.clientY-wr.top-d.dy};
+    placeExtPanel();
+    if(openP==='read') placeReadPanel();
+  });
+  title.addEventListener('pointerup',function(){ if(d){ d=null; saveCardMem(); } });
+  title.addEventListener('pointercancel',function(){ if(d){ d=null; saveCardMem(); } });
+})();
 
 /* 全屏（documentElement + html.pseudo-fs 降级，c5s1 路线） */
 var btnFull=document.getElementById('btn-full');
@@ -1826,15 +1911,32 @@ function pUp(v){
 cv.addEventListener('pointerdown',function(ev){
   if(state.animating) return;
   var p=canvasXY(ev);
+  var cr=activeCardRect();   /* R5：浮卡拖动优先于器材直操（卡在最上层绘制） */
+  if(cr&&inRect(p,cr)){
+    cardDrag={key:cr.key,dx:p.x-cr.x,dy:p.y-cr.y};
+    if(cv.setPointerCapture&&ev.pointerId!=null){ try{ cv.setPointerCapture(ev.pointerId); }catch(e){} }
+    ev.preventDefault();
+    return;
+  }
   if(!pDown(state.view,p)) return;
   if(cv.setPointerCapture&&ev.pointerId!=null){ try{ cv.setPointerCapture(ev.pointerId); }catch(e){} }
 });
 cv.addEventListener('pointermove',function(ev){
   if(state.animating) return;
-  pMove(state.view,canvasXY(ev));
+  var p=canvasXY(ev);
+  if(cardDrag){
+    cardMem[cardDrag.key]={x:p.x-cardDrag.dx,y:p.y-cardDrag.dy};
+    if(openP==='read') placeReadPanel();
+    dirty=true;
+    return;
+  }
+  pMove(state.view,p);
 });
 ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
-  cv.addEventListener(ev,function(){ pUp(state.view); });
+  cv.addEventListener(ev,function(){
+    if(cardDrag){ saveCardMem(); cardDrag=null; if(openP==='read') placeReadPanel(); return; }
+    pUp(state.view);
+  });
 });
 
 /* ===== 动画 tick ===== */
