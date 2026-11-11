@@ -738,14 +738,19 @@ function drawBoardReset(){
 function renderDraw(){
   var D=state.d,R0=L.dr;
   ctx.fillStyle='#fbf9f4'; ctx.fillRect(0,-H*2,W,H*5);
-  /* 情境卡（题目给定条件） */
-  ghostCard(16,R0.top-10,Math.min(440,W*0.62),72);
+  /* 情境卡（题目给定条件）：R6 移到天花板带下方左侧空白区（原画在 R0.top+10，被带 fillRect 覆盖首行）。
+     三行基线=ceilY+30 起（行距 ssp 常规 20，小画布按 shadeTop 收紧），全部 > ceilY，
+     不落在带区间 [ceilY-26,ceilY]；shadeTop=ceilY+0.28*avail≥ceilY+45，行 3 保持在灯罩顶缘上方 ≥10px；
+     卡片底=ceilY+82（ssp=20 时），标尺顶 rulerT-10 与判分反馈卡（fy-38）均在其下，无遮挡 */
+  var sy0=R0.ceilY+30,ssp=20;
+  if(sy0+ssp*2>R0.shadeTop-10) ssp=Math.max(13,Math.round((R0.shadeTop-10-sy0)/2));
+  ghostCard(16,sy0-22,Math.min(440,W*0.62),ssp*2+34);
   ctx.fillStyle='#334155'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
-  ctx.fillText('情境：绳吊着的吊灯静止不动，',30,R0.top+10);
-  ctx.fillText('绳对灯的拉力 F = 4 N，方向竖直向上。画出这个力。',30,R0.top+30);
+  ctx.fillText('情境：绳吊着的吊灯静止不动，',30,sy0);
+  ctx.fillText('绳对灯的拉力 F = 4 N，方向竖直向上。画出这个力。',30,sy0+ssp);
   ctx.fillStyle='#64748b'; ctx.font='12px sans-serif';
-  ctx.fillText('本题只画绳对灯的拉力，重力不画。',30,R0.top+50);
-  /* 天花板：先画文字，再画带（盖住字下半，露出上半即标签） */
+  ctx.fillText('本题只画绳对灯的拉力，重力不画。',30,sy0+ssp*2);
+  /* 天花板：标签在带上方居中；带后画（文字已在带下方，不再被盖） */
   ctx.fillStyle='#8a7c66'; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
   ctx.fillText('天花板',R0.cx,R0.ceilY-32);
   ctx.fillStyle='#d8cbb4'; ctx.fillRect(0,R0.ceilY-26,W,26);
@@ -898,6 +903,7 @@ function renderCart(){
   /* 左车磁体：N 朝右（固定） */
   PROPS.bar_magnet(ctx,lg.mounts.magnet.x,lg.mounts.magnet.y,{label:true,w:cw*0.52,angle:0});
   var rg=PROPS.magnet_cart(ctx,M.rx,L.floorY,{w:cw});
+  L.cartRg=rg;   // R6: 缓存右车几何，cartDown 翻极热区用 mounts.magnet 实际坐标
   /* 右车磁体：flip=false 同名相对（N朝左=angle180 使 N 朝左）；flip=true 异名（S朝左） */
   PROPS.bar_magnet(ctx,rg.mounts.magnet.x,rg.mounts.magnet.y,{label:true,w:cw*0.52,angle:M.flip?0:180});
   ctx.fillStyle='#8a7c66'; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
@@ -928,8 +934,13 @@ function cartDown(p){
   if(M.running) return false;
   if(p.x>=rgx-rw*0.3&&p.x<=rgx+rw*1.3&&p.y>=L.floorY-rw*1.1&&p.y<=L.floorY+8){
     M.dragging=true; M.dragX0=p.x; M.dragRx0=M.rx; M.downPt={x:p.x,y:p.y}; M.moved=false;
-    /* 磁体区判定：翻极热区=右车磁体附近 */
-    M.onMagnet=(p.x>=rgx+rw*0.2&&p.x<=rgx+rw*1.0&&p.y<=L.floorY-rw*0.35);
+    /* 磁体区判定：R6 翻极热区改为右车磁体实际绘制矩形（原估计矩形 p.y<=floorY-rw*0.35 高于可见磁体顶缘
+       floorY-wheelR*2-deckT-mh/2≈floorY-rw*0.28，点磁体无效）。中心=magnet_cart 渲染缓存的 mounts.magnet.y
+       （x 与 rgx=M.rx 同源，直接用 rgx 保持拖动后最新）；磁体 w=rw*0.52、h=w*0.32（bar_magnet 默认比例），
+       容差左右各扩 8px、上扩 12px */
+    var mw=rw*0.52,mh=mw*0.32;
+    var magY=L.cartRg?L.cartRg.mounts.magnet.y:L.floorY-Math.max(7,rw*0.055)*2-Math.max(9,rw*0.085);
+    M.onMagnet=(p.x>=rgx-mw/2-8&&p.x<=rgx+mw/2+8&&p.y>=magY-mh/2-12&&p.y<=magY+mh/2);
     return true;
   }
   return false;
