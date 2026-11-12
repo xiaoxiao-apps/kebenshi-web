@@ -60,8 +60,8 @@
 <script src="./props.js?v=20261024"></script>
 <script src="./props-optics.js?v=20261024"></script>
 <script src="./props-density.js?v=20261024"></script>
-<!-- c7 力学器材库 props-mech.js：18件（2026-11-04 单A 16件 + 2026-11-06 C7V2-D1 glass_bottle_tube + 2026-11-11 C7V3-R1 hook_link；spring_horizontal/hand_press/spring_meter R1 重绘；视觉原创，PhET 仅借交互语义） -->
-<script src="./props-mech.js?v=20261111"></script>
+<!-- c7 力学器材库 props-mech.js：33件（2026-11-04 单A 16件 + 2026-11-06 C7V2-D1 glass_bottle_tube + 2026-11-11 C7V3-R1 hook_link + 2026-11-12 C7V4-R8 _25d「一张桌子」14件15函数；旧件全保留；视觉原创，PhET 仅借交互语义） -->
+<script src="./props-mech.js?v=20261112"></script>
 <script src="./sfx.js?v=20261024"></script>
 <script>
 // PROPS.SPRITE_BASE 默认为 'sprites/'，与 gallery.html 同目录，正确无需覆写
@@ -124,7 +124,21 @@ const PROPS_LIST=[
   {id:'rubber_band',name:'橡皮筋(拉伸)',fn:'rubber_band',wide:true,vector:true,opts:[{},{stretch:0.6},{stretch:1}],badge:'c7 新增',desc:'褐色环带；opt.stretch 0..1 环拉长变细；返回{w,h}'},
   {id:'earth_globe',name:'地球球体(spots点选)',fn:'earth_globe',tall:true,size:{w:520,h:420},vector:true,opts:[{r:80},{r:60,spots:[{lat:35,lon:20,label:'欧亚'},{lat:-20,lon:-60,label:'南美'}]},{r:80,spots:[{lat:-25,lon:135,label:'澳洲'}]}],badge:'c7 新增',desc:'蓝球+绿陆块blob原创简化+高光；opt.spots[{lat,lon,label}]简化投影(x=cx+r·cosLat·sinLon)返回点位+visible背面判定'},
   {id:'person_pin',name:'小人重力箭头桩',fn:'person_pin',vector:true,opts:[{},{arrow:'down'},{arrow:'up'}],badge:'c7 新增',desc:'简化矢量小人(圆头+躯干腿,无真脸)；opt.arrow down=粉色重力G/up=支持力F；opt.scale身高；返回{h,foot,head,arrow}'},
-  {id:'glass_bottle_tube',name:'玻璃瓶细管',fn:'glass_bottle_tube',tall:true,vector:true,opts:[{w:88,h:230,squeeze:0},{w:88,h:230,squeeze:0.6},{w:88,h:230,squeeze:1}],badge:'c7 新增',desc:'捏瓶水柱上升——微小形变放大法（弹力节教具）；椭圆厚壁玻璃瓶(半透明+左缘白高光+厚壁双线)装满红水+带孔橡胶塞+细管竖插塞心(水柱顶面凹弯月)；opt.squeeze 0..1 水柱基线→近管顶不溢出；返回{waterTopY}'}
+  {id:'glass_bottle_tube',name:'玻璃瓶细管',fn:'glass_bottle_tube',tall:true,vector:true,opts:[{w:88,h:230,squeeze:0},{w:88,h:230,squeeze:0.6},{w:88,h:230,squeeze:1}],badge:'c7 新增',desc:'捏瓶水柱上升——微小形变放大法（弹力节教具）；椭圆厚壁玻璃瓶(半透明+左缘白高光+厚壁双线)装满红水+带孔橡胶塞+细管竖插塞心(水柱顶面凹弯月)；opt.squeeze 0..1 水柱基线→近管顶不溢出；返回{waterTopY}'},
+  {id:'spring_25d',name:'弹簧 2.5D(顶环底钩)',fn:'spring_25d',tall:true,vector:true,opts:[{},{h:110},{stretch:0.6}],badge:'C7V4-R8',desc:'锚=底钩(向上画)；L₀=8cm视觉线圈均匀；统一P25投影；返回{w,h,base,top,mounts:{top,hook}}'},
+  {id:'rubber_band_25d',name:'橡皮筋 2.5D(平放环)',fn:'rubber_band_25d',vector:true,opts:[{},{w:60},{w:100}],badge:'C7V4-R8',desc:'锚=环底面中心；俯视压缩椭圆环、粗哑光；返回{w,h,base,mounts:{gripL,gripR}}'},
+  {id:'clay_25d',name:'橡皮泥 2.5D(矮圆柱)',fn:'clay_25d',vector:true,opts:[{},{s:0.7},{s:1.25}],badge:'C7V4-R8',desc:'锚=底面中心；4×4×3cm视觉哑光橙；返回{w,h,base,top,mounts:{top}=按压点}'},
+  {id:'bottle_tube_25d',name:'玻璃瓶细管 2.5D',fn:'bottle_tube_25d',tall:true,vector:true,opts:[{},{w:64,h:160},{w:100,h:230}],badge:'C7V4-R8',desc:'锚=瓶底中心；半透明瓶身+瓶塞+细管竖直+管内红液面h₀；返回{w,h,base,waterTopY,mounts:{gripL,gripR,tubeTop}}'},
+  {id:'cart_25d',name:'小车 2.5D(顶可放物)',fn:'cart_25d',wide:true,vector:true,opts:[{},{w:90},{w:150}],badge:'C7V4-R8',desc:'锚=底面中心(轮底触台)；车身+四轮+顶面载物槽；返回{w,h,base,deck,mounts:{deck,pushF,pushB,top}}'},
+  {id:'wood_block_25d',name:'木块 2.5D(3×3×6高型)',fn:'wood_block_25d',tall:true,vector:true,opts:[{},{s:0.6},{s:0.85}],badge:'C7V4-R8',desc:'锚=底面中心；长方体木纹；返回{w,h,base,top,mounts:{top,pushTop,pushMid,pushLow}=作用点三高点}'},
+  {id:'box_25d',name:'箱子 2.5D(6×4×4可摞)',fn:'box_25d',vector:true,opts:[{},{s:0.65},{s:1.2}],badge:'C7V4-R8',desc:'锚=底面中心；比木块矮胖纸盒+封箱带+标签；返回{w,h,base,top,mounts:{top,stack}=摞叠点}'},
+  {id:'door_25d',name:'门 2.5D(三推点)',fn:'door_25d',tall:true,vector:true,opts:[{},{w:130,h:200},{w:150,h:210,points:false}],badge:'C7V4-R8',desc:'锚=门框底面中心；门轴在左+门扇可见厚度+三推点标记；返回{w,h,base,hinge,mounts:{hinge,pushNear,pushMid,pushFar}}'},
+  {id:'skateboard_25d',name:'滑板 2.5D',fn:'skateboard_25d',wide:true,vector:true,opts:[{},{w:90},{w:160}],badge:'C7V4-R8',desc:'锚=底面中心(轮底触台)；深色砂纸面+枫木侧+四轮；返回{w,h,base,deck,mounts:{deck}=踩踏位}'},
+  {id:'figure_25d',name:'踩板小人 2.5D(胖/瘦)',fn:'figure_25d',tall:true,vector:true,opts:[{},{variant:'fat'},{h:80}],badge:'C7V4-R8',desc:'锚=脚底面中心；opt.variant thin/fat 两型；双臂前伸互推姿态；返回{w,h,base,head,mounts:{handL,handR}}'},
+  {id:'balloon_25d',name:'气球 2.5D(瘪/鼓)',fn:'balloon_25d',tall:true,vector:true,opts:[{inflate:0},{inflate:0.5},{inflate:1}],badge:'C7V4-R8',desc:'锚=喷口底面中心；opt.inflate 0..1 瘪囊褶皱→橡胶鼓球；返回{w,h,base,center,mounts:{jet=喷口,top}}'},
+  {id:'meter_25d',name:'测力计 2.5D(0-5N)',fn:'meter_25d',tall:true,vector:true,opts:[{needle:0},{needle:2.5},{needle:5}],badge:'C7V4-R8',desc:'锚=底钩(向上画)；2.5D青绿盒身+白面板刻度+红指针+顶吊环；opt.needle 0..5读数→指针位移；返回{w,h,base,reading,top,mounts:{ring,hook}}'},
+  {id:'weight_hook_25d',name:'钩码 2.5D(50g)',fn:'weight_hook_25d',vector:true,opts:[{},{g:100},{g:200}],badge:'C7V4-R8',desc:'锚=底面中心；金属圆柱+顶部挂环+克数印字；返回{w,h,base,hook,mounts:{hook,top}}'},
+  {id:'iron_stand_25d',name:'铁架台 2.5D(R7修正几何)',fn:'iron_stand_25d',tall:true,vector:true,opts:[{},{h:190},{h:300}],badge:'C7V4-R8',desc:'锚=底座底面中心；底座宽+竖杆立横臂左端+横臂向右前挑出+右段挂钩(73%处)；返回{w,h,base,mounts:{hook,armTip,rodTop,base}}'}
 ];
 const CARD_SIZES={wide:{w:520,h:160},tall:{w:300,h:420},normal:{w:300,h:160}};
 function sizeOf(item){return item.size||CARD_SIZES[item.wide?'wide':(item.tall?'tall':'normal')];}
@@ -348,7 +362,21 @@ function initMeterCard(){
   paint();wrap._lbBig=paint;
   wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(desc);wrap.appendChild(cvs);return wrap;
 }
-function initGallery(){const g=document.getElementById('gallery');PROPS_LIST.forEach(function(item){g.appendChild(drawCard(item));});g.appendChild(initMeterCard());g.appendChild(initPlumbCard());g.appendChild(initBenchCard());g.appendChild(initToolboxCard());g.appendChild(initDeskCard());g.appendChild(initDeskBendCard());(document.getElementById('rules-grid')||g).appendChild(initPlaceRuleCard());g.appendChild(initRoomCard());} // R32：放置规则卡归三区；C7V3-R1：spring_meter 改顶锚自定义卡
+function initTable25dCard(){
+  const wrap=document.createElement('div');wrap.className='prop-card';
+  const lab=document.createElement('div');lab.className='prop-label';lab.textContent='table_25d';
+  const name=document.createElement('div');name.className='prop-name';name.textContent='实验大桌面 2.5D(五区参考线)';
+  const b=document.createElement('span');b.className='pill';b.style.marginLeft='8px';b.style.background='var(--gold)';b.textContent='C7V4-R8';name.appendChild(b);
+  const desc=document.createElement('div');desc.textContent='锚=桌面前沿底边中心(x,y)；暖白木纹台面+桌沿厚度+右裙边；opt.showZones 五区Z1-Z5+工具架ZT虚线参考线(设计书§2.2百分比制)；返回{w,h,base,top四角,at(fx,fy)台面归一→世界坐标(摆放对齐单源),zones,mounts:{center}}；宽件超标准列宽故用自定义卡';desc.style.cssText='font-size:11px;color:#999;margin:2px 0';
+  const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=520;cvs.height=260;
+  const ctx0=cvs.getContext('2d');
+  function paint(g){const ctx=(g&&g.canvas)?g:ctx0;ctx.imageSmoothingEnabled=true;
+    ctx.fillStyle='#f5f2ec';ctx.fillRect(0,0,520,260);
+    PROPS.table_25d(ctx,246,226,{w:400,d:140,th:12,showZones:true});}
+  paint();wrap._lbBig=paint;
+  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(desc);wrap.appendChild(cvs);return wrap;
+}
+function initGallery(){const g=document.getElementById('gallery');PROPS_LIST.forEach(function(item){g.appendChild(drawCard(item));});g.appendChild(initTable25dCard());g.appendChild(initMeterCard());g.appendChild(initPlumbCard());g.appendChild(initBenchCard());g.appendChild(initToolboxCard());g.appendChild(initDeskCard());g.appendChild(initDeskBendCard());(document.getElementById('rules-grid')||g).appendChild(initPlaceRuleCard());g.appendChild(initRoomCard());} // R32：放置规则卡归三区；C7V3-R1：spring_meter 改顶锚自定义卡；C7V4-R8：table_25d 宽件自定义卡
 function initDemo(){
   const cvs=document.getElementById('demo'),ctx=cvs.getContext('2d');ctx.imageSmoothingEnabled=true;
   cvs.width=760;cvs.height=220;
