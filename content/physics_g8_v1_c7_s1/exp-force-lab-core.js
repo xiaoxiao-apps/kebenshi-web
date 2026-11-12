@@ -283,12 +283,17 @@ function renderDeform(){
   var df=L.df,f=state.f,now=performance.now();
   ctx.fillStyle='#fbf9f4'; ctx.fillRect(0,-H*2,W,H*5);
   PROPS.wood_desk(ctx,W,H,{by:L.by,fy:L.fy});
-  /* 试验台架：底座+立柱+横梁（悬挂位） */
+  /* 试验台架：底座+立柱+横梁（悬挂位）。
+     R7 缺陷B 几何修正（蔡总 2026-11-12：竖杆应在横臂「左端」、横臂从竖杆顶端向前挑出，非十字形）：
+     · 竖杆 x = 横臂左端 armL = df.hangX-64（原竖杆画在 hangX=横臂正中 → 十字形，错）
+     · 横臂自竖杆顶端向右（前）挑出，覆盖弹簧悬挂点 df.hangX，使其落在横臂右段（约 73% 处）
+     · 底座加宽到 108px 压在竖杆脚下（左偏），保证悬臂结构视觉稳定；已核算 W=640 最小宽下不出屏 */
+  var armL=df.hangX-64;   /* 竖杆中心 x = 横臂左端（悬臂结构，弹簧挂右段） */
   ctx.save();
   ctx.fillStyle='#9aa1ab'; ctx.strokeStyle='#7d838c'; ctx.lineWidth=1.2;
-  ctx.beginPath(); ctx.roundRect(df.hangX-70,L.seat-10,140,10,3); ctx.fill(); ctx.stroke();
-  ctx.beginPath(); ctx.roundRect(df.hangX-6,df.beamY-6,12,L.seat-df.beamY-4,3); ctx.fill(); ctx.stroke();
-  ctx.beginPath(); ctx.roundRect(df.hangX-96,df.beamY-14,192,10,3); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(armL-40,L.seat-10,108,10,3); ctx.fill(); ctx.stroke();               // 底座（加宽，压竖杆脚下）
+  ctx.beginPath(); ctx.roundRect(armL-6,df.beamY-6,12,L.seat-df.beamY-4,3); ctx.fill(); ctx.stroke();  // 竖杆立于横臂左端
+  ctx.beginPath(); ctx.roundRect(armL-6,df.beamY-14,df.hangX+26-(armL-6),10,3); ctx.fill(); ctx.stroke(); // 横臂向右挑出，hangX 落右段
   ctx.restore();
   /* 墙面位：墙板+搁板 */
   ctx.save();
@@ -303,48 +308,46 @@ function renderDeform(){
   ctx.fillText('悬挂位',df.hangX,df.titleY);
   ctx.fillText('桌面位',df.bx,df.titleY);
   ctx.fillText('墙面位',df.wallX,df.titleY);
-  /* --- 悬挂位：弹簧（选中实画，未选中淡化） --- */
-  var on=f.tool==='spring';
-  ctx.globalAlpha=on?1:0.28;
-  var sa=springAnchor();
-  var sg=PROPS.spring_vertical(ctx,df.hangX,sa.anchorY,{stretch:FT2('spring'),h:sa.h0});
-  if(on&&FT2('spring')>0.01){
-    drawArrow(df.hangX,sg.hook.y+6,df.hangX,sg.hook.y+6+18+FT2('spring')*46,'#dc2626',3.6);
-    ctx.fillStyle='#dc2626'; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
-    ctx.fillText('F 拉',df.hangX+8,sg.hook.y+34);
+  /* R7 缺陷A：只绘制当前选中器材，未选中三件完全跳过绘制分支（不再 globalAlpha=0.28 画虚影）。
+     蔡总 2026-11-12 复验：点弹簧时橡皮筋/玻璃瓶吸管虚影仍重叠在后面——点哪个出现哪一个，其余全隐藏。 */
+  /* --- 悬挂位：弹簧（仅选中时绘制） --- */
+  if(f.tool==='spring'){
+    var sa=springAnchor();
+    var sg=PROPS.spring_vertical(ctx,df.hangX,sa.anchorY,{stretch:FT2('spring'),h:sa.h0});
+    if(FT2('spring')>0.01){
+      drawArrow(df.hangX,sg.hook.y+6,df.hangX,sg.hook.y+6+18+FT2('spring')*46,'#dc2626',3.6);
+      ctx.fillStyle='#dc2626'; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('F 拉',df.hangX+8,sg.hook.y+34);
+    }
   }
-  ctx.globalAlpha=1;
-  /* --- 悬挂位：橡皮筋（竖放悬挂） --- */
-  on=f.tool==='band';
-  ctx.globalAlpha=on?1:0.28;
-  var cyB=bandCy(),w0=df.bandW0,st=FT2('band');
-  ctx.save();
-  ctx.translate(df.hangX,cyB); ctx.rotate(Math.PI/2);
-  PROPS.rubber_band(ctx,0,0,{stretch:st,w:w0});
-  ctx.restore();
-  if(on&&st>0.01){
-    var bBot=cyB+w0*0.42*(1-0.45*st)/2;
-    drawArrow(df.hangX,bBot+6,df.hangX,bBot+6+16+st*40,'#dc2626',3.6);
-    ctx.fillStyle='#dc2626'; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
-    ctx.fillText('F 拉',df.hangX+8,bBot+26);
+  /* --- 悬挂位：橡皮筋（竖放悬挂，仅选中时绘制） --- */
+  if(f.tool==='band'){
+    var cyB=bandCy(),w0=df.bandW0,st=FT2('band');
+    ctx.save();
+    ctx.translate(df.hangX,cyB); ctx.rotate(Math.PI/2);
+    PROPS.rubber_band(ctx,0,0,{stretch:st,w:w0});
+    ctx.restore();
+    if(st>0.01){
+      var bBot=cyB+w0*0.42*(1-0.45*st)/2;
+      drawArrow(df.hangX,bBot+6,df.hangX,bBot+6+16+st*40,'#dc2626',3.6);
+      ctx.fillStyle='#dc2626'; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('F 拉',df.hangX+8,bBot+26);
+    }
   }
-  ctx.globalAlpha=1;
-  /* --- 墙面位：橡皮泥+手 --- */
-  on=f.tool==='clay';
-  ctx.globalAlpha=on?1:0.28;
-  var cg=PROPS.plasticine(ctx,df.wallX,df.shelfY,{size:df.claySize,press:FT2('clay')});
-  if(on&&FT2('clay')>0.02) PROPS.hand_press(ctx,cg.tip.x,cg.tip.y+2,{h:Math.round(df.claySize*1.5)});
-  ctx.globalAlpha=1;
-  /* --- 桌面位：玻璃瓶细管 --- */
-  on=f.tool==='bottle';
-  ctx.globalAlpha=on?1:0.28;
+  /* --- 墙面位：橡皮泥+手（仅选中时绘制） --- */
+  if(f.tool==='clay'){
+    var cg=PROPS.plasticine(ctx,df.wallX,df.shelfY,{size:df.claySize,press:FT2('clay')});
+    if(FT2('clay')>0.02) PROPS.hand_press(ctx,cg.tip.x,cg.tip.y+2,{h:Math.round(df.claySize*1.5)});
+  }
+  /* --- 桌面位：玻璃瓶细管（仅选中时绘制，含原水面基线） --- */
+  if(f.tool==='bottle'){
   var sq=FT2('bottle');
   var bg=PROPS.glass_bottle_tube(ctx,df.bx,L.seat+10,df.bottleW,df.bottleH,{squeeze:sq});
   ctx.save(); ctx.strokeStyle='rgba(37,99,235,.7)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
   ctx.beginPath(); ctx.moveTo(df.bx-df.bottleW*0.85,df.bottleBase); ctx.lineTo(df.bx+df.bottleW*0.85,df.bottleBase); ctx.stroke(); ctx.restore();
   ctx.fillStyle='#2563eb'; ctx.font='11px sans-serif'; ctx.textAlign='left';
   ctx.fillText('原水面',df.bx+df.bottleW*0.9,df.bottleBase+4);
-  if(on&&sq>0.01){
+  if(sq>0.01){
     ctx.save(); ctx.strokeStyle='#16a34a'; ctx.lineWidth=1.8; ctx.setLineDash([5,4]);
     ctx.beginPath(); ctx.moveTo(df.bx-df.bottleW*0.85,bg.waterTopY); ctx.lineTo(df.bx+df.bottleW*0.85,bg.waterTopY); ctx.stroke(); ctx.restore();
     ctx.fillStyle='#16a34a'; ctx.font='600 11px sans-serif'; ctx.textAlign='left';
@@ -363,7 +366,7 @@ function renderDeform(){
     ctx.fillText('捏',df.bx-ex-aLen*0.5-8,bodyCy-12);
     ctx.fillText('捏',df.bx+ex+aLen*0.5+8,bodyCy-12);
   }
-  ctx.globalAlpha=1;
+  }
   /* 超限红闪 */
   if(f.overFlash>0&&now<f.overFlash){
     var pulse=0.5+0.5*Math.sin(now/90);
