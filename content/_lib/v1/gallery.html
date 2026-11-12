@@ -60,7 +60,7 @@
 <script src="./props.js?v=20261024"></script>
 <script src="./props-optics.js?v=20261024"></script>
 <script src="./props-density.js?v=20261024"></script>
-<!-- c7 力学器材库 props-mech.js：33件（2026-11-04 单A 16件 + 2026-11-06 C7V2-D1 glass_bottle_tube + 2026-11-11 C7V3-R1 hook_link + 2026-11-12 C7V4-R8 _25d「一张桌子」14件15函数；旧件全保留；视觉原创，PhET 仅借交互语义） -->
+<!-- c7 力学器材库 props-mech.js：37件（2026-11-04 单A 16件 + 2026-11-06 C7V2-D1 glass_bottle_tube + 2026-11-11 C7V3-R1 hook_link + 2026-11-12 C7V4-R8 _25d「一张桌子」14件15函数 + 2026-11-12 C7V4-R9 承载件 tray/track/door_frame/pump _25d 4件；旧件全保留；视觉原创，PhET 仅借交互语义） -->
 <script src="./props-mech.js?v=20261112"></script>
 <script src="./sfx.js?v=20261024"></script>
 <script>
@@ -138,7 +138,11 @@ const PROPS_LIST=[
   {id:'balloon_25d',name:'气球 2.5D(瘪/鼓)',fn:'balloon_25d',tall:true,vector:true,opts:[{inflate:0},{inflate:0.5},{inflate:1}],badge:'C7V4-R8',desc:'锚=喷口底面中心；opt.inflate 0..1 瘪囊褶皱→橡胶鼓球；返回{w,h,base,center,mounts:{jet=喷口,top}}'},
   {id:'meter_25d',name:'测力计 2.5D(0-5N)',fn:'meter_25d',tall:true,vector:true,opts:[{needle:0},{needle:2.5},{needle:5}],badge:'C7V4-R8',desc:'锚=底钩(向上画)；2.5D青绿盒身+白面板刻度+红指针+顶吊环；opt.needle 0..5读数→指针位移；返回{w,h,base,reading,top,mounts:{ring,hook}}'},
   {id:'weight_hook_25d',name:'钩码 2.5D(50g)',fn:'weight_hook_25d',vector:true,opts:[{},{g:100},{g:200}],badge:'C7V4-R8',desc:'锚=底面中心；金属圆柱+顶部挂环+克数印字；返回{w,h,base,hook,mounts:{hook,top}}'},
-  {id:'iron_stand_25d',name:'铁架台 2.5D(R7修正几何)',fn:'iron_stand_25d',tall:true,vector:true,opts:[{},{h:190},{h:300}],badge:'C7V4-R8',desc:'锚=底座底面中心；底座宽+竖杆立横臂左端+横臂向右前挑出+右段挂钩(73%处)；返回{w,h,base,mounts:{hook,armTip,rodTop,base}}'}
+  {id:'iron_stand_25d',name:'铁架台 2.5D(R7修正几何)',fn:'iron_stand_25d',tall:true,vector:true,opts:[{},{h:190},{h:300}],badge:'C7V4-R8',desc:'锚=底座底面中心；底座宽+竖杆立横臂左端+横臂向右前挑出+右段挂钩(73%处)；返回{w,h,base,mounts:{hook,armTip,rodTop,base}}'},
+  {id:'tray_25d',name:'器材托盘 2.5D(4凹槽)',fn:'tray_25d',wide:true,vector:true,opts:[{},{w:180},{slots:6}],badge:'C7V4-R9',desc:'锚=盘底面中心；浅盘外框+内底opt.slots个凹槽位(默认4)；返回{w,h,base,top,mounts:{slots:[n]世界坐标=R10吸附,top}}'},
+  {id:'track_25d',name:'光滑轨道 2.5D(端挡块)',fn:'track_25d',wide:true,vector:true,opts:[{},{w:260},{w:440}],badge:'C7V4-R9',desc:'锚=底面中心；长条低矮金属导轨+两端木挡块+顶面光滑亮带+前沿刻度；返回{w,h,base,mounts:{start,end,axis,len,top}}'},
+  {id:'door_frame_25d',name:'门框 2.5D(配door_25d)',fn:'door_frame_25d',tall:true,vector:true,opts:[{},{w:170,h:210},{w:240,h:280}],badge:'C7V4-R9',desc:'锚=框底面中心；浅墙背板+厚木套三件、门轴位在左；比door_25d大一圈套住；返回{w,h,base,mounts:{hinge,pushPoints:[3],opening}}'},
+  {id:'pump_25d',name:'打气嘴 2.5D(泵体+软管)',fn:'pump_25d',vector:true,opts:[{},{h:44},{h:88}],badge:'C7V4-R9',desc:'锚=底面中心；塑料红小圆柱泵体+泵杆短柄+软管贝塞尔+金属嘴尖；返回{w,h,base,mounts:{nozzle=R10接气球喷口,top}}'}
 ];
 const CARD_SIZES={wide:{w:520,h:160},tall:{w:300,h:420},normal:{w:300,h:160}};
 function sizeOf(item){return item.size||CARD_SIZES[item.wide?'wide':(item.tall?'tall':'normal')];}

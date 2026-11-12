@@ -7,7 +7,7 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-mech.js — 第七章「力」力学器材标准件 v1（2026-11-04，c7 单A，16件；2026-11-06 C7V2-D1 增补 glass_bottle_tube=17件；2026-11-11 C7V3-R1 重绘 spring_horizontal/hand_press/spring_meter + 增补 hook_link=18件；2026-11-12 C7V4-R8 增补 _25d「一张桌子」新件14件15函数=33件，旧件全保留）
+ * props-mech.js — 第七章「力」力学器材标准件 v1（2026-11-04，c7 单A，16件；2026-11-06 C7V2-D1 增补 glass_bottle_tube=17件；2026-11-11 C7V3-R1 重绘 spring_horizontal/hand_press/spring_meter + 增补 hook_link=18件；2026-11-12 C7V4-R8 增补 _25d「一张桌子」新件14件15函数=33件，旧件全保留；2026-11-12 C7V4-R9 增补承载件 tray/track/door_frame/pump _25d=37件）
  * 约定同 props-optics/props-density：IIFE 挂 global.PROPS；(x,y)=底面中心锚点
  * （吊挂件=底钩锚点向上画；旋转件=中心锚点）；有挂载点的件返回几何含 mounts:{锚名:{x,y}}（世界坐标）。
  * 视觉全原创（PhET masses-and-springs 仅借交互语义：圈距线性变疏/柱高∝质量档/顶钩底钩 snap）。
@@ -17,9 +17,9 @@ const rand = PROPS.rand || function(seed){
  * ============================================================ */
 
 // MECH_IDS: 本文件件名清单（gallery 与下游 B 单索引用）
-PROPS.MECH_IDS = ['plasticine','hand_press','spring_horizontal','spring_vertical','bar_magnet','iron_ball','ball_track_table','door','magnet_cart','spring_meter','hook_weight','ruler_flex','rubber_band','plumb_line','earth_globe','person_pin','glass_bottle_tube','hook_link','spring_25d','rubber_band_25d','clay_25d','bottle_tube_25d','cart_25d','wood_block_25d','box_25d','door_25d','skateboard_25d','figure_25d','balloon_25d','meter_25d','weight_hook_25d','iron_stand_25d','table_25d'];
+PROPS.MECH_IDS = ['plasticine','hand_press','spring_horizontal','spring_vertical','bar_magnet','iron_ball','ball_track_table','door','magnet_cart','spring_meter','hook_weight','ruler_flex','rubber_band','plumb_line','earth_globe','person_pin','glass_bottle_tube','hook_link','spring_25d','rubber_band_25d','clay_25d','bottle_tube_25d','cart_25d','wood_block_25d','box_25d','door_25d','skateboard_25d','figure_25d','balloon_25d','meter_25d','weight_hook_25d','iron_stand_25d','table_25d','tray_25d','track_25d','door_frame_25d','pump_25d'];
 // MECH_25D_IDS: C7V4-R8「一张桌子」2.5D 新件清单（14件15函数；旧件保留不删，v3 页面还在用）
-PROPS.MECH_25D_IDS = ['spring_25d','rubber_band_25d','clay_25d','bottle_tube_25d','cart_25d','wood_block_25d','box_25d','door_25d','skateboard_25d','figure_25d','balloon_25d','meter_25d','weight_hook_25d','iron_stand_25d','table_25d'];
+PROPS.MECH_25D_IDS = ['spring_25d','rubber_band_25d','clay_25d','bottle_tube_25d','cart_25d','wood_block_25d','box_25d','door_25d','skateboard_25d','figure_25d','balloon_25d','meter_25d','weight_hook_25d','iron_stand_25d','table_25d','tray_25d','track_25d','door_frame_25d','pump_25d'];
 
 // plasticine: 橡皮泥（橙色圆饼）。(x,y)=底面中心；opt.size 默认70；opt.press 0-1 → 顶面凹陷深度+宽度摊开联动
 // 松手是否复原由调用页决定（件只按 opt.press 画）。返回 {w,h,tip:{x,y}}（tip=凹陷底中心）
@@ -1655,6 +1655,158 @@ PROPS.table_25d = function(ctx, x, y, opt){
   return {w: w + ox, h: th + oy, base: {x: x, y: y},
     top: {fl: FL, bl: BL, br: BR, fr: FR}, at: at, zones: zw,
     mounts: {center: at(0.5, 0.5)}};
+};
+
+/* ============================================================
+ * C7V4-R9「一张桌子」承载件 4 件（2026-11-12）：tray_25d / track_25d / door_frame_25d / pump_25d
+ * 全部走 P25/sh25/box25 单源 token；(x,y)=底面中心锚点；返回 {w,h,base,mounts}
+ * ============================================================ */
+
+// tray_25d: 器材托盘（2.5D 浅盘：外框盘壁+内底凹槽位 opt.slots 默认4）。(x,y)=盘底面中心锚点
+// opt.w 外宽默认240；返回 {w,h,base,top,mounts:{slots:[4]世界坐标,top}} slots=凹槽中心（R10 吸附用）
+PROPS.tray_25d = function(ctx, x, y, opt){
+  opt = opt || {};
+  const w = opt.w || 240, d = w * 0.44, h = w * 0.085;   // 浅盘：低壁
+  const n = opt.slots || 4;
+  const pal = {top: '#e9dfc6', front: '#d2c4a4', side: '#b6a684', line: '#8a7a5c'};
+  const g = box25(ctx, x, y, w, d, h, pal);
+  const ox = g.ox, oy = g.oy;
+  // 内底（顶面四角向中心缩盘壁厚 rt + 下沉内槽深 drop → 浅色底板平行四边形）
+  const rt = w * 0.035, drop = h * 0.55;
+  const T = g.top;
+  const cx0 = x + ox / 2, cy0 = T.fl.y - oy / 2;
+  function shr(p){ const vx = p.x - cx0, vy = p.y - cy0; const L = Math.hypot(vx, vy) || 1; return {x: p.x - vx / L * rt, y: p.y - vy / L * rt * 0.6 + drop}; }
+  const bfl = shr(T.fl), bbl = shr(T.bl), bbr = shr(T.br), bfr = shr(T.fr);
+  ctx.save();
+  ctx.fillStyle = '#ddceac'; ctx.strokeStyle = pal.line; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(bfl.x, bfl.y); ctx.lineTo(bbl.x, bbl.y); ctx.lineTo(bbr.x, bbr.y); ctx.lineTo(bfr.x, bfr.y);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // 凹槽位（内底均分 n 个：椭圆暗窝+下缘高光）
+  const slots = [];
+  const sr = (bfr.x - bfl.x) / n * 0.30, sry = sr * 0.5;
+  for (let i = 0; i < n; i++) {
+    const f = (i + 0.5) / n;
+    const pF = {x: bfl.x + (bfr.x - bfl.x) * f, y: bfl.y + (bfr.y - bfl.y) * f};
+    const pB = {x: bbl.x + (bbr.x - bbl.x) * f, y: bbl.y + (bbr.y - bbl.y) * f};
+    const p = {x: (pF.x + pB.x) / 2, y: (pF.y + pB.y) / 2};
+    slots.push(p);
+    ctx.fillStyle = 'rgba(122,102,66,0.30)';
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, sr, sry, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,250,235,0.5)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, sr, sry, 0, Math.PI * 0.15, Math.PI * 0.85); ctx.stroke();
+  }
+  // 盘壁内缘亮线（前沿内壁）
+  ctx.strokeStyle = 'rgba(255,250,235,0.45)'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(bfl.x + 2, bfl.y - 1); ctx.lineTo(bfr.x - 2, bfr.y - 1); ctx.stroke();
+  ctx.restore();
+  return {w: w + ox, h: h + oy, base: {x: x, y: y}, top: g.topC,
+    mounts: {slots: slots, top: g.topC}};
+};
+
+// track_25d: 光滑桌面轨道（2.5D 长条低矮导轨+两端挡块+顶面光滑亮带）。(x,y)=底面中心锚点
+// opt.w 总长默认360；返回 {w,h,base,mounts:{start,end,axis,len,top}} start/end=导轨顶面两端行车线点、axis=单位向量（水平向右）
+PROPS.track_25d = function(ctx, x, y, opt){
+  opt = opt || {};
+  const w = opt.w || 360, d = w * 0.13, h = opt.h || w * 0.05;
+  const g = box25(ctx, x, y, w, d, h, P25.metal);
+  const ox = g.ox, oy = g.oy;
+  const stopW = w * 0.045, stopH = h * 2.4;
+  // 两端挡块（小立柱，跳投影）
+  box25(ctx, x - w / 2 + stopW / 2, y - h + 1, stopW, d * 0.9, stopH, P25.wood, true);
+  box25(ctx, x + w / 2 - stopW / 2, y - h + 1, stopW, d * 0.9, stopH, P25.wood, true);
+  ctx.save();
+  // 顶面光滑亮带（沿行车方向两道高光=近似光滑语义）
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = Math.max(1.4, h * 0.10); ctx.lineCap = 'round';
+  const ty = y - h - oy * 0.5;
+  ctx.beginPath(); ctx.moveTo(x - w * 0.40 + ox * 0.5, ty); ctx.lineTo(x + w * 0.40 + ox * 0.5, ty); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.beginPath(); ctx.moveTo(x - w * 0.40 + ox * 0.5, ty - oy * 0.22); ctx.lineTo(x + w * 0.40 + ox * 0.5, ty - oy * 0.22); ctx.stroke();
+  // 前沿刻度短线（每 1/8 长一道，轨道标尺感）
+  ctx.strokeStyle = 'rgba(91,96,104,0.4)'; ctx.lineWidth = 1;
+  for (let i = 1; i < 8; i++) {
+    const tx = x - w / 2 + w * i / 8;
+    ctx.beginPath(); ctx.moveTo(tx, y - h + 2); ctx.lineTo(tx, y - h + h * 0.4); ctx.stroke();
+  }
+  ctx.restore();
+  const start = {x: x - w * 0.38 + ox * 0.5, y: ty}, end = {x: x + w * 0.38 + ox * 0.5, y: ty};
+  return {w: w + ox, h: h + stopH + oy, base: {x: x, y: y},
+    mounts: {start: start, end: end, axis: {x: 1, y: 0}, len: end.x - start.x, top: g.topC}};
+};
+
+// door_frame_25d: 门框（2.5D 墙体门口套框：浅墙背板+厚木套三件，与 door_25d 配套、门轴位在左）。(x,y)=框底面中心锚点
+// opt.w 外宽默认210、opt.h 外高默认250（比 door_25d 默认大一圈套住）；返回 {w,h,base,mounts:{hinge,pushPoints:[3],opening}}
+// hinge=左柱内缘半高（门轴位）、pushPoints=门口净宽 25%/55%/88% 三推点（与 door_25d 推点约定一致）、opening=门口净宽中点
+PROPS.door_frame_25d = function(ctx, x, y, opt){
+  opt = opt || {};
+  const w = opt.w || 210, h = opt.h || 250;
+  const jamb = Math.max(12, w * 0.085), jd = jamb * 0.9;
+  const l = x - w / 2, innerL = l + jamb, innerW = w - jamb * 2;
+  // 墙背板（门口内浅色墙面，2.5D 平行四边形微退后）
+  const ox = jd * P25.ax, oy = jd * P25.ay;
+  ctx.save();
+  ctx.fillStyle = '#efe6d2'; ctx.strokeStyle = '#b3a284'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(innerL, y); ctx.lineTo(innerL + ox, y - oy);
+  ctx.lineTo(innerL + ox, y - h + jamb - oy); ctx.lineTo(innerL, y - h + jamb);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // 门口内缘暗线（深度暗示）
+  ctx.strokeStyle = 'rgba(120,100,70,0.3)';
+  ctx.beginPath(); ctx.moveTo(innerL + ox * 0.5, y - oy * 0.5); ctx.lineTo(innerL + ox * 0.5, y - h + jamb - oy * 0.5); ctx.stroke();
+  ctx.restore();
+  // 套框三件（左柱=门轴侧、右柱、上槛；深木色比 door_25d 门框重一档）
+  const pal = {top: '#d3a86e', front: '#b5844e', side: '#93683a', line: '#6f4d29'};
+  box25(ctx, l + jamb / 2, y, jamb, jd, h, pal);
+  box25(ctx, l + w - jamb / 2, y, jamb, jd, h, pal);
+  box25(ctx, x, y - h + jamb / 2, w - jamb * 2, jd, jamb, pal);
+  const midY = y - (h - jamb) * 0.5;
+  const pts = [0.25, 0.55, 0.88].map(function(f){ return {x: innerL + innerW * f, y: midY}; });
+  return {w: w + ox, h: h + oy, base: {x: x, y: y},
+    mounts: {hinge: {x: innerL, y: midY}, pushPoints: pts, opening: {x: x + ox / 2, y: midY}}};
+};
+
+// pump_25d: 打气嘴（2.5D 小圆柱泵体+顶部软管接头+金属嘴尖）。(x,y)=底面中心锚点
+// opt.h 泵体高默认64；返回 {w,h,base,mounts:{nozzle,top}} nozzle=嘴尖（R10+ 接气球喷口）
+PROPS.pump_25d = function(ctx, x, y, opt){
+  opt = opt || {};
+  const H = opt.h || 64;
+  const rx = H * 0.24, ry = rx * 0.5, bh = H * 0.62;   // 圆柱泵体
+  const cb = y - ry;
+  sh25(ctx, x, y, rx * 2, ry * 1.4);
+  ctx.save();
+  // 泵体圆柱（塑料红，金属渐变画法同 weight_hook_25d）
+  const gm = ctx.createLinearGradient(x - rx, 0, x + rx, 0);
+  gm.addColorStop(0, '#c4604a'); gm.addColorStop(0.45, '#e88a70'); gm.addColorStop(1, '#b0503c');
+  ctx.fillStyle = gm; ctx.strokeStyle = '#8c3f30'; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(x - rx, y - bh); ctx.lineTo(x - rx, cb);
+  ctx.ellipse(x, cb, rx, ry, 0, Math.PI, 0, true);
+  ctx.lineTo(x + rx, y - bh);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // 顶面椭圆盖 + 泵杆短柄
+  ctx.fillStyle = '#ef9d86';
+  ctx.beginPath(); ctx.ellipse(x, y - bh, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#5b6068'; ctx.lineWidth = Math.max(2.4, H * 0.05); ctx.lineCap = 'round';
+  const rodT = y - bh - H * 0.24;
+  ctx.beginPath(); ctx.moveTo(x, y - bh); ctx.lineTo(x, rodT); ctx.stroke();
+  ctx.fillStyle = '#3f4650';
+  ctx.beginPath(); ctx.roundRect(x - rx * 0.42, rodT - H * 0.05, rx * 0.84, H * 0.06, 2); ctx.fill();
+  // 软管（泵体侧壁→右弯贝塞尔→金属嘴尖）
+  const hoseX0 = x + rx * 0.9, hoseY0 = y - bh * 0.75;
+  const nz = {x: x + rx + H * 0.34, y: y - bh * 0.30};
+  ctx.strokeStyle = '#4a4f57'; ctx.lineWidth = Math.max(2.6, H * 0.055);
+  ctx.beginPath(); ctx.moveTo(hoseX0, hoseY0);
+  ctx.bezierCurveTo(x + rx + H * 0.28, hoseY0 - H * 0.06, nz.x - H * 0.06, nz.y - H * 0.16, nz.x, nz.y);
+  ctx.stroke();
+  // 嘴尖（金属小锥+卡箍）
+  ctx.strokeStyle = '#c8ced5'; ctx.lineWidth = Math.max(2, H * 0.04);
+  ctx.beginPath(); ctx.moveTo(nz.x, nz.y); ctx.lineTo(nz.x + H * 0.10, nz.y + H * 0.03); ctx.stroke();
+  ctx.fillStyle = '#9aa1ab';
+  ctx.beginPath(); ctx.arc(nz.x, nz.y, Math.max(2, H * 0.03), 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  const nozzle = {x: nz.x + H * 0.10, y: nz.y + H * 0.03};
+  return {w: rx * 2 + H * 0.44, h: bh + H * 0.29 + ry, base: {x: x, y: y},
+    mounts: {nozzle: nozzle, top: {x: x, y: rodT - H * 0.05}}};
 };
 
 })(typeof window !== 'undefined' ? window : globalThis);
