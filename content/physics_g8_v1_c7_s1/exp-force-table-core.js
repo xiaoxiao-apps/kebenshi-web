@@ -16,7 +16,7 @@ var W=960,H=600,DPR=1,k=1;                  /* k=全局视觉倍率（随画布�
 var dirty=true, firstFrameDone=false, interactive=false;
 
 /* 稳定状态对象：guide 引擎轮询用（GUIDE_CFG.state，原地 mutate 勿重赋值）；mode='table' 单场景 */
-var STATE=window.C7_TABLE_STATE={mode:'table',v:'R10-drag',linked:false,lastPushPoint:null};
+var STATE=window.C7_TABLE_STATE={mode:'table',v:'R11-phys',linked:false,lastPushPoint:null,springF:0,bandF:0,clayDent:0,bottleSqueeze:0};
 
 /* ===== 五区常量表（设计书 §2.2，百分比制，以画布为 100%）===== */
 var ZONES={
@@ -46,6 +46,7 @@ function resize(){
   ctx.setTransform(DPR,0,0,DPR,0,0);
   k=Math.max(0.5,Math.min(W/1440,H/860));              /* 全局倍率：以 1440×860 设计基准等比 */
   layout();
+  physRecalcBasis();                                   /* R11：cmPx 变→形变像素量按新基准重算 */
   dirty=true;
 }
 /* ===== 布局表 L：每次 resize 全量按百分比重算（验收7：无残留）===== */
@@ -64,6 +65,7 @@ function layout(){
   L.balloonR=z5.h*0.26; L.pumpH=z5.h*0.34;
   L.meterH=Math.min(zt.y+zt.h*0.7-(0.795*H),H*0.17);  /* 测力计顶不高于画布 79.5%（Z2/Z5 之间空带内） */
   L.hookS=Math.max(0.6,z1.h/300);
+  PHYS.cmPx=H*0.0096;                                  /* §3.1 cmPx=H×0.0096（H=画布逻辑高，随 resize 重算） */
 }
 
 /* ===== 层1：舞台底色（暖白桌面+浅木纹+环境阴影，table_25d 等价绘制，百分比单源）===== */
@@ -187,15 +189,16 @@ function anchorAt(id){
 }
 function anchorAccepts(a,type){ return a.accepts.indexOf(type)>=0; }
 var DEBUG_ANCHORS=(function(){ try{ return new URLSearchParams(location.search).get('anchors')==='1'; }catch(e){ return false; } })();
+var DEBUG_PHYS=(function(){ try{ return new URLSearchParams(location.search).get('physics')==='1'; }catch(e){ return false; } })();
 
 /* ===== 物品注册表 ITEMS（§2.3 可拖清单；homePct=初始底面中心百分比位）=====
  * kind: item=可拖器材 / carrier=可拖且顶面可摞 / fixed=承载件不拖（门扇仅推点热区，见目标五）
  * 悬挂语义：anchor='top' 吸附时锚点对齐物品顶端挂环（弹簧/测力计），默认对齐底面中心（§4.1） */
 var ITEMS=[
   {id:'spring',      type:'spring',       prop:'spring_25d',      kind:'item',    homeAnchor:'A3', anchor:'top',
-   opt:function(it){ return it.anchorId==='A1'?{h:Math.max(20,anchorAt('A2').y-anchorAt('A1').y)}:{h:L.trayW*0.34}; }},
+   opt:function(it){ if(it.anchorId==='A1'&&it.ph){ return {h:Math.max(20,it.ph.L0px+it.ph.ext)}; } return it.anchorId==='A1'?{h:Math.max(20,anchorAt('A2').y-anchorAt('A1').y)}:{h:L.trayW*0.34}; }},
   {id:'rubber_band', type:'rubber_band',  prop:'rubber_band_25d', kind:'item',    homeAnchor:'A4', anchor:'top',
-   opt:function(it){ return it.anchorId==='A1'?{w:Math.max(16,(anchorAt('A2').y-anchorAt('A1').y)*0.30)}:{w:L.trayW*0.20}; }},
+   opt:function(it){ var w0=it.anchorId==='A1'?Math.max(16,(anchorAt('A2').y-anchorAt('A1').y)*0.30):L.trayW*0.20; if(it.anchorId==='A1'&&it.ph){ w0+= it.ph.ext*0.9; } return {w:w0}; }},
   {id:'clay',        type:'clay',         prop:'clay_25d',        kind:'item',    homeAnchor:'A5', opt:function(){ return {s:L.trayW*0.0024}; }},
   {id:'bottle_tube', type:'bottle_tube',  prop:'bottle_tube_25d', kind:'item',    homeAnchor:'A6', opt:function(){ return {w:L.trayW*0.15,h:L.trayW*0.40}; }},
   {id:'hook50',      type:'weight_hook',  prop:'weight_hook_25d', kind:'item',    homePct:{x:31.2,y:35.6}, stackable:true,
@@ -326,6 +329,8 @@ function drawItem(it){
   }else{
     drawItemRaw(it);
   }
+  if(it.type==='spring'&&it.ph&&it.ph.flashT0) drawSpringFlash(it,performance.now());   /* R11：超弹性限度红闪 */
+  if(it.type==='bottle_tube'&&it.ph) drawBottleLiquid(it);                              /* R11：细管液柱 h₀+dh */
 }
 /* drawItemRaw：真实绘制并回写几何（w/h/mounts 实测），绘制位=base（悬挂/竖挂姿态由 setItemPos+opt 已算好） */
 var trayGeo=null,doorGeo=null,b1Geo=null,b2Geo=null;
@@ -339,6 +344,13 @@ function drawItemRaw(it){
     if(!it.x||it.homeT2){ it.x=dx=trk.mounts.start.x+trk.mounts.len*(it.homeT!=null?it.homeT:0.32); it.homeT2=false; }   /* 初始/复位帧落位 t=0.32（§2.3） */
   }
   if(it.prop==='weight_hook_25d'){ g=drawScaledRet(PROPS[it.prop],dx,dy,(it.id==='hook100'?L.hookS*1.15:L.hookS),opt); }
+  else if(it.type==='clay'&&it.ph&&it.ph.dent>0){             /* R11 §3.4 塑性凹陷：体积守恒竖squash+侧向鼓出 */
+    var dFrac=Math.min(PHYS.clay.dentCap,it.ph.dentCm/3);      /* 凹陷/原高3cm，上限60% */
+    var sy=1-dFrac, sx=1/Math.sqrt(sy);                        /* sx²·sy≈1 体积守恒 */
+    ctx.save(); ctx.translate(dx,dy); ctx.scale(sx,sy); ctx.translate(-dx,-dy);
+    g=PROPS[it.prop](ctx,dx,dy,opt);
+    ctx.restore();
+  }
   else { g=PROPS[it.prop](ctx,dx,dy,opt); }
   it.dx=dx; it.dy=dy;
   if(g){
@@ -478,6 +490,235 @@ function stepTweens(now){
   for(i=tweens.length-1;i>=0;i--){ if(tweens[i].done) tweens.splice(i,1); }
 }
 
+/* ============================================================
+ * R11 铁架台区四件形变器材物理（设计书 §3.1-§3.5）
+ * 只动 spring/rubber_band/clay/bottle_tube；小车/木块/门/滑板/气球属 R12-R13，测力计读数属 R14，本单不碰
+ * ============================================================ */
+var PHYS={
+  g:9.8,                    /* §3.1 重力加速度 m/s² */
+  dt:1/60,                  /* §3.1 步长 s（与 rAF 同步） */
+  eps:0.3,                  /* §3.1 稳定阈值 px/帧（|v|<ε 视为停稳） */
+  cmPx:1,                   /* §3.1 =H×0.0096，layout() 内赋值 */
+  spring:{k:100,F_yield:4.5,zeta:0.20,wn:12,L0cm:8,resRatio:0.30},      /* §3.2：k=100N/m(80~120中)、ζ=0.20(0.15~0.25中)、ωₙ=12(8~15中)、F_yield=4.5N、residual=超限30% */
+  band:{k1:30,k2:15,zeta:0.40,wn:8,L0cm:6,unload:0.7,permPull:0.005,permCap:0.03}, /* §3.3：加载F=k₁ΔL+k₂ΔL²、卸载×0.7迟滞、ζ=0.40(0.35~0.5中)、残余≤3%L₀(单次~0.5%) */
+  clay:{coef:0.04,pressK:1000,dentCap:0.60,rebound:0},                  /* §3.4：d=coef·√F(cm/√N)、回弹率0、上限60%原高 */
+  bottle:{h0cm:5,kSqueeze:2.5,zeta:0.30,wn:10,areaRatio:40}             /* §3.5：h₀=5cm、k_squeeze=2.5cm/单位、ζ=0.30(0.25~0.4中)、截面积比≈40(放大量语义) */
+};
+/* 形变件 ph 动态量：ext=超自然长伸长px / v=px/s / residual=永久形变px / oscillating=解析衰减中 / asleep=静止零开销
+ * clay: dent=凹陷px(持久) pressDepth=按压位移px；bottle: dh=液柱偏移px(+=升) squeeze=捏强度 */
+function physInit(it){
+  if(it.type==='spring'||it.type==='rubber_band'){
+    var cfg=it.type==='spring'?PHYS.spring:PHYS.band;
+    it.ph={L0cm:cfg.L0cm,L0px:cfg.L0cm*PHYS.cmPx,ext:0,v:0,residual:0,permanent:0,
+           oscillating:false,t0:0,A0:0,asleep:true,F:0,maxExt:0,flashed:false,flashT0:0,loading:true};
+  }else if(it.type==='clay'){
+    it.ph={dent:0,dentCm:0,pressDepth:0,F:0,asleep:true};
+  }else if(it.type==='bottle_tube'){
+    it.ph={h0px:PHYS.bottle.h0cm*PHYS.cmPx,dh:0,v:0,squeeze:0,oscillating:false,t0:0,A0:0,asleep:true};
+  }
+}
+(function(){ for(var i=0;i<ITEMS.length;i++){ var t=ITEMS[i].type;
+  if(t==='spring'||t==='rubber_band'||t==='clay'||t==='bottle_tube') physInit(ITEMS[i]); } })();
+/* resize：cmPx 变→按新基准重算像素量，不残留旧像素值（验收·目标六） */
+function physRecalcBasis(){
+  for(var i=0;i<ITEMS.length;i++){ var it=ITEMS[i],ph=it.ph; if(!ph) continue;
+    if(it.type==='spring'||it.type==='rubber_band'){
+      ph.L0px=ph.L0cm*PHYS.cmPx;                             /* 自然长按新 cmPx 重算 */
+      ph.ext=ph.residual; ph.oscillating=false; ph.asleep=true; ph.v=0;   /* 振荡/拉伸中断，回落平衡位（残留旧像素清零） */
+    }else if(it.type==='bottle_tube'){ ph.h0px=PHYS.bottle.h0cm*PHYS.cmPx; ph.dh=0; ph.oscillating=false; ph.asleep=true; }
+    else if(it.type==='clay'){ ph.dent=ph.dentCm*PHYS.cmPx; }  /* 凹陷持久，按新 cmPx 重算像素 */
+  }
+}
+/* 解析欠阻尼：x(τ)=A0·e^(-ζωₙτ)·cos(ωₙ√(1-ζ²)·τ)（§3.2 落码，验收3 grep 证明） */
+function physOsc(A0,zeta,wn,tau){
+  var wd=wn*Math.sqrt(1-zeta*zeta);                         /* 阻尼固有频率 ωₙ√(1-ζ²) */
+  return A0*Math.exp(-zeta*wn*tau)*Math.cos(wd*tau);        /* e^(-ζωₙt)·cos(ωₙ√(1-ζ²)t) */
+}
+/* physicsStep：只对四件激活自由度积分，asleep 件零开销（目标一） */
+function physicsStep(now){
+  var i,active=false;
+  for(i=0;i<ITEMS.length;i++){
+    var it=ITEMS[i],ph=it.ph; if(!ph) continue;
+    if(it.type==='spring'||it.type==='rubber_band'){
+      if(ph.oscillating){
+        var cfg=it.type==='spring'?PHYS.spring:PHYS.band;
+        var tau=(now-ph.t0)/1000;
+        var x=physOsc(ph.A0,cfg.zeta,cfg.wn,tau);           /* 弹性回缩位移（相对平衡=自然长+residual） */
+        var xPrev=ph.ext-ph.residual;
+        ph.v=(x-xPrev)/PHYS.dt;                             /* px/s 近似（帧间差分） */
+        ph.ext=ph.residual+x;
+        if(it.type==='rubber_band') physBandForce(it,ph.v>0);   /* 迟滞=橡胶内耗 §3.3：伸=加载/缩=卸载×0.7 */
+        else physSpringForce(it);                              /* 弹簧回弹力 F=k·ΔL 写入 STATE（供 R14 测力计） */
+        if(Math.abs(ph.v*PHYS.dt)<PHYS.eps&&Math.abs(x)<0.5){ ph.ext=ph.residual; ph.v=0; ph.oscillating=false; ph.asleep=true; } /* |v|<0.3px/帧 且 |x-x_eq|<0.5px→asleep */
+        active=true;
+      }
+      if(ph.flashT0&&now-ph.flashT0>300) ph.flashT0=0;      /* 红闪 0.3s */
+    }else if(it.type==='bottle_tube'){
+      if(ph.oscillating){
+        var tau2=(now-ph.t0)/1000;
+        var dh=physOsc(ph.A0,PHYS.bottle.zeta,PHYS.bottle.wn,tau2);
+        var dhPrev=ph.dh; ph.v=(dh-dhPrev)/PHYS.dt; ph.dh=dh;
+        if(Math.abs(ph.v*PHYS.dt)<PHYS.eps&&Math.abs(dh)<0.5){ ph.dh=0; ph.v=0; ph.oscillating=false; ph.asleep=true; } /* 回 h₀ 无余差 */
+        active=true;
+      }
+    }
+    /* clay 塑性：无振荡，dent 持久，仅按压中更新（见 pointermove） */
+  }
+  if(active) dirty=true;
+  if(DEBUG_PHYS) dirty=true;
+}
+/* 弹簧拉力 F=k·ΔL（§3.2，k=100N/m，ΔL=弹性段米数）；写入 STATE 供字幕/测力计单用 */
+function physSpringForce(it){
+  var ph=it.ph, xElastic=(ph.ext-ph.residual);                 /* 弹性可恢复段（残余生已扣除） */
+  var dL_m=xElastic/(PHYS.cmPx*100);                           /* px→cm→m */
+  ph.F=PHYS.spring.k*dL_m;
+  STATE.springF=ph.F;
+  return ph.F;
+}
+/* 橡皮筋非线性力 F=k₁ΔL+k₂ΔL²（ΔL单位cm）；卸载×0.7=迟滞（橡胶内耗 §3.3） */
+function physBandForce(it,loading){
+  var ph=it.ph, dL=(ph.ext-ph.residual)/PHYS.cmPx;             /* 弹性段 cm */
+  if(dL<0) dL=0;
+  var F=PHYS.band.k1*dL+PHYS.band.k2*dL*dL;                    /* 加载曲线 */
+  if(!loading) F*=PHYS.band.unload;                            /* 迟滞=橡胶内耗 §3.3：卸载劲度 0.7·加载 */
+  ph.F=F; STATE.bandF=F;
+  return F;
+}
+/* 拉伸模式跟手：设置总伸长 ext，算力，弹簧超限判定红闪+永久形变 residual（§3.2） */
+function physStretchMove(it,ext){
+  var ph=it.ph;
+  ph.ext=ext; ph.asleep=false; ph.oscillating=false;
+  if(ext>ph.maxExt) ph.maxExt=ext;
+  if(it.type==='spring'){
+    var F=physSpringForce(it);
+    var xElastic=ext-ph.residual, xYield=PHYS.spring.F_yield/(PHYS.spring.k)*(PHYS.cmPx*100); /* F_yield→弹性段px=4.5cm·cmPx */
+    if(F>=PHYS.spring.F_yield){                                 /* 超弹性限度：tint 红闪0.3s + residual=超限部分30% */
+      if(!ph.flashed){ ph.flashed=true; ph.flashT0=performance.now(); }
+      var over=xElastic-xYield; if(over>0) ph.residual=over*PHYS.spring.resRatio;
+    }
+  }else{
+    physBandForce(it,true);                                    /* 拉伸=加载 */
+  }
+}
+/* 松手：欠阻尼振荡回稳；橡皮筋累计残余伸长≤3%（单次~0.5%）（§3.3） */
+function physStretchRelease(it,now){
+  var ph=it.ph, cfg=it.type==='spring'?PHYS.spring:PHYS.band;
+  if(it.type==='rubber_band'){
+    if(ph.maxExt-ph.residual>1){                                /* 本次确有拉伸才累计 */
+      ph.permanent=Math.min(ph.L0px*PHYS.band.permCap, ph.permanent+ph.L0px*PHYS.band.permPull);
+    }
+    ph.residual=ph.permanent;                                  /* 残余=平衡位偏移 */
+  }
+  ph.A0=ph.ext-ph.residual;                                    /* 相对平衡的初始振幅 */
+  if(Math.abs(ph.A0)<0.5){ ph.ext=ph.residual; ph.asleep=true; ph.oscillating=false; }
+  else { ph.t0=now; ph.oscillating=true; ph.asleep=false; ph.loading=false; }
+  ph.maxExt=0; ph.flashed=false;
+  STATE.springF=0; STATE.bandF=0;
+}
+/* 弹簧红闪 overlay（tint 红 0.3s）：core 内叠绘红辉光窄列，不改 props-mech.js */
+function drawSpringFlash(it,now){
+  var ph=it.ph; if(!ph||!ph.flashT0) return;
+  var t=(now-ph.flashT0)/300; if(t>=1){ return; }
+  var pulse=Math.sin(t*Math.PI);                               /* 0→1→0 脉冲 */
+  ctx.save();
+  ctx.shadowColor='rgba(255,30,20,'+(0.9*pulse).toFixed(3)+')';
+  ctx.shadowBlur=18*k;
+  ctx.fillStyle='rgba(255,45,30,'+(0.32*pulse).toFixed(3)+')';
+  var wcol=Math.max(8,(it.w||12)*0.62);
+  ctx.fillRect(it.x-wcol/2,it.y-(it.h||0),wcol,it.h||0);
+  ctx.restore();
+}
+/* 玻璃瓶细管液柱 overlay（§3.5）：默认液面在 h₀=5cm（props 内固定），core 叠绘当前 h₀+dh
+ * dh>0=液柱升(捏)画红柱补高；dh<0=微振荡下探用玻璃色盖掉默认柱上部。tube 几何按 bottle_tube_25d 公式复算 */
+function drawBottleLiquid(it){
+  var ph=it.ph; if(!ph) return;
+  var bopt=it.opt(it), w=bopt.w, h=bopt.h, x=it.x, y=it.y;
+  var waterTopY=y-h*0.55;                                      /* h₀ 液面顶（与 props 一致） */
+  var tw=Math.max(2.5,w*0.04), cw=Math.max(1.6,tw*0.6);
+  var dh=ph.dh, curTop=waterTopY-dh;                           /* dh+=升 → curTop 更小(更高) */
+  ctx.save();
+  if(dh>=0.3){
+    ctx.fillStyle='#d8483c';
+    ctx.beginPath();
+    ctx.moveTo(x-cw,curTop);
+    ctx.quadraticCurveTo(x,curTop+cw*0.9,x+cw,curTop);         /* 凹弯月顶 */
+    ctx.lineTo(x+cw,waterTopY+cw*0.6); ctx.lineTo(x-cw,waterTopY+cw*0.6);
+    ctx.closePath(); ctx.fill();
+  }else if(dh<-0.3){
+    ctx.fillStyle='rgba(226,241,251,0.85)';                    /* 液面低于 h₀：盖掉默认柱上部（空管玻璃色） */
+    ctx.fillRect(x-cw,waterTopY-cw*0.3,cw*2,(waterTopY-curTop)+cw*0.3);
+  }
+  ctx.restore();
+}
+
+/* ===== R11 形变交互层：底钩拉伸(弹簧/橡皮筋) + 按压(橡皮泥) + 捏(玻璃瓶) =====
+ * 与 R10 drag 并存：拉伸=命中底钩区(±12px)直接进；按压/捏=pointerdown 后位移<6px 且按住>150ms 才进，否则走 R10 整件拖拽 */
+var phys={mode:null,item:null,startPointerX:0,startPointerY:0,lastX:0,lastY:0,startExt:0,downT:0,movedPx:0,pressCand:false};
+function isDeforming(it){ return phys.item===it&&phys.mode!=null; }   /* 形变进行中（拉伸/按压/捏）；振荡衰减中 mode=null→可被热替换 */
+function nearBottomHook(it,p){
+  var by=(it.dy!=null?it.dy:it.y), hw=Math.max(14,(it.w||20)/2+8);
+  return Math.abs(p.y-by)<=12&&Math.abs(p.x-it.x)<=hw;              /* 底钩/环底 ±12px（用实际绘制基线 dy） */
+}
+function startStretch(it,p){
+  phys.mode='stretch'; phys.item=it; phys.pressCand=false;
+  phys.startPointerX=p.x; phys.startPointerY=p.y; phys.lastX=p.x; phys.lastY=p.y;
+  var ph=it.ph; ph.oscillating=false; ph.asleep=false; ph.loading=true;
+  phys.startExt=ph.ext;
+  killTweensOf(it); setState(it,'grabbing'); setCursor('grabbing');
+  dirty=true;
+}
+function stretchMove(p){
+  var it=phys.item,ph=it.ph;
+  phys.lastX=p.x; phys.lastY=p.y;
+  var ext=phys.startExt+(p.y-phys.startPointerY);                     /* 下拉→伸长；跟手 */
+  if(ext<0) ext=0;
+  ext=Math.min(ext,ph.L0px*1.6);                                      /* 防 runaway */
+  physStretchMove(it,ext);
+}
+function promotePress(it){
+  phys.pressCand=false; drag.item=null; killTweensOf(it); setState(it,'idle');
+  phys.mode=(it.type==='clay')?'press':'squeeze'; phys.item=it;
+  phys.lastX=phys.startPointerX; phys.lastY=phys.startPointerY;
+  setCursor('grabbing'); dirty=true;
+}
+function pressMove(p){ phys.lastX=p.x; phys.lastY=p.y; }              /* 橡皮泥/玻璃瓶：时间基增长在 physInputTick 里算 */
+function releasePress(it){ it.ph.F=0; setState(it,'idle'); toIdle(it); }   /* 橡皮泥：凹陷完全保留(回弹率0 §3.4)，state 回 idle，dent 持久 */
+function releaseSqueeze(it,now){
+  var ph=it.ph; ph.A0=ph.dh; ph.t0=now; ph.squeeze=0;
+  if(Math.abs(ph.A0)<0.5){ ph.dh=0; ph.asleep=true; ph.oscillating=false; }
+  else { ph.oscillating=true; ph.asleep=false; }                      /* 松手液柱回落+微振荡，最终回 h₀ 无余差 */
+  setState(it,'idle'); toIdle(it);
+}
+function physUpdateSqueeze(it,now){
+  var ph=it.ph,bopt=it.opt(it),w=bopt.w,h=bopt.h;
+  var s=Math.abs(phys.lastX-phys.startPointerX)/w+0.0012*(now-phys.downT);   /* squeeze 随按住时长/横向拖入增长 */
+  if(s>1.5) s=1.5;
+  var dhPx=PHYS.bottle.kSqueeze*s*PHYS.cmPx;                          /* Δh=k_squeeze·squeeze（截面积比≈40 放大量语义 §3.5） */
+  var maxPx=h*0.38; if(dhPx>maxPx) dhPx=maxPx;                        /* 防溢出管顶 */
+  ph.dh=dhPx; ph.squeeze=s; ph.asleep=false; ph.oscillating=false;
+  STATE.bottleSqueeze=s;
+}
+/* 每帧：按压候选升格(150ms) + press/squeeze 时间基增长 */
+function physInputTick(now){
+  if(phys.pressCand&&drag.item){
+    if(phys.movedPx>6) phys.pressCand=false;                          /* 位移>6px→放弃形变，走 R10 拖拽 */
+    else if(now-phys.downT>=150) promotePress(drag.item);             /* 按住>150ms 且<6px→进形变模式 */
+  }
+  if(phys.mode==='press'&&phys.item){
+    var pressCm=Math.max(0,phys.lastY-phys.startPointerY)/PHYS.cmPx+0.0008*(now-phys.downT);
+    physSetClayDent(phys.item,pressCm);
+  }
+  if(phys.mode==='squeeze'&&phys.item) physUpdateSqueeze(phys.item,now);
+}
+function physSetClayDent(it,pressCm){
+  var ph=it.ph;
+  var F=PHYS.clay.pressK*pressCm;                                     /* 按压位移→力(N) */
+  var dCm=PHYS.clay.coef*Math.sqrt(F);                                /* d ∝ F^0.5，系数0.04 cm/√N（§3.4） */
+  dCm=Math.min(dCm,PHYS.clay.dentCap*3);                              /* 上限60%原高(3cm)=1.8cm */
+  if(dCm>ph.dentCm){ ph.dentCm=dCm; ph.dent=dCm*PHYS.cmPx; }          /* 塑性单调：只加深不回弹 */
+  ph.F=F; ph.pressDepth=pressCm*PHYS.cmPx; STATE.clayDent=ph.dentCm;
+}
+
 /* ===== 指针事件（pointerdown/move/up，含 touch）===== */
 function evPt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
 cv.addEventListener('pointerdown',function(e){
@@ -490,17 +731,37 @@ cv.addEventListener('pointerdown',function(e){
   }
   it=hitTest(p.x,p.y);
   if(!it) return;
+  /* R11：弹簧/橡皮筋悬挂 A1 时命中底钩区(±12px)→底钩拉伸模式，跳过整件拖拽（目标二/三） */
+  if((it.type==='spring'||it.type==='rubber_band')&&it.anchorId==='A1'&&it.ph&&nearBottomHook(it,p)){
+    try{ cv.setPointerCapture(e.pointerId); }catch(err){}
+    startStretch(it,p); e.preventDefault(); return;
+  }
   try{ cv.setPointerCapture(e.pointerId); }catch(err){}
   killTweensOf(it);
   drag.item=it; drag.moved=false; drag.downT=performance.now();
   drag.ox=p.x-it.x; drag.oy=p.y-it.y;
   setHover(null);
   setState(it,'grabbing'); setCursor('grabbing');             /* idle/hover → grabbing（§4.3） */
+  /* R11：橡皮泥/玻璃瓶按压候选——位移<6px 且按住>150ms 才进形变模式，否则走 R10 整件拖拽（目标六） */
+  if((it.type==='clay'||it.type==='bottle_tube')&&it.ph){
+    phys.pressCand=true; phys.item=it; phys.mode=null; phys.downT=performance.now();
+    phys.startPointerX=p.x; phys.startPointerY=p.y; phys.lastX=p.x; phys.lastY=p.y; phys.movedPx=0;
+  }
   e.preventDefault();
 });
 cv.addEventListener('pointermove',function(e){
   if(!canInteract()) return;
   var p=evPt(e);
+  /* R11 形变模式优先于 R10 拖拽 */
+  if(phys.mode==='stretch'){ stretchMove(p); dirty=true; return; }
+  if(phys.mode==='press'||phys.mode==='squeeze'){ pressMove(p); dirty=true; return; }
+  /* R11 按压候选：位移≤6px 按住不动（不移动整件，等 150ms 升格）；>6px 落回 R10 拖拽 */
+  if(phys.pressCand&&drag.item){
+    phys.movedPx=Math.hypot(p.x-phys.startPointerX,p.y-phys.startPointerY);
+    phys.lastX=p.x; phys.lastY=p.y;
+    if(phys.movedPx<=6){ dirty=true; return; }
+    phys.pressCand=false;
+  }
   if(drag.item){
     var it=drag.item,nx=p.x-drag.ox,ny=p.y-drag.oy;
     if(!drag.moved&&(Math.abs(nx-it.x)>2||Math.abs(ny-it.y)>2)){ drag.moved=true; setState(it,'dragging'); }
@@ -524,10 +785,15 @@ cv.addEventListener('pointermove',function(e){
   setHover(hitTest(p.x,p.y));
 });
 function endDrag(e){
+  try{ cv.releasePointerCapture(e.pointerId); }catch(err){}
+  /* R11 形变模式松手：弹簧/橡皮筋→欠阻尼回稳；橡皮泥→凹陷冻结；玻璃瓶→液柱回落微振荡 */
+  if(phys.mode==='stretch'){ var si=phys.item; physStretchRelease(si,performance.now()); toIdle(si); phys.mode=null; phys.item=null; return; }
+  if(phys.mode==='press'){ var ci=phys.item; releasePress(ci); phys.mode=null; phys.item=null; return; }
+  if(phys.mode==='squeeze'){ var bi=phys.item; releaseSqueeze(bi,performance.now()); phys.mode=null; phys.item=null; return; }
+  if(phys.pressCand){ phys.pressCand=false; phys.item=null; }   /* 未升格候选：落回 R10 轻点释放 */
   var it=drag.item;
   if(!it) return;
   drag.item=null;
-  try{ cv.releasePointerCapture(e.pointerId); }catch(err){}
   setState(it,'release');                                     /* dragging → release（§4.3） */
   resolveRelease(it);
 }
@@ -548,7 +814,7 @@ function resolveRelease(it){
     var a=ANCHORS[i];
     if(!anchorAccepts(a,it.type)) continue;
     var occ=occupiedBy(a.id,it);
-    if(occ&&!(a.id==='A1'||a.id==='A2')) continue;             /* §4.4：仅铁架台悬挂位 A1/A2 允许热替换抢占；托盘槽等单 occupancy 直接跳过 */
+    if(occ&&(!(a.id==='A1'||a.id==='A2')||isDeforming(occ))) continue;   /* §4.4 仅 A1/A2 允许热替换抢占；R11 目标六：占位件形变进行中不抢占，振荡衰减中允许 */
     var ax=anchorAt(a.id);
     for(j=0;j<cands.length;j++){
       var d=Math.hypot(ax.x-cands[j].x,ax.y-cands[j].y);
@@ -680,6 +946,24 @@ function drawAnchorDebug(){
   ctx.restore();
 }
 
+/* ===== ?physics=1 调试层：四形变件当前 x/v/d/h 数值（蔡总复验用，默认关）===== */
+function drawPhysicsDebug(){
+  var sp=ITEM_BY_ID.spring,bd=ITEM_BY_ID.rubber_band,cl=ITEM_BY_ID.clay,bt=ITEM_BY_ID.bottle_tube;
+  function f(n,d){ return (n||0).toFixed(d); }
+  var lines=[
+    'spring  ext='+f(sp.ph.ext,1)+'px v='+f(sp.ph.v,1)+' res='+f(sp.ph.residual,1)+' F='+f(sp.ph.F,2)+'N'+(sp.ph.oscillating?' osc':'')+(sp.ph.asleep?' Z':''),
+    'band    ext='+f(bd.ph.ext,1)+'px v='+f(bd.ph.v,1)+' perm='+f(bd.ph.permanent,1)+' F='+f(bd.ph.F,2)+'N'+(bd.ph.oscillating?' osc':'')+(bd.ph.asleep?' Z':''),
+    'clay    dent='+f(cl.ph.dentCm,2)+'cm('+f(cl.ph.dent,1)+'px) F='+f(cl.ph.F,0)+'N',
+    'bottle  dh='+f(bt.ph.dh,1)+'px v='+f(bt.ph.v,1)+' sqz='+f(bt.ph.squeeze,2)+(bt.ph.oscillating?' osc':'')+(bt.ph.asleep?' Z':'')
+  ];
+  ctx.save();
+  ctx.font='600 '+Math.max(10,12*k)+'px monospace'; ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillStyle='rgba(20,20,20,0.55)'; ctx.fillRect(6,6,320,lines.length*15+10);
+  ctx.fillStyle='#8CFF5A';
+  for(var i=0;i<lines.length;i++) ctx.fillText(lines[i],12,11+i*15);
+  ctx.restore();
+}
+
 /* ===== 层5-9 空壳（§2.5 z 顺序预留，R10+ 实装；勿在实装前塞内容）===== */
 function drawPeopleLayer(){ /* 层5 人物/动态层：小人动作、气球飞行轨迹虚线（R12+） */ }
 function drawForceLayer(){ /* 层6 力矢/箭头层：推力/速度/喷气箭头（R11+） */ }
@@ -699,6 +983,7 @@ function draw(){
   drawCanvasUILayer();  /* 7 */
   drawSubtitleLayer();  /* 8 */
   drawWorkbookLayer();  /* 9 */
+  if(DEBUG_PHYS) drawPhysicsDebug();   /* R11 ?physics=1：四件 x/v/d/h 调试层（最上） */
   if(!firstFrameDone){ firstFrameDone=true; hideMask(); }
 }
 
@@ -716,7 +1001,7 @@ function hideMask(){
 function canInteract(){ return interactive; }
 
 /* ===== rAF 主循环（dirty 驱动重绘；补间进行中 stepTweens 置 dirty 续帧）===== */
-function tick(){ stepTweens(performance.now()); if(dirty){ dirty=false; draw(); } requestAnimationFrame(tick); }
+function tick(){ var now=performance.now(); physInputTick(now); physicsStep(now); stepTweens(now); if(dirty){ dirty=false; draw(); } requestAnimationFrame(tick); }
 
 /* ===== UI：重置 / 全屏（🔊 由 sfx.js 统一绑定 id=btn-mute；无场景切换按钮=蔡总明令）===== */
 function on(id,ev,fn){ var el=document.getElementById(id); if(el) el.addEventListener(ev,fn); }
@@ -724,10 +1009,12 @@ function on(id,ev,fn){ var el=document.getElementById(id); if(el) el.addEventLis
 function resetItems(){
   tweens.length=0;
   drag.item=null; hoverItem=null; pushHover=null;
+  phys.mode=null; phys.item=null; phys.pressCand=false;      /* R11：清形变交互 */
   for(var i=0;i<ITEMS.length;i++){
     var it=ITEMS[i];
     it.parent=null; it.flying=false; it.linked=false; it.anchorId2=null; it.state='idle';
     killTweensOf(it);
+    if(it.ph) physInit(it);                                  /* R11：四形变件动态量归零（ext/residual/dent/dh…） */
     it.anchorId=it.homeAnchor||null;
     if(it.id==='cart'){ it.x=0; it.y=0; it.homeT2=true; }      /* 复位帧由 drawItemRaw 按 homeT=0.32 重新落线 */
     else if(it.homeAnchor){ var p=anchorAt(it.homeAnchor); setItemPos(it,p.x,p.y); }
@@ -768,6 +1055,9 @@ requestAnimationFrame(tick);
 /* 复验/调试出口（主会话 browser 用，勿删） */
 window.C7_TABLE_DEBUG={ZONES:ZONES,zoneRect:zoneRect,zoneCenter:zoneCenter,zonePt:zonePt,get L(){return L;},get WH(){return{W:W,H:H,k:k};},canInteract:canInteract,
   ANCHORS:ANCHORS,anchorAt:anchorAt,ITEMS:ITEMS,ITEM_BY_ID:ITEM_BY_ID,
+  PHYS:PHYS,phys:phys,isDeforming:isDeforming,
+  getPhys:function(){ function r(id){ var p=ITEM_BY_ID[id].ph; return p?{ext:+(p.ext||0).toFixed(2),v:+(p.v||0).toFixed(2),residual:+(p.residual||0).toFixed(2),permanent:+(p.permanent||0).toFixed(2),F:+(p.F||0).toFixed(3),dentCm:+(p.dentCm||0).toFixed(3),dh:+(p.dh||0).toFixed(2),squeeze:+(p.squeeze||0).toFixed(3),oscillating:!!p.oscillating,asleep:!!p.asleep}:null; }
+    return {spring:r('spring'),rubber_band:r('rubber_band'),clay:r('clay'),bottle_tube:r('bottle_tube'),cmPx:+PHYS.cmPx.toFixed(3)}; },
   getState:function(){ var o={},i; for(i=0;i<ITEMS.length;i++){ o[ITEMS[i].id]={state:ITEMS[i].state,anchorId:ITEMS[i].anchorId,parent:ITEMS[i].parent?ITEMS[i].parent.id:null,linked:ITEMS[i].linked,x:Math.round(ITEMS[i].x),y:Math.round(ITEMS[i].y)}; } return o; },
   get linked(){ return !!STATE.linked; }, get lastPushPoint(){ return STATE.lastPushPoint; }};
 })();
