@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 224">
+  <rect width="400" height="224" fill="#eef2f6"/>
+  <!-- 实验台 -->
+  <rect x="20" y="176" width="360" height="14" rx="3" fill="#b98a5a"/>
+  <rect x="44" y="190" width="14" height="34" fill="#8a6d4a"/>
+  <rect x="342" y="190" width="14" height="34" fill="#8a6d4a"/>
+  <!-- 铁架台 -->
+  <rect x="60" y="166" width="86" height="10" rx="3" fill="#475569"/>
+  <rect x="98" y="34" width="10" height="136" fill="#6b7885"/>
+  <rect x="98" y="38" width="94" height="8" fill="#6b7885"/>
+  <!-- 弹簧（挂横杆） -->
+  <path d="M140 46 l10 6 l-20 8 l20 8 l-20 8 l20 8 l-20 8 l20 8 l-10 6"
+        stroke="#2563eb" stroke-width="3.5" fill="none" stroke-linejoin="round"/>
+  <!-- 钩码 -->
+  <line x1="140" y1="106" x2="140" y2="114" stroke="#475569" stroke-width="2"/>
+  <rect x="128" y="114" width="24" height="12" rx="2" fill="#94a3b8"/>
+  <rect x="128" y="127" width="24" height="12" rx="2" fill="#94a3b8"/>
+  <!-- 双基准线 -->
+  <line x1="176" y1="100" x2="220" y2="100" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4"/>
+  <line x1="176" y1="122" x2="220" y2="122" stroke="#dc2626" stroke-width="2" stroke-dasharray="5 4"/>
+  <!-- 测力计 -->
+  <rect x="262" y="46" width="34" height="86" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <circle cx="279" cy="42" r="6" fill="none" stroke="#6b7885" stroke-width="2.5"/>
+  <line x1="270" y1="62" x2="276" y2="62" stroke="#6b7885" stroke-width="1.5"/>
+  <line x1="270" y1="78" x2="276" y2="78" stroke="#6b7885" stroke-width="1.5"/>
+  <line x1="270" y1="94" x2="276" y2="94" stroke="#6b7885" stroke-width="1.5"/>
+  <line x1="270" y1="110" x2="276" y2="110" stroke="#6b7885" stroke-width="1.5"/>
+  <line x1="264" y1="84" x2="294" y2="84" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="304" y="88" font-size="12" font-weight="700" fill="#dc2626" font-family="sans-serif">1.4N</text>
+  <line x1="279" y1="132" x2="279" y2="142" stroke="#475569" stroke-width="2"/>
+  <rect x="267" y="142" width="24" height="12" rx="2" fill="#94a3b8"/>
+  <!-- 重力箭头（竖直向下） -->
+  <line x1="348" y1="70" x2="348" y2="120" stroke="#16a34a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M340 118 L348 134 L356 118 Z" fill="#16a34a"/>
+  <text x="356" y="106" font-size="13" font-weight="700" fill="#16a34a" font-family="sans-serif">G</text>
+</svg>
