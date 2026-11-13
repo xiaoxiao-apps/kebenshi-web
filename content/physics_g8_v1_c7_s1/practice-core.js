@@ -103,7 +103,9 @@
   /* ---- Q4 斜面重力作图（点箭头判分） ---- */
   function renderIncline(card, qi) {
     var C = mkCanvas(card, 380, 240), ctx = C.ctx;
-    var TH = Math.PI / 6, cx = 170, cy = 128, L = 64; // 重心 + 箭头长
+    var TH = Math.PI / 6, L = 64; // 重心 + 箭头长
+    var bx = 170, by = 210 - (bx - 50) * Math.tan(TH);       // 木块底心贴在斜面斜边上
+    var cx = bx - 7.5, cy = by - 13;                          // 木块重心（旋转后局部(0,-15)）
     var dirs = [ { d: [0, 1], lab: 'A' },                       // 竖直向下（对）
                  { d: [Math.sin(TH), Math.cos(TH)], lab: 'B' }, // 垂直斜面向下（错）
                  { d: [-Math.cos(TH), Math.sin(TH)], lab: 'C' },// 沿斜面向下（错）
@@ -115,7 +117,6 @@
       ctx.moveTo(50, 210); ctx.lineTo(340, 210); ctx.lineTo(340, 210 - 290 * Math.tan(TH)); ctx.closePath(); ctx.fill();
       ctx.fillStyle = PAL.slopeTop; ctx.fillRect(50, 208, 290, 4);
       // 木块（贴在斜面上）
-      var bx = 150, by = 210 - (340 - 150) * Math.tan(TH);
       ctx.save(); ctx.translate(bx, by); ctx.rotate(-TH);
       ctx.fillStyle = PAL.block; ctx.fillRect(-22, -30, 44, 30);
       ctx.fillStyle = PAL.blockDark; ctx.fillRect(-22, -8, 44, 8);

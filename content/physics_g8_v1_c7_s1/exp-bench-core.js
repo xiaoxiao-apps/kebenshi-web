@@ -48,7 +48,9 @@
   /* ===== 布局 L（resize 全量重算） ===== */
   var L = {};
   function layout() {
-    L.floorY = Math.round(H * 0.88);
+    var zEl = document.querySelector('.zone');
+    var zH = zEl ? zEl.offsetHeight : 0;
+    L.floorY = Math.round(H - Math.max(H * 0.12, zH + 14));   // 地面/斜面避开底部控制区
     L.bx0 = Math.round(W * 0.34);
     L.rx = Math.round(W * 0.52);
     L.rw = Math.min(Math.round(W * 0.36), 340);
@@ -163,7 +165,7 @@
       var tot = sp.rest + sp.x;                                           // 总伸长（含永久）
       var recOk = m.p > 0
         ? (Math.abs(tot - Math.min(steadyExt(S.n), av)) < 0.06 || tot >= av - 0.06)
-        : (Math.abs(sp.x - steadyExt(S.n)) < 0.015 && Math.abs(sp.v) < 0.08);
+        : (Math.abs(sp.x - steadyExt(S.n)) < 0.002 && Math.abs(sp.v) < 0.02); // 与snap同阈值：静止后才记录，斜率恒=1/k
       if (S.curve.pending && S.ps.mode !== 'spdrag' && recOk) {
         S.curve.pts[S.n] = tot;                                           // 每勾一块记录总伸长
         S.curve.pending = false; moved = true;
@@ -281,7 +283,7 @@
     ctx.beginPath(); ctx.moveTo(hx, y1 + 6); ctx.lineTo(hx, y1 + 10); ctx.stroke();
     drawWeights(hx, stackTopSp(), S.n, L.wb);
     // 双基准线：回弹线（绿）+ 弹性限度线（红）；铅丝两线≈重合；橡皮泥隐藏限度线标"塑性"
-    var lx0 = hx - 74, lx1 = hx + 96;
+    var lx0 = Math.max(6, hx - 74), lx1 = hx + 96;
     dashLine(lx0, restY(), lx1, restY(), PAL.rest, [8, 5]);
     var restLbl = '回弹基准线' + (S.sp.rest > 0.05 ? '（已下移 ' + S.sp.rest.toFixed(2) + 'cm）' : '');
     txt(restLbl, lx1 + 5, restY(), PAL.rest, 10.5);
@@ -291,7 +293,7 @@
       dashLine(lx0, limitY(), lx1, limitY(), PAL.limit, [4, 4]);
       txt(S.mat === 3 ? '弹性限度线 ≈ 静止线' : '弹性限度线', lx1 + 5, limitY(), PAL.limit, 10.5);
     }
-    txt('ΔL = ' + (S.sp.rest + S.sp.x).toFixed(2) + ' cm', hx - 74, y1 - 12, PAL.sub, 11, 'left');
+    txt('ΔL = ' + (S.sp.rest + S.sp.x).toFixed(2) + ' cm', lx0, y1 - 12, PAL.sub, 11, 'left');
   }
 
   /* ===== 测力计（场景小图）（§2.5） ===== */
@@ -339,9 +341,9 @@
     if (!fAxis) xmax = xmax / GACC;
     var ymax = 1; for (var k2 in S.curve.pts) ymax = Math.max(ymax, S.curve.pts[k2] * 1.25);
     ctx.strokeStyle = PAL.text; ctx.lineWidth = 1.6;
-    ctx.beginPath(); ctx.moveTo(ax, ay - ah - 6); ctx.lineTo(ax, ay); ctx.lineTo(ax + aw + 8, ay); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ax, gy + 26); ctx.lineTo(ax, ay); ctx.lineTo(ax + aw + 8, ay); ctx.stroke();
     txt(fAxis ? 'F/N' : 'm/kg', ax + aw + 6, ay + 12, PAL.sub, 10, 'right');
-    txt('ΔL/cm', ax + 4, ay - ah - 12, PAL.sub, 10);
+    txt('ΔL/cm', ax + 5, gy + 32, PAL.sub, 10);
     var limF = m.limitF, limX = fAxis ? limF : limF / GACC;
     if (limX > 0 && limX < xmax) {
       var lxp = ax + aw * clamp(limX / xmax, 0, 1);
@@ -414,7 +416,7 @@
     ctx.fillStyle = PAL.needle;
     ctx.beginPath(); ctx.moveTo(cx + bw / 2 - 24, py); ctx.lineTo(cx + bw / 2 - 33, py - 5);
     ctx.lineTo(cx + bw / 2 - 33, py + 5); ctx.closePath(); ctx.fill();
-    txt('指针', cx + bw / 2 + 8, py, PAL.needle, 11);
+    txt('指针', cx + bw / 2 + 8, py < sTop + 22 ? py + 16 : py, PAL.needle, 11);
     txt('N', cx - bw / 2 + 8, sTop - 8, PAL.sub, 10);
     var hookY = bodyTop + bodyH;
     ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = 3.4;
@@ -423,8 +425,8 @@
     txt('挂钩', cx + 20, hookY + 10, PAL.sub, 11);
     var wtop = hookY + 22, wbz = Math.min(L.wb, Math.max(5, (zy + zh - 30 - wtop) / Math.max(1, S.n)));
     drawWeights(cx, wtop, S.n, wbz);
-    txt('读数 G = ' + clamp(b.r, 0, RANGE).toFixed(2) + ' N', zx + 14, zy + zh - 16, PAL.text, 12.5);
-    if (b.flash > 0) txt('超量程 clamp 5N', zx + zw - 14, zy + zh - 16, PAL.limit, 11.5, 'right');
+    txt('读数 G = ' + clamp(b.r, 0, RANGE).toFixed(2) + ' N', zx + zw - 14, zy + 18, PAL.text, 12.5, 'right');
+    if (b.flash > 0) txt('超量程 clamp 5N', zx + zw - 14, zy + 36, PAL.limit, 11.5, 'right');
     if (S.eye) drawZoomEye(cx, py, hookY, b.r);
     ctx.restore();
   }

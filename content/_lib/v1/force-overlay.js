@@ -65,12 +65,20 @@
     ctx.restore();
   }
 
-  function drawOne(ctx, s, defColor) {
+  function drawOne(ctx, s, defColor, view) {
     if (!s || !s.point) return;
     var u = unit(s.dir), len = (s.magN || 0) * CM;
     var color = s.color || defColor || '#dc2626';
     var e = arrow(ctx, s.point.x, s.point.y, u.x, u.y, len, color, 3.4);
-    if (s.label) label(ctx, s.label, e.x1 + (u.x >= 0 ? 4 : -ctx.measureText(s.label).width - 6), e.y1, color);
+    if (s.label) {
+      var lw = ctx.measureText(s.label).width;
+      var lx = e.x1 + (u.x >= 0 ? 4 : -lw - 6), ly = e.y1;
+      if (view) {                                   // 标签不出画布（翻落时箭头尖可能出界）
+        lx = Math.max(4, Math.min((view.w || 300) - lw - 10, lx));
+        ly = Math.max(18, Math.min((view.h || 300) - 10, ly));
+      }
+      label(ctx, s.label, lx, ly, color);
+    }
   }
 
   // 比例尺标尺：1cm = 1N（overlay on 时常驻一角）
@@ -92,8 +100,8 @@
     var any = false;
     for (var id in items) {
       var s = items[id]; any = true;
-      drawOne(ctx, s, '#dc2626');
-      if (s.pair) drawOne(ctx, s.pair, '#2563eb');   // 相互作用：另一物体上的等大反向力
+      drawOne(ctx, s, '#dc2626', view);
+      if (s.pair) drawOne(ctx, s.pair, '#2563eb', view);   // 相互作用：另一物体上的等大反向力
     }
     if (any || true) drawScale(ctx, view);            // on 时始终显示比例尺标尺
   }

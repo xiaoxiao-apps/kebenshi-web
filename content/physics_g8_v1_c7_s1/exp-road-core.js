@@ -53,7 +53,7 @@
     L.wheelBox = { w: clamp(Math.round(W * 0.26), 190, 240), h: clamp(Math.round(W * 0.26), 190, 240) };
     L.wheelBox.x = Math.round(W - L.wheelBox.w - 18);
     L.wheelBox.y = 52;
-    L.wheelR = Math.round(Math.min(L.wheelBox.w, L.wheelBox.h) * 0.30);
+    L.dialR = Math.round(Math.min(L.wheelBox.w, L.wheelBox.h) * 0.30);
   }
 
   /* ===== 状态 ===== */
@@ -85,7 +85,7 @@
   }
   function wheelCenter() { return { x: L.wheelBox.x + L.wheelBox.w / 2, y: L.wheelBox.y + L.wheelBox.h / 2 }; }
   function dialPoint(which) {
-    var c = wheelCenter(), R = L.wheelR;
+    var c = wheelCenter(), R = L.dialR;
     if (which === 12) return { x: c.x, y: c.y - R, which: 12 };
     if (which === 3) return { x: c.x + R, y: c.y, which: 3 };
     if (which === 6) return { x: c.x, y: c.y + R, which: 6 };
@@ -260,7 +260,7 @@
 
   /* ===== 方向盘放大区（§1.6：同力同向·向上，只变拨点） ===== */
   function drawWheelZoom() {
-    var b = L.wheelBox, c = wheelCenter(), R = L.wheelR;
+    var b = L.wheelBox, c = wheelCenter(), R = L.dialR;
     ctx.save();
     ctx.fillStyle = 'rgba(255,255,255,.94)'; rr(b.x, b.y, b.w, b.h, 14); ctx.fill();
     ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; rr(b.x, b.y, b.w, b.h, 14); ctx.stroke();
