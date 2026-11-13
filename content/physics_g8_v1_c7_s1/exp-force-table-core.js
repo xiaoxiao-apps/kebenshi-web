@@ -16,7 +16,7 @@ var W=960,H=600,DPR=1,k=1;                  /* k=全局视觉倍率（随画布�
 var dirty=true, firstFrameDone=false, interactive=false;
 
 /* 稳定状态对象：guide 引擎轮询用（GUIDE_CFG.state，原地 mutate 勿重赋值）；mode='table' 单场景 */
-var STATE=window.C7_TABLE_STATE={mode:'table',v:'R12-phys',linked:false,lastPushPoint:null,springF:0,bandF:0,clayDent:0,bottleSqueeze:0,cart:{F:0,v:0,a:0},hint:null};   /* R12 §3.6/§3.8：cart F/v/a + hint 供 R14 测力计/R15 字幕取用 */
+var STATE=window.C7_TABLE_STATE={mode:'table',v:'R13-phys',linked:false,lastPushPoint:null,springF:0,bandF:0,clayDent:0,bottleSqueeze:0,cart:{F:0,v:0,a:0},door:{thetaDeg:0,omega:0,tau:0},skate:{v1:0,v2:0,m1:80,m2:50,pushes:0,v1i:0,v2i:0,ratio_v0:0},balloon:{Q:0,jet:0,flying:false},hint:null};   /* R12 §3.6/§3.8：cart F/v/a；R13 §3.11-§3.13：door θ/ω/τ、skate v/m、balloon Q/jet 供 R14 测力计/R15 字幕取用 */
 
 /* ===== 五区常量表（设计书 §2.2，百分比制，以画布为 100%）===== */
 var ZONES={
@@ -218,7 +218,8 @@ var ITEMS=[
   {id:'figure_thin', type:'figure',       prop:'figure_25d',      kind:'item',    homeAnchor:'A16',
    opt:function(){ return {h:L.figH,variant:'thin'}; }},
   {id:'balloon',     type:'balloon',      prop:'balloon_25d',     kind:'item',    homeAnchor:'A17',
-   opt:function(){ return {r:L.balloonR,inflate:0.85}; }},
+   opt:function(it){ var B=PHYS.balloon,r0=L.balloonR,Q=(it.ph&&it.ph.Q)||0; if(it.ph) it.ph.r0=r0;   /* R13 §3.13：r0=静止基准半径（resize 随 L.balloonR 重算）；充气 Q→半径胀大至 Q_max=1.5×（r=r0·(1+(qMax−1)·Q/qMax)） */
+     return {r:r0*(1+(B.qMax-1)*Q/B.qMax),inflate:Math.min(1,0.85+0.1*Q)}; }},   /* inflate 0.85(半充气静止)→1.0(充满)视觉鼓胀 */
   {id:'meter1',      type:'meter',        prop:'meter_25d',       kind:'item',    homeAnchor:'A18', anchor:'top',
    opt:function(){ return {h:L.meterH,needle:0}; }},
   {id:'meter2',      type:'meter',        prop:'meter_25d',       kind:'item',    homeAnchor:'A19', anchor:'top',
@@ -255,8 +256,8 @@ function captureAnchors(){
     var pp=[doorGeo.mounts.pushNear,doorGeo.mounts.pushMid,doorGeo.mounts.pushFar];
     for(i=0;i<3;i++){ a=ANCHORS['A'+(12+i)]; if(pp[i]){ a.x=pp[i].x; a.y=pp[i].y; } }    /* A12~A14 门推点实测 */
   }
-  if(b1Geo&&b1Geo.mounts){ a=ANCHORS.A15; a.x=b1Geo.mounts.deck.x; a.y=b1Geo.mounts.deck.y; }
-  if(b2Geo&&b2Geo.mounts){ a=ANCHORS.A16; a.x=b2Geo.mounts.deck.x; a.y=b2Geo.mounts.deck.y; }
+  if(b1Geo&&b1Geo.mounts&&ANCHORS.A15.x==null){ a=ANCHORS.A15; a.x=b1Geo.mounts.deck.x; a.y=b1Geo.mounts.deck.y; }   /* R13：A15 仅未锁定时从归位板捕获（移动中板随人走但锚位不动） */
+  if(b2Geo&&b2Geo.mounts&&ANCHORS.A16.x==null){ a=ANCHORS.A16; a.x=b2Geo.mounts.deck.x; a.y=b2Geo.mounts.deck.y; }
   var zt=zoneRect('ZT');
   a=ANCHORS.A18; a.x=zt.x+zt.w*0.62; a.y=zt.y+zt.h*0.72;                                /* 工具架固定位（§4.2 65%/72%,95% 的实测 drawing 位） */
   a=ANCHORS.A19; a.x=zt.x+zt.w*0.74; a.y=zt.y+zt.h*0.72;
@@ -284,11 +285,8 @@ function setItemPos(it,x,y){
 function drawProps(){
   var p=zonePt('Z1',0.75,0.98);
   trayGeo=PROPS.tray_25d(ctx,p.x,p.y,{w:L.trayW,slots:4});   /* 托盘=固定承载摆件；槽位 mounts 供 A3~A6 捕获 */
-  p=zonePt('Z4',0.28,0.82); b1Geo=PROPS.skateboard_25d(ctx,p.x,p.y,{w:L.boardW});
-  p=zonePt('Z4',0.72,0.82); b2Geo=PROPS.skateboard_25d(ctx,p.x,p.y,{w:L.boardW});
   p=zonePt('Z5',0.74,0.90); PROPS.pump_25d(ctx,p.x,p.y,{h:L.pumpH});
   drawReturnSlots();                                          /* ZT 左侧归位槽占位框（§2.4） */
-  captureAnchors();
   var i;
   for(i=0;i<ITEMS.length;i++){                                /* 锚位锁定件随锚位像素对齐（resize/全屏后跟随重算；line 锚只锁 y）
                                                                  * 跳过拖动中/补间中的件：拖离锚位时不得被拽回（release 判定后才落新锁） */
@@ -299,6 +297,20 @@ function drawProps(){
       else setItemPos(q,ap.x,ap.y);
     }
   }
+  /* R13：滑板与人一体（§3.12）。首帧捕获归位甲板位(A15/A16 锁定不随移动)；此后板随双人脚下水平移动，地面线 y 恒定 */
+  var f1=ITEM_BY_ID.figure_fat,f2=ITEM_BY_ID.figure_thin;
+  if(!skateHomeDone){
+    var hz1=zonePt('Z4',0.28,0.82),hz2=zonePt('Z4',0.72,0.82);
+    skateGroundY=hz1.y;                                          /* 板底触台线（base y） */
+    b1Geo=PROPS.skateboard_25d(ctx,hz1.x,hz1.y,{w:L.boardW});
+    b2Geo=PROPS.skateboard_25d(ctx,hz2.x,hz2.y,{w:L.boardW});
+    skateFeetY=(b1Geo&&b1Geo.mounts)?b1Geo.mounts.deck.y:hz1.y;   /* 人脚=甲板面 y（figure base 落此） */
+    skateHomeDone=true;
+  }else{
+    b1Geo=PROPS.skateboard_25d(ctx,f1.x,skateGroundY,{w:L.boardW});
+    b2Geo=PROPS.skateboard_25d(ctx,f2.x,skateGroundY,{w:L.boardW});
+  }
+  captureAnchors();                                             /* A15/A16 仅未锁定时(x==null)从归位板捕获，移动中不跟随 */
   for(i=0;i<ITEMS.length;i++){ if(ITEMS[i]!==drag.dragItem) drawItem(ITEMS[i]); }
   if(drag.dragItem) drawItem(drag.dragItem);                  /* 拖动件最后画=盖在最上（§2.5 层4内子序） */
   drawLinkedCheck();
@@ -358,6 +370,13 @@ function drawItemRaw(it){
     ctx.save(); ctx.translate(pvx,pvy); ctx.rotate(rotAll); ctx.translate(-pvx,-pvy);
     g=PROPS[it.prop](ctx,dx,dy,opt);
     ctx.restore();
+  }
+  else if(it.id==='door'&&it.ph&&it.ph.r13==='door'){           /* R13 §3.11：门扇绕门轴(左柱内缘)cosθ 压缩=绕竖轴摆开 θ 的 2.5D 视觉（90° 时门变侧向薄片=全开）；推点随之向轴收拢 */
+    var hx=(it.mnt&&it.mnt.hinge)?it.mnt.hinge.x:dx-(it.w||0)/2, sq=Math.max(0.06,Math.cos(it.ph.theta));
+    ctx.save(); ctx.translate(hx,dy); ctx.scale(sq,1); ctx.translate(-hx,-dy);
+    g=PROPS[it.prop](ctx,dx,dy,opt);
+    ctx.restore();
+    if(g&&g.mounts){ ['hinge','pushNear','pushMid','pushFar'].forEach(function(kk){ if(g.mounts[kk]) g.mounts[kk].x=hx+(g.mounts[kk].x-hx)*sq; }); }   /* 推点屏幕位随压缩更新→doorPushHit 对齐视觉 */
   }
   else { g=PROPS[it.prop](ctx,dx,dy,opt); }
   it.dx=dx; it.dy=dy;
@@ -519,7 +538,11 @@ var PHYS={
   /* ===== R12 扩展参数组（§3.6-§3.10，轨道区/桌面区平动+翻倒+摞叠）===== */
   cart:{m:0.5,Fmax:8,muTrack:0.03,muTable:0.2,eEdge:0.5,sideMaxDeg:8,Kc:100,couplGapPx:50}, /* §3.6：m=0.5kg、F_push_max=8N(超过截断)、μ_track=0.03(0.02~0.05取中)、μ_table=0.2(0.15~0.25取中)、e_edge=0.5(0.4~0.6取中)、侧偏≤8°不脱轨、Kc=手-车耦合刚度N/m、couplGap=脱手间隙 */
   block:{m:0.15,muS:0.25,muK:0.25,arrowCmPerMs:3,tiltMaxDeg:10},       /* §3.7：木块 μ=0.25(静摩擦阈值F>μN才启动/动摩擦同值)、速度箭头比例取「1(m/s)=3cm」视觉直映(F=ma 等效力换算的另一取法，此处取直接比例)、滑倾上限10°；m=0.15kg(设计书未给，本单取值：阈值F=μmg≈0.37N 轻推不动语义成立) */
-  stack:{muStack:0.35,eFall:0.3,maxLayers:3,boxM:0.2,hook50M:0.05,hook100M:0.1} /* §3.9/§3.10：滑落判据 a_carrier>μ_stack·g(μ_stack=0.35)、坠落回弹 e≈0.3、摞高≤3层(超3层 STATE hint)、box=0.2kg/hook50=0.05kg/hook100=0.1kg(m_total 合成 §3.6) */
+  stack:{muStack:0.35,eFall:0.3,maxLayers:3,boxM:0.2,hook50M:0.05,hook100M:0.1}, /* §3.9/§3.10：滑落判据 a_carrier>μ_stack·g(μ_stack=0.35)、坠落回弹 e≈0.3、摞高≤3层(超3层 STATE hint)、box=0.2kg/hook50=0.05kg/hook100=0.1kg(m_total 合成 §3.6) */
+  /* ===== R13 扩展参数组（§3.11-§3.13，门转动/滑板双人动量/气球反冲）===== */
+  door:{m:8,W:0.18,tauThresh:0.8,zeta:0.3,maxDeg:90,Fmax:8,Kc:100,couplGapPx:60,dFrac:{A12:0.267,A13:0.567,A14:0.889},wn:6,omegaMax:3.5,bounce:0.35}, /* §3.11：τ_threshold=0.8N·m(近轴推不开)、ζ=0.3(松手欠阻尼多转一点回稳)、maxDeg=90(硬限位不穿墙)、I=m·W²/3(W=0.18m)、m=8kg(本单取值:τ_max=Fmax·0.889·0.18=1.28>0.8 远轴可开/近轴0.38<0.8 推不开)、Fmax=8N(同 cart §3.6)、Kc/couplGap=手-门耦合(同 R12 push 语义)、dFrac=推点到轴距离占板宽比(近25%/中55%/远88%门扇标记几何+门轴在左柱内缘实测)、wn=6rad/s(回稳固有频率本单取值)、omegaMax/bounce=角速度视觉上限与限位微回弹 */
+  skate:{Fpush:50,dtPush:0.5,kAir:0.08,muGround:0.05,eWall:0.5,mMin:30,mMax:100,mDefault:[80,50],arrowCmPerMs:3,vMax:2.5}, /* §3.12：互推 F=50N 常力、冲量 J=F·Δt=25N·s(Δt=0.5s 取法:v=J/m→瘦50kg=0.5m/s、胖80kg≈0.31m/s,每帧位移≈3~6px>eps 可见滑行且 a≈−0.5m/s² 数十cm内停住;Δt 再小则 v<eps/帧 立即入睡看不见,动量守恒 m₁v₁=m₂v₂ 比值不受 Δt 影响)、k_air=0.08、μ=0.05、撞边 e=0.5、m 30~100kg 默认[胖80,瘦50](设计书 50/80 两值:figure_fat=胖=80 视觉躯干宽 variant:'fat'/figure_thin=瘦=50)、箭头 1(m/s)=3cm 同 R12、vMax 安全封顶 */
+  balloon:{vJet:5,kAir:0.15,eWall:0.6,qMax:1.5,wobbleDeg:5,m:0.08,dmdtK:1.0,FjetMax:4,vMax:2.4,inflRate:0.9,r0:0} /* §3.13：v_jet=5m/s、F_jet=−dm/dt·v_jet(dm/dt=dmdtK·Q 与当前充气量 Q 成正比,气尽 Q=0→F_jet=0;FjetMax 封顶防瞬移)、k_air=0.15(越飞越慢)、撞边 e=0.6 弹几次停、Q_max=1.5(充气半径倍率上限)、乱窜 ±5°/帧、喷口固定朝左→气球向右飞、m=0.08kg(本单取值:ax=FjetMax/m=50m/s² 视觉适中)、vMax=2.4m/s 安全封顶、inflRate=充气速率(0.9/s→约1.7s充满)、r0=静止基准半径px(opt() 首帧回写,resize 重算) */
 };
 /* 形变件 ph 动态量：ext=超自然长伸长px / v=px/s / residual=永久形变px / oscillating=解析衰减中 / asleep=静止零开销
  * clay: dent=凹陷px(持久) pressDepth=按压位移px；bottle: dh=液柱偏移px(+=升) squeeze=捏强度 */
@@ -546,6 +569,7 @@ function physRecalcBasis(){
     else if(it.type==='clay'){ ph.dent=ph.dentCm*PHYS.cmPx; }  /* 凹陷持久，按新 cmPx 重算像素 */
   }
   physRebaseR12();                                             /* R12：清帧间差分基准（速度 m/s 与像素无关，不残留旧值） */
+  physRebaseR13();                                             /* R13：复位滑板归位捕获/门角保留/气球基准（不残留旧像素值） */
 }
 /* 解析欠阻尼：x(τ)=A0·e^(-ζωₙτ)·cos(ωₙ√(1-ζ²)·τ)（§3.2 落码，验收3 grep 证明） */
 function physOsc(A0,zeta,wn,tau){
@@ -584,6 +608,7 @@ function physicsStep(now){
   }
   if(active) dirty=true;
   physStepR12(now);                                            /* R12 接缝：cart/木块/box/钩码积分入口（上方 R11 四形变分支一行未改） */
+  physStepR13(now);                                            /* R13 接缝：门转动/滑板双人/气球反冲积分入口（R11/R12 分支一行未改） */
   if(DEBUG_PHYS) dirty=true;
 }
 /* ============================================================
@@ -807,6 +832,216 @@ function checkStackDepth(it){
   var depth=stackDepthBelow(it)+stackDepthAbove(it)-1;
   if(depth>PHYS.stack.maxLayers) STATE.hint='摞高超过 3 层，不稳（规格上限 ≤3 层）';
 }
+/* ============================================================
+ * R13 门转动/滑板双人动量/气球反冲（设计书 §3.11-§3.13）
+ * 只动 door/figure_fat/figure_thin/balloon；测力计读数插值/指针惯性属 R14 本单不碰；R10/R11/R12 分支一行不改。
+ * ============================================================ */
+/* 门推点到门轴力臂 d(m)：dFrac×W（W=0.18m §3.11；dFrac 见 PHYS.door 注释=门扇三标记几何 25%/55%/88%） */
+function doorLeverM(id){ return PHYS.door.dFrac[id]*PHYS.door.W; }
+/* R13 ph 初始化：门(转动)/双人(动量)/气球(反冲) 动态量归零（resetItems 与首建各调一次） */
+function physInitR13(){
+  var d=ITEM_BY_ID.door;
+  d.ph={r13:'door',theta:0,omega:0,tau:0,Fperp:0,d:0,pushId:null,asleep:true,coasting:false};
+  var f1=ITEM_BY_ID.figure_fat,f2=ITEM_BY_ID.figure_thin;
+  f1.ph={r13:'skate',m:PHYS.skate.mDefault[0],vx:0,a:0,F:0,asleep:true};   /* 胖=80kg（variant:'fat' 躯干宽） */
+  f2.ph={r13:'skate',m:PHYS.skate.mDefault[1],vx:0,a:0,F:0,asleep:true};   /* 瘦=50kg（variant:'thin'） */
+  var b=ITEM_BY_ID.balloon;
+  b.ph={r13:'balloon',Q:0,vx:0,vy:0,jetF:0,flight:false,landed:true,asleep:true,wob:0,r0:b.ph&&b.ph.r0?b.ph.r0:0};
+  STATE.skate.m1=f1.ph.m; STATE.skate.m2=f2.ph.m;
+  STATE.skate.pushes=0; STATE.skate.v1i=0; STATE.skate.v2i=0; STATE.skate.ratio_v0=0;   /* R13b：重置互推锁存 */
+}
+physInitR13();
+/* resize：清帧间量、复位滑板归位捕获（下帧按新 layout 重捕 A15/A16 与地面线）、门角/气球 Q 保留（与像素无关）；不残留旧像素值 */
+function physRebaseR13(){
+  var i; for(i=0;i<ITEMS.length;i++){ var ph=ITEMS[i].ph; if(!ph||!ph.r13) continue;
+    if(ph.r13==='skate'){ ph.a=0; }
+    if(ph.r13==='balloon'){ ph.wob=0; }
+  }
+  skateHomeDone=false; skateGroundY=0; skateFeetY=0;
+  ANCHORS.A15.x=null; ANCHORS.A16.x=null;
+  ITEM_BY_ID.figure_fat.anchorId=ITEM_BY_ID.figure_fat.homeAnchor;   /* 双人回归位锁，随 layout 重算落位 */
+  ITEM_BY_ID.figure_thin.anchorId=ITEM_BY_ID.figure_thin.homeAnchor;
+}
+/* ===== physStepR13：只对激活件积分，asleep 零开销（沿 R11/R12 骨架）===== */
+function physStepR13(now){
+  var dt=PHYS.dt,pxM=PHYS.cmPx*100,active=false,i;
+  var d=ITEM_BY_ID.door;
+  if(d.ph&&!d.ph.asleep){ doorTick(d,dt); active=true; }        /* 门：推中/惯性回稳 */
+  var figs=[ITEM_BY_ID.figure_fat,ITEM_BY_ID.figure_thin],fj;
+  for(i=0;i<figs.length;i++){ var f=figs[i]; if(!f.ph||f.ph.r13!=='skate') continue;
+    if(!f.ph.asleep&&f.ph.mode==='skate'&&!(drag.item===f)){ skateTick(f,dt,pxM); active=true; }   /* 拖拽中不积分（R10 整件拖拽保留） */
+    STATE.skate[f.id==='figure_fat'?'v1':'v2']=+(f.ph.vx||0).toFixed(3);
+  }
+  var b=ITEM_BY_ID.balloon;
+  if(b.ph&&b.ph.r13==='balloon'){
+    if(b.ph.flight&&!(drag.item===b)){ balloonFlightTick(b,dt,pxM,now); active=true; }
+    STATE.balloon.Q=+(b.ph.Q||0).toFixed(3); STATE.balloon.jet=+(b.ph.jetF||0).toFixed(2); STATE.balloon.flying=!!b.ph.flight;
+  }
+  STATE.door.thetaDeg=+(d.ph.theta*180/Math.PI).toFixed(2); STATE.door.omega=+(d.ph.omega||0).toFixed(3); STATE.door.tau=+(d.ph.tau||0).toFixed(3);
+  if(active) dirty=true;
+}
+/* ===== 目标一：门转动（§3.11）τ=F·d、ω=τ/I、I=m·W²/3、松手 ζ=0.3 惯性多转一点回稳、90° 硬限位微回弹 ===== */
+function doorTick(it,dt){
+  var ph=it.ph,D=PHYS.door,I=D.m*D.W*D.W/3;                     /* I=m·W²/3（W=0.18m §3.11） */
+  var pushing=(phys.mode==='doorPush'&&phys.item===it);
+  if(pushing){
+    var dxp=phys.lastX-phys.startPointerX,dyp=phys.lastY-phys.startPointerY;   /* 手相对按下点位移 */
+    var t=Math.sin(ph.theta),c=Math.cos(ph.theta);
+    var tang=dyp*c-dxp*t;                                        /* 只取垂直门面(切向)分量：平行门面推(θ=0 时横向 dxp)→tang≈0 无效 */
+    var F=(Math.abs(tang)<=D.couplGapPx)?clamp(D.Kc*tang/pxM_door(),-D.Fmax,D.Fmax):0;   /* 手-门耦合折算 F(N)，超间隙=脱手 F=0，上限 8N */
+    ph.Fperp=F; ph.d=doorLeverM(ph.pushId||'A13');
+    var tau=F*ph.d; ph.tau=tau;                                  /* τ=F·d */
+    if(Math.abs(tau)<D.tauThresh){                               /* 近轴 τ<0.8N·m → 几乎不动 */
+      ph.omega*=0.85; ph.coasting=false;
+      if(ph.pushId==='A12') STATE.hint='离轴太近推不开：τ=F·d<0.8N·m，力臂 d 太小';
+    }else{
+      ph.omega=clamp(ph.omega+(tau/I)*dt,-D.omegaMax,D.omegaMax); /* ω=τ/I 积分渐开 */
+      ph.coasting=false;
+    }
+    ph.theta+=ph.omega*dt;
+  }else{
+    if(!ph.coasting&&Math.abs(ph.omega)>0.02){ ph.coasting=true; ph.t0=performance.now(); ph.w0=ph.omega; }
+    if(ph.coasting){                                             /* 松手：惯性多转一点 + ζ=0.3 欠阻尼回弹收敛（ω 振荡衰减→θ 过冲再回落） */
+      var tau2=(performance.now()-ph.t0)/1000,env=Math.exp(-D.zeta*D.wn*tau2),wd=D.wn*Math.sqrt(1-D.zeta*D.zeta);
+      ph.omega=ph.w0*env*Math.cos(wd*tau2);
+      ph.theta+=ph.omega*dt;
+      if(env<0.04){ ph.omega=0; ph.coasting=false; ph.asleep=true; }   /* 包络衰减到阈→回稳静止（停在开角，不回 0） */
+    }else{ ph.theta+=ph.omega*dt; }
+  }
+  var lim=D.maxDeg*Math.PI/180;
+  if(ph.theta>lim){ ph.theta=lim; if(ph.omega>0){ ph.omega=-D.bounce*ph.omega; ph.coasting=false; } }  /* 90° 硬限位不穿透墙，微回弹 */
+  if(ph.theta<0){ ph.theta=0; if(ph.omega<0){ ph.omega=-D.bounce*ph.omega; ph.coasting=false; } }      /* 关到位 0 */
+  if(!pushing&&!ph.coasting&&Math.abs(ph.omega)<0.03){ ph.omega=0; ph.tau=0; ph.asleep=true; }
+  it.ph.rot=ph.theta;                                            /* drawItemRaw 门分支读 theta 做绕轴压缩 */
+}
+function pxM_door(){ return PHYS.cmPx*100; }
+/* 门推模式松手：清 τ/F，保留 ω → 惯性回稳（coasting），到限位/静止自然 asleep */
+function releaseDoorPush(it){
+  var ph=it.ph; ph.tau=0; ph.Fperp=0; ph.asleep=false; ph.coasting=false;
+  if(Math.abs(ph.theta)<0.01&&Math.abs(ph.omega)<0.03) ph.asleep=true;   /* 几乎没动→直接静止 */
+  dirty=true;
+}
+/* ===== 目标二：滑板双人互推（§3.12）动量守恒 m₁v₁=m₂v₂ + 空气阻力/摩擦减速 + 撞边 e=0.5 ===== */
+function mutualPush(fig){
+  var f1=ITEM_BY_ID.figure_fat,f2=ITEM_BY_ID.figure_thin;
+  var left=(f1.x<=f2.x)?f1:f2,right=(left===f1)?f2:f1;         /* 谁在左谁被推向左（相互反向） */
+  var S=PHYS.skate,J=S.Fpush*S.dtPush;                          /* 冲量 J=F·Δt=50×0.5=25N·s，等大反向分配 */
+  STATE.hint='动量守恒 m₁v₁=m₂v₂：相互作用力 F=50N 等大反向，质量小者速度大飞得远';
+  wakeSkate(left,-J); wakeSkate(right,+J);
+  /* R13b：冲量瞬时值锁存——摩擦 ~0.6s 内把 v 衰到 0/asleep，事后再读 v1/v2 恒 0 无法验证互推发生过；
+   * pushes 计数 + v1i/v2i(冲量刚施加时的初速) + ratio_v0(=m₂/m₁ 精确值) 供复验随时读取 */
+  STATE.skate.pushes=(STATE.skate.pushes||0)+1;
+  STATE.skate.v1i=+f1.ph.vx.toFixed(3); STATE.skate.v2i=+f2.ph.vx.toFixed(3);
+  STATE.skate.ratio_v0=+(Math.abs(f1.ph.vx/f2.ph.vx)).toFixed(3);   /* =m₂/m₁（clamp 未触发时精确）*/
+  if(window.playClick) window.playClick();
+  dirty=true;
+}
+function wakeSkate(fig,signedJ){
+  var ph=fig.ph; ph.m=Math.max(PHYS.skate.mMin,Math.min(PHYS.skate.mMax,ph.m));
+  var v=signedJ/ph.m;                                           /* v_i=J/m_i（动量守恒：v₂/v₁=m₁/m₂） */
+  v=clamp(v,-PHYS.skate.vMax,PHYS.skate.vMax);
+  ph.vx=v; ph.mode='skate'; ph.asleep=false;
+  fig.anchorId=null;                                            /* 解锁 A15/A16：移动中不被 drawProps 拽回锚位（松手后 resolveRelease 再落锁） */
+  dirty=true;
+}
+/* 滑板积分：a=−k_air·v−μ·g·sign(v)（慢慢停）+ 撞地面区左右边 v'=−e·v（e=0.5）+ |v|<ε asleep */
+function skateTick(it,dt,pxM){
+  var ph=it.ph,S=PHYS.skate;
+  var dec=S.kAir*ph.vx+S.muGround*PHYS.g*(ph.vx>0?1:(ph.vx<0?-1:0));   /* a=−k_air·v−μ·g·sign(v) */
+  var vPrev=ph.vx; ph.vx-=dec*dt; ph.a=-dec;
+  if(vPrev!==0&&ph.vx*vPrev<0) ph.vx=0;                          /* 摩擦致停不穿越 0 抖振 */
+  var ox=it.x; it.x+=ph.vx*dt*pxM;
+  var b=skateBounds(it);
+  if(it.x<b.xmin){ it.x=b.xmin; ph.vx=-S.eWall*ph.vx; if(Math.abs(ph.vx)<0.08) ph.vx=0; }   /* 撞边反弹 v'=−e·v，多次衰减 */
+  else if(it.x>b.xmax){ it.x=b.xmax; ph.vx=-S.eWall*ph.vx; if(Math.abs(ph.vx)<0.08) ph.vx=0; }
+  var gy=skateFeetY; if(gy) it.y=gy;                           /* y 锁甲板线（人+滑板一体，脚踩板面，滑板不单独物理） */
+  if(Math.abs(ph.vx*dt*pxM)<PHYS.eps){ ph.vx=0; ph.a=0; ph.mode=null; ph.asleep=true; }   /* |v|<0.3px/帧→静止零开销 */
+}
+var skateGroundY=0,skateFeetY=0,skateHomeDone=false;   /* R13：板底触台线 / 人脚甲板线 / 首帧归位捕获标志（resize 由 physRebaseR13 复位） */
+function skateBounds(it){ return {xmin:TABLE.l*W+18+(it.w||0)/2,xmax:TABLE.r*W-18-(it.w||0)/2}; }   /* 地面区左右边界（沿 bodyBounds 桌面语义扩展） */
+/* 质量切换：胖/瘦两值循环（[80,50]→[50,80]→[100,30]→[30,100]→…），范围 30~100，切换后 STATE 更新 */
+var SKATE_PRESETS=[[80,50],[50,80],[100,30],[30,100]];
+var skatePresetIdx=0;
+function cycleSkateMass(){
+  skatePresetIdx=(skatePresetIdx+1)%SKATE_PRESETS.length;
+  var p=SKATE_PRESETS[skatePresetIdx];
+  ITEM_BY_ID.figure_fat.ph.m=p[0]; ITEM_BY_ID.figure_thin.ph.m=p[1];
+  STATE.skate.m1=p[0]; STATE.skate.m2=p[1];
+  STATE.hint='质量切换：胖='+p[0]+'kg 瘦='+p[1]+'kg（再互推看 v 比=质量反比，m₁v₁=m₂v₂）';
+  var btn=document.getElementById('btn-mass'); if(btn) btn.textContent='质量 胖'+p[0]+'/瘦'+p[1];
+  dirty=true;
+}
+/* ===== 目标三：气球反冲（§3.13）充气 Q→1.5× + 放气 F_jet=−dm/dt·v_jet + ±5° 乱窜 + k_air 阻力 + e=0.6 边界 + 气尽落地 ===== */
+function promoteInflate(it){                                    /* 按住>150ms 且位移<6px 升格充气（沿 R11/R12 进入条件） */
+  drag.item=null; killTweensOf(it);
+  phys.mode='inflate'; phys.item=it;
+  var ph=it.ph; ph.flight=false; ph.landed=false; ph.asleep=false; ph.vx=0; ph.vy=0;
+  it.anchorId=null;
+  setCursor('grabbing'); setState(it,'grabbing');
+  STATE.hint='按住打气：充气量 Q 增大，气球胀大至 1.5×（松手放气→反冲）';
+  dirty=true;
+}
+function inflateTick(it,now){                                   /* 充气量 Q 随按住时长增长至 Q_max=1.5 */
+  var ph=it.ph,B=PHYS.balloon;
+  ph.Q=Math.min(B.qMax,ph.Q+B.inflRate*PHYS.dt);
+  ph.asleep=false; STATE.balloon.Q=+ph.Q.toFixed(3);
+}
+function releaseInflate(it){                                    /* 松手放气→反冲：气体向左喷、气球向右飞 */
+  var ph=it.ph,B=PHYS.balloon;
+  phys.mode=null; phys.item=null;
+  setState(it,'idle');
+  if(ph.Q<=0.02){ ph.asleep=true; ph.landed=true; landBalloon(it); return; }   /* 没气→原地静止 */
+  ph.flight=true; ph.asleep=false; ph.vx=0.4; ph.vy=-0.2;        /* 初始向右微速（喷口朝左→反冲向右） */
+  STATE.hint='反冲：气体向左喷(F_jet=−dm/dt·v_jet)，气球向右飞——作用力与反作用力方向相反';
+  dirty=true;
+}
+function balloonFlightTick(it,dt,pxM,now){
+  var ph=it.ph,B=PHYS.balloon;
+  if(ph.Q>0){
+    var dmdt=B.dmdtK*ph.Q;                                       /* dm/dt ∝ 当前充气量 Q */
+    var Fjet=Math.min(B.FjetMax,dmdt*B.vJet);                    /* F_jet=dm/dt·v_jet（v_jet=5m/s），封顶防飞出 */
+    ph.jetF=Fjet; ph.Q=Math.max(0,ph.Q-dmdt*dt);
+    var ax=Fjet/B.m;                                             /* 反冲加速度（方向朝右 +x，喷口固定左） */
+    ph.vx+=ax*dt;
+  }else{ ph.jetF=0; }
+  var sp=Math.hypot(ph.vx,ph.vy);
+  if(sp>B.vMax){ ph.vx*=B.vMax/sp; ph.vy*=B.vMax/sp; }           /* 速度封顶 */
+  var wob=(Math.random()*2-1)*B.wobbleDeg*Math.PI/180;           /* ±5°/帧 乱窜扰动到速度方向（不直线飞） */
+  ph.wob=wob*180/Math.PI;
+  var cs=Math.cos(wob),sn=Math.sin(wob),nvx=ph.vx*cs-ph.vy*sn,nvy=ph.vx*sn+ph.vy*cs;
+  ph.vx=nvx-B.kAir*ph.vx*dt; ph.vy=nvy-B.kAir*ph.vy*dt;          /* 空气阻力 a=−k_air·v（越飞越慢） */
+  var ox=it.x,oy=it.y; it.x+=ph.vx*dt*pxM; it.y+=ph.vy*dt*pxM;
+  var b=balloonBounds(it);                                       /* 撞桌面边缘(含上下)反弹 e=0.6，弹几次后停 */
+  if(it.x<b.xmin){ it.x=b.xmin; ph.vx=-B.eWall*ph.vx; } else if(it.x>b.xmax){ it.x=b.xmax; ph.vx=-B.eWall*ph.vx; }
+  if(it.y<b.ymin){ it.y=b.ymin; ph.vy=-B.eWall*ph.vy; } else if(it.y>b.ymax){ it.y=b.ymax; ph.vy=-B.eWall*ph.vy; }
+  if(ph.Q<=0&&Math.hypot(ph.vx,ph.vy)<0.6){ landBalloon(it); return; }   /* 气尽且慢→落地回 A17 静止 */
+}
+function balloonBounds(it){
+  var r=(it.ph&&it.ph.r0)||20,m=8;
+  return {xmin:m+r,xmax:W-m-r,ymin:m+r*2,ymax:H-m};              /* 飞行区=画布内(含上下)；上界留球体高度 */
+}
+function landBalloon(it){                                        /* 落地：Q=0、jet=0、tween 回 A17 静止，可再充（循环可玩） */
+  var ph=it.ph; ph.flight=false; ph.landed=true; ph.Q=0; ph.jetF=0; ph.vx=0; ph.vy=0; ph.asleep=true;
+  var p=anchorAt('A17');
+  setState(it,'settle');
+  addTween({it:it,x0:it.x,y0:it.y,x1:p.x,y1:p.y,dur:400,ease:easeOut,
+    onEnd:function(o){ o.anchorId='A17'; setItemPos(o,p.x,p.y); toIdle(o); STATE.hint='气尽落地静止：可再次按住充气（反冲循环可玩）'; }});
+  STATE.balloon.Q=0; STATE.balloon.jet=0; STATE.balloon.flying=false;
+  dirty=true;
+}
+/* ===== R13 箭头助手（drawForceLayer 用）：速度/喷气矢量，长度 ∝ 大小 ===== */
+function arrowVec(sx,sy,ux,uy,lenPx,color){
+  if(lenPx<2) return;
+  var ex=sx+ux*lenPx,ey=sy+uy*lenPx,hl=Math.min(10,lenPx*0.35);
+  ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=Math.max(2,2.5*k); ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex-ux*hl*0.6,ey-uy*hl*0.6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ex,ey);
+  ctx.lineTo(ex-ux*hl-uy*hl*0.5,ey-uy*hl+ux*hl*0.5);
+  ctx.lineTo(ex-ux*hl+uy*hl*0.5,ey-uy*hl-ux*hl*0.5);
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+
+
 /* 弹簧拉力 F=k·ΔL（§3.2，k=100N/m，ΔL=弹性段米数）；写入 STATE 供字幕/测力计单用 */
 function physSpringForce(it){
   var ph=it.ph, xElastic=(ph.ext-ph.residual);                 /* 弹性可恢复段（残余生已扣除） */
@@ -946,13 +1181,19 @@ function physUpdateSqueeze(it,now){
 function physInputTick(now){
   if(phys.pressCand&&drag.item){
     if(phys.movedPx>6) phys.pressCand=false;                          /* 位移>6px→放弃形变，走 R10 拖拽 */
-    else if(now-phys.downT>=150) promotePress(drag.item);             /* 按住>150ms 且<6px→进形变模式 */
+    else if(now-phys.downT>=150){
+      var pit=drag.item;
+      if(pit.type==='figure'){ phys.pressCand=false; drag.item=null; setState(pit,'idle'); mutualPush(pit); }   /* R13：按住升格→双人互推（一次性冲量，不走拖拽） */
+      else if(pit.type==='balloon'){ phys.pressCand=false; promoteInflate(pit); }                              /* R13：按住升格→充气模式 */
+      else promotePress(pit);                                          /* R11：橡皮泥/玻璃瓶；R12：木块/箱子（promotePress 内分推模式） */
+    }
   }
   if(phys.mode==='press'&&phys.item){
     var pressCm=Math.max(0,phys.lastY-phys.startPointerY)/PHYS.cmPx+0.0008*(now-phys.downT);
     physSetClayDent(phys.item,pressCm);
   }
   if(phys.mode==='squeeze'&&phys.item) physUpdateSqueeze(phys.item,now);
+  if(phys.mode==='inflate'&&phys.item) inflateTick(phys.item,now);     /* R13：充气量 Q 随按住时长增长（时间基，同 squeeze 语义） */
 }
 function physSetClayDent(it,pressCm){
   var ph=it.ph;
@@ -968,10 +1209,16 @@ function evPt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y
 cv.addEventListener('pointerdown',function(e){
   if(!canInteract()) return;
   var p=evPt(e),hit=doorPushHit(p.x,p.y),it;
-  if(hit){                                                    /* 门推点：点击仅记录 lastPushPoint（R13 用），不抓门扇 */
+  if(hit){                                                    /* 门推点：R13 进门推模式（τ=F·d 转门），并继续写 lastPushPoint（R10 原样，R15 字幕用） */
     STATE.lastPushPoint={id:hit.id,x:hit.x,y:hit.y};
+    var dr=ITEM_BY_ID.door;
+    try{ cv.setPointerCapture(e.pointerId); }catch(err){}
+    phys.mode='doorPush'; phys.item=dr; phys.pressCand=false;
+    dr.ph.pushId=hit.id; dr.ph.asleep=false; dr.ph.coasting=false; dr.ph.tau=0; dr.ph.omega=dr.ph.omega||0;
+    phys.startPointerX=p.x; phys.startPointerY=p.y; phys.lastX=p.x; phys.lastY=p.y; phys.downT=performance.now();
+    setCursor('grabbing');
     if(window.playClick) window.playClick();
-    return;
+    e.preventDefault(); return;                               /* 门扇其余区域仍不可抓（R10 原样：仅推点热区） */
   }
   it=hitTest(p.x,p.y);
   if(!it) return;
@@ -997,8 +1244,9 @@ cv.addEventListener('pointerdown',function(e){
   setHover(null);
   setState(it,'grabbing'); setCursor('grabbing');             /* idle/hover → grabbing（§4.3） */
   /* R11：橡皮泥/玻璃瓶按压候选——位移<6px 且按住>150ms 才进形变模式，否则走 R10 整件拖拽（目标六）
-   * R12：木块/箱子同条件升格进推模式（目标五：避免抢 R10 拖放手感） */
-  if(((it.type==='clay'||it.type==='bottle_tube')&&it.ph)||(it.ph&&it.ph.r12&&(it.type==='wood_block'||it.type==='box'))){
+   * R12：木块/箱子同条件升格进推模式（目标五：避免抢 R10 拖放手感）
+   * R13：figure 同条件升格互推、balloon 同条件升格充气（未升格则走 R10 整件拖拽，拖拽保留） */
+  if(((it.type==='clay'||it.type==='bottle_tube')&&it.ph)||(it.ph&&it.ph.r12&&(it.type==='wood_block'||it.type==='box'))||(it.type==='figure'&&it.ph&&it.ph.r13==='skate')||(it.type==='balloon'&&it.ph&&it.ph.r13==='balloon')){
     phys.pressCand=true; phys.item=it; phys.mode=null; phys.downT=performance.now();
     phys.startPointerX=p.x; phys.startPointerY=p.y; phys.lastX=p.x; phys.lastY=p.y; phys.movedPx=0;
   }
@@ -1011,6 +1259,8 @@ cv.addEventListener('pointermove',function(e){
   if(phys.mode==='stretch'){ stretchMove(p); dirty=true; return; }
   if(phys.mode==='press'||phys.mode==='squeeze'){ pressMove(p); dirty=true; return; }
   if(phys.mode==='push'){ phys.lastX=p.x; phys.lastY=p.y; dirty=true; return; }   /* R12 推模式：只记手位，力在 pushTick 折算（件不跟手） */
+  if(phys.mode==='doorPush'){ phys.lastX=p.x; phys.lastY=p.y; dirty=true; return; }   /* R13 门推：只记手位，τ=F·d 在 doorTick 折算（门扇不跟手，绕轴转） */
+  if(phys.mode==='inflate'){ phys.lastX=p.x; phys.lastY=p.y; dirty=true; return; }   /* R13 气球充气：按住时长驱动 Q 增长（inflateTick），不跟手 */
   /* R11 按压候选：位移≤6px 按住不动（不移动整件，等 150ms 升格）；>6px 落回 R10 拖拽 */
   if(phys.pressCand&&drag.item){
     phys.movedPx=Math.hypot(p.x-phys.startPointerX,p.y-phys.startPointerY);
@@ -1051,6 +1301,8 @@ function endDrag(e){
   if(phys.mode==='press'){ var ci=phys.item; releasePress(ci); phys.mode=null; phys.item=null; return; }
   if(phys.mode==='squeeze'){ var bi=phys.item; releaseSqueeze(bi,performance.now()); phys.mode=null; phys.item=null; return; }
   if(phys.mode==='push'){ var pi=phys.item; releasePush(pi); phys.mode=null; phys.item=null; return; }   /* R12：推松手→惯性滑行（§3.6） */
+  if(phys.mode==='doorPush'){ var ddi=phys.item; releaseDoorPush(ddi); phys.mode=null; phys.item=null; return; }   /* R13：门推松手→惯性+ζ=0.3 阻尼回稳（§3.11） */
+  if(phys.mode==='inflate'){ var bbi=phys.item; releaseInflate(bbi); return; }   /* R13：气球松手→放气反冲（§3.13；releaseInflate 内清 phys.mode/item） */
   if(phys.pressCand){ phys.pressCand=false; phys.item=null; }   /* 未升格候选：落回 R10 轻点释放 */
   var it=drag.item;
   if(!it) return;
@@ -1086,7 +1338,7 @@ function resolveRelease(it){
   var st=stackTarget(it);                                     /* 无锚位 → 摞叠判定（目标六） */
   if(st){ startStack(it,st.carrier,st.x,st.y); return; }
   it.anchorId=null; it.anchorId2=null;                         /* 自由落定=脱离原锚位锁（§4.3 release：无吸附目标→原地落定） */
-  if(it.ph&&it.ph.slidable&&startFlickSlide(it)) return;       /* R12 目标五：桌面拖拽松手有横向甩速→转惯性滑行（甩速→初速度） */
+  if(it.ph&&it.ph.slidable&&R12_MASS[it.id]&&startFlickSlide(it)) return;       /* R12 目标五：桌面拖拽松手有横向甩速→转惯性滑行（甩速→初速度）；R13 守卫：仅 R12 五件（figure/balloon 无 R12_MASS，不走甩速滑行） */
   setState(it,'settle');
   addTween({it:it,x0:it.x,y0:it.y,x1:it.x,y1:it.y,dur:120,ease:easeOut,onEnd:toIdle});
 }
@@ -1109,6 +1361,8 @@ function startSnap(it,aid,useTop){
   if(other) hotSwap(other,it);                                /* 目标四：热替换（飞回 0.25s 与本件吸附并行） */
   it.anchorId=aid; it.parent=null;
   if(it.ph&&it.ph.r12){ it.ph.vx=0; it.ph.vy=0; it.ph.mode=null; it.ph.asleep=true; it.ph.slip=false; it.ph.bounced=0; }   /* R12：吸附落锁=运动清零（静止零开销） */
+  if(it.ph&&it.ph.r13==='skate'){ it.ph.vx=0; it.ph.a=0; it.ph.mode=null; it.ph.asleep=true; }   /* R13：figure 落锁 A15/A16=运动清零 */
+  if(it.ph&&it.ph.r13==='balloon'){ it.ph.flight=false; it.ph.vx=0; it.ph.vy=0; it.ph.jetF=0; it.ph.landed=true; it.ph.asleep=true; }   /* R13：balloon 落锁 A17=反冲清零（Q 保留可再放） */
   if(aid==='A1'&&(it.id==='spring'||it.id==='rubber_band')) it.anchorId2='A2';
   setState(it,'settle');                                      /* release → settle（吸附动画期） */
   addTween({it:it,x0:it.x,y0:it.y,x1:tx,y1:ty,dur:200,ease:easeOutOvershoot,           /* §4.6：0.18~0.25s 取 0.2s ease-out，末尾过冲 ~3px（2~4px 内） */
@@ -1220,6 +1474,7 @@ function drawPhysicsDebug(){
       +' mT='+f(ph.mTotal,2)+'kg '+(ph.mode||'-')+(ph.asleep?' Z':'')+(ph.toppled?' TOPPLED':'')+(ph.slip?' SLIP':'')
       +(it.parent?(' par='+it.parent.id):'')+(it.id==='cart'?(cartOnTrack(it)?' track':' table'):'');
   }
+  var dph=ITEM_BY_ID.door.ph,f1p=ITEM_BY_ID.figure_fat.ph,f2p=ITEM_BY_ID.figure_thin.ph,bp=ITEM_BY_ID.balloon.ph;
   var lines=[
     'spring  ext='+f(sp.ph.ext,1)+'px v='+f(sp.ph.v,1)+' res='+f(sp.ph.residual,1)+' F='+f(sp.ph.F,2)+'N'+(sp.ph.oscillating?' osc':'')+(sp.ph.asleep?' Z':''),
     'band    ext='+f(bd.ph.ext,1)+'px v='+f(bd.ph.v,1)+' perm='+f(bd.ph.permanent,1)+' F='+f(bd.ph.F,2)+'N'+(bd.ph.oscillating?' osc':'')+(bd.ph.asleep?' Z':''),
@@ -1228,11 +1483,14 @@ function drawPhysicsDebug(){
     'cart   '+r12line(ITEM_BY_ID.cart),
     'block  '+r12line(ITEM_BY_ID.wood_block),
     'box    '+r12line(ITEM_BY_ID.box),
+    'door    τ='+f(dph.tau,2)+'N·m ω='+f(dph.omega,2)+'rad/s θ='+f(dph.theta*180/Math.PI,1)+'° d='+f(dph.d,3)+'m F⊥='+f(dph.Fperp,2)+'N'+(dph.coasting?' coast':'')+(dph.asleep?' Z':''),   /* R13 §3.11 */
+    'skate1  v='+f(f1p.vx,2)+'m/s m='+f(f1p.m,0)+'kg'+(f1p.asleep?' Z':'')+'   skate2 v='+f(f2p.vx,2)+'m/s m='+f(f2p.m,0)+'kg'+(f2p.asleep?' Z':''),   /* R13 §3.12（胖/瘦）*/
+    'balloon Q='+f(bp.Q,2)+'× jet='+f(bp.jetF,2)+'N wob='+f(bp.wob,1)+'° v='+f(bp.vx,2)+','+f(bp.vy,2)+(bp.flight?' FLY':'')+(bp.asleep?' Z':''),   /* R13 §3.13 */
     'hint: '+(STATE.hint||'-')
   ];
   ctx.save();
   ctx.font='600 '+Math.max(10,12*k)+'px monospace'; ctx.textAlign='left'; ctx.textBaseline='top';
-  ctx.fillStyle='rgba(20,20,20,0.55)'; ctx.fillRect(6,6,430,lines.length*15+10);
+  ctx.fillStyle='rgba(20,20,20,0.55)'; ctx.fillRect(6,6,540,lines.length*15+10);
   ctx.fillStyle='#8CFF5A';
   for(var i=0;i<lines.length;i++) ctx.fillText(lines[i],12,11+i*15);
   ctx.restore();
@@ -1262,6 +1520,26 @@ function drawForceLayer(){ /* 层6 力矢/箭头层：推力/速度/喷气箭头
     ctx.lineTo(ex-ux*hl+uy*hl*0.5,ey-uy*hl-ux*hl*0.5);
     ctx.closePath(); ctx.fill();
     ctx.restore();
+  }
+  /* R13 §3.12：滑板双人速度矢量箭头（长度 ∝|v|，1(m/s)=3cm 同 R12；两人同屏反向） */
+  var figs=[ITEM_BY_ID.figure_fat,ITEM_BY_ID.figure_thin],j;
+  for(j=0;j<figs.length;j++){
+    var fj=figs[j],pfj=fj.ph;
+    if(!pfj||pfj.r13!=='skate'||pfj.asleep) continue;
+    var spf=Math.abs(pfj.vx);
+    if(spf*PHYS.dt*PHYS.cmPx*100<PHYS.eps) continue;           /* |v|<ε 不画 */
+    var lenf=Math.max(10,spf*PHYS.skate.arrowCmPerMs*PHYS.cmPx),uf=pfj.vx>0?1:-1;
+    arrowVec(fj.x+uf*(fj.w||10)/2,fj.y-(fj.h||40)*0.55,uf,0,lenf,'rgba(40,120,200,0.92)');   /* 自体侧缘沿 v 方向（蓝）*/
+  }
+  /* R13 §3.13：气球喷气箭头(左,红)+运动箭头(v 方向,橙)同屏反向 */
+  var bl=ITEM_BY_ID.balloon,pb=bl.ph;
+  if(pb&&pb.r13==='balloon'){
+    var rb=pb.r0||L.balloonR,cyb=bl.y-rb;                        /* 球心近似 */
+    if(pb.flight&&pb.jetF>0.05) arrowVec(bl.x-rb*0.9,cyb,-1,0,Math.max(12,Math.min(50,pb.jetF*5)),'rgba(220,60,90,0.92)');   /* 喷气向左（气体喷出方向）*/
+    var spb=Math.hypot(pb.vx,pb.vy);
+    if(pb.flight&&spb*PHYS.dt*PHYS.cmPx*100>=PHYS.eps){
+      arrowVec(bl.x+pb.vx/spb*rb*0.9,cyb+pb.vy/spb*rb*0.9,pb.vx/spb,pb.vy/spb,Math.max(10,spb*PHYS.skate.arrowCmPerMs*PHYS.cmPx),'rgba(224,140,30,0.95)');   /* 运动 v 方向（橙，与喷气反向）*/
+    }
   }
 }
 function drawCanvasUILayer(){ /* 层7 UI 控制层：画布内读数牌/滑杆（R10+；HTML 控件在 header） */ }
@@ -1318,14 +1596,18 @@ function resetItems(){
     else if(it.homeAnchor){ var p=anchorAt(it.homeAnchor); setItemPos(it,p.x,p.y); }
     else if(it.homePct){ it.x=it.homePct.x/100*W; it.y=it.homePct.y/100*H; }
   }
+  physInitR13();                                              /* R13：门 θ/ω、双人 v/m、气球 Q/jet 全归零（默认胖80/瘦50） */
+  skatePresetIdx=0; var bm=document.getElementById('btn-mass'); if(bm) bm.textContent='质量 胖80/瘦50';   /* R13：质量切换复位 */
   STATE.linked=false; STATE.lastPushPoint=null;
   STATE.hint=null; STATE.cart.F=0; STATE.cart.v=0; STATE.cart.a=0;   /* R12：复位清 hint/cart 读数 */
+  STATE.door.thetaDeg=0; STATE.door.omega=0; STATE.door.tau=0; STATE.balloon.Q=0; STATE.balloon.jet=0; STATE.balloon.flying=false;   /* R13：复位清门/气球读数 */
 }
 on('btn-reset','click',function(){
   STATE.mode='table';                        /* 原地 mutate（引擎约定） */
   layout(); resetItems(); dirty=true;
   if(window.playClick) window.playClick();
 });
+on('btn-mass','click',function(){ cycleSkateMass(); if(window.playClick) window.playClick(); });   /* R13 §3.12：胖/瘦质量切换（30~100kg 预设循环） */
 function fullEl(){ return document.fullscreenElement||document.webkitFullscreenElement||null; }
 function syncFull(){ var b=document.getElementById('btn-full'); if(b) b.textContent=(fullEl()||document.documentElement.classList.contains('pseudo-fs'))?'退出全屏':'全屏'; }
 on('btn-full','click',function(){
@@ -1358,7 +1640,12 @@ window.C7_TABLE_DEBUG={ZONES:ZONES,zoneRect:zoneRect,zoneCenter:zoneCenter,zoneP
   getPhys:function(){ function r(id){ var p=ITEM_BY_ID[id].ph; return p?{ext:+(p.ext||0).toFixed(2),v:+(p.v||0).toFixed(2),residual:+(p.residual||0).toFixed(2),permanent:+(p.permanent||0).toFixed(2),F:+(p.F||0).toFixed(3),dentCm:+(p.dentCm||0).toFixed(3),dh:+(p.dh||0).toFixed(2),squeeze:+(p.squeeze||0).toFixed(3),oscillating:!!p.oscillating,asleep:!!p.asleep}:null; }
     function r12(id){ var it=ITEM_BY_ID[id],p=it.ph; return (p&&p.r12)?{vx:+p.vx.toFixed(3),vy:+p.vy.toFixed(3),a:+p.a.toFixed(3),F:+p.F.toFixed(3),thetaDeg:+((p.rot+p.tilt+p.side)*180/Math.PI).toFixed(2),mTotal:+p.mTotal.toFixed(3),mode:p.mode,asleep:!!p.asleep,toppled:!!p.toppled,slip:!!p.slip,tier:p.tier,parent:it.parent?it.parent.id:null,onTrack:id==='cart'?cartOnTrack(it):null}:null; }
     return {spring:r('spring'),rubber_band:r('rubber_band'),clay:r('clay'),bottle_tube:r('bottle_tube'),cmPx:+PHYS.cmPx.toFixed(3),
-      cart:r12('cart'),wood_block:r12('wood_block'),box:r12('box'),hook50:r12('hook50'),hook100:r12('hook100'),hint:STATE.hint}; },
-  getState:function(){ var o={},i; for(i=0;i<ITEMS.length;i++){ o[ITEMS[i].id]={state:ITEMS[i].state,anchorId:ITEMS[i].anchorId,parent:ITEMS[i].parent?ITEMS[i].parent.id:null,linked:ITEMS[i].linked,x:Math.round(ITEMS[i].x),y:Math.round(ITEMS[i].y)}; } return o; },
+      cart:r12('cart'),wood_block:r12('wood_block'),box:r12('box'),hook50:r12('hook50'),hook100:r12('hook100'),
+      door:window.C7_TABLE_DEBUG.getDoor(),skate:window.C7_TABLE_DEBUG.getSkate(),balloon:window.C7_TABLE_DEBUG.getBalloon(),hint:STATE.hint}; },
+  getDoor:function(){ var p=ITEM_BY_ID.door.ph; return {tau:+p.tau.toFixed(3),omega:+p.omega.toFixed(3),thetaDeg:+(p.theta*180/Math.PI).toFixed(2),Fperp:+p.Fperp.toFixed(3),d:+p.d.toFixed(4),pushId:p.pushId,coasting:!!p.coasting,asleep:!!p.asleep}; },   /* R13 §3.11 τ/ω/θ */
+  getSkate:function(){ var a=ITEM_BY_ID.figure_fat.ph,b=ITEM_BY_ID.figure_thin.ph,S=STATE.skate; return {v1:+a.vx.toFixed(3),v2:+b.vx.toFixed(3),m1:a.m,m2:b.m,ratio_m:+(a.m/b.m).toFixed(3),ratio_v:+((b.vx!==0&&a.vx!==0)?Math.abs(a.vx/b.vx):0).toFixed(3),asleep1:!!a.asleep,asleep2:!!b.asleep,
+    pushes:S.pushes||0,v1i:S.v1i||0,v2i:S.v2i||0,ratio_v0:S.ratio_v0||0}; },   /* R13 §3.12 v/m：动量守恒 m₁|v₁|=m₂|v₂| → ratio_v=|v₁/v₂|=m₂/m₁=1/ratio_m（质量小者速度大）；R13b：pushes/v1i/v2i/ratio_v0=互推锁存（摩擦 ~0.6s 停车后仍可验证互推发生过且初速比=m₂/m₁） */
+  getBalloon:function(){ var p=ITEM_BY_ID.balloon.ph; return {Q:+p.Q.toFixed(3),jetF:+p.jetF.toFixed(3),vx:+p.vx.toFixed(3),vy:+p.vy.toFixed(3),wob:+(p.wob||0).toFixed(2),flight:!!p.flight,landed:!!p.landed,asleep:!!p.asleep}; },   /* R13 §3.13 Q/jet/wobble */
+  getState:function(){ var o={},i; for(i=0;i<ITEMS.length;i++){ o[ITEMS[i].id]={state:ITEMS[i].state,anchorId:ITEMS[i].anchorId,parent:ITEMS[i].parent?ITEMS[i].parent.id:null,linked:ITEMS[i].linked,x:Math.round(ITEMS[i].x),y:Math.round(ITEMS[i].y)}; } o.doorPhys=STATE.door; o.skatePhys=STATE.skate; o.balloonPhys=STATE.balloon; return o; },
   get linked(){ return !!STATE.linked; }, get lastPushPoint(){ return STATE.lastPushPoint; }};
 })();
