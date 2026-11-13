@@ -16,7 +16,7 @@ var W=960,H=600,DPR=1,k=1;                  /* k=全局视觉倍率（随画布�
 var dirty=true, firstFrameDone=false, interactive=false;
 
 /* 稳定状态对象：guide 引擎轮询用（GUIDE_CFG.state，原地 mutate 勿重赋值）；mode='table' 单场景 */
-var STATE=window.C7_TABLE_STATE={mode:'table',v:'R11-phys',linked:false,lastPushPoint:null,springF:0,bandF:0,clayDent:0,bottleSqueeze:0};
+var STATE=window.C7_TABLE_STATE={mode:'table',v:'R12-phys',linked:false,lastPushPoint:null,springF:0,bandF:0,clayDent:0,bottleSqueeze:0,cart:{F:0,v:0,a:0},hint:null};   /* R12 §3.6/§3.8：cart F/v/a + hint 供 R14 测力计/R15 字幕取用 */
 
 /* ===== 五区常量表（设计书 §2.2，百分比制，以画布为 100%）===== */
 var ZONES={
@@ -339,7 +339,7 @@ function drawItemRaw(it){
   if(it.id==='rubber_band'&&it.anchorId==='A1'){              /* 悬挂拉伸：环心挂于 A1 下方（顶缘对齐挂点） */
     dy=anchorAt('A1').y+(opt.w||20)*0.28;
   }
-  if(it.id==='cart'&&trk&&trk.mounts&&it!==drag.dragItem&&!it.parent&&!isTweening(it)){   /* 未拖时小车 y 锁轨道行车线（§4.1 轨道锚点） */
+  if(it.id==='cart'&&it.anchorId==='A11'&&trk&&trk.mounts&&it!==drag.dragItem&&!it.parent&&!isTweening(it)){   /* 锁 A11 时小车 y 锁轨道行车线（§4.1）；R12：桌面自由态（anchorId=null）不再锁线 */
     dy=trk.mounts.start.y; it.y=dy;
     if(!it.x||it.homeT2){ it.x=dx=trk.mounts.start.x+trk.mounts.len*(it.homeT!=null?it.homeT:0.32); it.homeT2=false; }   /* 初始/复位帧落位 t=0.32（§2.3） */
   }
@@ -348,6 +348,14 @@ function drawItemRaw(it){
     var dFrac=Math.min(PHYS.clay.dentCap,it.ph.dentCm/3);      /* 凹陷/原高3cm，上限60% */
     var sy=1-dFrac, sx=1/Math.sqrt(sy);                        /* sx²·sy≈1 体积守恒 */
     ctx.save(); ctx.translate(dx,dy); ctx.scale(sx,sy); ctx.translate(-dx,-dy);
+    g=PROPS[it.prop](ctx,dx,dy,opt);
+    ctx.restore();
+  }
+  else if(it.ph&&it.ph.r12&&(it.ph.rot||it.ph.tilt||it.ph.side)){   /* R12：翻倒旋转(绕前底边 §3.8) + 滑倾(绕底心) + 侧偏(≤8° §3.6) */
+    var rotAll=it.ph.rot+it.ph.tilt+it.ph.side,sgn=it.ph.rot>=0?1:-1,pvx,pvy;
+    if(it.ph.rot){ pvx=dx+sgn*(it.w||0)/2; pvy=dy; }           /* 翻倒：绕前底边（推方向一侧底角） */
+    else { pvx=dx; pvy=dy; }                                    /* 滑倾/侧偏：绕底面中心 */
+    ctx.save(); ctx.translate(pvx,pvy); ctx.rotate(rotAll); ctx.translate(-pvx,-pvy);
     g=PROPS[it.prop](ctx,dx,dy,opt);
     ctx.restore();
   }
@@ -435,7 +443,12 @@ function hitTest(px,py){
   var TOL=10;                                                 /* §4.6 命中容差 8~12px，取 10px */
   for(var i=ITEMS.length-1;i>=0;i--){
     var it=ITEMS[i];
-    if(!isDraggable(it)||it.flying) continue;
+    if(!isDraggable(it)||it.flying) continue;                 /* R12：翻倒动画期 flying=true 不可抓（目标五） */
+    if(it.ph&&it.ph.toppled){                                 /* R12：翻倒件 hitTest 用旋转后包围盒近似（绕前底边倒 90°，中心偏移 (w+h)/2） */
+      var cx=it.x+it.ph.toppleDir*((it.w||0)+(it.h||0))/2;
+      if(px>=cx-(it.h||0)/2-TOL&&px<=cx+(it.h||0)/2+TOL&&py>=it.y-(it.w||0)-TOL&&py<=it.y+TOL) return it;
+      continue;
+    }
     if(px>=it.x-it.w/2-TOL&&px<=it.x+it.w/2+TOL&&py>=it.y-it.h-TOL&&py<=it.y+TOL) return it;
   }
   return null;
@@ -502,7 +515,11 @@ var PHYS={
   spring:{k:100,F_yield:4.5,zeta:0.20,wn:12,L0cm:8,resRatio:0.30},      /* §3.2：k=100N/m(80~120中)、ζ=0.20(0.15~0.25中)、ωₙ=12(8~15中)、F_yield=4.5N、residual=超限30% */
   band:{k1:30,k2:15,zeta:0.40,wn:8,L0cm:6,unload:0.7,permPull:0.005,permCap:0.03}, /* §3.3：加载F=k₁ΔL+k₂ΔL²、卸载×0.7迟滞、ζ=0.40(0.35~0.5中)、残余≤3%L₀(单次~0.5%) */
   clay:{coef:0.04,pressK:1000,dentCap:0.60,rebound:0},                  /* §3.4：d=coef·√F(cm/√N)、回弹率0、上限60%原高 */
-  bottle:{h0cm:5,kSqueeze:2.5,zeta:0.30,wn:10,areaRatio:40}             /* §3.5：h₀=5cm、k_squeeze=2.5cm/单位、ζ=0.30(0.25~0.4中)、截面积比≈40(放大量语义) */
+  bottle:{h0cm:5,kSqueeze:2.5,zeta:0.30,wn:10,areaRatio:40},            /* §3.5：h₀=5cm、k_squeeze=2.5cm/单位、ζ=0.30(0.25~0.4中)、截面积比≈40(放大量语义) */
+  /* ===== R12 扩展参数组（§3.6-§3.10，轨道区/桌面区平动+翻倒+摞叠）===== */
+  cart:{m:0.5,Fmax:8,muTrack:0.03,muTable:0.2,eEdge:0.5,sideMaxDeg:8,Kc:100,couplGapPx:50}, /* §3.6：m=0.5kg、F_push_max=8N(超过截断)、μ_track=0.03(0.02~0.05取中)、μ_table=0.2(0.15~0.25取中)、e_edge=0.5(0.4~0.6取中)、侧偏≤8°不脱轨、Kc=手-车耦合刚度N/m、couplGap=脱手间隙 */
+  block:{m:0.15,muS:0.25,muK:0.25,arrowCmPerMs:3,tiltMaxDeg:10},       /* §3.7：木块 μ=0.25(静摩擦阈值F>μN才启动/动摩擦同值)、速度箭头比例取「1(m/s)=3cm」视觉直映(F=ma 等效力换算的另一取法，此处取直接比例)、滑倾上限10°；m=0.15kg(设计书未给，本单取值：阈值F=μmg≈0.37N 轻推不动语义成立) */
+  stack:{muStack:0.35,eFall:0.3,maxLayers:3,boxM:0.2,hook50M:0.05,hook100M:0.1} /* §3.9/§3.10：滑落判据 a_carrier>μ_stack·g(μ_stack=0.35)、坠落回弹 e≈0.3、摞高≤3层(超3层 STATE hint)、box=0.2kg/hook50=0.05kg/hook100=0.1kg(m_total 合成 §3.6) */
 };
 /* 形变件 ph 动态量：ext=超自然长伸长px / v=px/s / residual=永久形变px / oscillating=解析衰减中 / asleep=静止零开销
  * clay: dent=凹陷px(持久) pressDepth=按压位移px；bottle: dh=液柱偏移px(+=升) squeeze=捏强度 */
@@ -528,6 +545,7 @@ function physRecalcBasis(){
     }else if(it.type==='bottle_tube'){ ph.h0px=PHYS.bottle.h0cm*PHYS.cmPx; ph.dh=0; ph.oscillating=false; ph.asleep=true; }
     else if(it.type==='clay'){ ph.dent=ph.dentCm*PHYS.cmPx; }  /* 凹陷持久，按新 cmPx 重算像素 */
   }
+  physRebaseR12();                                             /* R12：清帧间差分基准（速度 m/s 与像素无关，不残留旧值） */
 }
 /* 解析欠阻尼：x(τ)=A0·e^(-ζωₙτ)·cos(ωₙ√(1-ζ²)·τ)（§3.2 落码，验收3 grep 证明） */
 function physOsc(A0,zeta,wn,tau){
@@ -565,7 +583,229 @@ function physicsStep(now){
     /* clay 塑性：无振荡，dent 持久，仅按压中更新（见 pointermove） */
   }
   if(active) dirty=true;
+  physStepR12(now);                                            /* R12 接缝：cart/木块/box/钩码积分入口（上方 R11 四形变分支一行未改） */
   if(DEBUG_PHYS) dirty=true;
+}
+/* ============================================================
+ * R12 轨道区/桌面区平动物理（设计书 §3.6-§3.10）
+ * cart 推力加速+惯性滑行+桌缘/轨道端碰撞回弹+翻倒；wood_block 滑动+静摩擦阈值+翻倒+速度箭头；
+ * box/钩码 摞叠随动(R10 moveChildren 不动)+滑落+坠落+砝码质量合成。
+ * 门转动/滑板动量/气球反冲属 R13，测力计读数属 R14，本单不碰；R11 四形变分支一行不改。
+ * ============================================================ */
+var R12_MASS={cart:0.5,wood_block:0.15,box:0.2,hook50:0.05,hook100:0.1};   /* §3.6/§3.10 kg：block 0.15 为本单取值(见 PHYS.block 注释) */
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function sign(v){ return v>0?1:(v<0?-1:0); }
+function cartOnTrack(it){ return it.anchorId==='A11'; }        /* §3.6 在轨道上判据=锁 A11（μ=0.03），否则桌面 μ=0.2 */
+/* 载重合成（§3.6/§3.10）：m_total=m_self+Σ摞件(递归，box 0.2/hook50 0.05/hook100 0.1/木块 0.15) */
+function computeTotalMass(it){
+  var m=R12_MASS[it.id]||0;
+  for(var i=0;i<ITEMS.length;i++){ var c=ITEMS[i]; if(c.parent===it) m+=computeTotalMass(c); }
+  return m;
+}
+/* §3.8 翻倒判据通用函数（cart/wood_block/box 共用）：F·h > m·g·(w/2) 时绕前底边翻转
+ * F=水平推力N、h=作用点高度m(自底面)、m=总质量kg、w=底宽m；返回 {over:是否翻转, ratio:F·h/(m·g·w/2)} */
+function toppleCrit(F,h,m,w){
+  var res=m*PHYS.g*(w/2);
+  return {over:Math.abs(F)*h>res, ratio:res>0?Math.abs(F)*h/res:0};
+}
+/* R12 ph 初始化（slidable 五件；R11 physInit 四形变分支不动） */
+function physInitR12(it){
+  if(!R12_MASS[it.id]) return;
+  it.ph={r12:true,slidable:true,vx:0,vy:0,a:0,F:0,rot:0,tilt:0,side:0,mode:null,asleep:true,
+         toppled:false,toppleDir:1,toppleT0:0,mTotal:R12_MASS[it.id],
+         prevX:it.x,frameV:0,frameVPrev:0,grabOffX:0,pushH:0,tier:null,
+         slip:false,groundY:0,bounced:0};
+}
+(function(){ for(var i=0;i<ITEMS.length;i++) physInitR12(ITEMS[i]); })();
+/* resize：速度单位 m/s 与像素无关，仅清帧间差分基准防 a_est 尖峰（沿 R11 physRebase 语义，不残留旧像素值） */
+function physRebaseR12(){
+  for(var i=0;i<ITEMS.length;i++){ var ph=ITEMS[i].ph; if(ph&&ph.r12){ ph.prevX=ITEMS[i].x; ph.frameV=0; ph.frameVPrev=0; } }
+}
+/* ===== 推模式（phys.mode='push'）：轨道小车 pointerdown 直进；木块/箱子沿 R11 进入条件（位移<6px 且按住>150ms）===== */
+function startPush(it,p){
+  var ph=it.ph;
+  phys.mode='push'; phys.item=it; phys.pressCand=false;
+  drag.item=null;                                              /* 推≠拖：车不跟手，力由手-车间隙折算（目标五） */
+  killTweensOf(it); setState(it,'grabbing'); setCursor('grabbing');
+  ph.asleep=false; ph.mode='push'; ph.slip=false; ph.vx=0; ph.vy=0;
+  it.parent=null;                                              /* R12：被推摞件即脱离载体（防 R10 随动与推积分双重位移） */
+  phys.startPointerX=p.x; phys.startPointerY=p.y; phys.lastX=p.x; phys.lastY=p.y; phys.downT=performance.now();
+  ph.grabOffX=p.x-it.x;                                        /* 接触点相对体心偏移（推跟手用） */
+  ph.pushH=Math.max(0,it.y-p.y);                               /* 作用点高度 h（自底面，px） */
+  var Hh=it.h||1;
+  ph.tier=(ph.pushH>=Hh*2/3)?'top':((ph.pushH>Hh/3)?'mid':'bottom');   /* §3.8 三段分档 */
+  ph.mTotal=computeTotalMass(it);                              /* §3.6 载重合成：载物加速变慢 */
+  STATE.hint=(ph.tier==='top')?'推顶部：F·h>m·g·(w/2) 即翻倒——作用点不同，效果完全不同'
+            :(ph.tier==='mid')?'推中部：既滑又倾（倾角随力矩渐增，有上限）'
+            :'推底部：'+(it.type==='cart'?'顺推加速 a=F/m':'需 F>μ·N 克服静摩擦才启动');
+  dirty=true;
+}
+/* §3.8 翻倒动画：绕前底边（推方向一侧底角）加速倒下 0.45s→90°；flying 期间不可抓；倒下后静止不自动立起 */
+function startTopple(it,dir){
+  var ph=it.ph;
+  ph.mode='topple'; ph.toppleDir=dir; ph.toppleT0=performance.now();
+  ph.vx=0; ph.vy=0; ph.F=0; ph.a=0; ph.tilt=0; ph.side=0;
+  it.flying=true;                                              /* 翻倒动画期 flying 语义沿用（目标五） */
+  if(phys.item===it){ phys.mode=null; phys.item=null; }        /* 推手中断 */
+  setState(it,'idle'); toIdle(it);
+  STATE.hint='翻倒：F·h>m·g·(w/2)，绕前底边翻转（不自动立起，可拖拽扶正）';
+  dirty=true;
+}
+function toppleTick(it,now){
+  var ph=it.ph,t=Math.min(1,(now-ph.toppleT0)/450);
+  ph.rot=ph.toppleDir*(Math.PI/2)*t*t;                         /* 角加速倒下（重力矩语义的简化时间基） */
+  if(t>=1){ ph.rot=ph.toppleDir*Math.PI/2; ph.mode=null; ph.toppled=true; it.flying=false; ph.asleep=true; }  /* 倒下后静止 */
+  return true;
+}
+/* ===== 推力积分（§3.6）：F=手-车耦合折算(Kc·间隙,截断±8N)；a=F/m_total；逆推同一积分自然减速到 0 再反向 ===== */
+function pushTick(it,now){
+  var ph=it.ph,dt=PHYS.dt,pxM=PHYS.cmPx*100;                  /* px/m = cmPx×100 */
+  ph.asleep=false;                                             /* 推手中：唤醒（积分内睡眠判定接管） */
+  ph.mTotal=computeTotalMass(it);                              /* §3.6/§3.9：载重每帧合成（箱/钩码滑落后 m_total 即时变小） */
+  var gapPx=phys.lastX-(it.x+ph.grabOffX);                     /* 手与接触点间隙：顺推为正、逆推为负 */
+  var F=(Math.abs(gapPx)<=PHYS.cart.couplGapPx)?clamp(PHYS.cart.Kc*gapPx/pxM,-PHYS.cart.Fmax,PHYS.cart.Fmax):0;   /* 超间隙=脱手 F=0；上限 8N 截断 §3.6 */
+  ph.F=F;
+  var hM=ph.pushH/pxM,wM=(it.w||10)/pxM;
+  if(ph.tier==='top'&&toppleCrit(F,hM,ph.mTotal,wM).over){ startTopple(it,sign(F)||1); return; }   /* §3.8 h≥2H/3 且判据满足→翻倒 */
+  if(it.type==='cart'&&cartOnTrack(it)) ph.side=clamp((phys.lastY-phys.startPointerY)*0.35,-PHYS.cart.sideMaxDeg,PHYS.cart.sideMaxDeg)*Math.PI/180;  /* §3.6 侧推拐弯：侧偏角≤8°，y 保持轨道线不脱轨 */
+  if((it.type==='wood_block'||it.type==='box')&&Math.abs(ph.vx)<1e-4&&Math.abs(F)<=PHYS.block.muS*ph.mTotal*PHYS.g){ ph.a=0; return; }  /* §3.7 静摩擦阈值：推底 F>μN 才启动，轻推不动 */
+  var mu=(it.type==='cart')?(cartOnTrack(it)?PHYS.cart.muTrack:PHYS.cart.muTable):PHYS.block.muK;
+  var dir=(ph.vx!==0)?sign(ph.vx):sign(F);
+  var a=F/ph.mTotal-mu*PHYS.g*dir;                             /* a=F/m − μ·g（运动/将动方向 opposing） */
+  if(ph.vx===0&&a*dir<0) a=0;                                  /* 静置且合力不足以动 → 不动 */
+  var vPrev=ph.vx;
+  ph.vx+=a*dt; ph.a=a;
+  if(vPrev!==0&&ph.vx*vPrev<0&&Math.abs(F)<1e-6) ph.vx=0;      /* 摩擦致停（无推力时不许穿越 0 抖振） */
+  if(ph.tier==='mid'){                                         /* §3.8 H/3<h<2H/3：滑+倾，倾角随力矩比渐增有上限 */
+    var tr=toppleCrit(F,hM,ph.mTotal,wM).ratio;
+    ph.tilt=sign(F)*Math.min(tr,1)*PHYS.block.tiltMaxDeg*Math.PI/180;
+  }
+  ph.mode='slide';
+  integrateBody(it,dt,pxM);
+  ph.mode='push';
+}
+/* ===== 惯性滑行（§3.6/§3.7）：松手后 a_fric=−μ·g（轨 0.03/桌 0.2/木块箱 0.25）+ 边缘碰撞 v'=−e·v + |v|<0.3px/帧 asleep ===== */
+function slideTick(it,dt,pxM){
+  var ph=it.ph;
+  var mu=(it.type==='cart')?(cartOnTrack(it)?PHYS.cart.muTrack:PHYS.cart.muTable):PHYS.block.muK;
+  var sp=Math.hypot(ph.vx,ph.vy);
+  if(sp>0){
+    var dec=mu*PHYS.g*dt;                                      /* Δv=μ·g·dt 逐帧扣减 */
+    var ns=Math.max(0,sp-dec);
+    ph.vx*=ns/sp; ph.vy*=ns/sp;
+    ph.a=-mu*PHYS.g*(sp>0?1:0);
+  }else ph.a=0;
+  ph.side*=0.92;                                               /* 松手后侧偏角逐帧回正（y 保持轨道线，不脱轨 §3.6） */
+  integrateBody(it,dt,pxM);
+}
+/* 位置积分+边界碰撞（桌缘/轨道端挡板 v'=−e·v，e=0.5 §3.6；坠落 e=0.3 §3.9 分走 fallTick）+ 睡眠判定 */
+function integrateBody(it,dt,pxM){
+  var ph=it.ph,b=bodyBounds(it),ox=it.x,oy=it.y;
+  it.x+=ph.vx*dt*pxM; it.y+=ph.vy*dt*pxM;
+  if(b){
+    if(it.x<b.xmin){ it.x=b.xmin; ph.vx=-PHYS.cart.eEdge*ph.vx; if(Math.abs(ph.vx)<0.08) ph.vx=0; }   /* 桌缘/轨道端碰撞回弹 v'=−e·v，多次碰撞衰减；死区防贴挡板抖振 */
+    else if(it.x>b.xmax){ it.x=b.xmax; ph.vx=-PHYS.cart.eEdge*ph.vx; if(Math.abs(ph.vx)<0.08) ph.vx=0; }
+    if(b.ymin!=null){
+      if(it.y<b.ymin){ it.y=b.ymin; ph.vy=-PHYS.cart.eEdge*ph.vy; if(Math.abs(ph.vy)<0.08) ph.vy=0; }
+      else if(it.y>b.ymax){ it.y=b.ymax; ph.vy=-PHYS.cart.eEdge*ph.vy; if(Math.abs(ph.vy)<0.08) ph.vy=0; }
+    }
+  }
+  if(it.x!==ox||it.y!==oy) moveChildren(it,it.x-ox,it.y-oy);   /* R12 目标四：物理滑行时载体随动沿 R10 moveChildren 原样 */
+  if(Math.abs(ph.vx*dt*pxM)<PHYS.eps&&Math.abs(ph.vy*dt*pxM)<PHYS.eps&&ph.mode!=='fall'){   /* |v|<ε=0.3px/帧 → asleep 静止零开销 */
+    ph.vx=0; ph.vy=0; ph.a=0; ph.asleep=true; ph.mode=null; ph.tilt=0; ph.side=0;
+    if(it.id==='cart'){ STATE.cart.F=0; STATE.cart.v=0; STATE.cart.a=0; }
+  }
+}
+function bodyBounds(it){
+  if(it.type==='cart'&&cartOnTrack(it)&&trk&&trk.mounts){
+    var m=trk.mounts;                                          /* 轨道端挡板：与 R10 拖拽 clamp 同界（§4.1 行车线） */
+    return {xmin:m.start.x-L.cartW*0.4,xmax:m.end.x+L.cartW*0.4,ymin:null};   /* y 由 drawItemRaw 锁行车线 */
+  }
+  var tl=TABLE.l*W+8,tr=TABLE.r*W-8,tt=TABLE.t*H+it.h,tb=TABLE.b*H;
+  return {xmin:tl+(it.w||0)/2,xmax:tr-(it.w||0)/2,ymin:tt,ymax:tb};            /* 桌面区：左右桌缘+前后沿挡板 */
+}
+/* ===== 摞叠滑落/坠落（§3.9/§3.10）：a_carrier>μ_stack·g → 脱离 parent，获载体当时速度，自由落体 g=9.8 落桌弹一下(e=0.3)再停 ===== */
+function detachSlip(child,carrier,vcx){
+  var gy=child.y,p=carrier;
+  while(p){ gy=p.y; p=p.parent; }                              /* 落点=摞链最底载体基面（桌面/轨道面高度） */
+  var ph=child.ph;
+  child.parent=null;                                           /* 脱离载体（R10 moveChildren 不再带动） */
+  ph.slip=true; ph.mode='fall'; ph.vx=vcx; ph.vy=0;
+  ph.groundY=gy; ph.asleep=false; ph.bounced=0;
+  STATE.hint='载体加速度 a>μ_stack·g（0.35×9.8），上层箱滑落';
+  dirty=true;
+}
+function fallTick(it,dt,pxM){
+  var ph=it.ph,ox=it.x,oy=it.y;
+  ph.vy+=PHYS.g*dt;                                            /* 坠落 g=9.8 m/s²（px 换算用 cmPx） */
+  it.x+=ph.vx*dt*pxM; it.y+=ph.vy*dt*pxM;
+  var b=bodyBounds(it);
+  if(b){ if(it.x<b.xmin){ it.x=b.xmin; ph.vx=-PHYS.cart.eEdge*ph.vx; } else if(it.x>b.xmax){ it.x=b.xmax; ph.vx=-PHYS.cart.eEdge*ph.vx; } }
+  if(it.x!==ox||it.y!==oy) moveChildren(it,it.x-ox,it.y-oy);   /* 坠落件背上的摞件同步随动 */
+  if(it.y>=ph.groundY){                                        /* 落到桌面高度 */
+    it.y=ph.groundY;
+    if(ph.vy>0.6&&ph.bounced<2){ ph.vy=-PHYS.stack.eFall*ph.vy; ph.bounced++; }   /* 弹一下 e≈0.3 小回弹 */
+    else { ph.vy=0; ph.mode='slide'; ph.asleep=(Math.abs(ph.vx*dt*pxM)<PHYS.eps); } /* 再停→转普通木块物理（摩擦减速） */
+  }
+}
+/* ===== physStepR12：只对激活件积分，asleep 零开销（沿 R11 physicsStep 骨架）；帧间 a_est 供滑落判据 ===== */
+function physStepR12(now){
+  var i,active=false,dt=PHYS.dt,pxM=PHYS.cmPx*100;
+  if(phys.mode==='push'&&phys.item&&phys.item.ph) pushTick(phys.item,now);
+  for(i=0;i<ITEMS.length;i++){
+    var it=ITEMS[i],ph=it.ph;
+    if(!ph||!ph.r12) continue;
+    var vxFrame=(it.x-ph.prevX)/dt/pxM;                        /* 帧间速度 m/s（拖拽/推/滑一律可测，供滑落判据） */
+    ph.prevX=it.x;
+    if(ph.mode==='topple'){ active=toppleTick(it,now)||active; }
+    else if(ph.mode==='fall'){ fallTick(it,dt,pxM); active=true; }
+    else if(ph.mode==='slide'&&!(phys.mode==='push'&&phys.item===it)){ slideTick(it,dt,pxM); active=true; }
+    if(it.parent&&it.parent.ph&&it.parent.ph.r12&&!isTweening(it)&&it.state!=='settle'){   /* 摞叠随动件：每帧测载体水平加速度（自身补间/settle 期不判，防摞放动画误滑落） */
+      var aC=(vxFrame-ph.frameVPrev)/dt;                       /* 随动时 v_child≈v_carrier → 帧速差分=载体加速度近似 */
+      if(Math.abs(aC)>PHYS.stack.muStack*PHYS.g){ detachSlip(it,it.parent,vxFrame); active=true; }   /* §3.9 滑落判据 a>μ_stack·g */
+    }
+    ph.frameVPrev=ph.frameV; ph.frameV=vxFrame;
+    if(it.id==='cart'){                                        /* STATE.cart：F/v/a 写入（供 R14/R15 取用，目标五） */
+      STATE.cart.F=+(ph.F||0).toFixed(3); STATE.cart.v=+(ph.vx||0).toFixed(3); STATE.cart.a=+(ph.a||0).toFixed(3);
+    }
+    if(!ph.asleep||ph.mode) active=true;
+  }
+  if(active) dirty=true;
+}
+/* 推模式松手（endDrag 接缝）：保留当前 v → 惯性滑行摩擦减速（§3.6 松手后） */
+function releasePush(it){
+  var ph=it.ph;
+  ph.F=0; ph.mode=(Math.abs(ph.vx)>0||Math.abs(ph.side)>1e-4)?'slide':null;   /* 保留 v→惯性滑行；仅剩侧偏也进滑行帧衰减回正 */
+  if(!ph.mode) ph.asleep=true;
+  ph.tilt=0;                                                   /* 滑倾随推力撤除回正（侧偏 side 保留至滑行衰减） */
+  setState(it,'idle'); toIdle(it);
+  dirty=true;
+}
+/* 桌面整件拖拽松手甩速→初速度（目标五接缝：resolveRelease 内调用；有横向甩速则转惯性滑行） */
+function startFlickSlide(it){
+  var ph=it.ph,pxM=PHYS.cmPx*100;
+  if(performance.now()-(drag.lt||0)>120) return false;         /* 松手前停顿>120ms=无甩速 */
+  var vx=(drag.vx||0)/pxM,vy=(drag.vy||0)/pxM;
+  if(Math.hypot(vx,vy)*dtFramePx(pxM)<PHYS.eps) return false;  /* |v|<0.3px/帧 → 不滑 */
+  ph.vx=clamp(vx,-2.5,2.5); ph.vy=clamp(vy,-2.5,2.5);          /* 甩速封顶 2.5m/s 防飞出 */
+  ph.mode='slide'; ph.asleep=false; ph.slip=false; ph.bounced=0;
+  it.parent=null;                                              /* 甩出=脱离原载体随动，转独立平动 */
+  if(it.type!=='cart'||!cartOnTrack(it)) ph.groundY=it.y;
+  setState(it,'idle');
+  dirty=true;
+  return true;
+}
+function dtFramePx(pxM){ return PHYS.dt*pxM; }
+/* §3.10 摞高检查：>3 层写 STATE 不稳提示（不做塔倒物理）；startStack 落定后调用 */
+function stackDepthBelow(it){ var n=1,p=it.parent; while(p){ n++; p=p.parent; } return n; }
+function stackDepthAbove(it){
+  var n=0;
+  for(var i=0;i<ITEMS.length;i++){ if(ITEMS[i].parent===it) n=Math.max(n,stackDepthAbove(ITEMS[i])); }
+  return n+1;
+}
+function checkStackDepth(it){
+  var depth=stackDepthBelow(it)+stackDepthAbove(it)-1;
+  if(depth>PHYS.stack.maxLayers) STATE.hint='摞高超过 3 层，不稳（规格上限 ≤3 层）';
 }
 /* 弹簧拉力 F=k·ΔL（§3.2，k=100N/m，ΔL=弹性段米数）；写入 STATE 供字幕/测力计单用 */
 function physSpringForce(it){
@@ -676,6 +916,10 @@ function stretchMove(p){
   physStretchMove(it,ext);
 }
 function promotePress(it){
+  if(it.ph&&it.ph.r12){                                        /* R12：木块/箱子升格进推模式（进入条件沿 R11：<6px 且 >150ms） */
+    startPush(it,{x:phys.startPointerX,y:phys.startPointerY});
+    return;
+  }
   phys.pressCand=false; drag.item=null; killTweensOf(it); setState(it,'idle');
   phys.mode=(it.type==='clay')?'press':'squeeze'; phys.item=it;
   phys.lastX=phys.startPointerX; phys.lastY=phys.startPointerY;
@@ -736,14 +980,25 @@ cv.addEventListener('pointerdown',function(e){
     try{ cv.setPointerCapture(e.pointerId); }catch(err){}
     startStretch(it,p); e.preventDefault(); return;
   }
+  var wasToppled=(it.ph&&it.ph.r12&&it.ph.toppled);
+  if(wasToppled){                                              /* R12：翻倒件被拖起=扶正，倾角清零（目标二/三：不自动立起，拖起时清） */
+    it.ph.toppled=false; it.ph.rot=0; it.ph.tilt=0; it.ph.side=0; it.ph.asleep=true; it.ph.vx=0; it.ph.vy=0; it.ph.mode=null;
+  }
+  /* R12 目标五：锁 A11 轨道上的小车 pointerdown 拖动=推力物理（F 由 pointer 位移折算），不走 R10 整件拖拽；翻倒态例外=走拖拽扶正 */
+  if(it.type==='cart'&&cartOnTrack(it)&&it.ph&&!it.flying&&!wasToppled){
+    try{ cv.setPointerCapture(e.pointerId); }catch(err){}
+    startPush(it,p); e.preventDefault(); return;
+  }
   try{ cv.setPointerCapture(e.pointerId); }catch(err){}
   killTweensOf(it);
   drag.item=it; drag.moved=false; drag.downT=performance.now();
   drag.ox=p.x-it.x; drag.oy=p.y-it.y;
+  drag.vx=0; drag.vy=0; drag.lx=p.x; drag.ly=p.y; drag.lt=performance.now();   /* R12：甩速跟踪基线 */
   setHover(null);
   setState(it,'grabbing'); setCursor('grabbing');             /* idle/hover → grabbing（§4.3） */
-  /* R11：橡皮泥/玻璃瓶按压候选——位移<6px 且按住>150ms 才进形变模式，否则走 R10 整件拖拽（目标六） */
-  if((it.type==='clay'||it.type==='bottle_tube')&&it.ph){
+  /* R11：橡皮泥/玻璃瓶按压候选——位移<6px 且按住>150ms 才进形变模式，否则走 R10 整件拖拽（目标六）
+   * R12：木块/箱子同条件升格进推模式（目标五：避免抢 R10 拖放手感） */
+  if(((it.type==='clay'||it.type==='bottle_tube')&&it.ph)||(it.ph&&it.ph.r12&&(it.type==='wood_block'||it.type==='box'))){
     phys.pressCand=true; phys.item=it; phys.mode=null; phys.downT=performance.now();
     phys.startPointerX=p.x; phys.startPointerY=p.y; phys.lastX=p.x; phys.lastY=p.y; phys.movedPx=0;
   }
@@ -755,6 +1010,7 @@ cv.addEventListener('pointermove',function(e){
   /* R11 形变模式优先于 R10 拖拽 */
   if(phys.mode==='stretch'){ stretchMove(p); dirty=true; return; }
   if(phys.mode==='press'||phys.mode==='squeeze'){ pressMove(p); dirty=true; return; }
+  if(phys.mode==='push'){ phys.lastX=p.x; phys.lastY=p.y; dirty=true; return; }   /* R12 推模式：只记手位，力在 pushTick 折算（件不跟手） */
   /* R11 按压候选：位移≤6px 按住不动（不移动整件，等 150ms 升格）；>6px 落回 R10 拖拽 */
   if(phys.pressCand&&drag.item){
     phys.movedPx=Math.hypot(p.x-phys.startPointerX,p.y-phys.startPointerY);
@@ -764,6 +1020,10 @@ cv.addEventListener('pointermove',function(e){
   }
   if(drag.item){
     var it=drag.item,nx=p.x-drag.ox,ny=p.y-drag.oy;
+    var nowT=performance.now(),dtE=Math.max(8,nowT-(drag.lt||nowT));   /* R12：甩速采样（px/s，指数平滑），松手转惯性滑行用 */
+    drag.vx=0.6*(drag.vx||0)+0.4*((p.x-(drag.lx!=null?drag.lx:p.x))/dtE*1000);
+    drag.vy=0.6*(drag.vy||0)+0.4*((p.y-(drag.ly!=null?drag.ly:p.y))/dtE*1000);
+    drag.lx=p.x; drag.ly=p.y; drag.lt=nowT;
     if(!drag.moved&&(Math.abs(nx-it.x)>2||Math.abs(ny-it.y)>2)){ drag.moved=true; setState(it,'dragging'); }
     if(it.state==='dragging'){
       var dx=nx-it.x,dy=ny-it.y;
@@ -790,6 +1050,7 @@ function endDrag(e){
   if(phys.mode==='stretch'){ var si=phys.item; physStretchRelease(si,performance.now()); toIdle(si); phys.mode=null; phys.item=null; return; }
   if(phys.mode==='press'){ var ci=phys.item; releasePress(ci); phys.mode=null; phys.item=null; return; }
   if(phys.mode==='squeeze'){ var bi=phys.item; releaseSqueeze(bi,performance.now()); phys.mode=null; phys.item=null; return; }
+  if(phys.mode==='push'){ var pi=phys.item; releasePush(pi); phys.mode=null; phys.item=null; return; }   /* R12：推松手→惯性滑行（§3.6） */
   if(phys.pressCand){ phys.pressCand=false; phys.item=null; }   /* 未升格候选：落回 R10 轻点释放 */
   var it=drag.item;
   if(!it) return;
@@ -824,7 +1085,8 @@ function resolveRelease(it){
   if(best){ startSnap(it,best.id,best.top); return; }
   var st=stackTarget(it);                                     /* 无锚位 → 摞叠判定（目标六） */
   if(st){ startStack(it,st.carrier,st.x,st.y); return; }
-  it.anchorId=null; it.anchorId2=null;                         /* 自由落定=脱离原锚位锁（§4.3 release：无吸附目标→原地落定，本单无重力，留 R11+） */
+  it.anchorId=null; it.anchorId2=null;                         /* 自由落定=脱离原锚位锁（§4.3 release：无吸附目标→原地落定） */
+  if(it.ph&&it.ph.slidable&&startFlickSlide(it)) return;       /* R12 目标五：桌面拖拽松手有横向甩速→转惯性滑行（甩速→初速度） */
   setState(it,'settle');
   addTween({it:it,x0:it.x,y0:it.y,x1:it.x,y1:it.y,dur:120,ease:easeOut,onEnd:toIdle});
 }
@@ -846,6 +1108,7 @@ function startSnap(it,aid,useTop){
   var other=occupiedBy(aid,it);
   if(other) hotSwap(other,it);                                /* 目标四：热替换（飞回 0.25s 与本件吸附并行） */
   it.anchorId=aid; it.parent=null;
+  if(it.ph&&it.ph.r12){ it.ph.vx=0; it.ph.vy=0; it.ph.mode=null; it.ph.asleep=true; it.ph.slip=false; it.ph.bounced=0; }   /* R12：吸附落锁=运动清零（静止零开销） */
   if(aid==='A1'&&(it.id==='spring'||it.id==='rubber_band')) it.anchorId2='A2';
   setState(it,'settle');                                      /* release → settle（吸附动画期） */
   addTween({it:it,x0:it.x,y0:it.y,x1:tx,y1:ty,dur:200,ease:easeOutOvershoot,           /* §4.6：0.18~0.25s 取 0.2s ease-out，末尾过冲 ~3px（2~4px 内） */
@@ -889,9 +1152,10 @@ function stackTarget(it){
 }
 function startStack(it,carrier,x,y){
   it.parent=carrier; it.anchorId=null; it.anchorId2=null;
+  if(it.ph&&it.ph.r12){ it.ph.vx=0; it.ph.vy=0; it.ph.mode=null; it.ph.asleep=true; it.ph.slip=false; it.ph.bounced=0; }   /* R12：摞放落定=运动清零，随动交给 R10 moveChildren */
   setState(it,'settle');
   addTween({it:it,x0:it.x,y0:it.y,x1:x,y1:y,dur:200,ease:easeOutOvershoot,              /* 摞放同 §4.6 吸附参数 */
-    onEnd:function(o){ o.x=x; o.y=y; toIdle(o); }});
+    onEnd:function(o){ o.x=x; o.y=y; toIdle(o); checkStackDepth(o); }});                  /* R12 §3.10：落定后摞高>3 层写 STATE hint */
 }
 function moveChildren(parent,dx,dy){
   for(var i=0;i<ITEMS.length;i++){
@@ -946,19 +1210,29 @@ function drawAnchorDebug(){
   ctx.restore();
 }
 
-/* ===== ?physics=1 调试层：四形变件当前 x/v/d/h 数值（蔡总复验用，默认关）===== */
+/* ===== ?physics=1 调试层：四形变件 x/v/d/h + R12 cart/block/box 的 v/a/θ/滑落/m_total（蔡总复验用，默认关）===== */
 function drawPhysicsDebug(){
   var sp=ITEM_BY_ID.spring,bd=ITEM_BY_ID.rubber_band,cl=ITEM_BY_ID.clay,bt=ITEM_BY_ID.bottle_tube;
   function f(n,d){ return (n||0).toFixed(d); }
+  function r12line(it){                                        /* R12 slidable 件单行 */
+    var ph=it.ph,deg=((ph.rot+ph.tilt+ph.side)*180/Math.PI);
+    return ' v='+f(ph.vx,2)+','+f(ph.vy,2)+'m/s a='+f(ph.a,2)+' F='+f(ph.F,2)+'N θ='+f(deg,1)+'°'
+      +' mT='+f(ph.mTotal,2)+'kg '+(ph.mode||'-')+(ph.asleep?' Z':'')+(ph.toppled?' TOPPLED':'')+(ph.slip?' SLIP':'')
+      +(it.parent?(' par='+it.parent.id):'')+(it.id==='cart'?(cartOnTrack(it)?' track':' table'):'');
+  }
   var lines=[
     'spring  ext='+f(sp.ph.ext,1)+'px v='+f(sp.ph.v,1)+' res='+f(sp.ph.residual,1)+' F='+f(sp.ph.F,2)+'N'+(sp.ph.oscillating?' osc':'')+(sp.ph.asleep?' Z':''),
     'band    ext='+f(bd.ph.ext,1)+'px v='+f(bd.ph.v,1)+' perm='+f(bd.ph.permanent,1)+' F='+f(bd.ph.F,2)+'N'+(bd.ph.oscillating?' osc':'')+(bd.ph.asleep?' Z':''),
     'clay    dent='+f(cl.ph.dentCm,2)+'cm('+f(cl.ph.dent,1)+'px) F='+f(cl.ph.F,0)+'N',
-    'bottle  dh='+f(bt.ph.dh,1)+'px v='+f(bt.ph.v,1)+' sqz='+f(bt.ph.squeeze,2)+(bt.ph.oscillating?' osc':'')+(bt.ph.asleep?' Z':'')
+    'bottle  dh='+f(bt.ph.dh,1)+'px v='+f(bt.ph.v,1)+' sqz='+f(bt.ph.squeeze,2)+(bt.ph.oscillating?' osc':'')+(bt.ph.asleep?' Z':''),
+    'cart   '+r12line(ITEM_BY_ID.cart),
+    'block  '+r12line(ITEM_BY_ID.wood_block),
+    'box    '+r12line(ITEM_BY_ID.box),
+    'hint: '+(STATE.hint||'-')
   ];
   ctx.save();
   ctx.font='600 '+Math.max(10,12*k)+'px monospace'; ctx.textAlign='left'; ctx.textBaseline='top';
-  ctx.fillStyle='rgba(20,20,20,0.55)'; ctx.fillRect(6,6,320,lines.length*15+10);
+  ctx.fillStyle='rgba(20,20,20,0.55)'; ctx.fillRect(6,6,430,lines.length*15+10);
   ctx.fillStyle='#8CFF5A';
   for(var i=0;i<lines.length;i++) ctx.fillText(lines[i],12,11+i*15);
   ctx.restore();
@@ -966,7 +1240,30 @@ function drawPhysicsDebug(){
 
 /* ===== 层5-9 空壳（§2.5 z 顺序预留，R10+ 实装；勿在实装前塞内容）===== */
 function drawPeopleLayer(){ /* 层5 人物/动态层：小人动作、气球飞行轨迹虚线（R12+） */ }
-function drawForceLayer(){ /* 层6 力矢/箭头层：推力/速度/喷气箭头（R11+） */ }
+function drawForceLayer(){ /* 层6 力矢/箭头层：推力/速度/喷气箭头 */
+  /* R12 §3.7：木块/箱子运动中实时 v 矢量箭头——长度比例取「1(m/s)=3cm」视觉直映（PHYS.block.arrowCmPerMs；F=ma 等效力换算的另一取法未用，见 PHYS.block 注释） */
+  var ids=['wood_block','box'],i;
+  for(i=0;i<ids.length;i++){
+    var it=ITEM_BY_ID[ids[i]],ph=it.ph;
+    if(!ph||!ph.r12||ph.asleep||ph.toppled||ph.mode==='fall') continue;
+    var sp=Math.hypot(ph.vx,ph.vy);
+    if(sp*PHYS.dt*PHYS.cmPx*100<PHYS.eps) continue;           /* |v|<ε 不画 */
+    var lenPx=Math.max(10,sp*PHYS.block.arrowCmPerMs*PHYS.cmPx);
+    var ux=ph.vx/sp,uy=ph.vy/sp;
+    var sx=it.x+ux*(it.w||10)/2,sy=it.y-(it.h||10)/2+uy*(it.h||10)/4;   /* 自体侧缘沿 v 方向出发 */
+    var ex=sx+ux*lenPx,ey=sy+uy*lenPx,hl=Math.min(10,lenPx*0.35);
+    ctx.save();
+    ctx.strokeStyle='rgba(224,83,42,0.9)'; ctx.fillStyle='rgba(224,83,42,0.9)';
+    ctx.lineWidth=Math.max(2,2.5*k); ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex-ux*hl*0.6,ey-uy*hl*0.6); ctx.stroke();
+    ctx.beginPath();                                        /* 箭头头部 */
+    ctx.moveTo(ex,ey);
+    ctx.lineTo(ex-ux*hl-uy*hl*0.5,ey-uy*hl+ux*hl*0.5);
+    ctx.lineTo(ex-ux*hl+uy*hl*0.5,ey-uy*hl-ux*hl*0.5);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+}
 function drawCanvasUILayer(){ /* 层7 UI 控制层：画布内读数牌/滑杆（R10+；HTML 控件在 header） */ }
 function drawSubtitleLayer(){ /* 层8 字幕/提示层：跟手点评、自动消散提示（§5，R13+） */ }
 function drawWorkbookLayer(){ /* 层9 练习本浮层：半透遮罩+画板（§6，R15 移植 v3 判分） */ }
@@ -1015,12 +1312,14 @@ function resetItems(){
     it.parent=null; it.flying=false; it.linked=false; it.anchorId2=null; it.state='idle';
     killTweensOf(it);
     if(it.ph) physInit(it);                                  /* R11：四形变件动态量归零（ext/residual/dent/dh…） */
+    if(R12_MASS[it.id]) physInitR12(it);                     /* R12：cart/木块/箱/钩码动态量归零（v/θ/toppled/slip…） */
     it.anchorId=it.homeAnchor||null;
     if(it.id==='cart'){ it.x=0; it.y=0; it.homeT2=true; }      /* 复位帧由 drawItemRaw 按 homeT=0.32 重新落线 */
     else if(it.homeAnchor){ var p=anchorAt(it.homeAnchor); setItemPos(it,p.x,p.y); }
     else if(it.homePct){ it.x=it.homePct.x/100*W; it.y=it.homePct.y/100*H; }
   }
   STATE.linked=false; STATE.lastPushPoint=null;
+  STATE.hint=null; STATE.cart.F=0; STATE.cart.v=0; STATE.cart.a=0;   /* R12：复位清 hint/cart 读数 */
 }
 on('btn-reset','click',function(){
   STATE.mode='table';                        /* 原地 mutate（引擎约定） */
@@ -1057,7 +1356,9 @@ window.C7_TABLE_DEBUG={ZONES:ZONES,zoneRect:zoneRect,zoneCenter:zoneCenter,zoneP
   ANCHORS:ANCHORS,anchorAt:anchorAt,ITEMS:ITEMS,ITEM_BY_ID:ITEM_BY_ID,
   PHYS:PHYS,phys:phys,isDeforming:isDeforming,
   getPhys:function(){ function r(id){ var p=ITEM_BY_ID[id].ph; return p?{ext:+(p.ext||0).toFixed(2),v:+(p.v||0).toFixed(2),residual:+(p.residual||0).toFixed(2),permanent:+(p.permanent||0).toFixed(2),F:+(p.F||0).toFixed(3),dentCm:+(p.dentCm||0).toFixed(3),dh:+(p.dh||0).toFixed(2),squeeze:+(p.squeeze||0).toFixed(3),oscillating:!!p.oscillating,asleep:!!p.asleep}:null; }
-    return {spring:r('spring'),rubber_band:r('rubber_band'),clay:r('clay'),bottle_tube:r('bottle_tube'),cmPx:+PHYS.cmPx.toFixed(3)}; },
+    function r12(id){ var it=ITEM_BY_ID[id],p=it.ph; return (p&&p.r12)?{vx:+p.vx.toFixed(3),vy:+p.vy.toFixed(3),a:+p.a.toFixed(3),F:+p.F.toFixed(3),thetaDeg:+((p.rot+p.tilt+p.side)*180/Math.PI).toFixed(2),mTotal:+p.mTotal.toFixed(3),mode:p.mode,asleep:!!p.asleep,toppled:!!p.toppled,slip:!!p.slip,tier:p.tier,parent:it.parent?it.parent.id:null,onTrack:id==='cart'?cartOnTrack(it):null}:null; }
+    return {spring:r('spring'),rubber_band:r('rubber_band'),clay:r('clay'),bottle_tube:r('bottle_tube'),cmPx:+PHYS.cmPx.toFixed(3),
+      cart:r12('cart'),wood_block:r12('wood_block'),box:r12('box'),hook50:r12('hook50'),hook100:r12('hook100'),hint:STATE.hint}; },
   getState:function(){ var o={},i; for(i=0;i<ITEMS.length;i++){ o[ITEMS[i].id]={state:ITEMS[i].state,anchorId:ITEMS[i].anchorId,parent:ITEMS[i].parent?ITEMS[i].parent.id:null,linked:ITEMS[i].linked,x:Math.round(ITEMS[i].x),y:Math.round(ITEMS[i].y)}; } return o; },
   get linked(){ return !!STATE.linked; }, get lastPushPoint(){ return STATE.lastPushPoint; }};
 })();
