@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>力 · 侧视马路 — 7.1 力</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;-webkit-tap-highlight-color:transparent}
+  body{font-family:"Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif;background:#eef2f6;color:#28323d;overflow:hidden}
+  /* 顶栏 */
+  header{position:fixed;top:0;left:0;right:0;height:38px;padding:0 12px;display:flex;align-items:center;gap:10px;background:#f7f9fb;border-bottom:1px solid rgba(0,0,0,.12);z-index:20}
+  .title{font-size:13px;font-weight:700;color:#1f2933;white-space:nowrap}
+  .back{font-size:13px;color:#2563eb;text-decoration:none;white-space:nowrap}
+  .back:hover{text-decoration:underline}
+  .spacer{flex:1}
+  .sys{display:flex;align-items:center;gap:6px}
+  button{border:0;border-radius:8px;padding:7px 11px;font-size:13px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s,transform .1s;white-space:nowrap}
+  button:hover{background:#1d4ed8}
+  button:active{transform:translateY(1px)}
+  button.secondary{background:#64748b}
+  button.secondary:hover{background:#475569}
+  button.toggle{background:#cbd5e1;color:#334155;border:1px solid #94a3b8}
+  button.toggle.on{background:#16a34a;color:#fff;border-color:#15803d}
+  /* 场景画布 */
+  .scene-wrap{position:fixed;top:38px;left:0;right:0;bottom:0}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
+  /* 浮动控件区 */
+  .zone{position:absolute;left:10px;right:10px;bottom:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;z-index:12;pointer-events:none}
+  .zgroup{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.9);border:1px solid #d7dee6;border-radius:10px;padding:6px 10px;pointer-events:auto;box-shadow:0 2px 6px rgba(20,30,45,.10)}
+  .zlabel{font-size:12px;color:#6b7885;white-space:nowrap;letter-spacing:.3px}
+  button.seg{background:linear-gradient(#fdfefe,#dbe4ee);border:1px solid #94a3b8;color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.18);padding:6px 10px}
+  button.seg:hover{background:linear-gradient(#f8fafc,#d2deeb)}
+  button.seg.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.3);transform:translateY(1px)}
+  input[type=range]{width:118px;accent-color:#2563eb}
+  .rlabel{font-size:13px;color:#334155;min-width:46px;text-align:right;font-variant-numeric:tabular-nums}
+  .hint{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:rgba(255,255,255,.9);border:1px solid #d7dee6;border-radius:10px;padding:5px 12px;font-size:12px;color:#475569;z-index:11;pointer-events:none;white-space:nowrap;box-shadow:0 2px 6px rgba(20,30,45,.08)}
+  @media (max-width:640px){ .title{display:none} input[type=range]{width:90px} .zgroup{padding:5px 8px} }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="./index.html">← 返回本节</a>
+  <span class="title">7.1 力 · 侧视马路</span>
+  <span class="spacer"></span>
+  <span class="sys">
+    <button id="btn-diagram" class="toggle" title="力的示意图（门控）">力的示意图</button>
+    <button id="btn-reset" class="secondary">重置</button>
+    <button id="btn-mute" class="toggle on" title="声音">🔊</button>
+    <button id="btn-full" class="secondary">全屏</button>
+  </span>
+</header>
+
+<div class="scene-wrap">
+  <canvas id="scene"></canvas>
+  <div class="hint" id="hint">按住小车与手的接触点（海绵）左右拖拽 → 推车</div>
+  <div class="zone">
+    <span class="zgroup">
+      <span class="zlabel">站位</span>
+      <button id="btn-stance-left" class="seg">站车左</button>
+      <button id="btn-stance-right" class="seg on">站车右</button>
+    </span>
+    <span class="zgroup">
+      <span class="zlabel">鞋</span>
+      <button id="btn-shoe-normal" class="seg on">普通鞋</button>
+      <button id="btn-shoe-ice" class="seg">滑冰鞋</button>
+    </span>
+    <span class="zgroup">
+      <span class="zlabel">刹车力</span>
+      <input id="rng-brake" type="range" min="0" max="10" step="0.5" value="0">
+      <span class="rlabel" id="lbl-brake">0.0N</span>
+    </span>
+    <span class="zgroup">
+      <button id="btn-wheel" class="seg">🎡 方向盘放大区</button>
+    </span>
+  </div>
+</div>
+
+<script src="../_lib/v1/force-overlay.js?v=20261114"></script>
+<script src="exp-road-core.js?v=20261114"></script>
+</body>
+</html>
