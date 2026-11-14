@@ -545,8 +545,8 @@
     ctx.globalAlpha = 1;
     ctx.fillStyle = PAL.text; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('刹车力 ' + S.brake.toFixed(1) + ' N', cx0, p.y + p.h + 16);
-    ctx.font = '600 10px sans-serif'; ctx.fillStyle = dis ? PAL.thrust : PAL.sub;
-    ctx.fillText(dis ? '轮滑鞋:锁定=最大' : '上下拖动滑钮=刹车力', cx0, p.y + p.h + 30);
+    ctx.font = '600 9px sans-serif'; ctx.fillStyle = dis ? PAL.thrust : PAL.sub;
+    ctx.fillText(dis ? '轮滑锁定=最大' : '拖动滑钮=刹车力', cx0, p.y + p.h + 30);
     ctx.restore();
   }
 
@@ -560,7 +560,8 @@
     ctx.fillStyle = PAL.text; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
     ctx.fillText('方向盘放大区', c.x, b.y + 26);
     ctx.font = '600 12px sans-serif'; ctx.fillStyle = PAL.sub;
-    ctx.fillText('按住轮上一点拖动 → 先见切向力矢量，克服阻力后盘才转动；松手即停', c.x, b.y + 44);
+    ctx.fillText('按住轮上一点拖动 → 先见切向力矢量，', c.x, b.y + 42);
+    ctx.fillText('克服阻力后盘才转动；松手即停', c.x, b.y + 58);
     // 轮盘（随拖动旋转）
     ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(S.dial.angle);
     ctx.strokeStyle = PAL.wheel; ctx.lineWidth = Math.max(6, R * 0.14); circ(0, 0, R); ctx.stroke();
