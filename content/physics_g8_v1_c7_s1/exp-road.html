@@ -41,31 +41,37 @@
 <header>
   <a class="back" href="./index.html">← 返回本节</a>
   <span class="title">7.1 力 · 侧视马路</span>
-  <span class="spacer"></span>
-  <span class="sys">
-    <button id="btn-diagram" class="toggle" title="力的示意图（门控）">力的示意图</button>
-    <button id="btn-reset" class="secondary">重置</button>
-    <button id="btn-mute" class="toggle on" title="声音">🔊</button>
-    <button id="btn-full" class="secondary">全屏</button>
-  </span>
 </header>
 
 <div class="scene-wrap">
   <canvas id="scene"></canvas>
-  <div class="hint" id="hint">拖动小人向前顶住车 → 推车启动；按住小人不动 → 车凭惯性前滑；点车内方向盘 → 放大区</div>
+  <div class="hint" id="hint">拖动小人顶住车 → 推车启动；按住小人不动 → 车凭惯性前滑；点车内方向盘 → 放大区</div>
   <div class="zone">
+    <span class="zgroup">
+      <span class="zlabel">推</span>
+      <button id="btn-push-left" class="seg on">左推</button>
+      <button id="btn-push-right" class="seg">右推</button>
+    </span>
     <span class="zgroup">
       <span class="zlabel">鞋</span>
       <button id="btn-shoe-normal" class="seg on">普通鞋</button>
-      <button id="btn-shoe-ice" class="seg">滑冰鞋</button>
+      <button id="btn-shoe-ice" class="seg">轮滑鞋</button>
     </span>
     <span class="zgroup">
       <button id="btn-wheel" class="seg">🎡 方向盘放大区</button>
     </span>
+    <span class="zgroup">
+      <span class="zlabel">系统</span>
+      <button id="btn-diagram" class="toggle" title="力的示意图（门控）">力的示意图</button>
+      <button id="btn-reset" class="secondary">重置</button>
+      <button id="btn-mute" class="toggle on" title="声音">🔊</button>
+      <button id="btn-full" class="secondary">全屏</button>
+    </span>
   </div>
 </div>
 
+<script src="../_lib/v1/sfx.js?v=20261027r1"></script>
 <script src="../_lib/v1/force-overlay.js?v=20261114"></script>
-<script src="exp-road-core.js?v=20261114r8"></script>
+<script src="exp-road-core.js?v=20261114r9"></script>
 </body>
 </html>

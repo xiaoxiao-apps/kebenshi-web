@@ -1,8 +1,8 @@
 /* ============================================================
- * exp-bench-core.js — 场景B（7.2 弹力 + 7.3 重力）侧视实验台  C7V5-R6
- * R6 视觉大修订：⑩PhET线圈螺旋弹簧(色随材质/粗细光泽随k) ⑪铁架台最大化(高≥70%)
- *   ⑫标准条形测力计(标题/型号/量程/双刻度N+gf/零刻度/分度/指针/吊环/挂钩/调零螺丝)
- *   ⑬标准眼形观察眼：正确视线=水平虚线⊥竖屏刻度面(沿法线)+直角标记；错误=眼偏侧+斜视虚线+错读值
+ * exp-bench-core.js — 场景B（7.2 弹力 + 7.3 重力）侧视实验台  C7V5-R10
+ * R10 三轮修订：⑭完整螺旋线圈(每圈前后两弧) ⑮测力计课本全要素+挂钩/下弹簧/指针同步下移(位移=伸长)
+ *   ⑯观察眼复用器材库 observer_eye.png(失败回退标准眼形) ⑰超弹性后仍可压缩回缩(并圈限位,塑性rest保留)
+ *   ⑱示意图三类矢量：下拉=向下手力@手 / 上压=向上手力@手 / 挂砝码=G@重心（拖拽实时、松手消失）
  * 规格：设计书 §2 全条。侧视2D；复用 force-overlay.js 门控overlay（悬挂重力矢量）。
  * 物理：弹簧二阶欠阻尼（金属 ζ≈0.2 ωₙ=12）；五档材质 k+弹性限度谱；
  *       胡克 ΔL=F/k（曲线斜率=1/k 或 g/k，非 g）；测力计 G=mg、超量程 clamp 5N。
@@ -19,7 +19,7 @@
     weight: '#c2410c', weightDark: '#9a3412', weightHi: '#e0713c',
     rest: '#16a34a', limit: '#dc2626', curve: '#2563eb', over: '#dc2626',
     body: '#f4f6f8', bodyEdge: '#8595a8', needle: '#dc2626', scale: '#334155',
-    text: '#28323d', sub: '#6b7885', panel: 'rgba(255,255,255,.94)', grav: '#7c3aed'
+    text: '#28323d', sub: '#6b7885', panel: 'rgba(255,255,255,.94)', grav: '#7c3aed', hand: '#ea580c'
   };
 
   /* ===== 五档材质谱（§2.2 钢k大限度高 > 铁 > 铝k小限度低 > 铅丝限度≈0 > 橡皮泥纯塑性） ===== */
@@ -109,9 +109,12 @@
   function availCm() {                                                 // 钩码堆底不触地的可用伸长（cm）
     return (L.floorY - 16 - (springTopY() + L.L0) - 10 - S.n * L.wb) / L.PXCM;
   }
-  function hardMaxX() { return Math.max(-1.8, availCm() - S.sp.rest); } // 并圈硬限位
+  function hardMaxX() { return Math.max(-1.8, availCm() - S.sp.rest); } // 拉伸硬限位：不穿地板
+  function hardMinX() { return -0.65 * L.L0 / L.PXCM - S.sp.rest; }   // 压缩硬限位：并圈总长≥35%自然长（sp.x 可负）
   function balBodyTop() { return hangPt().y + 12; }
-  function balHookY() { return balBodyTop() + L.BL + 8; }
+  function hookRestY() { return balBodyTop() + L.BL + 8; }
+  function balExtPx() { return (L.BL - 86) * clamp(S.bal.r, 0, RANGE) / RANGE; } // 伸长量(px)：指针/下弹簧/挂钩同源
+  function balHookY() { return hookRestY() + balExtPx(); }              // ⑭挂钩随伸长下移
   function weightCOM() {
     var hx = hangPt().x;
     if (S.mode === 'spring') return { x: hx, y: stackTopSp() + S.n * L.wb * 0.5 };
@@ -158,15 +161,15 @@
         }
       }
       var lim = limitExt(), av = availCm();
-      if (m.p > 0) {                                                     // 铅丝/橡皮泥：塑性流动，静止基准线跟随
+      if (m.p > 0) {                                                     // 铅丝/橡皮泥：塑性流动，静止基准线跟随（压缩不吃 rest：Q4）
         if (sp.x > lim && sp.rest + sp.x < av) { var f = Math.min(1, FLOW * dt) * (sp.x - lim) * m.p; sp.rest += f; sp.x -= f; moved = true; }
-        else if (sp.x < -lim) { var f2 = Math.min(1, FLOW * dt) * (-lim - sp.x) * m.p; sp.rest -= f2; sp.x += f2; moved = true; }
       } else {                                                           // 金属：超限度→回落后永久变形（新基准线下移）
         if (sp.x > lim) { if (sp.x > sp.maxOver) { sp.maxOver = sp.x; moved = true; } }
         else if (sp.maxOver > lim) { sp.rest += (sp.maxOver - lim) * 0.7; sp.maxOver = 0; moved = true; }
       }
-      var hm = hardMaxX();
-      if (sp.x > hm) { sp.x = hm; if (sp.v > 0) sp.v = 0; moved = true; } // 并圈硬限位：不穿地板
+      var hm = hardMaxX(), hmn = hardMinX();
+      if (sp.x > hm) { sp.x = hm; if (sp.v > 0) sp.v = 0; moved = true; } // 拉伸硬限位：不穿地板
+      if (sp.x < hmn) { sp.x = hmn; if (sp.v < 0) sp.v = 0; moved = true; } // 压缩硬限位：并圈
       var tot = sp.rest + sp.x;                                           // 总伸长（含永久）
       var recOk = m.p > 0
         ? (Math.abs(tot - Math.min(steadyExt(S.n), av)) < 0.06 || tot >= av - 0.06)
@@ -186,12 +189,26 @@
       }
       if (b.flash > 0) { b.flash -= dt; moved = true; }
     }
-    if (window.ForceOverlay) {                                           // 门控：悬挂重力矢量@重心向下
-      if (ForceOverlay.isOn() && S.n > 0 && !S.zoom) {
-        var c = weightCOM(), Gn = S.n * BLOCK_N;
-        ForceOverlay.register('hangG', { point: c, dir: { x: 0, y: 1 }, magN: Gn, color: PAL.grav, label: 'G=' + Gn.toFixed(2) + 'N' });
+    if (window.ForceOverlay) {                                           // 门控：三类矢量（挂砝码G@重心 / 下拉手力 / 上压手力 @手）
+      if (ForceOverlay.isOn() && !S.zoom) {
+        if (S.n > 0) {
+          var c = weightCOM(), Gn = S.n * BLOCK_N;
+          ForceOverlay.register('hangG', { point: c, dir: { x: 0, y: 1 }, magN: Gn, color: PAL.grav, label: 'G=' + Gn.toFixed(2) + 'N' });
+        } else ForceOverlay.unregister('hangG');
+        var hx = hangPt().x;
+        if (S.ps.mode === 'spdrag') {                                    // 拖弹簧：下拉=向下手力 / 上压=向上手力，@握点实时
+          var d = S.sp.x - steadyExt(S.n), Fh = mat().k * Math.abs(d);
+          if (Fh > 0.02) ForceOverlay.register('handF', {
+            point: { x: hx, y: S.n > 0 ? stackTopSp() + S.n * L.wb : bottomY() + 8 },
+            dir: { x: 0, y: d > 0 ? 1 : -1 }, magN: Fh, color: PAL.hand,
+            label: (d > 0 ? 'F拉=' : 'F压=') + Fh.toFixed(2) + 'N' });
+          else ForceOverlay.unregister('handF');
+        } else if (S.ps.mode === 'bdrag') {                              // 拉测力计钩：向下手力@钩
+          ForceOverlay.register('handF', { point: { x: hx, y: balHookY() + 4 }, dir: { x: 0, y: 1 },
+            magN: S.bal.dragF, color: PAL.hand, label: 'F拉=' + S.bal.dragF.toFixed(2) + 'N' });
+        } else ForceOverlay.unregister('handF');
         moved = true;
-      } else ForceOverlay.unregister('hangG');
+      } else { ForceOverlay.unregister('hangG'); ForceOverlay.unregister('handF'); }
     }
     return moved;
   }
@@ -219,22 +236,34 @@
     var n = parseInt(hex.slice(1), 16);
     return 'rgb(' + clamp((n >> 16) + amt, 0, 255) + ',' + clamp(((n >> 8) & 255) + amt, 0, 255) + ',' + clamp((n & 255) + amt, 0, 255) + ')';
   }
-  function helix(x, y0, y1, sw, color, k) {                               // ⑩PhET 线圈螺旋：后弧暗/前弧亮，圆润均匀
-    var turns = 12, lead = 7;
+  function helix(x, y0, y1, sw, color, k, turns) {                        // ⑩PhET 线圈螺旋：每圈前后两弧补全（完整线圈）
+    turns = turns || 12;
+    var lead = 7;
     var lw = 2.6 + k * 1.4, gl = Math.round(10 + k * 16);                 // 粗细/光泽随 k
     var ya = y0 + lead, yb = y1 - lead, seg = (yb - ya) / turns;
     ctx.save(); ctx.lineCap = 'round';
     ctx.strokeStyle = color; ctx.lineWidth = lw;
-    ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, ya);
-    ctx.moveTo(x, yb); ctx.lineTo(x, y1); ctx.stroke();
+    if (yb - ya < 6) {                                                     // 并圈压满：退化为直杆
+      ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.stroke(); ctx.restore(); return;
+    }
+    var bulge = Math.max(2, seg * 0.45);                                   // 前后弧鼓量：圈圈相切、圆润均匀
+    ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x - sw, ya);            // 上引线接第一圈左缘
+    ctx.moveTo(x - sw, yb); ctx.lineTo(x, y1); ctx.stroke();               // 末圈左缘接下引线
+    ctx.strokeStyle = shade(color, -gl - 14); ctx.lineWidth = lw * 0.9;    // 后半圈统一先画（远侧暗弧）
     for (var i = 0; i < turns; i++) {
       var t0 = ya + i * seg;
-      ctx.strokeStyle = shade(color, -gl - 14); ctx.lineWidth = lw * 0.9; // 后半圈（远侧，暗）
-      ctx.beginPath(); ctx.moveTo(x, t0);
-      ctx.quadraticCurveTo(x - sw, t0 + seg * 0.25, x, t0 + seg * 0.5); ctx.stroke();
-      ctx.strokeStyle = shade(color, gl); ctx.lineWidth = lw;             // 前半圈（近侧，亮泽）
-      ctx.beginPath(); ctx.moveTo(x, t0 + seg * 0.5);
-      ctx.quadraticCurveTo(x + sw, t0 + seg * 0.75, x, t0 + seg); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - sw, t0);
+      ctx.quadraticCurveTo(x, t0 + seg * 0.25 - bulge, x + sw, t0 + seg * 0.5); ctx.stroke();
+    }
+    ctx.strokeStyle = shade(color, gl); ctx.lineWidth = lw;                // 前半圈罩上（近侧：本色+高光芯）
+    for (var j = 0; j < turns; j++) {
+      var tm = ya + j * seg + seg * 0.5, t1 = tm + seg * 0.5;
+      ctx.strokeStyle = color; ctx.lineWidth = lw;
+      ctx.beginPath(); ctx.moveTo(x + sw, tm);
+      ctx.quadraticCurveTo(x, tm + seg * 0.25 + bulge, x - sw, t1); ctx.stroke();
+      ctx.strokeStyle = shade(color, gl); ctx.lineWidth = lw * 0.35;       // 光泽芯随 k
+      ctx.beginPath(); ctx.moveTo(x + sw, tm);
+      ctx.quadraticCurveTo(x, tm + seg * 0.25 + bulge, x - sw, t1); ctx.stroke();
     }
     ctx.restore();
   }
@@ -326,13 +355,18 @@
     ctx.fillStyle = PAL.standDark; rr(hx + bw / 2 - 2, bt + 6, 10, 7, 2.5); ctx.fill();  // 调零螺丝
     ctx.strokeStyle = PAL.standHi; ctx.lineWidth = 1.2;
     ctx.beginPath(); ctx.moveTo(hx + bw / 2 + 1, bt + 9.5); ctx.lineTo(hx + bw / 2 + 6, bt + 9.5); ctx.stroke();
-    ctx.fillStyle = PAL.body; rr(hx - bw / 2, bt, bw, L.BL, 8); ctx.fill();   // 外壳
+    ctx.fillStyle = 'rgba(244,246,248,.55)'; rr(hx - bw / 2, bt, bw, L.BL, 8); ctx.fill(); // 外壳（半透：露内弹簧）
     var flashing = b.flash > 0 && Math.floor(b.flash * 10) % 2 === 0;
     ctx.strokeStyle = flashing ? PAL.limit : PAL.bodyEdge; ctx.lineWidth = flashing ? 3.5 : 2.2;
     rr(hx - bw / 2, bt, bw, L.BL, 8); ctx.stroke();
     txt('条型测力计', hx, bt + 11, PAL.text, 9.5, 'center');                  // 面板标题
     txt('J14003 · 量程5N', hx, bt + 22, PAL.sub, 7.5, 'center');              // 型号+量程
-    var sTop = bt + 36, sLen = L.BL - 60;                                     // 双刻度：左N(0-5) 右gf(0-500) 对齐
+    var sTop = bt + 62, sLen = L.BL - 86;                                    // 双刻度：左N(0-5) 右gf(0-500) 对齐
+    var py = sTop + sLen * clamp(b.r, 0, RANGE) / RANGE;                     // 指针位（=弹簧下端）
+    helix(hx, bt + 26, py - 2, 11, '#b9c5d1', 1.1, 7);                       // ⑭内弹簧：下端随指针下移
+    ctx.fillStyle = 'rgba(255,255,255,.8)'; rr(hx - 12, sTop - 10, 24, sLen + 18, 4); ctx.fill(); // 刻度面板条（衬刻度数字）
+    ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = 2.6;                     // ⑭拉杆：弹簧下端→挂钩同步下移
+    ctx.beginPath(); ctx.moveTo(hx, py - 2); ctx.lineTo(hx, balHookY()); ctx.stroke();
     txt('N', hx - bw / 2 + 9, sTop - 6, PAL.sub, 8, 'center');
     txt('gf', hx + bw / 2 - 11, sTop - 6, PAL.sub, 8, 'center');
     for (var i = 0; i <= 10; i++) {
@@ -348,14 +382,14 @@
     ctx.strokeStyle = PAL.limit; ctx.lineWidth = 2;                           // 零刻度强调
     ctx.beginPath(); ctx.moveTo(hx - bw / 2 + 3, sTop); ctx.lineTo(hx - bw / 2 + 14, sTop); ctx.stroke();
     txt('分度0.1N', hx, sTop + sLen + 11, PAL.sub, 7, 'center');              // 分度值
-    var py = sTop + sLen * clamp(b.r, 0, RANGE) / RANGE;                      // 指针（红）
-    ctx.strokeStyle = PAL.needle; ctx.lineWidth = 2.4;
+    ctx.strokeStyle = PAL.needle; ctx.lineWidth = 2.4;                       // 指针（红）
     ctx.beginPath(); ctx.moveTo(hx - bw / 2 + 3, py); ctx.lineTo(hx + bw / 2 - 3, py); ctx.stroke();
     ctx.fillStyle = PAL.needle; circ(hx - bw / 2 + 6, py, 2.6); ctx.fill();
-    ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = 2.8;                      // 底部挂钩
-    ctx.beginPath(); ctx.moveTo(hx, bt + L.BL); ctx.lineTo(hx, bt + L.BL + 8);
-    ctx.arc(hx + 4, bt + L.BL + 10, 4, Math.PI, 0, true); ctx.stroke();
-    drawWeights(hx, balHookY() + 6, S.n, L.wb);
+    ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = 2.8;                     // ⑭底部挂钩（随伸长下移）
+    ctx.beginPath(); ctx.moveTo(hx, balHookY());
+    ctx.arc(hx + 4, balHookY() + 2, 4, Math.PI, 0, true); ctx.stroke();
+    var wbB = Math.min(L.wb, Math.max(4, (L.floorY - 14 - (balHookY() + 6)) / Math.max(1, S.n)));
+    drawWeights(hx, balHookY() + 6, S.n, wbB);
     var G = S.n * BLOCK_N;
     txt('G = mg = ' + G.toFixed(2) + ' N', hx + bw / 2 + 12, bt + 14, PAL.text, 12);
     if (b.flash > 0) txt('超量程！clamp 5N', hx + bw / 2 + 12, bt + 32, PAL.limit, 11.5);
@@ -399,12 +433,12 @@
       var px2 = ax + aw * clamp(xv2 / xmax, 0, 1), py2 = ay - ah * clamp(S.curve.pts[n2] / ymax, 0, 1);
       ctx.fillStyle = F2 > limF ? PAL.over : PAL.curve; circ(px2, py2, 3.2); ctx.fill();
     }
-    var sy = gy + gh - 24, slopeT;
+    var sy = gy + gh - 24, slopeT, narrowG = W < 640, sSize = narrowG ? 9.5 : 11;
     if (lastIn) {
-      if (fAxis) slopeT = '斜率 ΔL/F = 1/k = ' + (lastIn.ext / (lastIn.n * BLOCK_N)).toFixed(2) + ' cm/N（非 g）';
-      else slopeT = '斜率 ΔL/m = g/k = ' + (lastIn.ext / (lastIn.n * BLOCK_KG)).toFixed(2) + ' cm/kg';
+      if (fAxis) slopeT = (narrowG ? '斜率=1/k=' : '斜率 ΔL/F = 1/k = ') + (lastIn.ext / (lastIn.n * BLOCK_N)).toFixed(2) + (narrowG ? 'cm/N(非g)' : ' cm/N（非 g）');
+      else slopeT = (narrowG ? '斜率=g/k=' : '斜率 ΔL/m = g/k = ') + (lastIn.ext / (lastIn.n * BLOCK_KG)).toFixed(2) + (narrowG ? 'cm/kg' : ' cm/kg');
     } else slopeT = 'k = ' + m.k + ' N/cm · 加钩码记录点';
-    txt(slopeT, gx + 10, sy, lastIn ? PAL.text : PAL.sub, 11);
+    txt(slopeT, gx + 10, sy, lastIn ? PAL.text : PAL.sub, sSize);
     if (keys.length && keys[keys.length - 1] * BLOCK_N > limF)
       txt('超限度：曲线弯折 + 永久变形', gx + 10, sy - 15, PAL.over, 10.5);
     ctx.restore();
@@ -431,6 +465,16 @@
     txt(label, x1 + (align === 'right' ? -5 : 5), y1, color || PAL.sub, 11, align);
     ctx.restore();
   }
+  /* ===== 观察眼 sprite（器材库 observer_eye.png，朝左；加载失败回退标准眼形） ===== */
+  var EYE_IMG = new Image();
+  EYE_IMG.src = '../_lib/v1/sprites/observer_eye.png?v=92';
+  EYE_IMG.onload = function () { dirty = true; };
+  function eyeReady() { return EYE_IMG.complete && EYE_IMG.naturalWidth > 0; }
+  function drawEye(x, y, h, color) {
+    if (!eyeReady()) { drawEyeIcon(x, y, color, -1, 0); return; }
+    var w = h * EYE_IMG.naturalWidth / EYE_IMG.naturalHeight;
+    ctx.drawImage(EYE_IMG, x - w / 2, y - h / 2, w, h);
+  }
   function drawZoom() {
     var zx = L.zx, zy = L.zy, zw = L.zw, zh = L.zh, cx = zx + zw / 2, b = S.bal;
     var bw = clamp(Math.round(zw * 0.26), 66, 104);
@@ -442,7 +486,8 @@
     txt(zw < 300 ? '测力计放大' : '测力计放大 · 标准组件', zx + 14, zy + 18, PAL.text, 12.5);
     txt('读数 G = ' + clamp(b.r, 0, RANGE).toFixed(2) + ' N', zx + zw - 14, zw < 300 ? zy + 36 : zy + 18, PAL.text, 12.5, 'right');
     if (b.flash > 0) txt('超量程 clamp 5N', zx + zw - 14, zw < 300 ? zy + 52 : zy + 36, PAL.limit, 11.5, 'right');
-    var ringY = zy + 46, bodyTop = ringY + 18, bodyH = zh - (bodyTop - zy) - 128;
+    var ringY = zy + 46, bodyTop = ringY + 18;
+    var bodyH = clamp(Math.round((zh - 64 - 128) / 1.46), 70, 240);          // ⑭预留挂钩行程=伸长量
     var rx = cx + bw / 2, lx = cx - bw / 2;
     ctx.strokeStyle = PAL.standDark; ctx.lineWidth = 4.5; circ(cx, ringY, 10); ctx.stroke();  // 吊环
     ctx.fillStyle = PAL.bodyEdge; rr(cx - 10, bodyTop - 8, 20, 8, 2); ctx.fill();             // 环座
@@ -456,9 +501,11 @@
     txt('条型测力计', cx, bodyTop + 16, PAL.text, 13, 'center');                              // 面板标题
     if (bw >= 84) txt('型号 J14003 · 量程 0~5N', cx, bodyTop + 32, PAL.sub, 9.5, 'center');    // 型号+量程
     else { txt('型号 J14003', cx, bodyTop + 30, PAL.sub, 8.5, 'center'); txt('量程 0~5N', cx, bodyTop + 41, PAL.sub, 8.5, 'center'); }
-    var spY0 = bodyTop + (bw >= 84 ? 42 : 50), spY1 = bodyTop + bodyH * 0.34;
-    helix(cx, spY0, spY1, 22, '#b9c5d1', 1.2);                                                // 内弹簧
-    var sTop = bodyTop + bodyH * 0.40, sLen = bodyH * 0.52;                                   // 双刻度 0.1N 分度
+    var spY0 = bodyTop + (bw >= 84 ? 42 : 50);
+    var sTop = bodyTop + bodyH * 0.46, sLen = bodyH * 0.46;                  // 双刻度 0.1N 分度
+    var py = sTop + sLen * clamp(b.r, 0, RANGE) / RANGE;                     // 指针位（=弹簧下端）
+    helix(cx, spY0, py - 6, 13, '#b9c5d1', 1.2, 9);                          // ⑭内弹簧：随指针拉伸下移
+    ctx.fillStyle = 'rgba(255,255,255,.8)'; rr(cx - 14, sTop - 12, 28, sLen + 24, 5); ctx.fill(); // 刻度面板条
     txt('N', lx + 13, sTop - 9, PAL.sub, 10, 'center');
     txt('gf', rx - 15, sTop - 9, PAL.sub, 10, 'center');
     for (var i = 0; i <= 50; i++) {
@@ -475,21 +522,22 @@
     ctx.strokeStyle = PAL.limit; ctx.lineWidth = 2.4;                                          // 零刻度强调
     ctx.beginPath(); ctx.moveTo(lx + 4, sTop); ctx.lineTo(lx + 23, sTop); ctx.stroke();
     txt('分度值 0.1N / 10gf', cx, sTop + sLen + 13, PAL.sub, 9.5, 'center');
-    var py = sTop + sLen * clamp(b.r, 0, RANGE) / RANGE;                                       // 指针（红）
-    ctx.strokeStyle = PAL.needle; ctx.lineWidth = 3.6;
+    var hookY = bodyTop + bodyH + (py - sTop);                                                 // ⑭底部挂钩：位移=伸长量
+    ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = 4; ctx.lineCap = 'round';                  // ⑭拉杆：弹簧下端→挂钩
+    ctx.beginPath(); ctx.moveTo(cx, py - 6); ctx.lineTo(cx, hookY); ctx.stroke();
+    ctx.strokeStyle = PAL.needle; ctx.lineWidth = 3.6;                                         // 指针（红）
     ctx.beginPath(); ctx.moveTo(lx + 4, py); ctx.lineTo(rx - 26, py); ctx.stroke();
     ctx.fillStyle = PAL.needle;
     ctx.beginPath(); ctx.moveTo(rx - 26, py); ctx.lineTo(rx - 36, py - 5.5);
     ctx.lineTo(rx - 36, py + 5.5); ctx.closePath(); ctx.fill();
-    var hookY = bodyTop + bodyH;                                                               // 底部挂钩
-    ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(cx, hookY); ctx.lineTo(cx, hookY + 13);
     ctx.arc(cx + 6, hookY + 15, 6.5, Math.PI, 0, true); ctx.stroke();
-    var wtop = hookY + 24, wbz = Math.min(L.wb + 2, Math.max(5, (zy + zh - 26 - wtop) / Math.max(1, S.n)));
+    var wtop = hookY + 24, wbz = clamp((zy + zh - 26 - wtop) / Math.max(1, S.n), 3, L.wb + 2);
     drawWeights(cx, wtop, S.n, wbz);
     leader(cx + 11, ringY - 5, rx + 34, ringY + (zw < 300 ? 8 : -14), '吊环', 'left');          // 六组件引线标注
     leader(rx + 6, bodyTop + 9, rx + 34, bodyTop + 2, '调零螺丝', 'left');
-    leader(cx + 12, (spY0 + spY1) / 2, rx + 34, bodyTop + 54, '弹簧', 'left');
+    leader(cx + 12, (spY0 + py - 6) / 2, rx + 34, bodyTop + 54, '弹簧', 'left');
     leader(rx + 2, py + 6, rx + 34, py + 16, '指针(红)', 'left', PAL.needle);
     leader(lx - 4, sTop + sLen * 0.24, lx - 30, sTop + sLen * 0.24 - 8, '刻度(N/gf)', 'right');
     leader(cx - 7, hookY + 16, lx - 30, hookY + 10, '挂钩', 'right');
@@ -515,8 +563,8 @@
     ctx.setLineDash([]); ctx.lineWidth = 2.2;
     ctx.beginPath(); ctx.moveTo(faceX - 29, hitY - 5); ctx.lineTo(faceX - 19, hitY + 5);
     ctx.moveTo(faceX - 19, hitY - 5); ctx.lineTo(faceX - 29, hitY + 5); ctx.stroke();          // ✗ 错读点
-    drawEyeIcon(eyeX, py, PAL.rest, -1, 0);                                                    // 眼在刻度正前方
-    drawEyeIcon(eyeX, eyeWY, PAL.over, -1, -1);                                                // 眼偏侧
+    drawEye(eyeX, py, 30, PAL.rest);                                         // 眼在刻度正前方（sprite 朝左）
+    drawEye(eyeX, eyeWY, 30, PAL.over);                                      // 眼偏侧
     txt('⊥正读 ' + clamp(r, 0, RANGE).toFixed(2) + 'N ✓', eyeX + 15, py - 19, PAL.rest, 10.5, 'right');
     txt('错读 ≈ ' + wrong.toFixed(2) + 'N ✗', eyeX + 15, eyeWY + 24, PAL.over, 10.5, 'right');
     ctx.restore();
@@ -557,9 +605,9 @@
   function onMove(ev) {
     var p = canvasXY(ev);
     if (S.ps.mode === 'spdrag') {
-      S.sp.x = clamp((p.y - restY()) / L.PXCM, -1.8, hardMaxX()); S.sp.v = 0; dirty = true; ev.preventDefault();
+      S.sp.x = clamp((p.y - restY()) / L.PXCM, hardMinX(), hardMaxX()); S.sp.v = 0; dirty = true; ev.preventDefault();
     } else if (S.ps.mode === 'bdrag') {
-      S.bal.dragF = clamp((p.y - balHookY()) / (L.PXCM * 0.7), 0, 8); dirty = true; ev.preventDefault();
+      S.bal.dragF = clamp((p.y - hookRestY()) / (L.PXCM * 0.7), 0, 8); dirty = true; ev.preventDefault();
     }
   }
   function onUp() {
