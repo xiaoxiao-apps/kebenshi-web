@@ -1,36 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 224">
-  <rect width="400" height="224" fill="#dfe9f2"/>
-  <!-- 河（右端断路下方） -->
-  <rect x="318" y="150" width="82" height="74" fill="#3f8fd6"/>
-  <rect x="318" y="196" width="82" height="28" fill="#2b6fae"/>
-  <path d="M322 160 q8 -4 16 0 t16 0 t16 0 t16 0" stroke="#bfe0f7" stroke-width="2" fill="none"/>
-  <!-- 路面 -->
-  <rect x="0" y="150" width="318" height="20" fill="#5b616b"/>
-  <rect x="0" y="160" width="318" height="44" fill="#4a4f57"/>
-  <rect x="30" y="180" width="46" height="5" rx="2" fill="#9aa1ab"/>
-  <rect x="130" y="180" width="46" height="5" rx="2" fill="#9aa1ab"/>
-  <rect x="230" y="180" width="46" height="5" rx="2" fill="#9aa1ab"/>
-  <!-- 路缘 -->
-  <rect x="308" y="144" width="12" height="16" fill="#e8b62c"/>
-  <!-- 小人（右侧向左推） -->
-  <circle cx="252" cy="92" r="10" fill="#f0c08a"/>
-  <line x1="252" y1="102" x2="252" y2="128" stroke="#3f6fb5" stroke-width="8" stroke-linecap="round"/>
-  <line x1="252" y1="110" x2="226" y2="118" stroke="#f0c08a" stroke-width="4" stroke-linecap="round"/>
-  <line x1="252" y1="128" x2="244" y2="150" stroke="#2f5590" stroke-width="5" stroke-linecap="round"/>
-  <line x1="252" y1="128" x2="262" y2="150" stroke="#2f5590" stroke-width="5" stroke-linecap="round"/>
-  <!-- 小车 -->
-  <rect x="130" y="112" width="96" height="34" rx="8" fill="#d64545"/>
-  <rect x="152" y="88" width="54" height="28" rx="6" fill="#d64545"/>
-  <rect x="158" y="93" width="42" height="18" rx="4" fill="#bfe3f2"/>
-  <rect x="130" y="133" width="96" height="13" rx="5" fill="#a83232"/>
-  <circle cx="152" cy="148" r="11" fill="#2b2f36"/>
-  <circle cx="152" cy="148" r="4" fill="#9aa1ab"/>
-  <circle cx="204" cy="148" r="11" fill="#2b2f36"/>
-  <circle cx="204" cy="148" r="4" fill="#9aa1ab"/>
-  <!-- 手-车接触点海绵 -->
-  <rect x="222" y="112" width="10" height="14" rx="3" fill="#f0913e" stroke="#cf7526" stroke-width="1.5"/>
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ec9ee"/><stop offset="1" stop-color="#d3eaf8"/></linearGradient></defs>
+  <rect width="400" height="224" fill="url(#sky)"/>
+  <circle cx="352" cy="34" r="24" fill="#f7d554" opacity=".35"/><circle cx="352" cy="34" r="15" fill="#f7d554"/>
+  <g fill="#ffffff"><ellipse cx="66" cy="42" rx="22" ry="10"/><ellipse cx="84" cy="36" rx="14" ry="8"/><ellipse cx="206" cy="26" rx="18" ry="8"/><ellipse cx="220" cy="22" rx="10" ry="6"/></g>
+  <!-- 草地 -->
+  <rect x="0" y="140" width="400" height="84" fill="#7cb342"/>
+  <rect x="0" y="140" width="400" height="6" fill="#8bc34a"/>
+  <!-- 池塘（右下） -->
+  <rect x="344" y="180" width="56" height="44" fill="#3f8fd6"/>
+  <path d="M350 192 q7 -3 14 0 t14 0" stroke="#bfe0f7" stroke-width="2" fill="none"/>
+  <!-- 泥土护坡（坑洼） -->
+  <path d="M288 132 L298 141 L294 147 L308 157 L304 163 L320 175 L316 181 L332 191 L344 196 L344 224 L288 224 Z" fill="#a97c50"/>
+  <ellipse cx="306" cy="152" rx="4" ry="2" fill="#8a6238"/><ellipse cx="322" cy="172" rx="4" ry="2" fill="#8a6238"/>
+  <!-- 沥青路 + 黄虚线 -->
+  <rect x="0" y="132" width="290" height="26" fill="#4a4f57"/>
+  <rect x="0" y="132" width="290" height="5" fill="#5b616b"/>
+  <line x1="6" y1="146" x2="284" y2="146" stroke="#e8b62c" stroke-width="3.5" stroke-dasharray="16 12"/>
+  <!-- PhET 轿车（车头向右） -->
+  <path d="M136 106 q4 -28 26 -28 h44 q20 0 26 28 Z" fill="#c6403f"/>
+  <rect x="146" y="84" width="26" height="20" rx="3" fill="#cfe6f2"/>
+  <rect x="178" y="84" width="26" height="20" rx="3" fill="#cfe6f2"/>
+  <circle cx="212" cy="96" r="8" fill="none" stroke="#3a3f46" stroke-width="2.5"/>
+  <line x1="204" y1="96" x2="220" y2="96" stroke="#3a3f46" stroke-width="2"/><line x1="212" y1="88" x2="212" y2="104" stroke="#3a3f46" stroke-width="2"/>
+  <rect x="108" y="104" width="126" height="32" rx="10" fill="#c6403f"/>
+  <rect x="116" y="110" width="110" height="7" rx="3.5" fill="#d96a63"/>
+  <rect x="228" y="112" width="7" height="12" rx="2" fill="#f6d36b"/>
+  <rect x="106" y="112" width="6" height="14" rx="2" fill="#e8833a"/>
+  <circle cx="138" cy="138" r="10" fill="#26292e"/><circle cx="138" cy="138" r="3.5" fill="#9aa1ab"/>
+  <circle cx="206" cy="138" r="10" fill="#26292e"/><circle cx="206" cy="138" r="3.5" fill="#9aa1ab"/>
+  <!-- 写实小人（左，伸手推车） -->
+  <circle cx="76" cy="86" r="9" fill="#f0c08a"/>
+  <path d="M67 86 a9 9 0 0 1 18 0 Z" fill="#6b4a2f"/>
+  <rect x="68" y="96" width="17" height="26" rx="7" fill="#3f6fb5"/>
+  <line x1="84" y1="104" x2="106" y2="112" stroke="#f0c08a" stroke-width="5" stroke-linecap="round"/>
+  <line x1="73" y1="121" x2="70" y2="140" stroke="#2f3a48" stroke-width="5" stroke-linecap="round"/>
+  <line x1="80" y1="121" x2="85" y2="140" stroke="#2f3a48" stroke-width="5" stroke-linecap="round"/>
   <!-- 推力箭头 -->
-  <line x1="238" y1="60" x2="178" y2="60" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/>
-  <path d="M178 52 L162 60 L178 68 Z" fill="#dc2626"/>
-  <text x="246" y="65" font-size="13" font-weight="700" fill="#dc2626" font-family="sans-serif">F</text>
+  <line x1="92" y1="64" x2="130" y2="64" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/>
+  <path d="M130 56 L146 64 L130 72 Z" fill="#dc2626"/>
+  <text x="98" y="56" font-size="13" font-weight="700" fill="#dc2626" font-family="sans-serif">F</text>
 </svg>

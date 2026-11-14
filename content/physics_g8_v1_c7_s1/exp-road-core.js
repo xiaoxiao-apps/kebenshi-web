@@ -53,8 +53,8 @@
     L.homeX = L.roadLeft + L.carW * 0.5 + Math.round((L.slopeX - L.roadLeft - L.carW) * 0.32);
     L.shoreX = L.slopeX - Math.round(L.personH * 0.16);
     L.gh = 38;
-    if (W >= 660) { L.gw = clamp(Math.round((W - 48) / 2), 220, 430); L.g1 = { x: 16, y: 44 }; L.g2 = { x: 32 + L.gw, y: 44 }; }
-    else { L.gw = W - 32; L.g1 = { x: 16, y: 42 }; L.g2 = { x: 16, y: 42 + L.gh + 32 }; }
+    if (W >= 660) { L.gw = clamp(Math.round((W - 48) / 2), 220, 430); L.g1 = { x: 16, y: 44, w: L.gw }; L.g2 = { x: 32 + L.gw, y: 44, w: L.gw }; }
+    else { L.gw = W - 32; L.g1 = { x: 16, y: 42, w: L.gw }; L.g2 = { x: 16, y: 42 + L.gh + 32, w: L.gw }; }
     L.pedalW = W < 430 ? 70 : 84;
     L.pedal = { x: W - L.pedalW - 22, y: Math.round(H * 0.34), w: L.pedalW, h: Math.max(84, Math.round(H * 0.20)) };
     var mw = clamp(Math.round(Math.min(W, H) * 0.66), 230, 420);
@@ -368,10 +368,16 @@
     ctx.fillStyle = PAL.text; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
     ctx.fillText('刹车踏板', p.x + p.w / 2, p.y - 9);
     if (dis) ctx.globalAlpha = 0.35;                                             // 滑冰鞋：自动虚化
-    ctx.fillStyle = '#475569'; rr(p.x + p.w * 0.30, p.y, p.w * 0.40, 14, 5); ctx.fill();   // 转轴座
-    var pvx = p.x + p.w * 0.5, pvy = p.y + 8;
-    var ang = 0.16 + S.brake / BRAKE_MAX * 0.55;
-    var ex = pvx + Math.sin(ang) * p.h * 0.72, ey = pvy + Math.cos(ang) * p.h * 0.72;
+    // D2 几何断言：白面板=(p.x-8, p.y-26, p.w+16, p.h+62)，右缘=p.x+p.w+8，下缘=p.y+p.h+36。
+    // 转轴左移 pvx=p.x+0.20*p.w；臂长 arm=min(p.h*0.72, (p.w*0.48-5)/sin(0.71))，ang∈[0.16,0.71]。
+    // 满量程：ex=pvx+sin(0.71)*arm ≤ p.x+0.68*p.w-5；板面水平半展=0.32*p.w*cos(ang)+7*sin(ang) ≤ 0.32*p.w+7
+    //   → 板面右缘 ≤ p.x+p.w+2 < 面板右缘。竖直：ey+板面展 ≤ p.y+8+arm+34 ≤ p.y+p.h+36（p.h≥84 恒成立）。
+    // 桌面 1272×568（p.w=84,p.h=114→arm=54.2）/移动 390×844 与 W<430 窄分支（p.w=70,p.h=169→arm=43.9）均验证在面板内。
+    var pvx = p.x + p.w * 0.20, pvy = p.y + 8;
+    var arm = Math.min(p.h * 0.72, (p.w * 0.48 - 5) / Math.sin(0.71));
+    var ang = 0.16 + S.brake / BRAKE_MAX * 0.55;                                 // 随 S.brake 单调增大：踩下行程保留
+    var ex = pvx + Math.sin(ang) * arm, ey = pvy + Math.cos(ang) * arm;
+    ctx.fillStyle = '#475569'; rr(pvx - p.w * 0.20, p.y, p.w * 0.40, 14, 5); ctx.fill();   // 转轴座（随 pvx 左移）
     ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;                              // 回位弹簧
     ctx.beginPath(); ctx.moveTo(p.x + 6, pvy + 4);
     for (var i = 1; i <= 4; i++) ctx.lineTo(p.x + 6 + (ex - p.x - 6) * i / 4, pvy + 4 + (ey - pvy - 4) * i / 4 + (i % 2 ? -4 : 4));
