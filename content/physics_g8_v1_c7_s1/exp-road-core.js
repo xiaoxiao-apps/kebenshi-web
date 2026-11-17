@@ -105,8 +105,9 @@
   }
   function dirS() { return S.pushDir === 'left' ? 1 : -1; }                     // 推向：左推=车向+x
   function shoulderPt() {                                                       // 推车姿态屈膝沉肩，手才够得着车面
-    var ph = L.personH, crouch = (S.push.active && S.push.F > 0.05 && S.car.mode === 'road') ? 0.60 : 0.66;
-    return { x: S.person.x + dirS() * ph * 0.055, y: L.roadTop - ph * crouch };
+    var ph = L.personH, pushing = S.push.active && S.push.F > 0.05 && S.car.mode === 'road';
+    var crouch = pushing ? 0.75 : 0.66;                                          // push_body 肩高分数 0.2499 → 离地 0.7501H
+    return { x: S.person.x + dirS() * ph * (pushing ? 0.0428 : 0.055), y: L.roadTop - ph * crouch };   // 肩x=(0.5-0.2765)*154/804
   }
   function comPoint() { return { x: S.car.x, y: L.roadTop + S.car.y - L.carH * 0.72 }; }
   function contactPoint() {                                                     // P3：肩为轴·臂长恒定——够得着搭手，够不着自然前伸
@@ -311,8 +312,59 @@
     }
   }
 
+  /* ===== C7V6 蔡总参考图 sprite（像素级）：未加载完成 → 回退旧程序化绘制 ===== */
+  function mkSpr(file, nw, nh) {
+    var img = new Image();
+    img.src = 'assets/' + file + '?v=20261117';
+    img.onload = function () { dirty = true; };
+    return { img: img, nw: nw, nh: nh };
+  }
+  var SPR = {
+    stand: mkSpr('boy_stand.png', 154, 800),
+    skate: mkSpr('boy_skate.png', 172, 820),
+    push: mkSpr('boy_push_body.png', 154, 804),
+    arm: mkSpr('boy_arm.png', 620, 80),
+    armFar: mkSpr('boy_arm_far.png', 620, 80)
+  };
+  var SPR_K = 1334;                                                            // 统一世界缩放 k = L.personH/1334（臂厚/span 也用此 k）
+  var SPR_K_PUSH = 804;                                                        // push_body 满高缩放：drawH = personH
+  var SPR_K_BODY = 800;                                                        // stand/skate 身体满高缩放：drawH = natH/800 * personH
+  var ARM_PX = 30, ARM_PY = 40, ARM_SPAN = 553;                                // 肩 pivot(30,40) → 手尖(583,40)
+  function sprOK(s) { return s.img.complete && s.img.naturalWidth > 0; }
+  function personSprOK() {
+    return sprOK(SPR.stand) && sprOK(SPR.skate) && sprOK(SPR.push) && sprOK(SPR.arm) && sprOK(SPR.armFar);
+  }
+  function sprW(s, k) { return (s.img.naturalWidth || s.nw) * k; }
+  function sprH(s, k) { return (s.img.naturalHeight || s.nh) * k; }
+  function drawArmSpr(s, sx, sy, tx, ty, k, alpha) {                            // 刚性臂：pivot→手尖恒=dist，手尖落 (tx,ty)
+    var dist = Math.hypot(tx - sx, ty - sy), ang = Math.atan2(ty - sy, tx - sx), sc = dist / ARM_SPAN;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(sx, sy); ctx.rotate(ang);
+    ctx.drawImage(s.img, -ARM_PX * sc, -ARM_PY * k, sprW(s, 1) * sc, sprH(s, k));
+    ctx.restore();
+  }
+  function drawPersonSpr() {
+    var per = S.person, d = dirS(), k = L.personH / SPR_K;
+    var pushing = S.push.active && S.push.F > 0.05 && S.car.mode === 'road';
+    var body = pushing ? SPR.push : (S.shoe === 'ice' ? SPR.skate : SPR.stand);
+    var kb = pushing ? L.personH / SPR_K_PUSH : L.personH / SPR_K_BODY;        // 身体满高：push 804 / stand·skate 800；臂件仍用 k
+    var bw = sprW(body, kb), bh = sprH(body, kb);
+    var sh = pushing ? shoulderPt() : null, cp = pushing ? contactPoint() : null;
+    var shX = sh ? (sh.x - per.x) * d : 0, cpX = cp ? (cp.x - per.x) * d : 0;
+    ctx.save();
+    ctx.translate(per.x, 0); ctx.scale(d, 1);
+    if (pushing) drawArmSpr(SPR.armFar, shX + 2, sh.y + 3, cpX, cp.y, k, 0.9);   // 远侧暗臂（身后）
+    ctx.save(); ctx.scale(-1, 1);                                                // sprite 朝左 → 本地朝 +x
+    ctx.drawImage(body.img, -bw / 2, L.roadTop - bh, bw, bh);                     // 脚中心 0.5w · 底边贴地
+    ctx.restore();
+    if (pushing) drawArmSpr(SPR.arm, shX, sh.y, cpX, cp.y, k, 1);                 // 近侧臂（身前）
+    ctx.restore();
+  }
+
   /* ===== P1 贝塞尔写实卡通小人（面向车；P3 手臂肩为轴臂长恒定；P7 轮滑鞋滚轮） ===== */
   function drawPerson() {
+    if (personSprOK()) { drawPersonSpr(); return; }                               // C7V6：sprite 优先，下方为 fallback
     var per = S.person, ph = L.personH, gy = L.roadTop, d = dirS(), ice = S.shoe === 'ice';
     var pushing = S.push.active && S.push.F > 0.05 && S.car.mode === 'road';
     var walking = S.ps.mode === 'person' || per.sliding;

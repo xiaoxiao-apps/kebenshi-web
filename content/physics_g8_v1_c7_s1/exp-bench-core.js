@@ -114,7 +114,13 @@
   function balBodyTop() { return hangPt().y + 12; }
   function hookRestY() { return balBodyTop() + L.BL + 8; }
   function balExtPx() { return (L.BL - 86) * clamp(S.bal.r, 0, RANGE) / RANGE; } // 伸长量(px)：指针/下弹簧/挂钩同源
-  function balHookY() { return hookRestY() + balExtPx(); }              // ⑭挂钩随伸长下移
+  function balHookY() {                                                 // ⑭挂钩随伸长下移（sprite 分支=wire 底）
+    if (meterReady()) {
+      var bw0 = meterBodyW(L.BL);
+      return meterTabTop(L.BL) + TAB_HF * bw0 + 0.51 * bw0;
+    }
+    return hookRestY() + balExtPx();
+  }
   function weightCOM() {
     var hx = hangPt().x;
     if (S.mode === 'spring') return { x: hx, y: stackTopSp() + S.n * L.wb * 0.5 };
@@ -268,6 +274,91 @@
     ctx.restore();
   }
 
+  /* ===== C7V6 蔡总参考图 sprite：条形盒测力计本体（未加载完成 → 回退旧程序化绘制） ===== */
+  var METER_IMG = new Image();
+  METER_IMG.src = 'assets/meter_body.png?v=20261117';
+  METER_IMG.onload = function () { dirty = true; };
+  function meterReady() { return METER_IMG.complete && METER_IMG.naturalWidth > 0; }
+  var MB = { spring_top: 0.3750, strip_top: 0.4406, zero: 0.4501, five: 0.9024, slot_x0: 0.4561, slot_x1: 0.5501, face_cx: 0.4992 };
+  var TAB_WF = 0.4777, TAB_HF = 0.376, HOLE_YF = 0.1418, HOLE_RF = 0.074, WIRE_U = 649;
+  function meterBodyW(bodyH) {
+    return bodyH * (METER_IMG.naturalWidth || 165) / (METER_IMG.naturalHeight || 800);
+  }
+  function meterExt(bodyH) {                                     // 伸长量(px)：与 balExtPx 同源，按 bodyH 缩放
+    return bodyH * (1 - 86 / L.BL) * clamp(S.bal.r, 0, RANGE) / RANGE;
+  }
+  function meterTabTop(bodyH) {
+    return balBodyTop() - 10 + bodyH - 0.02 * bodyH + meterExt(bodyH);
+  }
+  function meterPy(top, bodyH, r) {
+    var z = top + MB.zero * bodyH, f = top + MB.five * bodyH;
+    return z + (f - z) * clamp(r, 0, RANGE) / RANGE;
+  }
+  function meterSlot(hx, bodyW) {
+    return { l: hx + (MB.slot_x0 - 0.5) * bodyW, r: hx + (MB.slot_x1 - 0.5) * bodyW };
+  }
+  function meterSpring(hx, top, bodyW, bodyH, py) {              // 槽内锯齿螺旋 7 圈：spring_top → 指针上方
+    var y0 = top + MB.spring_top * bodyH, y1 = py - 2, sl = meterSlot(hx, bodyW);
+    var lw = Math.max(1, bodyW * 0.012), l = sl.l + lw, r = sl.r - lw, c = (sl.l + sl.r) / 2;
+    ctx.save();
+    ctx.strokeStyle = '#4a4a4a'; ctx.lineWidth = lw; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(c, y0);
+    if (y1 - y0 < 4) ctx.lineTo(c, Math.max(y0 + 1, y1));
+    else {
+      var seg = (y1 - y0) / 14;
+      for (var i = 0; i < 14; i++) ctx.lineTo(i % 2 === 0 ? r : l, y0 + seg * (i + 1));
+      ctx.lineTo(c, y1);
+    }
+    ctx.stroke(); ctx.restore();
+  }
+  function meterRod(hx, top, bodyW, bodyH, py) {                 // 拉杆：指针 → 挂钩组件（同步下移）
+    var tabTop = top + bodyH - 0.02 * bodyH + meterExt(bodyH);
+    ctx.save();
+    ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = Math.max(1.4, bodyW * 0.022); ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(hx, py); ctx.lineTo(hx, tabTop + 1); ctx.stroke();
+    ctx.restore();
+  }
+  function meterPointer(hx, top, bodyW, bodyH, py) {             // 红色横条指针 + 其下中心黑毂
+    var sl = meterSlot(hx, bodyW), e = 0.06 * bodyW, th = Math.max(2, bodyH * 0.006);
+    ctx.save();
+    ctx.fillStyle = '#d92b2b'; ctx.fillRect(sl.l - e, py - th / 2, (sl.r - sl.l) + e * 2, th);
+    ctx.fillStyle = '#20242a'; ctx.fillRect(hx - 0.025 * bodyW, py + th / 2, 0.05 * bodyW, 0.012 * bodyH);
+    ctx.restore();
+  }
+  function meterTabHook(hx, top, bodyW, bodyH, ext) {            // 挂钩组件：tab+shade+孔+wire hook（随伸长下移）
+    var tabW = TAB_WF * bodyW, tabH = TAB_HF * bodyW;
+    var tabTop = top + bodyH - 0.02 * bodyH + ext, tabX = hx - tabW / 2;
+    var rb = Math.min(tabW / 2, tabH), by = tabTop + tabH, u = bodyW / WIRE_U;
+    ctx.save();
+    ctx.beginPath();                                             // 顶方角 + 底圆角(tabW/2)
+    ctx.moveTo(tabX, tabTop); ctx.lineTo(tabX + tabW, tabTop);
+    ctx.lineTo(tabX + tabW, by - rb);
+    ctx.arcTo(tabX + tabW, by, tabX + tabW - rb, by, rb);
+    ctx.lineTo(tabX + rb, by);
+    ctx.arcTo(tabX, by, tabX, by - rb, rb);
+    ctx.closePath();
+    ctx.fillStyle = 'rgb(220,218,221)'; ctx.fill();
+    ctx.fillStyle = 'rgb(202,200,203)'; ctx.fillRect(tabX, tabTop, tabW, tabH * 0.12);
+    ctx.fillStyle = '#fff'; circ(hx, tabTop + HOLE_YF * bodyW, HOLE_RF * bodyW); ctx.fill();
+    function wire() {
+      ctx.beginPath();
+      ctx.moveTo(hx, by + 4 * u);
+      ctx.bezierCurveTo(hx - 60 * u, by + 40 * u, hx - 151 * u, by + 120 * u, hx - 151 * u, by + 178 * u);
+      ctx.bezierCurveTo(hx - 151 * u, by + 260 * u, hx - 90 * u, by + 331 * u, hx - 32 * u, by + 331 * u);
+      ctx.bezierCurveTo(hx + 40 * u, by + 331 * u, hx + 128 * u, by + 270 * u, hx + 128 * u, by + 208 * u);
+    }
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#3f3f3f'; ctx.lineWidth = 0.0123 * bodyW; wire(); ctx.stroke();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.0062 * bodyW; wire(); ctx.stroke();
+    ctx.restore();
+    return by + 0.51 * bodyW;                                    // wire 底 = 挂点
+  }
+  function meterFlash(hx, top, bodyW, bodyH, flash) {            // 超量程红闪：红半透圆角罩 body bbox
+    if (!(flash > 0) || Math.floor(flash * 10) % 2 !== 0) return;
+    ctx.save(); ctx.fillStyle = 'rgba(220,38,38,.28)';
+    rr(hx - bodyW / 2, top, bodyW, bodyH, 8); ctx.fill(); ctx.restore();
+  }
+
   /* ===== 地面 + 斜面（§2.1） ===== */
   function drawGround() {
     ctx.fillStyle = PAL.bg; ctx.fillRect(0, 0, W, H);
@@ -346,7 +437,25 @@
   }
 
   /* ===== 测力计（场景小图，⑫标准条形测力计：全参数标识）（§2.5） ===== */
+  function drawBalanceHangSpr() {                                        // C7V6：参考图 sprite 本体 + 参数化 overlay
+    var h = hangPt(), hx = h.x, b = S.bal;
+    var bodyH = L.BL, bodyW = meterBodyW(bodyH), mbTop = balBodyTop() - 10;   // 吊环接 hangPt
+    var ext = meterExt(bodyH);
+    ctx.drawImage(METER_IMG, hx - bodyW / 2, mbTop, bodyW, bodyH);
+    var py = meterPy(mbTop, bodyH, b.r);
+    meterSpring(hx, mbTop, bodyW, bodyH, py);
+    meterRod(hx, mbTop, bodyW, bodyH, py);
+    meterPointer(hx, mbTop, bodyW, bodyH, py);
+    meterTabHook(hx, mbTop, bodyW, bodyH, ext);
+    meterFlash(hx, mbTop, bodyW, bodyH, b.flash);
+    var hy = balHookY();
+    var wbB = Math.min(L.wb, Math.max(4, (L.floorY - 14 - (hy + 6)) / Math.max(1, S.n)));
+    drawWeights(hx, hy + 6, S.n, wbB);
+    txt('G = mg = ' + (S.n * BLOCK_N).toFixed(2) + ' N', hx + bodyW / 2 + 12, mbTop + 14, PAL.text, 12);
+    if (b.flash > 0) txt('超量程！clamp 5N', hx + bodyW / 2 + 12, mbTop + 32, PAL.limit, 11.5);
+  }
   function drawBalanceHang() {
+    if (meterReady()) { drawBalanceHangSpr(); return; }                   // sprite 优先，下方为 fallback
     var h = hangPt(), hx = h.x, bt = balBodyTop(), b = S.bal;
     var bw = clamp(Math.round(L.BL * 0.40), 44, 64);
     ctx.strokeStyle = PAL.standDark; ctx.lineWidth = 3.4; ctx.lineCap = 'round';
@@ -475,7 +584,46 @@
     var w = h * EYE_IMG.naturalWidth / EYE_IMG.naturalHeight;
     ctx.drawImage(EYE_IMG, x - w / 2, y - h / 2, w, h);
   }
+  function drawZoomSpr() {                                               // C7V6：参考图 sprite 放大 + 七项引线标注
+    var zx = L.zx, zy = L.zy, zw = L.zw, zh = L.zh, cx = zx + zw / 2, b = S.bal;
+    ctx.save();
+    ctx.shadowColor = 'rgba(20,30,45,.3)'; ctx.shadowBlur = 18;
+    ctx.fillStyle = PAL.panel; rr(zx, zy, zw, zh, 14); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#c6d0da'; ctx.lineWidth = 1.4; rr(zx, zy, zw, zh, 14); ctx.stroke();
+    txt(zw < 300 ? '测力计放大' : '测力计放大 · 参考图组件', zx + 14, zy + 18, PAL.text, 12.5);
+    txt('读数 G = ' + clamp(b.r, 0, RANGE).toFixed(2) + ' N', zx + zw - 14, zw < 300 ? zy + 36 : zy + 18, PAL.text, 12.5, 'right');
+    if (b.flash > 0) txt('超量程 clamp 5N', zx + zw - 14, zw < 300 ? zy + 52 : zy + 36, PAL.limit, 11.5, 'right');
+    var ratio = meterBodyW(1), extF = Math.max(0, 1 - 86 / L.BL);
+    var stack = 0.98 + extF + ratio * (TAB_HF + 0.51);                   // 本体 + 挂钩行程（预留）
+    var bodyH = Math.min(Math.round(zh * 0.80), Math.round((zh - 46) / stack));
+    var bodyW = bodyH * ratio;
+    var top = zy + Math.max(30, Math.round((zh - bodyH * stack) / 2));
+    var ext = meterExt(bodyH);
+    ctx.drawImage(METER_IMG, cx - bodyW / 2, top, bodyW, bodyH);
+    var py = meterPy(top, bodyH, b.r);
+    var springY = top + MB.spring_top * bodyH, zeroY = top + MB.zero * bodyH;
+    var sLen = (MB.five - MB.zero) * bodyH, tabTop = top + bodyH - 0.02 * bodyH + ext;
+    meterSpring(cx, top, bodyW, bodyH, py);
+    meterRod(cx, top, bodyW, bodyH, py);
+    meterPointer(cx, top, bodyW, bodyH, py);
+    var hookY = meterTabHook(cx, top, bodyW, bodyH, ext);
+    meterFlash(cx, top, bodyW, bodyH, b.flash);
+    var wtop = hookY + 10, wbz = clamp((zy + zh - 26 - wtop) / Math.max(1, S.n), 3, L.wb + 2);
+    drawWeights(cx, wtop, S.n, wbz);
+    var rx = cx + bodyW / 2, lx = cx - bodyW / 2, faceX = cx - 0.20 * bodyW, rodY = (py + tabTop) / 2;
+    leader(cx + 6, top + 6, rx + 34, top + 4, '吊环', 'left');            // 七组件（无调零螺丝）
+    leader(rx - 4, top + bodyH * 0.14, rx + 34, top + bodyH * 0.14, '外壳', 'left');
+    leader(cx + 8, (springY + py) / 2, rx + 34, top + bodyH * 0.32, '弹簧', 'left');
+    leader(rx - 2, py, rx + 34, py + 10, '指针(红)', 'left', PAL.needle);
+    leader(faceX + 4, zeroY + 8, lx - 30, zeroY - 2, '刻度面板', 'right');
+    leader(cx - 4, rodY, lx - 30, rodY, '拉杆', 'right');
+    leader(cx - 8, hookY - 6, lx - 30, hookY, '挂钩', 'right');
+    if (S.eye) drawZoomEye(cx + (MB.slot_x1 - 0.5) * bodyW, py, zeroY, sLen, b.r);
+    ctx.restore();
+  }
   function drawZoom() {
+    if (meterReady()) { drawZoomSpr(); return; }                         // sprite 优先，下方为 fallback
     var zx = L.zx, zy = L.zy, zw = L.zw, zh = L.zh, cx = zx + zw / 2, b = S.bal;
     var bw = clamp(Math.round(zw * 0.26), 66, 104);
     ctx.save();
@@ -662,7 +810,7 @@
       if (S.mode !== 'balance') { setHint('先把挂点切换到「测力计」再放大'); return; }
       S.zoom = !S.zoom; if (!S.zoom) S.eye = false;
       seg('btn-zoom', S.zoom); seg('btn-eye', S.eye); sfx('Click');
-      setHint(S.zoom ? '放大视图：吊环/调零螺丝/弹簧/刻度/指针/挂钩' : '');
+      setHint(S.zoom ? '放大视图：吊环/外壳/刻度面板/弹簧/指针/拉杆/挂钩' : '');
       dirty = true;
     });
     on('btn-eye', 'click', function () {
