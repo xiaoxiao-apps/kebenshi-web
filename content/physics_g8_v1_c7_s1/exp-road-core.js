@@ -629,11 +629,31 @@
     ctx.fillStyle = '#94a3b8'; circ(cx0, ky, 4.5); ctx.fill();
     ctx.strokeStyle = '#334155'; ctx.lineWidth = 5;                              // 踏板臂（向右下）
     ctx.beginPath(); ctx.moveTo(cx0 + 8, ky + 4); ctx.lineTo(cx0 + p.w * 0.34, ky + 14); ctx.stroke();
-    ctx.save(); ctx.translate(cx0 + p.w * 0.34, ky + 14); ctx.rotate(0.5);       // 脚踏板面
-    ctx.fillStyle = PAL.thrust; rr(-p.w * 0.16, -8, p.w * 0.34, 16, 4); ctx.fill();
-    ctx.strokeStyle = 'rgba(90,20,20,.6)'; ctx.lineWidth = 1.2; rr(-p.w * 0.16, -8, p.w * 0.34, 16, 4); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1.5;
-    for (var k = -1; k <= 1; k++) { ctx.beginPath(); ctx.moveTo(k * p.w * 0.08, -5); ctx.lineTo(k * p.w * 0.08, 5); ctx.stroke(); }
+    ctx.save(); ctx.translate(cx0 + p.w * 0.34, ky + 14); ctx.rotate(0.5);       // 脚踏板面：银白金属垫+黑防滑条（图一样式，尺寸/倾角/锚点同旧红踏板）
+    var padW = p.w * 0.34, padH = 16, px0 = -p.w * 0.16, py0 = -8, ins = padW * 0.06, pr = padH * 0.16;
+    var padGrad = ctx.createLinearGradient(0, py0, 0, py0 + padH);               // 竖向金属渐变
+    padGrad.addColorStop(0, '#f8f9fa'); padGrad.addColorStop(0.5, '#e8ebec'); padGrad.addColorStop(1, '#c9ced2');
+    ctx.beginPath();                                                             // 圆角梯形（顶略宽于底）
+    ctx.moveTo(px0 + pr, py0);
+    ctx.arcTo(px0 + padW, py0, px0 + padW - ins, py0 + padH, pr);
+    ctx.arcTo(px0 + padW - ins, py0 + padH, px0 + ins, py0 + padH, pr);
+    ctx.arcTo(px0 + ins, py0 + padH, px0, py0, pr);
+    ctx.arcTo(px0, py0, px0 + padW, py0, pr);
+    ctx.closePath();
+    ctx.fillStyle = padGrad; ctx.fill();
+    ctx.strokeStyle = '#3f4650'; ctx.lineWidth = 2; ctx.stroke();                // 外描边
+    var rowH = padH * 0.09, vpad = padH * 0.15, step = (padH - 2 * vpad) / 5;     // 防滑条 5行×2列
+    var lcolW = padW * 0.42, rcolW = padW * 0.30, gap = padW * 0.06, lm = (padW - (lcolW + gap + rcolW)) / 2;
+    var lx0 = px0 + lm, rx0 = px0 + lm + lcolW + gap;
+    ctx.fillStyle = '#17181a';
+    for (var i = 0; i < 5; i++) {
+      var cy = py0 + vpad + step * (i + 0.5);
+      rr(lx0, cy - rowH / 2, lcolW, rowH, rowH / 2); ctx.fill();
+      rr(rx0, cy - rowH / 2, rcolW, rowH, rowH / 2); ctx.fill();
+    }
+    var dotR = padH * 0.045;                                                     // 底部两角小黑圆点
+    circ(px0 + ins + padW * 0.07, py0 + padH - padH * 0.10, dotR); ctx.fill();
+    circ(px0 + padW - ins - padW * 0.07, py0 + padH - padH * 0.10, dotR); ctx.fill();
     ctx.restore();
     ctx.globalAlpha = 1;
     ctx.fillStyle = PAL.text; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center';
