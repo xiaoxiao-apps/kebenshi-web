@@ -341,8 +341,8 @@
       var xwf = Ox + axX * cosT + (L.wheelR - t) * sinT;
       var ywf = Oy + axX * sinT + (-L.wheelR + t) * cosT;
       wt.push({ axX: axX, t: t, xw: xwf, yw: ywf });
-      var stX = Ox + axX * cosT + L.wheelR * 0.4 * sinT;
-      var stY = Oy + axX * sinT - L.wheelR * 0.4 * cosT;
+      var stX = Ox + axX * cosT + L.wheelR * 2 * sinT;
+      var stY = Oy + axX * sinT - L.wheelR * 2 * cosT;
       ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.moveTo(stX, stY); ctx.lineTo(xwf, ywf); ctx.stroke();
       drawOneWheel(xwf, ywf, L.wheelR);
