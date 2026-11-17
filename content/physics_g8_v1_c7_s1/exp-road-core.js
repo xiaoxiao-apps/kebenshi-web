@@ -608,7 +608,7 @@
   /* ===== P4 刹车=竖直滑道：踏板造型滑钮上下滑=刹车力（轮滑鞋锁定虚化） ===== */
   function drawBrake() {
     var p = L.pedal, dis = S.shoe === 'ice';
-    var knobH = 26, ty0 = p.y + 10, th = p.h - 20;
+    var ty0 = p.y + 10, th = p.h - 20;
     var ky = ty0 + (S.brake / BRAKE_MAX) * th;
     ctx.save();
     ctx.fillStyle = 'rgba(255,255,255,.88)'; rr(p.x - 10, p.y - 28, p.w + 20, p.h + 66, 12); ctx.fill();
@@ -623,14 +623,11 @@
     ctx.beginPath(); ctx.moveTo(cx0 - 12, ty0); ctx.lineTo(cx0 - 20, ty0); ctx.moveTo(cx0 - 12, ty0 + th); ctx.lineTo(cx0 - 20, ty0 + th); ctx.stroke();
     ctx.font = '600 9px sans-serif'; ctx.fillStyle = PAL.sub; ctx.textAlign = 'right';
     ctx.fillText('松', cx0 - 22, ty0 + 3); ctx.fillText('紧', cx0 - 22, ty0 + th + 3);
-    // 滑钮=刹车踏板造型：滑块座 + 踏板臂 + 带防滑棱的脚踏板
-    ctx.fillStyle = '#475569'; rr(cx0 - 13, ky - knobH / 2, 26, knobH, 6); ctx.fill();
-    ctx.strokeStyle = '#334155'; ctx.lineWidth = 1.4; rr(cx0 - 13, ky - knobH / 2, 26, knobH, 6); ctx.stroke();
-    ctx.fillStyle = '#94a3b8'; circ(cx0, ky, 4.5); ctx.fill();
-    ctx.strokeStyle = '#334155'; ctx.lineWidth = 5;                              // 踏板臂（向右下）
-    ctx.beginPath(); ctx.moveTo(cx0 + 8, ky + 4); ctx.lineTo(cx0 + p.w * 0.34, ky + 14); ctx.stroke();
-    ctx.save(); ctx.translate(cx0 + p.w * 0.34, ky + 14); ctx.rotate(0.5);       // 脚踏板面：银白金属垫+黑防滑条（图一样式，尺寸/倾角/锚点同旧红踏板）
-    var padW = p.w * 0.34, padH = 16, px0 = -p.w * 0.16, py0 = -8, ins = padW * 0.06, pr = padH * 0.16;
+    // 滑钮=刹车踏板本体（图一样式）：正立不倾斜、居中于滑道、银白金属渐变+黑防滑条、无中心圆点
+    ctx.save(); ctx.translate(cx0, ky);
+    var scale = p.w / 68;                                                        // 窄屏随面板缩放系数
+    var padW = 46 * scale, padH = 34 * scale, ins = padW * 0.06, pr = padH * 0.16;
+    var px0 = -padW / 2, py0 = -padH / 2;
     var padGrad = ctx.createLinearGradient(0, py0, 0, py0 + padH);               // 竖向金属渐变
     padGrad.addColorStop(0, '#f8f9fa'); padGrad.addColorStop(0.5, '#e8ebec'); padGrad.addColorStop(1, '#c9ced2');
     ctx.beginPath();                                                             // 圆角梯形（顶略宽于底）
@@ -651,9 +648,6 @@
       rr(lx0, cy - rowH / 2, lcolW, rowH, rowH / 2); ctx.fill();
       rr(rx0, cy - rowH / 2, rcolW, rowH, rowH / 2); ctx.fill();
     }
-    var dotR = padH * 0.045;                                                     // 底部两角小黑圆点
-    circ(px0 + ins + padW * 0.07, py0 + padH - padH * 0.10, dotR); ctx.fill();
-    circ(px0 + padW - ins - padW * 0.07, py0 + padH - padH * 0.10, dotR); ctx.fill();
     ctx.restore();
     ctx.globalAlpha = 1;
     ctx.fillStyle = PAL.text; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center';
