@@ -110,7 +110,7 @@
     var ph = L.personH, d = dirS();
     if (!pushingNow()) return { x: S.person.x + d * ph * 0.055, y: L.roadTop - ph * 0.66 };
     var ice = S.shoe === 'ice';
-    return { x: S.person.x + d * ph * (ice ? 0.0406 : 0.0509), y: L.roadTop - ph * (ice ? 0.789 : 0.619) };  // push_body(443×637) 肩分数(0.4081,0.2221)；ice=skate身体+臂IK
+    return { x: S.person.x + d * ph * (ice ? 0.0406 : 0.017), y: L.roadTop - ph * (ice ? 0.789 : 0.692) };  // e轮 push_body(322×739) 肩分数(0.4575,0.2506)；ice=skate身体+臂IK
   }
   function SPONGE(d) {                                                          // d轮：海绵车体锚定（尾灯高度带），人靠近/推/松手都不动
     return { x: S.car.x - d * (L.carW * 0.5) - d * 3, y: L.roadTop + S.car.y - L.carH * 0.66 };
@@ -330,12 +330,12 @@
   var SPR = {
     stand: mkSpr('boy_stand.png', 154, 800),
     skate: mkSpr('boy_skate.png', 172, 820),
-    push: mkSpr('boy_push_body.png', 443, 637, '20261117d'),
+    push: mkSpr('boy_push_body.png', 322, 739, '20261117e'),
     arm: mkSpr('boy_arm.png', 620, 80),
     armFar: mkSpr('boy_arm_far.png', 620, 80)
   };
   var SPR_K = 1334;                                                            // 统一世界缩放 k = L.personH/1334（臂厚/span 也用此 k）
-  var SPR_K_BODY = 800;                                                        // d轮：三身体件统一除数；push 637/800=0.796personH（弯腰矮一截）
+  var SPR_K_BODY = 800;                                                        // d轮：三身体件统一除数；e轮 push 739/800=0.924personH
   var ARM_PX = 30, ARM_PY = 40, ARM_SPAN = 553;                                // 肩 pivot(30,40) → 手尖(583,40)
   function sprOK(s) { return s.img.complete && s.img.naturalWidth > 0; }
   function personSprOK() {
@@ -367,8 +367,8 @@
     ctx.translate(per.x, 0); ctx.scale(d, 1);
     var armOn = e >= 0.02, shxL = 0, shY = 0, tipX = 0, tipY = 0;
     if (armOn) {                                                                // 肩位随 e 在 站立↔推车 分数间插值（松手反向回放不跳变）
-      shxL = ph * (ice ? 0.0406 : 0.055 + (0.0509 - 0.055) * e);
-      shY = L.roadTop - ph * (ice ? 0.789 : 0.66 + (0.619 - 0.66) * e);
+      shxL = ph * (ice ? 0.0406 : 0.055 + (0.017 - 0.055) * e);
+      shY = L.roadTop - ph * (ice ? 0.789 : 0.66 + (0.692 - 0.66) * e);
       var sp = SPONGE(d), tx = (sp.x - per.x) * d, ty = sp.y;
       var ikAng = Math.atan2(ty - shY, tx - shxL), ikDist = Math.hypot(tx - shxL, ty - shY);
       var ang = Math.PI / 2 + (ikAng - Math.PI / 2) * e;                        // 垂臂(π/2) → IK 角
