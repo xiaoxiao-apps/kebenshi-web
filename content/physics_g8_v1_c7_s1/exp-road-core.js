@@ -88,6 +88,7 @@
     shoe: 'normal', brake: 0, brakeSaved: 0, wheelZoom: false,
     dial: { angle: 0, omega: 0, drag: null, F: 0, Ft: 0, tan: null, pt: null, msg: '' },
     diagram: false, muted: false,
+    eng: 0,                                                                     // d轮：站↔推过渡系数（渲染-only）
     sw: null,
     ps: { mode: 'idle', x: 0, y: 0, downX: 0, downY: 0, moved: 0 }
   };
@@ -104,14 +105,21 @@
     return y;
   }
   function dirS() { return S.pushDir === 'left' ? 1 : -1; }                     // 推向：左推=车向+x
-  function shoulderPt() {                                                       // 推车姿态屈膝沉肩，手才够得着车面
-    var ph = L.personH, pushing = S.push.active && S.push.F > 0.05 && S.car.mode === 'road';
-    var crouch = pushing ? 0.75 : 0.66;                                          // push_body 肩高分数 0.2499 → 离地 0.7501H
-    return { x: S.person.x + dirS() * ph * (pushing ? 0.0428 : 0.055), y: L.roadTop - ph * crouch };   // 肩x=(0.5-0.2765)*154/804
+  function pushingNow() { return S.push.active && S.push.F > 0.05 && S.car.mode === 'road'; }
+  function shoulderPt() {                                                       // d轮：肩轴对齐新素材实测分数
+    var ph = L.personH, d = dirS();
+    if (!pushingNow()) return { x: S.person.x + d * ph * 0.055, y: L.roadTop - ph * 0.66 };
+    var ice = S.shoe === 'ice';
+    return { x: S.person.x + d * ph * (ice ? 0.0406 : 0.0509), y: L.roadTop - ph * (ice ? 0.789 : 0.619) };  // push_body(443×637) 肩分数(0.4081,0.2221)；ice=skate身体+臂IK
+  }
+  function SPONGE(d) {                                                          // d轮：海绵车体锚定（尾灯高度带），人靠近/推/松手都不动
+    return { x: S.car.x - d * (L.carW * 0.5) - d * 3, y: L.roadTop + S.car.y - L.carH * 0.66 };
   }
   function comPoint() { return { x: S.car.x, y: L.roadTop + S.car.y - L.carH * 0.72 }; }
   function contactPoint() {                                                     // P3：肩为轴·臂长恒定——够得着搭手，够不着自然前伸
-    var sh = shoulderPt(), d = dirS(), faceX = S.car.x - d * L.carW * 0.5;
+    var d = dirS();
+    if (pushingNow()) return SPONGE(d);                                         // d轮：推车=手去够车体锚定的海绵
+    var sh = shoulderPt(), faceX = S.car.x - d * L.carW * 0.5;
     var dx = (faceX - sh.x) * d;
     var faceTop = L.roadTop + S.car.y - L.carH * 0.88, faceBot = L.roadTop + S.car.y - L.carH * 0.10;
     if (dx < L.armLen) return { x: faceX - d * 3, y: clamp(sh.y + Math.sqrt(Math.max(4, L.armLen * L.armLen - dx * dx)), faceTop, faceBot) };
@@ -153,7 +161,7 @@
     car.x = L.homeX; car.vx = 0; car.y = 0; car.angle = 0; car.mode = 'road'; car.settled = false;
     S.person.x = personHome();
     S.person.vx = 0; S.person.sliding = false; S.person.off = 0; S.person.baseX = S.person.x;
-    S.push.active = false; S.push.F = 0; S.sponge.def = 0;
+    S.push.active = false; S.push.F = 0; S.sponge.def = 0; S.eng = 0;
     S.brake = S.shoe === 'ice' ? BRAKE_MAX : 0; S.brakeSaved = 0;
     S.dial.drag = null; S.dial.angle = 0; S.dial.omega = 0; S.dial.msg = ''; S.dial.F = 0; S.dial.Ft = 0; S.dial.pt = null;
     if (window.ForceOverlay) ForceOverlay.clear();
@@ -313,22 +321,21 @@
   }
 
   /* ===== C7V6 蔡总参考图 sprite（像素级）：未加载完成 → 回退旧程序化绘制 ===== */
-  function mkSpr(file, nw, nh) {
+  function mkSpr(file, nw, nh, v) {
     var img = new Image();
-    img.src = 'assets/' + file + '?v=20261117';
+    img.src = 'assets/' + file + '?v=' + (v || '20261117');
     img.onload = function () { dirty = true; };
     return { img: img, nw: nw, nh: nh };
   }
   var SPR = {
     stand: mkSpr('boy_stand.png', 154, 800),
     skate: mkSpr('boy_skate.png', 172, 820),
-    push: mkSpr('boy_push_body.png', 154, 804),
+    push: mkSpr('boy_push_body.png', 443, 637, '20261117d'),
     arm: mkSpr('boy_arm.png', 620, 80),
     armFar: mkSpr('boy_arm_far.png', 620, 80)
   };
   var SPR_K = 1334;                                                            // 统一世界缩放 k = L.personH/1334（臂厚/span 也用此 k）
-  var SPR_K_PUSH = 804;                                                        // push_body 满高缩放：drawH = personH
-  var SPR_K_BODY = 800;                                                        // stand/skate 身体满高缩放：drawH = natH/800 * personH
+  var SPR_K_BODY = 800;                                                        // d轮：三身体件统一除数；push 637/800=0.796personH（弯腰矮一截）
   var ARM_PX = 30, ARM_PY = 40, ARM_SPAN = 553;                                // 肩 pivot(30,40) → 手尖(583,40)
   function sprOK(s) { return s.img.complete && s.img.naturalWidth > 0; }
   function personSprOK() {
@@ -344,21 +351,38 @@
     ctx.drawImage(s.img, -ARM_PX * sc, -ARM_PY * k, sprW(s, 1) * sc, sprH(s, k));
     ctx.restore();
   }
+  function sstep(t) { return t * t * (3 - 2 * t); }                             // d轮：smoothstep(eng)
+  function drawBodySpr(s, kb, alpha) {
+    var bw = sprW(s, kb), bh = sprH(s, kb);
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(s.img, -bw / 2, L.roadTop - bh, bw, bh);                      // 脚中心 0.5w · 底边贴地
+    ctx.globalAlpha = 1;
+  }
   function drawPersonSpr() {
-    var per = S.person, d = dirS(), k = L.personH / SPR_K;
-    var pushing = S.push.active && S.push.F > 0.05 && S.car.mode === 'road';
-    var body = pushing ? SPR.push : (S.shoe === 'ice' ? SPR.skate : SPR.stand);
-    var kb = pushing ? L.personH / SPR_K_PUSH : L.personH / SPR_K_BODY;        // 身体满高：push 804 / stand·skate 800；臂件仍用 k
-    var bw = sprW(body, kb), bh = sprH(body, kb);
-    var sh = pushing ? shoulderPt() : null, cp = pushing ? contactPoint() : null;
-    var shX = sh ? (sh.x - per.x) * d : 0, cpX = cp ? (cp.x - per.x) * d : 0;
+    var per = S.person, d = dirS(), k = L.personH / SPR_K, ph = L.personH;
+    var ice = S.shoe === 'ice';
+    var kb = ph / SPR_K_BODY;                                                   // d轮：统一 800 除数（SPR_K_PUSH 已废弃）
+    var e = ice ? (pushingNow() ? 1 : 0) : sstep(S.eng);                        // ice 态不做 crossfade：skate 身体+臂 IK
     ctx.save();
     ctx.translate(per.x, 0); ctx.scale(d, 1);
-    if (pushing) drawArmSpr(SPR.armFar, shX + 2, sh.y + 3, cpX, cp.y, k, 0.9);   // 远侧暗臂（身后）
-    ctx.save(); ctx.scale(-1, 1);                                                // sprite 朝左 → 本地朝 +x
-    ctx.drawImage(body.img, -bw / 2, L.roadTop - bh, bw, bh);                     // 脚中心 0.5w · 底边贴地
+    var armOn = e >= 0.02, shxL = 0, shY = 0, tipX = 0, tipY = 0;
+    if (armOn) {                                                                // 肩位随 e 在 站立↔推车 分数间插值（松手反向回放不跳变）
+      shxL = ph * (ice ? 0.0406 : 0.055 + (0.0509 - 0.055) * e);
+      shY = L.roadTop - ph * (ice ? 0.789 : 0.66 + (0.619 - 0.66) * e);
+      var sp = SPONGE(d), tx = (sp.x - per.x) * d, ty = sp.y;
+      var ikAng = Math.atan2(ty - shY, tx - shxL), ikDist = Math.hypot(tx - shxL, ty - shY);
+      var ang = Math.PI / 2 + (ikAng - Math.PI / 2) * e;                        // 垂臂(π/2) → IK 角
+      var len = L.armLen + (ikDist - L.armLen) * e;                             // 0.36personH → dist
+      tipX = shxL + Math.cos(ang) * len; tipY = shY + Math.sin(ang) * len;
+      drawArmSpr(SPR.armFar, shxL + 2, shY + 3, tipX, tipY, k, 0.9 * e);        // 远侧暗臂（身后）
+    }
+    ctx.save(); ctx.scale(-1, 1);                                               // sprite 朝左 → 本地朝 +x
+    if (ice) drawBodySpr(SPR.skate, kb, 1);
+    else if (e < 0.02) drawBodySpr(SPR.stand, kb, 1);
+    else if (e > 0.98) drawBodySpr(SPR.push, kb, 1);
+    else { drawBodySpr(SPR.stand, kb, 1 - e); drawBodySpr(SPR.push, kb, e); }   // 过渡：crossfade
     ctx.restore();
-    if (pushing) drawArmSpr(SPR.arm, shX, sh.y, cpX, cp.y, k, 1);                 // 近侧臂（身前）
+    if (armOn) drawArmSpr(SPR.arm, shxL, shY, tipX, tipY, k, e);                // 近侧臂（身前）
     ctx.restore();
   }
 
@@ -507,9 +531,7 @@
   /* ===== 手-车接触海绵（P10：米色多孔可识别 + 按压凹陷 + 标签；形变∝力） ===== */
   function drawSponge() {
     if (S.car.mode !== 'road') return;
-    var d = dirS(), pen = reachPen();
-    var cp = (pen > 0) ? contactPoint()                                          // 受压：贴手位置
-      : { x: S.car.x - d * L.carW * 0.5 - d * 3, y: L.roadTop + S.car.y - L.carH * 0.5 };   // 未推：贴车面停放
+    var d = dirS(), cp = SPONGE(d);                                             // d轮：车体锚定，靠近/推/松手全程不动
     var def = S.sponge.def;
     var w0 = L.carH * 0.17, h0 = L.carH * 0.32;
     var w = w0 * (1 + def * 0.45), h = h0 * (1 - def * 0.55);
@@ -766,6 +788,10 @@
     var sTarget = S.push.active && car.mode === 'road' ? S.push.F / F_MAX : 0;
     var nd = S.sponge.def + (sTarget - S.sponge.def) * Math.min(1, dt * 14);
     if (Math.abs(nd - S.sponge.def) > 0.001) { S.sponge.def = nd; ch = true; }
+
+    // d轮：站↔推过渡系数（渲染-only，0.3s 趋近；ice 态不用——直接 skate+臂IK）
+    var engT = (S.push.active && S.push.F > 0.05 && car.mode === 'road' && !ice) ? 1 : 0;
+    if (S.eng !== engT) { S.eng = clamp(S.eng + (engT > S.eng ? dt : -dt) / 0.3, 0, 1); ch = true; }
 
     syncOverlay();
     return ch;
