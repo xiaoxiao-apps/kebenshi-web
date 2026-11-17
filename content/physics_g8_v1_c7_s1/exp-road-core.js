@@ -326,10 +326,28 @@
     ctx.strokeStyle = PAL.text; ctx.lineWidth = 2; circ(c.x, c.y, 5); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(c.x - 8, c.y); ctx.lineTo(c.x + 8, c.y); ctx.moveTo(c.x, c.y - 8); ctx.lineTo(c.x, c.y + 8); ctx.stroke();
     ctx.restore();
-    // q轮 A案：车轮世界坐标独立贴地（不随车身 transform；允许悬架间隙）
-    var rearAxleX = car.x - L.carW * 0.32, frontAxleX = car.x + L.carW * 0.32;
-    drawOneWheel(rearAxleX, groundY(rearAxleX) - L.wheelR, L.wheelR);
-    drawOneWheel(frontAxleX, groundY(frontAxleX) - L.wheelR, L.wheelR);
+    // t轮：车身系锚定轮+悬架行程（前后锁死轮拱、只上下动=减震）
+    var Ox = car.x, Oy = L.roadTop + car.y, theta = car.angle;
+    var cosT = Math.cos(theta), sinT = Math.sin(theta);
+    var tMin = -0.10 * L.carH, tMax = 0.35 * L.carH;
+    var wt = [];
+    [-1, 1].forEach(function(sgn) {
+      var axX = sgn * L.carW * 0.32, t = car._cl || 0;
+      for (var it = 0; it < 5; it++) {
+        var xw = Ox + axX * cosT + (L.wheelR - t) * sinT;
+        var tRaw = (groundY(xw) - L.wheelR - Oy - axX * sinT + L.wheelR * cosT) / cosT;
+        t = clamp(t + 0.5 * (tRaw - t), tMin, tMax);
+      }
+      var xwf = Ox + axX * cosT + (L.wheelR - t) * sinT;
+      var ywf = Oy + axX * sinT + (-L.wheelR + t) * cosT;
+      wt.push({ axX: axX, t: t, xw: xwf, yw: ywf });
+      var stX = Ox + axX * cosT + L.wheelR * 0.4 * sinT;
+      var stY = Oy + axX * sinT - L.wheelR * 0.4 * cosT;
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(stX, stY); ctx.lineTo(xwf, ywf); ctx.stroke();
+      drawOneWheel(xwf, ywf, L.wheelR);
+    });
+    S._wheelT = wt;
     ctx.save(); ctx.fillStyle = '#fff'; ctx.font = '600 11px sans-serif'; ctx.textAlign = 'center';
     ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 3;
     ctx.fillText('重心', c.x, c.y - 12); ctx.restore();
@@ -749,6 +767,7 @@
 
     var decel = FRIC + S.brake / M * BRAKE_SCALE;
     if (car.mode === 'road') {
+      car._cl = 0;
       var aPush = (!ice && S.push.active) ? d * S.push.F / M * A_SCALE : 0; // 轮滑：刹车锁定最大，车不动
       if (Math.abs(car.vx) <= 0.5 && Math.abs(aPush) <= decel) car.vx = 0;   // 静阻力顶得住 → 不动
       else {
@@ -773,6 +792,7 @@
       var ps = terrainPose(car.x);                                        // p轮：双轴贴地滚动
       car.y = ps.chordY - ps.clearance - L.roadTop;
       car.angle = ps.angle;                                               // 弦线角直接=车姿（无滞后→车底线=chord-clearance 恒不嵌土）
+      car._cl = ps.clearance;
       ch = true;
       if (car.x >= L.waterX) {                                            // p轮：中心过水位截坡点 → 入水
         car.mode = 'pond'; car.splashT = now; car.settled = false; sfx('Match');
@@ -789,6 +809,7 @@
       car.y = pf.chordY - pf.clearance - L.roadTop;
       var rock = (now - car.splashT < 1600) ? Math.sin(now * 0.006) * 0.02 * (1 - (now - car.splashT) / 1600) : 0;  // 入水微晃
       car.angle = pf.angle + rock;                                        // 地形弦线角 + 微晃（直接赋值，不脱离地形）
+      car._cl = pf.clearance;
       if (!car.settled && Math.abs(car.vx) < 4 && car.x >= L.restX - 2) { car.settled = true; setHint('车沿护坡滑到池底停住——车头探出画外，池塘向画外延伸'); }
       ch = !car.settled || Math.abs(rock) > 0.002;
     }
