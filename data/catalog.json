@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-28",
+ "generated": "2026-11-17",
  "subjects": {
   "physics": [
    {
@@ -813,17 +813,17 @@
     "thumb": "content/physics_g8_v1_c7_s1/thumb-explain.svg"
    },
    {
-    "id": "physics_g8_v1_c7_s1/exp-force-lab",
+    "id": "physics_g8_v1_c7_s1/exp-road",
     "subject": "物理",
     "grade": "八年级",
     "volume": "下册",
     "chapter": "第7章 力",
     "section": "力",
     "type": "实验",
-    "title": "力的实验室",
-    "path": "content/physics_g8_v1_c7_s1/exp-force-lab.html",
+    "title": "侧视马路",
+    "path": "content/physics_g8_v1_c7_s1/exp-road.html",
     "voice": true,
-    "thumb": "content/physics_g8_v1_c7_s1/thumb-force-lab.svg"
+    "thumb": "content/physics_g8_v1_c7_s1/thumb-road.svg"
    },
    {
     "id": "physics_g8_v1_c7_s2/index",
@@ -838,17 +838,17 @@
     "thumb": "content/physics_g8_v1_c7_s2/thumb-explain.svg"
    },
    {
-    "id": "physics_g8_v1_c7_s2/exp-force-lab",
+    "id": "physics_g8_v1_c7_s2/exp-bench",
     "subject": "物理",
     "grade": "八年级",
     "volume": "下册",
     "chapter": "第7章 力",
     "section": "弹力",
     "type": "实验",
-    "title": "测力计工作台",
-    "path": "content/physics_g8_v1_c7_s1/exp-force-lab.html?scene=meter",
+    "title": "侧视实验台",
+    "path": "content/physics_g8_v1_c7_s1/exp-bench.html",
     "voice": true,
-    "thumb": "content/physics_g8_v1_c7_s1/thumb-force-lab.svg"
+    "thumb": "content/physics_g8_v1_c7_s1/thumb-bench.svg"
    },
    {
     "id": "physics_g8_v1_c7_s3/index",
@@ -888,7 +888,7 @@
     "thumb": "content/physics_g8_v1_c7_summary/thumb1.svg"
    },
    {
-    "id": "physics_g8_v1_c7_practice/index",
+    "id": "physics_g8_v1_c7_s1/practice",
     "subject": "物理",
     "grade": "八年级",
     "volume": "下册",
@@ -896,8 +896,8 @@
     "section": "本章练习",
     "type": "练习",
     "title": "力 · 本章练习",
-    "path": "content/physics_g8_v1_c7_practice/index.html",
-    "thumb": "content/physics_g8_v1_c7_practice/thumb1.svg"
+    "path": "content/physics_g8_v1_c7_s1/practice.html",
+    "thumb": "content/physics_g8_v1_c7_s1/thumb-practice.svg"
    },
    {
     "id": "mockexam/index",
