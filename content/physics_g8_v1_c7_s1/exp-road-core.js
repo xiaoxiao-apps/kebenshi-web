@@ -54,14 +54,15 @@
     L.roadLeft = 30;
     L.slopeX = Math.round(W - Math.max(200, W * 0.26));
     L.toeX = W - 20;                                                            // P5：坝体剖面——坡脚
-    L.pondY = Math.round(H * 0.80);                                             // 正常高水位（水平线）
-    L.pondBottom = H - 12;
+    L.pondBottom = H - 10;                                                      // p轮：池底
     L.bumpA = Math.max(3, Math.round(H * 0.008));
     L.personH = Math.max(96, Math.round(H * 0.30 * clamp(W / 700, 0.62, 1)));    // 窄屏按比例收小人，保人车比例
     L.armLen = Math.round(L.personH * 0.36);
     L.pushK = F_MAX / Math.max(10, L.personH * 0.30);
     L.carW = clamp(Math.round(W * 0.24), 118, Math.round(H * 0.44));            // P2：车稍缩小
     L.carH = Math.round(L.carW * 0.42);
+    L.pondY = Math.max(L.roadBot + 4, Math.min(Math.round(H * 0.68), L.pondBottom - Math.round(1.35 * L.carH)));  // p轮：正常高水位——水深≥1.35车高保证整辆没顶
+    L.restX = W + L.carW * 0.05;                                                // p轮：停住中心=车尾留45%、车头探出画外
     L.wheelR = Math.round(L.carH * 0.30);
     L.homeX = L.roadLeft + L.carW * 0.5 + Math.round((L.slopeX - L.roadLeft - L.carW) * 0.32);
     L.shoreX = L.slopeX - Math.round(L.personH * 0.16);
@@ -103,6 +104,18 @@
     var y = L.roadTop + (L.pondBottom - L.roadTop) * (t * 0.55 + s * 0.45);
     y += Math.sin(t * Math.PI * 5) * L.bumpA * (1 - t * 0.55);                  // 轻微起伏（碰撞减速源）
     return y;
+  }
+  function terrainPose(cx) {                                                    // p轮：双轴贴地——后/前轮接地点连弦，弦线角=车姿，clearance 抬升保证车体不嵌土
+    var hf = L.carW * 0.32, rearX = cx - hf, frontX = cx + hf, base = frontX - rearX;
+    var yR = groundY(rearX), yF = groundY(frontX);
+    var angle = Math.atan2(yF - yR, base);
+    var clearance = 0, chordC = yR + (yF - yR) * 0.5;                           // cx=弦中点
+    for (var x = rearX; x <= frontX + 1e-6; x += 8) {
+      var t = (x - rearX) / base, cy = yR + (yF - yR) * t;
+      var d = cy - groundY(x); if (d > clearance) clearance = d;                // 弦高于地形处=凸起，抬升车体避免嵌入
+    }
+    if (clearance < 0) clearance = 0;
+    return { rearX: rearX, frontX: frontX, yR: yR, yF: yF, angle: angle, chordY: chordC, clearance: clearance, grad: (yF - yR) / base };
   }
   function dirS() { return S.pushDir === 'left' ? 1 : -1; }                     // 推向：左推=车向+x
   function pushingNow() { return S.push.active && S.push.F > 0.05 && S.car.mode === 'road'; }
@@ -219,12 +232,28 @@
       var jg = (groundY(jx + 3) - groundY(jx - 3)) / 6;
       ctx.beginPath(); ctx.moveTo(jx + jg * 5, jy - 5); ctx.lineTo(jx - jg * 7, jy + 7); ctx.stroke();
     }
-    // 水体：沿坡升到正常高水位，水平线截坡（水下土坡半透明可见）
+    // 沥青路面 + 黄色虚线中线
+    var ag = ctx.createLinearGradient(0, L.roadTop, 0, L.roadBot);
+    ag.addColorStop(0, PAL.asphaltTop); ag.addColorStop(1, PAL.asphalt);
+    ctx.fillStyle = ag; ctx.fillRect(L.roadLeft, L.roadTop, L.slopeX - L.roadLeft, L.roadH);
+    ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.fillRect(L.roadLeft, L.roadTop, L.slopeX - L.roadLeft, 3);
+    ctx.strokeStyle = PAL.lane; ctx.lineWidth = Math.max(3, Math.round(L.roadH * 0.14)); ctx.setLineDash([20, 16]);
+    ctx.beginPath(); ctx.moveTo(L.roadLeft + 6, L.roadTop + L.roadH * 0.58); ctx.lineTo(L.slopeX - 6, L.roadTop + L.roadH * 0.58); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.save(); ctx.fillStyle = PAL.text; ctx.font = '600 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('池塘护坡', (L.slopeX + L.waterX) / 2, L.roadTop - 10); ctx.restore();
+  }
+
+  /* ===== q轮 水体单遍半透明（车之后画 → 水下部分自然透水色 = 真浸没感，无蓝晕矩形） ===== */
+  function drawWater() {
     ctx.beginPath(); ctx.moveTo(L.waterX, L.pondY); ctx.lineTo(W, L.pondY); ctx.lineTo(W, H);
     for (var x3 = L.toeX; x3 >= L.waterX; x3 -= 6) ctx.lineTo(x3, groundY(x3));
-    ctx.closePath();    var wg = ctx.createLinearGradient(0, L.pondY, 0, H);
-    wg.addColorStop(0, 'rgba(90,167,224,.72)'); wg.addColorStop(1, 'rgba(43,111,174,.86)');
+    ctx.closePath();
+    var wg = ctx.createLinearGradient(0, L.pondY, 0, H);
+    wg.addColorStop(0, 'rgba(90,167,224,.62)'); wg.addColorStop(1, 'rgba(43,111,174,.74)');
     ctx.fillStyle = wg; ctx.fill();
+  }
+  function drawWaterFx(now) {
     ctx.strokeStyle = PAL.foam; ctx.lineWidth = 2;                              // 水面波纹
     for (var i = 0; i < 3; i++) {
       var wy = L.pondY + 12 + i * 16, wx = L.waterX + 14 + i * 30;
@@ -236,18 +265,7 @@
     ctx.fillStyle = '#fff'; ctx.font = '600 11px sans-serif'; ctx.textAlign = 'right';
     ctx.shadowColor = 'rgba(20,50,90,.6)'; ctx.shadowBlur = 3;
     ctx.fillText('正常高水位', W - 12, L.pondY - 6); ctx.restore();
-    // 沥青路面 + 黄色虚线中线
-    var ag = ctx.createLinearGradient(0, L.roadTop, 0, L.roadBot);
-    ag.addColorStop(0, PAL.asphaltTop); ag.addColorStop(1, PAL.asphalt);
-    ctx.fillStyle = ag; ctx.fillRect(L.roadLeft, L.roadTop, L.slopeX - L.roadLeft, L.roadH);
-    ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.fillRect(L.roadLeft, L.roadTop, L.slopeX - L.roadLeft, 3);
-    ctx.strokeStyle = PAL.lane; ctx.lineWidth = Math.max(3, Math.round(L.roadH * 0.14)); ctx.setLineDash([20, 16]);
-    ctx.beginPath(); ctx.moveTo(L.roadLeft + 6, L.roadTop + L.roadH * 0.58); ctx.lineTo(L.slopeX - 6, L.roadTop + L.roadH * 0.58); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.save(); ctx.fillStyle = PAL.text; ctx.font = '600 11px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('池塘护坡', (L.slopeX + L.waterX) / 2, L.roadTop - 10); ctx.restore();
-    // 入水飞溅波纹
-    if (S.car.mode === 'pond' && now - S.car.splashT < 1400) {
+    if (S.car.mode === 'pond' && now - S.car.splashT < 1400) {                  // 入水飞溅波纹
       var p = (now - S.car.splashT) / 1400;
       ctx.strokeStyle = 'rgba(255,255,255,' + (0.7 * (1 - p)).toFixed(2) + ')'; ctx.lineWidth = 2.5;
       for (var k2 = 0; k2 < 2; k2++) {
@@ -269,8 +287,6 @@
     if (car.angle) { ctx.translate(car.x, gy); ctx.rotate(car.angle); ctx.translate(-car.x, -gy); }
     ctx.fillStyle = 'rgba(20,30,45,.20)';
     ctx.beginPath(); ctx.ellipse(car.x, gy + 3, w * 0.5, 5, 0, 0, Math.PI * 2); ctx.fill();
-    drawOneWheel(x + w * 0.22, gy - L.wheelR * 0.92, L.wheelR);
-    drawOneWheel(x + w * 0.78, gy - L.wheelR * 0.92, L.wheelR);
     var bodyY = gy - h * 0.80, bodyH = h * 0.72;
     var bg = ctx.createLinearGradient(0, bodyY - h * 0.62, 0, gy);
     bg.addColorStop(0, PAL.carTop); bg.addColorStop(1, PAL.carBot);
@@ -310,14 +326,13 @@
     ctx.strokeStyle = PAL.text; ctx.lineWidth = 2; circ(c.x, c.y, 5); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(c.x - 8, c.y); ctx.lineTo(c.x + 8, c.y); ctx.moveTo(c.x, c.y - 8); ctx.lineTo(c.x, c.y + 8); ctx.stroke();
     ctx.restore();
+    // q轮 A案：车轮世界坐标独立贴地（不随车身 transform；允许悬架间隙）
+    var rearAxleX = car.x - L.carW * 0.32, frontAxleX = car.x + L.carW * 0.32;
+    drawOneWheel(rearAxleX, groundY(rearAxleX) - L.wheelR, L.wheelR);
+    drawOneWheel(frontAxleX, groundY(frontAxleX) - L.wheelR, L.wheelR);
     ctx.save(); ctx.fillStyle = '#fff'; ctx.font = '600 11px sans-serif'; ctx.textAlign = 'center';
     ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 3;
     ctx.fillText('重心', c.x, c.y - 12); ctx.restore();
-    // 池塘中：半透明水面盖住车体下半（浸没感）
-    if (car.mode === 'pond') {
-      ctx.save(); ctx.fillStyle = 'rgba(90,167,224,.45)';
-      ctx.fillRect(car.x - w * 0.6, L.pondY, w * 1.2, H - L.pondY); ctx.restore();
-    }
   }
 
   /* ===== C7V6 蔡总参考图 sprite（像素级）：未加载完成 → 回退旧程序化绘制 ===== */
@@ -671,9 +686,12 @@
   /* ===== 合成 draw ===== */
   function draw(now) {
     ctx.clearRect(0, 0, W, H);
-    drawScene(now || performance.now());
+    var t = now || performance.now();
+    drawScene(t);
     drawCar();
     drawPerson();
+    drawWater();                                                                  // q轮：水体单遍半透明（车之后画）
+    drawWaterFx(t);                                                               // q轮：水花/泡沫/水位线/标签
     drawSponge();
     drawGauges();
     drawBrake();
@@ -738,22 +756,26 @@
       car.vx += G_SLOPE * grad * dt;                                      // 重力沿坡分量
       car.vx *= (1 - 0.55 * dt);                                          // 坡面起伏：碰撞/减速
       car.x += car.vx * dt;
-      car.y = groundY(car.x) - L.roadTop;
-      var ta = Math.atan(grad); car.angle += (ta - car.angle) * Math.min(1, dt * 10);
+      var ps = terrainPose(car.x);                                        // p轮：双轴贴地滚动
+      car.y = ps.chordY - ps.clearance - L.roadTop;
+      car.angle = ps.angle;                                               // 弦线角直接=车姿（无滞后→车底线=chord-clearance 恒不嵌土）
       ch = true;
-      if (car.x >= L.waterX - L.carW * 0.22) {                            // P5：沿坡滑入水（水位线截坡处）
+      if (car.x >= L.waterX) {                                            // p轮：中心过水位截坡点 → 入水
         car.mode = 'pond'; car.splashT = now; car.settled = false; sfx('Match');
-        setHint('车沿护坡滑入池塘：水的阻力使车迅速减速下沉');
-        speak('车滑进池塘，水的阻力让车停下来');
+        setHint('车沿护坡滑入水，继续贴坡面滑向池底');
+        speak('车沿护坡滑入水，继续贴着坡面滑向池底');
       }
-    } else {                                                              // pond
-      car.vx *= Math.pow(0.05, dt);
-      car.x = Math.min(car.x + car.vx * dt, W - 24 - L.carW * 0.45);
-      var ty = (L.pondBottom - L.carH * 0.34) - L.roadTop;
-      car.y += (ty - car.y) * Math.min(1, dt * 2.2);
-      var rock = (now - car.splashT < 1600) ? Math.sin(now * 0.006) * 0.05 * (1 - (now - car.splashT) / 1600) : 0;
-      car.angle += (rock - car.angle) * Math.min(1, dt * 6);
-      if (!car.settled && Math.abs(car.y - ty) < 2 && Math.abs(car.vx) < 4) { car.settled = true; setHint('车沉入池底停住 — 点「重置」再来一轮'); }
+    } else {                                                              // pond：p轮——删除竖直 sink/rock 脱离地形，改为沿坡贴地滚到池底
+      var pp = terrainPose(car.x);
+      car.vx += G_SLOPE * pp.grad * 0.8 * dt;                            // 重力沿坡继续（双轴差/轴距）
+      car.vx *= Math.pow(0.3, dt);                                       // 水阻
+      car.x += car.vx * dt;
+      if (car.x >= L.restX) { car.x = L.restX; car.vx = 0; }             // 右 clamp：车头探出画外、车尾留45%
+      var pf = terrainPose(car.x);
+      car.y = pf.chordY - pf.clearance - L.roadTop;
+      var rock = (now - car.splashT < 1600) ? Math.sin(now * 0.006) * 0.02 * (1 - (now - car.splashT) / 1600) : 0;  // 入水微晃
+      car.angle = pf.angle + rock;                                        // 地形弦线角 + 微晃（直接赋值，不脱离地形）
+      if (!car.settled && Math.abs(car.vx) < 4 && car.x >= L.restX - 2) { car.settled = true; setHint('车沿护坡滑到池底停住——车头探出画外，池塘向画外延伸'); }
       ch = !car.settled || Math.abs(rock) > 0.002;
     }
 
@@ -957,4 +979,7 @@
   seg('btn-push-left', true);
   resize();
   requestAnimationFrame(tick);
+  if (/[?&]debug=1/.test((typeof location !== 'undefined' && location.search) || '')) {
+    window.__exp = { S: S, L: L, step: step, groundY: groundY, layout: layout, terrainPose: terrainPose, get W() { return W; }, get H() { return H; } };
+  }
 })();
