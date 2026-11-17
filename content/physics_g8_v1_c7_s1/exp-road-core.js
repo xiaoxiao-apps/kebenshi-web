@@ -332,12 +332,12 @@
     skate: mkSpr('boy_skate.png', 172, 820),
     push: mkSpr('boy_push_body.png', 418, 652, '20261117g'),
     arm: mkSpr('boy_arm.png', 231, 61, '20261117g'),
-    armFar: mkSpr('boy_arm_far.png', 234, 59, '20261117g')
+    armFar: mkSpr('boy_arm_far.png', 234, 54, '20261117h')
   };
   var SPR_K_BODY = 800;                                                        // d轮：三身体件统一除数；g轮 豆包有机 push 652/800=0.815personH
   var PUSH_FOOT_F = 0.4498;                                                    // g轮：push body 脚锚分数（stand/skate 仍 0.5）
   SPR.arm.rig = { pivX: 0, pivY: 30, tipX: 230, tipY: 13 };                    // g轮 per-sprite 锚点：豆包有机臂件（pivot 左缘肩、tip 手尖，自然像素）
-  SPR.armFar.rig = { pivX: 0, pivY: 29, tipX: 233, tipY: 24 };
+  SPR.armFar.rig = { pivX: 0, pivY: 26.5, tipX: 233, tipY: 24.5 };            // h轮：远臂重切去杂边 234×54
   function sprOK(s) { return s.img.complete && s.img.naturalWidth > 0; }
   function personSprOK() {
     return sprOK(SPR.stand) && sprOK(SPR.skate) && sprOK(SPR.push) && sprOK(SPR.arm) && sprOK(SPR.armFar);
