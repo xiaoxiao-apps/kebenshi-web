@@ -88,13 +88,22 @@
   };
   window.C7V5_ROAD = S;
 
-  /* x轮修3：guide 解说状态源（engine-core 轮询；事件标志只置 true，resetCar 归零） */
+  /* z7轮修1：guide 解说状态源（engine-core 轮询；事件标志=pulse 置 true 后 1.0s 自动归零→重复动作产生新边沿可重复播报；
+     电平型 diagram 随示意图开关 true/false，不归零） */
   var RS = {
     pushStart: false, pushNormal: false, staticHold: false, release: false,
     slide: false, pond: false, settled: false, brake: false,
-    iceLock: false, iceSlide: false, wheel: false, shoeIce: false, shoeNormal: false
+    iceLock: false, iceSlide: false, wheel: false, shoeIce: false, shoeNormal: false,
+    diagram: false
   };
   window.C7S1_STATE = { mode: 'road', road: RS };
+  var pulseTimers = {};                                                       // z7轮：pulse 定时器表（reset 清表）
+  function pulse(key) {                                                       // 置 true + 1.0s 后自动归零；重复置 true 重启计时（每帧持续条件保持 true）
+    RS[key] = true;
+    if (pulseTimers[key]) clearTimeout(pulseTimers[key]);
+    pulseTimers[key] = setTimeout(function () { RS[key] = false; pulseTimers[key] = null; }, 1000);
+  }
+  function clearPulses() { for (var pk in pulseTimers) { clearTimeout(pulseTimers[pk]); pulseTimers[pk] = null; } }
   var staticHoldT = 0;                                                      // x轮：推力顶得住不动累计秒数（≥1.2 → staticHold）
 
   /* ===== 地形（P5 坝体剖面护坡）+ 几何访问器 ===== */
@@ -180,7 +189,9 @@
     S.push.active = false; S.push.F = 0; S.sponge.def = 0; S.eng = 0;
     S.brake = S.shoe === 'ice' ? BRAKE_MAX : 0; S.brakeSaved = 0;
     S.dial.drag = null; S.dial.angle = 0; S.dial.omega = 0; S.dial.msg = ''; S.dial.F = 0; S.dial.Ft = 0; S.dial.dir = null; S.dial.pt = null;
-    for (var rk in RS) RS[rk] = false;                                        // x轮修3：guide 事件标志归零（可重新触发全部解说）
+    clearPulses();                                                            // z7轮：清 pulse 定时器表
+    for (var rk in RS) RS[rk] = false;                                        // guide 事件标志归零（可重新触发全部解说）
+    RS.diagram = S.diagram;                                                   // z7轮修2：电平型 diagram 不归零，随开关状态恢复
     staticHoldT = 0; pushWas = false;
     if (window.ForceOverlay) ForceOverlay.clear();
     dirty = true;
@@ -796,14 +807,14 @@
     }
     var pushingNow2 = S.push.active && S.push.F > 0.05 && car.mode === 'road';
     if (pushingNow2 && !pushWas) {                                           // x轮修3：推起沿——guide 事件置位（c7r-03；普通鞋另置 pushNormal→c7r-02）
-      RS.pushStart = true;
-      if (!ice) RS.pushNormal = true;
+      pulse('pushStart');
+      if (!ice) pulse('pushNormal');
     }
-    if (!pushingNow2 && pushWas) RS.release = true;                          // x轮修3：曾推后脱手（c7r-04）
+    if (!pushingNow2 && pushWas) pulse('release');                          // x轮修3：曾推后脱手（c7r-04）
     pushWas = pushingNow2;
     if (S.push.active && S.push.F > 0.5 && car.vx === 0 && car.mode === 'road') {   // x轮修3：推力顶得住不动持续1.2s → staticHold（c7r-14）
       staticHoldT += dt;
-      if (staticHoldT >= 1.2) { RS.staticHold = true; staticHoldT = 0; }
+      if (staticHoldT >= 1.2) { pulse('staticHold'); staticHoldT = 0; }
     } else staticHoldT = 0;
 
     var decel = FRIC + S.brake / M * BRAKE_SCALE;
@@ -821,7 +832,7 @@
       var minX = L.roadLeft + L.carW * 0.5;
       if (car.x < minX) { car.x = minX; if (car.vx < 0) car.vx = 0; }
       if (car.x >= L.slopeX && car.vx > 0) {
-        car.mode = 'slide'; RS.slide = true; setHint('车越过路尽头 → 沿护坡滑下：重力加速，坡面起伏减速'); sfx('Click');   // x轮修3：c7r-05
+        car.mode = 'slide'; pulse('slide'); setHint('车越过路尽头 → 沿护坡滑下：重力加速，坡面起伏减速'); sfx('Click');   // x轮修3：c7r-05
       }
       if (Math.abs(car.vx) > 0.05) ch = true;
     } else if (car.mode === 'slide') {
@@ -836,7 +847,7 @@
       ch = true;
       if (car.x >= L.waterX) {                                            // p轮：中心过水位截坡点 → 入水
         car.mode = 'pond'; car.splashT = now; car.settled = false; sfx('Match');
-        RS.pond = true;                                                   // x轮修3：c7r-06
+        pulse('pond');                                                   // x轮修3：c7r-06
         setHint('车沿护坡滑入水，继续贴坡面滑向池底');
       }
     } else {                                                              // pond：p轮——删除竖直 sink/rock 脱离地形，改为沿坡贴地滚到池底
@@ -850,7 +861,7 @@
       var rock = (now - car.splashT < 1600) ? Math.sin(now * 0.006) * 0.02 * (1 - (now - car.splashT) / 1600) : 0;  // 入水微晃
       car.angle = pf.angle + rock;                                        // 地形弦线角 + 微晃（直接赋值，不脱离地形）
       car._cl = pf.clearance;
-      if (!car.settled && Math.abs(car.vx) < 4 && car.x >= L.restX - 2) { car.settled = true; RS.settled = true; setHint('车沿护坡滑到池底停住——车头探出画外，池塘向画外延伸'); }   // x轮修3：c7r-07
+      if (!car.settled && Math.abs(car.vx) < 4 && car.x >= L.restX - 2) { car.settled = true; pulse('settled'); setHint('车沿护坡滑到池底停住——车头探出画外，池塘向画外延伸'); }   // x轮修3：c7r-07
       ch = !car.settled || Math.abs(rock) > 0.002;
     }
 
@@ -861,7 +872,7 @@
         per.off += per.vx * dt;
         per.x = clampPersonX(per.baseX + per.off);
       } else if (Math.abs(per.vx) > 2) {                                   // 脱手：惯性滑行缓慢减速
-        RS.iceSlide = true;                                                // x轮修3：轮滑推后人 sliding（c7r-10）
+        pulse('iceSlide');                                                // x轮修3：轮滑推后人 sliding（c7r-10）
         per.vx -= Math.sign(per.vx) * ICE_FRIC * dt; per.x += per.vx * dt;
       } else {                                                             // 停下：偏移折回抓取基准，防回弹
         per.vx = 0; per.sliding = false;
@@ -904,13 +915,13 @@
   function nearPedal(p) { var q = L.pedal; return p.x >= q.x - 12 && p.x <= q.x + q.w + 12 && p.y >= q.y - 30 && p.y <= q.y + q.h + 40; }
   function brakeFromY(y) {
     var nb = clamp((y - (L.pedal.y + 10)) / (L.pedal.h - 20), 0, 1) * BRAKE_MAX;
-    if (nb > S.brake + 1e-9) RS.brake = true;                                // x轮修3：刹车增大（c7r-08）
+    if (nb > S.brake + 1e-9) pulse('brake');                                // x轮修3：刹车增大（c7r-08）
     S.brake = nb;
   }
   function setHint(t) { }                                                       // x轮修4：#hint 框已删——知识点由 guide 语音字幕承载（c7r-01..14）；no-op 防调用点报错
   function openWheel() {
     S.wheelZoom = true; S.dial.msg = '按住轮上一点拖动试试'; seg('btn-wheel', true); sfx('Click');
-    RS.wheel = true;                                                           // x轮修3：c7r-11
+    pulse('wheel');                                                           // x轮修3：c7r-11
     dirty = true;
   }
   function closeWheel() {
@@ -1003,11 +1014,11 @@
     if (s === 'ice') {
       S.brakeSaved = S.brake; S.brake = BRAKE_MAX;
       S.person.vx = 0; S.person.sliding = false; S.person.off = 0; S.person.baseX = S.person.x;
-      RS.shoeIce = true; RS.iceLock = true;                                    // x轮修3：c7r-12 + 刹车锁定（c7r-09）
+      pulse('shoeIce'); pulse('iceLock');                                    // x轮修3：c7r-12 + 刹车锁定（c7r-09）
       setHint('轮滑鞋：刹车锁定=最大（虚化）；推车 → 人整体向后滑离车、手脱开（相互作用+惯性）');
     } else {
       S.brake = S.brakeSaved || 0;
-      RS.shoeNormal = true;                                                    // x轮修3：c7r-13
+      pulse('shoeNormal');                                                    // x轮修3：c7r-13
       setHint('普通鞋：拖动小人顶住车 → 车受力启动');
     }
     seg('btn-shoe-normal', s === 'normal'); seg('btn-shoe-ice', s === 'ice');
@@ -1032,6 +1043,7 @@
     on('btn-wheel', 'click', function () { if (S.wheelZoom) closeWheel(); else openWheel(); });
     on('btn-diagram', 'click', function () {
       S.diagram = !S.diagram;
+      RS.diagram = S.diagram;                                                 // z7轮修2：电平型 flag 随开关 true/false（c7r-18/c7r-19 触发源）
       if (window.ForceOverlay) ForceOverlay.setOn(S.diagram);
       var b = document.getElementById('btn-diagram'); if (b) b.classList.toggle('on', S.diagram);
       setHint(S.diagram ? '力的示意图：开 — 仅当前活跃交互/事件画矢量（1cm=50N）' : '力的示意图：关 — 全场景不画矢量');
