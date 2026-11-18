@@ -20,7 +20,7 @@ window.C7S1_GUIDE={
       {id:'c7b-11',repeat:true,trigger:'R.bench.bdragRelease===true',say:'松手指针回零，撤去拉力弹簧恢复原长，弹力随之消失，这是弹性。',audio:'c7b-11'},
       {id:'c7b-17',repeat:true,trigger:'R.bench.balanceEnter===true',say:'这是弹簧测力计，加砝码读G等于mg，也可以下拉挂钩感受拉力的大小。',audio:'c7b-17'},
       {id:'c7b-14',repeat:true,trigger:'R.bench.eye===true',say:'点读数按钮，视线垂直刻度面才读得准，斜视读数会导致读数错误。',audio:'c7b-14'},
-      {id:'c7b-15',repeat:true,trigger:'R.bench.reset===true',say:'重置后弹簧回到原长，不受力时弹性物体恢复原状，可以重新开始探究。',audio:'c7b-15'}
+      {id:'c7b-15',repeat:true,trigger:'R.bench.reset===true',say:'重置后弹簧回到原长，不受力时弹性物体恢复原状，可以重新开始探究。',audio:'c7b-15'},
       {id:'c7b-18',repeat:true,trigger:'R.bench.diagram===true',say:'力的示意图打开了。砝码静止：重力与弹簧拉力等大反向同体，是平衡力；手拉弹簧：手与弹簧之间的力等大反向异体，是相互作用力。',audio:'c7b-18'},
     ],
     errors:[],free:[],tasks:[]
@@ -38,7 +38,7 @@ window.C7S1_GUIDE={
       {id:'c7r-10',repeat:true,trigger:'R.road.iceSlide===true',say:'轮滑鞋，手与车已脱离，人靠惯性滑行，缓慢停下。',audio:'c7r-10'},
       {id:'c7r-11',repeat:true,trigger:'R.road.wheel===true',say:'在方向盘的不同位置、沿不同方向施加力，转动效果不同：力的作用点和方向影响力的作用效果，这就是力的三要素。',audio:'c7r-11'},
       {id:'c7r-12',repeat:true,trigger:'R.road.shoeIce===true',say:'换上轮滑鞋，摩擦变小，一推车人就向后滑，车对人的反作用力不再被平衡，力的作用是相互的。',audio:'c7r-12'},
-      {id:'c7r-13',repeat:true,trigger:'R.road.shoeNormal===true',say:'换回普通鞋，摩擦变大，推车站得稳，反作用力被地面摩擦平衡，相互的力依然存在。',audio:'c7r-13'}
+      {id:'c7r-13',repeat:true,trigger:'R.road.shoeNormal===true',say:'换回普通鞋，摩擦变大，推车站得稳，反作用力被地面摩擦平衡，相互的力依然存在。',audio:'c7r-13'},
       {id:'c7r-18',repeat:true,trigger:'R.road.diagram===true',say:'力的示意图打开了。推车时看红蓝两箭：推力与反作用力同时存在、等大反向、同一接触点、作用在两个物体上，力的作用是相互的。',audio:'c7r-18'},
       {id:'c7r-19',repeat:true,trigger:'R.road.pushStart===true && R.road.diagram===true',say:'示意图上红蓝两箭同时出现、一样长、方向相反、尾点重合：作用力与反作用力等大反向共点、作用在两个物体上，力的作用是相互的。',audio:'c7r-19'},
     ],
