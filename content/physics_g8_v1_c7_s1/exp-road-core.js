@@ -4,8 +4,9 @@
  * P3 手臂以肩为轴臂长恒定(单关节IK)够得着才搭手；P4 刹车=竖直滑道+踏板滑钮；
  * P5 护坡参照坝体剖面(棕土坡+灰护面+正常高水位水平线截坡)；P7 轮滑鞋=一排滚轮+轮架醒目配色；
  * P8 左推/右推按钮·只推不拉·人站哪侧只能向另一侧推；P9 方向盘力先行(切向矢量→克服静阻力→扭矩+惯性+阻尼)；
- * P10 海绵米色多孔+标签；P11 动作触发语音(speechSynthesis zh-CN, 新动作打断旧, 尊重静音)。
+ * P10 海绵米色多孔+标签；P11 动作触发语音 x轮起由 guide 引擎承载（触发式 mp3+字幕，见 window.C7S1_STATE）。
  * 力的示意图经 force-overlay.js 门控（开=仅活跃交互画矢量；关=全场景无）。
+ * x轮：车相关力显示=内部×DISP(50)（内部物理零改动）；重力仅 slide/pond未停 且脱手时注册，maxLen=110。
  * ============================================================ */
 (function () {
   'use strict';
@@ -27,6 +28,7 @@
   var M = 1.2, A_SCALE = 55, F_MAX = 10, FRIC = 130, BRAKE_SCALE = 55, BRAKE_MAX = 10;
   var V_MAX = 500, G_SLOPE = 620, ICE_K = 34, ICE_FRIC = 90, DIAL_FMAX = 6, WEIGHT_N = M * 9.8;
   var DIAL_FRES = 1.0, DIAL_KT = 5.5;                                           // P9：静态阻力阈值 + 扭矩系数
+  var DISP = 50, GDISP = 1000;                                                  // x轮修1：显示倍率——车相关力×50（满量程500N）、重力按 M显示1200kg×9.8=11760N；内部物理零改动
 
   /* ===== 画布脚手架 ===== */
   var cv = document.getElementById('scene');
@@ -34,17 +36,7 @@
   var W = 960, H = 540, DPR = 1, dirty = true, lastNow = 0;
 
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-  function setText(id, t) { var el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
   function sfx(name) { if (!S.muted && window['play' + name]) { try { window['play' + name](); } catch (e) {} } }
-  function speak(t) {                                                           // P11：点哪播哪，新句打断旧句，尊重静音
-    if (S.muted || !window.speechSynthesis) return;
-    try {
-      var u = new SpeechSynthesisUtterance(t);
-      u.lang = 'zh-CN'; u.rate = 1.02;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(u);
-    } catch (e) {}
-  }
 
   /* ===== 布局 L（resize 全量重算） ===== */
   var L = {};
@@ -95,6 +87,15 @@
     ps: { mode: 'idle', x: 0, y: 0, downX: 0, downY: 0, moved: 0 }
   };
   window.C7V5_ROAD = S;
+
+  /* x轮修3：guide 解说状态源（engine-core 轮询；事件标志只置 true，resetCar 归零） */
+  var RS = {
+    pushStart: false, pushNormal: false, staticHold: false, release: false,
+    slide: false, pond: false, settled: false, brake: false,
+    iceLock: false, iceSlide: false, wheel: false, shoeIce: false, shoeNormal: false
+  };
+  window.C7S1_STATE = { mode: 'road', road: RS };
+  var staticHoldT = 0;                                                      // x轮：推力顶得住不动累计秒数（≥1.2 → staticHold）
 
   /* ===== 地形（P5 坝体剖面护坡）+ 几何访问器 ===== */
   function groundY(x) {
@@ -179,6 +180,8 @@
     S.push.active = false; S.push.F = 0; S.sponge.def = 0; S.eng = 0;
     S.brake = S.shoe === 'ice' ? BRAKE_MAX : 0; S.brakeSaved = 0;
     S.dial.drag = null; S.dial.angle = 0; S.dial.omega = 0; S.dial.msg = ''; S.dial.F = 0; S.dial.Ft = 0; S.dial.dir = null; S.dial.pt = null;
+    for (var rk in RS) RS[rk] = false;                                        // x轮修3：guide 事件标志归零（可重新触发全部解说）
+    staticHoldT = 0; pushWas = false;
     if (window.ForceOverlay) ForceOverlay.clear();
     dirty = true;
   }
@@ -641,7 +644,7 @@
   function drawGauges() {
     var f = S.push.active ? S.push.F / F_MAX : 0;
     var sp = clamp(Math.abs(S.car.vx) / V_MAX, 0, 1);
-    drawGauge(L.g1, f, PAL.thrust, '推力 F', (S.push.active ? S.push.F.toFixed(1) : '0.0') + ' N', '满量程 10 N');
+    drawGauge(L.g1, f, PAL.thrust, '推力 F', ((S.push.active ? S.push.F : 0) * DISP).toFixed(0) + ' N', '满量程 ' + (F_MAX * DISP) + ' N');   // x轮修1：显示=内部×50（0~500N）
     drawGauge(L.g2, sp, PAL.speed, '速度 v', Math.abs(S.car.vx).toFixed(0) + ' px/s', '满量程 500 px/s');
   }
 
@@ -691,7 +694,7 @@
     ctx.restore();
     ctx.globalAlpha = 1;
     ctx.fillStyle = PAL.text; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('刹车力 ' + S.brake.toFixed(1) + ' N', cx0, p.y + p.h + 16);
+    ctx.fillText('刹车力 ' + (S.brake * DISP).toFixed(0) + ' N', cx0, p.y + p.h + 16);   // x轮修1：显示=内部×50
     ctx.font = '600 9px sans-serif'; ctx.fillStyle = dis ? PAL.thrust : PAL.sub;
     ctx.fillText(dis ? '轮滑锁定=最大' : '拖动滑钮=刹车力', cx0, p.y + p.h + 30);
     ctx.restore();
@@ -752,10 +755,10 @@
   function syncOverlay() {
     var FO = window.ForceOverlay; if (!FO) return;
     var car = S.car, ice = S.shoe === 'ice', d = dirS();
-    // w轮修4：重力常驻——示意图开且车在画内 → 所有 mode（含 settled/road）恒注册
-    if (car.x + L.carW * 0.5 > 0 && car.x - L.carW * 0.5 < W) {
+    // x轮修1：重力策略回退——仅 护坡滑行/入水未停 且脱手时注册（撤销 w轮常驻）；显示 11760N、箭长上限 110px
+    if ((car.mode === 'slide' || (car.mode === 'pond' && !car.settled)) && !S.push.active) {
       var c = comPoint();
-      FO.register('gravity', { point: c, dir: { x: 0, y: 1 }, magN: WEIGHT_N, color: '#7c3aed', label: 'G≈' + WEIGHT_N.toFixed(1) + 'N' });
+      FO.register('gravity', { point: c, dir: { x: 0, y: 1 }, magN: WEIGHT_N, maxLen: 110, color: '#7c3aed', label: 'G≈' + (WEIGHT_N * GDISP).toFixed(0) + 'N' });
     } else FO.unregister('gravity');
     if (S.wheelZoom && S.dial.drag && S.dial.pt) {                             // w轮修2：施加力=拖拽方向（实线）+切向分力（虚线）
       if (S.dial.dir && S.dial.F > 0.12) {
@@ -771,11 +774,11 @@
     } else { FO.unregister('dial'); FO.unregister('dialTan'); }
     if (S.push.active && S.push.F > 0.05 && car.mode === 'road') {
       // w轮修3：作用反作用同点——pair 与主箭同作用点 cp（接触点），两种鞋都注册
-      var cp = contactPoint();
+      var cp = contactPoint(), fd = (S.push.F * DISP).toFixed(0);           // x轮修1：显示=内部×50（0~500N），magN 保持内部值（箭长不变）
       FO.register('push', {
         point: cp, dir: { x: d, y: 0 }, magN: S.push.F, color: PAL.thrust,
-        label: (ice ? '车受推 ' : '推力 F=') + S.push.F.toFixed(1) + 'N',
-        pair: { point: cp, dir: { x: -d, y: 0 }, magN: S.push.F, color: PAL.speed, label: '人受向后 ' + S.push.F.toFixed(1) + 'N' }
+        label: (ice ? '车受推 ' : '推力 F=') + fd + 'N',
+        pair: { point: cp, dir: { x: -d, y: 0 }, magN: S.push.F, color: PAL.speed, label: '人受向后 ' + fd + 'N' }
       });
     } else FO.unregister('push');
   }
@@ -792,11 +795,16 @@
       per.vx -= d * S.push.F * ICE_K * dt; per.sliding = true;
     }
     var pushingNow2 = S.push.active && S.push.F > 0.05 && car.mode === 'road';
-    if (pushingNow2 && !ice && !pushWas) {                                 // w轮修3：普通鞋推时补知识点——摩擦平衡反作用
-      setHint('车受向前的推力，人受等大的向后反作用力——地面摩擦平衡反作用 → 人不滑');
-      speak('普通鞋推车时，地面摩擦平衡了反作用力，所以人不会向后滑');
+    if (pushingNow2 && !pushWas) {                                           // x轮修3：推起沿——guide 事件置位（c7r-03；普通鞋另置 pushNormal→c7r-02）
+      RS.pushStart = true;
+      if (!ice) RS.pushNormal = true;
     }
+    if (!pushingNow2 && pushWas) RS.release = true;                          // x轮修3：曾推后脱手（c7r-04）
     pushWas = pushingNow2;
+    if (S.push.active && S.push.F > 0.5 && car.vx === 0 && car.mode === 'road') {   // x轮修3：推力顶得住不动持续1.2s → staticHold（c7r-14）
+      staticHoldT += dt;
+      if (staticHoldT >= 1.2) { RS.staticHold = true; staticHoldT = 0; }
+    } else staticHoldT = 0;
 
     var decel = FRIC + S.brake / M * BRAKE_SCALE;
     if (car.mode === 'road') {
@@ -813,8 +821,7 @@
       var minX = L.roadLeft + L.carW * 0.5;
       if (car.x < minX) { car.x = minX; if (car.vx < 0) car.vx = 0; }
       if (car.x >= L.slopeX && car.vx > 0) {
-        car.mode = 'slide'; setHint('车越过路尽头 → 沿护坡滑下：重力加速，坡面起伏减速'); sfx('Click');
-        speak('车冲下护坡，重力让车越来越快');
+        car.mode = 'slide'; RS.slide = true; setHint('车越过路尽头 → 沿护坡滑下：重力加速，坡面起伏减速'); sfx('Click');   // x轮修3：c7r-05
       }
       if (Math.abs(car.vx) > 0.05) ch = true;
     } else if (car.mode === 'slide') {
@@ -829,8 +836,8 @@
       ch = true;
       if (car.x >= L.waterX) {                                            // p轮：中心过水位截坡点 → 入水
         car.mode = 'pond'; car.splashT = now; car.settled = false; sfx('Match');
+        RS.pond = true;                                                   // x轮修3：c7r-06
         setHint('车沿护坡滑入水，继续贴坡面滑向池底');
-        speak('车沿护坡滑入水，继续贴着坡面滑向池底');
       }
     } else {                                                              // pond：p轮——删除竖直 sink/rock 脱离地形，改为沿坡贴地滚到池底
       var pp = terrainPose(car.x);
@@ -843,7 +850,7 @@
       var rock = (now - car.splashT < 1600) ? Math.sin(now * 0.006) * 0.02 * (1 - (now - car.splashT) / 1600) : 0;  // 入水微晃
       car.angle = pf.angle + rock;                                        // 地形弦线角 + 微晃（直接赋值，不脱离地形）
       car._cl = pf.clearance;
-      if (!car.settled && Math.abs(car.vx) < 4 && car.x >= L.restX - 2) { car.settled = true; setHint('车沿护坡滑到池底停住——车头探出画外，池塘向画外延伸'); }
+      if (!car.settled && Math.abs(car.vx) < 4 && car.x >= L.restX - 2) { car.settled = true; RS.settled = true; setHint('车沿护坡滑到池底停住——车头探出画外，池塘向画外延伸'); }   // x轮修3：c7r-07
       ch = !car.settled || Math.abs(rock) > 0.002;
     }
 
@@ -854,6 +861,7 @@
         per.off += per.vx * dt;
         per.x = clampPersonX(per.baseX + per.off);
       } else if (Math.abs(per.vx) > 2) {                                   // 脱手：惯性滑行缓慢减速
+        RS.iceSlide = true;                                                // x轮修3：轮滑推后人 sliding（c7r-10）
         per.vx -= Math.sign(per.vx) * ICE_FRIC * dt; per.x += per.vx * dt;
       } else {                                                             // 停下：偏移折回抓取基准，防回弹
         per.vx = 0; per.sliding = false;
@@ -894,11 +902,15 @@
   /* ===== pointer（P4 刹车滑道 / P8 推人 / P9 方向盘力先行） ===== */
   function nearPerson(p) { return Math.hypot(p.x - S.person.x, p.y - (L.roadTop - L.personH * 0.5)) <= L.personH * 0.6; }
   function nearPedal(p) { var q = L.pedal; return p.x >= q.x - 12 && p.x <= q.x + q.w + 12 && p.y >= q.y - 30 && p.y <= q.y + q.h + 40; }
-  function brakeFromY(y) { S.brake = clamp((y - (L.pedal.y + 10)) / (L.pedal.h - 20), 0, 1) * BRAKE_MAX; }
-  function setHint(t) { setText('hint', t); }
+  function brakeFromY(y) {
+    var nb = clamp((y - (L.pedal.y + 10)) / (L.pedal.h - 20), 0, 1) * BRAKE_MAX;
+    if (nb > S.brake + 1e-9) RS.brake = true;                                // x轮修3：刹车增大（c7r-08）
+    S.brake = nb;
+  }
+  function setHint(t) { }                                                       // x轮修4：#hint 框已删——知识点由 guide 语音字幕承载（c7r-01..14）；no-op 防调用点报错
   function openWheel() {
     S.wheelZoom = true; S.dial.msg = '按住轮上一点拖动试试'; seg('btn-wheel', true); sfx('Click');
-    speak('这是方向盘放大区，力要先克服阻力，方向盘才会转动');
+    RS.wheel = true;                                                           // x轮修3：c7r-11
     dirty = true;
   }
   function closeWheel() {
@@ -927,7 +939,6 @@
       if (S.shoe === 'ice') { setHint('轮滑鞋：刹车已锁定为最大（虚化不可调）'); return; }
       S.ps.mode = 'pedal'; brakeFromY(p.y); capture(ev);
       setHint('沿竖直滑道上下拖动踏板滑钮 → 刹车力增大/减小');
-      speak('踩下刹车踏板，刹车力让车减速');
       ev.preventDefault(); dirty = true; return;
     }
     if (S.sw && S.car.mode === 'road' && Math.hypot(p.x - S.sw.x, p.y - S.sw.y) <= S.sw.r + 12) { openWheel(); return; }
@@ -936,7 +947,6 @@
       S.ps.mode = 'person'; S.ps.grabDX = S.person.x - p.x;
       S.person.off = 0; S.person.baseX = S.person.x; capture(ev);
       setHint(S.shoe === 'ice' ? '轮滑鞋：推到人车接触 → 人整体向后滑离车（相互作用）' : '拖动小人顶住车 → 车受力启动；按住不动 → 车凭惯性前滑');
-      speak('我们现在小人推车，首先海绵先受力形变，然后力传到车让车往前走');
       ev.preventDefault(); dirty = true; return;
     }
     S.ps.mode = 'idle';
@@ -980,18 +990,22 @@
 
   /* ===== 控件 wiring ===== */
   function seg(id, on) { var b = document.getElementById(id); if (b) b.classList.toggle('on', !!on); }
+  function syncFullBtn() {                                                     // x轮修2：全屏 toggle——按钮文案随 fullscreenElement 同步
+    var b = document.getElementById('btn-full');
+    if (b) b.textContent = document.fullscreenElement ? '退出全屏' : '全屏';
+  }
   function setShoe(s) {
     if (s === S.shoe) return;
     S.shoe = s;
     if (s === 'ice') {
       S.brakeSaved = S.brake; S.brake = BRAKE_MAX;
       S.person.vx = 0; S.person.sliding = false; S.person.off = 0; S.person.baseX = S.person.x;
+      RS.shoeIce = true; RS.iceLock = true;                                    // x轮修3：c7r-12 + 刹车锁定（c7r-09）
       setHint('轮滑鞋：刹车锁定=最大（虚化）；推车 → 人整体向后滑离车、手脱开（相互作用+惯性）');
-      speak('现在我们换上轮滑鞋');
     } else {
       S.brake = S.brakeSaved || 0;
+      RS.shoeNormal = true;                                                    // x轮修3：c7r-13
       setHint('普通鞋：拖动小人顶住车 → 车受力启动');
-      speak('现在我们换上普通鞋');
     }
     seg('btn-shoe-normal', s === 'normal'); seg('btn-shoe-ice', s === 'ice');
     sfx('Click'); dirty = true;
@@ -1004,7 +1018,6 @@
     S.push.active = false; S.push.F = 0;
     seg('btn-push-left', dir === 'left'); seg('btn-push-right', dir === 'right');
     setHint(dir === 'left' ? '左推：人站车左边 → 只能往右推（不能左拉）' : '右推：人站车右边 → 只能往左推（不能右拉）');
-    speak(dir === 'left' ? '小人站在车左边，往右推车' : '小人站在车右边，往左推车');
     sfx('Click'); dirty = true;
   }
   function wire() {
@@ -1018,21 +1031,23 @@
       S.diagram = !S.diagram;
       if (window.ForceOverlay) ForceOverlay.setOn(S.diagram);
       var b = document.getElementById('btn-diagram'); if (b) b.classList.toggle('on', S.diagram);
-      setHint(S.diagram ? '力的示意图：开 — 仅当前活跃交互/事件画矢量（1cm=1N）' : '力的示意图：关 — 全场景不画矢量');
+      setHint(S.diagram ? '力的示意图：开 — 仅当前活跃交互/事件画矢量（1cm=50N）' : '力的示意图：关 — 全场景不画矢量');
       sfx('Click'); dirty = true;
     });
-    on('btn-reset', 'click', function () { resetCar(); setHint('已重置：拖动小人顶住车 → 车启动'); sfx('Click'); });
+    on('btn-reset', 'click', function () {
+      resetCar(); setHint('已重置：拖动小人顶住车 → 车启动'); sfx('Click');
+      if (window.GUIDE_RESET) window.GUIDE_RESET.all();                        // x轮修3：接口契约3——页面重置后语音字幕全部从头
+    });
     on('btn-mute', 'click', function () {
       S.muted = !S.muted; var b = document.getElementById('btn-mute');
       if (b) { b.classList.toggle('on', !S.muted); b.textContent = S.muted ? '🔇' : '🔊'; }
-      if (S.muted && window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (e) {} }
     });
     on('btn-full', 'click', function () {
       var el = document.documentElement;
       if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen(); }
       else if (document.exitFullscreen) document.exitFullscreen();
     });
-    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (e) { document.addEventListener(e, function () { setTimeout(resize, 60); }); });
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (e) { document.addEventListener(e, function () { syncFullBtn(); setTimeout(resize, 60); }); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.wheelZoom) closeWheel(); });
 
     cv.addEventListener('pointerdown', onDown);
@@ -1043,7 +1058,8 @@
 
   /* ===== init ===== */
   wire();
-  if (window.ForceOverlay) ForceOverlay.setOn(false);
+  if (window.ForceOverlay) { ForceOverlay.setOn(false); ForceOverlay.setLegendN(DISP); }   // x轮修1：路页标尺 '1cm = 50N'（bench 缺省 1N 不受影响）
+  syncFullBtn();
   seg('btn-shoe-normal', true);
   seg('btn-push-left', true);
   resize();

@@ -4,8 +4,9 @@
  *   作用点正确、方向正确、长度∝力（比例尺 1cm=1N，标尺显示）、实时随力变、
  *   交互结束即移除；off 时全场景不画任何矢量。支持"一对"相互作用力
  *   （等大反向共线，作用在两物体）。重力矢量仅在翻落/悬挂等活跃事件注册时画。
- * API：setOn(bool)/isOn()/register(id,spec)/unregister(id)/clear()/setScale(pxPerCm)/draw(ctx,view)
- * spec = {point:{x,y}, dir:{x,y}|angle, magN, color?, label?, dash?(bool|[段,隙]), pair?:{point,dir|angle,magN,color?,label?,dash?}}
+ * API：setOn(bool)/isOn()/register(id,spec)/unregister(id)/clear()/setScale(pxPerCm)/setLegendN(n)/draw(ctx,view)
+ * spec = {point:{x,y}, dir:{x,y}|angle, magN, color?, label?, dash?(bool|[段,隙]), maxLen?(px 箭长上限), pair?:{point,dir|angle,magN,color?,label?,dash?,maxLen?}}
+ * x轮：spec.maxLen → len=min(magN*CM, maxLen)；setLegendN(n) → 标尺文案 '1cm = nN'（缺省 1，bench 不受影响）
  * ============================================================ */
 (function (global) {
   'use strict';
@@ -14,9 +15,12 @@
   var items = {};          // 活跃矢量注册表（id -> spec）
   var CM = 26;             // 比例尺：1cm = CM px（1cm=1N）
   var MINLEN = 6;          // 矢量最小可见长度（px）
+  var legendN = 1;         // x轮：标尺每 1cm 代表的显示牛数（路页 DISP=50 → '1cm = 50N'）
 
   function setScale(pxPerCm) { if (pxPerCm > 0) CM = pxPerCm; }
   function getScale() { return CM; }
+  function setLegendN(n) { if (n > 0) legendN = n; }
+  function getLegendN() { return legendN; }
   function setOn(b) { on = !!b; if (!on) items = {}; }   // 关时清空注册表，杜绝残影
   function isOn() { return on; }
 
@@ -70,6 +74,7 @@
   function drawOne(ctx, s, defColor, view) {
     if (!s || !s.point) return;
     var u = unit(s.dir), len = (s.magN || 0) * CM;
+    if (typeof s.maxLen === 'number' && s.maxLen > 0) len = Math.min(len, s.maxLen);   // x轮：箭长上限（重力等大值力可见）
     var color = s.color || defColor || '#dc2626';
     var e = arrow(ctx, s.point.x, s.point.y, u.x, u.y, len, color, 3.4, s.dash);
     if (s.label) {
@@ -93,7 +98,7 @@
     ctx.beginPath(); ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x + len, y - 5); ctx.lineTo(x + len, y + 5); ctx.stroke();
     ctx.font = '600 11px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-    ctx.fillText('1cm = 1N', x + len + 6, y + 5);
+    ctx.fillText('1cm = ' + legendN + 'N', x + len + 6, y + 5);
     ctx.restore();
   }
 
@@ -110,6 +115,7 @@
 
   global.ForceOverlay = {
     setOn: setOn, isOn: isOn, register: register, unregister: unregister,
-    clear: clear, count: count, setScale: setScale, getScale: getScale, draw: draw
+    clear: clear, count: count, setScale: setScale, getScale: getScale,
+    setLegendN: setLegendN, getLegendN: getLegendN, draw: draw
   };
 })(typeof window !== 'undefined' ? window : globalThis);

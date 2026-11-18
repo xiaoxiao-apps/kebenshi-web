@@ -5,6 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>力 · 侧视马路 — 7.1 力</title>
+<link rel="stylesheet" href="../_lib/guide/guide-core.css?v=20261102v2">
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;-webkit-tap-highlight-color:transparent}
@@ -33,8 +34,7 @@
   button.seg{background:linear-gradient(#fdfefe,#dbe4ee);border:1px solid #94a3b8;color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.18);padding:6px 10px}
   button.seg:hover{background:linear-gradient(#f8fafc,#d2deeb)}
   button.seg.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.3);transform:translateY(1px)}
-  .hint{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:rgba(255,255,255,.9);border:1px solid #d7dee6;border-radius:10px;padding:5px 12px;font-size:12px;color:#475569;z-index:11;pointer-events:none;white-space:nowrap;box-shadow:0 2px 6px rgba(20,30,45,.08)}
-  @media (max-width:640px){ .title{display:none} .zgroup{padding:5px 8px} .hint{white-space:normal;max-width:86vw;text-align:center} }
+  @media (max-width:640px){ .title{display:none} .zgroup{padding:5px 8px} }
 </style>
 </head>
 <body>
@@ -45,7 +45,6 @@
 
 <div class="scene-wrap">
   <canvas id="scene"></canvas>
-  <div class="hint" id="hint">拖动小人顶住车 → 推车启动；按住小人不动 → 车凭惯性前滑；点车内方向盘 → 放大区</div>
   <div class="zone">
     <span class="zgroup">
       <span class="zlabel">推</span>
@@ -69,9 +68,14 @@
     </span>
   </div>
 </div>
+<div id="guide-layer"><!-- 语音讲解层容器：内容由 _lib/guide/vB-core.js 运行时注入 --></div>
 
 <script src="../_lib/v1/sfx.js?v=20261027r1"></script>
-<script src="../_lib/v1/force-overlay.js?v=20261118w"></script>
-<script src="exp-road-core.js?v=20261118w"></script>
+<script src="../_lib/v1/force-overlay.js?v=20261118x"></script>
+<script src="exp-road-core.js?v=20261118x"></script>
+<script src="guide/guide-data.js?v=20261118x"></script>
+<script>window.GUIDE_CFG={state:window.C7S1_STATE};/* road 单场景页：R.mode='road' 恒定 */window.GUIDE_DATA=window.C7S1_GUIDE;</script>
+<script src="../_lib/guide/engine-core.js?v=20261028v13"></script>
+<script src="../_lib/guide/vB-core.js?v=20261102v3"></script>
 </body>
 </html>
