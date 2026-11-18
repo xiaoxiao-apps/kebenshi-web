@@ -16,7 +16,7 @@
   .back:hover{text-decoration:underline}
   .spacer{flex:1}
   .sys{display:flex;align-items:center;gap:6px}
-  button{border:0;border-radius:8px;padding:7px 11px;font-size:13px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s,transform .1s;white-space:nowrap}
+  button{border:0;border-radius:8px;padding:5px 8px;font-size:13px;font-family:inherit;cursor:pointer;background:#2563eb;color:#fff;transition:background .15s,transform .1s;white-space:nowrap}
   button:hover{background:#1d4ed8}
   button:active{transform:translateY(1px)}
   button.secondary{background:#64748b}
@@ -25,15 +25,15 @@
   button.toggle.on{background:#16a34a;color:#fff;border-color:#15803d}
   .scene-wrap{position:fixed;top:38px;left:0;right:0;bottom:0}
   canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
-  .zone{position:absolute;left:10px;right:10px;bottom:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;z-index:12;pointer-events:none}
-  .zgroup{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.9);border:1px solid #d7dee6;border-radius:10px;padding:6px 10px;pointer-events:auto;box-shadow:0 2px 6px rgba(20,30,45,.10)}
+  .zone{position:absolute;left:10px;right:10px;bottom:10px;display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px;z-index:12;pointer-events:none}
+  .zgroup{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.9);border:1px solid #d7dee6;border-radius:10px;padding:4px 7px;pointer-events:auto;box-shadow:0 2px 6px rgba(20,30,45,.10)}
   .zlabel{font-size:12px;color:#6b7885;white-space:nowrap;letter-spacing:.3px}
-  button.seg{background:linear-gradient(#fdfefe,#dbe4ee);border:1px solid #94a3b8;color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.18);padding:6px 10px}
+  button.seg{background:linear-gradient(#fdfefe,#dbe4ee);border:1px solid #94a3b8;color:#334155;box-shadow:0 2px 3px rgba(30,41,59,.18);padding:4px 7px}
   button.seg:hover{background:linear-gradient(#f8fafc,#d2deeb)}
   button.seg.on{background:#b9c7d6;border-color:#64748b;box-shadow:inset 0 2px 5px rgba(30,41,59,.3);transform:translateY(1px)}
-  input[type=range]{width:118px;accent-color:#2563eb}
-  .rlabel{font-size:13px;color:#334155;min-width:46px;text-align:right;font-variant-numeric:tabular-nums}
-  @media (max-width:640px){ .title{display:none} input[type=range]{width:84px} .zgroup{padding:5px 7px} button{padding:6px 8px;font-size:12px} }
+  input[type=range]{width:80px;accent-color:#2563eb}
+  .rlabel{font-size:13px;color:#334155;min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+  @media (max-width:640px){ .title{display:none} input[type=range]{width:72px} .zgroup{padding:4px 6px} button{padding:5px 7px;font-size:12px} }
 </style>
 </head>
 <body>
@@ -72,10 +72,6 @@
       <button id="btn-axis-m" class="seg">m(kg)</button>
     </span>
     <span class="zgroup">
-      <button id="btn-zoom" class="seg">🔍 测力计放大</button>
-      <button id="btn-eye" class="seg">👁 观察眼</button>
-    </span>
-    <span class="zgroup">
       <span class="zlabel">系统</span>
       <button id="btn-diagram" class="toggle" title="力的示意图（门控）">力的示意图</button>
       <button id="btn-reset" class="secondary">重置</button>
@@ -88,7 +84,7 @@
 
 <script src="../_lib/v1/sfx.js?v=20261027r1"></script>
 <script src="../_lib/v1/force-overlay.js?v=20261118x"></script>
-<script src="exp-bench-core.js?v=20261118z"></script>
+<script src="exp-bench-core.js?v=20261118z3"></script>
 <script src="guide/guide-data.js?v=20261118z"></script>
 <script>window.GUIDE_CFG={state:window.C7S1_STATE};/* bench 单场景页：R.mode='bench' 恒定 */window.GUIDE_DATA=window.C7S1_GUIDE;</script>
 <script src="../_lib/guide/engine-core.js?v=20261028v13"></script>
