@@ -18,9 +18,8 @@ window.C7S1_GUIDE={
       {id:'c7b-09',repeat:false,trigger:'R.bench.axisM===true',say:'横轴换质量，纵轴重力，G等于mg，斜率等于g除以k；横轴换力，斜率等于k分之一。',audio:'c7b-09'},
       {id:'c7b-10',repeat:false,trigger:'R.bench.overRange===true',say:'超过量程5牛，会损坏测力计！',audio:'c7b-10'},
       {id:'c7b-11',repeat:false,trigger:'R.bench.bdragRelease===true',say:'松手，指针回零。',audio:'c7b-11'},
-      {id:'c7b-12',repeat:false,trigger:'R.bench.zeroV===true',say:'指针没指零，点调零按钮把它对齐，不调零的话读数全是错的。',audio:'c7e5-s1'},
-      {id:'c7b-13',repeat:false,trigger:'R.bench.orientH===true',say:'换成水平方向拉，用法要变，得在水平方向重新调零再测。再感受1牛、3牛、5牛的拉力，记住这个手感！',audio:'c7e5-s4'},
-      {id:'c7b-14',repeat:false,trigger:'R.bench.eye===true',say:'点读数按钮，视线垂直刻度面才读得准，从下方斜视会读偏大。',audio:'c7b-14'},
+      {id:'c7b-17',repeat:false,trigger:'R.bench.balanceEnter===true',say:'这是弹簧测力计，加砝码读G等于mg，也可以下拉挂钩感受拉力的大小。',audio:'c7b-17'},
+      {id:'c7b-14',repeat:false,trigger:'R.bench.eye===true',say:'点读数按钮，视线垂直刻度面才读得准，斜视读数会导致读数错误。',audio:'c7b-14'},
       {id:'c7b-15',repeat:false,trigger:'R.bench.reset===true',say:'已重置，拖悬挂物按压或拉伸，或逐块加钩码。',audio:'c7b-15'}
     ],
     errors:[],free:[],tasks:[]
@@ -172,7 +171,8 @@ window.C7S1_GUIDE={
     'c7b-05':'guide/audio/c7b-05.mp3?v=20261118z','c7b-06':'guide/audio/c7b-06.mp3?v=20261118z4',
     'c7b-07':'guide/audio/c7b-07.mp3?v=20261118z','c7b-08':'guide/audio/c7b-08.mp3?v=20261118z',
     'c7b-09':'guide/audio/c7b-09.mp3?v=20261118z','c7b-10':'guide/audio/c7b-10.mp3?v=20261118z',
-    'c7b-11':'guide/audio/c7b-11.mp3?v=20261118z','c7b-14':'guide/audio/c7b-14.mp3?v=20261118z2',
+    'c7b-11':'guide/audio/c7b-11.mp3?v=20261118z','c7b-14':'guide/audio/c7b-14.mp3?v=20261118z5',
     'c7b-15':'guide/audio/c7b-15.mp3?v=20261118z','c7b-16':'guide/audio/c7b-16.mp3?v=20261118z4',
+    'c7b-17':'guide/audio/c7b-17.mp3?v=20261118z5',
   }
 };
