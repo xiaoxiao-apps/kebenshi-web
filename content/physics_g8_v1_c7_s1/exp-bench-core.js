@@ -44,7 +44,7 @@
   function lerp(a, b, t) { return a + (b - a) * t; }
   function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
   function setText(id, t) { var el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
-  function setHint(t) { setText('hint', t); }
+  function setHint(t) {}                                                     // z轮：hint 层已删（字幕由 guide vB 承载），no-op
   function sfx(name) { if (!S.muted && window['play' + name]) { try { window['play' + name](); } catch (e) {} } }
   function seg(id, on) { var b = document.getElementById(id); if (b) b.classList.toggle('on', !!on); }
 
@@ -87,6 +87,15 @@
   };
   window.C7V5_BENCH = S;
   window.C7V5_BENCH_DBG = { hang: hangPt, bottom: bottomY, rest: restY, lay: function () { return L; } };
+
+  /* z轮：guide 解说状态源（engine-core 轮询；事件标志只置 true，btn-reset 归零后可重触发） */
+  var BS = {
+    pull: false, press: false, weightAdd: false, hangG: false, overLimit: false,
+    material: false, tilt: false, flat: false, axisM: false, overRange: false,
+    bdragRelease: false, zeroV: false, orientH: false, eye: false, reset: false
+  };
+  window.C7S1_STATE = { mode: 'bench', bench: BS };
+  var balT = 0;                                                             // balance 竖直未调零累计秒数（≥2.5 → zeroV）
 
   /* ===== 几何访问器 ===== */
   function tiltE() { return easeInOut(S.tilt.t); }
@@ -167,6 +176,7 @@
         }
       }
       var lim = limitExt(), av = availCm();
+      if (sp.x > lim + 0.02) BS.overLimit = true;                          // 超弹性限度（c7b-05）
       if (m.p > 0) {                                                     // 铅丝/橡皮泥：塑性流动，静止基准线跟随（压缩不吃 rest：Q4）
         if (sp.x > lim && sp.rest + sp.x < av) { var f = Math.min(1, FLOW * dt) * (sp.x - lim) * m.p; sp.rest += f; sp.x -= f; moved = true; }
       } else {                                                           // 金属：超限度→回落后永久变形（新基准线下移）
@@ -184,34 +194,48 @@
         S.curve.pts[S.n] = tot;                                           // 每勾一块记录总伸长
         S.curve.pending = false; moved = true;
       }
+      if (S.n >= 1 && recOk) BS.hangG = true;                             // 钩码静止：重力与弹力二力平衡（c7b-16）
     } else {
       var b = S.bal;
       var tgt = b.dragF >= 0 ? b.dragF : S.n * BLOCK_N;                  // 测力计读数 = G = mg
-      if (tgt > RANGE) { b.flash = 0.4; tgt = RANGE; }                   // 超量程 clamp 5N
+      if (tgt > RANGE) { b.flash = 0.4; tgt = RANGE; BS.overRange = true; }   // 超过量程 5N：红闪（c7b-10）
       if (b.v !== 0 || b.r !== tgt || b.dragF >= 0) {
         var a2 = OMEGA * OMEGA * (tgt - b.r) - 2 * 0.2 * OMEGA * b.v;    // 指针 ζ=0.2 ωₙ=12（回零过冲）
         b.v += a2 * dt; b.r += b.v * dt; moved = true;
         if (Math.abs(b.r - tgt) < 0.002 && Math.abs(b.v) < 0.02) { b.r = tgt; b.v = 0; }
       }
       if (b.flash > 0) { b.flash -= dt; moved = true; }
+      if (S.n >= 1 && S.n * BLOCK_N <= RANGE && Math.abs(b.r - S.n * BLOCK_N) < 0.005 && Math.abs(b.v) < 0.05)
+        BS.hangG = true;                                                  // 量程内静止：二力平衡（c7b-16）
+      if (S.n === 0) {                                                    // c7e5-s1/s4 复用：balance 竖直未调零 2.5s → zeroV；指针稳零 → orientH
+        balT += dt;
+        if (balT >= 2.5) BS.zeroV = true;
+        if (BS.zeroV && Math.abs(b.r) < 0.005 && Math.abs(b.v) < 0.005) BS.orientH = true;
+      } else balT = 0;
     }
     if (window.ForceOverlay) {                                           // 门控：三类矢量（挂砝码G@重心 / 下拉手力 / 上压手力 @手）
       if (ForceOverlay.isOn() && !S.zoom) {
         if (S.n > 0) {
-          var c = weightCOM(), Gn = S.n * BLOCK_N;
-          ForceOverlay.register('hangG', { point: c, dir: { x: 0, y: 1 }, magN: Gn, color: PAL.grav, label: 'G=' + Gn.toFixed(2) + 'N' });
+          var c = weightCOM(), Gn = S.n * BLOCK_N;                         // z轮五1：同点反向等大异体——G@重心(地球吸引砝码) + 弹簧对砝码上拉
+          ForceOverlay.register('hangG', {
+            point: c, dir: { x: 0, y: 1 }, magN: Gn, color: PAL.grav, label: 'G=' + Gn.toFixed(2) + 'N',
+            pair: { point: c, dir: { x: 0, y: -1 }, magN: Gn, label: '弹簧对砝码 F拉=' + Gn.toFixed(2) + 'N' } });
         } else ForceOverlay.unregister('hangG');
         var hx = hangPt().x;
         if (S.ps.mode === 'spdrag') {                                    // 拖弹簧：下拉=向下手力 / 上压=向上手力，@握点实时
           var d = S.sp.x - steadyExt(S.n), Fh = mat().k * Math.abs(d);
+          var gp = { x: hx, y: S.n > 0 ? stackTopSp() + S.n * L.wb : bottomY() + 8 };   // 握点：主箭与 pair 同点
           if (Fh > 0.02) ForceOverlay.register('handF', {
-            point: { x: hx, y: S.n > 0 ? stackTopSp() + S.n * L.wb : bottomY() + 8 },
-            dir: { x: 0, y: d > 0 ? 1 : -1 }, magN: Fh, color: PAL.hand,
-            label: (d > 0 ? 'F拉=' : 'F压=') + Fh.toFixed(2) + 'N' });
+            point: gp, dir: { x: 0, y: d > 0 ? 1 : -1 }, magN: Fh, color: PAL.hand,
+            label: (d > 0 ? 'F拉=' : 'F压=') + Fh.toFixed(2) + 'N',
+            pair: { point: gp, dir: { x: 0, y: d > 0 ? -1 : 1 }, magN: Fh, label: '弹簧对手 F弹=' + Fh.toFixed(2) + 'N' } });
           else ForceOverlay.unregister('handF');
-        } else if (S.ps.mode === 'bdrag') {                              // 拉测力计钩：向下手力@钩
-          ForceOverlay.register('handF', { point: { x: hx, y: balHookY() + 4 }, dir: { x: 0, y: 1 },
-            magN: S.bal.dragF, color: PAL.hand, label: 'F拉=' + S.bal.dragF.toFixed(2) + 'N' });
+        } else if (S.ps.mode === 'bdrag') {                              // 拉测力计钩：向下手力@钩 + 弹簧对手向上（同点 pair）
+          var bp = { x: hx, y: balHookY() + 4 };
+          ForceOverlay.register('handF', {
+            point: bp, dir: { x: 0, y: 1 }, magN: S.bal.dragF, color: PAL.hand,
+            label: 'F拉=' + S.bal.dragF.toFixed(2) + 'N',
+            pair: { point: bp, dir: { x: 0, y: -1 }, magN: S.bal.dragF, label: '弹簧对手 F弹=' + S.bal.dragF.toFixed(2) + 'N' } });
         } else ForceOverlay.unregister('handF');
         moved = true;
       } else { ForceOverlay.unregister('hangG'); ForceOverlay.unregister('handF'); }
@@ -452,7 +476,7 @@
     var wbB = Math.min(L.wb, Math.max(4, (L.floorY - 14 - (hy + 6)) / Math.max(1, S.n)));
     drawWeights(hx, hy + 6, S.n, wbB);
     txt('G = mg = ' + (S.n * BLOCK_N).toFixed(2) + ' N', hx + bodyW / 2 + 12, mbTop + 14, PAL.text, 12);
-    if (b.flash > 0) txt('超量程！clamp 5N', hx + bodyW / 2 + 12, mbTop + 32, PAL.limit, 11.5);
+    if (b.flash > 0) txt('超过量程 5N，会损坏测力计', hx + bodyW / 2 + 12, mbTop + 32, PAL.limit, 11.5);
   }
   function drawBalanceHang() {
     if (meterReady()) { drawBalanceHangSpr(); return; }                   // sprite 优先，下方为 fallback
@@ -485,7 +509,7 @@
       ctx.beginPath(); ctx.moveTo(hx + bw / 2 - 3, y); ctx.lineTo(hx + bw / 2 - (major ? 13 : 8), y); ctx.stroke();
       if (major) {
         txt(String(i / 2), hx - bw / 2 + 15, y, i === 0 ? PAL.limit : PAL.scale, 8.5);
-        txt(String(i * 100 / 2), hx + bw / 2 - 15, y, i === 0 ? PAL.limit : PAL.scale, 7.5, 'right');
+        txt(String(Math.round(i * 51)), hx + bw / 2 - 15, y, i === 0 ? PAL.limit : PAL.scale, 7.5, 'right');   // z轮五2：gf 满量程 510（g=9.8）
       }
     }
     ctx.strokeStyle = PAL.limit; ctx.lineWidth = 2;                           // 零刻度强调
@@ -501,7 +525,7 @@
     drawWeights(hx, balHookY() + 6, S.n, wbB);
     var G = S.n * BLOCK_N;
     txt('G = mg = ' + G.toFixed(2) + ' N', hx + bw / 2 + 12, bt + 14, PAL.text, 12);
-    if (b.flash > 0) txt('超量程！clamp 5N', hx + bw / 2 + 12, bt + 32, PAL.limit, 11.5);
+    if (b.flash > 0) txt('超过量程 5N，会损坏测力计', hx + bw / 2 + 12, bt + 32, PAL.limit, 11.5);
   }
 
   /* ===== 伸长量曲线图 ΔL vs F（斜率=1/k 或 g/k，非 g）（§2.4） ===== */
@@ -576,7 +600,7 @@
   }
   /* ===== 观察眼 sprite（器材库 observer_eye.png，朝左；加载失败回退标准眼形） ===== */
   var EYE_IMG = new Image();
-  EYE_IMG.src = '../_lib/v1/sprites/observer_eye.png?v=92';
+  EYE_IMG.src = '../_lib/v1/sprites/observer_eye.png?v=20261118z';
   EYE_IMG.onload = function () { dirty = true; };
   function eyeReady() { return EYE_IMG.complete && EYE_IMG.naturalWidth > 0; }
   function drawEye(x, y, h, color) {
@@ -592,8 +616,8 @@
     ctx.shadowBlur = 0;
     ctx.strokeStyle = '#c6d0da'; ctx.lineWidth = 1.4; rr(zx, zy, zw, zh, 14); ctx.stroke();
     txt(zw < 300 ? '测力计放大' : '测力计放大 · 参考图组件', zx + 14, zy + 18, PAL.text, 12.5);
-    txt('读数 G = ' + clamp(b.r, 0, RANGE).toFixed(2) + ' N', zx + zw - 14, zw < 300 ? zy + 36 : zy + 18, PAL.text, 12.5, 'right');
-    if (b.flash > 0) txt('超量程 clamp 5N', zx + zw - 14, zw < 300 ? zy + 52 : zy + 36, PAL.limit, 11.5, 'right');
+    txt((S.ps.mode === 'bdrag' ? '读数 F拉 = ' : '读数 G = ') + clamp(b.r, 0, RANGE).toFixed(2) + ' N', zx + zw - 14, zw < 300 ? zy + 36 : zy + 18, PAL.text, 12.5, 'right');
+    if (b.flash > 0) txt('超过量程 5N，会损坏测力计', zx + zw - 14, zw < 300 ? zy + 52 : zy + 36, PAL.limit, 11.5, 'right');
     var ratio = meterBodyW(1), extF = Math.max(0, 1 - 86 / L.BL);
     var stack = 0.98 + extF + ratio * (TAB_HF + 0.51);                   // 本体 + 挂钩行程（预留）
     var bodyH = Math.min(Math.round(zh * 0.80), Math.round((zh - 46) / stack));
@@ -632,8 +656,8 @@
     ctx.shadowBlur = 0;
     ctx.strokeStyle = '#c6d0da'; ctx.lineWidth = 1.4; rr(zx, zy, zw, zh, 14); ctx.stroke();
     txt(zw < 300 ? '测力计放大' : '测力计放大 · 标准组件', zx + 14, zy + 18, PAL.text, 12.5);
-    txt('读数 G = ' + clamp(b.r, 0, RANGE).toFixed(2) + ' N', zx + zw - 14, zw < 300 ? zy + 36 : zy + 18, PAL.text, 12.5, 'right');
-    if (b.flash > 0) txt('超量程 clamp 5N', zx + zw - 14, zw < 300 ? zy + 52 : zy + 36, PAL.limit, 11.5, 'right');
+    txt((S.ps.mode === 'bdrag' ? '读数 F拉 = ' : '读数 G = ') + clamp(b.r, 0, RANGE).toFixed(2) + ' N', zx + zw - 14, zw < 300 ? zy + 36 : zy + 18, PAL.text, 12.5, 'right');
+    if (b.flash > 0) txt('超过量程 5N，会损坏测力计', zx + zw - 14, zw < 300 ? zy + 52 : zy + 36, PAL.limit, 11.5, 'right');
     var ringY = zy + 46, bodyTop = ringY + 18;
     var bodyH = clamp(Math.round((zh - 64 - 128) / 1.46), 70, 240);          // ⑭预留挂钩行程=伸长量
     var rx = cx + bw / 2, lx = cx - bw / 2;
@@ -664,12 +688,12 @@
       ctx.beginPath(); ctx.moveTo(rx - 4, y); ctx.lineTo(rx - 4 - len, y); ctx.stroke();
       if (major) {
         txt(String(i / 10), lx + 25, y, i === 0 ? PAL.limit : PAL.scale, 11);
-        txt(String(i * 10), rx - 25, y, i === 0 ? PAL.limit : PAL.scale, 10.5, 'right');
+        txt(String(Math.round(i * 10.2)), rx - 25, y, i === 0 ? PAL.limit : PAL.scale, 10.5, 'right');   // z轮五2：gf 满量程 510（g=9.8）
       }
     }
     ctx.strokeStyle = PAL.limit; ctx.lineWidth = 2.4;                                          // 零刻度强调
     ctx.beginPath(); ctx.moveTo(lx + 4, sTop); ctx.lineTo(lx + 23, sTop); ctx.stroke();
-    txt('分度值 0.1N / 10gf', cx, sTop + sLen + 13, PAL.sub, 9.5, 'center');
+    txt('分度值 0.1N / 10.2gf', cx, sTop + sLen + 13, PAL.sub, 9.5, 'center');
     var hookY = bodyTop + bodyH + (py - sTop);                                                 // ⑭底部挂钩：位移=伸长量
     ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = 4; ctx.lineCap = 'round';                  // ⑭拉杆：弹簧下端→挂钩
     ctx.beginPath(); ctx.moveTo(cx, py - 6); ctx.lineTo(cx, hookY); ctx.stroke();
@@ -745,7 +769,7 @@
       if (Math.abs(p.x - hx) < 40 && p.y >= btop && p.y <= bbot) {
         S.ps.mode = 'bdrag'; S.bal.dragF = clamp(S.bal.r, 0, 8);
         if (cv.setPointerCapture && ev.pointerId != null) { try { cv.setPointerCapture(ev.pointerId); } catch (e) {} }
-        setHint('下拉挂钩：读数=拉力；超过 5N 量程 → 红闪 clamp');
+        setHint('下拉挂钩：读数=拉力；超过量程 5N，会损坏测力计');
         ev.preventDefault(); dirty = true;
       }
     }
@@ -754,6 +778,8 @@
     var p = canvasXY(ev);
     if (S.ps.mode === 'spdrag') {
       S.sp.x = clamp((p.y - restY()) / L.PXCM, hardMinX(), hardMaxX()); S.sp.v = 0; dirty = true; ev.preventDefault();
+      var dz = S.sp.x - steadyExt(S.n);
+      if (dz > 0.05) BS.pull = true; else if (dz < -0.05) BS.press = true;   // z轮六4：下拉(c7b-02)/上压(c7b-03)事件
     } else if (S.ps.mode === 'bdrag') {
       S.bal.dragF = clamp((p.y - hookRestY()) / (L.PXCM * 0.7), 0, 8); dirty = true; ev.preventDefault();
     }
@@ -761,7 +787,7 @@
   function onUp() {
     if (S.ps.mode === 'spdrag')
       setHint(S.sp.rest > 0.05 ? '超过弹性限度 → 永久变形：新静止基准线已下移' : '限度内 → 回弹到绿色基准线（弹性）');
-    if (S.ps.mode === 'bdrag') { S.bal.dragF = -1; setHint('松手：指针回零，欠阻尼过冲（ζ=0.2 ωₙ=12）'); }
+    if (S.ps.mode === 'bdrag') { S.bal.dragF = -1; BS.bdragRelease = true; setHint('松手：指针回零'); }   // z轮五3+六4：c7b-11
     S.ps.mode = 'idle'; dirty = true;
   }
 
@@ -770,23 +796,31 @@
     var nn = clamp(S.n + delta, 0, MAXN);
     if (nn === S.n) { if (delta > 0) setHint('最多 ' + MAXN + ' 块（测力计早已超量程红闪）'); return; }
     S.n = nn; setText('lbl-w', S.n + '块');
+    if (delta > 0) BS.weightAdd = true;                                    // z轮六4：c7b-04
     if (S.mode === 'spring') {
       if (delta > 0) { S.curve.pending = true; }
       else { for (var k in S.curve.pts) if (+k > S.n) delete S.curve.pts[k]; S.curve.pending = false; }
       setHint('G = ' + S.n + '×0.49 = ' + (S.n * BLOCK_N).toFixed(2) + 'N — 曲线记录 ΔL（斜率=1/k，非 g）');
     } else {
       var G = S.n * BLOCK_N;
-      setHint(G > RANGE ? 'G=' + G.toFixed(2) + 'N 超过量程 5N → 红闪 clamp（会损坏测力计！）'
+      setHint(G > RANGE ? '红闪：G=' + G.toFixed(2) + 'N 超过量程 5N，会损坏测力计'
         : '读数 G = mg = ' + G.toFixed(2) + ' N（指针欠阻尼摆动）');
     }
     sfx('Click'); dirty = true;
   }
 
   /* ===== 控件 wiring ===== */
+  function syncFullBtn() {                                                     // z轮六1：照搬 road-core——btn-full 文案 toggle + .back 随 fullscreenElement 隐/现
+    var fs = !!document.fullscreenElement;
+    var b = document.getElementById('btn-full');
+    if (b) b.textContent = fs ? '退出全屏' : '全屏';
+    var back = document.querySelector('.back');
+    if (back) back.style.display = fs ? 'none' : '';
+  }
   function wire() {
     function on(id, ev, fn) { var el = document.getElementById(id); if (el) el.addEventListener(ev, fn); }
-    on('btn-flat', 'click', function () { S.tilt.target = 0; seg('btn-flat', true); seg('btn-tilt', false); sfx('Click'); setHint('铁架台回到水平桌面'); dirty = true; });
-    on('btn-tilt', 'click', function () { S.tilt.target = 1; seg('btn-flat', false); seg('btn-tilt', true); sfx('Click'); setHint('架倾斜，悬挂物仍世界竖直 → 重力方向竖直向下'); dirty = true; });
+    on('btn-flat', 'click', function () { S.tilt.target = 0; BS.flat = true; seg('btn-flat', true); seg('btn-tilt', false); sfx('Click'); setHint('铁架台回到水平桌面'); dirty = true; });
+    on('btn-tilt', 'click', function () { S.tilt.target = 1; BS.tilt = true; seg('btn-flat', false); seg('btn-tilt', true); sfx('Click'); setHint('架倾斜，悬挂物仍世界竖直 → 重力方向竖直向下'); dirty = true; });
     on('btn-spring', 'click', function () {
       S.mode = 'spring'; S.zoom = false; S.eye = false;
       seg('btn-spring', true); seg('btn-balance', false); seg('btn-zoom', false); seg('btn-eye', false);
@@ -800,12 +834,13 @@
     on('rng-mat', 'input', function (e) {
       S.mat = clamp(parseInt(e.target.value, 10) || 0, 0, 4);
       S.sp = { x: 0, v: 0, rest: 0, maxOver: 0 }; S.curve.pts = {}; S.curve.pending = false;
+      BS.material = true;                                                    // z轮六4：c7b-06
       setText('lbl-mat', mat().name); setHint(mat().note); dirty = true;
     });
     on('btn-w-minus', 'click', function () { setN(-1); });
     on('btn-w-plus', 'click', function () { setN(1); });
     on('btn-axis-f', 'click', function () { S.curve.axis = 'F'; seg('btn-axis-f', true); seg('btn-axis-m', false); sfx('Click'); dirty = true; });
-    on('btn-axis-m', 'click', function () { S.curve.axis = 'm'; seg('btn-axis-f', false); seg('btn-axis-m', true); sfx('Click'); setHint('横轴 m(kg)：斜率 = g/k（含 g）；横轴 F(N)：斜率 = 1/k'); dirty = true; });
+    on('btn-axis-m', 'click', function () { S.curve.axis = 'm'; BS.axisM = true; seg('btn-axis-f', false); seg('btn-axis-m', true); sfx('Click'); setHint('横轴 m(kg)：斜率 = g/k（含 g）；横轴 F(N)：斜率 = 1/k'); dirty = true; });
     on('btn-zoom', 'click', function () {
       if (S.mode !== 'balance') { setHint('先把挂点切换到「测力计」再放大'); return; }
       S.zoom = !S.zoom; if (!S.zoom) S.eye = false;
@@ -815,7 +850,7 @@
     });
     on('btn-eye', 'click', function () {
       if (!S.zoom) { setHint('先按「🔍 测力计放大」再观察读数视线'); return; }
-      S.eye = !S.eye; seg('btn-eye', S.eye); sfx('Click');
+      S.eye = !S.eye; if (S.eye) BS.eye = true; seg('btn-eye', S.eye); sfx('Click');   // z轮六4：c7b-14
       setHint(S.eye ? '眼在刻度正前方：视线⊥刻度面（沿法线）→ 正读；眼偏侧斜视 → 视差错读' : '');
       dirty = true;
     });
@@ -834,6 +869,9 @@
       S.tilt.target = 0; S.zoom = false; S.eye = false;
       seg('btn-flat', true); seg('btn-tilt', false); seg('btn-zoom', false); seg('btn-eye', false);
       if (window.ForceOverlay) ForceOverlay.clear();
+      for (var bk in BS) BS[bk] = false;                                     // z轮六4：事件标志归零（可重触发全部解说）
+      BS.reset = true; balT = 0;                                             // c7b-15：重置本身是事件
+      if (window.GUIDE_RESET) window.GUIDE_RESET.all();                      // z轮六5：接口契约3——页面重置后语音字幕全部从头
       setHint('已重置：拖悬挂物按压/拉伸，或逐块加钩码'); sfx('Click'); dirty = true;
     });
     on('btn-mute', 'click', function () {
@@ -845,7 +883,7 @@
       if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen(); }
       else if (document.exitFullscreen) document.exitFullscreen();
     });
-    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (e) { document.addEventListener(e, function () { setTimeout(resize, 60); }); });
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (e) { document.addEventListener(e, function () { syncFullBtn(); setTimeout(resize, 60); }); });
 
     cv.addEventListener('pointerdown', onDown);
     cv.addEventListener('pointermove', onMove);
@@ -856,6 +894,7 @@
   /* ===== init ===== */
   wire();
   if (window.ForceOverlay) ForceOverlay.setOn(false);
+  syncFullBtn();
   seg('btn-spring', true); seg('btn-flat', true); seg('btn-axis-f', true);
   setText('lbl-mat', MATS[0].name); setText('lbl-w', '0块');
   resize();
