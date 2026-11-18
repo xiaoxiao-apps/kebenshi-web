@@ -5,14 +5,14 @@
    新 clip c7n20 文本=设计书 v3 §6 逐字。c7e4-intro/c7e5-f1 对应旧 UI 已融合或删除，仅存 audios 映射不挂 trigger。 */
 window.C7S1_GUIDE={
   bench:{
-    intro:{text:'欢迎来到侧视实验台！上下拖拽弹簧下方的悬挂物，按压或拉伸；或用钩码加，逐块加钩码。',audio:'c7b-01'},
+    intro:{text:'欢迎来到侧视实验台！上下拖拽弹簧下方的悬挂物，按压或拉伸；或用砝码加减，换不同质量的砝码。',audio:'c7b-01'},
     steps:[
       {id:'c7b-02',repeat:false,trigger:'R.bench.pull===true',say:'用手下拉悬挂物，弹簧被拉长，弹性限度内，拉力越大，伸长量越大。',audio:'c7b-02'},
       {id:'c7b-03',repeat:false,trigger:'R.bench.press===true',say:'用手上压悬挂物，弹簧被压缩，松手后回到原样，这就是弹性。',audio:'c7b-03'},
-      {id:'c7b-04',repeat:false,trigger:'R.bench.weightAdd===true',say:'钩码逐块挂上去，弹簧越伸越长。弹性限度内，拉力越大，弹簧伸长量越大。',audio:'c7b-04'},
-      {id:'c7b-16',repeat:false,trigger:'R.bench.hangG===true',say:'钩码静止时，重力与弹簧拉力等大反向，二力平衡。',audio:'c7b-16'},
+      {id:'c7b-04',repeat:false,trigger:'R.bench.weightAdd===true',say:'点加号换更大的砝码，五十克、一百克、一百五十克，质量越大，拉力越大，弹簧越伸越长，砝码体积也越大。',audio:'c7b-04'},
+      {id:'c7b-16',repeat:false,trigger:'R.bench.hangG===true',say:'砝码静止时，重力与弹簧拉力等大反向，二力平衡。',audio:'c7b-16'},
       {id:'c7b-05',repeat:false,trigger:'R.bench.overLimit===true',say:'超过弹性限度了！弹簧弯折，松手也回不到原样，这是永久变形。',audio:'c7b-05'},
-      {id:'c7b-06',repeat:false,trigger:'R.bench.material===true',say:'换材质就是换劲度系数，钢更硬，铝更软，铝挂四块钩码就超限度。',audio:'c7b-06'},
+      {id:'c7b-06',repeat:false,trigger:'R.bench.material===true',say:'换材质就是换劲度系数，钢更硬，铝更软，铝挂两百克就超弹性限度。',audio:'c7b-06'},
       {id:'c7b-07',repeat:false,trigger:'R.bench.tilt===true',say:'架子倾斜，悬挂物仍然世界竖直，重力方向竖直向下。',audio:'c7b-07'},
       {id:'c7b-08',repeat:false,trigger:'R.bench.flat===true',say:'铁架台回到水平桌面。',audio:'c7b-08'},
       {id:'c7b-09',repeat:false,trigger:'R.bench.axisM===true',say:'横轴换质量，纵轴重力，G等于mg，斜率等于g除以k；横轴换力，斜率等于k分之一。',audio:'c7b-09'},
@@ -167,12 +167,12 @@ window.C7S1_GUIDE={
     'c7r-09':'guide/audio/c7r-09.mp3?v=20261118x','c7r-10':'guide/audio/c7r-10.mp3?v=20261118x',
     'c7r-11':'guide/audio/c7r-11.mp3?v=20261118x','c7r-12':'guide/audio/c7r-12.mp3?v=20261118x',
     'c7r-13':'guide/audio/c7r-13.mp3?v=20261118x','c7r-14':'guide/audio/c7r-14.mp3?v=20261118x',
-    'c7b-01':'guide/audio/c7b-01.mp3?v=20261118z','c7b-02':'guide/audio/c7b-02.mp3?v=20261118z',
-    'c7b-03':'guide/audio/c7b-03.mp3?v=20261118z','c7b-04':'guide/audio/c7b-04.mp3?v=20261118z',
-    'c7b-05':'guide/audio/c7b-05.mp3?v=20261118z','c7b-06':'guide/audio/c7b-06.mp3?v=20261118z',
+    'c7b-01':'guide/audio/c7b-01.mp3?v=20261118z4','c7b-02':'guide/audio/c7b-02.mp3?v=20261118z',
+    'c7b-03':'guide/audio/c7b-03.mp3?v=20261118z','c7b-04':'guide/audio/c7b-04.mp3?v=20261118z4',
+    'c7b-05':'guide/audio/c7b-05.mp3?v=20261118z','c7b-06':'guide/audio/c7b-06.mp3?v=20261118z4',
     'c7b-07':'guide/audio/c7b-07.mp3?v=20261118z','c7b-08':'guide/audio/c7b-08.mp3?v=20261118z',
     'c7b-09':'guide/audio/c7b-09.mp3?v=20261118z','c7b-10':'guide/audio/c7b-10.mp3?v=20261118z',
     'c7b-11':'guide/audio/c7b-11.mp3?v=20261118z','c7b-14':'guide/audio/c7b-14.mp3?v=20261118z2',
-    'c7b-15':'guide/audio/c7b-15.mp3?v=20261118z','c7b-16':'guide/audio/c7b-16.mp3?v=20261118z',
+    'c7b-15':'guide/audio/c7b-15.mp3?v=20261118z','c7b-16':'guide/audio/c7b-16.mp3?v=20261118z4',
   }
 };
