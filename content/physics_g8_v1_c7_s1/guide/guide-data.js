@@ -4,6 +4,26 @@
    旧 clip say/fix/note 文本与 audio 文件名原样不变；intro c7e1/c7e3 逐字=设计书 v3 §6 新文本，c7e2/c7e5-intro 保留旧文本；
    新 clip c7n20 文本=设计书 v3 §6 逐字。c7e4-intro/c7e5-f1 对应旧 UI 已融合或删除，仅存 audios 映射不挂 trigger。 */
 window.C7S1_GUIDE={
+  road:{
+    intro:{text:'欢迎来到侧视马路！拖动小人顶住车，推车启动；按住小人不动，车凭惯性前滑。',audio:'c7r-01'},
+    steps:[
+      {id:'c7r-03',repeat:false,queue:true,trigger:'R.road.pushStart===true',say:'我们现在小人推车，首先海绵先受力形变，然后力传到车让车往前走。',audio:'c7r-03'},
+      {id:'c7r-02',repeat:false,queue:true,trigger:'R.road.pushNormal===true',say:'普通鞋推车时，地面摩擦平衡了反作用力，所以人不会向后滑。',audio:'c7r-02'},
+      {id:'c7r-14',repeat:false,queue:true,trigger:'R.road.staticHold===true',say:'推力小于最大静摩擦力，车顶得住，不动。',audio:'c7r-14'},
+      {id:'c7r-04',repeat:false,queue:true,trigger:'R.road.release===true',say:'松手，不再推，车只受摩擦和刹车减速。力不是维持运动的原因。',audio:'c7r-04'},
+      {id:'c7r-05',repeat:false,queue:true,trigger:'R.road.slide===true',say:'车冲下护坡，重力让车越来越快。',audio:'c7r-05'},
+      {id:'c7r-06',repeat:false,queue:true,trigger:'R.road.pond===true',say:'车沿护坡滑入水，继续贴着坡面滑向池底。',audio:'c7r-06'},
+      {id:'c7r-07',repeat:false,queue:true,trigger:'R.road.settled===true',say:'车沿护坡滑到池底停住。车头探出画外，池塘向画外延伸。',audio:'c7r-07'},
+      {id:'c7r-08',repeat:false,queue:true,trigger:'R.road.brake===true',say:'踩下刹车踏板，刹车力让车减速。',audio:'c7r-08'},
+      {id:'c7r-09',repeat:false,queue:true,trigger:'R.road.iceLock===true',say:'轮滑鞋，刹车锁定为最大。推车时人整体向后滑离车，这是相互作用。',audio:'c7r-09'},
+      {id:'c7r-10',repeat:false,queue:true,trigger:'R.road.iceSlide===true',say:'轮滑鞋，手与车已脱离，人靠惯性滑行，缓慢停下。',audio:'c7r-10'},
+      {id:'c7r-11',repeat:false,queue:true,trigger:'R.road.wheel===true',say:'这是方向盘放大区，力要先克服阻力，方向盘才会转动。',audio:'c7r-11'},
+      {id:'c7r-12',repeat:false,queue:true,trigger:'R.road.shoeIce===true',say:'现在我们换上轮滑鞋。',audio:'c7r-12'},
+      {id:'c7r-13',repeat:false,queue:true,trigger:'R.road.shoeNormal===true',say:'现在我们换上普通鞋。',audio:'c7r-13'}
+    ],
+    errors:[],free:[],tasks:[]
+  },
+
   deform:{
     intro:{text:'欢迎来到力的实验室！五个站点一路玩过去，形变站看力怎么改变形状，运动站看力怎么改变运动，推门工坊学怎么描述力，相互舞台发现力的秘密，最后到测力计工作台学会测量力。',audio:'c7e1-intro'},
     steps:[
@@ -118,6 +138,13 @@ window.C7S1_GUIDE={
     'c7n7':'guide/audio/c7n7.mp3?v=20261111','c7n8':'guide/audio/c7n8.mp3?v=20261111',
     'c7n9a':'guide/audio/c7n9a.mp3?v=20261111','c7n9b':'guide/audio/c7n9b.mp3?v=20261111',
     'c7n9c':'guide/audio/c7n9c.mp3?v=20261111','c7n10':'guide/audio/c7n10.mp3?v=20261111',
-    'c7n20':'guide/audio/c7n20.mp3?v=20261111'
+    'c7n20':'guide/audio/c7n20.mp3?v=20261111',
+    'c7r-01':'guide/audio/c7r-01.mp3?v=20261118x','c7r-02':'guide/audio/c7r-02.mp3?v=20261118x',
+    'c7r-03':'guide/audio/c7r-03.mp3?v=20261118x','c7r-04':'guide/audio/c7r-04.mp3?v=20261118x',
+    'c7r-05':'guide/audio/c7r-05.mp3?v=20261118x','c7r-06':'guide/audio/c7r-06.mp3?v=20261118x',
+    'c7r-07':'guide/audio/c7r-07.mp3?v=20261118x','c7r-08':'guide/audio/c7r-08.mp3?v=20261118x',
+    'c7r-09':'guide/audio/c7r-09.mp3?v=20261118x','c7r-10':'guide/audio/c7r-10.mp3?v=20261118x',
+    'c7r-11':'guide/audio/c7r-11.mp3?v=20261118x','c7r-12':'guide/audio/c7r-12.mp3?v=20261118x',
+    'c7r-13':'guide/audio/c7r-13.mp3?v=20261118x','c7r-14':'guide/audio/c7r-14.mp3?v=20261118x',
   }
 };
