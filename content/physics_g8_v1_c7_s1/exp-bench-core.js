@@ -24,8 +24,8 @@
 
   /* ===== 五档材质谱（§2.2 钢k大限度高 > 铁 > 铝k小限度低 > 铅丝限度≈0 > 橡皮泥纯塑性） ===== */
   var MATS = [
-    { name: '钢',   k: 2.0,  limitF: 9,    zeta: 0.18, p: 0,   color: '#b9c5d1', note: '钢：k 大、弹性限度高' },      // 亮银灰（z4 修2：限度 4.5→9）
-    { name: '铁',   k: 1.3,  limitF: 6,    zeta: 0.22, p: 0,   color: '#8b929a', note: '铁：k 与限度居中' },          // 灰（z4 修2：限度 3.2→6）
+    { name: '钢',   k: 2.0,  limitF: 14,   zeta: 0.18, p: 0,   color: '#b9c5d1', note: '钢：k 大、弹性限度高' },      // 亮银灰（z5 修2：限度 9→14）
+    { name: '铁',   k: 1.3,  limitF: 8,    zeta: 0.22, p: 0,   color: '#8b929a', note: '铁：k 与限度居中' },          // 灰（z5 修2：限度 6→8）
     { name: '铝',   k: 0.7,  limitF: 1.6,  zeta: 0.26, p: 0,   color: '#d4dce5', note: '铝：k 小、弹性限度低（200g 砝码即超限度）' }, // 浅银
     { name: '铅丝', k: 0.35, limitF: 0.05, zeta: 0.9,  p: 0.9, color: '#5d656e', note: '铅丝：弹性限度≈0，拉长不回弹（准塑性）' }, // 暗灰
     { name: '橡皮泥', k: 0.2, limitF: 0,   zeta: 1.0,  p: 1.0, color: '#a5713f', note: '橡皮泥：纯塑性，形变完全保留' }  // 棕褐
@@ -97,10 +97,9 @@
   var BS = {
     pull: false, press: false, weightAdd: false, hangG: false, overLimit: false,
     material: false, tilt: false, flat: false, axisM: false, overRange: false,
-    bdragRelease: false, zeroV: false, orientH: false, eye: false, reset: false
+    bdragRelease: false, balanceEnter: false, eye: false, reset: false
   };
   window.C7S1_STATE = { mode: 'bench', bench: BS };
-  var balT = 0;                                                             // balance 竖直未调零累计秒数（≥2.5 → zeroV）
 
   /* ===== 几何访问器 ===== */
   function tiltE() { return easeInOut(S.tilt.t); }
@@ -224,11 +223,6 @@
       if (b.flash > 0) { b.flash -= dt; moved = true; }
       if (S.n >= 1 && Fn <= RANGE && Math.abs(b.r - Fn) < 0.005 && Math.abs(b.v) < 0.05)
         BS.hangG = true;                                                  // 量程内静止：二力平衡（c7b-16）
-      if (S.n === 0) {                                                    // c7e5-s1/s4 复用：balance 竖直未调零 2.5s → zeroV；指针稳零 → orientH
-        balT += dt;
-        if (balT >= 2.5) BS.zeroV = true;
-        if (BS.zeroV && Math.abs(b.r) < 0.005 && Math.abs(b.v) < 0.005) BS.orientH = true;
-      } else balT = 0;
     }
     if (window.ForceOverlay) {                                           // 门控：三类矢量（挂砝码G@重心 / 下拉手力 / 上压手力 @手）
       if (ForceOverlay.isOn() && !S.zoom) {
@@ -286,7 +280,7 @@
   function helix(x, y0, y1, sw, color, k, turns) {                        // z2 修1：参数化螺旋 P(θ)=(x+sw·sinθ, ya+pitch·θ/2π+e·cosθ)
     turns = turns || 12;
     var lead = 6;
-    var lw = sw * 0.10 * (0.9 + k * 0.06), gl = Math.round(10 + k * 16);       // z4 修1：线径减细（删 max(5,·)/0.16 系数）；恒定不随拉伸；光泽随 k
+    var lw = sw * 0.07 * (0.9 + k * 0.06), gl = Math.round(10 + k * 16);       // z5 修1：线径再减 0.10→0.07（≈2.6px@1200）；恒定不随拉伸；光泽随 k
     var ya = y0 + lead, yb = y1 - lead, span = Math.max(0, yb - ya);
     var e = sw * 0.32, pitch = span / turns;
     if (pitch < lw * 0.75) pitch = lw * 0.75;                              // 压缩并圈：pitch clamp，圈嵌套重叠（禁退化直杆）
@@ -922,7 +916,7 @@
       sfx('Click'); setHint('挂点：弹簧 — 拖悬挂物或换砝码看 ΔL'); dirty = true;
     });
     on('btn-balance', 'click', function () {
-      S.mode = 'balance';
+      S.mode = 'balance'; BS.balanceEnter = true;                          // z5 修3：c7b-17 测力计入场解说
       seg('btn-spring', false); seg('btn-balance', true);
       sfx('Click'); setHint('挂点：测力计 — 点测力计本体放大，换砝码读 G=mg，可下拉挂钩'); dirty = true;
     });
@@ -952,7 +946,7 @@
       seg('btn-flat', true); seg('btn-tilt', false);
       if (window.ForceOverlay) ForceOverlay.clear();
       for (var bk in BS) BS[bk] = false;                                     // z轮六4：事件标志归零（可重触发全部解说）
-      BS.reset = true; balT = 0;                                             // c7b-15：重置本身是事件
+      BS.reset = true;                                                     // c7b-15：重置本身是事件
       if (window.GUIDE_RESET) window.GUIDE_RESET.all();                      // z轮六5：接口契约3——页面重置后语音字幕全部从头
       setHint('已重置：拖悬挂物按压/拉伸，或换砝码'); sfx('Click'); dirty = true;
     });
