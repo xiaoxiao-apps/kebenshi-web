@@ -7,19 +7,19 @@ window.C7S1_GUIDE={
   road:{
     intro:{text:'欢迎来到侧视马路！拖动小人顶住车，推车启动；按住小人不动，车凭惯性前滑。',audio:'c7r-01'},
     steps:[
-      {id:'c7r-03',repeat:false,queue:true,trigger:'R.road.pushStart===true',say:'我们现在小人推车，首先海绵先受力形变，然后力传到车让车往前走。',audio:'c7r-03'},
-      {id:'c7r-02',repeat:false,queue:true,trigger:'R.road.pushNormal===true',say:'普通鞋推车时，地面摩擦平衡了反作用力，所以人不会向后滑。',audio:'c7r-02'},
-      {id:'c7r-14',repeat:false,queue:true,trigger:'R.road.staticHold===true',say:'推力小于最大静摩擦力，车顶得住，不动。',audio:'c7r-14'},
-      {id:'c7r-04',repeat:false,queue:true,trigger:'R.road.release===true',say:'松手，不再推，车只受摩擦和刹车减速。力不是维持运动的原因。',audio:'c7r-04'},
-      {id:'c7r-05',repeat:false,queue:true,trigger:'R.road.slide===true',say:'车冲下护坡，重力让车越来越快。',audio:'c7r-05'},
-      {id:'c7r-06',repeat:false,queue:true,trigger:'R.road.pond===true',say:'车沿护坡滑入水，继续贴着坡面滑向池底。',audio:'c7r-06'},
-      {id:'c7r-07',repeat:false,queue:true,trigger:'R.road.settled===true',say:'车沿护坡滑到池底停住。车头探出画外，池塘向画外延伸。',audio:'c7r-07'},
-      {id:'c7r-08',repeat:false,queue:true,trigger:'R.road.brake===true',say:'踩下刹车踏板，刹车力让车减速。',audio:'c7r-08'},
-      {id:'c7r-09',repeat:false,queue:true,trigger:'R.road.iceLock===true',say:'轮滑鞋，刹车锁定为最大。推车时人整体向后滑离车，这是相互作用。',audio:'c7r-09'},
-      {id:'c7r-10',repeat:false,queue:true,trigger:'R.road.iceSlide===true',say:'轮滑鞋，手与车已脱离，人靠惯性滑行，缓慢停下。',audio:'c7r-10'},
-      {id:'c7r-11',repeat:false,queue:true,trigger:'R.road.wheel===true',say:'这是方向盘放大区，力要先克服阻力，方向盘才会转动。',audio:'c7r-11'},
-      {id:'c7r-12',repeat:false,queue:true,trigger:'R.road.shoeIce===true',say:'现在我们换上轮滑鞋。',audio:'c7r-12'},
-      {id:'c7r-13',repeat:false,queue:true,trigger:'R.road.shoeNormal===true',say:'现在我们换上普通鞋。',audio:'c7r-13'}
+      {id:'c7r-03',repeat:false,trigger:'R.road.pushStart===true',say:'我们现在小人推车，首先海绵先受力形变，然后力传到车让车往前走。',audio:'c7r-03'},
+      {id:'c7r-02',repeat:false,trigger:'R.road.pushNormal===true',say:'普通鞋推车时，地面摩擦平衡了反作用力，所以人不会向后滑。',audio:'c7r-02'},
+      {id:'c7r-14',repeat:false,trigger:'R.road.staticHold===true',say:'推力小于最大静摩擦力，车顶得住，不动。',audio:'c7r-14'},
+      {id:'c7r-04',repeat:false,trigger:'R.road.release===true',say:'松手，不再推，车只受摩擦和刹车减速。力不是维持运动的原因。',audio:'c7r-04'},
+      {id:'c7r-05',repeat:false,trigger:'R.road.slide===true',say:'车冲下护坡，重力让车越来越快。',audio:'c7r-05'},
+      {id:'c7r-06',repeat:false,trigger:'R.road.pond===true',say:'车沿护坡滑入水，继续贴着坡面滑向池底。',audio:'c7r-06'},
+      {id:'c7r-07',repeat:false,trigger:'R.road.settled===true',say:'车沿护坡滑到池底停住。车头探出画外，池塘向画外延伸。',audio:'c7r-07'},
+      {id:'c7r-08',repeat:false,trigger:'R.road.brake===true',say:'踩下刹车踏板，刹车力让车减速。',audio:'c7r-08'},
+      {id:'c7r-09',repeat:false,trigger:'R.road.iceLock===true',say:'轮滑鞋，刹车锁定为最大。推车时人整体向后滑离车，这是相互作用。',audio:'c7r-09'},
+      {id:'c7r-10',repeat:false,trigger:'R.road.iceSlide===true',say:'轮滑鞋，手与车已脱离，人靠惯性滑行，缓慢停下。',audio:'c7r-10'},
+      {id:'c7r-11',repeat:false,trigger:'R.road.wheel===true',say:'这是方向盘放大区，力要先克服阻力，方向盘才会转动。',audio:'c7r-11'},
+      {id:'c7r-12',repeat:false,trigger:'R.road.shoeIce===true',say:'现在我们换上轮滑鞋。',audio:'c7r-12'},
+      {id:'c7r-13',repeat:false,trigger:'R.road.shoeNormal===true',say:'现在我们换上普通鞋。',audio:'c7r-13'}
     ],
     errors:[],free:[],tasks:[]
   },
