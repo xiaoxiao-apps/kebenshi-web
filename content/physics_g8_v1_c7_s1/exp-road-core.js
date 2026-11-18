@@ -991,8 +991,11 @@
   /* ===== 控件 wiring ===== */
   function seg(id, on) { var b = document.getElementById(id); if (b) b.classList.toggle('on', !!on); }
   function syncFullBtn() {                                                     // x轮修2：全屏 toggle——按钮文案随 fullscreenElement 同步
+    var fs = !!document.fullscreenElement;
     var b = document.getElementById('btn-full');
-    if (b) b.textContent = document.fullscreenElement ? '退出全屏' : '全屏';
+    if (b) b.textContent = fs ? '退出全屏' : '全屏';
+    var back = document.querySelector('.back');                                  // y轮修1：全屏时左上"返回本节"隐藏，退出全屏才恢复
+    if (back) back.style.display = fs ? 'none' : '';
   }
   function setShoe(s) {
     if (s === S.shoe) return;
