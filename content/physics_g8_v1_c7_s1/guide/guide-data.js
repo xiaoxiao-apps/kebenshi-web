@@ -7,41 +7,42 @@ window.C7S1_GUIDE={
   bench:{
     intro:{text:'欢迎来到侧视实验台！上下拖拽弹簧下方的悬挂物，按压或拉伸；或用砝码加减，换不同质量的砝码。',audio:'c7b-01'},
     steps:[
-      {id:'c7b-02',repeat:false,trigger:'R.bench.pull===true',say:'用手下拉悬挂物，弹簧被拉长，弹性限度内，拉力越大，伸长量越大。',audio:'c7b-02'},
-      {id:'c7b-03',repeat:false,trigger:'R.bench.press===true',say:'用手上压悬挂物，弹簧被压缩，松手后回到原样，这就是弹性。',audio:'c7b-03'},
-      {id:'c7b-04',repeat:false,trigger:'R.bench.weightAdd===true',say:'换更大砝码，弹簧伸得更长，质量越大重力越大，G等于mg，弹性限度内拉力越大伸长量越大。',audio:'c7b-04'},
-      {id:'c7b-16',repeat:false,trigger:'R.bench.hangG===true',say:'砝码静止时，重力与弹簧拉力等大反向，二力平衡。',audio:'c7b-16'},
-      {id:'c7b-05',repeat:false,trigger:'R.bench.overLimit===true',say:'超过弹性限度了！弹簧弯折，松手也回不到原样，这是永久变形。',audio:'c7b-05'},
-      {id:'c7b-06',repeat:false,trigger:'R.bench.material===true',say:'换材质就是换劲度系数，钢更硬，铝更软，铝挂两百克就超弹性限度。',audio:'c7b-06'},
-      {id:'c7b-07',repeat:false,trigger:'R.bench.tilt===true',say:'架子倾斜，悬挂物仍然世界竖直，重力方向竖直向下。',audio:'c7b-07'},
-      {id:'c7b-08',repeat:false,trigger:'R.bench.flat===true',say:'支架放平，悬挂物还是竖直下垂，重力方向始终竖直向下，不随支架摆放改变。',audio:'c7b-08'},
-      {id:'c7b-09',repeat:false,trigger:'R.bench.axisM===true',say:'横轴换质量，纵轴重力，G等于mg，斜率等于g除以k；横轴换力，斜率等于k分之一。',audio:'c7b-09'},
-      {id:'c7b-10',repeat:false,trigger:'R.bench.overRange===true',say:'指针打满红闪，超过量程5牛会损坏测力计，测量前要先估计被测力的大小。',audio:'c7b-10'},
-      {id:'c7b-11',repeat:false,trigger:'R.bench.bdragRelease===true',say:'松手指针回零，撤去拉力弹簧恢复原长，弹力随之消失，这是弹性。',audio:'c7b-11'},
-      {id:'c7b-17',repeat:false,trigger:'R.bench.balanceEnter===true',say:'这是弹簧测力计，加砝码读G等于mg，也可以下拉挂钩感受拉力的大小。',audio:'c7b-17'},
-      {id:'c7b-14',repeat:false,trigger:'R.bench.eye===true',say:'点读数按钮，视线垂直刻度面才读得准，斜视读数会导致读数错误。',audio:'c7b-14'},
-      {id:'c7b-15',repeat:false,trigger:'R.bench.reset===true',say:'重置后弹簧回到原长，不受力时弹性物体恢复原状，可以重新开始探究。',audio:'c7b-15'}
+      {id:'c7b-02',repeat:true,trigger:'R.bench.pull===true',say:'用手下拉悬挂物，弹簧被拉长，弹性限度内，拉力越大，伸长量越大。',audio:'c7b-02'},
+      {id:'c7b-03',repeat:true,trigger:'R.bench.press===true',say:'用手上压悬挂物，弹簧被压缩，松手后回到原样，这就是弹性。',audio:'c7b-03'},
+      {id:'c7b-04',repeat:true,trigger:'R.bench.weightAdd===true',say:'换更大砝码，弹簧伸得更长，质量越大重力越大，G等于mg，弹性限度内拉力越大伸长量越大。',audio:'c7b-04'},
+      {id:'c7b-16',repeat:true,trigger:'R.bench.hangG===true',say:'砝码静止时，重力与弹簧拉力等大反向，二力平衡。',audio:'c7b-16'},
+      {id:'c7b-05',repeat:true,trigger:'R.bench.overLimit===true',say:'超过弹性限度了！弹簧弯折，松手也回不到原样，这是永久变形。',audio:'c7b-05'},
+      {id:'c7b-06',repeat:true,trigger:'R.bench.material===true',say:'换材质就是换劲度系数，钢更硬，铝更软，铝挂两百克就超弹性限度。',audio:'c7b-06'},
+      {id:'c7b-07',repeat:true,trigger:'R.bench.tilt===true',say:'架子倾斜，悬挂物仍然世界竖直，重力方向竖直向下。',audio:'c7b-07'},
+      {id:'c7b-08',repeat:true,trigger:'R.bench.flat===true',say:'支架放平，悬挂物还是竖直下垂，重力方向始终竖直向下，不随支架摆放改变。',audio:'c7b-08'},
+      {id:'c7b-09',repeat:true,trigger:'R.bench.axisM===true',say:'横轴换质量，纵轴重力，G等于mg，斜率等于g除以k；横轴换力，斜率等于k分之一。',audio:'c7b-09'},
+      {id:'c7b-10',repeat:true,trigger:'R.bench.overRange===true',say:'指针打满红闪，超过量程5牛会损坏测力计，测量前要先估计被测力的大小。',audio:'c7b-10'},
+      {id:'c7b-11',repeat:true,trigger:'R.bench.bdragRelease===true',say:'松手指针回零，撤去拉力弹簧恢复原长，弹力随之消失，这是弹性。',audio:'c7b-11'},
+      {id:'c7b-17',repeat:true,trigger:'R.bench.balanceEnter===true',say:'这是弹簧测力计，加砝码读G等于mg，也可以下拉挂钩感受拉力的大小。',audio:'c7b-17'},
+      {id:'c7b-14',repeat:true,trigger:'R.bench.eye===true',say:'点读数按钮，视线垂直刻度面才读得准，斜视读数会导致读数错误。',audio:'c7b-14'},
+      {id:'c7b-15',repeat:true,trigger:'R.bench.reset===true',say:'重置后弹簧回到原长，不受力时弹性物体恢复原状，可以重新开始探究。',audio:'c7b-15'}
     ],
-    errors:[],free:[],tasks:[]
+    errors:[],free:[],tasks:[]      {id:'c7b-18',repeat:true,trigger:'R.bench.diagram===true',say:'力的示意图打开了。砝码静止：重力与弹簧拉力等大反向同体，是平衡力；手拉弹簧：手与弹簧之间的力等大反向异体，是相互作用力。',audio:'c7b-18'},
+
   },
   road:{
     intro:{text:'欢迎来到侧视马路！拖动小人顶住车，推车启动；按住小人不动，车凭惯性前滑。',audio:'c7r-01'},
     steps:[
-      {id:'c7r-03',repeat:false,trigger:'R.road.pushStart===true',say:'海绵被压凹，车从静止往前走，一个力同时产生两种效果，力能改变物体形状，也能改变物体运动状态。',audio:'c7r-03'},
-      {id:'c7r-02',repeat:false,trigger:'R.road.pushNormal===true',say:'人推车，车也同时给人一个向后的推力，人却没后退，普通鞋时地面摩擦把这个反作用力平衡了。这说明力的作用是相互的。',audio:'c7r-02'},
-      {id:'c7r-14',repeat:false,trigger:'R.road.staticHold===true',say:'推力小于最大静摩擦力，车顶得住，不动。',audio:'c7r-14'},
-      {id:'c7r-04',repeat:false,trigger:'R.road.release===true',say:'松手，不再推，车只受摩擦和刹车减速。力不是维持运动的原因。',audio:'c7r-04'},
-      {id:'c7r-05',repeat:false,trigger:'R.road.slide===true',say:'车下坡越来越快，重力方向竖直向下，它沿坡面的分力不断改变车的运动状态。',audio:'c7r-05'},
-      {id:'c7r-06',repeat:false,trigger:'R.road.pond===true',say:'车入水后明显变慢，水对车的阻力改变了车的运动状态，力不是维持运动的原因。',audio:'c7r-06'},
-      {id:'c7r-07',repeat:false,trigger:'R.road.settled===true',say:'车到池底停住，阻力把车的运动状态改到静止为止，运动不需要力来维持。',audio:'c7r-07'},
-      {id:'c7r-08',repeat:false,trigger:'R.road.brake===true',say:'踩刹车车就减速，刹车摩擦力改变了车的运动状态，力是改变运动状态的原因。',audio:'c7r-08'},
-      {id:'c7r-09',repeat:false,trigger:'R.road.iceLock===true',say:'轮滑鞋，刹车锁定为最大。推车时人整体向后滑离车，这是相互作用。',audio:'c7r-09'},
-      {id:'c7r-10',repeat:false,trigger:'R.road.iceSlide===true',say:'轮滑鞋，手与车已脱离，人靠惯性滑行，缓慢停下。',audio:'c7r-10'},
-      {id:'c7r-11',repeat:false,trigger:'R.road.wheel===true',say:'拖轮缘不同位置、不同方向，转动效果不同，力的作用点和方向影响力的作用效果，这就是力的三要素。',audio:'c7r-11'},
-      {id:'c7r-12',repeat:false,trigger:'R.road.shoeIce===true',say:'换上轮滑鞋，摩擦变小，一推车人就向后滑，车对人的反作用力不再被平衡，力的作用是相互的。',audio:'c7r-12'},
-      {id:'c7r-13',repeat:false,trigger:'R.road.shoeNormal===true',say:'换回普通鞋，摩擦变大，推车站得稳，反作用力被地面摩擦平衡，相互的力依然存在。',audio:'c7r-13'}
+      {id:'c7r-03',repeat:true,trigger:'R.road.pushStart===true && R.road.diagram!==true',say:'海绵被压凹，车从静止往前走，一个力同时产生两种效果，力能改变物体形状，也能改变物体运动状态。',audio:'c7r-03'},
+      {id:'c7r-02',repeat:true,trigger:'R.road.pushNormal===true',say:'人推车，车也同时给人一个向后的推力，人却没后退，普通鞋时地面摩擦把这个反作用力平衡了。这说明力的作用是相互的。',audio:'c7r-02'},
+      {id:'c7r-14',repeat:true,trigger:'R.road.staticHold===true',say:'推力小于最大静摩擦力，车顶得住，不动。',audio:'c7r-14'},
+      {id:'c7r-04',repeat:true,trigger:'R.road.release===true',say:'松手，不再推，车只受摩擦和刹车减速。力不是维持运动的原因。',audio:'c7r-04'},
+      {id:'c7r-05',repeat:true,trigger:'R.road.slide===true',say:'手已离开车，车不再受推力；重力沿坡面的分力使车加速下滑，入水后水的阻力使它减速，直到池底停住。力是改变物体运动状态的原因，运动不需要力来维持。',audio:'c7r-05'},
+      {id:'c7r-08',repeat:true,trigger:'R.road.brake===true',say:'踩刹车车就减速，刹车摩擦力改变了车的运动状态，力是改变运动状态的原因。',audio:'c7r-08'},
+      {id:'c7r-09',repeat:true,trigger:'R.road.iceLock===true',say:'轮滑鞋，刹车锁定为最大。推车时人整体向后滑离车，这是相互作用。',audio:'c7r-09'},
+      {id:'c7r-10',repeat:true,trigger:'R.road.iceSlide===true',say:'轮滑鞋，手与车已脱离，人靠惯性滑行，缓慢停下。',audio:'c7r-10'},
+      {id:'c7r-11',repeat:true,trigger:'R.road.wheel===true',say:'在方向盘的不同位置、沿不同方向施加力，转动效果不同：力的作用点和方向影响力的作用效果，这就是力的三要素。',audio:'c7r-11'},
+      {id:'c7r-12',repeat:true,trigger:'R.road.shoeIce===true',say:'换上轮滑鞋，摩擦变小，一推车人就向后滑，车对人的反作用力不再被平衡，力的作用是相互的。',audio:'c7r-12'},
+      {id:'c7r-13',repeat:true,trigger:'R.road.shoeNormal===true',say:'换回普通鞋，摩擦变大，推车站得稳，反作用力被地面摩擦平衡，相互的力依然存在。',audio:'c7r-13'}
     ],
-    errors:[],free:[],tasks:[]
+    errors:[],free:[],tasks:[]      {id:'c7r-18',repeat:true,trigger:'R.road.diagram===true',say:'力的示意图打开了。推车时看红蓝两箭：推力与反作用力同时存在、等大反向、同一接触点、作用在两个物体上，力的作用是相互的。',audio:'c7r-18'},
+      {id:'c7r-19',repeat:true,trigger:'R.road.pushStart===true && R.road.diagram===true',say:'示意图上红蓝两箭同时出现、一样长、方向相反、尾点重合：作用力与反作用力等大反向共点、作用在两个物体上，力的作用是相互的。',audio:'c7r-19'},
+
   },
 
   deform:{
@@ -161,10 +162,10 @@ window.C7S1_GUIDE={
     'c7n20':'guide/audio/c7n20.mp3?v=20261111',
     'c7r-01':'guide/audio/c7r-01.mp3?v=20261118x','c7r-02':'guide/audio/c7r-02.mp3?v=20261118z6',
     'c7r-03':'guide/audio/c7r-03.mp3?v=20261118z6','c7r-04':'guide/audio/c7r-04.mp3?v=20261118x',
-    'c7r-05':'guide/audio/c7r-05.mp3?v=20261118z6','c7r-06':'guide/audio/c7r-06.mp3?v=20261118z6',
+    'c7r-05':'guide/audio/c7r-05.mp3?v=20261118z7','c7r-06':'guide/audio/c7r-06.mp3?v=20261118z6',
     'c7r-07':'guide/audio/c7r-07.mp3?v=20261118z6','c7r-08':'guide/audio/c7r-08.mp3?v=20261118z6',
     'c7r-09':'guide/audio/c7r-09.mp3?v=20261118x','c7r-10':'guide/audio/c7r-10.mp3?v=20261118x',
-    'c7r-11':'guide/audio/c7r-11.mp3?v=20261118z6','c7r-12':'guide/audio/c7r-12.mp3?v=20261118z6',
+    'c7r-11':'guide/audio/c7r-11.mp3?v=20261118z7','c7r-12':'guide/audio/c7r-12.mp3?v=20261118z6',
     'c7r-13':'guide/audio/c7r-13.mp3?v=20261118z6','c7r-14':'guide/audio/c7r-14.mp3?v=20261118x',
     'c7b-01':'guide/audio/c7b-01.mp3?v=20261118z4','c7b-02':'guide/audio/c7b-02.mp3?v=20261118z',
     'c7b-03':'guide/audio/c7b-03.mp3?v=20261118z','c7b-04':'guide/audio/c7b-04.mp3?v=20261118z6',
@@ -174,5 +175,7 @@ window.C7S1_GUIDE={
     'c7b-11':'guide/audio/c7b-11.mp3?v=20261118z6','c7b-14':'guide/audio/c7b-14.mp3?v=20261118z5',
     'c7b-15':'guide/audio/c7b-15.mp3?v=20261118z6','c7b-16':'guide/audio/c7b-16.mp3?v=20261118z4',
     'c7b-17':'guide/audio/c7b-17.mp3?v=20261118z5',
+    'c7r-18':'guide/audio/c7r-18.mp3?v=20261118z7','c7r-19':'guide/audio/c7r-19.mp3?v=20261118z7',
+    'c7b-18':'guide/audio/c7b-18.mp3?v=20261118z7',
   }
 };
