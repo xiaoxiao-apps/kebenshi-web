@@ -5,7 +5,7 @@
  *   交互结束即移除；off 时全场景不画任何矢量。支持"一对"相互作用力
  *   （等大反向共线，作用在两物体）。重力矢量仅在翻落/悬挂等活跃事件注册时画。
  * API：setOn(bool)/isOn()/register(id,spec)/unregister(id)/clear()/setScale(pxPerCm)/draw(ctx,view)
- * spec = {point:{x,y}, dir:{x,y}|angle, magN, color?, label?, pair?:{point,dir|angle,magN,color?,label?}}
+ * spec = {point:{x,y}, dir:{x,y}|angle, magN, color?, label?, dash?(bool|[段,隙]), pair?:{point,dir|angle,magN,color?,label?,dash?}}
  * ============================================================ */
 (function (global) {
   'use strict';
@@ -35,14 +35,16 @@
     return { x: x / m, y: y / m };
   }
 
-  function arrow(ctx, x0, y0, ux, uy, len, color, lw) {
+  function arrow(ctx, x0, y0, ux, uy, len, color, lw, dash) {
     if (len < MINLEN) len = MINLEN;
     var x1 = x0 + ux * len, y1 = y0 + uy * len;
     var hd = Math.max(8, Math.min(16, len * 0.3));
     ctx.save();
     ctx.strokeStyle = color; ctx.fillStyle = color;
     ctx.lineWidth = lw || 3.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    if (dash) ctx.setLineDash(dash === true ? [7, 5] : dash);   // w轮：虚线矢量（如切向分力）
     ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * hd * 0.82, y1 - uy * hd * 0.82); ctx.stroke();
+    ctx.setLineDash([]);
     ctx.beginPath(); ctx.moveTo(x1, y1);
     ctx.lineTo(x1 - ux * hd - uy * hd * 0.5, y1 - uy * hd + ux * hd * 0.5);
     ctx.lineTo(x1 - ux * hd + uy * hd * 0.5, y1 - uy * hd - ux * hd * 0.5);
@@ -69,7 +71,7 @@
     if (!s || !s.point) return;
     var u = unit(s.dir), len = (s.magN || 0) * CM;
     var color = s.color || defColor || '#dc2626';
-    var e = arrow(ctx, s.point.x, s.point.y, u.x, u.y, len, color, 3.4);
+    var e = arrow(ctx, s.point.x, s.point.y, u.x, u.y, len, color, 3.4, s.dash);
     if (s.label) {
       var lw = ctx.measureText(s.label).width;
       var lx = e.x1 + (u.x >= 0 ? 4 : -lw - 6), ly = e.y1;

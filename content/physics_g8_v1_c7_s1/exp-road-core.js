@@ -17,6 +17,7 @@
     water1: '#5aa7e0', water2: '#2b6fae', foam: 'rgba(255,255,255,.55)',
     car: '#d64545', carTop: '#e05555', carBot: '#b03030', carGlass: '#bfe3f2', wheel: '#2b2f36', rim: '#c7ced6',
     skin: '#f0c08a', skinSh: '#d9a066', hair: '#5a3d26', cloth: '#3f6fb5', clothSh: '#2f568f', pants: '#37474f',
+    sleeve: '#f9d624',                                                          // w轮修5：豆包有机身袖色（肩头补片同色）
     shoe: '#5b4636', skate: '#ff9f1c', skateDark: '#b36a00', ice: '#bfe6f5',
     sponge: '#f6e3a8', spongeDark: '#d3b063', spongeHole: '#e2c988',
     text: '#28323d', sub: '#6b7885', bar: '#e2e8f0', thrust: '#dc2626', speed: '#2563eb'
@@ -87,7 +88,7 @@
     push: { active: false, F: 0 },
     pushDir: 'left',                                                            // P8：左推(人在车左→推向右) / 右推
     shoe: 'normal', brake: 0, brakeSaved: 0, wheelZoom: false,
-    dial: { angle: 0, omega: 0, drag: null, F: 0, Ft: 0, tan: null, pt: null, msg: '' },
+    dial: { angle: 0, omega: 0, drag: null, F: 0, Ft: 0, dir: null, tan: null, pt: null, msg: '' },   // w轮修2：F=施加力总量F_full(∝|drag|)，dir=拖拽方向，Ft=带符号切向分力
     diagram: false, muted: false,
     eng: 0,                                                                     // d轮：站↔推过渡系数（渲染-only）
     sw: null,
@@ -123,7 +124,7 @@
     var ph = L.personH, d = dirS();
     if (!pushingNow()) return { x: S.person.x + d * ph * 0.055, y: L.roadTop - ph * 0.66 };
     var ice = S.shoe === 'ice';
-    if (ice) return { x: S.person.x + d * ph * 0.1616, y: L.roadTop - ph * 0.5112 };   // v轮 豆包轮滑推身(403×657) 肩分数(0.3027,0.3775)+脚锚0.6234→world(0.1616,0.5112)
+    if (ice) return { x: S.person.x + d * ph * 0.1641, y: L.roadTop - ph * 0.5588 };   // w轮 豆包轮滑推身肩切口实测(sprite 0.298w,0.320h)+脚锚0.6234→world(0.1641,0.5588)
     return { x: S.person.x + d * ph * 0.055, y: L.roadTop - ph * 0.575 };              // g轮 豆包有机push_body(418×652) 肩分数(0.3443,0.2949)+脚锚0.4498→world(0.055,0.575)
   }
   function SPONGE(d) {                                                          // d轮：海绵车体锚定（尾灯高度带），人靠近/推/松手都不动
@@ -177,7 +178,7 @@
     S.person.vx = 0; S.person.sliding = false; S.person.off = 0; S.person.baseX = S.person.x;
     S.push.active = false; S.push.F = 0; S.sponge.def = 0; S.eng = 0;
     S.brake = S.shoe === 'ice' ? BRAKE_MAX : 0; S.brakeSaved = 0;
-    S.dial.drag = null; S.dial.angle = 0; S.dial.omega = 0; S.dial.msg = ''; S.dial.F = 0; S.dial.Ft = 0; S.dial.pt = null;
+    S.dial.drag = null; S.dial.angle = 0; S.dial.omega = 0; S.dial.msg = ''; S.dial.F = 0; S.dial.Ft = 0; S.dial.dir = null; S.dial.pt = null;
     if (window.ForceOverlay) ForceOverlay.clear();
     dirty = true;
   }
@@ -200,6 +201,14 @@
     ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
   }
   function circ(x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); }
+  function drawWheel(x, y, r, angle) {                                          // w轮修1：方向盘统一几何——圆环+水平直径杆+中心竖直半辐（车内/modal 同调用，无三辐Y/无红hub）
+    ctx.save();
+    ctx.translate(x, y); ctx.rotate(angle || 0);
+    ctx.strokeStyle = PAL.wheel; ctx.lineWidth = Math.max(3, r * 0.14);
+    circ(0, 0, r); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-r, 0); ctx.lineTo(r, 0); ctx.moveTo(0, 0); ctx.lineTo(0, r); ctx.stroke();
+    ctx.restore();
+  }
 
   /* ===== 场景：天空/云/草地/池塘/护坡/沥青路+黄虚线（修订点2） ===== */
   function cloud(x, y, s) {
@@ -316,10 +325,9 @@
     ctx.fillStyle = '#ffe08a'; rr(x + w - 9, bodyY + bodyH * 0.22, 9, bodyH * 0.26, 4); ctx.fill();
     ctx.fillStyle = '#f43f5e'; rr(x, bodyY + bodyH * 0.22, 6, bodyH * 0.26, 3); ctx.fill();
     ctx.fillStyle = '#3f4650'; rr(x + w - 6, gy - h * 0.20, 8, h * 0.10, 3); ctx.fill(); rr(x - 2, gy - h * 0.20, 8, h * 0.10, 3); ctx.fill();
-    // 车内方向盘（点击 → 居中放大 modal，修订点8）
+    // 车内方向盘（点击 → 居中放大 modal，修订点8；w轮修1：与 modal 同 drawWheel，随盘角同步转）
     var swx = x + w * 0.62, swy = bodyY - h * 0.16, swr = Math.max(8, h * 0.14);
-    ctx.strokeStyle = PAL.wheel; ctx.lineWidth = 3; circ(swx, swy, swr); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(swx - swr, swy); ctx.lineTo(swx + swr, swy); ctx.moveTo(swx, swy); ctx.lineTo(swx, swy + swr); ctx.stroke();
+    drawWheel(swx, swy, swr, S.dial.angle);
     S.sw = { x: swx, y: swy, r: swr };
     // 重心标记
     var c = comPoint();
@@ -407,8 +415,8 @@
     ctx.translate(per.x, 0); ctx.scale(d, 1);
     var armOn = e >= 0.02, shxL = 0, shY = 0, tipX = 0, tipY = 0;
     if (armOn) {                                                                // 肩位随 e 在 站立↔推车 分数间插值（松手反向回放不跳变）
-      shxL = ph * (ice ? 0.0406 + (0.1616 - 0.0406) * e : 0.055);               // g轮：push 肩x 与站立同分数 0.055（无插值）
-      shY = L.roadTop - ph * (ice ? 0.789 + (0.5112 - 0.789) * e : 0.66 + (0.575 - 0.66) * e);   // v轮：ice 肩 skate(0.789)→skatepush(0.5112) 随 e 插值
+      shxL = ph * (ice ? 0.0406 + (0.1641 - 0.0406) * e : 0.055);               // g轮：push 肩x 与站立同分数 0.055（无插值）；w轮 ice 推肩 0.1641
+      shY = L.roadTop - ph * (ice ? 0.789 + (0.5588 - 0.789) * e : 0.66 + (0.575 - 0.66) * e);   // w轮：ice 肩 skate(0.789)→skatepush(0.5588) 随 e 插值
       var sp = SPONGE(d), tx = (sp.x - per.x) * d, ty = sp.y;
       var ikAng = Math.atan2(ty - shY, tx - shxL), ikDist = Math.hypot(tx - shxL, ty - shY);
       var ang = Math.PI / 2 + (ikAng - Math.PI / 2) * e;                        // 垂臂(π/2) → IK 角（drawArmSpr 内再减固有角）
@@ -426,7 +434,14 @@
     else if (e > 0.98) drawBodySpr(SPR.push, kb, 1, PUSH_FOOT_F);
     else { drawBodySpr(SPR.stand, kb, 1 - e); drawBodySpr(SPR.push, kb, e, PUSH_FOOT_F); }   // 过渡：crossfade
     ctx.restore();
-    if (armOn) drawArmSpr(SPR.arm, shxL, shY, tipX, tipY, kb, e);               // 近侧臂（身前）
+    if (armOn) {                                                                // w轮修5：肩头补片——身体后、臂前，在肩点画同色黄圆角补片盖切口台阶（两种 push 身都加）
+      var tSl = (SPR.arm.img.naturalHeight || SPR.arm.nh) * kb;                 // 袖厚=臂件高
+      var pw = tSl * 1.6, phh = tSl * 1.25;
+      ctx.save(); ctx.globalAlpha = e; ctx.fillStyle = PAL.sleeve;
+      rr(shxL - pw / 2, shY - phh / 2, pw, phh, phh * 0.45); ctx.fill();
+      ctx.restore();
+      drawArmSpr(SPR.arm, shxL, shY, tipX, tipY, kb, e);                        // 近侧臂（身前）
+    }
     ctx.restore();
   }
 
@@ -694,13 +709,8 @@
     ctx.font = '600 12px sans-serif'; ctx.fillStyle = PAL.sub;
     ctx.fillText('按住轮上一点拖动 → 先见切向力矢量，', c.x, b.y + 42);
     ctx.fillText('克服阻力后盘才转动；松手即停', c.x, b.y + 58);
-    // 轮盘（随拖动旋转）
-    ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(S.dial.angle);
-    ctx.strokeStyle = PAL.wheel; ctx.lineWidth = Math.max(6, R * 0.14); circ(0, 0, R); ctx.stroke();
-    ctx.lineWidth = Math.max(4, R * 0.07);
-    for (var a = 0; a < 3; a++) { var ang = a * Math.PI * 2 / 3; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(ang) * R, Math.sin(ang) * R); ctx.stroke(); }
-    ctx.fillStyle = PAL.car; circ(0, 0, R * 0.18); ctx.fill();
-    ctx.restore();
+    // 轮盘（随拖动旋转；w轮修1：与车内同 drawWheel——圆环+水平直径杆+中心竖直半辐）
+    drawWheel(c.x, c.y, R, S.dial.angle);
     // 12/3/6/9 点位标记（随盘转，文字不转）
     [[12, -Math.PI / 2], [3, 0], [6, Math.PI / 2], [9, Math.PI]].forEach(function (m) {
       var aa = m[1] + S.dial.angle, qx = c.x + Math.cos(aa) * R, qy = c.y + Math.sin(aa) * R;
@@ -742,26 +752,36 @@
   function syncOverlay() {
     var FO = window.ForceOverlay; if (!FO) return;
     var car = S.car, ice = S.shoe === 'ice', d = dirS();
-    if (car.mode === 'slide' || (car.mode === 'pond' && !car.settled)) {
+    // w轮修4：重力常驻——示意图开且车在画内 → 所有 mode（含 settled/road）恒注册
+    if (car.x + L.carW * 0.5 > 0 && car.x - L.carW * 0.5 < W) {
       var c = comPoint();
       FO.register('gravity', { point: c, dir: { x: 0, y: 1 }, magN: WEIGHT_N, color: '#7c3aed', label: 'G≈' + WEIGHT_N.toFixed(1) + 'N' });
     } else FO.unregister('gravity');
-    if (S.wheelZoom && S.dial.drag && S.dial.F > 0.12 && S.dial.pt && S.dial.tan) {   // P9：力先行——拖动即画切向矢量
-      var sg2 = S.dial.Ft >= 0 ? 1 : -1;
-      FO.register('dial', { point: S.dial.pt, dir: { x: S.dial.tan.x * sg2, y: S.dial.tan.y * sg2 }, magN: S.dial.F, color: '#0891b2', label: 'F=' + S.dial.F.toFixed(1) + 'N' });
-    } else FO.unregister('dial');
-    if (S.push.active && S.push.F > 0.05 && car.mode === 'road') {
-      var cp = contactPoint(), sh = shoulderPt(), hp = { x: sh.x - d * L.armLen * 0.5, y: cp.y };
-      if (ice) {
-        FO.register('push', {
-          point: cp, dir: { x: d, y: 0 }, magN: S.push.F, color: PAL.thrust, label: '车受推 ' + S.push.F.toFixed(1) + 'N',
-          pair: { point: hp, dir: { x: -d, y: 0 }, magN: S.push.F, color: PAL.speed, label: '人受向后 ' + S.push.F.toFixed(1) + 'N' }
+    if (S.wheelZoom && S.dial.drag && S.dial.pt) {                             // w轮修2：施加力=拖拽方向（实线）+切向分力（虚线）
+      if (S.dial.dir && S.dial.F > 0.12) {
+        FO.register('dial', { point: S.dial.pt, dir: S.dial.dir, magN: S.dial.F, color: '#0891b2', label: '施加力 F=' + S.dial.F.toFixed(1) + 'N' });
+      } else FO.unregister('dial');
+      if (S.dial.tan && Math.abs(S.dial.Ft) > 0.12) {
+        var sg2 = S.dial.Ft >= 0 ? 1 : -1;
+        FO.register('dialTan', {
+          point: S.dial.pt, dir: { x: S.dial.tan.x * sg2, y: S.dial.tan.y * sg2 }, magN: Math.abs(S.dial.Ft),
+          color: '#d97706', label: '切向分力 ' + Math.abs(S.dial.Ft).toFixed(1) + 'N', dash: true
         });
-      } else FO.register('push', { point: cp, dir: { x: d, y: 0 }, magN: S.push.F, color: PAL.thrust, label: '推力 F=' + S.push.F.toFixed(1) + 'N' });
+      } else FO.unregister('dialTan');
+    } else { FO.unregister('dial'); FO.unregister('dialTan'); }
+    if (S.push.active && S.push.F > 0.05 && car.mode === 'road') {
+      // w轮修3：作用反作用同点——pair 与主箭同作用点 cp（接触点），两种鞋都注册
+      var cp = contactPoint();
+      FO.register('push', {
+        point: cp, dir: { x: d, y: 0 }, magN: S.push.F, color: PAL.thrust,
+        label: (ice ? '车受推 ' : '推力 F=') + S.push.F.toFixed(1) + 'N',
+        pair: { point: cp, dir: { x: -d, y: 0 }, magN: S.push.F, color: PAL.speed, label: '人受向后 ' + S.push.F.toFixed(1) + 'N' }
+      });
     } else FO.unregister('push');
   }
 
   /* ===== 物理步进（力→加速度；P8 左/右推只推不拉 + 人车解耦 + P9 方向盘力先行） ===== */
+  var pushWas = false;                                                     // w轮修3：普通鞋推起沿检测（一次性提示）
   function step(dt, now) {
     var ch = false, car = S.car, per = S.person, ice = S.shoe === 'ice', d = dirS();
     // 推力：手（肩+臂长）压到车面多深 → F（只推不拉，dir 恒=推向）
@@ -771,6 +791,12 @@
     if (ice && S.push.active) {                                            // 相互作用：人持续向后加速（接触段）
       per.vx -= d * S.push.F * ICE_K * dt; per.sliding = true;
     }
+    var pushingNow2 = S.push.active && S.push.F > 0.05 && car.mode === 'road';
+    if (pushingNow2 && !ice && !pushWas) {                                 // w轮修3：普通鞋推时补知识点——摩擦平衡反作用
+      setHint('车受向前的推力，人受等大的向后反作用力——地面摩擦平衡反作用 → 人不滑');
+      speak('普通鞋推车时，地面摩擦平衡了反作用力，所以人不会向后滑');
+    }
+    pushWas = pushingNow2;
 
     var decel = FRIC + S.brake / M * BRAKE_SCALE;
     if (car.mode === 'road') {
@@ -876,8 +902,8 @@
     dirty = true;
   }
   function closeWheel() {
-    S.wheelZoom = false; S.dial.drag = null; S.dial.F = 0; S.dial.Ft = 0; S.dial.omega = 0; S.dial.pt = null; S.dial.msg = '';
-    if (window.ForceOverlay) ForceOverlay.unregister('dial');
+    S.wheelZoom = false; S.dial.drag = null; S.dial.F = 0; S.dial.Ft = 0; S.dial.omega = 0; S.dial.dir = null; S.dial.pt = null; S.dial.msg = '';
+    if (window.ForceOverlay) { ForceOverlay.unregister('dial'); ForceOverlay.unregister('dialTan'); }
     seg('btn-wheel', false); dirty = true;
   }
   function capture(ev) { if (cv.setPointerCapture && ev.pointerId != null) { try { cv.setPointerCapture(ev.pointerId); } catch (e) {} } }
@@ -923,18 +949,19 @@
       if (!S.person.sliding) S.person.x = S.person.baseX;                  // 轮滑接触段：位置由 step 积分偏移
       dirty = true; return;
     }
-    if (S.ps.mode === 'dial' && S.dial.drag) {                             // P9：力先行——切向分量→矢量→克服静阻力才转
+    if (S.ps.mode === 'dial' && S.dial.drag) {                             // w轮修2：施加力=拖拽方向——F_full∝|drag|，Ft=F_full·sinθ 带符号（力先行语义不变）
       var c = modalCenter(), R = L.dialR;
       var a = S.dial.angle + S.dial.drag.a0, rx = Math.cos(a), ry = Math.sin(a);
       var gx = c.x + rx * R, gy = c.y + ry * R;
       var dx = p.x - gx, dy = p.y - gy, dl = Math.hypot(dx, dy);
-      var cross = rx * dy - ry * dx;                                       // 切向分量×R（=力臂×F）
+      var cross = rx * dy - ry * dx;                                       // 单位径向×drag = |drag|·sinθ（=力臂×F/R）
       var ratio = dl > 1e-6 ? Math.abs(cross) / dl : 0;                    // 力臂/R = |sinθ|
       S.dial.pt = { x: gx, y: gy }; S.dial.tan = { x: -ry, y: rx };
-      S.dial.F = clamp(Math.abs(cross) / (R * 0.45) * DIAL_FMAX, 0, DIAL_FMAX);
-      S.dial.Ft = ratio < 0.2 ? 0 : (cross > 0 ? S.dial.F : -S.dial.F);
+      S.dial.dir = dl > 1e-6 ? { x: dx / dl, y: dy / dl } : null;           // 施加力方向=归一鼠标位移
+      S.dial.F = clamp(dl / (R * 0.45) * DIAL_FMAX, 0, DIAL_FMAX);         // F_full=clamp(|drag|/(R·0.45)·FMAX)
+      S.dial.Ft = ratio < 0.2 ? 0 : clamp(S.dial.F * cross / dl, -S.dial.F, S.dial.F);   // Ft=F_full·cross/(R·|drag|) 带符号
       if (ratio < 0.2) S.dial.msg = '作用线≈过盘心 → 力臂≈0 → 不转动';
-      else if (S.dial.F <= DIAL_FRES) S.dial.msg = '切向力 ' + S.dial.F.toFixed(1) + 'N ≤ 静阻力 ' + DIAL_FRES.toFixed(1) + 'N → 盘不动';
+      else if (Math.abs(S.dial.Ft) <= DIAL_FRES) S.dial.msg = '切向力 ' + Math.abs(S.dial.Ft).toFixed(1) + 'N ≤ 静阻力 ' + DIAL_FRES.toFixed(1) + 'N → 盘不动';
       else S.dial.msg = '切向力克服静阻力 → 力臂≈' + Math.round(ratio * R) + 'px → 盘转动（松手即停）';
       dirty = true; return;
     }
@@ -945,8 +972,8 @@
   function onUp() {
     if (S.ps.mode === 'person') setHint('松手：不再推 → 车只受摩擦/刹车减速（力不是维持运动的原因）');
     if (S.ps.mode === 'dial') {                                            // 松手即停、矢量消
-      S.dial.drag = null; S.dial.F = 0; S.dial.Ft = 0; S.dial.omega = 0; S.dial.pt = null; S.dial.msg = '松手 → 停止转动';
-      if (window.ForceOverlay) ForceOverlay.unregister('dial');
+      S.dial.drag = null; S.dial.F = 0; S.dial.Ft = 0; S.dial.omega = 0; S.dial.dir = null; S.dial.pt = null; S.dial.msg = '松手 → 停止转动';
+      if (window.ForceOverlay) { ForceOverlay.unregister('dial'); ForceOverlay.unregister('dialTan'); }
     }
     S.ps.mode = 'idle'; dirty = true;
   }
