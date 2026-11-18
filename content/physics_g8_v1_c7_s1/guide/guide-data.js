@@ -20,7 +20,7 @@ window.C7S1_GUIDE={
       {id:'c7b-11',repeat:false,trigger:'R.bench.bdragRelease===true',say:'松手，指针回零。',audio:'c7b-11'},
       {id:'c7b-12',repeat:false,trigger:'R.bench.zeroV===true',say:'指针没指零，点调零按钮把它对齐，不调零的话读数全是错的。',audio:'c7e5-s1'},
       {id:'c7b-13',repeat:false,trigger:'R.bench.orientH===true',say:'换成水平方向拉，用法要变，得在水平方向重新调零再测。再感受1牛、3牛、5牛的拉力，记住这个手感！',audio:'c7e5-s4'},
-      {id:'c7b-14',repeat:false,trigger:'R.bench.eye===true',say:'观察眼，视线垂直刻度面才读得准，从下方斜视会读偏大。',audio:'c7b-14'},
+      {id:'c7b-14',repeat:false,trigger:'R.bench.eye===true',say:'点读数按钮，视线垂直刻度面才读得准，从下方斜视会读偏大。',audio:'c7b-14'},
       {id:'c7b-15',repeat:false,trigger:'R.bench.reset===true',say:'已重置，拖悬挂物按压或拉伸，或逐块加钩码。',audio:'c7b-15'}
     ],
     errors:[],free:[],tasks:[]
@@ -172,7 +172,7 @@ window.C7S1_GUIDE={
     'c7b-05':'guide/audio/c7b-05.mp3?v=20261118z','c7b-06':'guide/audio/c7b-06.mp3?v=20261118z',
     'c7b-07':'guide/audio/c7b-07.mp3?v=20261118z','c7b-08':'guide/audio/c7b-08.mp3?v=20261118z',
     'c7b-09':'guide/audio/c7b-09.mp3?v=20261118z','c7b-10':'guide/audio/c7b-10.mp3?v=20261118z',
-    'c7b-11':'guide/audio/c7b-11.mp3?v=20261118z','c7b-14':'guide/audio/c7b-14.mp3?v=20261118z',
+    'c7b-11':'guide/audio/c7b-11.mp3?v=20261118z','c7b-14':'guide/audio/c7b-14.mp3?v=20261118z2',
     'c7b-15':'guide/audio/c7b-15.mp3?v=20261118z','c7b-16':'guide/audio/c7b-16.mp3?v=20261118z',
   }
 };
