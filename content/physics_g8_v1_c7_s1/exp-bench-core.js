@@ -14,6 +14,8 @@
  *       修2 完成度电平 has*×8（hasPulled/hasMatChanged/hasPlasticTried/hasMassAdded/hasAxisM/hasZoom/hasOverRange/hasAnnotOn，仅 reset 清）——praise c7b-38 触发源；
  *       修3 idle 暴露——window 捕获 pointerdown/keydown/wheel 归零 lastUserT，每 tick 写 BS.idle=(now-lastUserT)/1000（秒，数值）。
  * z14轮：引导并入动作条（guide-data 已删 8 idle 催办条 + 入场续条）——core 无已删 clip id 引用；BS 电平/完成度置位全保留（praise 链用）。
+ * z15轮：修1 BS.matName 电平（=mat().name '钢'/'铁'/'铝'/'铅丝'/'橡皮泥'，换材质同步、reset 随当前材质恢复）——c7b-26 铅丝/c7b-27 橡皮泥 双分支触发源；
+ *       修2 BS.tilt 由脉冲改电平（btn-tilt 置 true / btn-flat·reset 置 false）——c7b-38 queue 续条 trigger=tilt，须在 c7b-07 播完后仍判 tilt===true 才不被 queueDefer 重判放弃（07 播完才播总结）。
  * ============================================================ */
 (function () {
   'use strict';
@@ -113,7 +115,8 @@
     matPlastic: false, balanceEntered: false,                                 // z13修1：塑性材质电平（=mat().p>0）+ 进过测力计模式电平（reset 清）
     hasPulled: false, hasMatChanged: false, hasPlasticTried: false, hasMassAdded: false,   // z13修2：完成度电平（置 true 后仅 reset 清）
     hasAxisM: false, hasZoom: false, hasOverRange: false, hasAnnotOn: false,
-    idle: 0                                                                   // z13修3：距上次用户动作秒数（每 tick 写）
+    idle: 0,                                                                  // z13修3：距上次用户动作秒数（每 tick 写）
+    matName: '钢'                                                             // z15修1：当前材质名电平（=mat().name；c7b-26 铅丝/c7b-27 橡皮泥 双分支触发源）
   };
   window.C7S1_STATE = { mode: 'bench', bench: BS };
   var pulseTimers = {};                                                       // z7轮：pulse 定时器表（reset 清表）
@@ -939,8 +942,8 @@
   function wire() {
     function on(id, ev, fn) { var el = document.getElementById(id); if (el) el.addEventListener(ev, fn); }
     ['pointerdown', 'keydown', 'wheel'].forEach(function (e) { window.addEventListener(e, markUser, true); });   // z13修3：任何用户动作归零 idle 计时
-    on('btn-flat', 'click', function () { S.tilt.target = 0; pulse('flat'); seg('btn-flat', true); seg('btn-tilt', false); sfx('Click'); setHint('铁架台回到水平桌面'); dirty = true; });
-    on('btn-tilt', 'click', function () { S.tilt.target = 1; pulse('tilt'); seg('btn-flat', false); seg('btn-tilt', true); sfx('Click'); setHint('架倾斜，悬挂物仍世界竖直 → 重力方向竖直向下'); dirty = true; });
+    on('btn-flat', 'click', function () { S.tilt.target = 0; BS.tilt = false; pulse('flat'); seg('btn-flat', true); seg('btn-tilt', false); sfx('Click'); setHint('铁架台回到水平桌面'); dirty = true; });   // z15修2：回水平清 tilt 电平
+    on('btn-tilt', 'click', function () { S.tilt.target = 1; BS.tilt = true; seg('btn-flat', false); seg('btn-tilt', true); sfx('Click'); setHint('架倾斜，悬挂物仍世界竖直 → 重力方向竖直向下'); dirty = true; });   // z15修2：tilt 改电平（c7b-38 queue 续条须在 c7b-07 播完后仍判 tilt===true）
     on('btn-spring', 'click', function () {
       S.mode = 'spring'; S.zoom = false; S.eye = false;
       seg('btn-spring', true); seg('btn-balance', false);
@@ -956,7 +959,7 @@
       S.mat = clamp(parseInt(e.target.value, 10) || 0, 0, 4);
       S.sp = { x: 0, v: 0, rest: 0, maxOver: 0 }; S.curve.pts = {}; S.curve.pending = false;
       pulse('material');                                                    // z轮六4：c7b-06
-      BS.matPlastic = mat().p > 0; BS.hasMatChanged = true;                 // z13修1：塑性材质电平同步；z13修2：换过材质完成度
+      BS.matPlastic = mat().p > 0; BS.hasMatChanged = true; BS.matName = mat().name;   // z13修1：塑性材质电平同步；z13修2：换过材质完成度；z15修1：材质名电平同步（c7b-26/27 双分支）
       setText('lbl-mat', mat().name); setHint(mat().note); dirty = true;
     });
     on('btn-w-minus', 'click', function () { setN(-1); });
@@ -984,6 +987,7 @@
       BS.diagram = S.diagram;                                                // z7轮修2：电平型 diagram 不归零，随开关状态恢复
       BS.annot = S.annot;                                                    // z11修2：电平型 annot 同理（标注 toggle 状态不随 reset 翻转）
       BS.matPlastic = mat().p > 0;                                           // z13修1：电平型 matPlastic 随当前材质恢复（balanceEntered/has* 全清）
+      BS.matName = mat().name;                                               // z15修1：电平型 matName 随当前材质恢复（blanket false 后复位）
       pulse('reset');                                                        // c7b-15：重置本身是事件（1.0s 后自动归零）
       if (window.GUIDE_RESET) window.GUIDE_RESET.all();                      // 接口契约3——页面重置后语音字幕全部从头
       setHint('已重置：拖悬挂物按压/拉伸，或换砝码'); sfx('Click'); dirty = true;
