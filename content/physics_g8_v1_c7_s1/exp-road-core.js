@@ -13,6 +13,9 @@
  * z10轮：修1 release 改电平——脱手边沿 && car.vx·d>2（当下仍在滑行）&& 非轮滑 → RS.release=true 常驻（1s 脉冲删除；
  *       配合 guide-data c7r-04 queue:true 续条：引擎 defer 发火前重判电平=true 才播 → 推车条播完才播松手条）；
  *       清 false 时机=下次推中上升沿 / 重置 / 换鞋。修2 换鞋清前置——shoeIce/shoeNormal 清 everPushed/everMoved/RS.release。
+ * z11轮：修1 release 双门槛——(a) 进入 slide 瞬间 RS.release=false（queue 续条重判作废 → 滑落期间不播松手条）；
+ *       (b) 置位加 !S.sponge（隔海绵推不播松手条；guide-data trigger 同门槛双保险）。修3 方向盘阻尼加大——omega 衰减 3.2→6.5、DIAL_KT 5.5→4.2（FRES/clamp 不变）。
+ * z12轮：修1 release 置位边沿加 car.mode==='road' 门槛——持触推车越坡时 mode 变化构成合成脱手边沿，不得在 z11a 清零后复置电平（slide/pond/settled 期间任何边沿都不置）。
  * ============================================================ */
 (function () {
   'use strict';
@@ -33,7 +36,7 @@
   /* ===== 物理常量（力→加速度，非速度） ===== */
   var M = 1.2, A_SCALE = 55, F_MAX = 10, FRIC = 130, BRAKE_SCALE = 55, BRAKE_MAX = 10;
   var V_MAX = 500, G_SLOPE = 620, ICE_K = 34, ICE_FRIC = 90, DIAL_FMAX = 6, WEIGHT_N = M * 9.8;
-  var DIAL_FRES = 1.0, DIAL_KT = 5.5;                                           // P9：静态阻力阈值 + 扭矩系数
+  var DIAL_FRES = 1.0, DIAL_KT = 4.2;                                           // P9：静态阻力阈值 + 扭矩系数（z11修3：KT 5.5→4.2 阻尼加大）
   var DISP = 50, GDISP = 1000;                                                  // x轮修1：显示倍率——车相关力×50（满量程500N）、重力按 M显示1200kg×9.8=11760N；内部物理零改动
 
   /* ===== 画布脚手架 ===== */
@@ -842,8 +845,8 @@
     if (pushingNow2) {
       if (!pushWas) RS.release = false;                                      // z10修1：推中上升沿清电平
       everPushed = true;
-    } else if (pushWas && everPushed && everMoved && car.vx * d > 2 && !ice) {
-      RS.release = true;                                                     // z10修1：脱手边沿+当下仍在滑行+非轮滑 → 电平常驻（c7r-04 queue 重判源；1s 脉冲已删）
+    } else if (pushWas && everPushed && everMoved && car.vx * d > 2 && !ice && !S.sponge && car.mode === 'road') {
+      RS.release = true;                                                     // z10修1：脱手边沿+当下仍在滑行+非轮滑 → 电平常驻；z11修1b：加 !S.sponge（隔海绵推不播松手条）；z12修1：加 mode==='road'（持触越坡 mode 变化=合成脱手边沿，不得复置电平）
     }
     pushWas = pushingNow2;
 
@@ -862,7 +865,7 @@
       var minX = L.roadLeft + L.carW * 0.5;
       if (car.x < minX) { car.x = minX; if (car.vx < 0) car.vx = 0; }
       if (car.x >= L.slopeX && car.vx > 0) {
-        car.mode = 'slide'; pulse('slide'); setHint('车越过路尽头 → 沿护坡滑下：重力加速，坡面起伏减速'); sfx('Click');   // x轮修3：c7r-05
+        car.mode = 'slide'; RS.release = false; pulse('slide'); setHint('车越过路尽头 → 沿护坡滑下：重力加速，坡面起伏减速'); sfx('Click');   // x轮修3：c7r-05；z11修1a：进 slide 清 release 电平（queue 续条重判作废 → 滑落期间不播松手条）
       }
       if (Math.abs(car.vx) > 0.05) ch = true;
     } else if (car.mode === 'slide') {
@@ -919,7 +922,7 @@
       var fa = Math.abs(dl.Ft);
       if (fa > DIAL_FRES) {
         dl.omega += Math.sign(dl.Ft) * (fa - DIAL_FRES) * DIAL_KT * dt;
-        dl.omega *= (1 - 3.2 * dt);
+        dl.omega *= (1 - 6.5 * dt);                                          // z11修3：拖拽中阻尼 3.2→6.5（转向更沉、峰值角速度更低）
         dl.omega = clamp(dl.omega, -9, 9);
         dl.angle += dl.omega * dt;
         ch = true;

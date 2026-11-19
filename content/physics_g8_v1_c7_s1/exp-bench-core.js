@@ -8,6 +8,8 @@
  *       胡克 ΔL=F/k（曲线斜率=1/k 或 g/k，非 g）；测力计 G=mg、超量程 clamp 5N。
  * 结构：单一 IIFE；step()/draw()/handlers 函数声明提升，末尾统一 wiring + init。
  * z9轮：修2 BS.hangG flag 及置位点删除（guide-data 已无 c7b-16 step；ForceOverlay 'hangG' 矢量 id 不受影响）。
+ * z11轮：修2 新 flag——BS.annot 电平（标注 toggle 状态随开关 true/false，reset 恢复不归零；c7b-05/c7b-19 超限度双分支门槛）；
+ *       BS.zoomOpen 脉冲1s（点测力计本开放大 modal 瞬间置位；弹簧模式无 zoom 不置；c7b-21 构造条触发源）。
  * ============================================================ */
 (function () {
   'use strict';
@@ -103,7 +105,7 @@
     pull: false, press: false, weightAdd: false, overLimit: false,            // z9修2：hangG 已删（c7b-16 step 不存在）
     material: false, tilt: false, flat: false, axisM: false, overRange: false,
     bdragRelease: false, balanceEnter: false, eye: false, reset: false,
-    diagram: false
+    diagram: false, annot: false, zoomOpen: false                             // z11修2：annot 电平（标注 toggle）+ zoomOpen 脉冲（测力计放大 modal 开启瞬间）
   };
   window.C7S1_STATE = { mode: 'bench', bench: BS };
   var pulseTimers = {};                                                       // z7轮：pulse 定时器表（reset 清表）
@@ -870,7 +872,7 @@
       } else {
         var mb = meterBodyBox();                                           // z2 修3：点测力计本体 → 放大 modal
         if (p.x >= mb.x0 && p.x <= mb.x1 && p.y >= mb.y0 && p.y <= mb.y1) {
-          S.zoom = true; sfx('Click');
+          S.zoom = true; pulse('zoomOpen'); sfx('Click');                   // z11修2：zoomOpen 脉冲（c7b-21 构造条；弹簧模式无 zoom 不置）
           setHint('放大视图：吊环/外壳/刻度面板/弹簧/指针/拉杆/挂钩 — 点右上「读数」看视线');
           ev.preventDefault(); dirty = true;
         }
@@ -964,12 +966,14 @@
       clearPulses();                                                         // z7轮：清 pulse 定时器表
       for (var bk in BS) BS[bk] = false;                                     // 事件标志归零（可重触发全部解说）
       BS.diagram = S.diagram;                                                // z7轮修2：电平型 diagram 不归零，随开关状态恢复
+      BS.annot = S.annot;                                                    // z11修2：电平型 annot 同理（标注 toggle 状态不随 reset 翻转）
       pulse('reset');                                                        // c7b-15：重置本身是事件（1.0s 后自动归零）
       if (window.GUIDE_RESET) window.GUIDE_RESET.all();                      // 接口契约3——页面重置后语音字幕全部从头
       setHint('已重置：拖悬挂物按压/拉伸，或换砝码'); sfx('Click'); dirty = true;
     });
     on('btn-annot', 'click', function () {                                   // z7轮修4：标注 toggle（缺省关；曲线面板不受控）
       S.annot = !S.annot;
+      BS.annot = S.annot;                                                    // z11修2：电平型 flag 随开关（c7b-05/c7b-19 超限度双分支门槛）
       seg('btn-annot', S.annot);
       setHint(S.annot ? '标注 ON：基准线/弹性限度线/ΔL/放大图引线标注全部显示' : '标注 OFF：纯净场景，仅器材与读数');
       sfx('Click'); dirty = true;
