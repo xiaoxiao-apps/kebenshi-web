@@ -7,6 +7,7 @@
  * 物理：弹簧二阶欠阻尼（金属 ζ≈0.2 ωₙ=12）；五档材质 k+弹性限度谱；
  *       胡克 ΔL=F/k（曲线斜率=1/k 或 g/k，非 g）；测力计 G=mg、超量程 clamp 5N。
  * 结构：单一 IIFE；step()/draw()/handlers 函数声明提升，末尾统一 wiring + init。
+ * z9轮：修2 BS.hangG flag 及置位点删除（guide-data 已无 c7b-16 step；ForceOverlay 'hangG' 矢量 id 不受影响）。
  * ============================================================ */
 (function () {
   'use strict';
@@ -99,7 +100,7 @@
   /* z7轮修1：guide 解说状态源（engine-core 轮询；事件标志=pulse 置 true 后 1.0s 自动归零→重复动作产生新边沿可重复播报；
      电平型 diagram 随示意图开关 true/false，不归零） */
   var BS = {
-    pull: false, press: false, weightAdd: false, hangG: false, overLimit: false,
+    pull: false, press: false, weightAdd: false, overLimit: false,            // z9修2：hangG 已删（c7b-16 step 不存在）
     material: false, tilt: false, flat: false, axisM: false, overRange: false,
     bdragRelease: false, balanceEnter: false, eye: false, reset: false,
     diagram: false
@@ -221,7 +222,6 @@
         S.curve.pts[S.n] = tot;                                           // 每勾一块记录总伸长
         S.curve.pending = false; moved = true;
       }
-      if (S.n >= 1 && recOk) pulse('hangG');                             // 砝码静止：重力与弹力二力平衡（c7b-16）
     } else {
       var b = S.bal;
       var Fn = forceOf(S.n);                                              // z4 修3：F=mg（质量档）
@@ -233,8 +233,6 @@
         if (Math.abs(b.r - tgt) < 0.002 && Math.abs(b.v) < 0.02) { b.r = tgt; b.v = 0; }
       }
       if (b.flash > 0) { b.flash -= dt; moved = true; }
-      if (S.n >= 1 && Fn <= RANGE && Math.abs(b.r - Fn) < 0.005 && Math.abs(b.v) < 0.05)
-        pulse('hangG');                                                  // 量程内静止：二力平衡（c7b-16）
     }
     if (window.ForceOverlay) {                                           // 门控：三类矢量（挂砝码G@重心 / 下拉手力 / 上压手力 @手）
       if (ForceOverlay.isOn() && !S.zoom) {

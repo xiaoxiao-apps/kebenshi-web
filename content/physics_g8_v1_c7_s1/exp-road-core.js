@@ -7,6 +7,9 @@
  * P10 海绵米色多孔+标签；P11 动作触发语音 x轮起由 guide 引擎承载（触发式 mp3+字幕，见 window.C7S1_STATE）。
  * 力的示意图经 force-overlay.js 门控（开=仅活跃交互画矢量；关=全场景无）。
  * x轮：车相关力显示=内部×DISP(50)（内部物理零改动）；重力仅 slide/pond未停 且脱手时注册，maxLen=110。
+ * z9轮：修1 海绵 toggle——S.sponge 缺省 false（手直接推车）；海绵仅 on 时绘制/形变；接触面=海绵脸(on)/车脸(off)，臂IK/够得着同步；
+ *       穿轮滑鞋静默置 sponge=false（不播拿掉条）。修2 flag 矩阵重排——电平 sponge/ice/diagram；
+ *       脉冲 pushStatic/pushMove/icePush/release/spongeAdd/spongeRemove；删 pushStart/pushNormal/staticHold/iceSlide/iceLock。
  * ============================================================ */
 (function () {
   'use strict';
@@ -85,7 +88,7 @@
   var S = {
     car: { x: 0, vx: 0, y: 0, angle: 0, mode: 'road', settled: false, splashT: 0 },
     person: { x: 0, vx: 0, sliding: false, off: 0, baseX: 0 },
-    sponge: { def: 0 },
+    sponge: false, spongeDef: 0,                                                // z9修1：海绵 toggle 缺省关（手直接推车）；def=形变量
     push: { active: false, F: 0 },
     pushDir: 'left',                                                            // P8：左推(人在车左→推向右) / 右推
     shoe: 'normal', brake: 0, brakeSaved: 0, wheelZoom: false,
@@ -98,12 +101,15 @@
   window.C7V5_ROAD = S;
 
   /* z7轮修1：guide 解说状态源（engine-core 轮询；事件标志=pulse 置 true 后 1.0s 自动归零→重复动作产生新边沿可重复播报；
-     电平型 diagram 随示意图开关 true/false，不归零） */
+     z9修2：电平型 sponge/ice/diagram 随开关/鞋态 true/false，不归零；
+     脉冲 pushStatic=推中且|vx|<2 持续0.8s / pushMove=推中且车向前走(vx·d>2) / icePush=ice且推中 /
+     release=曾推且车曾走且脱手 / spongeAdd/spongeRemove=toggle；slide/brake/wheel/shoeIce/shoeNormal 沿用 */
   var RS = {
-    pushStart: false, pushNormal: false, staticHold: false, release: false,
+    sponge: false, ice: false, diagram: false,
+    pushStatic: false, pushMove: false, icePush: false, release: false,
+    spongeAdd: false, spongeRemove: false,
     slide: false, pond: false, settled: false, brake: false,
-    iceLock: false, iceSlide: false, wheel: false, shoeIce: false, shoeNormal: false,
-    diagram: false
+    wheel: false, shoeIce: false, shoeNormal: false
   };
   window.C7S1_STATE = { mode: 'road', road: RS };
   var pulseTimers = {};                                                       // z7轮：pulse 定时器表（reset 清表）
@@ -113,7 +119,8 @@
     pulseTimers[key] = setTimeout(function () { RS[key] = false; pulseTimers[key] = null; }, 1000);
   }
   function clearPulses() { for (var pk in pulseTimers) { clearTimeout(pulseTimers[pk]); pulseTimers[pk] = null; } }
-  var staticHoldT = 0;                                                      // x轮：推力顶得住不动累计秒数（≥1.2 → staticHold）
+  var pushStaticT = 0;                                                      // z9修2：推中且|vx|<2 累计秒数（≥0.8 → pushStatic）
+  var everPushed = false, everMoved = false;                                // z9修2：release 前置——曾推 / 车曾走（vx·d>2）
 
   /* ===== 地形（P5 坝体剖面护坡）+ 几何访问器 ===== */
   function groundY(x) {
@@ -149,19 +156,23 @@
   function SPONGE(d) {                                                          // d轮：海绵车体锚定（尾灯高度带），人靠近/推/松手都不动
     return { x: S.car.x - d * (L.carW * 0.5) - d * 3, y: L.roadTop + S.car.y - L.carH * 0.66 };
   }
+  function CARFACE(d) {                                                         // z9修1：无海绵接触面=车脸（同尾灯高度带）
+    return { x: S.car.x - d * (L.carW * 0.5), y: L.roadTop + S.car.y - L.carH * 0.66 };
+  }
+  function handTarget(d) { return S.sponge ? SPONGE(d) : CARFACE(d); }          // z9修1：接触点=海绵脸(on)/车脸(off)
   function comPoint() { return { x: S.car.x, y: L.roadTop + S.car.y - L.carH * 0.72 }; }
   function contactPoint() {                                                     // P3：肩为轴·臂长恒定——够得着搭手，够不着自然前伸
     var d = dirS();
-    if (pushingNow()) return SPONGE(d);                                         // d轮：推车=手去够车体锚定的海绵
-    var sh = shoulderPt(), faceX = S.car.x - d * L.carW * 0.5;
+    if (pushingNow()) return handTarget(d);                                     // z9修1：推车=手去够海绵脸(on)/车脸(off)
+    var sh = shoulderPt(), faceX = handTarget(d).x;
     var dx = (faceX - sh.x) * d;
     var faceTop = L.roadTop + S.car.y - L.carH * 0.88, faceBot = L.roadTop + S.car.y - L.carH * 0.10;
     if (dx < L.armLen) return { x: faceX - d * 3, y: clamp(sh.y + Math.sqrt(Math.max(4, L.armLen * L.armLen - dx * dx)), faceTop, faceBot) };
     return { x: sh.x + d * L.armLen * 0.88, y: sh.y + L.armLen * 0.47 };
   }
-  function reachPen() {                                                         // 手(肩+臂长)压到车面多深 → 推力
+  function reachPen() {                                                         // 手(肩+臂长)压到接触面多深 → 推力（z9修1：面=海绵脸/车脸 随 toggle 同步）
     if (S.car.mode !== 'road') return -1;
-    var faceX = S.car.x - dirS() * L.carW * 0.5;
+    var faceX = handTarget(dirS()).x;
     return L.armLen - (faceX - shoulderPt().x) * dirS();
   }
   function clampPersonX(x) {
@@ -195,13 +206,14 @@
     car.x = L.homeX; car.vx = 0; car.y = 0; car.angle = 0; car.mode = 'road'; car.settled = false;
     S.person.x = personHome();
     S.person.vx = 0; S.person.sliding = false; S.person.off = 0; S.person.baseX = S.person.x;
-    S.push.active = false; S.push.F = 0; S.sponge.def = 0; S.eng = 0;
+    S.push.active = false; S.push.F = 0; S.spongeDef = 0; S.eng = 0;
     S.brake = S.shoe === 'ice' ? BRAKE_MAX : 0; S.brakeSaved = 0;
     S.dial.drag = null; S.dial.angle = 0; S.dial.omega = 0; S.dial.msg = ''; S.dial.F = 0; S.dial.Ft = 0; S.dial.dir = null; S.dial.pt = null;
     clearPulses();                                                            // z7轮：清 pulse 定时器表
     for (var rk in RS) RS[rk] = false;                                        // guide 事件标志归零（可重新触发全部解说）
     RS.diagram = S.diagram;                                                   // z7轮修2：电平型 diagram 不归零，随开关状态恢复
-    staticHoldT = 0; pushWas = false;
+    RS.sponge = S.sponge; RS.ice = S.shoe === 'ice';                          // z9修2：电平型 sponge/ice 随开关/鞋态恢复
+    pushStaticT = 0; pushWas = false; everPushed = false; everMoved = false;
     if (window.ForceOverlay) ForceOverlay.clear();
     dirty = true;
   }
@@ -440,7 +452,7 @@
     if (armOn) {                                                                // 肩位随 e 在 站立↔推车 分数间插值（松手反向回放不跳变）
       shxL = ph * (ice ? 0.0406 + (0.1641 - 0.0406) * e : 0.055);               // g轮：push 肩x 与站立同分数 0.055（无插值）；w轮 ice 推肩 0.1641
       shY = L.roadTop - ph * (ice ? 0.789 + (0.5588 - 0.789) * e : 0.66 + (0.575 - 0.66) * e);   // w轮：ice 肩 skate(0.789)→skatepush(0.5588) 随 e 插值
-      var sp = SPONGE(d), tx = (sp.x - per.x) * d, ty = sp.y;
+      var sp = handTarget(d), tx = (sp.x - per.x) * d, ty = sp.y;               // z9修1：臂 IK 目标=海绵脸(on)/车脸(off)
       var ikAng = Math.atan2(ty - shY, tx - shxL), ikDist = Math.hypot(tx - shxL, ty - shY);
       var ang = Math.PI / 2 + (ikAng - Math.PI / 2) * e;                        // 垂臂(π/2) → IK 角（drawArmSpr 内再减固有角）
       var len = L.armLen + (ikDist - L.armLen) * e;                             // 0.36personH → dist
@@ -612,9 +624,9 @@
 
   /* ===== 手-车接触海绵（P10：米色多孔可识别 + 按压凹陷 + 标签；形变∝力） ===== */
   function drawSponge() {
-    if (S.car.mode !== 'road') return;
+    if (!S.sponge || S.car.mode !== 'road') return;                             // z9修1：海绵仅 toggle on 时绘制
     var d = dirS(), cp = SPONGE(d);                                             // d轮：车体锚定，靠近/推/松手全程不动
-    var def = S.sponge.def;
+    var def = S.spongeDef;
     var w0 = L.carH * 0.17, h0 = L.carH * 0.32;
     var w = w0 * (1 + def * 0.45), h = h0 * (1 - def * 0.55);
     var x = cp.x - w * 0.5 + d * 2, y = cp.y - h / 2;
@@ -804,7 +816,7 @@
   }
 
   /* ===== 物理步进（力→加速度；P8 左/右推只推不拉 + 人车解耦 + P9 方向盘力先行） ===== */
-  var pushWas = false;                                                     // w轮修3：普通鞋推起沿检测（一次性提示）
+  var pushWas = false;                                                     // z9修2：推中↔脱手边沿检测（release 触发源）
   function step(dt, now) {
     var ch = false, car = S.car, per = S.person, ice = S.shoe === 'ice', d = dirS();
     // 推力：手（肩+臂长）压到车面多深 → F（只推不拉，dir 恒=推向）
@@ -815,16 +827,17 @@
       per.vx -= d * S.push.F * ICE_K * dt; per.sliding = true;
     }
     var pushingNow2 = S.push.active && S.push.F > 0.05 && car.mode === 'road';
-    if (pushingNow2 && !pushWas) {                                           // x轮修3：推起沿——guide 事件置位（c7r-03；普通鞋另置 pushNormal→c7r-02）
-      pulse('pushStart');
-      if (!ice) pulse('pushNormal');
-    }
-    if (!pushingNow2 && pushWas) pulse('release');                          // x轮修3：曾推后脱手（c7r-04）
+    if (pushingNow2) {                                                       // z9修2：脉冲矩阵——icePush/pushMove/pushStatic（删 pushStart/pushNormal/staticHold）
+      if (ice) pulse('icePush');                                             // c7r-22：冰面推中人后滑
+      if (car.vx * d > 2) { pulse('pushMove'); everMoved = true; }           // c7r-03/20：推中车向前走（右推 vx<0 → 按 vx·d 判向前）
+      if (Math.abs(car.vx) < 2) {                                            // c7r-21：推中车未动持续0.8s
+        pushStaticT += dt;
+        if (pushStaticT >= 0.8) { pulse('pushStatic'); pushStaticT = 0; }
+      } else pushStaticT = 0;
+    } else pushStaticT = 0;
+    if (!pushingNow2 && pushWas && everPushed && everMoved) pulse('release');  // z9修2：曾推且车曾走且脱手（c7r-04）
+    if (pushingNow2) everPushed = true;
     pushWas = pushingNow2;
-    if (S.push.active && S.push.F > 0.5 && car.vx === 0 && car.mode === 'road') {   // x轮修3：推力顶得住不动持续1.2s → staticHold（c7r-14）
-      staticHoldT += dt;
-      if (staticHoldT >= 1.2) { pulse('staticHold'); staticHoldT = 0; }
-    } else staticHoldT = 0;
 
     var decel = FRIC + S.brake / M * BRAKE_SCALE;
     if (car.mode === 'road') {
@@ -880,8 +893,7 @@
       if (penNow > 0 && ice) {                                             // 接触段：偏移累积（鼠标仍可加压）
         per.off += per.vx * dt;
         per.x = clampPersonX(per.baseX + per.off);
-      } else if (Math.abs(per.vx) > 2) {                                   // 脱手：惯性滑行缓慢减速
-        pulse('iceSlide');                                                // x轮修3：轮滑推后人 sliding（c7r-10）
+      } else if (Math.abs(per.vx) > 2) {                                   // 脱手：惯性滑行缓慢减速（z9修2：iceSlide flag 已删——语音并入 c7r-22）
         per.vx -= Math.sign(per.vx) * ICE_FRIC * dt; per.x += per.vx * dt;
       } else {                                                             // 停下：偏移折回抓取基准，防回弹
         per.vx = 0; per.sliding = false;
@@ -906,10 +918,10 @@
       } else if (Math.abs(dl.omega) > 0.001) { dl.omega *= (1 - 9 * dt); dl.angle += dl.omega * dt; ch = true; }
     }
 
-    // 海绵形变（弹簧回复，∝推力）
-    var sTarget = S.push.active && car.mode === 'road' ? S.push.F / F_MAX : 0;
-    var nd = S.sponge.def + (sTarget - S.sponge.def) * Math.min(1, dt * 14);
-    if (Math.abs(nd - S.sponge.def) > 0.001) { S.sponge.def = nd; ch = true; }
+    // 海绵形变（弹簧回复，∝推力；z9修1：仅 toggle on 时形变）
+    var sTarget = S.sponge && S.push.active && car.mode === 'road' ? S.push.F / F_MAX : 0;
+    var nd = S.spongeDef + (sTarget - S.spongeDef) * Math.min(1, dt * 14);
+    if (Math.abs(nd - S.spongeDef) > 0.001) { S.spongeDef = nd; ch = true; }
 
     // d轮：站↔推过渡系数（渲染-only，0.3s 趋近；v轮：ice 态同用 → skate↔skatepush crossfade）
     var engT = (S.push.active && S.push.F > 0.05 && car.mode === 'road') ? 1 : 0;
@@ -1017,13 +1029,19 @@
     var back = document.querySelector('.back');                                  // y轮修1：全屏时左上"返回本节"隐藏，退出全屏才恢复
     if (back) back.style.display = fs ? 'none' : '';
   }
+  function syncSpongeBtn() {                                                  // z9修1：按钮文案/态随 S.sponge（on=「拿掉海绵」）
+    var b = document.getElementById('btn-sponge');
+    if (b) { b.classList.toggle('on', S.sponge); b.textContent = S.sponge ? '拿掉海绵' : '放上海绵'; }
+  }
   function setShoe(s) {
     if (s === S.shoe) return;
     S.shoe = s;
+    RS.ice = s === 'ice';                                                     // z9修2：电平型 ice 随鞋态
     if (s === 'ice') {
       S.brakeSaved = S.brake; S.brake = BRAKE_MAX;
       S.person.vx = 0; S.person.sliding = false; S.person.off = 0; S.person.baseX = S.person.x;
-      pulse('shoeIce'); pulse('iceLock');                                    // x轮修3：c7r-12 + 刹车锁定（c7r-09）
+      if (S.sponge) { S.sponge = false; S.spongeDef = 0; RS.sponge = false; syncSpongeBtn(); }   // z9修1：穿轮滑鞋静默拿掉海绵（不播 spongeRemove）
+      pulse('shoeIce');                                                       // x轮修3：c7r-12（z9修2：iceLock 已删）
       setHint('轮滑鞋：刹车锁定=最大（虚化）；推车 → 人整体向后滑离车、手脱开（相互作用+惯性）');
     } else {
       S.brake = S.brakeSaved || 0;
@@ -1049,6 +1067,14 @@
     on('btn-shoe-ice', 'click', function () { setShoe('ice'); });
     on('btn-push-left', 'click', function () { setPushDir('left'); });
     on('btn-push-right', 'click', function () { setPushDir('right'); });
+    on('btn-sponge', 'click', function () {                                   // z9修1：海绵 toggle——脉冲 spongeAdd/spongeRemove + 电平 RS.sponge
+      S.sponge = !S.sponge;
+      RS.sponge = S.sponge;
+      if (!S.sponge) S.spongeDef = 0;
+      pulse(S.sponge ? 'spongeAdd' : 'spongeRemove');
+      syncSpongeBtn();
+      sfx('Click'); dirty = true;
+    });
     on('btn-wheel', 'click', function () { if (S.wheelZoom) closeWheel(); else openWheel(); });
     on('btn-diagram', 'click', function () {
       S.diagram = !S.diagram;
@@ -1084,6 +1110,7 @@
   wire();
   if (window.ForceOverlay) { ForceOverlay.setOn(false); ForceOverlay.setLegendN(DISP); }   // x轮修1：路页标尺 '1cm = 50N'（bench 缺省 1N 不受影响）
   syncFullBtn();
+  syncSpongeBtn();                                                            // z9修1：初始文案=「放上海绵」（S.sponge 缺省 false）
   seg('btn-shoe-normal', true);
   seg('btn-push-left', true);
   resize();
