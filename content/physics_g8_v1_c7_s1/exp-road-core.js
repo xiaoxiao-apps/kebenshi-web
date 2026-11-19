@@ -10,6 +10,9 @@
  * z9轮：修1 海绵 toggle——S.sponge 缺省 false（手直接推车）；海绵仅 on 时绘制/形变；接触面=海绵脸(on)/车脸(off)，臂IK/够得着同步；
  *       穿轮滑鞋静默置 sponge=false（不播拿掉条）。修2 flag 矩阵重排——电平 sponge/ice/diagram；
  *       脉冲 pushStatic/pushMove/icePush/release/spongeAdd/spongeRemove；删 pushStart/pushNormal/staticHold/iceSlide/iceLock。
+ * z10轮：修1 release 改电平——脱手边沿 && car.vx·d>2（当下仍在滑行）&& 非轮滑 → RS.release=true 常驻（1s 脉冲删除；
+ *       配合 guide-data c7r-04 queue:true 续条：引擎 defer 发火前重判电平=true 才播 → 推车条播完才播松手条）；
+ *       清 false 时机=下次推中上升沿 / 重置 / 换鞋。修2 换鞋清前置——shoeIce/shoeNormal 清 everPushed/everMoved/RS.release。
  * ============================================================ */
 (function () {
   'use strict';
@@ -102,11 +105,12 @@
 
   /* z7轮修1：guide 解说状态源（engine-core 轮询；事件标志=pulse 置 true 后 1.0s 自动归零→重复动作产生新边沿可重复播报；
      z9修2：电平型 sponge/ice/diagram 随开关/鞋态 true/false，不归零；
+     z10修1：release 改电平——脱手边沿+当下滑行(vx·d>2)+非轮滑 → true 常驻；清 false=推中上升沿/重置/换鞋（c7r-04 queue 续条重判源）；
      脉冲 pushStatic=推中且|vx|<2 持续0.8s / pushMove=推中且车向前走(vx·d>2) / icePush=ice且推中 /
-     release=曾推且车曾走且脱手 / spongeAdd/spongeRemove=toggle；slide/brake/wheel/shoeIce/shoeNormal 沿用 */
+     spongeAdd/spongeRemove=toggle；slide/brake/wheel/shoeIce/shoeNormal 沿用 */
   var RS = {
-    sponge: false, ice: false, diagram: false,
-    pushStatic: false, pushMove: false, icePush: false, release: false,
+    sponge: false, ice: false, diagram: false, release: false,              // z10修1：release 入电平组（常驻不归零）
+    pushStatic: false, pushMove: false, icePush: false,
     spongeAdd: false, spongeRemove: false,
     slide: false, pond: false, settled: false, brake: false,
     wheel: false, shoeIce: false, shoeNormal: false
@@ -120,7 +124,7 @@
   }
   function clearPulses() { for (var pk in pulseTimers) { clearTimeout(pulseTimers[pk]); pulseTimers[pk] = null; } }
   var pushStaticT = 0;                                                      // z9修2：推中且|vx|<2 累计秒数（≥0.8 → pushStatic）
-  var everPushed = false, everMoved = false;                                // z9修2：release 前置——曾推 / 车曾走（vx·d>2）
+  var everPushed = false, everMoved = false;                                // z9修2：release 前置——曾推 / 车曾走（vx·d>2）；z10修2：换鞋清零
 
   /* ===== 地形（P5 坝体剖面护坡）+ 几何访问器 ===== */
   function groundY(x) {
@@ -835,8 +839,12 @@
         if (pushStaticT >= 0.8) { pulse('pushStatic'); pushStaticT = 0; }
       } else pushStaticT = 0;
     } else pushStaticT = 0;
-    if (!pushingNow2 && pushWas && everPushed && everMoved) pulse('release');  // z9修2：曾推且车曾走且脱手（c7r-04）
-    if (pushingNow2) everPushed = true;
+    if (pushingNow2) {
+      if (!pushWas) RS.release = false;                                      // z10修1：推中上升沿清电平
+      everPushed = true;
+    } else if (pushWas && everPushed && everMoved && car.vx * d > 2 && !ice) {
+      RS.release = true;                                                     // z10修1：脱手边沿+当下仍在滑行+非轮滑 → 电平常驻（c7r-04 queue 重判源；1s 脉冲已删）
+    }
     pushWas = pushingNow2;
 
     var decel = FRIC + S.brake / M * BRAKE_SCALE;
@@ -1037,6 +1045,7 @@
     if (s === S.shoe) return;
     S.shoe = s;
     RS.ice = s === 'ice';                                                     // z9修2：电平型 ice 随鞋态
+    everPushed = false; everMoved = false; RS.release = false;                // z10修2：换鞋清前置——轮滑推车不动绝不播松手条
     if (s === 'ice') {
       S.brakeSaved = S.brake; S.brake = BRAKE_MAX;
       S.person.vx = 0; S.person.sliding = false; S.person.off = 0; S.person.baseX = S.person.x;
