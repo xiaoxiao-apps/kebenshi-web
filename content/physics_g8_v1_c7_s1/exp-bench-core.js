@@ -55,9 +55,11 @@
   var L = {};
   function layout() {
     var zEl = document.querySelector('.zone');
-    var zH = zEl ? zEl.offsetHeight : 0;
+    var zH = zEl && zEl.offsetHeight > 0 ? zEl.offsetHeight : (W < 640 ? 150 : 90);   // z8修2：DOM 实测，fallback 按 W 估 150/90
     var narrow = W < 640;
-    L.floorY = Math.round(H - Math.max(H * 0.12, zH + 14));   // 地面/斜面避开底部控制区
+    var uH = W < 900 ? H - zH : H;                            // z8修2：窄屏场景收进 zone 之上（c6 约定；W≥900 布局零改动）
+    L.zoneH = zH; L.uH = uH;
+    L.floorY = W < 900 ? Math.round(uH - Math.max(uH * 0.12, 14)) : Math.round(H - Math.max(H * 0.12, zH + 14));   // 地面/斜面避开底部控制区（弹簧/曲线面板 y 经 floorY 同步）
     L.bx0 = Math.round(W * 0.34);
     L.rx = Math.round(W * 0.52);
     L.rw = Math.min(Math.round(W * 0.36), 340);

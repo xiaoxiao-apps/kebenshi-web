@@ -41,20 +41,24 @@
   /* ===== 布局 L（resize 全量重算） ===== */
   var L = {};
   function layout() {
-    L.roadTop = Math.round(H * 0.58);
-    L.roadH = Math.max(26, Math.round(H * 0.06));
+    var zEl = document.querySelector('.zone');                                  // z8修2：窄屏场景带收进 zone 之上（c6 约定；W≥900 布局零改动）
+    var zoneH = zEl && zEl.offsetHeight > 0 ? zEl.offsetHeight : (W < 640 ? 150 : 90);   // DOM 实测，fallback 按 W 估 150/90
+    var uH = W < 900 ? H - zoneH : H;
+    L.zoneH = zoneH; L.uH = uH;
+    L.roadTop = Math.round(uH * 0.58);
+    L.roadH = Math.max(26, Math.round(uH * 0.06));
     L.roadBot = L.roadTop + L.roadH;
     L.roadLeft = 30;
     L.slopeX = Math.round(W - Math.max(200, W * 0.26));
     L.toeX = W - 20;                                                            // P5：坝体剖面——坡脚
-    L.pondBottom = H - 10;                                                      // p轮：池底
-    L.bumpA = Math.max(3, Math.round(H * 0.008));
+    L.pondBottom = uH - 10;                                                     // p轮：池底（z8：窄屏按 usableH）
+    L.bumpA = Math.max(3, Math.round(uH * 0.008));
     L.personH = Math.max(96, Math.round(H * 0.30 * clamp(W / 700, 0.62, 1)));    // 窄屏按比例收小人，保人车比例
     L.armLen = Math.round(L.personH * 0.36);
     L.pushK = F_MAX / Math.max(10, L.personH * 0.30);
     L.carW = clamp(Math.round(W * 0.24), 118, Math.round(H * 0.44));            // P2：车稍缩小
     L.carH = Math.round(L.carW * 0.42);
-    L.pondY = Math.max(L.roadBot + 4, Math.min(Math.round(H * 0.68), L.pondBottom - Math.round(1.35 * L.carH)));  // p轮：正常高水位——水深≥1.35车高保证整辆没顶
+    L.pondY = Math.max(L.roadBot + 4, Math.min(Math.round(uH * 0.68), L.pondBottom - Math.round(1.35 * L.carH)));  // p轮：正常高水位——水深≥1.35车高保证整辆没顶（z8：y 按 usableH）
     L.restX = W + L.carW * 0.05;                                                // p轮：停住中心=车尾留45%、车头探出画外
     L.wheelR = Math.round(L.carH * 0.30);
     L.homeX = L.roadLeft + L.carW * 0.5 + Math.round((L.slopeX - L.roadLeft - L.carW) * 0.32);
@@ -62,11 +66,16 @@
     L.waterX = L.toeX;                                                          // P5：水位线与坡面交点
     for (var x = L.slopeX; x <= L.toeX; x += 4) { if (groundY(x) >= L.pondY) { L.waterX = x; break; } }
     L.gh = 38;
-    var gy0 = W < 640 ? 112 : 44;                                               // 窄屏：仪表下移让出顶部提示
-    if (W >= 660) { L.gw = clamp(Math.round((W - 48) / 2), 220, 430); L.g1 = { x: 16, y: gy0, w: L.gw }; L.g2 = { x: 32 + L.gw, y: gy0, w: L.gw }; }
-    else { L.gw = W - 32; L.g1 = { x: 16, y: gy0, w: L.gw }; L.g2 = { x: 16, y: gy0 + L.gh + 32, w: L.gw }; }
     L.pedalW = W < 430 ? 58 : 68;
-    L.pedal = { x: W - L.pedalW - 40, y: Math.round(H * (W < 640 ? 0.36 : 0.30)), w: L.pedalW, h: Math.max(120, Math.round(H * 0.32)) };  // P4：竖直滑道
+    var pedX = W - L.pedalW - 40;                                               // z8b修1：pedal.x 先算——W<900 仪表卡右缘让位至 ≤ pedX−12（W≥900 零改动）
+    var gy0 = W < 640 ? 112 : 44;                                               // 窄屏：仪表下移让出顶部提示
+    if (W >= 900) { L.gw = clamp(Math.round((W - 48) / 2), 220, 430); L.g1 = { x: 16, y: gy0, w: L.gw }; L.g2 = { x: 32 + L.gw, y: gy0, w: L.gw }; }
+    else if (W >= 660) { var gCW = Math.round((pedX - 12 - 8) / 2); L.gw = gCW - 16; L.g1 = { x: 16, y: gy0, w: L.gw }; L.g2 = { x: 16 + gCW, y: gy0, w: L.gw }; }   // z8b：横排两卡 cardW=(pedX−12−卡左8−gap0)/2，右对齐数值/满量程随新宽
+    else { L.gw = pedX - 12 - 8 - 16; L.g1 = { x: 16, y: gy0, w: L.gw }; L.g2 = { x: 16, y: gy0 + L.gh + 32, w: L.gw }; }   // z8b：堆叠两卡 cardW=pedX−12−卡左8
+    var pedY = W >= H ? Math.round(H * (W < 640 ? 0.36 : 0.30)) : Math.max(64, Math.round(H * 0.10));   // z8修1：竖屏=天空带右侧；横屏现状满足则不动 y 只加 clamp
+    var pedH = Math.min(Math.max(120, Math.round(H * 0.32)), Math.max(120, L.roadTop - 24 - 46 - pedY)); // clamp(round(H*.32),120,roadTop-24-y-46)
+    if (pedY + pedH + 46 > L.roadTop - 24) pedY = Math.max(8, L.roadTop - 24 - 46 - pedH);              // 硬约束全视口：底+46(读数+提示label) ≤ roadTop-24
+    L.pedal = { x: pedX, y: pedY, w: L.pedalW, h: pedH };                        // P4：竖直滑道（z8：不压护坡；nearPedal 读本 rect 自动同步）
     var mw = clamp(Math.round(Math.min(W, H) * 0.66), 230, 420);
     L.modal = { w: mw, h: mw, x: Math.round((W - mw) / 2), y: Math.round((H - mw) / 2) };
     L.dialR = Math.round(mw * 0.30);
