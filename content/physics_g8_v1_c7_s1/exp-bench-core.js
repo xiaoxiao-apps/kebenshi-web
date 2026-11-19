@@ -11,8 +11,9 @@
  * z11轮：修2 新 flag——BS.annot 电平（标注 toggle 状态随开关 true/false，reset 恢复不归零；c7b-05/c7b-19 超限度双分支门槛）；
  *       BS.zoomOpen 脉冲1s（点测力计本开放大 modal 瞬间置位；弹簧模式无 zoom 不置；c7b-21 构造条触发源）。
  * z13轮：修1 BS.matPlastic 电平（=mat().p>0，换材质同步，reset 恢复）+ BS.balanceEntered 电平（切挂点到测力计置 true，reset 清）；
- *       修2 完成度电平 has*×8（hasPulled/hasMatChanged/hasPlasticTried/hasMassAdded/hasAxisM/hasZoom/hasOverRange/hasAnnotOn，仅 reset 清）——trail c7b-30..38 触发源；
+ *       修2 完成度电平 has*×8（hasPulled/hasMatChanged/hasPlasticTried/hasMassAdded/hasAxisM/hasZoom/hasOverRange/hasAnnotOn，仅 reset 清）——praise c7b-38 触发源；
  *       修3 idle 暴露——window 捕获 pointerdown/keydown/wheel 归零 lastUserT，每 tick 写 BS.idle=(now-lastUserT)/1000（秒，数值）。
+ * z14轮：引导并入动作条（guide-data 已删 8 idle 催办条 + 入场续条）——core 无已删 clip id 引用；BS 电平/完成度置位全保留（praise 链用）。
  * ============================================================ */
 (function () {
   'use strict';
@@ -187,7 +188,7 @@
   function markUser() { lastUserT = performance.now(); }
   function tick(now) {
     var dt = lastNow ? clamp(now - lastNow, 0, 48) : 16; lastNow = now;
-    BS.idle = (now - lastUserT) / 1000;                                       // z13修3：idle 秒数电平（trail c7b-30..37 门槛 idle>6）
+    BS.idle = (now - lastUserT) / 1000;                                       // z13修3：idle 秒数电平（z14：idle 催办条已删，电平保留）
     if (step(dt / 1000, now)) dirty = true;
     if (dirty) { dirty = false; draw(); }
     requestAnimationFrame(tick);
@@ -947,7 +948,7 @@
     });
     on('btn-balance', 'click', function () {
       S.mode = 'balance'; pulse('balanceEnter');                          // z5 修3：c7b-17 测力计入场解说
-      BS.balanceEntered = true;                                           // z13修1：电平（c7b-24 queue 续条触发源；reset 清）
+      BS.balanceEntered = true;                                           // z13修1：入场电平（reset 清；z14：续条已删，电平保留）
       seg('btn-spring', false); seg('btn-balance', true);
       sfx('Click'); setHint('挂点：测力计 — 点测力计本体放大，换砝码读 G=mg，可下拉挂钩'); dirty = true;
     });

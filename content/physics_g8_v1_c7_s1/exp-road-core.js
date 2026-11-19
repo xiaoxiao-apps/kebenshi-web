@@ -10,14 +10,15 @@
  * z9轮：修1 海绵 toggle——S.sponge 缺省 false（手直接推车）；海绵仅 on 时绘制/形变；接触面=海绵脸(on)/车脸(off)，臂IK/够得着同步；
  *       穿轮滑鞋静默置 sponge=false（不播拿掉条）。修2 flag 矩阵重排——电平 sponge/ice/diagram；
  *       脉冲 pushStatic/pushMove/icePush/release/spongeAdd/spongeRemove；删 pushStart/pushNormal/staticHold/iceSlide/iceLock。
- * z10轮：修1 release 改电平——脱手边沿 && car.vx·d>2（当下仍在滑行）&& 非轮滑 → RS.release=true 常驻（1s 脉冲删除；
- *       配合 guide-data c7r-04 queue:true 续条：引擎 defer 发火前重判电平=true 才播 → 推车条播完才播松手条）；
+ * z10轮：修1 release 改电平——脱手边沿 && car.vx·d>2（当下仍在滑行）&& 非轮滑 → RS.release=true 常驻（1s 脉冲删除）；
  *       清 false 时机=下次推中上升沿 / 重置 / 换鞋。修2 换鞋清前置——shoeIce/shoeNormal 清 everPushed/everMoved/RS.release。
- * z11轮：修1 release 双门槛——(a) 进入 slide 瞬间 RS.release=false（queue 续条重判作废 → 滑落期间不播松手条）；
- *       (b) 置位加 !S.sponge（隔海绵推不播松手条；guide-data trigger 同门槛双保险）。修3 方向盘阻尼加大——omega 衰减 3.2→6.5、DIAL_KT 5.5→4.2（FRES/clamp 不变）。
+ * z11轮：修1 release 双门槛——(a) 进入 slide 瞬间 RS.release=false；
+ *       (b) 置位加 !S.sponge（隔海绵推不置电平）。修3 方向盘阻尼加大——omega 衰减 3.2→6.5、DIAL_KT 5.5→4.2（FRES/clamp 不变）。
  * z12轮：修1 release 置位边沿加 car.mode==='road' 门槛——持触推车越坡时 mode 变化构成合成脱手边沿，不得在 z11a 清零后复置电平（slide/pond/settled 期间任何边沿都不置）。
- * z13轮：修2 完成度电平 has*×8（hasPushed/hasCoasted/hasBraked/hasIcePushed/hasSpongePushed/hasDiagramOn/hasWheel/hasSlid，置 true 后仅 resetCar 清）——trail c7r-30..37 触发源；
+ * z13轮：修2 完成度电平 has*×8（hasPushed/hasCoasted/hasBraked/hasIcePushed/hasSpongePushed/hasDiagramOn/hasWheel/hasSlid，置 true 后仅 resetCar 清）——praise c7r-37 触发源；
  *       修3 idle 暴露——window 捕获 pointerdown/keydown/wheel 归零 lastUserT，每 tick 写 RS.idle=(now-lastUserT)/1000（秒，数值）。
+ * z14轮：引导并入动作条（guide-data 已删松手条/15 idle 催办条/入场续条）——修1 brakeLevel 暴露：RS.brakeLevel=S.brake 数值电平每 tick 同步
+ *       （c7r-03 brakeLevel===0 / c7r-25 brakeLevel>0 双分支门槛，防引导循环）；修2 release 残留守卫：RS.release/hasCoasted 置位保留（praise 链用），core 无已删 clip id 引用。
  * ============================================================ */
 (function () {
   'use strict';
@@ -110,7 +111,7 @@
 
   /* z7轮修1：guide 解说状态源（engine-core 轮询；事件标志=pulse 置 true 后 1.0s 自动归零→重复动作产生新边沿可重复播报；
      z9修2：电平型 sponge/ice/diagram 随开关/鞋态 true/false，不归零；
-     z10修1：release 改电平——脱手边沿+当下滑行(vx·d>2)+非轮滑 → true 常驻；清 false=推中上升沿/重置/换鞋（c7r-04 queue 续条重判源）；
+     z10修1：release 改电平——脱手边沿+当下滑行(vx·d>2)+非轮滑 → true 常驻；清 false=推中上升沿/重置/换鞋（z14：松手条已删，电平保留备 praise 链）；
      脉冲 pushStatic=推中且|vx|<2 持续0.8s / pushMove=推中且车向前走(vx·d>2) / icePush=ice且推中 /
      spongeAdd/spongeRemove=toggle；slide/brake/wheel/shoeIce/shoeNormal 沿用 */
   var RS = {
@@ -121,7 +122,8 @@
     wheel: false, shoeIce: false, shoeNormal: false,
     hasPushed: false, hasCoasted: false, hasBraked: false, hasIcePushed: false,   // z13修2：完成度电平（置 true 后仅 resetCar 清）
     hasSpongePushed: false, hasDiagramOn: false, hasWheel: false, hasSlid: false,
-    idle: 0                                                                       // z13修3：距上次用户动作秒数（每 tick 写）
+    idle: 0,                                                                      // z13修3：距上次用户动作秒数（每 tick 写）
+    brakeLevel: 0                                                                 // z14修1：刹车数值电平=S.brake（每 tick 同步；c7r-03/25 双分支门槛）
   };
   window.C7S1_STATE = { mode: 'road', road: RS };
   var pulseTimers = {};                                                       // z7轮：pulse 定时器表（reset 清表）
@@ -225,6 +227,7 @@
     for (var rk in RS) RS[rk] = false;                                        // guide 事件标志归零（可重新触发全部解说）
     RS.diagram = S.diagram;                                                   // z7轮修2：电平型 diagram 不归零，随开关状态恢复
     RS.sponge = S.sponge; RS.ice = S.shoe === 'ice';                          // z9修2：电平型 sponge/ice 随开关/鞋态恢复
+    RS.brakeLevel = S.brake;                                                  // z14修1：数值电平随重置后刹车值恢复
     pushStaticT = 0; pushWas = false; everPushed = false; everMoved = false;
     if (window.ForceOverlay) ForceOverlay.clear();
     dirty = true;
@@ -236,7 +239,8 @@
   function markUser() { lastUserT = performance.now(); }
   function tick(now) {
     var dt = lastNow ? Math.min(48, now - lastNow) : 16; lastNow = now;
-    RS.idle = (now - lastUserT) / 1000;                                         // z13修3：idle 秒数电平（trail c7r-30..36 门槛 idle>6）
+    RS.idle = (now - lastUserT) / 1000;                                         // z13修3：idle 秒数电平（z14：idle 催办条已删，电平保留）
+    RS.brakeLevel = S.brake;                                                    // z14修1：刹车数值电平每 tick 同步（c7r-03 ===0 / c7r-25 >0 分支门槛）
     if (step(dt / 1000, now)) dirty = true;
     if (dirty) { dirty = false; draw(); }
     requestAnimationFrame(tick);
