@@ -10,6 +10,9 @@
  * z9轮：修2 BS.hangG flag 及置位点删除（guide-data 已无 c7b-16 step；ForceOverlay 'hangG' 矢量 id 不受影响）。
  * z11轮：修2 新 flag——BS.annot 电平（标注 toggle 状态随开关 true/false，reset 恢复不归零；c7b-05/c7b-19 超限度双分支门槛）；
  *       BS.zoomOpen 脉冲1s（点测力计本开放大 modal 瞬间置位；弹簧模式无 zoom 不置；c7b-21 构造条触发源）。
+ * z13轮：修1 BS.matPlastic 电平（=mat().p>0，换材质同步，reset 恢复）+ BS.balanceEntered 电平（切挂点到测力计置 true，reset 清）；
+ *       修2 完成度电平 has*×8（hasPulled/hasMatChanged/hasPlasticTried/hasMassAdded/hasAxisM/hasZoom/hasOverRange/hasAnnotOn，仅 reset 清）——trail c7b-30..38 触发源；
+ *       修3 idle 暴露——window 捕获 pointerdown/keydown/wheel 归零 lastUserT，每 tick 写 BS.idle=(now-lastUserT)/1000（秒，数值）。
  * ============================================================ */
 (function () {
   'use strict';
@@ -105,7 +108,11 @@
     pull: false, press: false, weightAdd: false, overLimit: false,            // z9修2：hangG 已删（c7b-16 step 不存在）
     material: false, tilt: false, flat: false, axisM: false, overRange: false,
     bdragRelease: false, balanceEnter: false, eye: false, reset: false,
-    diagram: false, annot: false, zoomOpen: false                             // z11修2：annot 电平（标注 toggle）+ zoomOpen 脉冲（测力计放大 modal 开启瞬间）
+    diagram: false, annot: false, zoomOpen: false,                            // z11修2：annot 电平（标注 toggle）+ zoomOpen 脉冲（测力计放大 modal 开启瞬间）
+    matPlastic: false, balanceEntered: false,                                 // z13修1：塑性材质电平（=mat().p>0）+ 进过测力计模式电平（reset 清）
+    hasPulled: false, hasMatChanged: false, hasPlasticTried: false, hasMassAdded: false,   // z13修2：完成度电平（置 true 后仅 reset 清）
+    hasAxisM: false, hasZoom: false, hasOverRange: false, hasAnnotOn: false,
+    idle: 0                                                                   // z13修3：距上次用户动作秒数（每 tick 写）
   };
   window.C7S1_STATE = { mode: 'bench', bench: BS };
   var pulseTimers = {};                                                       // z7轮：pulse 定时器表（reset 清表）
@@ -176,8 +183,11 @@
   function canvasXY(ev) { var r = cv.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
 
   /* ===== rAF 单循环 ===== */
+  var lastUserT = 0;                                                          // z13修3：上次用户动作时刻（wire 里 window 捕获 pointerdown/keydown/wheel 归零）
+  function markUser() { lastUserT = performance.now(); }
   function tick(now) {
     var dt = lastNow ? clamp(now - lastNow, 0, 48) : 16; lastNow = now;
+    BS.idle = (now - lastUserT) / 1000;                                       // z13修3：idle 秒数电平（trail c7b-30..37 门槛 idle>6）
     if (step(dt / 1000, now)) dirty = true;
     if (dirty) { dirty = false; draw(); }
     requestAnimationFrame(tick);
@@ -228,7 +238,7 @@
       var b = S.bal;
       var Fn = forceOf(S.n);                                              // z4 修3：F=mg（质量档）
       var tgt = b.dragF >= 0 ? b.dragF : Fn;                              // 测力计读数 = G = mg
-      if (tgt > RANGE) { b.flash = 0.4; tgt = RANGE; pulse('overRange'); }   // 超过量程 5N：红闪（c7b-10）
+      if (tgt > RANGE) { b.flash = 0.4; tgt = RANGE; pulse('overRange'); BS.hasOverRange = true; }   // 超过量程 5N：红闪（c7b-10）；z13修2：hasOverRange
       if (b.v !== 0 || b.r !== tgt || b.dragF >= 0) {
         var a2 = OMEGA * OMEGA * (tgt - b.r) - 2 * 0.2 * OMEGA * b.v;    // 指针 ζ=0.2 ωₙ=12（回零过冲）
         b.v += a2 * dt; b.r += b.v * dt; moved = true;
@@ -872,7 +882,7 @@
       } else {
         var mb = meterBodyBox();                                           // z2 修3：点测力计本体 → 放大 modal
         if (p.x >= mb.x0 && p.x <= mb.x1 && p.y >= mb.y0 && p.y <= mb.y1) {
-          S.zoom = true; pulse('zoomOpen'); sfx('Click');                   // z11修2：zoomOpen 脉冲（c7b-21 构造条；弹簧模式无 zoom 不置）
+          S.zoom = true; pulse('zoomOpen'); BS.hasZoom = true; sfx('Click');   // z11修2：zoomOpen 脉冲（c7b-21 构造条；弹簧模式无 zoom 不置）；z13修2：hasZoom
           setHint('放大视图：吊环/外壳/刻度面板/弹簧/指针/拉杆/挂钩 — 点右上「读数」看视线');
           ev.preventDefault(); dirty = true;
         }
@@ -884,7 +894,8 @@
     if (S.ps.mode === 'spdrag') {
       S.sp.x = clamp((p.y - restY()) / L.PXCM, hardMinX(), hardMaxX()); S.sp.v = 0; dirty = true; ev.preventDefault();
       var dz = S.sp.x - steadyExt(S.n);
-      if (dz > 0.05) pulse('pull'); else if (dz < -0.05) pulse('press');   // z轮六4：下拉(c7b-02)/上压(c7b-03)事件
+      if (dz > 0.05) { pulse('pull'); BS.hasPulled = true; if (BS.matPlastic) BS.hasPlasticTried = true; }   // z轮六4：下拉(c7b-02)事件；z13修2：hasPulled/hasPlasticTried
+      else if (dz < -0.05) { pulse('press'); if (BS.matPlastic) BS.hasPlasticTried = true; }                // z轮六4：上压(c7b-03)事件；z13修2：hasPlasticTried
     } else if (S.ps.mode === 'bdrag') {
       S.bal.dragF = clamp((p.y - hookRestY()) / (L.PXCM * 0.7), 0, 8); dirty = true; ev.preventDefault();
     }
@@ -902,6 +913,7 @@
     var nn = clamp(S.n + delta, 0, MAS.length - 1);
     if (nn === S.n) { if (delta > 0) setHint('最大砝码 ' + MAS[MAS.length - 1] + 'g'); return; }
     S.n = nn; setText('lbl-w', wLabel());
+    if (S.n > 0) BS.hasMassAdded = true;                                    // z13修2：加过砝码完成度（m>0 首次即置）
     if (S.mode === 'spring') {
       if (delta > 0) { S.curve.pending = true; }
       else { for (var k in S.curve.pts) if (+k > S.n) delete S.curve.pts[k]; S.curve.pending = false; }
@@ -925,6 +937,7 @@
   }
   function wire() {
     function on(id, ev, fn) { var el = document.getElementById(id); if (el) el.addEventListener(ev, fn); }
+    ['pointerdown', 'keydown', 'wheel'].forEach(function (e) { window.addEventListener(e, markUser, true); });   // z13修3：任何用户动作归零 idle 计时
     on('btn-flat', 'click', function () { S.tilt.target = 0; pulse('flat'); seg('btn-flat', true); seg('btn-tilt', false); sfx('Click'); setHint('铁架台回到水平桌面'); dirty = true; });
     on('btn-tilt', 'click', function () { S.tilt.target = 1; pulse('tilt'); seg('btn-flat', false); seg('btn-tilt', true); sfx('Click'); setHint('架倾斜，悬挂物仍世界竖直 → 重力方向竖直向下'); dirty = true; });
     on('btn-spring', 'click', function () {
@@ -934,6 +947,7 @@
     });
     on('btn-balance', 'click', function () {
       S.mode = 'balance'; pulse('balanceEnter');                          // z5 修3：c7b-17 测力计入场解说
+      BS.balanceEntered = true;                                           // z13修1：电平（c7b-24 queue 续条触发源；reset 清）
       seg('btn-spring', false); seg('btn-balance', true);
       sfx('Click'); setHint('挂点：测力计 — 点测力计本体放大，换砝码读 G=mg，可下拉挂钩'); dirty = true;
     });
@@ -941,12 +955,13 @@
       S.mat = clamp(parseInt(e.target.value, 10) || 0, 0, 4);
       S.sp = { x: 0, v: 0, rest: 0, maxOver: 0 }; S.curve.pts = {}; S.curve.pending = false;
       pulse('material');                                                    // z轮六4：c7b-06
+      BS.matPlastic = mat().p > 0; BS.hasMatChanged = true;                 // z13修1：塑性材质电平同步；z13修2：换过材质完成度
       setText('lbl-mat', mat().name); setHint(mat().note); dirty = true;
     });
     on('btn-w-minus', 'click', function () { setN(-1); });
     on('btn-w-plus', 'click', function () { setN(1); });
     on('btn-axis-f', 'click', function () { S.curve.axis = 'F'; seg('btn-axis-f', true); seg('btn-axis-m', false); sfx('Click'); dirty = true; });
-    on('btn-axis-m', 'click', function () { S.curve.axis = 'm'; pulse('axisM'); seg('btn-axis-f', false); seg('btn-axis-m', true); sfx('Click'); setHint('横轴 m(kg)：斜率 = g/k（含 g）；横轴 F(N)：斜率 = 1/k'); dirty = true; });
+    on('btn-axis-m', 'click', function () { S.curve.axis = 'm'; pulse('axisM'); BS.hasAxisM = true; seg('btn-axis-f', false); seg('btn-axis-m', true); sfx('Click'); setHint('横轴 m(kg)：斜率 = g/k（含 g）；横轴 F(N)：斜率 = 1/k'); dirty = true; });   // z13修2：hasAxisM
     on('btn-diagram', 'click', function () {
       S.diagram = !S.diagram;
       BS.diagram = S.diagram;                                                // z7轮修2：电平型 flag 随开关 true/false（c7b-18 触发源）
@@ -967,6 +982,7 @@
       for (var bk in BS) BS[bk] = false;                                     // 事件标志归零（可重触发全部解说）
       BS.diagram = S.diagram;                                                // z7轮修2：电平型 diagram 不归零，随开关状态恢复
       BS.annot = S.annot;                                                    // z11修2：电平型 annot 同理（标注 toggle 状态不随 reset 翻转）
+      BS.matPlastic = mat().p > 0;                                           // z13修1：电平型 matPlastic 随当前材质恢复（balanceEntered/has* 全清）
       pulse('reset');                                                        // c7b-15：重置本身是事件（1.0s 后自动归零）
       if (window.GUIDE_RESET) window.GUIDE_RESET.all();                      // 接口契约3——页面重置后语音字幕全部从头
       setHint('已重置：拖悬挂物按压/拉伸，或换砝码'); sfx('Click'); dirty = true;
@@ -974,6 +990,7 @@
     on('btn-annot', 'click', function () {                                   // z7轮修4：标注 toggle（缺省关；曲线面板不受控）
       S.annot = !S.annot;
       BS.annot = S.annot;                                                    // z11修2：电平型 flag 随开关（c7b-05/c7b-19 超限度双分支门槛）
+      if (S.annot) BS.hasAnnotOn = true;                                     // z13修2：标注开过完成度（粘性，关不掉）
       seg('btn-annot', S.annot);
       setHint(S.annot ? '标注 ON：基准线/弹性限度线/ΔL/放大图引线标注全部显示' : '标注 OFF：纯净场景，仅器材与读数');
       sfx('Click'); dirty = true;

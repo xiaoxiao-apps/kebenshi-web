@@ -16,6 +16,8 @@
  * z11轮：修1 release 双门槛——(a) 进入 slide 瞬间 RS.release=false（queue 续条重判作废 → 滑落期间不播松手条）；
  *       (b) 置位加 !S.sponge（隔海绵推不播松手条；guide-data trigger 同门槛双保险）。修3 方向盘阻尼加大——omega 衰减 3.2→6.5、DIAL_KT 5.5→4.2（FRES/clamp 不变）。
  * z12轮：修1 release 置位边沿加 car.mode==='road' 门槛——持触推车越坡时 mode 变化构成合成脱手边沿，不得在 z11a 清零后复置电平（slide/pond/settled 期间任何边沿都不置）。
+ * z13轮：修2 完成度电平 has*×8（hasPushed/hasCoasted/hasBraked/hasIcePushed/hasSpongePushed/hasDiagramOn/hasWheel/hasSlid，置 true 后仅 resetCar 清）——trail c7r-30..37 触发源；
+ *       修3 idle 暴露——window 捕获 pointerdown/keydown/wheel 归零 lastUserT，每 tick 写 RS.idle=(now-lastUserT)/1000（秒，数值）。
  * ============================================================ */
 (function () {
   'use strict';
@@ -116,7 +118,10 @@
     pushStatic: false, pushMove: false, icePush: false,
     spongeAdd: false, spongeRemove: false,
     slide: false, pond: false, settled: false, brake: false,
-    wheel: false, shoeIce: false, shoeNormal: false
+    wheel: false, shoeIce: false, shoeNormal: false,
+    hasPushed: false, hasCoasted: false, hasBraked: false, hasIcePushed: false,   // z13修2：完成度电平（置 true 后仅 resetCar 清）
+    hasSpongePushed: false, hasDiagramOn: false, hasWheel: false, hasSlid: false,
+    idle: 0                                                                       // z13修3：距上次用户动作秒数（每 tick 写）
   };
   window.C7S1_STATE = { mode: 'road', road: RS };
   var pulseTimers = {};                                                       // z7轮：pulse 定时器表（reset 清表）
@@ -227,8 +232,11 @@
   function canvasXY(ev) { var r = cv.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
 
   /* ===== rAF 单循环 ===== */
+  var lastUserT = 0;                                                            // z13修3：上次用户动作时刻（wire 里 window 捕获 pointerdown/keydown/wheel 归零）
+  function markUser() { lastUserT = performance.now(); }
   function tick(now) {
     var dt = lastNow ? Math.min(48, now - lastNow) : 16; lastNow = now;
+    RS.idle = (now - lastUserT) / 1000;                                         // z13修3：idle 秒数电平（trail c7r-30..36 门槛 idle>6）
     if (step(dt / 1000, now)) dirty = true;
     if (dirty) { dirty = false; draw(); }
     requestAnimationFrame(tick);
@@ -835,11 +843,15 @@
     }
     var pushingNow2 = S.push.active && S.push.F > 0.05 && car.mode === 'road';
     if (pushingNow2) {                                                       // z9修2：脉冲矩阵——icePush/pushMove/pushStatic（删 pushStart/pushNormal/staticHold）
-      if (ice) pulse('icePush');                                             // c7r-22：冰面推中人后滑
-      if (car.vx * d > 2) { pulse('pushMove'); everMoved = true; }           // c7r-03/20：推中车向前走（右推 vx<0 → 按 vx·d 判向前）
+      if (ice) { pulse('icePush'); RS.hasIcePushed = true; }                   // c7r-22：冰面推中人后滑；z13修2
+      if (car.vx * d > 2) {                                                    // c7r-03/20：推中车向前走（右推 vx<0 → 按 vx·d 判向前）
+        pulse('pushMove'); everMoved = true;
+        RS.hasPushed = true;                                                   // z13修2
+        if (S.sponge) RS.hasSpongePushed = true;                               // z13修2：隔海绵推车完成度
+      }
       if (Math.abs(car.vx) < 2) {                                            // c7r-21：推中车未动持续0.8s
         pushStaticT += dt;
-        if (pushStaticT >= 0.8) { pulse('pushStatic'); pushStaticT = 0; }
+        if (pushStaticT >= 0.8) { pulse('pushStatic'); pushStaticT = 0; RS.hasPushed = true; }   // z13修2：静推也算推过
       } else pushStaticT = 0;
     } else pushStaticT = 0;
     if (pushingNow2) {
@@ -847,6 +859,7 @@
       everPushed = true;
     } else if (pushWas && everPushed && everMoved && car.vx * d > 2 && !ice && !S.sponge && car.mode === 'road') {
       RS.release = true;                                                     // z10修1：脱手边沿+当下仍在滑行+非轮滑 → 电平常驻；z11修1b：加 !S.sponge（隔海绵推不播松手条）；z12修1：加 mode==='road'（持触越坡 mode 变化=合成脱手边沿，不得复置电平）
+      RS.hasCoasted = true;                                                  // z13修2：松手滑行完成度
     }
     pushWas = pushingNow2;
 
@@ -865,7 +878,7 @@
       var minX = L.roadLeft + L.carW * 0.5;
       if (car.x < minX) { car.x = minX; if (car.vx < 0) car.vx = 0; }
       if (car.x >= L.slopeX && car.vx > 0) {
-        car.mode = 'slide'; RS.release = false; pulse('slide'); setHint('车越过路尽头 → 沿护坡滑下：重力加速，坡面起伏减速'); sfx('Click');   // x轮修3：c7r-05；z11修1a：进 slide 清 release 电平（queue 续条重判作废 → 滑落期间不播松手条）
+        car.mode = 'slide'; RS.release = false; RS.hasSlid = true; pulse('slide'); setHint('车越过路尽头 → 沿护坡滑下：重力加速，坡面起伏减速'); sfx('Click');   // x轮修3：c7r-05；z11修1a：进 slide 清 release 电平（queue 续条重判作废 → 滑落期间不播松手条）；z13修2：hasSlid
       }
       if (Math.abs(car.vx) > 0.05) ch = true;
     } else if (car.mode === 'slide') {
@@ -947,13 +960,14 @@
   function nearPedal(p) { var q = L.pedal; return p.x >= q.x - 12 && p.x <= q.x + q.w + 12 && p.y >= q.y - 30 && p.y <= q.y + q.h + 40; }
   function brakeFromY(y) {
     var nb = clamp((y - (L.pedal.y + 10)) / (L.pedal.h - 20), 0, 1) * BRAKE_MAX;
-    if (nb > S.brake + 1e-9) pulse('brake');                                // x轮修3：刹车增大（c7r-08）
+    if (nb > S.brake + 1e-9) { pulse('brake'); RS.hasBraked = true; }        // x轮修3：刹车增大（c7r-08）；z13修2：hasBraked
     S.brake = nb;
   }
   function setHint(t) { }                                                       // x轮修4：#hint 框已删——知识点由 guide 语音字幕承载（c7r-01..14）；no-op 防调用点报错
   function openWheel() {
     S.wheelZoom = true; S.dial.msg = '按住轮上一点拖动试试'; seg('btn-wheel', true); sfx('Click');
     pulse('wheel');                                                           // x轮修3：c7r-11
+    RS.hasWheel = true;                                                       // z13修2：方向盘放大区完成度
     dirty = true;
   }
   function closeWheel() {
@@ -1075,6 +1089,7 @@
   }
   function wire() {
     function on(id, ev, fn) { var el = document.getElementById(id); if (el) el.addEventListener(ev, fn); }
+    ['pointerdown', 'keydown', 'wheel'].forEach(function (e) { window.addEventListener(e, markUser, true); });   // z13修3：任何用户动作归零 idle 计时
     on('btn-shoe-normal', 'click', function () { setShoe('normal'); });
     on('btn-shoe-ice', 'click', function () { setShoe('ice'); });
     on('btn-push-left', 'click', function () { setPushDir('left'); });
@@ -1091,6 +1106,7 @@
     on('btn-diagram', 'click', function () {
       S.diagram = !S.diagram;
       RS.diagram = S.diagram;                                                 // z7轮修2：电平型 flag 随开关 true/false（c7r-18/c7r-19 触发源）
+      if (S.diagram) RS.hasDiagramOn = true;                                  // z13修2：示意图开过完成度（粘性，关不掉）
       if (window.ForceOverlay) ForceOverlay.setOn(S.diagram);
       var b = document.getElementById('btn-diagram'); if (b) b.classList.toggle('on', S.diagram);
       setHint(S.diagram ? '力的示意图：开 — 仅当前活跃交互/事件画矢量（1cm=50N）' : '力的示意图：关 — 全场景不画矢量');
