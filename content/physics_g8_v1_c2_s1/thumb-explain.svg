@@ -1,5 +1,63 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
-  <rect width="640" height="360" fill="url(#bg)"/>
-<g transform="translate(-34,-14) scale(1.12)"><rect x="250" y="92" width="28" height="128" rx="13" fill="#9db8d6" stroke="#3d3830" stroke-width="2.5"/><rect x="322" y="92" width="28" height="128" rx="13" fill="#9db8d6" stroke="#3d3830" stroke-width="2.5"/><rect x="250" y="192" width="100" height="34" rx="15" fill="#9db8d6" stroke="#3d3830" stroke-width="2.5"/><rect x="286" y="220" width="28" height="86" rx="13" fill="#7fa3c9" stroke="#3d3830" stroke-width="2.5"/><circle cx="264" cy="135" r="5.5" fill="#3d3830"/><circle cx="265.925" cy="133.075" r="1.65" fill="#ffffff"/><circle cx="336" cy="135" r="5.5" fill="#3d3830"/><circle cx="337.925" cy="133.075" r="1.65" fill="#ffffff"/><path d="M289.0,203 q11.0,7 22,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/></g><path d="M227.4,151.6 A24,24 0 0,1 227.4,188.4" fill="none" stroke="#e8a04a" stroke-width="5" stroke-linecap="round"/><path d="M237.7,139.4 A40,40 0 0,1 237.7,200.6" fill="none" stroke="#e8a04a" stroke-width="5" stroke-linecap="round"/><path d="M442.6,151.6 A24,24 0 0,0 442.6,188.4" fill="none" stroke="#e8a04a" stroke-width="5" stroke-linecap="round"/><path d="M432.3,139.4 A40,40 0 0,0 432.3,200.6" fill="none" stroke="#e8a04a" stroke-width="5" stroke-linecap="round"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(520,80) scale(1.05)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(110,290) scale(0.7)" fill="#e8a04a"/>
+  <defs>
+    <linearGradient id="bg5" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffdf8"/><stop offset="1" stop-color="#eee2cf"/>
+    </linearGradient>
+    <linearGradient id="guitar5" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0a95e"/><stop offset="0.55" stop-color="#c98f45"/><stop offset="1" stop-color="#a9702f"/>
+    </linearGradient>
+    <radialGradient id="hole5" cx="50%" cy="42%" r="60%">
+      <stop offset="0" stop-color="#2e1d0e"/><stop offset="1" stop-color="#4a3018"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 亮底渐变 -->
+  <rect width="640" height="360" fill="url(#bg5)"/>
+
+  <!-- 吉他面板（横置特写，占画面主体） -->
+  <path d="M-10 56 Q150 24 320 44 Q520 66 650 40 L650 320 Q520 344 320 318 Q150 298 -10 328 Z" fill="url(#guitar5)"/>
+  <!-- 木纹 -->
+  <g stroke="#8f5c22" stroke-width="1.2" opacity="0.3" fill="none">
+    <path d="M0 96 Q300 78 640 92"/>
+    <path d="M0 268 Q320 288 640 264"/>
+  </g>
+  <!-- 面板边缘高光 -->
+  <path d="M-10 56 Q150 24 320 44 Q520 66 650 40" fill="none" stroke="#f0c98a" stroke-width="5" opacity="0.7"/>
+
+  <!-- 音孔（右侧，深色圆 + 镶圈） -->
+  <circle cx="468" cy="184" r="72" fill="none" stroke="#e8c992" stroke-width="6"/>
+  <circle cx="468" cy="184" r="64" fill="none" stroke="#7c5a2a" stroke-width="2"/>
+  <circle cx="468" cy="184" r="60" fill="url(#hole5)"/>
+  <!-- 音孔内琴桥暗影 -->
+  <rect x="424" y="214" width="88" height="10" rx="4" fill="#1c1108" opacity="0.6"/>
+
+  <!-- 琴桥与弦钉（左下） -->
+  <rect x="52" y="238" width="96" height="16" rx="6" fill="#5d3d1c"/>
+  <g fill="#d9c6a8"><circle cx="66" cy="262" r="3.5"/><circle cx="84" cy="262" r="3.5"/><circle cx="102" cy="262" r="3.5"/><circle cx="120" cy="262" r="3.5"/></g>
+
+  <!-- 六根琴弦（横向） -->
+  <g stroke="#efe6d4" stroke-width="2">
+    <line x1="0" y1="120" x2="640" y2="120"/>
+    <line x1="0" y1="140" x2="640" y2="140"/>
+    <line x1="0" y1="162" x2="640" y2="162"/>
+    <line x1="0" y1="204" x2="640" y2="204"/>
+    <line x1="0" y1="224" x2="640" y2="224"/>
+  </g>
+
+  <!-- 第4弦正在振动：上下包络虚线（一个动作） -->
+  <g>
+    <line x1="0" y1="183" x2="640" y2="183" stroke="#f6efdf" stroke-width="2.4"/>
+    <path d="M170 183 Q250 164 330 183 Q410 202 490 183" fill="none" stroke="#2f6fb5" stroke-width="2" stroke-dasharray="6 5" opacity="0.85"/>
+    <path d="M170 183 Q250 202 330 183 Q410 164 490 183" fill="none" stroke="#2f6fb5" stroke-width="2" stroke-dasharray="6 5" opacity="0.85"/>
+    <path d="M170 183 Q330 158 490 183 Q330 208 170 183 Z" fill="#2f6fb5" opacity="0.08"/>
+  </g>
+
+  <!-- 声波弧（从音孔向外，示意空气中传播） -->
+  <g fill="none" stroke="#c0392b" stroke-width="3" stroke-linecap="round">
+    <path d="M576 140 Q594 184 576 228" opacity="0.8"/>
+    <path d="M600 118 Q628 184 600 250" opacity="0.5"/>
+  </g>
+
+  <!-- 说明 -->
+  <text x="36" y="40" font-family="-apple-system,'PingFang SC',sans-serif" font-size="18" font-weight="700" fill="#5d3d1c">弦振动发声 · 声波经空气向外传播</text>
 </svg>

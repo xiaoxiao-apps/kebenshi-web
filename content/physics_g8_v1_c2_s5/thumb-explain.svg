@@ -1,5 +1,73 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
-  <rect width="640" height="360" fill="url(#bg)"/>
-<rect x="212" y="152" width="196" height="140" rx="16" fill="#f2d9a4" stroke="#3d3830" stroke-width="2.5"/><path d="M192,164 Q310,62 428,164 Z" fill="#e8734a" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><rect x="284" y="216" width="52" height="76" rx="10" fill="#b0763f" stroke="#3d3830" stroke-width="2.5"/><circle cx="298" cy="244" r="4.5" fill="#3d3830"/><circle cx="299.575" cy="242.425" r="1.3499999999999999" fill="#ffffff"/><circle cx="322" cy="244" r="4.5" fill="#3d3830"/><circle cx="323.575" cy="242.425" r="1.3499999999999999" fill="#ffffff"/><path d="M301.0,258 q9.0,6 18,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><circle cx="250" cy="196" r="17" fill="#cfe6f5" stroke="#3d3830" stroke-width="2.4"/><circle cx="372" cy="196" r="17" fill="#cfe6f5" stroke="#3d3830" stroke-width="2.4"/><path d="M158.4,181.6 A26,26 0 0,1 158.4,218.4" fill="none" stroke="#9db8d6" stroke-width="5" stroke-linecap="round"/><path d="M170.4,169.6 A43,43 0 0,1 170.4,230.4" fill="none" stroke="#9db8d6" stroke-width="5" stroke-linecap="round"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(500,92) scale(1.1)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(540,160) scale(0.7)" fill="#e8a04a"/>
+  <defs>
+    <linearGradient id="bg9" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdfcfa"/><stop offset="1" stop-color="#e2e6dd"/>
+    </linearGradient>
+    <linearGradient id="table9" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9b98c"/><stop offset="1" stop-color="#bd9a6b"/>
+    </linearGradient>
+    <linearGradient id="foam9" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a5f66"/><stop offset="1" stop-color="#33373d"/>
+    </linearGradient>
+    <linearGradient id="felt9" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#efe5cf"/><stop offset="1" stop-color="#d8c8a8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 亮底渐变 -->
+  <rect width="640" height="360" fill="url(#bg9)"/>
+
+  <!-- 木桌面 -->
+  <rect x="0" y="272" width="640" height="88" fill="url(#table9)"/>
+  <rect x="0" y="272" width="640" height="6" fill="#e6cba2"/>
+  <g stroke="#b8946a" stroke-width="1.5" opacity="0.45">
+    <line x1="0" y1="302" x2="640" y2="302"/>
+    <line x1="0" y1="332" x2="640" y2="332"/>
+  </g>
+
+  <!-- 左：波峰吸音棉（蛋棉）剖面块 -->
+  <g>
+    <!-- 基座 -->
+    <rect x="60" y="228" width="240" height="46" rx="4" fill="url(#foam9)"/>
+    <!-- 波峰锥体（前排） -->
+    <path d="M60 228 L84 156 L108 228 L132 156 L156 228 L180 156 L204 228 L228 156 L252 228 L276 156 L300 228 Z" fill="#4a4f56"/>
+    <!-- 波峰高光面 -->
+    <path d="M84 156 L108 228 L96 228 L78 172 Z M132 156 L156 228 L144 228 L126 172 Z M180 156 L204 228 L192 228 L174 172 Z M228 156 L252 228 L240 228 L222 172 Z M276 156 L300 228 L288 228 L270 172 Z" fill="#666c74" opacity="0.8"/>
+    <!-- 侧面厚度 -->
+    <path d="M60 228 L60 274 L300 274 L300 228 Z" fill="#2c3036" opacity="0.35"/>
+  </g>
+
+  <!-- 右：毛毡/矿棉样品块（叠放两层） -->
+  <g>
+    <rect x="388" y="216" width="184" height="30" rx="5" fill="url(#felt9)" stroke="#c2b291" stroke-width="1.5"/>
+    <rect x="388" y="244" width="184" height="30" rx="5" fill="#cdbb98" stroke="#b8a37c" stroke-width="1.5"/>
+    <!-- 纤维纹理 -->
+    <g stroke="#b3a17c" stroke-width="1.2" opacity="0.7">
+      <line x1="398" y1="226" x2="562" y2="226"/>
+      <line x1="398" y1="236" x2="562" y2="236"/>
+      <line x1="398" y1="254" x2="562" y2="254"/>
+      <line x1="398" y1="264" x2="562" y2="264"/>
+    </g>
+    <!-- 样品标签 -->
+    <rect x="452" y="222" width="56" height="18" rx="3" fill="#ffffff" stroke="#c2b291"/>
+    <text x="480" y="235" font-family="-apple-system,'PingFang SC',sans-serif" font-size="10" fill="#6c5b3e" text-anchor="middle">吸音棉</text>
+  </g>
+
+  <!-- 声波入射（红色实线弧，进入材料前） -->
+  <g fill="none" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round">
+    <path d="M120 96 Q140 116 132 140" opacity="0.9"/>
+    <path d="M180 84 Q204 108 194 136" opacity="0.7"/>
+    <path d="M244 92 Q264 114 256 140" opacity="0.5"/>
+  </g>
+  <!-- 入射方向箭头 -->
+  <g>
+    <line x1="80" y1="70" x2="108" y2="98" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/>
+    <polygon points="108,98 105,83 94,93" fill="#c0392b"/>
+  </g>
+
+  <!-- 被吸收：材料上方极弱的残余虚线 -->
+  <path d="M286 120 Q298 132 292 146" fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="4 5" opacity="0.3"/>
+
+  <!-- 说明 -->
+  <text x="320" y="42" font-family="-apple-system,'PingFang SC',sans-serif" font-size="18" font-weight="700" fill="#33506b" text-anchor="middle">波峰吸音棉与毛毡 · 声能在多孔材料中被吸收</text>
 </svg>

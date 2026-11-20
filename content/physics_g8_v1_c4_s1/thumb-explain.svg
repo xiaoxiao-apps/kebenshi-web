@@ -1,5 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7fbff"/><stop offset="1" stop-color="#e8f1f8"/></linearGradient>
+    <radialGradient id="bulb" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff7d6"/><stop offset=".6" stop-color="#ffe9a0"/><stop offset="1" stop-color="#f2c14e"/></radialGradient>
+    <radialGradient id="ball" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#6f93c0"/><stop offset="1" stop-color="#2f4a72"/></radialGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<g transform="translate(-8,0) scale(1.0)"><path d="M378,152 L516,104 L516,286 L378,238 Z" fill="#ffe9a8" opacity="0.9"/><line x1="400" y1="176" x2="486" y2="152" stroke="#f2c14e" stroke-width="5" stroke-linecap="round"/><line x1="400" y1="214" x2="486" y2="238" stroke="#f2c14e" stroke-width="5" stroke-linecap="round"/><rect x="238" y="148" width="26" height="16" rx="7" fill="#e8734a" stroke="#3d3830" stroke-width="2"/><rect x="150" y="160" width="182" height="72" rx="22" fill="#f2c14e" stroke="#3d3830" stroke-width="2.5"/><rect x="332" y="146" width="44" height="100" rx="12" fill="#e8a93d" stroke="#3d3830" stroke-width="2.5"/><circle cx="206" cy="190" r="6" fill="#3d3830"/><circle cx="208.1" cy="187.9" r="1.7999999999999998" fill="#ffffff"/><circle cx="244" cy="190" r="6" fill="#3d3830"/><circle cx="246.1" cy="187.9" r="1.7999999999999998" fill="#ffffff"/><path d="M213.0,206 q12.0,8 24,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="178" cy="204" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/><ellipse cx="270" cy="204" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/></g><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(556,120) scale(1.05)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(556,250) scale(0.7)" fill="#e8a04a"/>
+  <!-- 桌面 -->
+  <rect x="0" y="308" width="640" height="52" fill="#e3d3ab"/>
+  <rect x="0" y="308" width="640" height="6" fill="#d4c193"/>
+  <!-- 左侧点光源（台灯，写实） -->
+  <g>
+    <rect x="60" y="296" width="76" height="12" rx="4" fill="#3f4a5a"/>
+    <rect x="94" y="216" width="8" height="82" fill="#59677a"/>
+    <path d="M98 216 Q98 168 132 150" fill="none" stroke="#59677a" stroke-width="8" stroke-linecap="round"/>
+    <path d="M112 130 L168 152 L140 186 Z" fill="#3f6fb5" stroke="#2c5288" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="152" cy="164" r="14" fill="url(#bulb)" stroke="#d9a441" stroke-width="2"/>
+    <circle cx="152" cy="164" r="26" fill="#ffe9a0" opacity=".25"/>
+  </g>
+  <!-- 中间不透明球体 -->
+  <g>
+    <ellipse cx="320" cy="304" rx="42" ry="8" fill="#c9b183"/>
+    <circle cx="320" cy="252" r="52" fill="url(#ball)"/>
+    <circle cx="302" cy="234" r="14" fill="#ffffff" opacity=".18"/>
+  </g>
+  <!-- 右侧屏（白墙立板） -->
+  <g>
+    <rect x="536" y="88" width="14" height="220" rx="3" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="524" y="300" width="38" height="10" rx="3" fill="#94a3b8"/>
+    <!-- 本影区（屏上暗斑） -->
+    <ellipse cx="543" cy="238" rx="9" ry="46" fill="#5b6b80" opacity=".55"/>
+  </g>
+  <!-- 两条边界光线（虚线直线，切过球顶/球底到屏） -->
+  <g stroke="#dc2626" stroke-width="2.6" stroke-dasharray="10 7">
+    <line x1="160" y1="156" x2="288" y2="206"/>
+    <line x1="352" y1="218" x2="540" y2="194"/>
+    <line x1="160" y1="172" x2="290" y2="292"/>
+    <line x1="350" y1="292" x2="540" y2="284"/>
+  </g>
+  <!-- 一条直线传播示意箭头（中轴） -->
+  <line x1="176" y1="164" x2="252" y2="164" stroke="#e0a20a" stroke-width="4" stroke-linecap="round" transform="rotate(12 176 164)"/>
+  <text x="238" y="112" font-size="16" font-weight="700" fill="#b3261e" font-family="sans-serif" text-anchor="middle">光沿直线传播</text>
+  <g font-family="sans-serif" font-size="14" fill="#41566b" text-anchor="middle">
+    <text x="98" y="336">光源</text><text x="320" y="336">不透明物体</text><text x="543" y="336">屏 · 影子</text>
+  </g>
 </svg>

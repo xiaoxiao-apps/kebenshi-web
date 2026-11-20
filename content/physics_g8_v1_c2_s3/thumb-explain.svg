@@ -1,5 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
-  <rect width="640" height="360" fill="url(#bg)"/>
-<path d="M246,186 Q176,130 142,188 Q182,172 198,216 Q214,188 246,206 Z" fill="#bdb3e8" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><path d="M354,186 Q424,130 458,188 Q418,172 402,216 Q386,188 354,206 Z" fill="#bdb3e8" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><path d="M266,124 Q262,92 282,104 L288,120 Z" fill="#9a8fd0" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><path d="M334,124 Q338,92 318,104 L312,120 Z" fill="#9a8fd0" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><circle cx="300" cy="186" r="60" fill="#9a8fd0" stroke="#3d3830" stroke-width="2.5"/><path d="M269.5,176 q8.5,-9 17,0" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M313.5,176 q8.5,-9 17,0" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M285.0,198 q15.0,10 30,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="254" cy="196" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/><ellipse cx="346" cy="196" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/><path d="M484.1,113.1 A22,22 0 0,1 484.1,146.9" fill="none" stroke="#e8a04a" stroke-width="5" stroke-linecap="round"/><path d="M494.4,100.9 A38,38 0 0,1 494.4,159.1" fill="none" stroke="#e8a04a" stroke-width="5" stroke-linecap="round"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(540,250) scale(1.0)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(96,96) scale(0.8)" fill="#e8a04a"/>
+  <defs>
+    <linearGradient id="bg7" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eaf2fa"/><stop offset="0.7" stop-color="#f6e7d3"/><stop offset="1" stop-color="#efd9bd"/>
+    </linearGradient>
+    <linearGradient id="wing7" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a3628"/><stop offset="1" stop-color="#2e2018"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 亮底渐变（黄昏亮调，点缀仅云带） -->
+  <rect width="640" height="360" fill="url(#bg7)"/>
+  <!-- 远处浅色云带 -->
+  <g fill="#ffffff" opacity="0.55">
+    <ellipse cx="120" cy="70" rx="86" ry="16"/>
+    <ellipse cx="170" cy="60" rx="52" ry="12"/>
+    <ellipse cx="520" cy="96" rx="70" ry="13"/>
+  </g>
+  <!-- 地面树线剪影（远景，浅色） -->
+  <path d="M0 330 Q60 306 120 328 Q180 300 250 326 Q330 304 410 328 Q490 302 560 326 Q600 312 640 328 L640 360 L0 360 Z" fill="#b09268" opacity="0.55"/>
+
+  <!-- 蝙蝠（写实剪影，展翅，头向左，无面部细节） -->
+  <g>
+    <!-- 左翼（后掠） -->
+    <path d="M300 150 Q226 108 150 122 Q196 140 202 164 Q176 160 142 176 Q192 182 214 200 Q198 210 186 232 Q242 206 296 196 Z" fill="url(#wing7)"/>
+    <!-- 右翼 -->
+    <path d="M344 150 Q418 108 494 122 Q448 140 442 164 Q468 160 502 176 Q452 182 430 200 Q446 210 458 232 Q402 206 348 196 Z" fill="url(#wing7)"/>
+    <!-- 翼膜指骨线 -->
+    <g stroke="#5d4634" stroke-width="1.6" fill="none" opacity="0.7">
+      <path d="M302 158 Q240 150 178 168"/>
+      <path d="M302 172 Q246 184 208 214"/>
+      <path d="M342 158 Q404 150 466 168"/>
+      <path d="M342 172 Q398 184 436 214"/>
+    </g>
+    <!-- 躯干 -->
+    <ellipse cx="322" cy="176" rx="24" ry="34" fill="#3a2a1e"/>
+    <!-- 头与耳（剪影，无五官） -->
+    <ellipse cx="322" cy="138" rx="14" ry="12" fill="#3a2a1e"/>
+    <polygon points="312,130 306,110 318,124" fill="#3a2a1e"/>
+    <polygon points="332,130 338,110 326,124" fill="#3a2a1e"/>
+    <!-- 足 -->
+    <line x1="316" y1="208" x2="314" y2="220" stroke="#2e2018" stroke-width="3" stroke-linecap="round"/>
+    <line x1="328" y1="208" x2="330" y2="220" stroke="#2e2018" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- 超声波束（向左下发出，虚线弧）与目标飞蛾 -->
+  <g fill="none" stroke="#2f6fb5" stroke-width="2.5" stroke-linecap="round">
+    <path d="M296 156 Q222 210 158 252" stroke-dasharray="8 7" opacity="0.85"/>
+    <path d="M300 168 Q236 222 178 262" stroke-dasharray="8 7" opacity="0.5"/>
+    <!-- 返回回声弧 -->
+    <path d="M158 252 Q130 262 116 246 Q110 232 128 224" opacity="0.65"/>
+  </g>
+  <!-- 飞蛾（小剪影） -->
+  <g fill="#5d4634">
+    <ellipse cx="150" cy="258" rx="7" ry="4"/>
+    <path d="M146 256 Q136 244 128 250 Q134 258 144 259 Z"/>
+    <path d="M154 256 Q164 244 172 250 Q166 258 156 259 Z"/>
+  </g>
+  <!-- 声波小弧（蝙蝠口部） -->
+  <g fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" opacity="0.8">
+    <path d="M306 146 Q296 150 302 158"/>
+    <path d="M298 140 Q284 148 292 162"/>
+  </g>
+
+  <!-- 说明 -->
+  <text x="320" y="44" font-family="-apple-system,'PingFang SC',sans-serif" font-size="18" font-weight="700" fill="#4a3628" text-anchor="middle">蝙蝠发出超声波 · 靠回声定位捕食</text>
 </svg>

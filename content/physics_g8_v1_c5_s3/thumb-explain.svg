@@ -1,5 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f1e9d8"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cfe3f2" stop-opacity=".85"/><stop offset=".5" stop-color="#eaf4fb" stop-opacity=".92"/><stop offset="1" stop-color="#b9d5ea" stop-opacity=".85"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<path d="M242,92 Q264,124 242,150 Q220,124 242,92 Z" fill="#f2994a" stroke="#3d3830" stroke-width="2.5"/><path d="M242,112 Q253,130 242,144 Q231,130 242,112 Z" fill="#f7c948"/><line x1="242" y1="150" x2="242" y2="162" stroke="#3d3830" stroke-width="3"/><rect x="214" y="160" width="56" height="122" rx="14" fill="#f2d9a4" stroke="#3d3830" stroke-width="2.5"/><circle cx="230" cy="202" r="5.5" fill="#3d3830"/><circle cx="231.925" cy="200.075" r="1.65" fill="#ffffff"/><circle cx="254" cy="202" r="5.5" fill="#3d3830"/><circle cx="255.925" cy="200.075" r="1.65" fill="#ffffff"/><path d="M232.0,220 q10.0,7 20,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="216" cy="220" rx="7" ry="4.5" fill="#f2b8a0" opacity="0.75"/><ellipse cx="336" cy="204" rx="15" ry="66" fill="#cfe6f5" stroke="#3d3830" stroke-width="2.5"/><rect x="404" y="106" width="96" height="180" rx="12" fill="#f7f3ea" stroke="#3d3830" stroke-width="2.5"/><rect x="416" y="118" width="72" height="156" rx="8" fill="#eef2ee" stroke="#3d3830" stroke-width="2"/><rect x="440" y="176" width="24" height="38" rx="6" fill="#f2d9a4" stroke="#3d3830" stroke-width="2.4"/><path d="M452,214 Q470,238 452,260 Q434,238 452,214 Z" fill="#f2994a" stroke="#3d3830" stroke-width="2.4"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(546,92) scale(1.05)" fill="#f2c14e"/><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(160,120) scale(0.85)" fill="#f2b8a0" stroke="#3d3830" stroke-width="2"/>
+  <!-- 主光轴 -->
+  <line x1="50" y1="186" x2="600" y2="186" stroke="#8a94a8" stroke-width="2" stroke-dasharray="10 8"/>
+  <!-- 凸透镜（居中，竖立） -->
+  <path d="M320 46 Q362 186 320 300 Q278 186 320 46 Z" fill="url(#glass)" stroke="#7ba7d6" stroke-width="4"/>
+  <path d="M320 46 Q342 116 342 186" fill="none" stroke="#ffffff" stroke-width="4" opacity=".7"/>
+  <line x1="320" y1="34" x2="320" y2="312" stroke="#5b616b" stroke-width="3"/>
+  <polygon points="320,26 314,42 326,42" fill="#5b616b"/>
+  <polygon points="320,320 314,304 326,304" fill="#5b616b"/>
+  <!-- 焦点与二倍焦距点 -->
+  <circle cx="220" cy="186" r="6" fill="#dc2626"/><circle cx="420" cy="186" r="6" fill="#dc2626"/>
+  <circle cx="120" cy="186" r="6" fill="#e8833a"/><circle cx="520" cy="186" r="6" fill="#e8833a"/>
+  <g font-family="sans-serif" font-size="17" font-weight="700" text-anchor="middle">
+    <text x="220" y="216" fill="#dc2626">F</text><text x="420" y="216" fill="#dc2626">F</text>
+    <text x="120" y="216" fill="#e8833a">2F</text><text x="520" y="216" fill="#e8833a">2F</text>
+  </g>
+  <!-- 平行于主光轴的入射光线 → 折射过焦点 -->
+  <g stroke="#dc2626" stroke-width="4" fill="none" stroke-linecap="round">
+    <line x1="80" y1="126" x2="312" y2="126"/>
+    <line x1="328" y1="132" x2="424" y2="186"/>
+    <line x1="424" y1="186" x2="560" y2="262"/>
+    <line x1="80" y1="246" x2="312" y2="246"/>
+    <line x1="328" y1="240" x2="424" y2="186"/>
+  </g>
+  <polygon points="424,186 402,182 408,196" fill="#dc2626"/>
+  <!-- 入射箭头方向标 -->
+  <polygon points="200,126 184,118 184,134" fill="#dc2626"/>
+  <polygon points="200,246 184,238 184,254" fill="#dc2626"/>
+  <!-- 过光心光线（直线不偏折） -->
+  <g stroke="#3f6fb5" stroke-width="3.5" fill="none">
+    <line x1="160" y1="97" x2="560" y2="319"/>
+  </g>
+  <circle cx="320" cy="186" r="5" fill="#3f6fb5"/>
+  <text x="336" y="168" font-size="15" font-weight="700" fill="#3f6fb5" font-family="sans-serif">光心 O</text>
+  <!-- 标题 -->
+  <text x="150" y="44" font-size="20" font-weight="700" fill="#3f6fb5" font-family="sans-serif">两条特殊光线</text>
 </svg>

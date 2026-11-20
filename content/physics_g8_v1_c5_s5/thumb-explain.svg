@@ -1,5 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f1e9d8"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cfe3f2" stop-opacity=".85"/><stop offset=".5" stop-color="#eaf4fb" stop-opacity=".92"/><stop offset="1" stop-color="#b9d5ea" stop-opacity=".85"/></linearGradient>
+    <linearGradient id="tube" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9c096"/><stop offset="1" stop-color="#a9834f"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a071"/><stop offset="1" stop-color="#a97c50"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<line x1="300" y1="212" x2="238" y2="312" stroke="#3d3830" stroke-width="8" stroke-linecap="round"/><line x1="300" y1="212" x2="300" y2="318" stroke="#3d3830" stroke-width="8" stroke-linecap="round"/><line x1="300" y1="212" x2="362" y2="312" stroke="#3d3830" stroke-width="8" stroke-linecap="round"/><g transform="rotate(-24 300 182)"><rect x="188" y="150" width="226" height="64" rx="21" fill="#6fb1e0" stroke="#3d3830" stroke-width="2.5"/><rect x="160" y="162" width="32" height="40" rx="11" fill="#e8a93d" stroke="#3d3830" stroke-width="2.5"/><rect x="408" y="142" width="24" height="80" rx="11" fill="#e8a93d" stroke="#3d3830" stroke-width="2.5"/><circle cx="262" cy="174" r="6" fill="#3d3830"/><circle cx="264.1" cy="171.9" r="1.7999999999999998" fill="#ffffff"/><circle cx="300" cy="174" r="6" fill="#3d3830"/><circle cx="302.1" cy="171.9" r="1.7999999999999998" fill="#ffffff"/><path d="M269.0,192 q12.0,8 24,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="238" cy="192" rx="8" ry="5" fill="#f2b8a0" opacity="0.75"/></g><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(508,84) scale(1.25)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(556,148) scale(0.85)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(112,108) scale(0.7)" fill="#e8a04a"/>
+  <!-- 桌面 -->
+  <rect x="0" y="300" width="640" height="60" fill="url(#wood)"/>
+  <rect x="0" y="300" width="640" height="6" fill="#d8b184"/>
+  <!-- 物镜（大凸透镜，左，带底座） -->
+  <rect x="106" y="284" width="88" height="18" rx="5" fill="#3d4653"/>
+  <rect x="142" y="262" width="16" height="24" fill="#59636f"/>
+  <path d="M150 84 Q192 180 150 262 Q108 180 150 84 Z" fill="url(#glass)" stroke="#7ba7d6" stroke-width="4"/>
+  <path d="M150 84 Q170 132 170 180" fill="none" stroke="#ffffff" stroke-width="4" opacity=".7"/>
+  <text x="150" y="62" font-size="20" font-weight="700" fill="#3f6fb5" text-anchor="middle" font-family="sans-serif">物镜</text>
+  <text x="150" y="336" font-size="15" fill="#6b4a2f" text-anchor="middle" font-family="sans-serif">焦距长的凸透镜</text>
+  <!-- 目镜（小凸透镜，右，带底座） -->
+  <rect x="330" y="284" width="60" height="18" rx="5" fill="#3d4653"/>
+  <rect x="354" y="266" width="12" height="20" fill="#59636f"/>
+  <path d="M360 168 Q384 220 360 266 Q336 220 360 168 Z" fill="url(#glass)" stroke="#7ba7d6" stroke-width="3.5"/>
+  <text x="360" y="146" font-size="20" font-weight="700" fill="#3f6fb5" text-anchor="middle" font-family="sans-serif">目镜</text>
+  <text x="360" y="336" font-size="15" fill="#6b4a2f" text-anchor="middle" font-family="sans-serif">焦距短的凸透镜</text>
+  <!-- 两个纸筒（静物，斜靠右侧） -->
+  <g transform="rotate(-8 520 250)">
+    <rect x="440" y="196" width="200" height="44" rx="8" fill="url(#tube)" stroke="#8a6238" stroke-width="3"/>
+    <rect x="440" y="196" width="200" height="10" fill="#e8d5b0" opacity=".7"/>
+    <rect x="500" y="240" width="160" height="38" rx="7" fill="url(#tube)" stroke="#8a6238" stroke-width="3"/>
+    <rect x="500" y="240" width="160" height="9" fill="#e8d5b0" opacity=".7"/>
+  </g>
+  <text x="540" y="176" font-size="18" font-weight="700" fill="#8a6238" text-anchor="middle" font-family="sans-serif">粗细两个纸筒</text>
+  <!-- 组合箭头：目镜 → 物镜 示意装配 -->
+  <line x1="392" y1="106" x2="252" y2="106" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/>
+  <path d="M252 98 L236 106 L252 114 Z" fill="#dc2626"/>
+  <text x="322" y="92" font-size="16" font-weight="700" fill="#dc2626" text-anchor="middle" font-family="sans-serif">同轴组合成望远镜</text>
 </svg>

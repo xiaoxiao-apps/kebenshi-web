@@ -1,5 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f2ecdf"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<rect x="228" y="116" width="136" height="136" rx="28" fill="#bfe0f2" stroke="#3d3830" stroke-width="2.5"/><rect x="246" y="134" width="34" height="34" rx="12" fill="#ffffff" opacity="0.7"/><circle cx="268" cy="182" r="7" fill="#3d3830"/><circle cx="270.45" cy="179.55" r="2.1" fill="#ffffff"/><circle cx="322" cy="182" r="7" fill="#3d3830"/><circle cx="324.45" cy="179.55" r="2.1" fill="#ffffff"/><path d="M280.0,206 q15.0,10 30,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="246" cy="204" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/><ellipse cx="344" cy="204" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(302,288) scale(1.05)" fill="#6fb1e0" stroke="#3d3830" stroke-width="2"/><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(362,268) scale(0.75)" fill="#6fb1e0" stroke="#3d3830" stroke-width="2"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(470,100) scale(1.1)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(150,250) scale(0.75)" fill="#e8a04a"/>
+  <!-- 坐标纸卡片 -->
+  <rect x="48" y="30" width="544" height="286" rx="10" fill="#ffffff" stroke="#c9d4de" stroke-width="2"/>
+  <!-- 网格 -->
+  <g stroke="#e5edf3" stroke-width="1.5">
+    <line x1="112" y1="58" x2="112" y2="262"/><line x1="176" y1="58" x2="176" y2="262"/>
+    <line x1="240" y1="58" x2="240" y2="262"/><line x1="304" y1="58" x2="304" y2="262"/>
+    <line x1="368" y1="58" x2="368" y2="262"/><line x1="432" y1="58" x2="432" y2="262"/>
+    <line x1="496" y1="58" x2="496" y2="262"/><line x1="560" y1="58" x2="560" y2="262"/>
+    <line x1="112" y1="222" x2="560" y2="222"/><line x1="112" y1="182" x2="560" y2="182"/>
+    <line x1="112" y1="142" x2="560" y2="142"/><line x1="112" y1="102" x2="560" y2="102"/>
+    <line x1="112" y1="62" x2="560" y2="62"/>
+  </g>
+  <!-- 坐标轴 -->
+  <line x1="112" y1="262" x2="566" y2="262" stroke="#33475c" stroke-width="3"/>
+  <path d="M566 255 L582 262 L566 269 Z" fill="#33475c"/>
+  <line x1="112" y1="262" x2="112" y2="52" stroke="#33475c" stroke-width="3"/>
+  <path d="M105 52 L112 36 L119 52 Z" fill="#33475c"/>
+  <text x="568" y="288" font-size="15" fill="#33475c" font-family="sans-serif" text-anchor="end">时间/min</text>
+  <text x="126" y="46" font-size="15" fill="#33475c" font-family="sans-serif">温度/°C</text>
+  <!-- 晶体熔化曲线（海波，含水平段） -->
+  <path d="M112 246 L196 176 L320 122 L420 122 L520 74" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 熔点虚线 -->
+  <line x1="112" y1="122" x2="420" y2="122" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="7 6" opacity=".55"/>
+  <text x="122" y="114" font-size="14" font-weight="700" fill="#dc2626" font-family="sans-serif">熔点 48°C</text>
+  <!-- 非晶体熔化曲线（松香，平滑无平台） -->
+  <path d="M112 250 L220 206 L340 158 L460 104 L548 66" fill="none" stroke="#2563eb" stroke-width="4" stroke-dasharray="12 8" stroke-linecap="round"/>
+  <!-- 图例 -->
+  <g font-family="sans-serif" font-size="14">
+    <line x1="130" y1="280" x2="166" y2="280" stroke="#dc2626" stroke-width="4.5"/>
+    <text x="174" y="285" fill="#41566b">晶体（海波）：熔化吸热温度不变</text>
+    <line x1="130" y1="302" x2="166" y2="302" stroke="#2563eb" stroke-width="4" stroke-dasharray="12 8"/>
+    <text x="174" y="307" fill="#41566b">非晶体（松香）：持续变软无熔点</text>
+  </g>
 </svg>

@@ -1,5 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f0e9da"/></linearGradient>
+    <radialGradient id="lensc" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#f4fbff" stop-opacity=".95"/><stop offset="1" stop-color="#bfd9ec" stop-opacity=".85"/></radialGradient>
+    <radialGradient id="lensd" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#f4fbff" stop-opacity=".95"/><stop offset="1" stop-color="#c8d8e8" stop-opacity=".85"/></radialGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a071"/><stop offset="1" stop-color="#a97c50"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<path d="M176,192 Q298,88 420,192 Q298,292 176,192 Z" fill="#ffffff" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><circle cx="298" cy="192" r="44" fill="#6fb1e0" stroke="#3d3830" stroke-width="2.4"/><circle cx="298" cy="192" r="20" fill="#3d3830"/><circle cx="312" cy="177" r="8.5" fill="#ffffff"/><path d="M240,110 l-12,-20 M298,92 l0,-24 M356,110 l12,-20" stroke="#3d3830" stroke-width="4" stroke-linecap="round"/><circle cx="298" cy="192" r="112" fill="none" stroke="#e8a93d" stroke-width="8"/><path d="M410,186 Q470,176 520,158" fill="none" stroke="#e8a93d" stroke-width="8" stroke-linecap="round"/><ellipse cx="210" cy="262" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/><ellipse cx="392" cy="262" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/><path d="M285.0,322 q15.0,10 30,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(520,280) scale(1.0)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(96,96) scale(0.8)" fill="#e8a04a"/>
+  <!-- 桌面 -->
+  <rect x="0" y="298" width="640" height="62" fill="url(#wood)"/>
+  <rect x="0" y="298" width="640" height="6" fill="#d8b184"/>
+  <!-- 左：近视眼镜（凹透镜，平放正视） -->
+  <g stroke="#3d4653" stroke-width="7" fill="none" stroke-linecap="round">
+    <circle cx="112" cy="196" r="58"/><circle cx="248" cy="196" r="58"/>
+    <path d="M170 190 Q180 180 190 190"/>
+    <line x1="54" y1="188" x2="26" y2="176"/>
+    <line x1="306" y1="188" x2="334" y2="176"/>
+  </g>
+  <circle cx="112" cy="196" r="52" fill="url(#lensc)" stroke="none"/>
+  <circle cx="248" cy="196" r="52" fill="url(#lensc)" stroke="none"/>
+  <!-- 凹透镜剖面示意（镜片中央薄） -->
+  <path d="M96 168 L96 224 Q112 210 112 196 Q112 182 96 168 Z" fill="#a9cbe4" opacity=".55"/>
+  <text x="180" y="292" font-size="20" font-weight="700" fill="#3f6fb5" text-anchor="middle" font-family="sans-serif">近视镜 · 凹透镜</text>
+  <text x="180" y="326" font-size="15" fill="#6b4a2f" text-anchor="middle" font-family="sans-serif">像成在视网膜前 → 发散矫正</text>
+  <!-- 右：远视眼镜（凸透镜，平放正视） -->
+  <g stroke="#5b4632" stroke-width="7" fill="none" stroke-linecap="round">
+    <rect x="386" y="140" width="110" height="110" rx="52"/>
+    <rect x="516" y="140" width="110" height="110" rx="52"/>
+    <path d="M496 190 Q506 180 516 190"/>
+    <line x1="386" y1="188" x2="358" y2="176"/>
+  </g>
+  <rect x="392" y="146" width="98" height="98" rx="48" fill="url(#lensd)" stroke="none"/>
+  <rect x="522" y="146" width="98" height="98" rx="48" fill="url(#lensd)" stroke="none"/>
+  <!-- 凸透镜剖面示意（镜片中央厚） -->
+  <path d="M440 166 Q456 196 440 226 Q428 196 440 166 Z" fill="#a9cbe4" opacity=".55"/>
+  <text x="506" y="292" font-size="20" font-weight="700" fill="#3f6fb5" text-anchor="middle" font-family="sans-serif">远视镜 · 凸透镜</text>
+  <text x="506" y="326" font-size="15" fill="#6b4a2f" text-anchor="middle" font-family="sans-serif">像成在视网膜后 → 会聚矫正</text>
+  <!-- 标题 -->
+  <text x="320" y="72" font-size="23" font-weight="700" fill="#3d4653" text-anchor="middle" font-family="sans-serif">两副眼镜静物对照</text>
 </svg>

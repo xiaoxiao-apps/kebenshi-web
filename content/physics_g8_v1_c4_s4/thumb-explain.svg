@@ -1,5 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4fbff"/><stop offset="1" stop-color="#dcedf7"/></linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a5d8f3"/><stop offset="1" stop-color="#5fb3e4"/></linearGradient>
+    <linearGradient id="cup" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".5" stop-color="#eaf4fb" stop-opacity=".5"/><stop offset="1" stop-color="#c7dbe9" stop-opacity=".9"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<path d="M240,104 L264,278 Q267,298 288,298 L332,298 Q353,298 356,278 L380,104 Z" fill="#dcecf7" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><path d="M252,176 L264,278 Q267,298 288,298 L332,298 Q353,298 356,278 L368,176 Z" fill="#9ccbe8"/><line x1="252" y1="176" x2="368" y2="176" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><path d="M266,52 L292,176 L318,268" fill="none" stroke="#c98d5a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M292,48 L314,176 L340,262" fill="none" stroke="#b0763f" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="334" cy="222" r="5.5" fill="#3d3830"/><circle cx="335.925" cy="220.075" r="1.65" fill="#ffffff"/><circle cx="312" cy="244" r="7" fill="#b5654a"/><ellipse cx="348" cy="240" rx="8" ry="5" fill="#f2b8a0" opacity="0.75"/><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(200,130) scale(0.9)" fill="#7fb8e0" stroke="#3d3830" stroke-width="2"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(480,90) scale(1.1)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(462,260) scale(0.7)" fill="#e8a04a"/>
+  <!-- 桌面 -->
+  <rect x="0" y="304" width="640" height="56" fill="#e3d3ab"/>
+  <rect x="0" y="304" width="640" height="6" fill="#d4c193"/>
+  <!-- 玻璃杯 + 水 -->
+  <g>
+    <path d="M232 100 L250 300 Q252 316 270 316 L370 316 Q388 316 390 300 L408 100 Z" fill="url(#cup)" stroke="#8fa8bb" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M242 176 L250 300 Q252 316 270 316 L370 316 Q388 316 390 300 L398 176 Z" fill="url(#water)" opacity=".9"/>
+    <ellipse cx="320" cy="176" rx="78" ry="10" fill="#bfe2f5" stroke="#7cc2ea" stroke-width="2"/>
+    <ellipse cx="320" cy="100" rx="88" ry="12" fill="#eef6fb" stroke="#8fa8bb" stroke-width="2.5"/>
+  </g>
+  <!-- 筷子：水上段直，水下段错位移开（折射视错觉） -->
+  <g stroke-linecap="round">
+    <line x1="216" y1="60" x2="308" y2="180" stroke="#c98a3d" stroke-width="9"/>
+    <line x1="216" y1="60" x2="308" y2="180" stroke="#e0aa5e" stroke-width="4"/>
+    <line x1="322" y1="184" x2="360" y2="304" stroke="#b3762e" stroke-width="9" opacity=".85"/>
+    <line x1="322" y1="184" x2="360" y2="304" stroke="#d29a52" stroke-width="4" opacity=".85"/>
+  </g>
+  <!-- 错位示意：水面处两段虚线连接 -->
+  <line x1="308" y1="180" x2="322" y2="184" stroke="#dc2626" stroke-width="3" stroke-dasharray="5 4"/>
+  <!-- 折断示意箭头 -->
+  <path d="M430 150 Q400 168 342 180" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M356 166 L328 182 L358 192 Z" fill="#dc2626"/>
+  <text x="478" y="132" font-size="17" font-weight="700" fill="#dc2626" font-family="sans-serif" text-anchor="middle">看起来“折断”</text>
+  <!-- 水中折射光路（一条示意，偏折） -->
+  <line x1="330" y1="240" x2="290" y2="200" stroke="#2563eb" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+  <line x1="290" y1="200" x2="268" y2="120" stroke="#2563eb" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+  <path d="M260 132 L264 106 L278 128 Z" fill="#2563eb" opacity=".8"/>
+  <text x="176" y="120" font-size="15" font-weight="700" fill="#2563eb" font-family="sans-serif" text-anchor="middle">水中光线偏折</text>
+  <text x="320" y="348" font-size="14" fill="#7a6a4f" font-family="sans-serif" text-anchor="middle">光从水斜射入空气 · 折射角大于入射角</text>
 </svg>

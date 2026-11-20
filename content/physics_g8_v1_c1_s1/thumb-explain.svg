@@ -1,5 +1,86 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdfefe"/><stop offset="1" stop-color="#dce8f1"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2f4f6"/><stop offset="0.5" stop-color="#c9d1d8"/><stop offset="1" stop-color="#aab4bd"/>
+    </linearGradient>
+    <linearGradient id="alu" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b9c4ce"/><stop offset="0.5" stop-color="#dde4ea"/><stop offset="1" stop-color="#9fadb9"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9b98c"/><stop offset="1" stop-color="#c2a070"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 亮底渐变 -->
   <rect width="640" height="360" fill="url(#bg)"/>
-<g transform="rotate(-7 305.0 184.0)"><rect x="145" y="138" width="320" height="92" rx="16" fill="#f7c948" stroke="#3d3830" stroke-width="2.5"/><line x1="167" y1="144" x2="167" y2="166" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><line x1="197" y1="144" x2="197" y2="158" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><line x1="227" y1="144" x2="227" y2="166" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><line x1="257" y1="144" x2="257" y2="158" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><line x1="287" y1="144" x2="287" y2="166" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><line x1="317" y1="144" x2="317" y2="158" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><line x1="347" y1="144" x2="347" y2="166" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><line x1="377" y1="144" x2="377" y2="158" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><line x1="407" y1="144" x2="407" y2="166" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><line x1="437" y1="144" x2="437" y2="158" stroke="#3d3830" stroke-width="2.4" stroke-linecap="round"/><circle cx="281.0" cy="198.0" r="6" fill="#3d3830"/><circle cx="283.1" cy="195.9" r="1.7999999999999998" fill="#ffffff"/><circle cx="329.0" cy="198.0" r="6" fill="#3d3830"/><circle cx="331.1" cy="195.9" r="1.7999999999999998" fill="#ffffff"/><path d="M292.0,214.0 q13.0,8 26,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="259.0" cy="208.0" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/><ellipse cx="351.0" cy="208.0" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/></g><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(530,80) scale(1.15)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(105,95) scale(0.8)" fill="#e8a04a"/><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(545,250) scale(0.9)" fill="#f2b8a0" stroke="#3d3830" stroke-width="2"/>
+
+  <!-- 木桌面 -->
+  <rect x="0" y="268" width="640" height="92" fill="url(#wood)"/>
+  <rect x="0" y="268" width="640" height="6" fill="#e6cba2"/>
+  <g stroke="#b8946a" stroke-width="1.5" opacity="0.5">
+    <line x1="0" y1="296" x2="640" y2="296"/>
+    <line x1="0" y1="326" x2="640" y2="326"/>
+  </g>
+
+  <!-- 钢直尺（横卧，特写刻度） -->
+  <g>
+    <rect x="72" y="238" width="496" height="42" rx="4" fill="url(#steel)" stroke="#8d99a4" stroke-width="1.5"/>
+    <rect x="72" y="238" width="496" height="8" rx="4" fill="#e8edf1" opacity="0.8"/>
+    <!-- 厘米长刻度 -->
+    <g stroke="#3a4249" stroke-width="2">
+      <line x1="100" y1="240" x2="100" y2="260"/>
+      <line x1="144" y1="240" x2="144" y2="260"/>
+      <line x1="188" y1="240" x2="188" y2="260"/>
+      <line x1="232" y1="240" x2="232" y2="260"/>
+      <line x1="276" y1="240" x2="276" y2="260"/>
+      <line x1="320" y1="240" x2="320" y2="260"/>
+      <line x1="364" y1="240" x2="364" y2="260"/>
+      <line x1="408" y1="240" x2="408" y2="260"/>
+      <line x1="452" y1="240" x2="452" y2="260"/>
+      <line x1="496" y1="240" x2="496" y2="260"/>
+      <line x1="540" y1="240" x2="540" y2="260"/>
+    </g>
+    <!-- 毫米短刻度 -->
+    <g stroke="#5c666f" stroke-width="1.2">
+      <line x1="108.8" y1="240" x2="108.8" y2="250"/><line x1="117.6" y1="240" x2="117.6" y2="250"/>
+      <line x1="126.4" y1="240" x2="126.4" y2="250"/><line x1="135.2" y1="240" x2="135.2" y2="250"/>
+      <line x1="152.8" y1="240" x2="152.8" y2="250"/><line x1="161.6" y1="240" x2="161.6" y2="250"/>
+      <line x1="170.4" y1="240" x2="170.4" y2="250"/><line x1="179.2" y1="240" x2="179.2" y2="250"/>
+      <line x1="196.8" y1="240" x2="196.8" y2="250"/><line x1="205.6" y1="240" x2="205.6" y2="250"/>
+      <line x1="214.4" y1="240" x2="214.4" y2="250"/><line x1="223.2" y1="240" x2="223.2" y2="250"/>
+    </g>
+    <!-- 数字 -->
+    <g font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#3a4249" text-anchor="middle">
+      <text x="100" y="274">0</text><text x="144" y="274">1</text><text x="188" y="274">2</text>
+      <text x="232" y="274">3</text><text x="276" y="274">4</text><text x="320" y="274">5</text>
+      <text x="364" y="274">6</text><text x="408" y="274">7</text><text x="452" y="274">8</text>
+      <text x="496" y="274">9</text><text x="540" y="274">10</text>
+    </g>
+    <text x="556" y="256" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#5c666f">cm</text>
+  </g>
+
+  <!-- 金属块（左端对齐零刻线，静置被测） -->
+  <g>
+    <rect x="100" y="196" width="110" height="42" rx="3" fill="url(#alu)" stroke="#7e8b96" stroke-width="1.5"/>
+    <rect x="100" y="196" width="110" height="8" rx="3" fill="#eef2f5" opacity="0.9"/>
+    <line x1="100" y1="234" x2="210" y2="234" stroke="#6e7b86" stroke-width="1" opacity="0.6"/>
+  </g>
+
+  <!-- 零刻线对齐虚线（示意正视刻度） -->
+  <line x1="100" y1="186" x2="100" y2="284" stroke="#2f6fb5" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.7"/>
+
+  <!-- 红色尺寸箭头：读数 2.50 cm -->
+  <g>
+    <line x1="112" y1="166" x2="198" y2="166" stroke="#c0392b" stroke-width="3"/>
+    <polygon points="112,166 124,160.5 124,171.5" fill="#c0392b"/>
+    <polygon points="198,166 186,160.5 186,171.5" fill="#c0392b"/>
+    <line x1="210" y1="150" x2="210" y2="186" stroke="#2f6fb5" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.7"/>
+    <text x="155" y="146" font-family="Helvetica,Arial,sans-serif" font-size="20" font-weight="700" fill="#c0392b" text-anchor="middle">2.50 cm</text>
+  </g>
+
+  <!-- 标题点缀：一个测量动作（正视读数） -->
+  <text x="442" y="196" font-family="-apple-system,'PingFang SC',sans-serif" font-size="17" font-weight="700" fill="#33506b">刻度尺读数 · 正视刻度线</text>
 </svg>

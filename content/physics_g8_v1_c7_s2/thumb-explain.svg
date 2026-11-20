@@ -1,5 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f0e9da"/></linearGradient>
+    <linearGradient id="case" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e8edf3"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#c4ccd6"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8dee6"/><stop offset="1" stop-color="#8a94a8"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a071"/><stop offset="1" stop-color="#a97c50"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<rect x="228" y="66" width="152" height="20" rx="10" fill="#b08a52" stroke="#3d3830" stroke-width="2.5"/><path d="M304,88 q-42,12 0,25 q42,13 0,26 q-42,12 0,25 q42,13 0,26" fill="none" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/><rect x="248" y="196" width="112" height="94" rx="24" fill="#e8734a" stroke="#3d3830" stroke-width="2.5"/><path d="M269,223 l18,18 M287,223 l-18,18" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M321,223 l18,18 M339,223 l-18,18" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M282,260 q9,-7 17,0 q9,7 17,0" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(392,152) scale(1.0)" fill="#7fb8e0" stroke="#3d3830" stroke-width="2"/><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(424,200) scale(0.7)" fill="#7fb8e0" stroke="#3d3830" stroke-width="2"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(498,92) scale(1.05)" fill="#f2c14e"/>
+  <!-- 桌面 -->
+  <rect x="0" y="316" width="640" height="44" fill="url(#wood)"/>
+  <rect x="0" y="316" width="640" height="6" fill="#d8b184"/>
+  <!-- 测力计悬挂：顶部挂环 -->
+  <circle cx="264" cy="46" r="14" fill="none" stroke="#5b616b" stroke-width="6"/>
+  <!-- 外壳 -->
+  <rect x="228" y="58" width="72" height="196" rx="14" fill="url(#case)" stroke="#5b616b" stroke-width="4"/>
+  <!-- 刻度板（N） -->
+  <rect x="242" y="72" width="44" height="168" rx="6" fill="#fffdf6" stroke="#9aa1ab" stroke-width="2"/>
+  <g stroke="#3d4653" stroke-width="2">
+    <line x1="248" y1="88" x2="266" y2="88"/><line x1="254" y1="104" x2="266" y2="104"/>
+    <line x1="248" y1="120" x2="266" y2="120"/><line x1="254" y1="136" x2="266" y2="136"/>
+    <line x1="248" y1="152" x2="266" y2="152"/><line x1="254" y1="168" x2="266" y2="168"/>
+    <line x1="248" y1="184" x2="266" y2="184"/><line x1="254" y1="200" x2="266" y2="200"/>
+    <line x1="248" y1="216" x2="266" y2="216"/>
+  </g>
+  <g font-family="sans-serif" font-size="13" fill="#3d4653">
+    <text x="272" y="92">0</text><text x="272" y="124">1</text><text x="272" y="156">2</text><text x="272" y="188">3</text><text x="272" y="220">4</text>
+  </g>
+  <text x="256" y="236" font-size="13" font-weight="700" fill="#dc2626" font-family="sans-serif">N</text>
+  <!-- 指针（指 2.6N） -->
+  <polygon points="240,171 262,166 262,176" fill="#dc2626"/>
+  <line x1="236" y1="171" x2="212" y2="171" stroke="#dc2626" stroke-width="4" stroke-linecap="round"/>
+  <!-- 内部弹簧示意（壳侧剖视窗） -->
+  <rect x="304" y="90" width="34" height="130" rx="8" fill="#eef2f7" stroke="#9aa1ab" stroke-width="2"/>
+  <path d="M310 100 L332 108 L310 116 L332 124 L310 132 L332 140 L310 148 L332 156 L310 164 L332 172 L310 180 L332 188 L310 196 L332 204 L310 212" fill="none" stroke="#5b616b" stroke-width="3.5"/>
+  <text x="380" y="150" font-size="16" fill="#5b616b" font-family="sans-serif">弹簧：在弹性限度内，</text>
+  <text x="380" y="176" font-size="16" fill="#5b616b" font-family="sans-serif">伸长量与拉力成正比</text>
+  <line x1="374" y1="158" x2="344" y2="158" stroke="#9aa1ab" stroke-width="2" stroke-dasharray="5 5"/>
+  <!-- 拉杆与挂钩 -->
+  <rect x="256" y="254" width="16" height="30" fill="url(#steel)" stroke="#5b616b" stroke-width="2"/>
+  <path d="M264 284 L264 300 Q264 316 248 316 Q232 316 232 300" fill="none" stroke="#5b616b" stroke-width="7" stroke-linecap="round"/>
+  <!-- 读数标注 -->
+  <text x="150" y="176" font-size="20" font-weight="700" fill="#dc2626" text-anchor="end" font-family="sans-serif">2.6 N</text>
+  <line x1="160" y1="171" x2="204" y2="171" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 5"/>
+  <!-- 标题 -->
+  <text x="320" y="348" font-size="19" font-weight="700" fill="#3d4653" text-anchor="middle" font-family="sans-serif">弹簧测力计：构造与读数</text>
 </svg>

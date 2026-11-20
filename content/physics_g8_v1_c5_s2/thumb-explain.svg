@@ -1,5 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f0e9da"/></linearGradient>
+    <radialGradient id="lensg" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#f4fbff" stop-opacity=".95"/><stop offset="1" stop-color="#c3ddef" stop-opacity=".85"/></radialGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a071"/><stop offset="1" stop-color="#a97c50"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<rect x="252" y="112" width="72" height="32" rx="11" fill="#59667a" stroke="#3d3830" stroke-width="2.5"/><rect x="176" y="138" width="264" height="164" rx="26" fill="#6c7a89" stroke="#3d3830" stroke-width="2.5"/><rect x="392" y="158" width="32" height="22" rx="7" fill="#f2c14e" stroke="#3d3830" stroke-width="2"/><circle cx="330" cy="220" r="56" fill="#dcecf7" stroke="#3d3830" stroke-width="2.5"/><circle cx="330" cy="220" r="38" fill="#6fb1e0" stroke="#3d3830" stroke-width="2.4"/><circle cx="330" cy="220" r="17" fill="#3d3830"/><circle cx="342" cy="206" r="7" fill="#ffffff" opacity="0.9"/><path d="M207.5,190 q8.5,-9 17,0" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M247.5,190 q8.5,-9 17,0" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M223.0,210 q13.0,9 26,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="200" cy="210" rx="8" ry="5" fill="#f2b8a0" opacity="0.75"/><g transform="rotate(8 500 110)"><rect x="462" y="72" width="78" height="64" rx="8" fill="#fffdf8" stroke="#3d3830" stroke-width="2.5"/><path d="M472,124 L494,98 L510,116 L522,104 L532,124 Z" fill="#7fc9b8" stroke="#3d3830" stroke-width="2" stroke-linejoin="round"/><circle cx="524" cy="88" r="7" fill="#f2c14e"/></g><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(452,268) scale(1.0)" fill="#f2c14e"/>
+  <!-- 桌面 -->
+  <rect x="0" y="300" width="640" height="60" fill="url(#wood)"/>
+  <rect x="0" y="300" width="640" height="6" fill="#d8b184"/>
+  <!-- 摊开的书（透视梯形） -->
+  <path d="M120 296 L300 268 L320 268 L500 296 L500 300 L120 300 Z" fill="#8d6e4c"/>
+  <path d="M130 292 L306 264 L306 186 L130 214 Z" fill="#fffdf6" stroke="#d8cbb0" stroke-width="2"/>
+  <path d="M314 264 L490 292 L490 214 L314 186 Z" fill="#fffdf6" stroke="#d8cbb0" stroke-width="2"/>
+  <line x1="310" y1="184" x2="310" y2="266" stroke="#c9b98f" stroke-width="4"/>
+  <!-- 左页文字行（细小） -->
+  <g stroke="#9aa1ab" stroke-width="3" stroke-linecap="round">
+    <line x1="156" y1="232" x2="284" y2="212"/><line x1="156" y1="248" x2="284" y2="228"/>
+    <line x1="156" y1="264" x2="284" y2="244"/><line x1="156" y1="280" x2="250" y2="265"/>
+  </g>
+  <!-- 右页文字行 -->
+  <g stroke="#9aa1ab" stroke-width="3" stroke-linecap="round">
+    <line x1="338" y1="212" x2="466" y2="232"/><line x1="338" y1="228" x2="466" y2="248"/>
+    <line x1="338" y1="244" x2="466" y2="264"/><line x1="338" y1="260" x2="430" y2="275"/>
+  </g>
+  <!-- 放大镜悬于左页上方：镜面内文字放大 -->
+  <circle cx="222" cy="196" r="76" fill="url(#lensg)" stroke="#5b616b" stroke-width="8"/>
+  <circle cx="222" cy="196" r="66" fill="none" stroke="#ffffff" stroke-width="3" opacity=".6"/>
+  <g stroke="#4a5568" stroke-width="7" stroke-linecap="round">
+    <line x1="176" y1="176" x2="268" y2="168"/>
+    <line x1="176" y1="202" x2="268" y2="194"/>
+    <line x1="176" y1="228" x2="248" y2="222"/>
+  </g>
+  <path d="M186 148 Q214 132 250 140" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity=".8"/>
+  <!-- 放大镜手柄（斜向右下） -->
+  <line x1="278" y1="252" x2="342" y2="316" stroke="#5b616b" stroke-width="10" stroke-linecap="round"/>
+  <line x1="330" y1="304" x2="356" y2="330" stroke="#8a6238" stroke-width="16" stroke-linecap="round"/>
+  <!-- 标注 -->
+  <text x="390" y="120" font-size="22" font-weight="700" fill="#3f6fb5" font-family="sans-serif">放大镜：正立、放大的像</text>
+  <line x1="378" y1="132" x2="330" y2="176" stroke="#8a94a8" stroke-width="2" stroke-dasharray="6 6"/>
 </svg>

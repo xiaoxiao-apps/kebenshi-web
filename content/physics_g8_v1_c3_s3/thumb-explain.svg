@@ -1,5 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4fbff"/><stop offset="1" stop-color="#dcedf7"/></linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a5d8f3"/><stop offset="1" stop-color="#5fb3e4"/></linearGradient>
+    <linearGradient id="cup" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".5" stop-color="#eaf4fb" stop-opacity=".55"/><stop offset="1" stop-color="#c7dbe9" stop-opacity=".9"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<path d="M206,178 Q156,172 180,132" fill="none" stroke="#3d3830" stroke-width="15" stroke-linecap="round"/><path d="M206,178 Q156,172 180,132" fill="none" stroke="#5aa896" stroke-width="9" stroke-linecap="round"/><path d="M392,192 L444,156 L452,178 L400,218 Z" fill="#7fc9b8" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="300" cy="216" rx="96" ry="80" fill="#7fc9b8" stroke="#3d3830" stroke-width="2.5"/><rect x="264" y="126" width="72" height="18" rx="9" fill="#5aa896" stroke="#3d3830" stroke-width="2.5"/><circle cx="300" cy="118" r="10" fill="#5aa896" stroke="#3d3830" stroke-width="2.5"/><path d="M263.5,208 q8.5,-9 17,0" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M317.5,208 q8.5,-9 17,0" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M285.0,232 q14.0,9 28,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="240" cy="228" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/><ellipse cx="358" cy="228" rx="10" ry="6" fill="#f2b8a0" opacity="0.75"/><path d="M282,96 q-13,-18 0,-33 q13,-15 0,-30" fill="none" stroke="#b9c6d2" stroke-width="5.5" stroke-linecap="round"/><path d="M322,92 q13,-18 0,-33 q-13,-15 0,-30" fill="none" stroke="#b9c6d2" stroke-width="5.5" stroke-linecap="round"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(488,92) scale(1.05)" fill="#f2c14e"/><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(470,262) scale(0.85)" fill="#7fb8e0" stroke="#3d3830" stroke-width="2"/>
+  <!-- 桌面 -->
+  <rect x="0" y="300" width="640" height="60" fill="#e3d3ab"/>
+  <rect x="0" y="300" width="640" height="6" fill="#d4c193"/>
+  <!-- 冰水杯（静物） -->
+  <g>
+    <path d="M226 96 L246 296 Q248 312 266 312 L374 312 Q392 312 394 296 L414 96 Z" fill="url(#cup)" stroke="#8fa8bb" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M239 160 L246 296 Q248 312 266 312 L374 312 Q392 312 394 296 L401 160 Z" fill="url(#water)" opacity=".9"/>
+    <line x1="239" y1="160" x2="401" y2="160" stroke="#7cc2ea" stroke-width="3"/>
+    <ellipse cx="320" cy="96" rx="94" ry="14" fill="#eef6fb" stroke="#8fa8bb" stroke-width="2.5"/>
+    <!-- 冰块 -->
+    <g fill="#e8f6ff" stroke="#9fd0ec" stroke-width="2">
+      <rect x="272" y="176" width="44" height="38" rx="7" transform="rotate(-12 294 195)"/>
+      <rect x="330" y="196" width="40" height="34" rx="7" transform="rotate(9 350 213)"/>
+    </g>
+    <!-- 外壁水珠（写实小水滴） -->
+    <g fill="#8fc7e8">
+      <path d="M262 200 q6 10 6 14 a6 6 0 0 1 -12 0 q0 -4 6 -14 Z"/>
+      <path d="M394 188 q5 8 5 11 a5 5 0 0 1 -10 0 q0 -3 5 -11 Z"/>
+      <path d="M252 252 q5 8 5 11 a5 5 0 0 1 -10 0 q0 -3 5 -11 Z"/>
+      <path d="M404 244 q6 10 6 14 a6 6 0 0 1 -12 0 q0 -4 6 -14 Z"/>
+      <path d="M268 140 q4 7 4 9 a4 4 0 0 1 -8 0 q0 -2 4 -9 Z"/>
+    </g>
+  </g>
+  <!-- 水蒸气示意：两条波浪线 + 指向杯壁的箭头 -->
+  <g fill="none" stroke="#9aa8b5" stroke-width="3" stroke-linecap="round">
+    <path d="M470 66 q10 -12 0 -24 q-10 -12 0 -24"/>
+    <path d="M514 84 q10 -12 0 -24 q-10 -12 0 -24"/>
+  </g>
+  <text x="492" y="108" font-size="16" font-weight="700" fill="#5b7186" font-family="sans-serif" text-anchor="middle">水蒸气</text>
+  <path d="M486 130 Q466 168 424 186" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M436 174 L410 192 L442 196 Z" fill="#dc2626"/>
+  <text x="500" y="196" font-size="16" font-weight="700" fill="#dc2626" font-family="sans-serif" text-anchor="middle">遇冷液化</text>
+  <!-- 左侧对照：蒸发箭头（水面逸出） -->
+  <path d="M300 140 Q292 110 300 88" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
+  <path d="M290 96 L300 74 L310 96 Z" fill="#2563eb"/>
+  <text x="150" y="80" font-size="16" font-weight="700" fill="#2563eb" font-family="sans-serif" text-anchor="middle">汽化（吸热）</text>
+  <text x="560" y="340" font-size="14" fill="#7a6a4f" font-family="sans-serif" text-anchor="end">液化（放热）</text>
 </svg>

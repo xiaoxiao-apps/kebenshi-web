@@ -1,5 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f0e9da"/></linearGradient>
+    <linearGradient id="crate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9b57f"/><stop offset="1" stop-color="#b08a55"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a071"/><stop offset="1" stop-color="#a97c50"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<rect x="252" y="82" width="152" height="220" rx="14" fill="#e8a93d" stroke="#3d3830" stroke-width="2.5"/><rect x="270" y="102" width="116" height="82" rx="9" fill="#f2c96e" stroke="#3d3830" stroke-width="2.2"/><rect x="270" y="202" width="116" height="82" rx="9" fill="#f2c96e" stroke="#3d3830" stroke-width="2.2"/><circle cx="382" cy="192" r="9" fill="#b0763f" stroke="#3d3830" stroke-width="2.4"/><circle cx="300" cy="230" r="5.5" fill="#3d3830"/><circle cx="301.925" cy="228.075" r="1.65" fill="#ffffff"/><circle cx="330" cy="230" r="5.5" fill="#3d3830"/><circle cx="331.925" cy="228.075" r="1.65" fill="#ffffff"/><path d="M304.0,248 q11.0,7 22,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="286" cy="248" rx="7" ry="4.5" fill="#f2b8a0" opacity="0.75"/><ellipse cx="344" cy="248" rx="7" ry="4.5" fill="#f2b8a0" opacity="0.75"/><circle cx="234" cy="166" r="11" fill="#f7d9b8" stroke="#3d3830" stroke-width="2.4"/><circle cx="240" cy="180" r="9" fill="#f7d9b8" stroke="#3d3830" stroke-width="2.4"/><circle cx="242" cy="196" r="9" fill="#f7d9b8" stroke="#3d3830" stroke-width="2.4"/><circle cx="236" cy="211" r="8" fill="#f7d9b8" stroke="#3d3830" stroke-width="2.4"/><circle cx="214" cy="188" r="27" fill="#f7d9b8" stroke="#3d3830" stroke-width="2.5"/><line x1="108" y1="188" x2="178" y2="188" stroke="#e85d4a" stroke-width="8" stroke-linecap="round"/><polygon points="194.8,188.0 166.9,198.2 166.9,177.8" fill="#e85d4a"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(486,96) scale(1.1)" fill="#f2c14e"/><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(452,260) scale(0.85)" fill="#f2b8a0" stroke="#3d3830" stroke-width="2"/>
+  <!-- 桌面 -->
+  <rect x="0" y="288" width="640" height="72" fill="url(#wood)"/>
+  <rect x="0" y="288" width="640" height="6" fill="#d8b184"/>
+  <!-- 木箱静物（正面+顶面） -->
+  <polygon points="240,180 400,180 400,288 240,288" fill="url(#crate)" stroke="#8a6238" stroke-width="3"/>
+  <polygon points="240,180 276,150 436,150 400,180" fill="#e8cd9c" stroke="#8a6238" stroke-width="3"/>
+  <polygon points="400,180 436,150 436,258 400,288" fill="#96703f" stroke="#8a6238" stroke-width="3"/>
+  <line x1="240" y1="234" x2="400" y2="234" stroke="#8a6238" stroke-width="3"/>
+  <line x1="320" y1="180" x2="320" y2="288" stroke="#8a6238" stroke-width="3"/>
+  <!-- 要素1：作用点（箱左侧中点，红点） -->
+  <circle cx="240" cy="234" r="8" fill="#dc2626"/>
+  <line x1="150" y1="234" x2="232" y2="234" stroke="#dc2626" stroke-width="7" stroke-linecap="round"/>
+  <polygon points="240,222 240,246 262,234" fill="#dc2626"/>
+  <text x="120" y="216" font-size="17" font-weight="700" fill="#dc2626" font-family="sans-serif">作用点</text>
+  <!-- 要素2：方向（箱顶斜上箭头） -->
+  <line x1="330" y1="160" x2="404" y2="86" stroke="#3f6fb5" stroke-width="7" stroke-linecap="round"/>
+  <path d="M404 86 L418 72 L392 66 L386 92 Z" fill="#3f6fb5"/>
+  <text x="430" y="80" font-size="17" font-weight="700" fill="#3f6fb5" font-family="sans-serif">方向</text>
+  <!-- 要素3：大小（长箭头对比短箭头） -->
+  <line x1="436" y1="222" x2="520" y2="222" stroke="#2f8a4e" stroke-width="7" stroke-linecap="round"/>
+  <polygon points="520,210 520,234 542,222" fill="#2f8a4e"/>
+  <line x1="436" y1="258" x2="476" y2="258" stroke="#2f8a4e" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+  <polygon points="476,249 476,267 492,258" fill="#2f8a4e" opacity=".55"/>
+  <text x="500" y="200" font-size="17" font-weight="700" fill="#2f8a4e" font-family="sans-serif">大小（线段长短）</text>
+  <!-- F 符号 -->
+  <text x="176" y="264" font-size="24" font-weight="700" fill="#dc2626" font-family="sans-serif">F</text>
+  <!-- 标题 -->
+  <text x="320" y="48" font-size="23" font-weight="700" fill="#3d4653" text-anchor="middle" font-family="sans-serif">力的示意图：三要素一图看懂</text>
 </svg>

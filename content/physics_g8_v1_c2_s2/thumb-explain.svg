@@ -1,5 +1,74 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
-  <rect width="640" height="360" fill="url(#bg)"/>
-<rect x="170" y="152" width="86" height="72" rx="16" fill="#a78bda" stroke="#3d3830" stroke-width="2.5"/><path d="M256,158 L322,110 L322,266 L256,218 Z" fill="#b99de6" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><circle cx="196" cy="182" r="6" fill="#3d3830"/><circle cx="198.1" cy="179.9" r="1.7999999999999998" fill="#ffffff"/><circle cx="228" cy="182" r="6" fill="#3d3830"/><circle cx="230.1" cy="179.9" r="1.7999999999999998" fill="#ffffff"/><path d="M200.0,200 q12.0,8 24,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="182" cy="200" rx="8" ry="5" fill="#f2b8a0" opacity="0.75"/><path d="M360,120 q24,-28 48,0 q24,28 48,0" fill="none" stroke="#e8734a" stroke-width="6" stroke-linecap="round"/><path d="M366,232 q16,-12 32,0 q16,12 32,0" fill="none" stroke="#f2c14e" stroke-width="5" stroke-linecap="round"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(540,168) scale(1.0)" fill="#f2c14e"/><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(348,300) scale(0.8)" fill="#7fb8e0" stroke="#3d3830" stroke-width="2"/>
+  <defs>
+    <linearGradient id="bg6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdfefe"/><stop offset="1" stop-color="#dde7ef"/>
+    </linearGradient>
+    <linearGradient id="shell6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b5443c"/><stop offset="1" stop-color="#8c2f29"/>
+    </linearGradient>
+    <linearGradient id="rim6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8ecef"/><stop offset="0.5" stop-color="#b9c1c8"/><stop offset="1" stop-color="#8d959c"/>
+    </linearGradient>
+    <radialGradient id="head6" cx="42%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#fbf6ea"/><stop offset="1" stop-color="#e6dcc4"/>
+    </radialGradient>
+    <linearGradient id="stick6" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e3c08a"/><stop offset="1" stop-color="#b98d4f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 亮底渐变 -->
+  <rect width="640" height="360" fill="url(#bg6)"/>
+  <!-- 台面 -->
+  <rect x="0" y="300" width="640" height="60" fill="#c6ced6"/>
+  <rect x="0" y="300" width="640" height="5" fill="#dde3e8"/>
+  <!-- 鼓的投影 -->
+  <ellipse cx="300" cy="308" rx="200" ry="16" fill="#5c666f" opacity="0.25"/>
+
+  <!-- 鼓身（桶形外壳） -->
+  <path d="M120 196 L142 296 Q300 330 458 296 L480 196 Z" fill="url(#shell6)"/>
+  <!-- 鼓身竖纹与拉杆 -->
+  <g stroke="#6e211c" stroke-width="2" opacity="0.5">
+    <line x1="196" y1="204" x2="208" y2="302"/>
+    <line x1="300" y1="208" x2="300" y2="312"/>
+    <line x1="404" y1="204" x2="392" y2="302"/>
+  </g>
+  <g stroke="#c8ced3" stroke-width="5" stroke-linecap="round">
+    <line x1="150" y1="200" x2="160" y2="286"/>
+    <line x1="450" y1="200" x2="440" y2="286"/>
+  </g>
+
+  <!-- 下金属箍 -->
+  <path d="M142 288 Q300 322 458 288 L458 300 Q300 334 142 300 Z" fill="url(#rim6)"/>
+
+  <!-- 鼓面（椭圆俯视透视） + 上金属箍 -->
+  <ellipse cx="300" cy="190" rx="186" ry="58" fill="url(#head6)"/>
+  <ellipse cx="300" cy="190" rx="186" ry="58" fill="none" stroke="url(#rim6)" stroke-width="12"/>
+  <ellipse cx="300" cy="190" rx="170" ry="48" fill="none" stroke="#cfc2a4" stroke-width="1.5"/>
+
+  <!-- 鼓面振动示意：蓝色虚线包络（一个动作=敲击后鼓面起伏） -->
+  <g fill="none" stroke="#2f6fb5" stroke-width="2.5" stroke-dasharray="7 6" opacity="0.85">
+    <path d="M216 178 Q300 146 384 178"/>
+    <path d="M216 202 Q300 234 384 202"/>
+  </g>
+  <!-- 振幅标注箭头 -->
+  <g>
+    <line x1="300" y1="158" x2="300" y2="190" stroke="#c0392b" stroke-width="3"/>
+    <polygon points="300,158 294,170 306,170" fill="#c0392b"/>
+    <text x="316" y="150" font-family="Helvetica,Arial,sans-serif" font-size="15" font-style="italic" font-weight="700" fill="#c0392b">振幅 A</text>
+  </g>
+
+  <!-- 鼓槌（右上，斜落向鼓面） -->
+  <g transform="rotate(-38 512 96)">
+    <rect x="486" y="30" width="13" height="150" rx="6" fill="url(#stick6)"/>
+    <ellipse cx="492.5" cy="186" rx="14" ry="17" fill="#e3c08a" stroke="#a67c40" stroke-width="1.5"/>
+  </g>
+  <!-- 敲击方向箭头 -->
+  <g>
+    <line x1="452" y1="106" x2="406" y2="146" stroke="#2f6fb5" stroke-width="3.5" stroke-linecap="round"/>
+    <polygon points="406,146 421,140 413,129" fill="#2f6fb5"/>
+  </g>
+
+  <!-- 说明 -->
+  <text x="32" y="48" font-family="-apple-system,'PingFang SC',sans-serif" font-size="18" font-weight="700" fill="#33506b">敲击越重 · 振幅越大 → 响度越大</text>
 </svg>

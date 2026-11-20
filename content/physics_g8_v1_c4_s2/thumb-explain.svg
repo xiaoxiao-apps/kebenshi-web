@@ -1,5 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f2ecdf"/></linearGradient>
+    <radialGradient id="apple" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#ef6a5a"/><stop offset=".7" stop-color="#c62f2f"/><stop offset="1" stop-color="#8f1d1d"/></radialGradient>
+    <linearGradient id="mir" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cfe4f0"/><stop offset=".45" stop-color="#f2f9fd"/><stop offset="1" stop-color="#b7d4e6"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<rect x="296" y="238" width="28" height="82" rx="12" fill="#e8a93d" stroke="#3d3830" stroke-width="2.5"/><circle cx="310" cy="168" r="76" fill="#e8a93d" stroke="#3d3830" stroke-width="2.5"/><circle cx="310" cy="168" r="60" fill="#dcecf7" stroke="#3d3830" stroke-width="2"/><path d="M272,132 Q300,116 330,124" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.9"/><circle cx="290" cy="162" r="6" fill="#3d3830"/><circle cx="292.1" cy="159.9" r="1.7999999999999998" fill="#ffffff"/><circle cx="330" cy="162" r="6" fill="#3d3830"/><circle cx="332.1" cy="159.9" r="1.7999999999999998" fill="#ffffff"/><path d="M297.0,186 q13.0,9 26,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="264" cy="184" rx="8" ry="5" fill="#f2b8a0" opacity="0.75"/><ellipse cx="356" cy="184" rx="8" ry="5" fill="#f2b8a0" opacity="0.75"/><line x1="128" y1="236" x2="236" y2="202" stroke="#e8734a" stroke-width="7" stroke-linecap="round"/><polygon points="250.0,197.6 229.4,213.5 224.0,196.4" fill="#e8734a"/><line x1="246" y1="190" x2="168" y2="108" stroke="#f2c14e" stroke-width="7" stroke-linecap="round"/><polygon points="157.9,97.3 181.2,108.9 168.2,121.2" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(478,90) scale(1.1)" fill="#f2c14e"/>
+  <!-- 桌面 -->
+  <rect x="0" y="298" width="640" height="62" fill="#e3d3ab"/>
+  <rect x="0" y="298" width="640" height="6" fill="#d4c193"/>
+  <!-- 立式平面镜（右，写实木框 + 镜面斜反光） -->
+  <g>
+    <rect x="404" y="66" width="150" height="238" rx="8" fill="#8a5a2f" stroke="#6b4423" stroke-width="3"/>
+    <rect x="416" y="78" width="126" height="214" rx="4" fill="url(#mir)"/>
+    <path d="M424 268 L500 84 L520 84 L444 268 Z" fill="#ffffff" opacity=".45"/>
+    <rect x="392" y="300" width="174" height="14" rx="5" fill="#6b4423"/>
+    <rect x="452" y="292" width="54" height="10" fill="#7a4f28"/>
+  </g>
+  <!-- 镜中苹果的像（半透明，镜面内） -->
+  <g opacity=".5">
+    <circle cx="478" cy="248" r="34" fill="url(#apple)"/>
+    <path d="M478 214 q4 -10 12 -14" fill="none" stroke="#5a3a1f" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M486 206 q10 -8 18 -2 q-6 10 -18 2 Z" fill="#4c8a3f"/>
+  </g>
+  <!-- 镜前实物：红苹果 -->
+  <g>
+    <ellipse cx="196" cy="292" rx="44" ry="9" fill="#c9b183"/>
+    <circle cx="196" cy="252" r="40" fill="url(#apple)"/>
+    <circle cx="182" cy="238" r="10" fill="#ffffff" opacity=".3"/>
+    <path d="M196 212 q4 -12 14 -16" fill="none" stroke="#5a3a1f" stroke-width="4" stroke-linecap="round"/>
+    <path d="M206 202 q12 -9 21 -2 q-7 12 -21 2 Z" fill="#4c8a3f"/>
+  </g>
+  <!-- 一条入射光线示意箭头：苹果 → 镜面 -->
+  <line x1="238" y1="244" x2="360" y2="212" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M354 200 L382 206 L360 226 Z" fill="#dc2626"/>
+  <text x="300" y="182" font-size="16" font-weight="700" fill="#dc2626" font-family="sans-serif" text-anchor="middle">镜面反射</text>
+  <g font-family="sans-serif" font-size="14" fill="#41566b" text-anchor="middle">
+    <text x="196" y="330">实物</text><text x="479" y="340">平面镜 · 虚像正立等大</text>
+  </g>
 </svg>

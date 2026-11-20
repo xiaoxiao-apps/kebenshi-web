@@ -1,5 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f2ecdf"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<path d="M300,92 L398,266 L202,266 Z" fill="#dcecf7" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><path d="M300,120 L372,248 L228,248 Z" fill="#eef7fc" opacity="0.7"/><circle cx="282" cy="218" r="6" fill="#3d3830"/><circle cx="284.1" cy="215.9" r="1.7999999999999998" fill="#ffffff"/><circle cx="318" cy="218" r="6" fill="#3d3830"/><circle cx="320.1" cy="215.9" r="1.7999999999999998" fill="#ffffff"/><path d="M288.0,238 q12.0,8 24,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><ellipse cx="258" cy="236" rx="8" ry="5" fill="#f2b8a0" opacity="0.75"/><ellipse cx="342" cy="236" rx="8" ry="5" fill="#f2b8a0" opacity="0.75"/><line x1="112" y1="178" x2="252" y2="178" stroke="#b9c6d2" stroke-width="6" stroke-linecap="round"/><path d="M350,178 Q452,132 528,86" fill="none" stroke="#e85d4a" stroke-width="7" stroke-linecap="round"/><path d="M350,182 Q458,180 546,178" fill="none" stroke="#f2c14e" stroke-width="7" stroke-linecap="round"/><path d="M350,186 Q452,232 528,276" fill="none" stroke="#6fb1e0" stroke-width="7" stroke-linecap="round"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(556,130) scale(0.9)" fill="#f2c14e"/>
+  <!-- 桌面 -->
+  <rect x="0" y="310" width="640" height="50" fill="#e3d3ab"/>
+  <rect x="0" y="310" width="640" height="6" fill="#d4c193"/>
+  <!-- 牛顿色盘支架 -->
+  <g>
+    <rect x="306" y="240" width="28" height="86" rx="6" fill="#59677a"/>
+    <path d="M266 322 L374 322 L356 306 L284 306 Z" fill="#3f4a5a"/>
+  </g>
+  <!-- 七色圆盘（写实色扇，圆心 320,168 半径 108） -->
+  <g stroke="#f8fafc" stroke-width="1.5">
+    <path d="M320 168 L320 60 A108 108 0 0 1 396 92 Z" fill="#e03131"/>
+    <path d="M320 168 L396 92 A108 108 0 0 1 428 168 Z" fill="#e8833a"/>
+    <path d="M320 168 L428 168 A108 108 0 0 1 396 244 Z" fill="#f2c14e"/>
+    <path d="M320 168 L396 244 A108 108 0 0 1 320 276 Z" fill="#4c9a3f"/>
+    <path d="M320 168 L320 276 A108 108 0 0 1 244 244 Z" fill="#2f9e8f"/>
+    <path d="M320 168 L244 244 A108 108 0 0 1 212 168 Z" fill="#3f6fb5"/>
+    <path d="M320 168 L212 168 A108 108 0 0 1 320 60 Z" fill="#7048a8"/>
+  </g>
+  <circle cx="320" cy="168" r="108" fill="none" stroke="#8a94a8" stroke-width="4"/>
+  <circle cx="320" cy="168" r="16" fill="#d1d5db" stroke="#8a94a8" stroke-width="3"/>
+  <circle cx="320" cy="168" r="5" fill="#59677a"/>
+  <!-- 旋转示意箭头（弧形） -->
+  <path d="M470 84 A150 150 0 0 1 500 200" fill="none" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/>
+  <path d="M486 196 L506 218 L514 188 Z" fill="#dc2626"/>
+  <text x="524" y="128" font-size="16" font-weight="700" fill="#dc2626" font-family="sans-serif" text-anchor="middle">快速旋转</text>
+  <!-- 左侧结论标注 -->
+  <g font-family="sans-serif" text-anchor="middle">
+    <text x="118" y="120" font-size="16" font-weight="700" fill="#41566b">七色混合</text>
+    <text x="118" y="146" font-size="16" font-weight="700" fill="#41566b">→ 呈白色</text>
+    <line x1="118" y1="160" x2="118" y2="200" stroke="#8a94a8" stroke-width="2.4" stroke-dasharray="6 5"/>
+    <circle cx="118" cy="238" r="34" fill="#ffffff" stroke="#8a94a8" stroke-width="3"/>
+    <text x="118" y="244" font-size="15" font-weight="700" fill="#5b7186">白</text>
+  </g>
+  <text x="320" y="348" font-size="14" fill="#7a6a4f" font-family="sans-serif" text-anchor="middle">白光是由红橙黄绿蓝靛紫七色光复合而成</text>
 </svg>
