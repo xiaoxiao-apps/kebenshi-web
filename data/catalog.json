@@ -890,6 +890,18 @@
     "thumb": "content/physics_g8_v1_c7_s1/thumb-practice.svg"
    },
    {
+    "id": "physics_g8_v1_c7_summary/index",
+    "subject": "物理",
+    "grade": "八年级",
+    "volume": "下册",
+    "chapter": "第7章 力",
+    "section": "本章小结",
+    "type": "小结",
+    "title": "力 · 本章小结",
+    "path": "content/physics_g8_v1_c7_summary/index.html",
+    "thumb": "content/physics_g8_v1_c7_summary/thumb1.svg"
+   },
+   {
     "id": "mockexam/index",
     "subject": "物理",
     "grade": "八年级",
