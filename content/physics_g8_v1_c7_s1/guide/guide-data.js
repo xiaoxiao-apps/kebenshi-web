@@ -39,7 +39,7 @@ window.C7S1_GUIDE={
     steps:[
       {id:'c7r-19',repeat:true,trigger:'R.road.diagram===true && (R.road.pushMove===true || R.road.pushStatic===true || R.road.icePush===true)',say:'示意图上红蓝两箭同时出现、一样长、方向相反、起点重合，这就是作用力与反作用力，大小相等、方向相反，但作用在两个物体上，一个是人对车的推力，另一个是人受到车反推的力。点方向盘放大区，在不同位置推推看。',audio:'c7r-19'},
       {id:'c7r-22',repeat:true,trigger:'R.road.icePush===true && R.road.diagram!==true',say:'人推车，车没动，人反而往后滑去，滑一段慢慢停下。说明力的作用是相互的。接下来我们换回普通鞋。',audio:'c7r-22'},
-      {id:'c7r-21',repeat:true,trigger:'R.road.pushStatic===true && R.road.ice!==true && R.road.diagram!==true',say:'推力太小，车还没有被推动，加大力气。',audio:'c7r-21'},
+      {id:'c7r-21',repeat:true,trigger:'R.road.pushStatic===true && R.road.ice!==true && R.road.diagram!==true',say:'力气太小，车还没有被推动，加大力气试试。',audio:'c7r-21'},
       {id:'c7r-03',repeat:true,trigger:'R.road.pushMove===true && R.road.sponge!==true && R.road.ice!==true && R.road.diagram!==true && R.road.brakeLevel===0',say:'人给车一个向前的力，车开始向前运动。力可以改变物体的运动状态。下次先踩住一点刹车再推，感受是不是要更大力气。',audio:'c7r-03'},
       {id:'c7r-20',repeat:true,trigger:'R.road.pushMove===true && R.road.sponge===true && R.road.ice!==true && R.road.diagram!==true',say:'人给海绵施加力，海绵被压凹变形；力同时传到车上，车往前走。力能改变物体的形状，也能改变物体的运动状态。打开力的示意图，看看红蓝两箭。',audio:'c7r-20'},
       {id:'c7r-23',repeat:true,trigger:'R.road.spongeAdd===true',say:'我们现在在人和车之间加上一块海绵。隔着海绵推推看。',audio:'c7r-23'},
@@ -50,7 +50,7 @@ window.C7S1_GUIDE={
       {id:'c7r-12',repeat:true,trigger:'R.road.shoeIce===true',say:'换上轮滑鞋，鞋底换成滚轮，人站不稳、容易往后滑。推推车，看看会发生什么。',audio:'c7r-12'},
       {id:'c7r-13',repeat:true,trigger:'R.road.shoeNormal===true',say:'换回普通鞋，鞋底抓地，站得稳。放上海绵，隔着海绵推推看，海绵会怎样。',audio:'c7r-13'},
       {id:'c7r-18',repeat:true,trigger:'R.road.diagram===true',say:'力的示意图打开了。',audio:'c7r-18'},
-      {id:'c7r-37',repeat:false,trigger:'R.road.hasPushed===true && R.road.hasCoasted===true && R.road.hasBraked===true && R.road.hasIcePushed===true && R.road.hasSpongePushed===true && R.road.hasDiagramOn===true && R.road.hasWheel===true && R.road.hasSlid===true',say:'力的效果、相互性、三要素，你都亲手验证了一遍！',audio:'c7r-37'},
+      {id:'c7r-37',repeat:false,queue:true,trigger:'R.road.hasPushed===true && R.road.hasCoasted===true && R.road.hasBraked===true && R.road.hasIcePushed===true && R.road.hasSpongePushed===true && R.road.hasDiagramOn===true && R.road.hasWheel===true && R.road.hasSlid===true',say:'力的效果、相互性、三要素，你都亲手验证了一遍！',audio:'c7r-37'},
       {id:'c7r-25',repeat:true,trigger:'R.road.pushMove===true && R.road.sponge!==true && R.road.ice!==true && R.road.diagram!==true && R.road.brakeLevel>0',say:'看，踩下刹车之后是不是需要更大的力才能将车推动？接下来我们换上轮滑鞋试试。',audio:'c7r-25'},
     ],
     errors:[],free:[],tasks:[]
@@ -184,7 +184,7 @@ window.C7S1_GUIDE={
     'c7r-24':'guide/audio/c7r-24.mp3?v=20261119z9',
     'c7r-23':'guide/audio/c7r-23.mp3?v=20261119z14',
     'c7r-22':'guide/audio/c7r-22.mp3?v=20261120z15',
-    'c7r-21':'guide/audio/c7r-21.mp3?v=20261119z9',
+    'c7r-21':'guide/audio/c7r-21.mp3?v=20261120z16',
     'c7r-20':'guide/audio/c7r-20.mp3?v=20261119z14',
     'c7b-18':'guide/audio/c7b-18.mp3?v=20261119z9',
     'c7b-30':'guide/audio/c7b-30.mp3?v=20261120z15',
