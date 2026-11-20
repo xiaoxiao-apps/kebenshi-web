@@ -259,13 +259,8 @@
     ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
   }
   function circ(x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); }
-  function drawWheel(x, y, r, angle) {                                          // w轮修1：方向盘统一几何——圆环+水平直径杆+中心竖直半辐（车内/modal 同调用，无三辐Y/无红hub）
-    ctx.save();
-    ctx.translate(x, y); ctx.rotate(angle || 0);
-    ctx.strokeStyle = PAL.wheel; ctx.lineWidth = Math.max(3, r * 0.14);
-    circ(0, 0, r); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-r, 0); ctx.lineTo(r, 0); ctx.moveTo(0, 0); ctx.lineTo(0, r); ctx.stroke();
-    ctx.restore();
+  function drawWheel(x, y, r, angle) {                                          // C7V6-L1 入库：几何统一走 PROPS.dial_side（圆环+水平直径杆+中心竖直半辐；车内/modal 同调用）
+    PROPS.dial_side(ctx, x, y, { r: r, angle: angle || 0, color: PAL.wheel });
   }
 
   /* ===== 场景：天空/云/草地/池塘/护坡/沥青路+黄虚线（修订点2） ===== */
@@ -344,60 +339,13 @@
   }
 
   /* ===== PhET 风格写实轿车（车头向右，修订点4/8） ===== */
-  function drawOneWheel(cx0, cy0, r) {
-    ctx.fillStyle = PAL.wheel; circ(cx0, cy0, r); ctx.fill();
-    ctx.fillStyle = PAL.rim; circ(cx0, cy0, r * 0.52); ctx.fill();
-    ctx.fillStyle = '#6b7684'; circ(cx0, cy0, r * 0.16); ctx.fill();
-  }
   function drawCar() {
-    var car = S.car, gy = L.roadTop + car.y, w = L.carW, h = L.carH, x = car.x - w / 2;
-    ctx.save();
-    if (car.angle) { ctx.translate(car.x, gy); ctx.rotate(car.angle); ctx.translate(-car.x, -gy); }
-    ctx.fillStyle = 'rgba(20,30,45,.20)';
-    ctx.beginPath(); ctx.ellipse(car.x, gy + 3, w * 0.5, 5, 0, 0, Math.PI * 2); ctx.fill();
-    var bodyY = gy - h * 0.80, bodyH = h * 0.72;
-    var bg = ctx.createLinearGradient(0, bodyY - h * 0.62, 0, gy);
-    bg.addColorStop(0, PAL.carTop); bg.addColorStop(1, PAL.carBot);
-    // 座舱（车顶弧线）
-    ctx.fillStyle = bg;
-    ctx.beginPath();
-    ctx.moveTo(x + w * 0.16, bodyY + 4);
-    ctx.quadraticCurveTo(x + w * 0.22, bodyY - h * 0.60, x + w * 0.36, bodyY - h * 0.62);
-    ctx.lineTo(x + w * 0.60, bodyY - h * 0.62);
-    ctx.quadraticCurveTo(x + w * 0.73, bodyY - h * 0.56, x + w * 0.80, bodyY + 4);
-    ctx.closePath(); ctx.fill();
-    // 车窗（前挡风右倾 + 两块侧窗）
-    ctx.fillStyle = PAL.carGlass;
-    rr(x + w * 0.26, bodyY - h * 0.50, w * 0.19, h * 0.42, 5); ctx.fill();
-    rr(x + w * 0.48, bodyY - h * 0.50, w * 0.15, h * 0.42, 5); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(x + w * 0.655, bodyY - h * 0.48); ctx.lineTo(x + w * 0.735, bodyY - h * 0.02);
-    ctx.lineTo(x + w * 0.665, bodyY - h * 0.02); ctx.closePath(); ctx.fill();
-    // 车身主体
-    ctx.fillStyle = bg; rr(x, bodyY, w, bodyH, h * 0.20); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.16)'; rr(x + w * 0.05, bodyY + bodyH * 0.12, w * 0.9, bodyH * 0.16, h * 0.08); ctx.fill();
-    ctx.strokeStyle = 'rgba(60,20,20,.45)'; ctx.lineWidth = 1.5;                  // 门缝+把手
-    ctx.beginPath(); ctx.moveTo(x + w * 0.46, bodyY + 4); ctx.lineTo(x + w * 0.46, bodyY + bodyH - 6); ctx.stroke();
-    ctx.fillStyle = 'rgba(60,20,20,.5)'; rr(x + w * 0.36, bodyY + bodyH * 0.30, w * 0.06, 3, 1.5); ctx.fill();
-    // 车灯：车头(右)前照灯 + 车尾(左)尾灯 + 保险杠
-    ctx.fillStyle = '#ffe08a'; rr(x + w - 9, bodyY + bodyH * 0.22, 9, bodyH * 0.26, 4); ctx.fill();
-    ctx.fillStyle = '#f43f5e'; rr(x, bodyY + bodyH * 0.22, 6, bodyH * 0.26, 3); ctx.fill();
-    ctx.fillStyle = '#3f4650'; rr(x + w - 6, gy - h * 0.20, 8, h * 0.10, 3); ctx.fill(); rr(x - 2, gy - h * 0.20, 8, h * 0.10, 3); ctx.fill();
-    // 车内方向盘（点击 → 居中放大 modal，修订点8；w轮修1：与 modal 同 drawWheel，随盘角同步转）
-    var swx = x + w * 0.62, swy = bodyY - h * 0.16, swr = Math.max(8, h * 0.14);
-    drawWheel(swx, swy, swr, S.dial.angle);
-    S.sw = { x: swx, y: swy, r: swr };
-    // 重心标记
-    var c = comPoint();
-    ctx.fillStyle = '#fff'; circ(c.x, c.y, 5); ctx.fill();
-    ctx.strokeStyle = PAL.text; ctx.lineWidth = 2; circ(c.x, c.y, 5); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(c.x - 8, c.y); ctx.lineTo(c.x + 8, c.y); ctx.moveTo(c.x, c.y - 8); ctx.lineTo(c.x, c.y + 8); ctx.stroke();
-    ctx.restore();
-    // t轮：车身系锚定轮+悬架行程（前后锁死轮拱、只上下动=减震）
+    var car = S.car, gy = L.roadTop + car.y, w = L.carW, h = L.carH;
+    // t轮：车身系锚定轮+悬架行程（前后锁死轮拱、只上下动=减震）——布局/物理在 core 算，绘制走 PROPS.car_side（C7V6-L1 入库）
     var Ox = car.x, Oy = L.roadTop + car.y, theta = car.angle;
     var cosT = Math.cos(theta), sinT = Math.sin(theta);
     var tMin = -0.10 * L.carH, tMax = 0.35 * L.carH;
-    var wt = [];
+    var wt = [], wheels = [];
     [-1, 1].forEach(function(sgn) {
       var axX = sgn * L.carW * 0.32, t = car._cl || 0;
       for (var it = 0; it < 5; it++) {
@@ -410,269 +358,36 @@
       wt.push({ axX: axX, t: t, xw: xwf, yw: ywf });
       var stX = Ox + axX * cosT + L.wheelR * 2 * sinT;
       var stY = Oy + axX * sinT - L.wheelR * 2 * cosT;
-      ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(stX, stY); ctx.lineTo(xwf, ywf); ctx.stroke();
-      drawOneWheel(xwf, ywf, L.wheelR);
+      wheels.push({ x: xwf, y: ywf, sx: stX, sy: stY });
     });
     S._wheelT = wt;
-    ctx.save(); ctx.fillStyle = '#fff'; ctx.font = '600 11px sans-serif'; ctx.textAlign = 'center';
-    ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 3;
-    ctx.fillText('重心', c.x, c.y - 12); ctx.restore();
+    var ret = PROPS.car_side(ctx, car.x, gy, {
+      w: w, h: h, angle: car.angle, wheelR: L.wheelR, wheels: wheels,
+      dialAngle: S.dial.angle, com: comPoint(), comLabel: true
+    });
+    S.sw = ret.sw;                                                              // 车内方向盘命中盒（点击 → modal）
   }
 
-  /* ===== C7V6 蔡总参考图 sprite（像素级）：未加载完成 → 回退旧程序化绘制 ===== */
-  function mkSpr(file, nw, nh, v) {
-    var img = new Image();
-    img.src = 'assets/' + file + '?v=' + (v || '20261117');
-    img.onload = function () { dirty = true; };
-    return { img: img, nw: nw, nh: nh };
-  }
-  var SPR = {
-    stand: mkSpr('boy_stand.png', 154, 800),
-    skate: mkSpr('boy_skate.png', 172, 820),
-    push: mkSpr('boy_push_body.png', 418, 652, '20261117g'),
-    skatepush: mkSpr('boy_skatepush_body.png', 403, 657, '20261117v'),
-    arm: mkSpr('boy_arm.png', 231, 61, '20261117g'),
-    armFar: mkSpr('boy_arm_far.png', 234, 54, '20261117h')
-  };
-  var SPR_K_BODY = 800;                                                        // d轮：三身体件统一除数；g轮 豆包有机 push 652/800=0.815personH
-  var PUSH_FOOT_F = 0.4498;                                                    // g轮：push body 脚锚分数（stand/skate 仍 0.5）
-  var SKATEPUSH_FOOT_F = 0.6234;                                               // v轮：豆包轮滑推身 403×657 脚锚分数（657/800=0.821personH）
-  SPR.arm.rig = { pivX: 0, pivY: 30, tipX: 230, tipY: 13 };                    // g轮 per-sprite 锚点：豆包有机臂件（pivot 左缘肩、tip 手尖，自然像素）
-  SPR.armFar.rig = { pivX: 0, pivY: 26.5, tipX: 233, tipY: 24.5 };            // h轮：远臂重切去杂边 234×54
-  function sprOK(s) { return s.img.complete && s.img.naturalWidth > 0; }
-  function personSprOK() {
-    return sprOK(SPR.stand) && sprOK(SPR.skate) && sprOK(SPR.push) && sprOK(SPR.skatepush) && sprOK(SPR.arm) && sprOK(SPR.armFar);
-  }
-  function sprW(s, k) { return (s.img.naturalWidth || s.nw) * k; }
-  function sprH(s, k) { return (s.img.naturalHeight || s.nh) * k; }
-  function drawArmSpr(s, sx, sy, tx, ty, k, alpha) {                            // g轮 有机臂：per-sprite pivot/tip，kx=k 尺度上的拉伸倍数使 pivot→tip=dist，手尖恒落 (tx,ty)
-    var r = s.rig, dist = Math.hypot(tx - sx, ty - sy), targetAng = Math.atan2(ty - sy, tx - sx);
-    var spanWorld = (r.tipX - r.pivX) * k, kx = dist / spanWorld, kxu = k * kx;  // kxu：自然像素→世界的横向总缩放
-    var iAng = Math.atan2((r.tipY - r.pivY) * k, dist);                         // 固有角按非等比缩放(x:kxu,y:k)补偿 → tip 精确落 target
-    var nw = s.img.naturalWidth || s.nw, nh = s.img.naturalHeight || s.nh;
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.translate(sx, sy); ctx.rotate(targetAng - iAng);
-    ctx.drawImage(s.img, -r.pivX * kxu, -r.pivY * k, nw * kxu, nh * k);
-    ctx.restore();
-  }
-  function sstep(t) { return t * t * (3 - 2 * t); }                             // d轮：smoothstep(eng)
-  function drawBodySpr(s, kb, alpha, footF) {
-    var bw = sprW(s, kb), bh = sprH(s, kb);
-    ctx.globalAlpha = alpha;
-    ctx.drawImage(s.img, -bw * (footF || 0.5), L.roadTop - bh, bw, bh);         // 脚锚分数 footF · 底边贴地
-    ctx.globalAlpha = 1;
-  }
-  function drawPersonSpr() {
-    var per = S.person, d = dirS(), ph = L.personH;
-    var ice = S.shoe === 'ice';
-    var kb = ph / SPR_K_BODY;                                                   // d轮：统一 800 除数（臂件 g轮 起同用 kb）
-    var e = sstep(S.eng);                                                       // v轮：ice 同用 eng tau → skate↔skatepush 双向 crossfade
-    ctx.save();
-    ctx.translate(per.x, 0); ctx.scale(d, 1);
-    var armOn = e >= 0.02, shxL = 0, shY = 0, tipX = 0, tipY = 0;
-    if (armOn) {                                                                // 肩位随 e 在 站立↔推车 分数间插值（松手反向回放不跳变）
-      shxL = ph * (ice ? 0.0406 + (0.1641 - 0.0406) * e : 0.055);               // g轮：push 肩x 与站立同分数 0.055（无插值）；w轮 ice 推肩 0.1641
-      shY = L.roadTop - ph * (ice ? 0.789 + (0.5588 - 0.789) * e : 0.66 + (0.575 - 0.66) * e);   // w轮：ice 肩 skate(0.789)→skatepush(0.5588) 随 e 插值
-      var sp = handTarget(d), tx = (sp.x - per.x) * d, ty = sp.y;               // z9修1：臂 IK 目标=海绵脸(on)/车脸(off)
-      var ikAng = Math.atan2(ty - shY, tx - shxL), ikDist = Math.hypot(tx - shxL, ty - shY);
-      var ang = Math.PI / 2 + (ikAng - Math.PI / 2) * e;                        // 垂臂(π/2) → IK 角（drawArmSpr 内再减固有角）
-      var len = L.armLen + (ikDist - L.armLen) * e;                             // 0.36personH → dist
-      tipX = shxL + Math.cos(ang) * len; tipY = shY + Math.sin(ang) * len;
-      drawArmSpr(SPR.armFar, shxL + 2, shY + 3, tipX, tipY, kb, 0.9 * e);       // 远侧暗臂（身后）
-    }
-    ctx.save(); ctx.scale(-1, 1);                                               // sprite 朝左 → 本地朝 +x
-    if (ice) {                                                                  // v轮：轮滑推车身（前倾+双臂平伸+双脚橙轮滑）
-      if (e < 0.02) drawBodySpr(SPR.skate, kb, 1);
-      else if (e > 0.98) drawBodySpr(SPR.skatepush, kb, 1, SKATEPUSH_FOOT_F);
-      else { drawBodySpr(SPR.skate, kb, 1 - e); drawBodySpr(SPR.skatepush, kb, e, SKATEPUSH_FOOT_F); }
-    }
-    else if (e < 0.02) drawBodySpr(SPR.stand, kb, 1);
-    else if (e > 0.98) drawBodySpr(SPR.push, kb, 1, PUSH_FOOT_F);
-    else { drawBodySpr(SPR.stand, kb, 1 - e); drawBodySpr(SPR.push, kb, e, PUSH_FOOT_F); }   // 过渡：crossfade
-    ctx.restore();
-    if (armOn) {                                                                // w轮修5：肩头补片——身体后、臂前，在肩点画同色黄圆角补片盖切口台阶（两种 push 身都加）
-      var tSl = (SPR.arm.img.naturalHeight || SPR.arm.nh) * kb;                 // 袖厚=臂件高
-      var pw = tSl * 1.6, phh = tSl * 1.25;
-      ctx.save(); ctx.globalAlpha = e; ctx.fillStyle = PAL.sleeve;
-      rr(shxL - pw / 2, shY - phh / 2, pw, phh, phh * 0.45); ctx.fill();
-      ctx.restore();
-      drawArmSpr(SPR.arm, shxL, shY, tipX, tipY, kb, e);                        // 近侧臂（身前）
-    }
-    ctx.restore();
-  }
-
-  /* ===== P1 贝塞尔写实卡通小人（面向车；P3 手臂肩为轴臂长恒定；P7 轮滑鞋滚轮） ===== */
+  /* ===== P1 推手人（C7V6-L1 入库：sprite 机制/贝塞尔回退全部移入 PROPS.person_side；core 只传状态与 IK 目标） ===== */
+  PROPS.person_side.onLoad(function () { dirty = true; });
   function drawPerson() {
-    if (personSprOK()) { drawPersonSpr(); return; }                               // C7V6：sprite 优先，下方为 fallback
-    var per = S.person, ph = L.personH, gy = L.roadTop, d = dirS(), ice = S.shoe === 'ice';
+    var per = S.person, ph = L.personH, d = dirS();
     var pushing = S.push.active && S.push.F > 0.05 && S.car.mode === 'road';
     var walking = S.ps.mode === 'person' || per.sliding;
     var reaching = pushing || S.ps.mode === 'person';
-    var topY = gy - ph, headR = ph * 0.10, headY = topY + headR * 1.42;
-    var shY = L.roadTop - ph * (pushing ? 0.60 : 0.66), hipY = topY + ph * 0.56, tw = ph * 0.115;
-    var shx = ph * 0.055;                                                       // 肩关节（与 shoulderPt 一致）
-    var lean = pushing ? ph * 0.055 : (per.sliding ? -ph * 0.045 : 0);           // 前倾推车/后仰滑行
-    var fOff = walking ? ph * 0.115 : ph * 0.05;
-    var cp = reaching ? contactPoint() : null;
-    var handL = cp ? { x: (cp.x - per.x) * d, y: cp.y } : null;                  // 世界→本地（镜像后恒朝+x）
-    ctx.save();
-    ctx.translate(per.x, 0); ctx.scale(d, 1);
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    // —— 后腿（深色裤）——
-    strokeLimb(-tw * 0.35, hipY, -fOff * 0.55, hipY + (gy - hipY) * 0.52, -fOff * 0.95, gy - ph * 0.055, ph * 0.062, '#26333b', ph * 0.02);
-    drawFoot(-fOff * 0.95, gy, ph, ice, true);
-    // —— 躯干（贝塞尔上衣 + shading + 衣纹）——
-    var sg = ctx.createLinearGradient(-tw, shY, tw * 1.3, hipY);
-    sg.addColorStop(0, PAL.clothSh); sg.addColorStop(0.45, PAL.cloth); sg.addColorStop(1, PAL.clothSh);
-    ctx.fillStyle = sg;
-    ctx.beginPath();
-    ctx.moveTo(-tw * 0.92 + lean * 0.6, shY - ph * 0.05);
-    ctx.bezierCurveTo(-tw * 1.1 + lean * 0.3, shY + ph * 0.06, -tw * 0.95, hipY - ph * 0.04, -tw * 0.8, hipY + ph * 0.035);
-    ctx.bezierCurveTo(-tw * 0.2, hipY + ph * 0.055, tw * 0.4, hipY + ph * 0.055, tw * 0.85, hipY + ph * 0.03);
-    ctx.bezierCurveTo(tw * 1.02, hipY - ph * 0.05, tw * 1.08 + lean, shY + ph * 0.05, tw * 0.95 + lean, shY - ph * 0.048);
-    ctx.bezierCurveTo(tw * 0.3 + lean, shY - ph * 0.075, -tw * 0.3 + lean, shY - ph * 0.075, -tw * 0.92 + lean * 0.6, shY - ph * 0.05);
-    ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = 'rgba(20,35,60,.35)'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.strokeStyle = 'rgba(20,35,60,.16)'; ctx.lineWidth = 1.4;                // 衣纹
-    ctx.beginPath(); ctx.moveTo(-tw * 0.2 + lean * 0.7, shY + ph * 0.02); ctx.quadraticCurveTo(-tw * 0.05, shY + ph * 0.10, -tw * 0.3, hipY - ph * 0.02); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(tw * 0.45 + lean * 0.5, shY + ph * 0.05); ctx.quadraticCurveTo(tw * 0.35, shY + ph * 0.12, tw * 0.5, hipY - ph * 0.03); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,.13)';                                    // 胸前受光
-    ctx.beginPath(); ctx.moveTo(tw * 0.1 + lean * 0.8, shY - ph * 0.02);
-    ctx.quadraticCurveTo(tw * 0.85 + lean * 0.8, shY + ph * 0.02, tw * 0.6, hipY - ph * 0.05);
-    ctx.quadraticCurveTo(tw * 0.25, shY + ph * 0.08, tw * 0.1 + lean * 0.8, shY - ph * 0.02); ctx.closePath(); ctx.fill();    // —— 颈 + 领口 ——
-    ctx.fillStyle = PAL.skinSh; rr(-tw * 0.22 + lean, shY - ph * 0.085, tw * 0.5, ph * 0.05, 3); ctx.fill();
-    ctx.fillStyle = PAL.skin; rr(-tw * 0.2 + lean, shY - ph * 0.09, tw * 0.46, ph * 0.04, 3); ctx.fill();
-    ctx.strokeStyle = 'rgba(20,35,60,.4)'; ctx.lineWidth = 1.3;
-    ctx.beginPath(); ctx.moveTo(-tw * 0.35 + lean, shY - ph * 0.052); ctx.lineTo(tw * 0.05 + lean, shY - ph * 0.028); ctx.lineTo(tw * 0.42 + lean, shY - ph * 0.055); ctx.stroke();
-    // —— 前腿（裤 + 弯膝）——
-    strokeLimb(tw * 0.35, hipY, fOff * 0.62, hipY + (gy - hipY) * 0.5, fOff, gy - ph * 0.055, ph * 0.066, PAL.pants, ph * 0.024);
-    drawFoot(fOff, gy, ph, ice, false);
-    // —— 双臂（P3 单关节IK：臂长恒=armLen，肩为轴）——
-    if (handL) {
-      var hx = handL.x, hy = handL.y;
-      drawArm(shx - tw * 0.1, shY + ph * 0.012, hx - ph * 0.012, hy + ph * 0.022, ph, true);   // 远侧臂(略暗)
-      drawArm(shx + tw * 0.12, shY, hx, hy, ph, false);                                          // 近侧臂
-      ctx.fillStyle = PAL.skin; circ(hx, hy, ph * 0.030); ctx.fill();                            // 手
-      ctx.strokeStyle = 'rgba(120,80,40,.5)'; ctx.lineWidth = 1; circ(hx, hy, ph * 0.030); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(hx + ph * 0.02, hy - ph * 0.012); ctx.lineTo(hx + ph * 0.034, hy - ph * 0.004); ctx.stroke();
-    } else {
-      var sw = walking ? ph * 0.075 : ph * 0.015;
-      drawArm(shx - tw * 0.15, shY + ph * 0.01, -sw * 0.7 - ph * 0.02, hipY - ph * 0.01, ph, true);
-      drawArm(shx + tw * 0.15, shY, sw + ph * 0.03, hipY - ph * 0.02, ph, false);
-      ctx.fillStyle = PAL.skin;
-      circ(-sw * 0.7 - ph * 0.02, hipY - ph * 0.01, ph * 0.027); ctx.fill();
-      circ(sw + ph * 0.03, hipY - ph * 0.02, ph * 0.028); ctx.fill();
-    }
-    // —— 头（贝塞尔颅型/下颌 + 发型 + 脸）——
-    var hdx = lean * 1.15 + ph * 0.012;
-    ctx.fillStyle = PAL.skinSh;                                                 // 耳
-    ctx.beginPath(); ctx.ellipse(hdx - headR * 0.72, headY + headR * 0.18, headR * 0.2, headR * 0.3, -0.2, 0, Math.PI * 2); ctx.fill();
-    var fg = ctx.createRadialGradient(hdx + headR * 0.35, headY - headR * 0.3, headR * 0.2, hdx, headY, headR * 1.5);
-    fg.addColorStop(0, '#f7d3a5'); fg.addColorStop(1, PAL.skin);
-    ctx.fillStyle = fg;
-    ctx.beginPath();
-    ctx.moveTo(hdx - headR * 0.85, headY - headR * 0.15);
-    ctx.bezierCurveTo(hdx - headR * 1.02, headY - headR * 1.35, hdx + headR * 0.72, headY - headR * 1.58, hdx + headR * 0.94, headY - headR * 0.35);   // 颅顶
-    ctx.bezierCurveTo(hdx + headR * 1.02, headY + headR * 0.15, hdx + headR * 0.92, headY + headR * 0.55, hdx + headR * 0.5, headY + headR * 0.98);   // 颊→颏
-    ctx.bezierCurveTo(hdx + headR * 0.1, headY + headR * 1.18, hdx - headR * 0.5, headY + headR * 0.85, hdx - headR * 0.72, headY + headR * 0.35);   // 下颌
-    ctx.bezierCurveTo(hdx - headR * 0.85, headY + headR * 0.1, hdx - headR * 0.87, headY - headR * 0.05, hdx - headR * 0.85, headY - headR * 0.15);
-    ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = 'rgba(120,80,40,.35)'; ctx.lineWidth = 1.1; ctx.stroke();
-    ctx.fillStyle = PAL.hair;                                                   // 发型（贝塞尔发盖+刘海+鬓角）
-    ctx.beginPath();
-    ctx.moveTo(hdx - headR * 0.92, headY + headR * 0.02);
-    ctx.bezierCurveTo(hdx - headR * 1.18, headY - headR * 1.2, hdx - headR * 0.2, headY - headR * 1.78, hdx + headR * 0.62, headY - headR * 1.3);
-    ctx.bezierCurveTo(hdx + headR * 0.95, headY - headR * 1.08, hdx + headR * 1.02, headY - headR * 0.7, hdx + headR * 0.98, headY - headR * 0.42);
-    ctx.bezierCurveTo(hdx + headR * 0.6, headY - headR * 0.82, hdx + headR * 0.05, headY - headR * 0.95, hdx - headR * 0.4, headY - headR * 0.62);   // 刘海缘
-    ctx.bezierCurveTo(hdx - headR * 0.66, headY - headR * 0.42, hdx - headR * 0.82, headY - headR * 0.2, hdx - headR * 0.92, headY + headR * 0.02);
-    ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(40,25,12,.5)'; ctx.lineWidth = 1; ctx.stroke();
-    ctx.fillStyle = '#fff';                                                     // 眼
-    ctx.beginPath(); ctx.ellipse(hdx + headR * 0.42, headY - headR * 0.08, headR * 0.2, headR * 0.24, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#33241a'; circ(hdx + headR * 0.47, headY - headR * 0.05, Math.max(1.5, headR * 0.11)); ctx.fill();
-    ctx.fillStyle = '#fff'; circ(hdx + headR * 0.5, headY - headR * 0.1, Math.max(0.8, headR * 0.04)); ctx.fill();
-    ctx.strokeStyle = '#3a2c20'; ctx.lineWidth = 1.5;                           // 眉
-    ctx.beginPath(); ctx.moveTo(hdx + headR * 0.26, headY - headR * 0.42); ctx.quadraticCurveTo(hdx + headR * 0.45, headY - headR * 0.52, hdx + headR * 0.62, headY - headR * 0.4); ctx.stroke();
-    ctx.lineWidth = 1.3;                                                        // 鼻
-    ctx.beginPath(); ctx.moveTo(hdx + headR * 0.82, headY + headR * 0.12); ctx.quadraticCurveTo(hdx + headR * 0.92, headY + headR * 0.28, hdx + headR * 0.76, headY + headR * 0.32); ctx.stroke();
-    ctx.beginPath(); ctx.arc(hdx + headR * 0.45, headY + headR * 0.42, headR * 0.3, 0.2, Math.PI * 0.66); ctx.stroke();   // 微笑
-    ctx.fillStyle = 'rgba(230,120,110,.28)';                                    // 腮红
-    ctx.beginPath(); ctx.ellipse(hdx + headR * 0.62, headY + headR * 0.3, headR * 0.16, headR * 0.1, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
+    PROPS.person_side(ctx, per.x, L.roadTop, {
+      h: ph, dir: d, ice: S.shoe === 'ice', eng: S.eng, armLen: L.armLen,
+      hand: handTarget(d), cp: reaching ? contactPoint() : null,
+      pushing: pushing, walking: walking, sliding: per.sliding, spriteBase: 'assets/'
+    });
   }
-  function strokeLimb(x0, y0, x1, y1, x2, y2, w, col, bend) {                   // 双段关节肢体（膝/肘弯）
-    ctx.strokeStyle = 'rgba(15,25,35,.28)'; ctx.lineWidth = w + 2;
-    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 + bend, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    ctx.strokeStyle = col; ctx.lineWidth = w;
-    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 + bend, y1); ctx.lineTo(x2, y2); ctx.stroke();
-  }
-  function drawArm(sx, sy, hx, hy, ph, far) {                                   // 肩→手微弧恒长臂：短袖+皮肤前臂
-    var dx = hx - sx, dy = hy - sy, ln = Math.hypot(dx, dy) || 1;
-    var cx = (sx + hx) / 2 - dy / ln * ph * 0.018, cy = (sy + hy) / 2 + dx / ln * ph * 0.018;
-    ctx.strokeStyle = far ? PAL.skinSh : PAL.skin; ctx.lineWidth = ph * 0.04;
-    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.quadraticCurveTo(cx, cy, hx, hy); ctx.stroke();
-    ctx.strokeStyle = far ? PAL.clothSh : PAL.cloth; ctx.lineWidth = ph * 0.052; // 短袖
-    ctx.beginPath(); ctx.moveTo(sx, sy);
-    ctx.quadraticCurveTo(sx + (cx - sx) * 0.5, sy + (cy - sy) * 0.5, sx + (hx - sx) * 0.42, sy + (hy - sy) * 0.42); ctx.stroke();
-  }
-  function drawFoot(fx, gy, ph, ice, back) {                                    // P7：普通鞋 / 轮滑鞋（轮架+一排滚轮，醒目对比色）
-    var w = ph * 0.115, hgt = ph * 0.045, x0 = fx - w * 0.42, y0 = gy - hgt;
-    if (ice) {
-      var wr = ph * 0.017, wy = gy - wr;
-      ctx.fillStyle = PAL.skateDark; rr(x0 - 1, wy - wr * 1.15, w + 6, wr * 1.1, 2); ctx.fill();       // 轮架
-      for (var i = 0; i < 4; i++) {
-        var wx = x0 + 2 + i * (w + 2) / 3.4;
-        ctx.fillStyle = '#2b2f36'; circ(wx, wy, wr); ctx.fill();
-        ctx.strokeStyle = back ? 'rgba(0,0,0,.35)' : '#111'; ctx.lineWidth = 1.4; circ(wx, wy, wr); ctx.stroke();
-        ctx.fillStyle = PAL.skate; circ(wx, wy, wr * 0.42); ctx.fill();
-      }
-      ctx.fillStyle = back ? '#d97f0e' : PAL.skate;                                                   // 鞋身（亮橙）
-      ctx.beginPath();
-      ctx.moveTo(x0, y0 - hgt * 0.55);
-      ctx.bezierCurveTo(x0 + w * 0.2, y0 - hgt * 0.7, x0 + w * 0.75, y0 - hgt * 0.35, x0 + w + 4, y0 + hgt * 0.1);
-      ctx.lineTo(x0 + w + 4, wy - wr * 1.1); ctx.lineTo(x0 - 1, wy - wr * 1.1);
-      ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = '#7a4a00'; ctx.lineWidth = 1.4; ctx.stroke();
-      ctx.fillStyle = '#fff8ec'; rr(x0 + w * 0.1, y0 - hgt * 0.18, w * 0.55, 2.4, 1.2); ctx.fill();   // 鞋带条
-    } else {
-      ctx.fillStyle = back ? '#4a382b' : PAL.shoe;
-      ctx.beginPath();
-      ctx.moveTo(x0, gy - 1);
-      ctx.bezierCurveTo(x0, y0 - hgt * 0.5, x0 + w * 0.5, y0 - hgt * 0.35, x0 + w + 3, gy - 2);
-      ctx.lineTo(x0 + w + 3, gy - 1); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#2c2119'; rr(x0 - 1, gy - 3, w + 5, 3, 1.4); ctx.fill();                       // 鞋底
-    }
-  }
+
 
   /* ===== 手-车接触海绵（P10：米色多孔可识别 + 按压凹陷 + 标签；形变∝力） ===== */
   function drawSponge() {
     if (!S.sponge || S.car.mode !== 'road') return;                             // z9修1：海绵仅 toggle on 时绘制
     var d = dirS(), cp = SPONGE(d);                                             // d轮：车体锚定，靠近/推/松手全程不动
-    var def = S.spongeDef;
-    var w0 = L.carH * 0.17, h0 = L.carH * 0.32;
-    var w = w0 * (1 + def * 0.45), h = h0 * (1 - def * 0.55);
-    var x = cp.x - w * 0.5 + d * 2, y = cp.y - h / 2;
-    ctx.save();
-    var sg = ctx.createLinearGradient(x, y, x, y + h);
-    sg.addColorStop(0, '#fbf0cc'); sg.addColorStop(1, PAL.sponge);
-    ctx.fillStyle = sg; rr(x, y, w, h, 4); ctx.fill();
-    ctx.strokeStyle = PAL.spongeDark; ctx.lineWidth = 1.5; rr(x, y, w, h, 4); ctx.stroke();
-    ctx.fillStyle = PAL.spongeHole;                                             // 多孔洞纹理
-    for (var i = 0; i < 7; i++) {
-      var hx = x + w * (0.14 + ((i * 37) % 72) / 100), hy = y + h * (0.14 + ((i * 53) % 68) / 100);
-      ctx.beginPath(); ctx.ellipse(hx, hy, 1.1 + (i % 3) * 0.55, 0.9 + (i % 2) * 0.5, 0, 0, Math.PI * 2); ctx.fill();
-    }
-    if (def > 0.08) {                                                          // 按压凹陷（手侧弧面）
-      ctx.strokeStyle = 'rgba(160,120,50,.5)'; ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      ctx.moveTo(x + (d > 0 ? 1 : w - 1), y + h * 0.18);
-      ctx.quadraticCurveTo(x + (d > 0 ? 1 : w - 1) + d * def * w * 0.3, y + h * 0.5, x + (d > 0 ? 1 : w - 1), y + h * 0.82);
-      ctx.stroke();
-    }
-    ctx.font = '600 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.shadowColor = 'rgba(255,255,255,.9)'; ctx.shadowBlur = 3; ctx.fillStyle = '#8a6a20'; ctx.fillText('海绵', x + w / 2, y + h + 3);
-    ctx.restore();
+    PROPS.sponge_pad(ctx, cp.x, cp.y, { def: S.spongeDef, s: L.carH, dir: d }); // C7V6-L1 入库
   }
 
   /* ===== F/v 主观察仪表条（修订点6：高≥2.5倍、18px、数值+单位+满量程刻度） ===== */
@@ -706,53 +421,10 @@
   /* ===== P4 刹车=竖直滑道：踏板造型滑钮上下滑=刹车力（轮滑鞋锁定虚化） ===== */
   function drawBrake() {
     var p = L.pedal, dis = S.shoe === 'ice';
-    var ty0 = p.y + 10, th = p.h - 20;
-    var ky = ty0 + (S.brake / BRAKE_MAX) * th;
-    ctx.save();
-    ctx.fillStyle = 'rgba(255,255,255,.88)'; rr(p.x - 10, p.y - 28, p.w + 20, p.h + 66, 12); ctx.fill();
-    ctx.strokeStyle = 'rgba(100,116,139,.4)'; ctx.lineWidth = 1; rr(p.x - 10, p.y - 28, p.w + 20, p.h + 66, 12); ctx.stroke();
-    ctx.fillStyle = PAL.text; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('刹车踏板', p.x + p.w / 2, p.y - 10);
-    if (dis) ctx.globalAlpha = 0.35;                                             // 轮滑鞋：自动虚化
-    var cx0 = p.x + p.w / 2;
-    ctx.fillStyle = '#b6c2cf'; rr(cx0 - 8, ty0 - 4, 16, th + 8, 8); ctx.fill();  // 竖直滑道
-    ctx.fillStyle = '#8c9bab'; rr(cx0 - 4, ty0, 8, th, 4); ctx.fill();           // 滑槽
-    ctx.strokeStyle = 'rgba(40,50,61,.35)'; ctx.lineWidth = 1.2;                 // 0/最大 刻度
-    ctx.beginPath(); ctx.moveTo(cx0 - 12, ty0); ctx.lineTo(cx0 - 20, ty0); ctx.moveTo(cx0 - 12, ty0 + th); ctx.lineTo(cx0 - 20, ty0 + th); ctx.stroke();
-    ctx.font = '600 9px sans-serif'; ctx.fillStyle = PAL.sub; ctx.textAlign = 'right';
-    ctx.fillText('松', cx0 - 22, ty0 + 3); ctx.fillText('紧', cx0 - 22, ty0 + th + 3);
-    // 滑钮=刹车踏板本体（图一样式）：正立不倾斜、居中于滑道、银白金属渐变+黑防滑条、无中心圆点
-    ctx.save(); ctx.translate(cx0, ky);
-    var scale = p.w / 68;                                                        // 窄屏随面板缩放系数
-    var padW = 46 * scale, padH = 34 * scale, ins = padW * 0.06, pr = padH * 0.16;
-    var px0 = -padW / 2, py0 = -padH / 2;
-    var padGrad = ctx.createLinearGradient(0, py0, 0, py0 + padH);               // 竖向金属渐变
-    padGrad.addColorStop(0, '#f8f9fa'); padGrad.addColorStop(0.5, '#e8ebec'); padGrad.addColorStop(1, '#c9ced2');
-    ctx.beginPath();                                                             // 圆角梯形（顶略宽于底）
-    ctx.moveTo(px0 + pr, py0);
-    ctx.arcTo(px0 + padW, py0, px0 + padW - ins, py0 + padH, pr);
-    ctx.arcTo(px0 + padW - ins, py0 + padH, px0 + ins, py0 + padH, pr);
-    ctx.arcTo(px0 + ins, py0 + padH, px0, py0, pr);
-    ctx.arcTo(px0, py0, px0 + padW, py0, pr);
-    ctx.closePath();
-    ctx.fillStyle = padGrad; ctx.fill();
-    ctx.strokeStyle = '#3f4650'; ctx.lineWidth = 2; ctx.stroke();                // 外描边
-    var rowH = padH * 0.09, vpad = padH * 0.15, step = (padH - 2 * vpad) / 5;     // 防滑条 5行×2列
-    var lcolW = padW * 0.42, rcolW = padW * 0.30, gap = padW * 0.06, lm = (padW - (lcolW + gap + rcolW)) / 2;
-    var lx0 = px0 + lm, rx0 = px0 + lm + lcolW + gap;
-    ctx.fillStyle = '#17181a';
-    for (var i = 0; i < 5; i++) {
-      var cy = py0 + vpad + step * (i + 0.5);
-      rr(lx0, cy - rowH / 2, lcolW, rowH, rowH / 2); ctx.fill();
-      rr(rx0, cy - rowH / 2, rcolW, rowH, rowH / 2); ctx.fill();
-    }
-    ctx.restore();
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = PAL.text; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('刹车力 ' + (S.brake * DISP).toFixed(0) + ' N', cx0, p.y + p.h + 16);   // x轮修1：显示=内部×50
-    ctx.font = '600 9px sans-serif'; ctx.fillStyle = dis ? PAL.thrust : PAL.sub;
-    ctx.fillText(dis ? '轮滑锁定=最大' : '拖动滑钮=刹车力', cx0, p.y + p.h + 30);
-    ctx.restore();
+    PROPS.brake_pedal(ctx, p.x, p.y, {                                          // C7V6-L1 入库：滑轨+踏板滑钮整件
+      w: p.w, h: p.h, frac: S.brake / BRAKE_MAX, dis: dis,
+      valTxt: '刹车力 ' + (S.brake * DISP).toFixed(0) + ' N'                    // x轮修1：显示=内部×50
+    });
   }
 
   /* ===== 方向盘放大区：居中 modal（修订点8） ===== */

@@ -60,8 +60,8 @@
 <script src="./props.js?v=20261024"></script>
 <script src="./props-optics.js?v=20261024"></script>
 <script src="./props-density.js?v=20261024"></script>
-<!-- c7 力学器材库 props-mech.js：37件（2026-11-04 单A 16件 + 2026-11-06 C7V2-D1 glass_bottle_tube + 2026-11-11 C7V3-R1 hook_link + 2026-11-12 C7V4-R8 _25d「一张桌子」14件15函数 + 2026-11-12 C7V4-R9 承载件 tray/track/door_frame/pump _25d 4件；旧件全保留；视觉原创，PhET 仅借交互语义） -->
-<script src="./props-mech.js?v=20261112"></script>
+<!-- c7 力学器材库 props-mech.js：46件（2026-11-04 单A 16件 + 2026-11-06 C7V2-D1 glass_bottle_tube + 2026-11-11 C7V3-R1 hook_link + 2026-11-12 C7V4-R8 _25d「一张桌子」14件15函数 + 2026-11-12 C7V4-R9 承载件 tray/track/door_frame/pump _25d 4件 + 2026-11-20 C7V6-L1 第七章实验绘制器材 dial_side/car_side/person_side/sponge_pad/brake_pedal/stand_side/weight_cyl/spring_helix/meter_side 9件；旧件全保留；视觉原创，PhET 仅借交互语义） -->
+<script src="./props-mech.js?v=20261120L1"></script>
 <script src="./sfx.js?v=20261024"></script>
 <script>
 // PROPS.SPRITE_BASE 默认为 'sprites/'，与 gallery.html 同目录，正确无需覆写
@@ -142,7 +142,12 @@ const PROPS_LIST=[
   {id:'tray_25d',name:'器材托盘 2.5D(4凹槽)',fn:'tray_25d',wide:true,vector:true,opts:[{},{w:180},{slots:6}],badge:'C7V4-R9',desc:'锚=盘底面中心；浅盘外框+内底opt.slots个凹槽位(默认4)；返回{w,h,base,top,mounts:{slots:[n]世界坐标=R10吸附,top}}'},
   {id:'track_25d',name:'光滑轨道 2.5D(端挡块)',fn:'track_25d',wide:true,vector:true,opts:[{},{w:260},{w:440}],badge:'C7V4-R9',desc:'锚=底面中心；长条低矮金属导轨+两端木挡块+顶面光滑亮带+前沿刻度；返回{w,h,base,mounts:{start,end,axis,len,top}}'},
   {id:'door_frame_25d',name:'门框 2.5D(配door_25d)',fn:'door_frame_25d',tall:true,vector:true,opts:[{},{w:170,h:210},{w:240,h:280}],badge:'C7V4-R9',desc:'锚=框底面中心；浅墙背板+厚木套三件、门轴位在左；比door_25d大一圈套住；返回{w,h,base,mounts:{hinge,pushPoints:[3],opening}}'},
-  {id:'pump_25d',name:'打气嘴 2.5D(泵体+软管)',fn:'pump_25d',vector:true,opts:[{},{h:44},{h:88}],badge:'C7V4-R9',desc:'锚=底面中心；塑料红小圆柱泵体+泵杆短柄+软管贝塞尔+金属嘴尖；返回{w,h,base,mounts:{nozzle=R10接气球喷口,top}}'}
+  {id:'pump_25d',name:'打气嘴 2.5D(泵体+软管)',fn:'pump_25d',vector:true,opts:[{},{h:44},{h:88}],badge:'C7V4-R9',desc:'锚=底面中心；塑料红小圆柱泵体+泵杆短柄+软管贝塞尔+金属嘴尖；返回{w,h,base,mounts:{nozzle=R10接气球喷口,top}}'},
+  {id:'dial_side',name:'方向盘(环+直径杠+半辐)',fn:'dial_side',vector:true,opts:[{r:44},{r:44,angle:0.7},{r:30,scale:1.4,angle:-0.5}],badge:'C7V6-L1',desc:'来源 exp-road drawWheel；旋转件圆心锚点(规则13例外)；车内小盘与放大modal大盘同一件；opt.r/scale/angle/color；返回{r,center}'},
+  {id:'car_side',name:'侧视轿车+车轮',fn:'car_side',wide:true,vector:true,opts:[{w:230,h:96,wheelR:28},{w:200,h:84,wheelR:25,angle:0.10},{w:160,h:67,wheelR:20,dialAngle:0.6}],badge:'C7V6-L1',desc:'来源 exp-road drawCar/drawOneWheel；锚=轮地接触线中心(底面中心)；车头朝右渐变车体+座舱+车窗+灯+保险杠+车内方向盘；opt.angle斜面姿态(绕锚旋转)/wheels=[{x,y,sx,sy}]世界坐标悬架轮(缺省±0.32w静态)/dialAngle/com重心标记/comLabel；返回{sw方向盘命中圆,com}'},
+  {id:'person_side',name:'侧视推手人(sprite优先/矢量回退)',fn:'person_side',tall:true,vector:true,opts:[{h:230},{h:230,ice:true},{h:230,eng:1,pushing:true,cpOff:{dx:72,dy:-96},armLen:83}],badge:'C7V6-L1',desc:'来源 exp-road drawPerson/drawPersonSpr；锚=双足地面中心；gallery内sprite 404→贝塞尔回退体(实验页豆包有机sprite优先)；opt.ice轮滑变体(鞋↔轮滑靴crossfade)/eng 0..1站立↔推手过渡/hand,cp肩轴定长手臂IK世界目标/handOff,cpOff锚相对目标(展柜)/armLen/pushing/walking/sliding/spriteBase；person_side.onLoad(sprite就绪钩子,页面置dirty)；变体3=推手态手臂IK前伸'},
+  {id:'sponge_pad',name:'手-车接触海绵',fn:'sponge_pad',vector:true,opts:[{s:150,def:0},{s:150,def:0.5},{s:150,def:0.9,dir:-1}],badge:'C7V6-L1',desc:'来源 exp-road drawSponge；锚=车身接触面点(侧挂)；米黄多孔+opt.def 0..1压缩量(压宽变薄+手侧凹陷弧)+海绵标签；opt.s车高标度(w0=s*0.17,h0=s*0.32)/dir±1/label；返回{w,h,x,y}'},
+  {id:'stand_side',name:'侧视铁架台',fn:'stand_side',tall:true,vector:true,opts:[{rh:290,aw:100,baseW:170},{rh:290,aw:100,baseW:170,tilt:0.26},{rh:220,aw:78,baseW:140,tilt:0.12}],badge:'C7V6-L1',desc:'来源 exp-bench drawStand；锚=底座底面中心；底座+立杆+左挑横杆+端环，整体随opt.tilt斜面倾(rotate(-tilt))；opt.rh立杆高/aw横杆长/baseW底座宽；返回{top立杆顶,hang横杆挂点}'}
 ];
 const CARD_SIZES={wide:{w:520,h:160},tall:{w:300,h:420},normal:{w:300,h:160}};
 function sizeOf(item){return item.size||CARD_SIZES[item.wide?'wide':(item.tall?'tall':'normal')];}
@@ -380,7 +385,41 @@ function initTable25dCard(){
   paint();wrap._lbBig=paint;
   wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(desc);wrap.appendChild(cvs);return wrap;
 }
-function initGallery(){const g=document.getElementById('gallery');PROPS_LIST.forEach(function(item){g.appendChild(drawCard(item));});g.appendChild(initTable25dCard());g.appendChild(initMeterCard());g.appendChild(initPlumbCard());g.appendChild(initBenchCard());g.appendChild(initToolboxCard());g.appendChild(initDeskCard());g.appendChild(initDeskBendCard());(document.getElementById('rules-grid')||g).appendChild(initPlaceRuleCard());g.appendChild(initRoomCard());} // R32：放置规则卡归三区；C7V3-R1：spring_meter 改顶锚自定义卡；C7V4-R8：table_25d 宽件自定义卡
+function initL1TopCard(cfg){
+  const wrap=document.createElement('div');wrap.className='prop-card';
+  const lab=document.createElement('div');lab.className='prop-label';lab.textContent=cfg.id;
+  const name=document.createElement('div');name.className='prop-name';name.textContent=cfg.name;
+  const b=document.createElement('span');b.className='pill';b.style.marginLeft='8px';b.style.background='var(--gold)';b.textContent='C7V6-L1';name.appendChild(b);
+  const desc=document.createElement('div');desc.textContent=cfg.desc;desc.style.cssText='font-size:11px;color:#999;margin:2px 0';
+  const cvs=document.createElement('canvas');cvs.className='prop-canvas';cvs.width=cfg.w;cvs.height=cfg.h;
+  const ctx0=cvs.getContext('2d');
+  function paint(g){const ctx=(g&&g.canvas)?g:ctx0;ctx.imageSmoothingEnabled=true;
+    ctx.fillStyle='#f5f2ec';ctx.fillRect(0,0,cfg.w,cfg.h);
+    cfg.paint(ctx);
+    ctx.fillStyle='#999';ctx.font='11px sans-serif';ctx.textAlign='center';
+    (cfg.labels||[]).forEach(function(t){ctx.fillText(t.text,t.x,t.y);});}
+  paint();wrap._lbBig=paint;
+  wrap.appendChild(lab);wrap.appendChild(name);wrap.appendChild(desc);wrap.appendChild(cvs);return wrap;
+}
+function initL1Cards(){return [
+  initL1TopCard({id:'brake_pedal',name:'刹车竖滑轨+踏板滑块',w:520,h:300,
+    desc:'来源 exp-road drawBrake；锚=滑轨左上(侧挂面板)故用自定义卡；白色半透面板+标题+松/紧刻度+梯形踏板(防滑纹渐变)；opt.frac 0..1 滑块位/dis 轮滑锁定置灰0.35/valTxt底部读数/hintTxt提示(缺省按dis取)；返回{x,y,w,h,knob滑块世界坐标}',
+    paint:function(ctx){PROPS.brake_pedal(ctx,90,42,{w:68,h:150,frac:0,valTxt:'刹车力 0 N'});PROPS.brake_pedal(ctx,240,42,{w:68,h:150,frac:0.55,valTxt:'刹车力 138 N'});PROPS.brake_pedal(ctx,390,42,{w:68,h:150,frac:1,dis:true,valTxt:'刹车力 250 N'});},
+    labels:[{text:'变体1:frac=0(松)',x:124,y:288},{text:'变体2:frac=0.55 滑块下移',x:274,y:288},{text:'变体3:frac=1 dis置灰锁定',x:424,y:288}]}),
+  initL1TopCard({id:'weight_cyl',name:'圆柱砝码(质量三档)',w:520,h:240,
+    desc:'来源 exp-bench drawWeights；锚=圆柱顶面中心(挂接件顶锚向下画,规则13)故用自定义卡；侧向渐变圆柱体+顶盖椭圆+底弧+顶部挂环(与弹簧下钩互扣)+质量字；opt.mass 50/100/150/200/250 体积∝mass^⅓(缺省u=41×30)；opt.w/h 页面压缩显式尺寸优先；返回{w,h,hookTop}',
+    paint:function(ctx){PROPS.weight_cyl(ctx,110,34,{mass:50});PROPS.weight_cyl(ctx,260,34,{mass:100});PROPS.weight_cyl(ctx,410,34,{mass:150});},
+    labels:[{text:'变体1:mass=50',x:110,y:228},{text:'变体2:mass=100',x:260,y:228},{text:'变体3:mass=150',x:410,y:228}]}),
+  initL1TopCard({id:'spring_helix',name:'参数化螺旋弹簧(材质色/刚度/塑性态)',w:520,h:400,
+    desc:'来源 exp-bench helix；锚=顶端(悬挂向下画)故用自定义卡；参数式螺旋P(θ)=(x+sw·sinθ, ya+pitch·θ/2π+e·cosθ)：后线圈暗色先画+前线圈本色+前侧高光芯条(深浅分层=立体)；两端引线；opt.ext伸长量(弹性/塑性弯曲态由页面物理驱动ext,部件本身无状态)/sw线圈半径/color材质色/k刚度(影响线宽圈数)/turns；返回{top,bottom}',
+    paint:function(ctx){PROPS.spring_helix(ctx,110,20,{ext:280,sw:36,color:'#b9c5d1',k:2});PROPS.spring_helix(ctx,260,20,{ext:280,sw:36,color:'#d4dce5',k:0.7});PROPS.spring_helix(ctx,410,20,{ext:330,sw:36,color:'#a5713f',k:0.2});},
+    labels:[{text:'变体1:钢色 k=2.0',x:110,y:388},{text:'变体2:浅色 k=0.7',x:260,y:388},{text:'变体3:陶土色 k=0.2 塑性弯折态(ext更长)',x:410,y:388}]}),
+  initL1TopCard({id:'meter_side',name:'侧视教学测力计(spring程序体/balance贴图体)',w:520,h:420,
+    desc:'来源 exp-bench 测力计两态；锚=表体顶面中心(悬挂向下画)故用自定义卡；opt.mode=spring 程序体(半透壳露内簧+调零钮+N/gf双列刻度+红指针+底钩)/balance 实物贴图sprite体(meter_body.png 分度定位槽+内簧+指针+挂片tab+吊线；图未加载自动回退程序体——gallery冷缓存=回退体,实验页sprite优先)；opt.bodyH/r读数/range量程/flash超限红闪/img页面Image引用/blRef贴图ext基准；返回{bodyW,py,hookY,tabTop,ext,ready}',
+    paint:function(ctx){PROPS.meter_side(ctx,110,26,{mode:'spring',bodyH:260,r:0});PROPS.meter_side(ctx,260,26,{mode:'spring',bodyH:260,r:2.5});PROPS.meter_side(ctx,420,26,{mode:'balance',bodyH:260,r:1.8});},
+    labels:[{text:'变体1:spring r=0',x:110,y:410},{text:'变体2:spring r=2.5 指针下移',x:260,y:410},{text:'变体3:balance模式(冷缓存=回退程序体)',x:420,y:410}]})
+];}
+function initGallery(){const g=document.getElementById('gallery');PROPS_LIST.forEach(function(item){g.appendChild(drawCard(item));});g.appendChild(initTable25dCard());g.appendChild(initMeterCard());g.appendChild(initPlumbCard());g.appendChild(initBenchCard());g.appendChild(initToolboxCard());g.appendChild(initDeskCard());g.appendChild(initDeskBendCard());initL1Cards().forEach(function(c){g.appendChild(c);});(document.getElementById('rules-grid')||g).appendChild(initPlaceRuleCard());g.appendChild(initRoomCard());} // R32：放置规则卡归三区；C7V3-R1：spring_meter 改顶锚自定义卡；C7V4-R8：table_25d 宽件自定义卡；C7V6-L1：brake_pedal/weight_cyl/spring_helix/meter_side 顶锚自定义卡
 function initDemo(){
   const cvs=document.getElementById('demo'),ctx=cvs.getContext('2d');ctx.imageSmoothingEnabled=true;
   cvs.width=760;cvs.height=220;

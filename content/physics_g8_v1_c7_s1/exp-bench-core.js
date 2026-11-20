@@ -299,61 +299,16 @@
     ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
     ctx.fillText(t, x, y); ctx.restore();
   }
-  function shade(hex, amt) {                                              // hex 明暗调整
-    var n = parseInt(hex.slice(1), 16);
-    return 'rgb(' + clamp((n >> 16) + amt, 0, 255) + ',' + clamp(((n >> 8) & 255) + amt, 0, 255) + ',' + clamp((n & 255) + amt, 0, 255) + ')';
-  }
-  function helix(x, y0, y1, sw, color, k, turns) {                        // z2 修1：参数化螺旋 P(θ)=(x+sw·sinθ, ya+pitch·θ/2π+e·cosθ)
-    turns = turns || 12;
-    var lead = 6;
-    var lw = sw * 0.07 * (0.9 + k * 0.06), gl = Math.round(10 + k * 16);       // z5 修1：线径再减 0.10→0.07（≈2.6px@1200）；恒定不随拉伸；光泽随 k
-    var ya = y0 + lead, yb = y1 - lead, span = Math.max(0, yb - ya);
-    var e = sw * 0.32, pitch = span / turns;
-    if (pitch < lw * 0.75) pitch = lw * 0.75;                              // 压缩并圈：pitch clamp，圈嵌套重叠（禁退化直杆）
-    var tt = Math.max(1, span / pitch), thEnd = tt * 2 * Math.PI;          // 压缩时圈数随 span 收缩，恒填满 [ya,yb]
-    var step = Math.min(0.12, 1.8 / Math.max(sw, 1)), N = Math.ceil(thEnd / step);   // 沿圈采样间隙 ≤2px
-    function PX(th) { return x + sw * Math.sin(th); }
-    function PY(th) { return ya + pitch * th / (2 * Math.PI) + e * Math.cos(th); }
-    ctx.save(); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    ctx.strokeStyle = color; ctx.lineWidth = lw;                           // 上/下引线：接 P(0)/P(end) 切线方向
-    ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(PX(0), PY(0));
-    ctx.moveTo(PX(thEnd), PY(thEnd)); ctx.lineTo(x, y1); ctx.stroke();
-    var pts = [], j, th;
-    for (j = 0; j <= N; j++) { th = Math.min(j * step, thEnd); pts.push([PX(th), PY(th), Math.cos(th) >= 0]); }
-    function strokeRun(run, front) {
-      if (run.length < 2) return;
-      ctx.beginPath(); ctx.moveTo(run[0][0], run[0][1]);
-      for (var z = 1; z < run.length; z++) ctx.lineTo(run[z][0], run[z][1]);
-      ctx.stroke();
-      if (front) {                                                         // 前股再罩高光芯（z3 修2：gl+10 对比增强）
-        ctx.strokeStyle = shade(color, gl + 10); ctx.lineWidth = lw * 0.35;
-        ctx.beginPath(); ctx.moveTo(run[0][0], run[0][1]);
-        for (var z2 = 1; z2 < run.length; z2++) ctx.lineTo(run[z2][0], run[z2][1]);
-        ctx.stroke();
-        ctx.strokeStyle = color; ctx.lineWidth = lw;
-      }
-    }
-    function pass(front) {                                                 // 深度分遍：后股(cos<0)先画（z3 修2：-gl-24 加深），前股(cos≥0)后画
-      var run = [], q;
-      ctx.strokeStyle = front ? color : shade(color, -gl - 24);
-      ctx.lineWidth = front ? lw : lw * 0.9;
-      for (q = 0; q < pts.length; q++) {
-        if (pts[q][2] === front) run.push(pts[q]);
-        else { strokeRun(run, front); run = []; }
-      }
-      strokeRun(run, front);
-    }
-    pass(false); pass(true);
-    ctx.restore();
+  function helix(x, y0, y1, sw, color, k, turns) {                        // C7V6-L1 入库：参数化螺旋移入 PROPS.spring_helix（前后股深度分遍）
+    PROPS.spring_helix(ctx, x, y0, { ext: y1 - y0, sw: sw, color: color, k: k, turns: turns || 12 });
   }
 
-  /* ===== C7V6 蔡总参考图 sprite：条形盒测力计本体（未加载完成 → 回退旧程序化绘制） ===== */
-  var METER_IMG = new Image();
-  METER_IMG.src = 'assets/meter_body.png?v=20261117';
-  METER_IMG.onload = function () { dirty = true; };
+  /* ===== C7V6 蔡总参考图 sprite：条形盒测力计本体（C7V6-L1 入库：sprite+overlay+程序化回退整件移入 PROPS.meter_side；core 只留物理/命中盒几何访问器） ===== */
+  var METER_IMG = PROPS.meter_side.IMG;
+  PROPS.meter_side.onLoad(function () { dirty = true; });
   function meterReady() { return METER_IMG.complete && METER_IMG.naturalWidth > 0; }
-  var MB = { spring_top: 0.3750, strip_top: 0.4406, zero: 0.4501, five: 0.9024, slot_x0: 0.4561, slot_x1: 0.5501, face_cx: 0.4992 };
-  var TAB_WF = 0.4777, TAB_HF = 0.376, HOLE_YF = 0.1418, HOLE_RF = 0.074, WIRE_U = 649;
+  var MB = PROPS.meter_side.G.MB;
+  var TAB_HF = PROPS.meter_side.G.TAB_HF;
   function meterBodyW(bodyH) {
     return bodyH * (METER_IMG.naturalWidth || 165) / (METER_IMG.naturalHeight || 800);
   }
@@ -362,74 +317,6 @@
   }
   function meterTabTop(bodyH) {
     return balBodyTop() - 10 + bodyH - 0.02 * bodyH + meterExt(bodyH);
-  }
-  function meterPy(top, bodyH, r) {
-    var z = top + MB.zero * bodyH, f = top + MB.five * bodyH;
-    return z + (f - z) * clamp(r, 0, RANGE) / RANGE;
-  }
-  function meterSlot(hx, bodyW) {
-    return { l: hx + (MB.slot_x0 - 0.5) * bodyW, r: hx + (MB.slot_x1 - 0.5) * bodyW };
-  }
-  function meterSpring(hx, top, bodyW, bodyH, py) {              // 槽内锯齿螺旋 7 圈：spring_top → 指针上方
-    var y0 = top + MB.spring_top * bodyH, y1 = py - 2, sl = meterSlot(hx, bodyW);
-    var lw = Math.max(1, bodyW * 0.012), l = sl.l + lw, r = sl.r - lw, c = (sl.l + sl.r) / 2;
-    ctx.save();
-    ctx.strokeStyle = '#4a4a4a'; ctx.lineWidth = lw; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(c, y0);
-    if (y1 - y0 < 4) ctx.lineTo(c, Math.max(y0 + 1, y1));
-    else {
-      var seg = (y1 - y0) / 14;
-      for (var i = 0; i < 14; i++) ctx.lineTo(i % 2 === 0 ? r : l, y0 + seg * (i + 1));
-      ctx.lineTo(c, y1);
-    }
-    ctx.stroke(); ctx.restore();
-  }
-  function meterRod(hx, top, bodyW, bodyH, py) {                 // 拉杆：指针 → 挂钩组件（同步下移）
-    var tabTop = top + bodyH - 0.02 * bodyH + meterExt(bodyH);
-    ctx.save();
-    ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = Math.max(1.4, bodyW * 0.022); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(hx, py); ctx.lineTo(hx, tabTop + 1); ctx.stroke();
-    ctx.restore();
-  }
-  function meterPointer(hx, top, bodyW, bodyH, py) {             // 红色横条指针 + 其下中心黑毂
-    var sl = meterSlot(hx, bodyW), e = 0.06 * bodyW, th = Math.max(2, bodyH * 0.006);
-    ctx.save();
-    ctx.fillStyle = '#d92b2b'; ctx.fillRect(sl.l - e, py - th / 2, (sl.r - sl.l) + e * 2, th);
-    ctx.fillStyle = '#20242a'; ctx.fillRect(hx - 0.025 * bodyW, py + th / 2, 0.05 * bodyW, 0.012 * bodyH);
-    ctx.restore();
-  }
-  function meterTabHook(hx, top, bodyW, bodyH, ext) {            // 挂钩组件：tab+shade+孔+wire hook（随伸长下移）
-    var tabW = TAB_WF * bodyW, tabH = TAB_HF * bodyW;
-    var tabTop = top + bodyH - 0.02 * bodyH + ext, tabX = hx - tabW / 2;
-    var rb = Math.min(tabW / 2, tabH), by = tabTop + tabH, u = bodyW / WIRE_U;
-    ctx.save();
-    ctx.beginPath();                                             // 顶方角 + 底圆角(tabW/2)
-    ctx.moveTo(tabX, tabTop); ctx.lineTo(tabX + tabW, tabTop);
-    ctx.lineTo(tabX + tabW, by - rb);
-    ctx.arcTo(tabX + tabW, by, tabX + tabW - rb, by, rb);
-    ctx.lineTo(tabX + rb, by);
-    ctx.arcTo(tabX, by, tabX, by - rb, rb);
-    ctx.closePath();
-    ctx.fillStyle = 'rgb(220,218,221)'; ctx.fill();
-    ctx.fillStyle = 'rgb(202,200,203)'; ctx.fillRect(tabX, tabTop, tabW, tabH * 0.12);
-    ctx.fillStyle = '#fff'; circ(hx, tabTop + HOLE_YF * bodyW, HOLE_RF * bodyW); ctx.fill();
-    function wire() {
-      ctx.beginPath();
-      ctx.moveTo(hx, by + 4 * u);
-      ctx.bezierCurveTo(hx - 60 * u, by + 40 * u, hx - 151 * u, by + 120 * u, hx - 151 * u, by + 178 * u);
-      ctx.bezierCurveTo(hx - 151 * u, by + 260 * u, hx - 90 * u, by + 331 * u, hx - 32 * u, by + 331 * u);
-      ctx.bezierCurveTo(hx + 40 * u, by + 331 * u, hx + 128 * u, by + 270 * u, hx + 128 * u, by + 208 * u);
-    }
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#3f3f3f'; ctx.lineWidth = 0.0123 * bodyW; wire(); ctx.stroke();
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.0062 * bodyW; wire(); ctx.stroke();
-    ctx.restore();
-    return by + 0.51 * bodyW;                                    // wire 底 = 挂点
-  }
-  function meterFlash(hx, top, bodyW, bodyH, flash) {            // 超量程红闪：红半透圆角罩 body bbox
-    if (!(flash > 0) || Math.floor(flash * 10) % 2 !== 0) return;
-    ctx.save(); ctx.fillStyle = 'rgba(220,38,38,.28)';
-    rr(hx - bodyW / 2, top, bodyW, bodyH, 8); ctx.fill(); ctx.restore();
   }
   /* ===== z2 修3：测力计本体命中盒（点本体放大）+ 放大 modal 按钮命中盒 ===== */
   function meterBodyBox() {
@@ -471,43 +358,15 @@
   /* ===== 巨大铁架台（⑪最大化：底座+立杆+横杆加粗，整体随斜面倾） ===== */
   function drawStand() {
     var b = basePt(), a = tiltAng();
-    ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(-a);
-    ctx.fillStyle = PAL.standDark; rr(-L.baseW / 2, -9, L.baseW, 18, 5); ctx.fill();
-    ctx.fillStyle = PAL.stand; rr(-L.baseW / 2 + 10, -14, L.baseW - 20, 7, 3); ctx.fill();
-    ctx.strokeStyle = PAL.stand; ctx.lineWidth = 14; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(0, -L.RH); ctx.stroke();
-    ctx.strokeStyle = PAL.standHi; ctx.lineWidth = 4;
-    ctx.beginPath(); ctx.moveTo(-3.5, -14); ctx.lineTo(-3.5, -L.RH + 5); ctx.stroke();
-    ctx.strokeStyle = PAL.stand; ctx.lineWidth = 11;
-    ctx.beginPath(); ctx.moveTo(3, -L.RH + 5); ctx.lineTo(-L.AW, -L.RH + 5); ctx.stroke();
-    ctx.fillStyle = PAL.standDark; circ(-L.AW, -L.RH + 5, 9); ctx.fill();
-    ctx.fillStyle = PAL.standHi; circ(-L.AW, -L.RH + 5, 4); ctx.fill();
-    ctx.restore();
+    PROPS.stand_side(ctx, b.x, b.y, { rh: L.RH, aw: L.AW, baseW: L.baseW, tilt: a });   // C7V6-L1 入库：底座+立杆+横杆+端环整件
   }
 
   /* ===== 砝码（z4 修3：单块圆柱，体量∝质量^⅓；ww0/wb0=50g 基准 z3 现值；顶钩环互锁弹簧底钩） ===== */
   function drawWeights(hx, topY, n, wbMax) {
     var mg = massG(n);
     if (mg <= 0) return;                                                   // m=0 不画
-    var dim = blockWH(n), wb = Math.min(dim.h, wbMax || dim.h), w = dim.w * (wb / dim.h);
-    var hr = 5, stub = 6, ry = w * 0.10, y = topY, yb = y + wb;
-    var g = ctx.createLinearGradient(hx - w / 2, 0, hx + w / 2, 0);          // 横向金属渐变（三亮度带）
-    g.addColorStop(0, '#e8edf1'); g.addColorStop(0.5, '#b9c2ca'); g.addColorStop(1, '#87929b');
-    var x0 = hx - w / 2, x1 = hx + w / 2;
-    ctx.fillStyle = g; ctx.beginPath();                                     // 圆柱体：顶椭圆盖 + 侧壁 + 底缘弧
-    ctx.moveTo(x0, y); ctx.lineTo(x0, yb);
-    ctx.ellipse(hx, yb, w / 2, ry, 0, Math.PI, 0, true);
-    ctx.lineTo(x1, y);
-    ctx.ellipse(hx, y, w / 2, ry, 0, 0, Math.PI, true);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#dfe6ec'; ctx.beginPath(); ctx.ellipse(hx, y, w / 2, ry, 0, 0, Math.PI * 2); ctx.fill();   // 顶盖浅色
-    ctx.strokeStyle = '#6f7b85'; ctx.lineWidth = 1;                         // 底缘暗弧
-    ctx.beginPath(); ctx.ellipse(hx, yb, w / 2, ry, 0, 0, Math.PI); ctx.stroke();
-    var cy = y - stub - hr + 2;                                             // 顶钩环：stub6 出盖 + 环 r5，环底下探 2px 与弹簧底钩互锁≈3px
-    ctx.strokeStyle = '#5f6b75'; ctx.lineWidth = Math.max(1.4, w * 0.03);
-    ctx.beginPath(); ctx.moveTo(hx, y + 2); ctx.lineTo(hx, cy + hr); ctx.stroke();
-    ctx.beginPath(); ctx.arc(hx, cy, hr, 0, Math.PI * 2); ctx.stroke();
-    txt(mg + 'g', hx, y + wb * 0.5 + 1, '#333', clamp(Math.round(wb * 0.37), 8, 13), 'center');   // 本体居中印克数，字号随体量（50g→11）
+    var dim = blockWH(n), wb = Math.min(dim.h, wbMax || dim.h), w = dim.w * (wb / dim.h);   // z4 修3：尺寸挤压留 core
+    PROPS.weight_cyl(ctx, hx, topY, { mass: mg, w: w, h: wb });            // C7V6-L1 入库：圆柱+顶钩环+克重印字
   }
 
   /* ===== 弹簧悬挂（⑩PhET helix + 底部挂钩+砝码 + 双基准线）（§2.2/§2.3/§2.4） ===== */
@@ -539,17 +398,10 @@
   }
 
   /* ===== 测力计（场景小图，⑫标准条形测力计：全参数标识）（§2.5） ===== */
-  function drawBalanceHangSpr() {                                        // C7V6：参考图 sprite 本体 + 参数化 overlay
+  function drawBalanceHangSpr() {                                        // C7V6：参考图 sprite 本体 + 参数化 overlay（C7V6-L1 入库：本体整件走 PROPS.meter_side）
     var h = hangPt(), hx = h.x, b = S.bal;
     var bodyH = L.BL, bodyW = meterBodyW(bodyH), mbTop = balBodyTop() - 10;   // 吊环接 hangPt
-    var ext = meterExt(bodyH);
-    ctx.drawImage(METER_IMG, hx - bodyW / 2, mbTop, bodyW, bodyH);
-    var py = meterPy(mbTop, bodyH, b.r);
-    meterSpring(hx, mbTop, bodyW, bodyH, py);
-    meterRod(hx, mbTop, bodyW, bodyH, py);
-    meterPointer(hx, mbTop, bodyW, bodyH, py);
-    meterTabHook(hx, mbTop, bodyW, bodyH, ext);
-    meterFlash(hx, mbTop, bodyW, bodyH, b.flash);
+    PROPS.meter_side(ctx, hx, mbTop, { mode: 'balance', img: METER_IMG, bodyH: bodyH, r: b.r, range: RANGE, flash: b.flash, blRef: L.BL });
     var hy = balHookY();
     var wbB = Math.max(4, L.floorY - 14 - (hy + 6));                        // z4 修3：单块高度上限（不穿地板）
     drawWeights(hx, hy + 6, S.n, wbB);
@@ -560,45 +412,7 @@
     if (meterReady()) { drawBalanceHangSpr(); return; }                   // sprite 优先，下方为 fallback
     var h = hangPt(), hx = h.x, bt = balBodyTop(), b = S.bal;
     var bw = clamp(Math.round(L.BL * 0.40), 44, 64);
-    ctx.strokeStyle = PAL.standDark; ctx.lineWidth = 3.4; ctx.lineCap = 'round';
-    circ(hx, bt - 9, 7.5); ctx.stroke();                                      // 吊环
-    ctx.fillStyle = PAL.bodyEdge; rr(hx - 6, bt - 2, 12, 5, 2); ctx.fill();   // 环座
-    ctx.fillStyle = PAL.standDark; rr(hx + bw / 2 - 2, bt + 6, 10, 7, 2.5); ctx.fill();  // 调零螺丝
-    ctx.strokeStyle = PAL.standHi; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.moveTo(hx + bw / 2 + 1, bt + 9.5); ctx.lineTo(hx + bw / 2 + 6, bt + 9.5); ctx.stroke();
-    ctx.fillStyle = 'rgba(244,246,248,.55)'; rr(hx - bw / 2, bt, bw, L.BL, 8); ctx.fill(); // 外壳（半透：露内弹簧）
-    var flashing = b.flash > 0 && Math.floor(b.flash * 10) % 2 === 0;
-    ctx.strokeStyle = flashing ? PAL.limit : PAL.bodyEdge; ctx.lineWidth = flashing ? 3.5 : 2.2;
-    rr(hx - bw / 2, bt, bw, L.BL, 8); ctx.stroke();
-    txt('条型测力计', hx, bt + 11, PAL.text, 9.5, 'center');                  // 面板标题
-    txt('J14003 · 量程5N', hx, bt + 22, PAL.sub, 7.5, 'center');              // 型号+量程
-    var sTop = bt + 62, sLen = L.BL - 86;                                    // 双刻度：左N(0-5) 右gf(0-500) 对齐
-    var py = sTop + sLen * clamp(b.r, 0, RANGE) / RANGE;                     // 指针位（=弹簧下端）
-    helix(hx, bt + 26, py - 2, 11, '#b9c5d1', 1.1, 7);                       // ⑭内弹簧：下端随指针下移
-    ctx.fillStyle = 'rgba(255,255,255,.8)'; rr(hx - 12, sTop - 10, 24, sLen + 18, 4); ctx.fill(); // 刻度面板条（衬刻度数字）
-    ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = 2.6;                     // ⑭拉杆：弹簧下端→挂钩同步下移
-    ctx.beginPath(); ctx.moveTo(hx, py - 2); ctx.lineTo(hx, balHookY()); ctx.stroke();
-    txt('N', hx - bw / 2 + 9, sTop - 6, PAL.sub, 8, 'center');
-    txt('gf', hx + bw / 2 - 11, sTop - 6, PAL.sub, 8, 'center');
-    for (var i = 0; i <= 10; i++) {
-      var y = sTop + sLen * i / 10, major = i % 2 === 0;
-      ctx.strokeStyle = PAL.scale; ctx.lineWidth = major ? 1.6 : 1;
-      ctx.beginPath(); ctx.moveTo(hx - bw / 2 + 3, y); ctx.lineTo(hx - bw / 2 + (major ? 13 : 8), y); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(hx + bw / 2 - 3, y); ctx.lineTo(hx + bw / 2 - (major ? 13 : 8), y); ctx.stroke();
-      if (major) {
-        txt(String(i / 2), hx - bw / 2 + 15, y, i === 0 ? PAL.limit : PAL.scale, 8.5);
-        txt(String(Math.round(i * 51)), hx + bw / 2 - 15, y, i === 0 ? PAL.limit : PAL.scale, 7.5, 'right');   // z轮五2：gf 满量程 510（g=9.8）
-      }
-    }
-    ctx.strokeStyle = PAL.limit; ctx.lineWidth = 2;                           // 零刻度强调
-    ctx.beginPath(); ctx.moveTo(hx - bw / 2 + 3, sTop); ctx.lineTo(hx - bw / 2 + 14, sTop); ctx.stroke();
-    txt('分度0.1N', hx, sTop + sLen + 11, PAL.sub, 7, 'center');              // 分度值
-    ctx.strokeStyle = PAL.needle; ctx.lineWidth = 2.4;                       // 指针（红）
-    ctx.beginPath(); ctx.moveTo(hx - bw / 2 + 3, py); ctx.lineTo(hx + bw / 2 - 3, py); ctx.stroke();
-    ctx.fillStyle = PAL.needle; circ(hx - bw / 2 + 6, py, 2.6); ctx.fill();
-    ctx.strokeStyle = PAL.bodyEdge; ctx.lineWidth = 2.8;                     // ⑭底部挂钩（随伸长下移）
-    ctx.beginPath(); ctx.moveTo(hx, balHookY());
-    ctx.arc(hx + 4, balHookY() + 2, 4, Math.PI, 0, true); ctx.stroke();
+    PROPS.meter_side(ctx, hx, bt, { mode: 'spring', bodyH: L.BL, r: b.r, range: RANGE, flash: b.flash });   // C7V6-L1 入库：程序化体（吊环/调零螺丝/双刻度/内簧/拉杆/挂钩整套）
     var wbB = Math.max(4, L.floorY - 14 - (balHookY() + 6));
     drawWeights(hx, balHookY() + 6, S.n, wbB);
     var G = forceOf(S.n);
@@ -715,16 +529,10 @@
     var bodyH = Math.min(Math.round(zh * 0.80), Math.round((zh - 46) / stack));
     var bodyW = bodyH * ratio;
     var top = zy + Math.max(30, Math.round((zh - bodyH * stack) / 2));
-    var ext = meterExt(bodyH);
-    ctx.drawImage(METER_IMG, cx - bodyW / 2, top, bodyW, bodyH);
-    var py = meterPy(top, bodyH, b.r);
+    var mret = PROPS.meter_side(ctx, cx, top, { mode: 'balance', img: METER_IMG, bodyH: bodyH, r: b.r, range: RANGE, flash: b.flash, blRef: L.BL });   // C7V6-L1 入库
+    var py = mret.py, hookY = mret.hookY, tabTop = mret.tabTop;
     var springY = top + MB.spring_top * bodyH, zeroY = top + MB.zero * bodyH;
-    var sLen = (MB.five - MB.zero) * bodyH, tabTop = top + bodyH - 0.02 * bodyH + ext;
-    meterSpring(cx, top, bodyW, bodyH, py);
-    meterRod(cx, top, bodyW, bodyH, py);
-    meterPointer(cx, top, bodyW, bodyH, py);
-    var hookY = meterTabHook(cx, top, bodyW, bodyH, ext);
-    meterFlash(cx, top, bodyW, bodyH, b.flash);
+    var sLen = (MB.five - MB.zero) * bodyH;
     var wtop = hookY + 10, wbz = clamp(zy + zh - 26 - wtop, 3, Math.round(L.wb * 1.75));   // z4 修3：单块（modal 内高度封顶≈250g 自然比）
     drawWeights(cx, wtop, S.n, wbz);
     var rx = cx + bodyW / 2, lx = cx - bodyW / 2, faceX = cx - 0.20 * bodyW, rodY = (py + tabTop) / 2;
