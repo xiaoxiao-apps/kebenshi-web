@@ -19,6 +19,8 @@
  *       修3 idle 暴露——window 捕获 pointerdown/keydown/wheel 归零 lastUserT，每 tick 写 RS.idle=(now-lastUserT)/1000（秒，数值）。
  * z14轮：引导并入动作条（guide-data 已删松手条/15 idle 催办条/入场续条）——修1 brakeLevel 暴露：RS.brakeLevel=S.brake 数值电平每 tick 同步
  *       （c7r-03 brakeLevel===0 / c7r-25 brakeLevel>0 双分支门槛，防引导循环）；修2 release 残留守卫：RS.release/hasCoasted 置位保留（praise 链用），core 无已删 clip id 引用。
+ * z16轮：修1 push session 结构——sessionMoved 接触上升沿重置；vx·d>2 持续≥0.3s → sessionMoved=true + pulse pushMove（每 session 一次）；
+ *       pushStatic 仅 !sessionMoved 且 |vx|<2 持续0.8s 才 pulse（每 session 一次），sessionMoved 后本 session 抑制——力小只播静推条/力大才播推车条/先静后走推车条接棒。
  * ============================================================ */
 (function () {
   'use strict';
@@ -112,7 +114,7 @@
   /* z7轮修1：guide 解说状态源（engine-core 轮询；事件标志=pulse 置 true 后 1.0s 自动归零→重复动作产生新边沿可重复播报；
      z9修2：电平型 sponge/ice/diagram 随开关/鞋态 true/false，不归零；
      z10修1：release 改电平——脱手边沿+当下滑行(vx·d>2)+非轮滑 → true 常驻；清 false=推中上升沿/重置/换鞋（z14：松手条已删，电平保留备 praise 链）；
-     脉冲 pushStatic=推中且|vx|<2 持续0.8s / pushMove=推中且车向前走(vx·d>2) / icePush=ice且推中 /
+     脉冲 pushStatic=!sessionMoved且推中|vx|<2 持续0.8s（每session一次） / pushMove=推中vx·d>2 持续0.3s（每session一次，z16修1） / icePush=ice且推中 /
      spongeAdd/spongeRemove=toggle；slide/brake/wheel/shoeIce/shoeNormal 沿用 */
   var RS = {
     sponge: false, ice: false, diagram: false, release: false,              // z10修1：release 入电平组（常驻不归零）
@@ -134,6 +136,7 @@
   }
   function clearPulses() { for (var pk in pulseTimers) { clearTimeout(pulseTimers[pk]); pulseTimers[pk] = null; } }
   var pushStaticT = 0;                                                      // z9修2：推中且|vx|<2 累计秒数（≥0.8 → pushStatic）
+  var pushMoveT = 0, sessionMoved = false, sessionStatic = false;           // z16修1：push session——vx·d>2 累计秒数（≥0.3 → sessionMoved）；静推/推车每 session 一次标志（接触上升沿重置）
   var everPushed = false, everMoved = false;                                // z9修2：release 前置——曾推 / 车曾走（vx·d>2）；z10修2：换鞋清零
 
   /* ===== 地形（P5 坝体剖面护坡）+ 几何访问器 ===== */
@@ -228,7 +231,8 @@
     RS.diagram = S.diagram;                                                   // z7轮修2：电平型 diagram 不归零，随开关状态恢复
     RS.sponge = S.sponge; RS.ice = S.shoe === 'ice';                          // z9修2：电平型 sponge/ice 随开关/鞋态恢复
     RS.brakeLevel = S.brake;                                                  // z14修1：数值电平随重置后刹车值恢复
-    pushStaticT = 0; pushWas = false; everPushed = false; everMoved = false;
+    pushStaticT = 0; pushMoveT = 0; sessionMoved = false; sessionStatic = false;   // z16修1：session 状态随重置清
+    pushWas = false; everPushed = false; everMoved = false;
     if (window.ForceOverlay) ForceOverlay.clear();
     dirty = true;
   }
@@ -846,18 +850,21 @@
       per.vx -= d * S.push.F * ICE_K * dt; per.sliding = true;
     }
     var pushingNow2 = S.push.active && S.push.F > 0.05 && car.mode === 'road';
-    if (pushingNow2) {                                                       // z9修2：脉冲矩阵——icePush/pushMove/pushStatic（删 pushStart/pushNormal/staticHold）
+    if (pushingNow2) {                                                       // z16修1：push session 结构——力小只静推条/力大才推车条/先静后走推车条接棒
+      if (!pushWas) { sessionMoved = false; sessionStatic = false; pushStaticT = 0; pushMoveT = 0; }   // z16修1：接触上升沿重置 session
       if (ice) { pulse('icePush'); RS.hasIcePushed = true; }                   // c7r-22：冰面推中人后滑；z13修2
       if (car.vx * d > 2) {                                                    // c7r-03/20：推中车向前走（右推 vx<0 → 按 vx·d 判向前）
-        pulse('pushMove'); everMoved = true;
+        pushMoveT += dt;                                                       // z16修1：首次有意义移动=vx·d>2 持续≥0.3s
+        if (pushMoveT >= 0.3 && !sessionMoved) { sessionMoved = true; pulse('pushMove'); }   // z16修1：推车每 session 一次
+        everMoved = true;
         RS.hasPushed = true;                                                   // z13修2
         if (S.sponge) RS.hasSpongePushed = true;                               // z13修2：隔海绵推车完成度
-      }
-      if (Math.abs(car.vx) < 2) {                                            // c7r-21：推中车未动持续0.8s
+      } else pushMoveT = 0;
+      if (!sessionMoved && !sessionStatic && Math.abs(car.vx) < 2) {           // z16修1：静推仅本 session 未走过（sessionMoved 后本 session 抑制）
         pushStaticT += dt;
-        if (pushStaticT >= 0.8) { pulse('pushStatic'); pushStaticT = 0; RS.hasPushed = true; }   // z13修2：静推也算推过
+        if (pushStaticT >= 0.8) { sessionStatic = true; pulse('pushStatic'); pushStaticT = 0; RS.hasPushed = true; }   // z13修2：静推也算推过；z16修1：每 session 一次
       } else pushStaticT = 0;
-    } else pushStaticT = 0;
+    } else { pushStaticT = 0; pushMoveT = 0; }
     if (pushingNow2) {
       if (!pushWas) RS.release = false;                                      // z10修1：推中上升沿清电平
       everPushed = true;
