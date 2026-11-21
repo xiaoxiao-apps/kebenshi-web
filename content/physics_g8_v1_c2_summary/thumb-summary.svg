@@ -1,5 +1,61 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdfefe"/><stop offset="1" stop-color="#dee8ef"/>
+    </linearGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffef9"/><stop offset="1" stop-color="#f4efe1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 亮底渐变 -->
   <rect width="640" height="360" fill="url(#bg)"/>
-<g transform="translate(-18,2) scale(1.05)"><rect x="250" y="92" width="28" height="128" rx="13" fill="#9db8d6" stroke="#3d3830" stroke-width="2.5"/><rect x="322" y="92" width="28" height="128" rx="13" fill="#9db8d6" stroke="#3d3830" stroke-width="2.5"/><rect x="250" y="192" width="100" height="34" rx="15" fill="#9db8d6" stroke="#3d3830" stroke-width="2.5"/><rect x="286" y="220" width="28" height="86" rx="13" fill="#7fa3c9" stroke="#3d3830" stroke-width="2.5"/><circle cx="264" cy="135" r="5.5" fill="#3d3830"/><circle cx="265.925" cy="133.075" r="1.65" fill="#ffffff"/><circle cx="336" cy="135" r="5.5" fill="#3d3830"/><circle cx="337.925" cy="133.075" r="1.65" fill="#ffffff"/><path d="M289.0,203 q11.0,7 22,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/></g><path d="M230.7,152.1 A26,26 0 0,1 230.7,191.9" fill="none" stroke="#e8a04a" stroke-width="5" stroke-linecap="round"/><path d="M241.6,139.1 A43,43 0 0,1 241.6,204.9" fill="none" stroke="#e8a04a" stroke-width="5" stroke-linecap="round"/><path d="M435.3,152.1 A26,26 0 0,0 435.3,191.9" fill="none" stroke="#e8a04a" stroke-width="5" stroke-linecap="round"/><path d="M424.4,139.1 A43,43 0 0,0 424.4,204.9" fill="none" stroke="#e8a04a" stroke-width="5" stroke-linecap="round"/><g transform="translate(300,58) scale(1.05)"><path d="M-30,8 L-30,-16 L-15,-3 L0,-22 L15,-3 L30,-16 L30,8 Z" fill="#f2c14e" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><circle cx="-30" cy="-18" r="4" fill="#e85d4a"/><circle cx="0" cy="-25" r="4" fill="#e85d4a"/><circle cx="30" cy="-18" r="4" fill="#e85d4a"/></g><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(540,288) scale(0.95)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(96,300) scale(0.7)" fill="#e8a04a"/>
+  <ellipse cx="320" cy="326" rx="252" ry="16" fill="#8aa0b6" opacity="0.18"/>
+
+  <!-- 摊开笔记本（小结族同构图） -->
+  <g>
+    <rect x="82" y="66" width="476" height="248" rx="10" fill="#7c8fa6"/>
+    <rect x="82" y="66" width="476" height="10" rx="5" fill="#93a5ba"/>
+    <path d="M96 76 H310 Q318 76 318 84 V296 Q318 304 310 304 H96 Q88 304 88 296 V84 Q88 76 96 76 Z" fill="url(#page)" stroke="#d8d0bc" stroke-width="1.5"/>
+    <path d="M330 76 H544 Q552 76 552 84 V296 Q552 304 544 304 H330 Q322 304 322 296 V84 Q322 76 330 76 Z" fill="url(#page)" stroke="#d8d0bc" stroke-width="1.5"/>
+    <rect x="314" y="78" width="12" height="224" fill="#e7dfcb" opacity="0.9"/>
+    <g stroke="#7d8794" stroke-width="3" fill="none" stroke-linecap="round">
+      <path d="M312 96 q8 -5 16 0"/><path d="M312 126 q8 -5 16 0"/>
+      <path d="M312 156 q8 -5 16 0"/><path d="M312 186 q8 -5 16 0"/>
+      <path d="M312 216 q8 -5 16 0"/><path d="M312 246 q8 -5 16 0"/>
+      <path d="M312 276 q8 -5 16 0"/>
+    </g>
+  </g>
+
+  <!-- 左页：声波波形手绘线稿 -->
+  <g>
+    <text x="112" y="108" font-family="'PingFang SC',Helvetica,sans-serif" font-size="19" font-weight="700" fill="#33506b">声音的特性 · 波形</text>
+    <path d="M112 116 q60 5 148 1" stroke="#33506b" stroke-width="2" fill="none" opacity="0.6"/>
+    <!-- 坐标轴 -->
+    <line x1="116" y1="200" x2="300" y2="200" stroke="#5a6b80" stroke-width="1.8"/>
+    <line x1="116" y1="140" x2="116" y2="262" stroke="#5a6b80" stroke-width="1.8"/>
+    <!-- 正弦波形 -->
+    <path d="M116 200 q23 -52 46 0 t46 0 t46 0 t46 0" fill="none" stroke="#2b6cb0" stroke-width="3" stroke-linecap="round"/>
+    <!-- 波长标注 -->
+    <path d="M162 246 v12 M208 246 v12 M162 254 h46" stroke="#c0392b" stroke-width="2" fill="none"/>
+    <text x="185" y="278" font-family="'PingFang SC',Helvetica,sans-serif" font-size="15" font-weight="700" fill="#c0392b" text-anchor="middle">λ</text>
+    <!-- 振幅标注 -->
+    <path d="M139 174 h-14 M139 200 h-14 M129 174 v26" stroke="#c0392b" stroke-width="1.8" fill="none"/>
+    <text x="100" y="164" font-family="'PingFang SC',Helvetica,sans-serif" font-size="13" font-weight="700" fill="#c0392b">A</text>
+  </g>
+
+  <!-- 右页：音调/响度对比小波形 -->
+  <g>
+    <text x="352" y="108" font-family="'PingFang SC',Helvetica,sans-serif" font-size="17" font-weight="700" fill="#33506b">对比记法</text>
+    <!-- 密波（音调高） -->
+    <text x="352" y="142" font-family="'PingFang SC',Helvetica,sans-serif" font-size="13" fill="#5a6b80">频率高 · 音调高</text>
+    <path d="M352 168 q11 -26 23 0 t23 0 t23 0 t23 0 t23 0 t23 0 t23 0 t23 0" fill="none" stroke="#2b6cb0" stroke-width="2.4" stroke-linecap="round"/>
+    <!-- 疏波（音调低） -->
+    <text x="352" y="212" font-family="'PingFang SC',Helvetica,sans-serif" font-size="13" fill="#5a6b80">频率低 · 音调低</text>
+    <path d="M352 238 q46 -30 92 0 t92 0" fill="none" stroke="#2b6cb0" stroke-width="2.4" stroke-linecap="round"/>
+    <!-- 手写要点 -->
+    <path d="M352 274 q66 5 132 1" stroke="#5a6b80" stroke-width="1.6" fill="none" opacity="0.7"/>
+    <path d="M352 290 q50 4 96 1" stroke="#5a6b80" stroke-width="1.6" fill="none" opacity="0.5"/>
+    <text x="536" y="292" font-family="'PingFang SC',Helvetica,sans-serif" font-size="12" fill="#7d8b99" text-anchor="end">v = 340 m/s</text>
+  </g>
 </svg>

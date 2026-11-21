@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-20",
+ "generated": "2026-11-21",
  "subjects": {
   "physics": [
    {
@@ -12,7 +12,7 @@
     "type": "练习",
     "title": "机械运动 · 本章练习",
     "path": "content/physics_g8_v1_c1_practice/index.html",
-    "thumb": "content/physics_g8_v1_c1_practice/thumb-practice.svg"
+    "thumb": "content/physics_g8_v1_c1_practice/thumb-practice.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c1_s1/index",
@@ -120,7 +120,7 @@
     "type": "小结",
     "title": "机械运动 · 本章小结",
     "path": "content/physics_g8_v1_c1_summary/index.html",
-    "thumb": "content/physics_g8_v1_c1_summary/thumb-summary.svg"
+    "thumb": "content/physics_g8_v1_c1_summary/thumb-summary.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c2_practice/index",
@@ -132,7 +132,7 @@
     "type": "练习",
     "title": "声现象 · 本章练习",
     "path": "content/physics_g8_v1_c2_practice/index.html",
-    "thumb": "content/physics_g8_v1_c2_practice/thumb-practice.svg"
+    "thumb": "content/physics_g8_v1_c2_practice/thumb-practice.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c2_s1/index",
@@ -264,7 +264,7 @@
     "type": "小结",
     "title": "声现象 · 本章小结",
     "path": "content/physics_g8_v1_c2_summary/index.html",
-    "thumb": "content/physics_g8_v1_c2_summary/thumb-summary.svg"
+    "thumb": "content/physics_g8_v1_c2_summary/thumb-summary.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c3_practice/index",
@@ -276,7 +276,7 @@
     "type": "练习",
     "title": "物态变化 · 本章练习",
     "path": "content/physics_g8_v1_c3_practice/index.html",
-    "thumb": "content/physics_g8_v1_c3_practice/thumb-practice.svg"
+    "thumb": "content/physics_g8_v1_c3_practice/thumb-practice.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c3_s1/index",
@@ -388,7 +388,7 @@
     "type": "小结",
     "title": "物态变化 · 本章小结",
     "path": "content/physics_g8_v1_c3_summary/index.html",
-    "thumb": "content/physics_g8_v1_c3_summary/thumb-summary.svg"
+    "thumb": "content/physics_g8_v1_c3_summary/thumb-summary.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c4_practice/index",
@@ -400,7 +400,7 @@
     "type": "练习",
     "title": "光现象 · 本章练习",
     "path": "content/physics_g8_v1_c4_practice/index.html",
-    "thumb": "content/physics_g8_v1_c4_practice/thumb-practice.svg"
+    "thumb": "content/physics_g8_v1_c4_practice/thumb-practice.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c4_s1/index",
@@ -550,7 +550,7 @@
     "type": "小结",
     "title": "光现象 · 本章小结",
     "path": "content/physics_g8_v1_c4_summary/index.html",
-    "thumb": "content/physics_g8_v1_c4_summary/thumb-summary.svg"
+    "thumb": "content/physics_g8_v1_c4_summary/thumb-summary.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c5_practice/index",
@@ -562,7 +562,7 @@
     "type": "练习",
     "title": "透镜及其应用 · 本章练习",
     "path": "content/physics_g8_v1_c5_practice/index.html",
-    "thumb": "content/physics_g8_v1_c5_practice/thumb-practice.svg"
+    "thumb": "content/physics_g8_v1_c5_practice/thumb-practice.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c5_s1/index",
@@ -699,7 +699,7 @@
     "type": "小结",
     "title": "透镜及其应用 · 本章小结",
     "path": "content/physics_g8_v1_c5_summary/index.html",
-    "thumb": "content/physics_g8_v1_c5_summary/thumb-summary.svg"
+    "thumb": "content/physics_g8_v1_c5_summary/thumb-summary.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c6_practice/index",
@@ -711,7 +711,7 @@
     "type": "练习",
     "title": "质量与密度 · 本章练习",
     "path": "content/physics_g8_v1_c6_practice/index.html",
-    "thumb": "content/physics_g8_v1_c6_practice/thumb-practice.svg"
+    "thumb": "content/physics_g8_v1_c6_practice/thumb-practice.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c6_s1/index",
@@ -798,7 +798,7 @@
     "type": "小结",
     "title": "质量与密度 · 本章小结",
     "path": "content/physics_g8_v1_c6_summary/index.html",
-    "thumb": "content/physics_g8_v1_c6_summary/thumb-summary.svg"
+    "thumb": "content/physics_g8_v1_c6_summary/thumb-summary.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c7_s1/index",
@@ -885,9 +885,9 @@
     "chapter": "第7章 力",
     "section": "本章练习",
     "type": "练习",
-    "title": "练习本·本章考点",
+    "title": "力 · 本章练习",
     "path": "content/physics_g8_v1_c7_s1/practice.html",
-    "thumb": "content/physics_g8_v1_c7_s1/thumb-practice.svg"
+    "thumb": "content/physics_g8_v1_c7_s1/thumb-practice.svg?v=20261121T2"
    },
    {
     "id": "physics_g8_v1_c7_summary/index",
@@ -899,7 +899,7 @@
     "type": "小结",
     "title": "力 · 本章小结",
     "path": "content/physics_g8_v1_c7_summary/index.html",
-    "thumb": "content/physics_g8_v1_c7_summary/thumb1.svg"
+    "thumb": "content/physics_g8_v1_c7_summary/thumb1.svg?v=20261121T2"
    },
    {
     "id": "mockexam/index",

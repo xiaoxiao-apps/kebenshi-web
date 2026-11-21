@@ -1,5 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdfbf5"/><stop offset="1" stop-color="#e7f1ee"/></linearGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f6fbf9"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-<g transform="translate(12,12) scale(0.96)"><rect x="240" y="286" width="120" height="20" rx="10" fill="#b08a52" stroke="#3d3830" stroke-width="2.5"/><rect x="290" y="150" width="20" height="142" rx="8" fill="#c9a86a" stroke="#3d3830" stroke-width="2.5"/><rect x="150" y="132" width="300" height="16" rx="8" fill="#c9a86a" stroke="#3d3830" stroke-width="2.5"/><circle cx="300" cy="140" r="12" fill="#f2c14e" stroke="#3d3830" stroke-width="2.5"/><line x1="158" y1="148" x2="132" y2="192" stroke="#3d3830" stroke-width="2.4"/><line x1="158" y1="148" x2="186" y2="192" stroke="#3d3830" stroke-width="2.4"/><path d="M126,192 Q159,232 192,192 Z" fill="#d9b877" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><line x1="442" y1="148" x2="416" y2="192" stroke="#3d3830" stroke-width="2.4"/><line x1="442" y1="148" x2="470" y2="192" stroke="#3d3830" stroke-width="2.4"/><path d="M410,192 Q443,232 476,192 Z" fill="#d9b877" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><rect x="144" y="164" width="30" height="26" rx="7" fill="#e8734a" stroke="#3d3830" stroke-width="2"/><circle cx="428" cy="205" r="5" fill="#3d3830"/><circle cx="429.75" cy="203.25" r="1.5" fill="#ffffff"/><circle cx="456" cy="205" r="5" fill="#3d3830"/><circle cx="457.75" cy="203.25" r="1.5" fill="#ffffff"/><path d="M432.0,216 q10.0,6 20,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/></g><g transform="translate(312,96) scale(1.05)"><path d="M-30,8 L-30,-16 L-15,-3 L0,-22 L15,-3 L30,-16 L30,8 Z" fill="#f2c14e" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><circle cx="-30" cy="-18" r="4" fill="#e85d4a"/><circle cx="0" cy="-25" r="4" fill="#e85d4a"/><circle cx="30" cy="-18" r="4" fill="#e85d4a"/></g><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(552,260) scale(1.0)" fill="#f2c14e"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(88,96) scale(0.75)" fill="#e8a04a"/>
+  <!-- 摊开笔记本 -->
+  <rect x="44" y="62" width="552" height="252" rx="12" fill="#2f7d6e"/>
+  <rect x="54" y="72" width="532" height="232" rx="6" fill="url(#page)"/>
+  <rect x="312" y="72" width="16" height="232" fill="#dcebe6"/>
+  <g stroke="#b6d3ca" stroke-width="2">
+    <line x1="312" y1="96" x2="328" y2="96"/><line x1="312" y1="140" x2="328" y2="140"/>
+    <line x1="312" y1="184" x2="328" y2="184"/><line x1="312" y1="228" x2="328" y2="228"/>
+    <line x1="312" y1="272" x2="328" y2="272"/>
+  </g>
+  <g stroke="#e8f2ef" stroke-width="2">
+    <line x1="74" y1="128" x2="300" y2="128"/><line x1="74" y1="284" x2="300" y2="284"/>
+    <line x1="340" y1="150" x2="566" y2="150"/><line x1="340" y1="184" x2="566" y2="184"/>
+    <line x1="340" y1="218" x2="566" y2="218"/><line x1="340" y1="252" x2="566" y2="252"/>
+  </g>
+  <!-- 左页：托盘天平（手绘感线稿） -->
+  <g stroke="#2f7d6e" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="106" y1="186" x2="274" y2="186"/>
+    <line x1="190" y1="186" x2="190" y2="270"/>
+    <path d="M160 282 L220 282 L210 270 L170 270 Z"/>
+    <path d="M190 186 L182 206 L198 206 Z"/>
+    <line x1="118" y1="186" x2="100" y2="216"/><line x1="118" y1="186" x2="136" y2="216"/>
+    <path d="M96 216 q22 18 44 0"/>
+    <line x1="262" y1="186" x2="244" y2="216"/><line x1="262" y1="186" x2="280" y2="216"/>
+    <path d="M240 216 q22 18 44 0"/>
+  </g>
+  <line x1="190" y1="206" x2="190" y2="232" stroke="#dc2626" stroke-width="2.5"/>
+  <g stroke="#9aa3ad" stroke-width="2">
+    <line x1="150" y1="270" x2="230" y2="270"/>
+  </g>
+  <rect x="196" y="264" width="10" height="12" rx="2" fill="#dc2626"/>
+  <text x="96" y="244" font-size="12" fill="#2f7d6e" font-family="sans-serif">左盘·物</text>
+  <text x="240" y="244" font-size="12" fill="#2f7d6e" font-family="sans-serif">右盘·码</text>
+  <!-- 右页：公式与笔记 -->
+  <text x="340" y="124" font-size="20" font-weight="700" fill="#2f7d6e" font-family="sans-serif">质量与密度</text>
+  <text x="340" y="178" font-size="18" fill="#3f4a5a" font-family="sans-serif">ρ = m / V</text>
+  <text x="340" y="212" font-size="15" fill="#3f4a5a" font-family="sans-serif">天平：左物右码，先大后小</text>
+  <text x="340" y="246" font-size="15" fill="#3f4a5a" font-family="sans-serif">m物 = m砝码 + m游码</text>
+  <line x1="340" y1="270" x2="500" y2="270" stroke="#cdd6e2" stroke-width="2" stroke-linecap="round"/>
+  <!-- 标题与脚注 -->
+  <text x="320" y="42" font-size="24" font-weight="700" fill="#256357" text-anchor="middle" font-family="sans-serif">质量与密度 · 本章小结</text>
+  <text x="320" y="338" font-size="14" fill="#82918d" text-anchor="middle" font-family="sans-serif">质量 / 密度 / 测量 知识速记</text>
 </svg>

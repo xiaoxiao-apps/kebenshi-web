@@ -1,32 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdfbf5"/><stop offset="1" stop-color="#f3e9e4"/></linearGradient>
+    <linearGradient id="sheet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#fdf7f4"/></linearGradient>
+    <linearGradient id="boxg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3c08a"/><stop offset="1" stop-color="#c39a5f"/></linearGradient>
+  </defs>
   <rect width="640" height="360" fill="url(#bg)"/>
-  <!-- 练习本 -->
-  <rect x="212" y="52" width="216" height="264" rx="14" fill="#ffffff" stroke="#3d3830" stroke-width="2.5"/>
-  <line x1="252" y1="52" x2="252" y2="316" stroke="#e8a9a9" stroke-width="2"/>
-  <g stroke="#cfd8e3" stroke-width="2">
-    <line x1="266" y1="104" x2="404" y2="104"/><line x1="266" y1="144" x2="404" y2="144"/>
-    <line x1="266" y1="184" x2="404" y2="184"/><line x1="266" y1="224" x2="404" y2="224"/>
-    <line x1="266" y1="264" x2="404" y2="264"/>
+  <!-- 答题纸 -->
+  <rect x="118" y="52" width="404" height="256" rx="8" fill="url(#sheet)" stroke="#ecdcd6" stroke-width="2"/>
+  <line x1="168" y1="52" x2="168" y2="308" stroke="#eaa9a9" stroke-width="2"/>
+  <g stroke="#f0dcd6" stroke-width="2">
+    <line x1="178" y1="100" x2="500" y2="100"/><line x1="178" y1="144" x2="500" y2="144"/>
+    <line x1="178" y1="188" x2="500" y2="188"/><line x1="178" y1="232" x2="500" y2="232"/>
+    <line x1="178" y1="276" x2="500" y2="276"/>
   </g>
-  <g fill="#8a94a3"><circle cx="224" cy="84" r="5"/><circle cx="224" cy="144" r="5"/><circle cx="224" cy="204" r="5"/><circle cx="224" cy="264" r="5"/></g>
-  <!-- 对勾 / 叉 -->
-  <path d="M276 96 l10 12 l20 -24" fill="none" stroke="#2e9e44" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M278 168 l24 22 M302 168 l-24 22" fill="none" stroke="#dc2626" stroke-width="6" stroke-linecap="round"/>
-  <!-- 受力箭头小图 -->
-  <circle cx="330" cy="244" r="10" fill="#f2c96e" stroke="#3d3830" stroke-width="2"/>
-  <line x1="330" y1="234" x2="330" y2="206" stroke="#dc2626" stroke-width="4" stroke-linecap="round"/>
-  <path d="M324 212 L330 198 L336 212 Z" fill="#dc2626"/>
-  <line x1="330" y1="254" x2="330" y2="282" stroke="#2e9e44" stroke-width="4" stroke-linecap="round"/>
-  <path d="M324 276 L330 290 L336 276 Z" fill="#2e9e44"/>
-  <!-- 铅笔 -->
-  <g transform="rotate(24 470 210)">
-    <rect x="452" y="120" width="26" height="150" rx="6" fill="#e8a93d" stroke="#3d3830" stroke-width="2.5"/>
-    <rect x="452" y="104" width="26" height="20" rx="6" fill="#f0a3a3" stroke="#3d3830" stroke-width="2.5"/>
-    <path d="M452 270 L465 300 L478 270 Z" fill="#f7d9b8" stroke="#3d3830" stroke-width="2.5"/>
-    <path d="M460 288 L465 300 L470 288 Z" fill="#3d3830"/>
+  <g font-size="16" fill="#9aa3ad" font-family="sans-serif">
+    <text x="138" y="100">1</text><text x="138" y="144">2</text>
+    <text x="138" y="188">3</text><text x="138" y="232">4</text>
   </g>
-  <!-- 星 -->
-  <path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(150,96) scale(1.05)" fill="#f2c14e"/>
-  <path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(500,320) scale(0.8)" fill="#f2c14e"/>
+  <g stroke="#aab2c0" stroke-width="5" stroke-linecap="round">
+    <line x1="186" y1="94" x2="298" y2="94"/><line x1="186" y1="138" x2="280" y2="138"/>
+    <line x1="186" y1="226" x2="300" y2="226"/>
+  </g>
+  <path d="M330 92 l9 11 l17 -22" fill="none" stroke="#2e9e44" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M330 130 l22 22 M352 130 l-22 22" fill="none" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/>
+  <path d="M330 224 l9 11 l17 -22" fill="none" stroke="#2e9e44" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 本章专属判分标记：受力示意 G=mg（第3题作答） -->
+  <g>
+    <line x1="196" y1="206" x2="292" y2="206" stroke="#9aa3ad" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="226" y="180" width="40" height="26" rx="4" fill="url(#boxg)" stroke="#9c7740" stroke-width="2"/>
+    <line x1="246" y1="206" x2="246" y2="226" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+    <polygon points="246,232 241,222 251,222" fill="#dc2626"/>
+    <text x="252" y="230" font-size="12" font-weight="700" fill="#dc2626" font-family="sans-serif">G</text>
+    <line x1="266" y1="192" x2="288" y2="192" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+    <polygon points="294,192 284,187 284,197" fill="#2563eb"/>
+    <text x="200" y="172" font-size="13" font-weight="700" fill="#a8402f" font-family="sans-serif">G = mg</text>
+    <path d="M330 180 l9 11 l17 -22" fill="none" stroke="#2e9e44" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- 评分圈 -->
+  <circle cx="466" cy="86" r="27" fill="none" stroke="#dc2626" stroke-width="3.5"/>
+  <path d="M453 86 l10 12 l18 -24" fill="none" stroke="#2e9e44" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 铅笔（无脸） -->
+  <g transform="translate(404,300) rotate(-30)">
+    <rect x="0" y="0" width="22" height="24" rx="9" fill="#ef9a9a" stroke="#c07b76" stroke-width="2"/>
+    <rect x="22" y="0" width="16" height="24" fill="#cbc4b4" stroke="#9a9384" stroke-width="2"/>
+    <rect x="38" y="0" width="82" height="24" fill="#e8a93d" stroke="#b8862f" stroke-width="2"/>
+    <rect x="38" y="8" width="82" height="8" fill="#f4cd7c"/>
+    <polygon points="120,0 150,12 120,24" fill="#f0d3a5" stroke="#b8862f" stroke-width="2"/>
+    <polygon points="141,8 150,12 141,16" fill="#3a3a3a"/>
+  </g>
+  <!-- 标题与脚注 -->
+  <text x="320" y="40" font-size="24" font-weight="700" fill="#8e3324" text-anchor="middle" font-family="sans-serif">力 · 本章练习</text>
+  <text x="320" y="338" font-size="14" fill="#9c8a85" text-anchor="middle" font-family="sans-serif">考点作答 · 判分订正 · 配套本章小结</text>
 </svg>

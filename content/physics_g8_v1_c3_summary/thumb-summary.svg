@@ -1,5 +1,73 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdfefe"/><stop offset="1" stop-color="#dfe9ee"/>
+    </linearGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffef9"/><stop offset="1" stop-color="#f4efe1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 亮底渐变 -->
   <rect width="640" height="360" fill="url(#bg)"/>
-<rect x="282" y="86" width="36" height="164" rx="18" fill="#f7f3ea" stroke="#3d3830" stroke-width="2.5"/><line x1="320" y1="114" x2="328" y2="114" stroke="#3d3830" stroke-width="2.2" stroke-linecap="round"/><line x1="320" y1="140" x2="334" y2="140" stroke="#3d3830" stroke-width="2.2" stroke-linecap="round"/><line x1="320" y1="166" x2="328" y2="166" stroke="#3d3830" stroke-width="2.2" stroke-linecap="round"/><line x1="320" y1="192" x2="334" y2="192" stroke="#3d3830" stroke-width="2.2" stroke-linecap="round"/><line x1="320" y1="218" x2="328" y2="218" stroke="#3d3830" stroke-width="2.2" stroke-linecap="round"/><rect x="292" y="162" width="16" height="102" rx="8" fill="#e85d4a"/><circle cx="300" cy="272" r="33" fill="#e85d4a" stroke="#3d3830" stroke-width="2.5"/><path d="M281.5,266 q6.5,-9 13,0" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M306.5,266 q6.5,-9 13,0" fill="none" stroke="#3d3830" stroke-width="3.2" stroke-linecap="round"/><path d="M290.5,281 q9.5,6 19,0" fill="none" stroke="#3d3830" stroke-width="3" stroke-linecap="round"/><g transform="translate(300,56) scale(1.05)"><path d="M-30,8 L-30,-16 L-15,-3 L0,-22 L15,-3 L30,-16 L30,8 Z" fill="#f2c14e" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><circle cx="-30" cy="-18" r="4" fill="#e85d4a"/><circle cx="0" cy="-25" r="4" fill="#e85d4a"/><circle cx="30" cy="-18" r="4" fill="#e85d4a"/></g><path d="M0,-14 C6,-5 10,-1 10,4 A10,10 0 0,1 -10,4 C-10,-1 -6,-5 0,-14 Z" transform="translate(372,130) scale(1.0)" fill="#7fb8e0" stroke="#3d3830" stroke-width="2"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(462,96) scale(1.05)" fill="#f2c14e"/>
+  <ellipse cx="320" cy="326" rx="252" ry="16" fill="#8aa0b6" opacity="0.18"/>
+
+  <!-- 摊开笔记本（小结族同构图） -->
+  <g>
+    <rect x="82" y="66" width="476" height="248" rx="10" fill="#a6785f"/>
+    <rect x="82" y="66" width="476" height="10" rx="5" fill="#bd8f74"/>
+    <path d="M96 76 H310 Q318 76 318 84 V296 Q318 304 310 304 H96 Q88 304 88 296 V84 Q88 76 96 76 Z" fill="url(#page)" stroke="#d8d0bc" stroke-width="1.5"/>
+    <path d="M330 76 H544 Q552 76 552 84 V296 Q552 304 544 304 H330 Q322 304 322 296 V84 Q322 76 330 76 Z" fill="url(#page)" stroke="#d8d0bc" stroke-width="1.5"/>
+    <rect x="314" y="78" width="12" height="224" fill="#e7dfcb" opacity="0.9"/>
+    <g stroke="#7d8794" stroke-width="3" fill="none" stroke-linecap="round">
+      <path d="M312 96 q8 -5 16 0"/><path d="M312 126 q8 -5 16 0"/>
+      <path d="M312 156 q8 -5 16 0"/><path d="M312 186 q8 -5 16 0"/>
+      <path d="M312 216 q8 -5 16 0"/><path d="M312 246 q8 -5 16 0"/>
+      <path d="M312 276 q8 -5 16 0"/>
+    </g>
+  </g>
+
+  <!-- 左页：温度计手绘线稿 -->
+  <g>
+    <text x="112" y="108" font-family="'PingFang SC',Helvetica,sans-serif" font-size="19" font-weight="700" fill="#33506b">温度 · 温度计</text>
+    <path d="M112 116 q52 5 116 1" stroke="#33506b" stroke-width="2" fill="none" opacity="0.6"/>
+    <!-- 玻璃管与液泡 -->
+    <rect x="168" y="132" width="16" height="120" rx="8" fill="#fffdf3" stroke="#3d4f66" stroke-width="2.2"/>
+    <circle cx="176" cy="264" r="17" fill="#fffdf3" stroke="#3d4f66" stroke-width="2.2"/>
+    <circle cx="176" cy="264" r="10" fill="#c0392b"/>
+    <rect x="172" y="176" width="8" height="84" fill="#c0392b"/>
+    <!-- 刻度 -->
+    <g stroke="#3d4f66" stroke-width="1.8">
+      <line x1="184" y1="148" x2="196" y2="148"/><line x1="184" y1="176" x2="196" y2="176"/>
+      <line x1="184" y1="204" x2="196" y2="204"/><line x1="184" y1="232" x2="196" y2="232"/>
+    </g>
+    <g stroke="#5a6b80" stroke-width="1.2">
+      <line x1="184" y1="162" x2="191" y2="162"/><line x1="184" y1="190" x2="191" y2="190"/>
+      <line x1="184" y1="218" x2="191" y2="218"/>
+    </g>
+    <g font-family="'PingFang SC',Helvetica,sans-serif" font-size="12" fill="#3d4f66">
+      <text x="200" y="152">50</text><text x="200" y="180">40</text>
+      <text x="200" y="208">30</text><text x="200" y="236">20</text>
+    </g>
+    <!-- 手写读数标注 -->
+    <line x1="140" y1="176" x2="168" y2="176" stroke="#2f6fb5" stroke-width="1.4" stroke-dasharray="4 3"/>
+    <text x="120" y="160" font-family="'PingFang SC',Helvetica,sans-serif" font-size="15" font-weight="700" fill="#c0392b">48℃</text>
+  </g>
+
+  <!-- 右页：海波熔化曲线手绘线稿 -->
+  <g>
+    <text x="352" y="108" font-family="'PingFang SC',Helvetica,sans-serif" font-size="17" font-weight="700" fill="#33506b">熔化图象（晶体）</text>
+    <!-- 坐标轴 -->
+    <line x1="368" y1="132" x2="368" y2="264" stroke="#5a6b80" stroke-width="1.8"/>
+    <line x1="368" y1="264" x2="528" y2="264" stroke="#5a6b80" stroke-width="1.8"/>
+    <text x="352" y="140" font-family="'PingFang SC',Helvetica,sans-serif" font-size="12" fill="#5a6b80">t/℃</text>
+    <text x="516" y="284" font-family="'PingFang SC',Helvetica,sans-serif" font-size="12" fill="#5a6b80">时间</text>
+    <!-- 曲线：升温-平台-升温 -->
+    <path d="M368 250 L420 204 H474 L524 156" fill="none" stroke="#2b6cb0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- 熔点平台标注 -->
+    <line x1="368" y1="204" x2="420" y2="204" stroke="#c0392b" stroke-width="1.4" stroke-dasharray="4 3"/>
+    <text x="378" y="196" font-family="'PingFang SC',Helvetica,sans-serif" font-size="14" font-weight="700" fill="#c0392b">48℃ 吸热不升温</text>
+    <!-- 手写要点 -->
+    <path d="M368 292 q60 4 118 1" stroke="#5a6b80" stroke-width="1.6" fill="none" opacity="0.7"/>
+  </g>
 </svg>

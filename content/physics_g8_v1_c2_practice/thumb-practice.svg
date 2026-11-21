@@ -1,5 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf8ef"/><stop offset="1" stop-color="#f6efe2"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fefefe"/><stop offset="1" stop-color="#e1e8ee"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f4f6f8"/>
+    </linearGradient>
+    <linearGradient id="woodG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8c48f"/><stop offset="1" stop-color="#c99a5e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 亮底渐变 -->
   <rect width="640" height="360" fill="url(#bg)"/>
-<path d="M206,80 H430 V232 L378,286 H212 Q200,286 200,274 V92 Q200,80 212,80 Z" fill="#fffdf8" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><path d="M430,232 L378,286 V244 Q378,232 390,232 Z" fill="#efe8d8" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><rect x="232" y="112" width="164" height="8" rx="4" fill="#d9d2c2"/><rect x="232" y="142" width="140" height="8" rx="4" fill="#d9d2c2"/><rect x="232" y="172" width="154" height="8" rx="4" fill="#d9d2c2"/><path d="M252,222 l24,26 l48,-58" fill="none" stroke="#e05252" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(398,96) rotate(46)"><path d="M0,16 L40,1 L40,31 Z" fill="#f0d3a5" stroke="#3d3830" stroke-width="2.5" stroke-linejoin="round"/><path d="M0,16 L12,11.5 L12,20.5 Z" fill="#3d3830"/><rect x="40" y="1" width="116" height="30" rx="4" fill="#b08ad6" stroke="#3d3830" stroke-width="2.5"/><rect x="40" y="11" width="116" height="9" fill="#ffffff" opacity="0.35"/><rect x="156" y="1" width="18" height="30" rx="3" fill="#c9c2b2" stroke="#3d3830" stroke-width="2.5"/><rect x="174" y="3" width="26" height="26" rx="10" fill="#f2a6a0" stroke="#3d3830" stroke-width="2.5"/><circle cx="70" cy="12" r="3.6" fill="#3d3830"/><circle cx="92" cy="12" r="3.6" fill="#3d3830"/><path d="M74,20 q7,6 14,0" fill="none" stroke="#3d3830" stroke-width="2.6" stroke-linecap="round"/></g><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(150,120) scale(1.0)" fill="#b08ad6"/><path d="M0,-14 Q1.5,-1.5 14,0 Q1.5,1.5 0,14 Q-1.5,1.5 -14,0 Q-1.5,-1.5 0,-14 Z" transform="translate(120,250) scale(0.65)" fill="#b08ad6"/><circle cx="536" cy="286" r="13" fill="#b08ad6" opacity="0.55"/><circle cx="566" cy="252" r="8" fill="#b08ad6" opacity="0.4"/>
+  <ellipse cx="320" cy="328" rx="240" ry="14" fill="#8aa0b6" opacity="0.18"/>
+
+  <!-- 答题纸（练习族同构图） -->
+  <g>
+    <path d="M108 44 H488 L532 88 V312 Q532 320 524 320 H116 Q108 320 108 312 V52 Q108 44 116 44 Z" fill="url(#paper)" stroke="#c8d0d8" stroke-width="1.6"/>
+    <path d="M488 44 L532 88 H496 Q488 88 488 80 Z" fill="#dfe6ec" stroke="#c8d0d8" stroke-width="1.4"/>
+    <text x="136" y="86" font-family="'PingFang SC',Helvetica,sans-serif" font-size="21" font-weight="700" fill="#2f3f52">第2章 · 练习</text>
+    <line x1="136" y1="98" x2="504" y2="98" stroke="#9fb0c0" stroke-width="1.6"/>
+    <text x="504" y="86" font-family="'PingFang SC',Helvetica,sans-serif" font-size="13" fill="#7d8b99" text-anchor="end">声现象</text>
+  </g>
+
+  <!-- 第1题：波形比音调 -->
+  <g>
+    <text x="136" y="132" font-family="'PingFang SC',Helvetica,sans-serif" font-size="15" font-weight="700" fill="#2f3f52">1. 音调</text>
+    <rect x="208" y="112" width="176" height="34" rx="4" fill="#f8fafc" stroke="#c8d0d8" stroke-width="1.2"/>
+    <path d="M216 129 q11 -16 22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0" fill="none" stroke="#2b6cb0" stroke-width="2.2" stroke-linecap="round"/>
+    <rect x="208" y="152" width="176" height="34" rx="4" fill="#f8fafc" stroke="#c8d0d8" stroke-width="1.2"/>
+    <path d="M216 169 q44 -20 88 0 t88 0" fill="none" stroke="#2b6cb0" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="396" y="146" font-family="'PingFang SC',Helvetica,sans-serif" font-size="14" fill="#5a6b80">甲</text>
+    <text x="396" y="184" font-family="'PingFang SC',Helvetica,sans-serif" font-size="14" fill="#5a6b80">乙</text>
+    <!-- 红笔判分：甲音调高 -->
+    <text x="424" y="160" font-family="'PingFang SC',Helvetica,sans-serif" font-size="15" font-weight="700" fill="#c0392b">甲高</text>
+    <path d="M466 148 l7 9 l13 -17" fill="none" stroke="#c0392b" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 第2题：波长读数 -->
+  <g>
+    <text x="136" y="228" font-family="'PingFang SC',Helvetica,sans-serif" font-size="15" font-weight="700" fill="#2f3f52">2. 波长</text>
+    <line x1="216" y1="222" x2="392" y2="222" stroke="#8494a6" stroke-width="1.4"/>
+    <path d="M216 222 q44 -44 88 0 t88 0" fill="none" stroke="#2b6cb0" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M216 236 v10 M304 236 v10 M216 242 h88" stroke="#c0392b" stroke-width="1.8" fill="none"/>
+    <text x="410" y="240" font-family="'PingFang SC',Helvetica,sans-serif" font-size="16" font-weight="700" fill="#c0392b">λ = 0.5 m</text>
+    <path d="M494 228 l6 8 l12 -15" fill="none" stroke="#c0392b" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="136" y1="268" x2="410" y2="268" stroke="#c8d0d8" stroke-width="1.4"/>
+    <path d="M136 288 q70 4 150 1" stroke="#aab6c2" stroke-width="1.6" fill="none" opacity="0.8"/>
+  </g>
+
+  <!-- 写实铅笔（无脸，斜置纸面右下，墨绿杆异于c1黄杆） -->
+  <ellipse cx="428" cy="332" rx="90" ry="9" fill="#7d8b99" opacity="0.18"/>
+  <g transform="translate(334 240) rotate(24)">
+    <path d="M0 16 L42 4 L42 28 Z" fill="url(#woodG)"/>
+    <path d="M0 16 L13 12.3 L13 19.7 Z" fill="#3a3f46"/>
+    <rect x="42" y="4" width="124" height="24" fill="#3e7d5a"/>
+    <rect x="42" y="4" width="124" height="7" fill="#57a377"/>
+    <rect x="42" y="21" width="124" height="7" fill="#2c5f43"/>
+    <rect x="166" y="4" width="22" height="24" fill="#b9c0c8"/>
+    <rect x="166" y="4" width="22" height="6" fill="#d4dae0"/>
+    <line x1="173" y1="4" x2="173" y2="28" stroke="#8f98a2" stroke-width="1.4"/>
+    <line x1="181" y1="4" x2="181" y2="28" stroke="#8f98a2" stroke-width="1.4"/>
+    <path d="M188 6 q18 -2 18 10 q0 12 -18 10 Z" fill="#d98a8a"/>
+  </g>
 </svg>
