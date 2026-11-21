@@ -801,19 +801,6 @@
     "thumb": "content/physics_g8_v1_c6_summary/thumb-summary.svg?v=20261121T2"
    },
    {
-    "id": "physics_g8_v1_c7_s1/index",
-    "subject": "物理",
-    "grade": "八年级",
-    "volume": "下册",
-    "chapter": "第7章 力",
-    "section": "力",
-    "type": "讲解",
-    "title": "力",
-    "desc": "卡片流：知识讲解·两实验·练习本",
-    "path": "content/physics_g8_v1_c7_s1/index.html",
-    "thumb": "content/physics_g8_v1_c7_s1/thumb-explain.svg?v=20261120T1"
-   },
-   {
     "id": "physics_g8_v1_c7_s1/exp-road",
     "subject": "物理",
     "grade": "八年级",
@@ -849,7 +836,7 @@
     "chapter": "第7章 力",
     "section": "力",
     "type": "讲解",
-    "title": "力·知识讲解",
+    "title": "力",
     "path": "content/physics_g8_v1_c7_s1/explain.html",
     "thumb": "content/physics_g8_v1_c7_s1/thumb-explain.svg?v=20261120T1"
    },
@@ -861,7 +848,7 @@
     "chapter": "第7章 力",
     "section": "弹力",
     "type": "讲解",
-    "title": "弹力·知识讲解",
+    "title": "弹力",
     "path": "content/physics_g8_v1_c7_s2/explain.html",
     "thumb": "content/physics_g8_v1_c7_s2/thumb-explain.svg?v=20261120T1"
    },
@@ -873,7 +860,7 @@
     "chapter": "第7章 力",
     "section": "重力",
     "type": "讲解",
-    "title": "重力·知识讲解",
+    "title": "重力",
     "path": "content/physics_g8_v1_c7_s3/explain.html",
     "thumb": "content/physics_g8_v1_c7_s3/thumb-explain.svg?v=20261120T1"
    },
