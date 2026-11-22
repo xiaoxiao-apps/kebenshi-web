@@ -510,7 +510,7 @@
     ctx.restore();
   };
 
-  // smoke_box: 纯 sprite
+  // smoke_box: 纯 sprite（C7V6-D1 审计修正保留：c4_s1 drawMedia 经 PROPS[m.id] 动态引用，非未用件）
   PROPS.smoke_box = function(ctx, x, y, opt) {
     opt = opt || {};
     if (!PROPS.spriteReady('smoke_box')) return;
@@ -525,7 +525,6 @@
     ctx.drawImage(img, -w / 2, -h, w, h);
     ctx.restore();
   };
-
 
   // bench: 实验桌面组件（奶油黄背景 + 横纹木桌面 + 灰桌身），返回 {benchTopY,benchH}
   PROPS.bench = function(ctx, W, H, opt) {
@@ -667,40 +666,6 @@
     ctx.beginPath(); ctx.moveTo(-w / 2, -drop); ctx.lineTo(w / 2, 0); ctx.lineTo(w / 2, -fh); ctx.lineTo(-w / 2, -h); ctx.closePath();
     ctx.fillStyle = 'rgba(191,225,240,0.30)'; ctx.fill(); ctx.stroke();
     ctx.restore();
-  };
-
-  // screen_wide: 加宽横幕（c4s345 新增），(x,y)=整件底边中心；opt.h 显示高（默认300）
-  PROPS.screen_wide = function(ctx, x, y, opt) {
-    opt = opt || {};
-    var id = 'screen_wide';
-    var h = opt.h || 300;
-    ctx.save(); ctx.translate(x, y);
-    if (!PROPS.spriteReady(id)) {
-      var w = h * 1.1918;
-      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
-      ctx.strokeRect(-w / 2, -h, w, h);
-      ctx.setLineDash([]);
-      ctx.restore();
-      return;
-    }
-    var img = PROPS.img(id);
-    var s = h / img.naturalHeight;
-    var w = img.naturalWidth * s;
-    ctx.drawImage(img, -w / 2, -h, w, h);
-    ctx.restore();
-  };
-
-  // 加宽横幕几何（全局坐标）：幕面占图比例为主会话像素实测，硬编码不许改
-  PROPS.screenWideGeom = function(x, y, h) {
-    var w = h * 1.1918;
-    return {
-      cx: x, w: w,
-      xL: x - w / 2 + 0.119 * w,
-      xR: x - w / 2 + 0.911 * w,
-      yT: y - h + 0.006 * h,
-      yB: y - h + 0.747 * h,
-      faceW: 0.792 * w
-    };
   };
 
   // observer_eye: 观察者眼（蔡总 2026-10-10 素材入库），(x,y)=包围盒中心；opt.h 显示高（默认48），dir='right' 水平翻转
@@ -1001,42 +966,6 @@
       ctx.beginPath(); ctx.arc(gx, gy, gr, 0, Math.PI * 2); ctx.fill();
       ctx.globalCompositeOperation = 'source-over';
     }
-    ctx.restore();
-  };
-  // f_led: F形LED光源 c5s23 立项件；两态 sprite（lit 默认 true→f_led_on，false→f_led_off）
-  // 锚点=底面中心；opt.h 控高（默认 90，照 bulb）；F形用于判倒立与左右反
-  PROPS.f_led = function(ctx, x, y, opt) {
-    opt = opt || {};
-    var id = (opt.lit === false) ? 'f_led_off' : 'f_led_on';
-    if (!PROPS.spriteReady(id)) return;
-    var img = PROPS.img(id);
-    var s = spriteScale(id, (opt.h || opt.w || opt.scale) ? opt : { h: 90 });
-    var w = img.naturalWidth * s, h = img.naturalHeight * s;
-    var a = (opt.angle || 0) * Math.PI / 180;
-    ctx.save(); ctx.translate(x, y);
-    if (a) ctx.rotate(a);
-    ctx.drawImage(img, -w / 2, -h, w, h);
-    ctx.restore();
-  };
-
-  // paper_tube: 模型照相机纸筒 c5s23 立项件（桌面件，不挂载）
-  // 锚点=外筒底面中心；opt.innerX=内筒 px 偏移（默认 0），内筒先画外筒后画=套接遮挡；opt.flip 整图水平翻转
-  PROPS.paper_tube = function(ctx, x, y, opt) {
-    opt = opt || {};
-    if (!PROPS.spriteReady('paper_tube')) return;
-    var img = PROPS.img('paper_tube');
-    var s = spriteScale('paper_tube', opt);
-    var w = img.naturalWidth * s, h = img.naturalHeight * s;
-    var innerX = opt.innerX || 0;
-    ctx.save(); ctx.translate(x, y);
-    if (opt.flip) ctx.scale(-1, 1);
-    if (innerX && PROPS.spriteReady('paper_tube_inner')) {
-      var iimg = PROPS.img('paper_tube_inner');
-      var is = spriteScale('paper_tube_inner', { h: h });
-      var iw = iimg.naturalWidth * is, ih = iimg.naturalHeight * is;
-      ctx.drawImage(iimg, innerX - iw / 2, -ih, iw, ih);
-    }
-    ctx.drawImage(img, -w / 2, -h, w, h);
     ctx.restore();
   };
   /* == APPEND-POINT: 6~10号件由单②插入此行上方 == */
