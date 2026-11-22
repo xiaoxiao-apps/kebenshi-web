@@ -7,7 +7,7 @@ const rand = PROPS.rand || function(seed){
 };
 
 /* ============================================================
- * props-mech.js — 第七章「力」力学器材标准件 v1（2026-11-20 C7V6-L1 增补第七章实验绘制器材9件；2026-11-22 C7V6-D1 删21件未用件；C7V6-D2 删16件仅死页(exp-force-lab/exp-gravity-hall)引用件+DAMP/weightGeom，活页引用件 person_side/stand_side 等零改动）
+ * props-mech.js — 第七章「力」力学器材标准件 v1（2026-11-20 C7V6-L1 增补第七章实验绘制器材9件；2026-11-22 C7V6-D1 删21件未用件；C7V6-D2 删16件仅死页(exp-force-lab/exp-gravity-hall)引用件+DAMP/weightGeom，活页引用件 person_side/stand_side 等零改动；C7V6-D4 删活页从不渲染的旧样式回退体：person_side贝塞尔矢量人分支+meter_side mode=spring程序体分支，sprite缺失=不画+console.warn；sprite基址支持 PROPS.MECH_SPRITE_BASE 覆写（gallery指向c7_s1/assets，活页缺省assets/不变））
  * 约定同 props-optics/props-density：IIFE 挂 global.PROPS；(x,y)=底面中心锚点
  * （吊挂件=底钩锚点向上画；旋转件=中心锚点）；有挂载点的件返回几何含 mounts:{锚名:{x,y}}（世界坐标）。
  * 件清单：L1九件(见 MECH_L1_IDS)
@@ -114,13 +114,14 @@ PROPS.car_side=function(ctx,x,y,opt){
   return {sw:sw,com:opt.com||null};
 };
 
-/* person_side: 侧视推手人（来源 C7V6 exp-road-core.drawPerson/drawPersonSpr；有机体sprite优先，未加载回退贝塞尔卡通人）
+/* person_side: 侧视推手人（来源 C7V6 exp-road-core.drawPersonSpr；有机体sprite唯一渲染路径，C7V6-D4 删贝塞尔矢量回退体（旧样式11-12否决11-14舍弃，活页从不渲染），sprite缺失=不画+console.warn）
  * (x,y)=双足地面中心（底面中心锚点，站立于y线）；opt.h 人高；opt.dir 1朝右/-1朝左；opt.ice 轮滑变体（鞋↔轮滑靴sprite交叉淡变）；
- * opt.eng 0..1 站立↔推手过渡；opt.hand={x,y} 世界坐标手目标（肩轴定长手臂IK，sprite路径用）；opt.cp 世界坐标接触点（回退路径用，null=自然摆臂）；
- * opt.handOff/cpOff={dx,dy} 相对锚点目标（展柜用）；opt.armLen 上臂长；opt.pushing/walking/sliding 回退姿态；opt.spriteBase 默认'assets/'（相对页面目录，404自动回退矢量身体）
- * onLoad(cb)：sprite加载完成钩子（页面置dirty）；变体白名单: h/dir/ice/eng/hand(Off)/cp(Off)/armLen/pushing/walking/sliding/spriteBase
+ * opt.eng 0..1 站立↔推手过渡；opt.hand={x,y} 世界坐标手目标（肩轴定长手臂IK）；
+ * opt.handOff={dx,dy} 相对锚点目标（展柜用）；opt.armLen 上臂长；opt.spriteBase 默认 PROPS.MECH_SPRITE_BASE||'assets/'
+ * onLoad(cb)：sprite加载完成钩子（页面置dirty）；变体白名单: h/dir/ice/eng/hand(Off)/armLen/spriteBase
  */
-var L1_SPR_CACHE={},L1_PERSON_CBS=[];
+var L1_SPR_CACHE={},L1_PERSON_CBS=[],L1_PERSON_WARNED=false;
+var L1_SPR_BASE=PROPS.MECH_SPRITE_BASE||'assets/';   // C7V6-D4：gallery 覆写指向 c7_s1/assets；活页无覆写='assets/' 与旧行为逐字一致
 function l1mkSpr(base,file,nw,nh,v){
   var key=base+'|'+file;
   if(!L1_SPR_CACHE[key]){
@@ -132,12 +133,12 @@ function l1mkSpr(base,file,nw,nh,v){
   return L1_SPR_CACHE[key];
 }
 /* 脚本初始化即建 person sprite（与旧 core mkSpr 脚本初始化时机一致，消首帧/探针时序差）；cache key=base|file，页面同 base 引用复用 */
-l1mkSpr('assets/','boy_stand.png',154,800);l1mkSpr('assets/','boy_skate.png',172,820);
-l1mkSpr('assets/','boy_push_body.png',418,652,'20261117g');l1mkSpr('assets/','boy_skatepush_body.png',403,657,'20261117v');
-l1mkSpr('assets/','boy_arm.png',231,61,'20261117g');l1mkSpr('assets/','boy_arm_far.png',234,54,'20261117h');
+l1mkSpr(L1_SPR_BASE,'boy_stand.png',154,800);l1mkSpr(L1_SPR_BASE,'boy_skate.png',172,820);
+l1mkSpr(L1_SPR_BASE,'boy_push_body.png',418,652,'20261117g');l1mkSpr(L1_SPR_BASE,'boy_skatepush_body.png',403,657,'20261117v');
+l1mkSpr(L1_SPR_BASE,'boy_arm.png',231,61,'20261117g');l1mkSpr(L1_SPR_BASE,'boy_arm_far.png',234,54,'20261117h');
 PROPS.person_side=function(ctx,x,y,opt){
   opt=opt||{};
-  var base=opt.spriteBase||'assets/';
+  var base=opt.spriteBase||L1_SPR_BASE;
   var SPR={
     stand:l1mkSpr(base,'boy_stand.png',154,800),
     skate:l1mkSpr(base,'boy_skate.png',172,820),
@@ -211,137 +212,8 @@ PROPS.person_side=function(ctx,x,y,opt){
     ctx.restore();
     return {sprite:true,hand:hand};
   }
-  /* —— 精灵未加载：贝塞尔写实卡通人（来源 exp-road-core.drawPerson 回退主体 + strokeLimb/drawArm/drawFoot，逐字）—— */
-  var pushing=!!opt.pushing,walking=!!opt.walking,sliding=!!opt.sliding;
-  var cp=opt.cp||(opt.cpOff?{x:x+opt.cpOff.dx,y:y+opt.cpOff.dy}:null);
-  var gy=y;
-  var topY=gy-ph,headR=ph*0.10,headY=topY+headR*1.42;
-  var shY=gy-ph*(pushing?0.60:0.66),hipY=topY+ph*0.56,tw=ph*0.115;
-  var shx=ph*0.055;
-  var lean=pushing?ph*0.055:(sliding?-ph*0.045:0);
-  var fOff=walking?ph*0.115:ph*0.05;
-  var handL=cp?{x:(cp.x-x)*d,y:cp.y}:null;
-  function strokeLimb(x0,y0,x1,y1,x2,y2,w2,col,bend){
-    ctx.strokeStyle='rgba(15,25,35,.28)';ctx.lineWidth=w2+2;
-    ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1+bend,y1);ctx.lineTo(x2,y2);ctx.stroke();
-    ctx.strokeStyle=col;ctx.lineWidth=w2;
-    ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1+bend,y1);ctx.lineTo(x2,y2);ctx.stroke();
-  }
-  function drawArmF(sx,sy,hx,hy,far){
-    var dx=hx-sx,dy=hy-sy,ln=Math.hypot(dx,dy)||1;
-    var cx2=(sx+hx)/2-dy/ln*ph*0.018,cy2=(sy+hy)/2+dx/ln*ph*0.018;
-    ctx.strokeStyle=far?'#d9a066':'#f0c08a';ctx.lineWidth=ph*0.04;
-    ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(cx2,cy2,hx,hy);ctx.stroke();
-    ctx.strokeStyle=far?'#2f568f':'#3f6fb5';ctx.lineWidth=ph*0.052;
-    ctx.beginPath();ctx.moveTo(sx,sy);
-    ctx.quadraticCurveTo(sx+(cx2-sx)*0.5,sy+(cy2-sy)*0.5,sx+(hx-sx)*0.42,sy+(hy-sy)*0.42);ctx.stroke();
-  }
-  function drawFootF(fx,fgy,fice,back){
-    var w=ph*0.115,hgt=ph*0.045,x0=fx-w*0.42,y0=fgy-hgt;
-    if(fice){
-      var wr=ph*0.017,wy=fgy-wr;
-      ctx.fillStyle='#b36a00';l1rr(ctx,x0-1,wy-wr*1.15,w+6,wr*1.1,2);ctx.fill();
-      for(var i=0;i<4;i++){
-        var wx=x0+2+i*(w+2)/3.4;
-        ctx.fillStyle='#2b2f36';l1circ(ctx,wx,wy,wr);ctx.fill();
-        ctx.strokeStyle=back?'rgba(0,0,0,.35)':'#111';ctx.lineWidth=1.4;l1circ(ctx,wx,wy,wr);ctx.stroke();
-        ctx.fillStyle='#ff9f1c';l1circ(ctx,wx,wy,wr*0.42);ctx.fill();
-      }
-      ctx.fillStyle=back?'#d97f0e':'#ff9f1c';
-      ctx.beginPath();
-      ctx.moveTo(x0,y0-hgt*0.55);
-      ctx.bezierCurveTo(x0+w*0.2,y0-hgt*0.7,x0+w*0.75,y0-hgt*0.35,x0+w+4,y0+hgt*0.1);
-      ctx.lineTo(x0+w+4,wy-wr*1.1);ctx.lineTo(x0-1,wy-wr*1.1);
-      ctx.closePath();ctx.fill();
-      ctx.strokeStyle='#7a4a00';ctx.lineWidth=1.4;ctx.stroke();
-      ctx.fillStyle='#fff8ec';l1rr(ctx,x0+w*0.1,y0-hgt*0.18,w*0.55,2.4,1.2);ctx.fill();
-    }else{
-      ctx.fillStyle=back?'#4a382b':'#5b4636';
-      ctx.beginPath();
-      ctx.moveTo(x0,fgy-1);
-      ctx.bezierCurveTo(x0,y0-hgt*0.5,x0+w*0.5,y0-hgt*0.35,x0+w+3,fgy-2);
-      ctx.lineTo(x0+w+3,fgy-1);ctx.closePath();ctx.fill();
-      ctx.fillStyle='#2c2119';l1rr(ctx,x0-1,fgy-3,w+5,3,1.4);ctx.fill();
-    }
-  }
-  ctx.save();
-  ctx.translate(x,0);ctx.scale(d,1);
-  ctx.lineCap='round';ctx.lineJoin='round';
-  strokeLimb(-tw*0.35,hipY,-fOff*0.55,hipY+(gy-hipY)*0.52,-fOff*0.95,gy-ph*0.055,ph*0.062,'#26333b',ph*0.02);
-  drawFootF(-fOff*0.95,gy,ice,true);
-  var sg=ctx.createLinearGradient(-tw,shY,tw*1.3,hipY);
-  sg.addColorStop(0,'#2f568f');sg.addColorStop(0.45,'#3f6fb5');sg.addColorStop(1,'#2f568f');
-  ctx.fillStyle=sg;
-  ctx.beginPath();
-  ctx.moveTo(-tw*0.92+lean*0.6,shY-ph*0.05);
-  ctx.bezierCurveTo(-tw*1.1+lean*0.3,shY+ph*0.06,-tw*0.95,hipY-ph*0.04,-tw*0.8,hipY+ph*0.035);
-  ctx.bezierCurveTo(-tw*0.2,hipY+ph*0.055,tw*0.4,hipY+ph*0.055,tw*0.85,hipY+ph*0.03);
-  ctx.bezierCurveTo(tw*1.02,hipY-ph*0.05,tw*1.08+lean,shY+ph*0.05,tw*0.95+lean,shY-ph*0.048);
-  ctx.bezierCurveTo(tw*0.3+lean,shY-ph*0.075,-tw*0.3+lean,shY-ph*0.075,-tw*0.92+lean*0.6,shY-ph*0.05);
-  ctx.closePath();ctx.fill();
-  ctx.strokeStyle='rgba(20,35,60,.35)';ctx.lineWidth=1.2;ctx.stroke();
-  ctx.strokeStyle='rgba(20,35,60,.16)';ctx.lineWidth=1.4;
-  ctx.beginPath();ctx.moveTo(-tw*0.2+lean*0.7,shY+ph*0.02);ctx.quadraticCurveTo(-tw*0.05,shY+ph*0.10,-tw*0.3,hipY-ph*0.02);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(tw*0.45+lean*0.5,shY+ph*0.05);ctx.quadraticCurveTo(tw*0.35,shY+ph*0.12,tw*0.5,hipY-ph*0.03);ctx.stroke();
-  ctx.fillStyle='rgba(255,255,255,.13)';
-  ctx.beginPath();ctx.moveTo(tw*0.1+lean*0.8,shY-ph*0.02);
-  ctx.quadraticCurveTo(tw*0.85+lean*0.8,shY+ph*0.02,tw*0.6,hipY-ph*0.05);
-  ctx.quadraticCurveTo(tw*0.25,shY+ph*0.08,tw*0.1+lean*0.8,shY-ph*0.02);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#d9a066';l1rr(ctx,-tw*0.22+lean,shY-ph*0.085,tw*0.5,ph*0.05,3);ctx.fill();
-  ctx.fillStyle='#f0c08a';l1rr(ctx,-tw*0.2+lean,shY-ph*0.09,tw*0.46,ph*0.04,3);ctx.fill();
-  ctx.strokeStyle='rgba(20,35,60,.4)';ctx.lineWidth=1.3;
-  ctx.beginPath();ctx.moveTo(-tw*0.35+lean,shY-ph*0.052);ctx.lineTo(tw*0.05+lean,shY-ph*0.028);ctx.lineTo(tw*0.42+lean,shY-ph*0.055);ctx.stroke();
-  strokeLimb(tw*0.35,hipY,fOff*0.62,hipY+(gy-hipY)*0.5,fOff,gy-ph*0.055,ph*0.066,'#37474f',ph*0.024);
-  drawFootF(fOff,gy,ice,false);
-  if(handL){
-    var hx=handL.x,hy=handL.y;
-    drawArmF(shx-tw*0.1,shY+ph*0.012,hx-ph*0.012,hy+ph*0.022,true);
-    drawArmF(shx+tw*0.12,shY,hx,hy,false);
-    ctx.fillStyle='#f0c08a';l1circ(ctx,hx,hy,ph*0.030);ctx.fill();
-    ctx.strokeStyle='rgba(120,80,40,.5)';ctx.lineWidth=1;l1circ(ctx,hx,hy,ph*0.030);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(hx+ph*0.02,hy-ph*0.012);ctx.lineTo(hx+ph*0.034,hy-ph*0.004);ctx.stroke();
-  }else{
-    var sw2=walking?ph*0.075:ph*0.015;
-    drawArmF(shx-tw*0.15,shY+ph*0.01,-sw2*0.7-ph*0.02,hipY-ph*0.01,true);
-    drawArmF(shx+tw*0.15,shY,sw2+ph*0.03,hipY-ph*0.02,false);
-    ctx.fillStyle='#f0c08a';
-    l1circ(ctx,-sw2*0.7-ph*0.02,hipY-ph*0.01,ph*0.027);ctx.fill();
-    l1circ(ctx,sw2+ph*0.03,hipY-ph*0.02,ph*0.028);ctx.fill();
-  }
-  var hdx=lean*1.15+ph*0.012;
-  ctx.fillStyle='#d9a066';
-  ctx.beginPath();ctx.ellipse(hdx-headR*0.72,headY+headR*0.18,headR*0.2,headR*0.3,-0.2,0,Math.PI*2);ctx.fill();
-  var fg=ctx.createRadialGradient(hdx+headR*0.35,headY-headR*0.3,headR*0.2,hdx,headY,headR*1.5);
-  fg.addColorStop(0,'#f7d3a5');fg.addColorStop(1,'#f0c08a');
-  ctx.fillStyle=fg;
-  ctx.beginPath();
-  ctx.moveTo(hdx-headR*0.85,headY-headR*0.15);
-  ctx.bezierCurveTo(hdx-headR*1.02,headY-headR*1.35,hdx+headR*0.72,headY-headR*1.58,hdx+headR*0.94,headY-headR*0.35);
-  ctx.bezierCurveTo(hdx+headR*1.02,headY+headR*0.15,hdx+headR*0.92,headY+headR*0.55,hdx+headR*0.5,headY+headR*0.98);
-  ctx.bezierCurveTo(hdx+headR*0.1,headY+headR*1.18,hdx-headR*0.5,headY+headR*0.85,hdx-headR*0.72,headY+headR*0.35);
-  ctx.bezierCurveTo(hdx-headR*0.85,headY+headR*0.1,hdx-headR*0.87,headY-headR*0.05,hdx-headR*0.85,headY-headR*0.15);
-  ctx.closePath();ctx.fill();
-  ctx.strokeStyle='rgba(120,80,40,.35)';ctx.lineWidth=1.1;ctx.stroke();
-  ctx.fillStyle='#5a3d26';
-  ctx.beginPath();
-  ctx.moveTo(hdx-headR*0.92,headY+headR*0.02);
-  ctx.bezierCurveTo(hdx-headR*1.18,headY-headR*1.2,hdx-headR*0.2,headY-headR*1.78,hdx+headR*0.62,headY-headR*1.3);
-  ctx.bezierCurveTo(hdx+headR*0.95,headY-headR*1.08,hdx+headR*1.02,headY-headR*0.7,hdx+headR*0.98,headY-headR*0.42);
-  ctx.bezierCurveTo(hdx+headR*0.6,headY-headR*0.82,hdx+headR*0.05,headY-headR*0.95,hdx-headR*0.4,headY-headR*0.62);
-  ctx.bezierCurveTo(hdx-headR*0.66,headY-headR*0.42,hdx-headR*0.82,headY-headR*0.2,hdx-headR*0.92,headY+headR*0.02);
-  ctx.closePath();ctx.fill();ctx.strokeStyle='rgba(40,25,12,.5)';ctx.lineWidth=1;ctx.stroke();
-  ctx.fillStyle='#fff';
-  ctx.beginPath();ctx.ellipse(hdx+headR*0.42,headY-headR*0.08,headR*0.2,headR*0.24,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#33241a';l1circ(ctx,hdx+headR*0.47,headY-headR*0.05,Math.max(1.5,headR*0.11));ctx.fill();
-  ctx.fillStyle='#fff';l1circ(ctx,hdx+headR*0.5,headY-headR*0.1,Math.max(0.8,headR*0.04));ctx.fill();
-  ctx.strokeStyle='#3a2c20';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(hdx+headR*0.26,headY-headR*0.42);ctx.quadraticCurveTo(hdx+headR*0.45,headY-headR*0.52,hdx+headR*0.62,headY-headR*0.4);ctx.stroke();
-  ctx.lineWidth=1.3;
-  ctx.beginPath();ctx.moveTo(hdx+headR*0.82,headY+headR*0.12);ctx.quadraticCurveTo(hdx+headR*0.92,headY+headR*0.28,hdx+headR*0.76,headY+headR*0.32);ctx.stroke();
-  ctx.beginPath();ctx.arc(hdx+headR*0.45,headY+headR*0.42,headR*0.3,0.2,Math.PI*0.66);ctx.stroke();
-  ctx.fillStyle='rgba(230,120,110,.28)';
-  ctx.beginPath();ctx.ellipse(hdx+headR*0.62,headY+headR*0.3,headR*0.16,headR*0.1,0,0,Math.PI*2);ctx.fill();
-  ctx.restore();
+  /* C7V6-D4：sprite 缺失=不画+console.warn（旧贝塞尔回退体=11-12否决/11-14 v5重做舍弃的旧样式，活页sprite恒在从不渲染，已整段删除；禁静默画旧体） */
+  if(!L1_PERSON_WARNED){L1_PERSON_WARNED=true;console.warn('[props-mech] person_side: sprite 未就绪('+base+')，本帧不绘制（C7V6-D4 已删旧贝塞尔回退体）');}
   return {sprite:false};
 };
 PROPS.person_side.onLoad=function(cb){L1_PERSON_CBS.push(cb);};
@@ -544,15 +416,15 @@ PROPS.spring_helix=function(ctx,x,y,opt){
   return {top:{x:x,y:y0},bottom:{x:x,y:y1}};
 };
 
-/* meter_side: 侧视教材测力计（来源 C7V6 exp-bench-core C7V6 参照图sprite本体+参数化覆盖件，及程序化回退体；全要素：刻度/指针/调零螺丝/吊环/拉杆/挂钩）
- * (x,y)=本体顶面中心（悬挂件顶锚点，向下绘制）；opt.mode='balance' 参照图sprite本体（img未加载自动回退程序化体）| 'spring' 程序化体（半透壳露内簧+调零螺丝）；
+/* meter_side: 侧视教材测力计（来源 C7V6 exp-bench-core 参照图sprite本体+参数化覆盖件；全要素：刻度/指针/调零螺丝/吊环/拉杆/挂钩）
+ * (x,y)=本体顶面中心（悬挂件顶锚点，向下绘制）；opt.mode='balance' 参照图sprite本体（唯一渲染路径；C7V6-D4 删 mode=spring 程序体整件分支——旧样式11-12否决/11-14舍弃，活页仅balance贴图体在用；img未加载=不画+console.warn，禁静默画旧程序体）；
  * opt.bodyH 本体高；opt.r 读数N；opt.range 量程默认5；opt.flash 超限红闪秒；opt.img 页面已加载Image（可选，避免双图竞态）；opt.blRef 弹簧ext参考高（zoom用，=场景L.BL）
- * 返回 {bodyW,py,hookY,tabTop,ext,ready}；变体白名单: mode/bodyH/r/range/flash/img/blRef
+ * 返回 {bodyW,py,hookY,tabTop,ext,ready}；变体白名单: bodyH/r/range/flash/img/blRef
  */
-var L1_METER_CBS=[];
+var L1_METER_CBS=[],L1_METER_WARNED=false;
 var L1_METER_IMG=new Image();
 L1_METER_IMG.onload=function(){L1_METER_CBS.forEach(function(f){try{f()}catch(e){}});};
-L1_METER_IMG.src='assets/meter_body.png?v=20261117';
+L1_METER_IMG.src=L1_SPR_BASE+'meter_body.png?v=20261117';
 var L1_MB={spring_top:0.3750,strip_top:0.4406,zero:0.4501,five:0.9024,slot_x0:0.4561,slot_x1:0.5501,face_cx:0.4992};
 var L1_TAB_WF=0.4777,L1_TAB_HF=0.376,L1_HOLE_YF=0.1418,L1_HOLE_RF=0.074,L1_WIRE_U=649;
 function l1meterSlot(hx,bodyW){return {l:hx+(L1_MB.slot_x0-0.5)*bodyW,r:hx+(L1_MB.slot_x1-0.5)*bodyW};}
@@ -625,61 +497,21 @@ PROPS.meter_side=function(ctx,x,y,opt){
   var blRef=opt.blRef||bodyH;
   function bwF(bh){return bh*(img.naturalWidth||165)/(img.naturalHeight||800);}
   function extF(bh){return bh*(1-86/blRef)*l1clamp(r,0,range)/range;}
-  if((opt.mode||'balance')==='balance'&&ready){
-    var bw=bwF(bodyH),e=extF(bodyH);
-    ctx.drawImage(img,x-bw/2,y,bw,bodyH);
-    var z=y+L1_MB.zero*bodyH,f=y+L1_MB.five*bodyH;
-    var py=z+(f-z)*l1clamp(r,0,range)/range;
-    l1meterSpring(ctx,x,y,bw,bodyH,py);
-    l1meterRod(ctx,x,y,bw,bodyH,py,e);
-    l1meterPointer(ctx,x,y,bw,bodyH,py);
-    var hookY=l1meterTabHook(ctx,x,y,bw,bodyH,e);
-    l1meterFlash(ctx,x,y,bw,bodyH,flash);
-    return {bodyW:bw,py:py,hookY:hookY,tabTop:y+bodyH-0.02*bodyH+e,ext:e,ready:true};
+  /* C7V6-D4：sprite 未就绪=不画+console.warn（旧 mode=spring 程序体=舍弃旧样式已整件删除，活页 bench 仅 balance 贴图体在用） */
+  if(!ready){
+    if(!L1_METER_WARNED){L1_METER_WARNED=true;console.warn('[props-mech] meter_side: meter_body.png 未就绪('+img.src+')，本帧不绘制（C7V6-D4 已删旧spring程序体回退）');}
+    return {bodyW:0,py:y,hookY:y,tabTop:null,ext:0,ready:false};
   }
-  var bw2=l1clamp(Math.round(bodyH*0.40),44,64);
-  var bt=y;
-  ctx.strokeStyle='#3f4954';ctx.lineWidth=3.4;ctx.lineCap='round';
-  l1circ(ctx,x,bt-9,7.5);ctx.stroke();
-  ctx.fillStyle='#8595a8';l1rr(ctx,x-6,bt-2,12,5,2);ctx.fill();
-  ctx.fillStyle='#3f4954';l1rr(ctx,x+bw2/2-2,bt+6,10,7,2.5);ctx.fill();
-  ctx.strokeStyle='#828d99';ctx.lineWidth=1.2;
-  ctx.beginPath();ctx.moveTo(x+bw2/2+1,bt+9.5);ctx.lineTo(x+bw2/2+6,bt+9.5);ctx.stroke();
-  ctx.fillStyle='rgba(244,246,248,.55)';l1rr(ctx,x-bw2/2,bt,bw2,bodyH,8);ctx.fill();
-  var flashing=flash>0&&Math.floor(flash*10)%2===0;
-  ctx.strokeStyle=flashing?'#dc2626':'#8595a8';ctx.lineWidth=flashing?3.5:2.2;
-  l1rr(ctx,x-bw2/2,bt,bw2,bodyH,8);ctx.stroke();
-  l1txt(ctx,'条型测力计',x,bt+11,'#28323d',9.5,'center');
-  l1txt(ctx,'J14003 · 量程5N',x,bt+22,'#6b7885',7.5,'center');
-  var sTop=bt+62,sLen=bodyH-86;
-  var py2=sTop+sLen*l1clamp(r,0,range)/range;
-  PROPS.spring_helix(ctx,x,bt+26,{ext:(py2-2)-(bt+26),sw:11,color:'#b9c5d1',k:1.1,turns:7});
-  ctx.fillStyle='rgba(255,255,255,.8)';l1rr(ctx,x-12,sTop-10,24,sLen+18,4);ctx.fill();
-  ctx.strokeStyle='#8595a8';ctx.lineWidth=2.6;
-  var hookY2=bt+bodyH+8+(bodyH-86)*l1clamp(r,0,range)/range;
-  ctx.beginPath();ctx.moveTo(x,py2-2);ctx.lineTo(x,hookY2);ctx.stroke();
-  l1txt(ctx,'N',x-bw2/2+9,sTop-6,'#6b7885',8,'center');
-  l1txt(ctx,'gf',x+bw2/2-11,sTop-6,'#6b7885',8,'center');
-  for(var i=0;i<=10;i++){
-    var yy=sTop+sLen*i/10,major=i%2===0;
-    ctx.strokeStyle='#334155';ctx.lineWidth=major?1.6:1;
-    ctx.beginPath();ctx.moveTo(x-bw2/2+3,yy);ctx.lineTo(x-bw2/2+(major?13:8),yy);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(x+bw2/2-3,yy);ctx.lineTo(x+bw2/2-(major?13:8),yy);ctx.stroke();
-    if(major){
-      l1txt(ctx,String(i/2),x-bw2/2+15,yy,i===0?'#dc2626':'#334155',8.5);
-      l1txt(ctx,String(Math.round(i*51)),x+bw2/2-15,yy,i===0?'#dc2626':'#334155',7.5,'right');
-    }
-  }
-  ctx.strokeStyle='#dc2626';ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(x-bw2/2+3,sTop);ctx.lineTo(x-bw2/2+14,sTop);ctx.stroke();
-  l1txt(ctx,'分度0.1N',x,sTop+sLen+11,'#6b7885',7,'center');
-  ctx.strokeStyle='#dc2626';ctx.lineWidth=2.4;
-  ctx.beginPath();ctx.moveTo(x-bw2/2+3,py2);ctx.lineTo(x+bw2/2-3,py2);ctx.stroke();
-  ctx.fillStyle='#dc2626';l1circ(ctx,x-bw2/2+6,py2,2.6);ctx.fill();
-  ctx.strokeStyle='#8595a8';ctx.lineWidth=2.8;
-  ctx.beginPath();ctx.moveTo(x,hookY2);
-  ctx.arc(x+4,hookY2+2,4,Math.PI,0,true);ctx.stroke();
-  return {bodyW:bw2,py:py2,hookY:hookY2,tabTop:null,ext:(bodyH-86)*l1clamp(r,0,range)/range,ready:false};
+  var bw=bwF(bodyH),e=extF(bodyH);
+  ctx.drawImage(img,x-bw/2,y,bw,bodyH);
+  var z=y+L1_MB.zero*bodyH,f=y+L1_MB.five*bodyH;
+  var py=z+(f-z)*l1clamp(r,0,range)/range;
+  l1meterSpring(ctx,x,y,bw,bodyH,py);
+  l1meterRod(ctx,x,y,bw,bodyH,py,e);
+  l1meterPointer(ctx,x,y,bw,bodyH,py);
+  var hookY=l1meterTabHook(ctx,x,y,bw,bodyH,e);
+  l1meterFlash(ctx,x,y,bw,bodyH,flash);
+  return {bodyW:bw,py:py,hookY:hookY,tabTop:y+bodyH-0.02*bodyH+e,ext:e,ready:true};
 };
 PROPS.meter_side.IMG=L1_METER_IMG;
 PROPS.meter_side.G={MB:L1_MB,TAB_WF:L1_TAB_WF,TAB_HF:L1_TAB_HF,HOLE_YF:L1_HOLE_YF,HOLE_RF:L1_HOLE_RF,WIRE_U:L1_WIRE_U,slot:l1meterSlot};
